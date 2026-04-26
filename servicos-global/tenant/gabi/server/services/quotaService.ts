@@ -29,20 +29,32 @@ export async function checkQuota(
 ): Promise<QuotaStatus> {
   const mes_ref = mesAtual()
 
-  const quota = await prisma.gabiaTokenWorkspace.upsert({
-    where: { tenant_id_product_id_mes_ref: { tenant_id: tenantId, product_id: productId, mes_ref } },
-    create: { tenant_id: tenantId, product_id: productId, quota_mensal: quotaMensal, mes_ref, tokens_usados: 0 },
+  const quota = await prisma.gabiTokenWorkspace.upsert({
+    where: {
+      id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace: {
+        id_organizacao_gabi_token_workspace: tenantId,
+        id_produto_gabi_token_workspace: productId,
+        mes_ref_gabi_token_workspace: mes_ref,
+      },
+    },
+    create: {
+      id_organizacao_gabi_token_workspace: tenantId,
+      id_produto_gabi_token_workspace: productId,
+      quota_mensal_gabi_token_workspace: quotaMensal,
+      mes_ref_gabi_token_workspace: mes_ref,
+      tokens_usados_gabi_token_workspace: 0,
+    },
     update: {},  // não atualiza se já existe — preserva uso acumulado
   })
 
-  const percentual = quota.quota_mensal > 0
-    ? Math.round((quota.tokens_usados / quota.quota_mensal) * 100)
-    : 100
+  const quotaTotal = quota.quota_mensal_gabi_token_workspace
+  const usados = quota.tokens_usados_gabi_token_workspace
+  const percentual = quotaTotal > 0 ? Math.round((usados / quotaTotal) * 100) : 100
 
   return {
-    tokens_usados: quota.tokens_usados,
-    quota_mensal: quota.quota_mensal,
-    esgotado: quota.tokens_usados >= quota.quota_mensal && quota.quota_mensal > 0,
+    tokens_usados: usados,
+    quota_mensal: quotaTotal,
+    esgotado: usados >= quotaTotal && quotaTotal > 0,
     percentual,
     mes_ref,
   }
@@ -50,7 +62,7 @@ export async function checkQuota(
 
 /**
  * Registra tokens consumidos numa chamada field-help.
- * Atualiza GabiaTokenWorkspace.tokens_usados de forma atômica.
+ * Atualiza GabiTokenWorkspace.tokens_usados de forma atômica.
  */
 export async function registerTokens(params: {
   tenantId: string
@@ -66,31 +78,37 @@ export async function registerTokens(params: {
   const tokens_total = tokensInput + tokensOutput
 
   // Registra log individual
-  await prisma.gabiaTokenConsumidos.create({
+  await prisma.gabiTokenConsumido.create({
     data: {
-      tenant_id: tenantId,
-      product_id: productId,
-      user_id: userId,
-      campo,
-      tokens_input: tokensInput,
-      tokens_output: tokensOutput,
-      tokens_total,
-      mes_ref,
+      id_organizacao_gabi_token_consumido: tenantId,
+      id_produto_gabi_token_consumido: productId,
+      id_usuario_gabi_token_consumido: userId,
+      campo_gabi_token_consumido: campo,
+      tokens_input_gabi_token_consumido: tokensInput,
+      tokens_output_gabi_token_consumido: tokensOutput,
+      tokens_total_gabi_token_consumido: tokens_total,
+      mes_ref_gabi_token_consumido: mes_ref,
     },
   })
 
   // Incrementa contador na quota (upsert garante que o registro exista)
-  await prisma.gabiaTokenWorkspace.upsert({
-    where: { tenant_id_product_id_mes_ref: { tenant_id: tenantId, product_id: productId, mes_ref } },
+  await prisma.gabiTokenWorkspace.upsert({
+    where: {
+      id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace: {
+        id_organizacao_gabi_token_workspace: tenantId,
+        id_produto_gabi_token_workspace: productId,
+        mes_ref_gabi_token_workspace: mes_ref,
+      },
+    },
     create: {
-      tenant_id: tenantId,
-      product_id: productId,
-      quota_mensal: quotaMensal,
-      mes_ref,
-      tokens_usados: tokens_total,
+      id_organizacao_gabi_token_workspace: tenantId,
+      id_produto_gabi_token_workspace: productId,
+      quota_mensal_gabi_token_workspace: quotaMensal,
+      mes_ref_gabi_token_workspace: mes_ref,
+      tokens_usados_gabi_token_workspace: tokens_total,
     },
     update: {
-      tokens_usados: { increment: tokens_total },
+      tokens_usados_gabi_token_workspace: { increment: tokens_total },
     },
   })
 }
@@ -111,9 +129,9 @@ export async function getQuotaInfo(
  * Zera tokens_usados para todos os registros do mês anterior.
  */
 export async function resetQuotaMensal(mesRef: string): Promise<number> {
-  const result = await prisma.gabiaTokenWorkspace.updateMany({
-    where: { mes_ref: mesRef },
-    data: { tokens_usados: 0 },
+  const result = await prisma.gabiTokenWorkspace.updateMany({
+    where: { mes_ref_gabi_token_workspace: mesRef },
+    data: { tokens_usados_gabi_token_workspace: 0 },
   })
   return result.count
 }

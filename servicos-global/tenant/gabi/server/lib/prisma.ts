@@ -1,28 +1,19 @@
 // server/lib/prisma.ts
-// Tenta conectar ao Prisma. Se nao tiver banco, exporta um mock seguro
-// para que o servidor inicie e o chat funcione sem persistencia.
+// Singleton do PrismaClient para o serviço Gabi.
+// Usa o client gerado a partir do schema composto pelo Coordenador.
 
-let prisma: any
+import { PrismaClient } from '../../../generated/index.js'
 
-try {
-  const { PrismaClient } = await import('@prisma/client')
-  prisma = new PrismaClient()
-  // Testa a conexao
-  await prisma.$connect()
-  console.log('[PRISMA] Conectado ao banco de dados')
-} catch {
-  console.warn('[PRISMA] ⚠️ Banco de dados indisponivel — modo sem persistencia ativado')
-  // Mock minimo para o chat funcionar sem banco
-  const emptyResult = { findMany: async () => [], count: async () => 0, create: async (args: any) => ({ id: 'mock', ...args.data }) }
-  prisma = {
-    gabiConversation: emptyResult,
-    gabiMessage: emptyResult,
-    gabiUsageLog: emptyResult,
-    gabiTokenLog: emptyResult,
-    gabiTokenQuota: emptyResult,
-    $connect: async () => {},
-    $disconnect: async () => {},
-  }
+const globalForPrisma = globalThis as unknown as { gabiPrisma: PrismaClient }
+
+export const prisma =
+  globalForPrisma.gabiPrisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.gabiPrisma = prisma
 }
 
 export default prisma

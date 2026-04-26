@@ -642,79 +642,80 @@ exports.Prisma.ConfigDisponibilidadeAgendaScalarFieldEnum = {
   data_atualizacao_config_disponibilidade_agenda: 'data_atualizacao_config_disponibilidade_agenda'
 };
 
-exports.Prisma.ConversaCompletaGabiScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  title: 'title',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.GabiConversaScalarFieldEnum = {
+  id_gabi_conversa: 'id_gabi_conversa',
+  id_organizacao_gabi_conversa: 'id_organizacao_gabi_conversa',
+  id_produto_gabi_conversa: 'id_produto_gabi_conversa',
+  id_usuario_gabi_conversa: 'id_usuario_gabi_conversa',
+  titulo_gabi_conversa: 'titulo_gabi_conversa',
+  data_criacao_gabi_conversa: 'data_criacao_gabi_conversa',
+  data_atualizacao_gabi_conversa: 'data_atualizacao_gabi_conversa'
 };
 
-exports.Prisma.MensagemIndividualGabiaiScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  conversation_id: 'conversation_id',
-  role: 'role',
-  content: 'content',
-  attachments: 'attachments',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.GabiMensagemScalarFieldEnum = {
+  id_gabi_mensagem: 'id_gabi_mensagem',
+  id_organizacao_gabi_mensagem: 'id_organizacao_gabi_mensagem',
+  id_produto_gabi_mensagem: 'id_produto_gabi_mensagem',
+  id_usuario_gabi_mensagem: 'id_usuario_gabi_mensagem',
+  id_conversa_gabi_mensagem: 'id_conversa_gabi_mensagem',
+  papel_gabi_mensagem: 'papel_gabi_mensagem',
+  conteudo_gabi_mensagem: 'conteudo_gabi_mensagem',
+  anexos_gabi_mensagem: 'anexos_gabi_mensagem',
+  data_criacao_gabi_mensagem: 'data_criacao_gabi_mensagem',
+  data_atualizacao_gabi_mensagem: 'data_atualizacao_gabi_mensagem'
 };
 
-exports.Prisma.GabiaLogUsoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  action_taken: 'action_taken',
-  conversation_snapshot: 'conversation_snapshot',
-  actor_type: 'actor_type',
-  triggered_by: 'triggered_by',
-  model_used: 'model_used',
-  tokens_input: 'tokens_input',
-  tokens_output: 'tokens_output',
-  cost_usd: 'cost_usd',
-  created_at: 'created_at'
+exports.Prisma.GabiLogUsoScalarFieldEnum = {
+  id_gabi_log_uso: 'id_gabi_log_uso',
+  id_organizacao_gabi_log_uso: 'id_organizacao_gabi_log_uso',
+  id_produto_gabi_log_uso: 'id_produto_gabi_log_uso',
+  id_usuario_gabi_log_uso: 'id_usuario_gabi_log_uso',
+  acao_gabi_log_uso: 'acao_gabi_log_uso',
+  snapshot_conversa_gabi_log_uso: 'snapshot_conversa_gabi_log_uso',
+  tipo_ator_gabi_log_uso: 'tipo_ator_gabi_log_uso',
+  disparado_por_gabi_log_uso: 'disparado_por_gabi_log_uso',
+  modelo_gabi_log_uso: 'modelo_gabi_log_uso',
+  tokens_input_gabi_log_uso: 'tokens_input_gabi_log_uso',
+  tokens_output_gabi_log_uso: 'tokens_output_gabi_log_uso',
+  custo_usd_gabi_log_uso: 'custo_usd_gabi_log_uso',
+  data_criacao_gabi_log_uso: 'data_criacao_gabi_log_uso'
 };
 
-exports.Prisma.GabiaTokenConsumidosScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  campo: 'campo',
-  tokens_input: 'tokens_input',
-  tokens_output: 'tokens_output',
-  tokens_total: 'tokens_total',
-  mes_ref: 'mes_ref',
-  created_at: 'created_at'
+exports.Prisma.GabiTokenConsumidoScalarFieldEnum = {
+  id_gabi_token_consumido: 'id_gabi_token_consumido',
+  id_organizacao_gabi_token_consumido: 'id_organizacao_gabi_token_consumido',
+  id_produto_gabi_token_consumido: 'id_produto_gabi_token_consumido',
+  id_usuario_gabi_token_consumido: 'id_usuario_gabi_token_consumido',
+  campo_gabi_token_consumido: 'campo_gabi_token_consumido',
+  tokens_input_gabi_token_consumido: 'tokens_input_gabi_token_consumido',
+  tokens_output_gabi_token_consumido: 'tokens_output_gabi_token_consumido',
+  tokens_total_gabi_token_consumido: 'tokens_total_gabi_token_consumido',
+  mes_ref_gabi_token_consumido: 'mes_ref_gabi_token_consumido',
+  data_criacao_gabi_token_consumido: 'data_criacao_gabi_token_consumido'
 };
 
-exports.Prisma.GabiaTokenWorkspaceScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  quota_mensal: 'quota_mensal',
-  mes_ref: 'mes_ref',
-  tokens_usados: 'tokens_usados',
-  updated_at: 'updated_at'
+exports.Prisma.GabiTokenWorkspaceScalarFieldEnum = {
+  id_gabi_token_workspace: 'id_gabi_token_workspace',
+  id_organizacao_gabi_token_workspace: 'id_organizacao_gabi_token_workspace',
+  id_produto_gabi_token_workspace: 'id_produto_gabi_token_workspace',
+  quota_mensal_gabi_token_workspace: 'quota_mensal_gabi_token_workspace',
+  mes_ref_gabi_token_workspace: 'mes_ref_gabi_token_workspace',
+  tokens_usados_gabi_token_workspace: 'tokens_usados_gabi_token_workspace',
+  data_atualizacao_gabi_token_workspace: 'data_atualizacao_gabi_token_workspace'
 };
 
-exports.Prisma.PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  system_prompt: 'system_prompt',
-  tom_voz: 'tom_voz',
-  limitacoes: 'limitacoes',
-  instrucoes_extras: 'instrucoes_extras',
-  ativo: 'ativo',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.GabiPersonalizacaoScalarFieldEnum = {
+  id_gabi_personalizacao: 'id_gabi_personalizacao',
+  id_organizacao_gabi_personalizacao: 'id_organizacao_gabi_personalizacao',
+  id_produto_gabi_personalizacao: 'id_produto_gabi_personalizacao',
+  id_usuario_gabi_personalizacao: 'id_usuario_gabi_personalizacao',
+  prompt_sistema_gabi_personalizacao: 'prompt_sistema_gabi_personalizacao',
+  tom_voz_gabi_personalizacao: 'tom_voz_gabi_personalizacao',
+  limitacoes_gabi_personalizacao: 'limitacoes_gabi_personalizacao',
+  instrucoes_extras_gabi_personalizacao: 'instrucoes_extras_gabi_personalizacao',
+  ativa_gabi_personalizacao: 'ativa_gabi_personalizacao',
+  data_criacao_gabi_personalizacao: 'data_criacao_gabi_personalizacao',
+  data_atualizacao_gabi_personalizacao: 'data_atualizacao_gabi_personalizacao'
 };
 
 exports.Prisma.UserPreferencesScalarFieldEnum = {
@@ -966,12 +967,12 @@ exports.Prisma.ModelName = {
   HorarioDisponivel: 'HorarioDisponivel',
   ReservaAgenda: 'ReservaAgenda',
   ConfigDisponibilidadeAgenda: 'ConfigDisponibilidadeAgenda',
-  ConversaCompletaGabi: 'ConversaCompletaGabi',
-  MensagemIndividualGabiai: 'MensagemIndividualGabiai',
-  GabiaLogUso: 'GabiaLogUso',
-  GabiaTokenConsumidos: 'GabiaTokenConsumidos',
-  GabiaTokenWorkspace: 'GabiaTokenWorkspace',
-  PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
+  GabiConversa: 'GabiConversa',
+  GabiMensagem: 'GabiMensagem',
+  GabiLogUso: 'GabiLogUso',
+  GabiTokenConsumido: 'GabiTokenConsumido',
+  GabiTokenWorkspace: 'GabiTokenWorkspace',
+  GabiPersonalizacao: 'GabiPersonalizacao',
   UserPreferences: 'UserPreferences',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',

@@ -162,19 +162,19 @@ Lembre-se: se a resposta nao esta acima, diga que nao tem essa informacao. NUNCA
 }
 
 export async function getConversationContext(conversationId: string, limit = 20) {
-  const messages = await prisma.mensagemIndividualGabiai.findMany({
-    where: { conversation_id: conversationId },
-    orderBy: { created_at: 'desc' },
+  const messages = await prisma.gabiMensagem.findMany({
+    where: { id_conversa_gabi_mensagem: conversationId },
+    orderBy: { data_criacao_gabi_mensagem: 'desc' },
     take: limit,
   })
 
-  const totalCount = await prisma.mensagemIndividualGabiai.count({
-    where: { conversation_id: conversationId },
+  const totalCount = await prisma.gabiMensagem.count({
+    where: { id_conversa_gabi_mensagem: conversationId },
   })
 
-  const context = messages.reverse().map(m => ({
-    role: m.role,
-    content: m.content,
+  const context = messages.reverse().map((m) => ({
+    role: m.papel_gabi_mensagem,
+    content: m.conteudo_gabi_mensagem,
   }))
 
   if (totalCount > limit) {

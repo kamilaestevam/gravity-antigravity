@@ -22,19 +22,19 @@ usageRouter.get('/api/v1/gabi/usage', async (req, res, next) => {
     const startDate = new Date(year, mon - 1, 1)
     const endDate = new Date(year, mon, 1)
 
-    const logs = await prisma.gabiaLogUso.findMany({
+    const logs = await prisma.gabiLogUso.findMany({
       where: {
-        tenant_id: tenantId,
-        created_at: { gte: startDate, lt: endDate },
+        id_organizacao_gabi_log_uso: tenantId,
+        data_criacao_gabi_log_uso: { gte: startDate, lt: endDate },
       },
       select: {
-        model_used: true,
-        tokens_input: true,
-        tokens_output: true,
-        cost_usd: true,
-        created_at: true,
+        modelo_gabi_log_uso: true,
+        tokens_input_gabi_log_uso: true,
+        tokens_output_gabi_log_uso: true,
+        custo_usd_gabi_log_uso: true,
+        data_criacao_gabi_log_uso: true,
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_gabi_log_uso: 'desc' },
     })
 
     // Agregacao por modelo
@@ -44,24 +44,24 @@ usageRouter.get('/api/v1/gabi/usage', async (req, res, next) => {
     let totalTokensOut = 0
 
     for (const log of logs) {
-      const model = log.model_used || 'unknown'
+      const model = log.modelo_gabi_log_uso || 'unknown'
       if (!byModel[model]) {
         byModel[model] = { calls: 0, tokensIn: 0, tokensOut: 0, cost: 0 }
       }
       byModel[model].calls++
-      byModel[model].tokensIn += log.tokens_input
-      byModel[model].tokensOut += log.tokens_output
-      byModel[model].cost += log.cost_usd
-      totalCost += log.cost_usd
-      totalTokensIn += log.tokens_input
-      totalTokensOut += log.tokens_output
+      byModel[model].tokensIn += log.tokens_input_gabi_log_uso
+      byModel[model].tokensOut += log.tokens_output_gabi_log_uso
+      byModel[model].cost += log.custo_usd_gabi_log_uso
+      totalCost += log.custo_usd_gabi_log_uso
+      totalTokensIn += log.tokens_input_gabi_log_uso
+      totalTokensOut += log.tokens_output_gabi_log_uso
     }
 
     // Custo por dia (para grafico)
     const byDay: Record<string, number> = {}
     for (const log of logs) {
-      const day = log.created_at.toISOString().slice(0, 10)
-      byDay[day] = (byDay[day] || 0) + log.cost_usd
+      const day = log.data_criacao_gabi_log_uso.toISOString().slice(0, 10)
+      byDay[day] = (byDay[day] || 0) + log.custo_usd_gabi_log_uso
     }
 
     res.json({
@@ -85,28 +85,28 @@ usageRouter.get('/api/v1/gabi/usage/history', async (req, res, next) => {
     const sixMonthsAgo = new Date()
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
-    const logs = await prisma.gabiaLogUso.findMany({
+    const logs = await prisma.gabiLogUso.findMany({
       where: {
-        tenant_id: tenantId,
-        created_at: { gte: sixMonthsAgo },
+        id_organizacao_gabi_log_uso: tenantId,
+        data_criacao_gabi_log_uso: { gte: sixMonthsAgo },
       },
       select: {
-        cost_usd: true,
-        tokens_input: true,
-        tokens_output: true,
-        created_at: true,
+        custo_usd_gabi_log_uso: true,
+        tokens_input_gabi_log_uso: true,
+        tokens_output_gabi_log_uso: true,
+        data_criacao_gabi_log_uso: true,
       },
     })
 
     const byMonth: Record<string, { calls: number; cost: number; tokens: number }> = {}
     for (const log of logs) {
-      const key = log.created_at.toISOString().slice(0, 7) // YYYY-MM
+      const key = log.data_criacao_gabi_log_uso.toISOString().slice(0, 7) // YYYY-MM
       if (!byMonth[key]) {
         byMonth[key] = { calls: 0, cost: 0, tokens: 0 }
       }
       byMonth[key].calls++
-      byMonth[key].cost += log.cost_usd
-      byMonth[key].tokens += log.tokens_input + log.tokens_output
+      byMonth[key].cost += log.custo_usd_gabi_log_uso
+      byMonth[key].tokens += log.tokens_input_gabi_log_uso + log.tokens_output_gabi_log_uso
     }
 
     res.json({ history: byMonth })

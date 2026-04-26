@@ -8,10 +8,10 @@ export type GabiActionPayload = {
   resource: string   // resource (ex: 'Activity', 'Service')
   context: string    // conversation_snapshot
   confirmed?: boolean
-  data?: any
+  data?: unknown
 }
 
-type SSEPayloadEmit = (event: string, data: any) => void
+type SSEPayloadEmit = (event: string, data: unknown) => void
 
 // ---------------------------------------------------------------------------
 // Execução de Ações da Gabi (Barreiras 3, 4 e 6)
@@ -54,5 +54,5 @@ export async function executeGabiAction(
     ? await mockServiceRunner(actionPayload)
     : { success: true, processedBy: 'gabi' }
 
-  return { success: true, auditLogId: auditLog.id, result }
+  return { success: true, auditLogId: auditLog.id_gabi_log_uso, result }
 }

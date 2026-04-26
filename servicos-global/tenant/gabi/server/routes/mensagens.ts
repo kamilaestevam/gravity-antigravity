@@ -3,27 +3,60 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
-import { withTenantIsolation } from '../../../middleware/withTenantIsolation.js'
 
 export const mensagensRouter = Router()
+
+// ---- ACL DTO ----
+function toMensagemDto(m: {
+  id_gabi_mensagem: string
+  id_organizacao_gabi_mensagem: string
+  id_produto_gabi_mensagem: string | null
+  id_usuario_gabi_mensagem: string | null
+  id_conversa_gabi_mensagem: string
+  papel_gabi_mensagem: string
+  conteudo_gabi_mensagem: string
+  anexos_gabi_mensagem: string | null
+  data_criacao_gabi_mensagem: Date
+  data_atualizacao_gabi_mensagem: Date
+}) {
+  return {
+    id: m.id_gabi_mensagem,
+    tenant_id: m.id_organizacao_gabi_mensagem,
+    product_id: m.id_produto_gabi_mensagem,
+    user_id: m.id_usuario_gabi_mensagem,
+    conversation_id: m.id_conversa_gabi_mensagem,
+    role: m.papel_gabi_mensagem,
+    content: m.conteudo_gabi_mensagem,
+    attachments: m.anexos_gabi_mensagem,
+    created_at: m.data_criacao_gabi_mensagem,
+    updated_at: m.data_atualizacao_gabi_mensagem,
+  }
+}
 
 mensagensRouter.get('/api/v1/gabi/conversas/:id/mensagens', async (req, res, next) => {
   try {
     const { tenantId } = req.auth
     const { id: conversationId } = req.params
-    const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await db.conversaCompletaGabi.findFirst({ where: { id: conversationId } })
+    const conversa = await prisma.gabiConversa.findFirst({
+      where: {
+        id_gabi_conversa: conversationId,
+        id_organizacao_gabi_conversa: tenantId,
+      },
+    })
     if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagens = await db.mensagemIndividualGabiai.findMany({
-      where: { conversation_id: conversationId },
-      orderBy: { created_at: 'asc' }
+    const mensagens = await prisma.gabiMensagem.findMany({
+      where: {
+        id_conversa_gabi_mensagem: conversationId,
+        id_organizacao_gabi_mensagem: tenantId,
+      },
+      orderBy: { data_criacao_gabi_mensagem: 'asc' },
     })
 
-    res.json(mensagens)
+    res.json(mensagens.map(toMensagemDto))
   } catch (error) {
     next(error)
   }
@@ -31,7 +64,7 @@ mensagensRouter.get('/api/v1/gabi/conversas/:id/mensagens', async (req, res, nex
 
 const createMensagemSchema = z.object({
   role: z.enum(['user', 'assistant', 'system']),
-  content: z.string().min(1)
+  content: z.string().min(1),
 })
 
 mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, next) => {
@@ -39,29 +72,34 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, ne
     const { tenantId, userId } = req.auth
     const { id: conversationId } = req.params
     const { role, content } = createMensagemSchema.parse(req.body)
-    const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await db.conversaCompletaGabi.findFirst({ where: { id: conversationId } })
+    const conversa = await prisma.gabiConversa.findFirst({
+      where: {
+        id_gabi_conversa: conversationId,
+        id_organizacao_gabi_conversa: tenantId,
+      },
+    })
     if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagem = await db.mensagemIndividualGabiai.create({
+    const mensagem = await prisma.gabiMensagem.create({
       data: {
-        user_id: userId,
-        conversation_id: conversationId,
-        role,
-        content
-      }
+        id_organizacao_gabi_mensagem: tenantId,
+        id_usuario_gabi_mensagem: userId || null,
+        id_conversa_gabi_mensagem: conversationId,
+        papel_gabi_mensagem: role,
+        conteudo_gabi_mensagem: content,
+      },
     })
 
-    // Atualiza o updated_at da conversa
-    await db.conversaCompletaGabi.update({
-      where: { id: conversationId },
-      data: { updated_at: new Date() }
+    // Atualiza o data_atualizacao da conversa
+    await prisma.gabiConversa.update({
+      where: { id_gabi_conversa: conversationId },
+      data: { data_atualizacao_gabi_conversa: new Date() },
     })
 
-    res.status(201).json(mensagem)
+    res.status(201).json(toMensagemDto(mensagem))
   } catch (error) {
     next(error)
   }

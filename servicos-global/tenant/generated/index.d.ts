@@ -174,35 +174,35 @@ export type ReservaAgenda = $Result.DefaultSelection<Prisma.$ReservaAgendaPayloa
  */
 export type ConfigDisponibilidadeAgenda = $Result.DefaultSelection<Prisma.$ConfigDisponibilidadeAgendaPayload>
 /**
- * Model ConversaCompletaGabi
+ * Model GabiConversa
  * 
  */
-export type ConversaCompletaGabi = $Result.DefaultSelection<Prisma.$ConversaCompletaGabiPayload>
+export type GabiConversa = $Result.DefaultSelection<Prisma.$GabiConversaPayload>
 /**
- * Model MensagemIndividualGabiai
+ * Model GabiMensagem
  * 
  */
-export type MensagemIndividualGabiai = $Result.DefaultSelection<Prisma.$MensagemIndividualGabiaiPayload>
+export type GabiMensagem = $Result.DefaultSelection<Prisma.$GabiMensagemPayload>
 /**
- * Model GabiaLogUso
+ * Model GabiLogUso
  * 
  */
-export type GabiaLogUso = $Result.DefaultSelection<Prisma.$GabiaLogUsoPayload>
+export type GabiLogUso = $Result.DefaultSelection<Prisma.$GabiLogUsoPayload>
 /**
- * Model GabiaTokenConsumidos
+ * Model GabiTokenConsumido
  * 
  */
-export type GabiaTokenConsumidos = $Result.DefaultSelection<Prisma.$GabiaTokenConsumidosPayload>
+export type GabiTokenConsumido = $Result.DefaultSelection<Prisma.$GabiTokenConsumidoPayload>
 /**
- * Model GabiaTokenWorkspace
+ * Model GabiTokenWorkspace
  * 
  */
-export type GabiaTokenWorkspace = $Result.DefaultSelection<Prisma.$GabiaTokenWorkspacePayload>
+export type GabiTokenWorkspace = $Result.DefaultSelection<Prisma.$GabiTokenWorkspacePayload>
 /**
- * Model PersonalizacaoOrganizacaoGabiai
+ * Model GabiPersonalizacao
  * 
  */
-export type PersonalizacaoOrganizacaoGabiai = $Result.DefaultSelection<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+export type GabiPersonalizacao = $Result.DefaultSelection<Prisma.$GabiPersonalizacaoPayload>
 /**
  * Model UserPreferences
  * 
@@ -869,64 +869,64 @@ export class PrismaClient<
   get configDisponibilidadeAgenda(): Prisma.ConfigDisponibilidadeAgendaDelegate<ExtArgs>;
 
   /**
-   * `prisma.conversaCompletaGabi`: Exposes CRUD operations for the **ConversaCompletaGabi** model.
+   * `prisma.gabiConversa`: Exposes CRUD operations for the **GabiConversa** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ConversaCompletaGabis
-    * const conversaCompletaGabis = await prisma.conversaCompletaGabi.findMany()
+    * // Fetch zero or more GabiConversas
+    * const gabiConversas = await prisma.gabiConversa.findMany()
     * ```
     */
-  get conversaCompletaGabi(): Prisma.ConversaCompletaGabiDelegate<ExtArgs>;
+  get gabiConversa(): Prisma.GabiConversaDelegate<ExtArgs>;
 
   /**
-   * `prisma.mensagemIndividualGabiai`: Exposes CRUD operations for the **MensagemIndividualGabiai** model.
+   * `prisma.gabiMensagem`: Exposes CRUD operations for the **GabiMensagem** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more MensagemIndividualGabiais
-    * const mensagemIndividualGabiais = await prisma.mensagemIndividualGabiai.findMany()
+    * // Fetch zero or more GabiMensagems
+    * const gabiMensagems = await prisma.gabiMensagem.findMany()
     * ```
     */
-  get mensagemIndividualGabiai(): Prisma.MensagemIndividualGabiaiDelegate<ExtArgs>;
+  get gabiMensagem(): Prisma.GabiMensagemDelegate<ExtArgs>;
 
   /**
-   * `prisma.gabiaLogUso`: Exposes CRUD operations for the **GabiaLogUso** model.
+   * `prisma.gabiLogUso`: Exposes CRUD operations for the **GabiLogUso** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more GabiaLogUsos
-    * const gabiaLogUsos = await prisma.gabiaLogUso.findMany()
+    * // Fetch zero or more GabiLogUsos
+    * const gabiLogUsos = await prisma.gabiLogUso.findMany()
     * ```
     */
-  get gabiaLogUso(): Prisma.GabiaLogUsoDelegate<ExtArgs>;
+  get gabiLogUso(): Prisma.GabiLogUsoDelegate<ExtArgs>;
 
   /**
-   * `prisma.gabiaTokenConsumidos`: Exposes CRUD operations for the **GabiaTokenConsumidos** model.
+   * `prisma.gabiTokenConsumido`: Exposes CRUD operations for the **GabiTokenConsumido** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more GabiaTokenConsumidos
-    * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findMany()
+    * // Fetch zero or more GabiTokenConsumidos
+    * const gabiTokenConsumidos = await prisma.gabiTokenConsumido.findMany()
     * ```
     */
-  get gabiaTokenConsumidos(): Prisma.GabiaTokenConsumidosDelegate<ExtArgs>;
+  get gabiTokenConsumido(): Prisma.GabiTokenConsumidoDelegate<ExtArgs>;
 
   /**
-   * `prisma.gabiaTokenWorkspace`: Exposes CRUD operations for the **GabiaTokenWorkspace** model.
+   * `prisma.gabiTokenWorkspace`: Exposes CRUD operations for the **GabiTokenWorkspace** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more GabiaTokenWorkspaces
-    * const gabiaTokenWorkspaces = await prisma.gabiaTokenWorkspace.findMany()
+    * // Fetch zero or more GabiTokenWorkspaces
+    * const gabiTokenWorkspaces = await prisma.gabiTokenWorkspace.findMany()
     * ```
     */
-  get gabiaTokenWorkspace(): Prisma.GabiaTokenWorkspaceDelegate<ExtArgs>;
+  get gabiTokenWorkspace(): Prisma.GabiTokenWorkspaceDelegate<ExtArgs>;
 
   /**
-   * `prisma.personalizacaoOrganizacaoGabiai`: Exposes CRUD operations for the **PersonalizacaoOrganizacaoGabiai** model.
+   * `prisma.gabiPersonalizacao`: Exposes CRUD operations for the **GabiPersonalizacao** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PersonalizacaoOrganizacaoGabiais
-    * const personalizacaoOrganizacaoGabiais = await prisma.personalizacaoOrganizacaoGabiai.findMany()
+    * // Fetch zero or more GabiPersonalizacaos
+    * const gabiPersonalizacaos = await prisma.gabiPersonalizacao.findMany()
     * ```
     */
-  get personalizacaoOrganizacaoGabiai(): Prisma.PersonalizacaoOrganizacaoGabiaiDelegate<ExtArgs>;
+  get gabiPersonalizacao(): Prisma.GabiPersonalizacaoDelegate<ExtArgs>;
 
   /**
    * `prisma.userPreferences`: Exposes CRUD operations for the **UserPreferences** model.
@@ -1470,12 +1470,12 @@ export namespace Prisma {
     HorarioDisponivel: 'HorarioDisponivel',
     ReservaAgenda: 'ReservaAgenda',
     ConfigDisponibilidadeAgenda: 'ConfigDisponibilidadeAgenda',
-    ConversaCompletaGabi: 'ConversaCompletaGabi',
-    MensagemIndividualGabiai: 'MensagemIndividualGabiai',
-    GabiaLogUso: 'GabiaLogUso',
-    GabiaTokenConsumidos: 'GabiaTokenConsumidos',
-    GabiaTokenWorkspace: 'GabiaTokenWorkspace',
-    PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
+    GabiConversa: 'GabiConversa',
+    GabiMensagem: 'GabiMensagem',
+    GabiLogUso: 'GabiLogUso',
+    GabiTokenConsumido: 'GabiTokenConsumido',
+    GabiTokenWorkspace: 'GabiTokenWorkspace',
+    GabiPersonalizacao: 'GabiPersonalizacao',
     UserPreferences: 'UserPreferences',
     NcmItem: 'NcmItem',
     NcmSyncLog: 'NcmSyncLog',
@@ -1498,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3742,423 +3742,423 @@ export namespace Prisma {
           }
         }
       }
-      ConversaCompletaGabi: {
-        payload: Prisma.$ConversaCompletaGabiPayload<ExtArgs>
-        fields: Prisma.ConversaCompletaGabiFieldRefs
+      GabiConversa: {
+        payload: Prisma.$GabiConversaPayload<ExtArgs>
+        fields: Prisma.GabiConversaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ConversaCompletaGabiFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload> | null
+            args: Prisma.GabiConversaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ConversaCompletaGabiFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           findFirst: {
-            args: Prisma.ConversaCompletaGabiFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload> | null
+            args: Prisma.GabiConversaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ConversaCompletaGabiFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           findMany: {
-            args: Prisma.ConversaCompletaGabiFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>[]
+            args: Prisma.GabiConversaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>[]
           }
           create: {
-            args: Prisma.ConversaCompletaGabiCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           createMany: {
-            args: Prisma.ConversaCompletaGabiCreateManyArgs<ExtArgs>
+            args: Prisma.GabiConversaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ConversaCompletaGabiCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>[]
+            args: Prisma.GabiConversaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>[]
           }
           delete: {
-            args: Prisma.ConversaCompletaGabiDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           update: {
-            args: Prisma.ConversaCompletaGabiUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           deleteMany: {
-            args: Prisma.ConversaCompletaGabiDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiConversaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ConversaCompletaGabiUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiConversaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ConversaCompletaGabiUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConversaCompletaGabiPayload>
+            args: Prisma.GabiConversaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiConversaPayload>
           }
           aggregate: {
-            args: Prisma.ConversaCompletaGabiAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateConversaCompletaGabi>
+            args: Prisma.GabiConversaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiConversa>
           }
           groupBy: {
-            args: Prisma.ConversaCompletaGabiGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ConversaCompletaGabiGroupByOutputType>[]
+            args: Prisma.GabiConversaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiConversaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ConversaCompletaGabiCountArgs<ExtArgs>
-            result: $Utils.Optional<ConversaCompletaGabiCountAggregateOutputType> | number
+            args: Prisma.GabiConversaCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiConversaCountAggregateOutputType> | number
           }
         }
       }
-      MensagemIndividualGabiai: {
-        payload: Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>
-        fields: Prisma.MensagemIndividualGabiaiFieldRefs
+      GabiMensagem: {
+        payload: Prisma.$GabiMensagemPayload<ExtArgs>
+        fields: Prisma.GabiMensagemFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.MensagemIndividualGabiaiFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload> | null
+            args: Prisma.GabiMensagemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.MensagemIndividualGabiaiFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           findFirst: {
-            args: Prisma.MensagemIndividualGabiaiFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload> | null
+            args: Prisma.GabiMensagemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.MensagemIndividualGabiaiFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           findMany: {
-            args: Prisma.MensagemIndividualGabiaiFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>[]
+            args: Prisma.GabiMensagemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>[]
           }
           create: {
-            args: Prisma.MensagemIndividualGabiaiCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           createMany: {
-            args: Prisma.MensagemIndividualGabiaiCreateManyArgs<ExtArgs>
+            args: Prisma.GabiMensagemCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.MensagemIndividualGabiaiCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>[]
+            args: Prisma.GabiMensagemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>[]
           }
           delete: {
-            args: Prisma.MensagemIndividualGabiaiDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           update: {
-            args: Prisma.MensagemIndividualGabiaiUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           deleteMany: {
-            args: Prisma.MensagemIndividualGabiaiDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiMensagemDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.MensagemIndividualGabiaiUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiMensagemUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.MensagemIndividualGabiaiUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MensagemIndividualGabiaiPayload>
+            args: Prisma.GabiMensagemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiMensagemPayload>
           }
           aggregate: {
-            args: Prisma.MensagemIndividualGabiaiAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateMensagemIndividualGabiai>
+            args: Prisma.GabiMensagemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiMensagem>
           }
           groupBy: {
-            args: Prisma.MensagemIndividualGabiaiGroupByArgs<ExtArgs>
-            result: $Utils.Optional<MensagemIndividualGabiaiGroupByOutputType>[]
+            args: Prisma.GabiMensagemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiMensagemGroupByOutputType>[]
           }
           count: {
-            args: Prisma.MensagemIndividualGabiaiCountArgs<ExtArgs>
-            result: $Utils.Optional<MensagemIndividualGabiaiCountAggregateOutputType> | number
+            args: Prisma.GabiMensagemCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiMensagemCountAggregateOutputType> | number
           }
         }
       }
-      GabiaLogUso: {
-        payload: Prisma.$GabiaLogUsoPayload<ExtArgs>
-        fields: Prisma.GabiaLogUsoFieldRefs
+      GabiLogUso: {
+        payload: Prisma.$GabiLogUsoPayload<ExtArgs>
+        fields: Prisma.GabiLogUsoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.GabiaLogUsoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload> | null
+            args: Prisma.GabiLogUsoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.GabiaLogUsoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           findFirst: {
-            args: Prisma.GabiaLogUsoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload> | null
+            args: Prisma.GabiLogUsoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.GabiaLogUsoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           findMany: {
-            args: Prisma.GabiaLogUsoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>[]
+            args: Prisma.GabiLogUsoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>[]
           }
           create: {
-            args: Prisma.GabiaLogUsoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           createMany: {
-            args: Prisma.GabiaLogUsoCreateManyArgs<ExtArgs>
+            args: Prisma.GabiLogUsoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.GabiaLogUsoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>[]
+            args: Prisma.GabiLogUsoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>[]
           }
           delete: {
-            args: Prisma.GabiaLogUsoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           update: {
-            args: Prisma.GabiaLogUsoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           deleteMany: {
-            args: Prisma.GabiaLogUsoDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiLogUsoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.GabiaLogUsoUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiLogUsoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.GabiaLogUsoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaLogUsoPayload>
+            args: Prisma.GabiLogUsoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiLogUsoPayload>
           }
           aggregate: {
-            args: Prisma.GabiaLogUsoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateGabiaLogUso>
+            args: Prisma.GabiLogUsoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiLogUso>
           }
           groupBy: {
-            args: Prisma.GabiaLogUsoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<GabiaLogUsoGroupByOutputType>[]
+            args: Prisma.GabiLogUsoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiLogUsoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.GabiaLogUsoCountArgs<ExtArgs>
-            result: $Utils.Optional<GabiaLogUsoCountAggregateOutputType> | number
+            args: Prisma.GabiLogUsoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiLogUsoCountAggregateOutputType> | number
           }
         }
       }
-      GabiaTokenConsumidos: {
-        payload: Prisma.$GabiaTokenConsumidosPayload<ExtArgs>
-        fields: Prisma.GabiaTokenConsumidosFieldRefs
+      GabiTokenConsumido: {
+        payload: Prisma.$GabiTokenConsumidoPayload<ExtArgs>
+        fields: Prisma.GabiTokenConsumidoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.GabiaTokenConsumidosFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload> | null
+            args: Prisma.GabiTokenConsumidoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.GabiaTokenConsumidosFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           findFirst: {
-            args: Prisma.GabiaTokenConsumidosFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload> | null
+            args: Prisma.GabiTokenConsumidoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.GabiaTokenConsumidosFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           findMany: {
-            args: Prisma.GabiaTokenConsumidosFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>[]
+            args: Prisma.GabiTokenConsumidoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>[]
           }
           create: {
-            args: Prisma.GabiaTokenConsumidosCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           createMany: {
-            args: Prisma.GabiaTokenConsumidosCreateManyArgs<ExtArgs>
+            args: Prisma.GabiTokenConsumidoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.GabiaTokenConsumidosCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>[]
+            args: Prisma.GabiTokenConsumidoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>[]
           }
           delete: {
-            args: Prisma.GabiaTokenConsumidosDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           update: {
-            args: Prisma.GabiaTokenConsumidosUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           deleteMany: {
-            args: Prisma.GabiaTokenConsumidosDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiTokenConsumidoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.GabiaTokenConsumidosUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiTokenConsumidoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.GabiaTokenConsumidosUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenConsumidosPayload>
+            args: Prisma.GabiTokenConsumidoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenConsumidoPayload>
           }
           aggregate: {
-            args: Prisma.GabiaTokenConsumidosAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateGabiaTokenConsumidos>
+            args: Prisma.GabiTokenConsumidoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiTokenConsumido>
           }
           groupBy: {
-            args: Prisma.GabiaTokenConsumidosGroupByArgs<ExtArgs>
-            result: $Utils.Optional<GabiaTokenConsumidosGroupByOutputType>[]
+            args: Prisma.GabiTokenConsumidoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenConsumidoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.GabiaTokenConsumidosCountArgs<ExtArgs>
-            result: $Utils.Optional<GabiaTokenConsumidosCountAggregateOutputType> | number
+            args: Prisma.GabiTokenConsumidoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenConsumidoCountAggregateOutputType> | number
           }
         }
       }
-      GabiaTokenWorkspace: {
-        payload: Prisma.$GabiaTokenWorkspacePayload<ExtArgs>
-        fields: Prisma.GabiaTokenWorkspaceFieldRefs
+      GabiTokenWorkspace: {
+        payload: Prisma.$GabiTokenWorkspacePayload<ExtArgs>
+        fields: Prisma.GabiTokenWorkspaceFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.GabiaTokenWorkspaceFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload> | null
+            args: Prisma.GabiTokenWorkspaceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.GabiaTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           findFirst: {
-            args: Prisma.GabiaTokenWorkspaceFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload> | null
+            args: Prisma.GabiTokenWorkspaceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.GabiaTokenWorkspaceFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           findMany: {
-            args: Prisma.GabiaTokenWorkspaceFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>[]
+            args: Prisma.GabiTokenWorkspaceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>[]
           }
           create: {
-            args: Prisma.GabiaTokenWorkspaceCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           createMany: {
-            args: Prisma.GabiaTokenWorkspaceCreateManyArgs<ExtArgs>
+            args: Prisma.GabiTokenWorkspaceCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.GabiaTokenWorkspaceCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>[]
+            args: Prisma.GabiTokenWorkspaceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>[]
           }
           delete: {
-            args: Prisma.GabiaTokenWorkspaceDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           update: {
-            args: Prisma.GabiaTokenWorkspaceUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           deleteMany: {
-            args: Prisma.GabiaTokenWorkspaceDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiTokenWorkspaceDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.GabiaTokenWorkspaceUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiTokenWorkspaceUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.GabiaTokenWorkspaceUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GabiaTokenWorkspacePayload>
+            args: Prisma.GabiTokenWorkspaceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenWorkspacePayload>
           }
           aggregate: {
-            args: Prisma.GabiaTokenWorkspaceAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateGabiaTokenWorkspace>
+            args: Prisma.GabiTokenWorkspaceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiTokenWorkspace>
           }
           groupBy: {
-            args: Prisma.GabiaTokenWorkspaceGroupByArgs<ExtArgs>
-            result: $Utils.Optional<GabiaTokenWorkspaceGroupByOutputType>[]
+            args: Prisma.GabiTokenWorkspaceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenWorkspaceGroupByOutputType>[]
           }
           count: {
-            args: Prisma.GabiaTokenWorkspaceCountArgs<ExtArgs>
-            result: $Utils.Optional<GabiaTokenWorkspaceCountAggregateOutputType> | number
+            args: Prisma.GabiTokenWorkspaceCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenWorkspaceCountAggregateOutputType> | number
           }
         }
       }
-      PersonalizacaoOrganizacaoGabiai: {
-        payload: Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>
-        fields: Prisma.PersonalizacaoOrganizacaoGabiaiFieldRefs
+      GabiPersonalizacao: {
+        payload: Prisma.$GabiPersonalizacaoPayload<ExtArgs>
+        fields: Prisma.GabiPersonalizacaoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload> | null
+            args: Prisma.GabiPersonalizacaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           findFirst: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload> | null
+            args: Prisma.GabiPersonalizacaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           findMany: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>[]
+            args: Prisma.GabiPersonalizacaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>[]
           }
           create: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           createMany: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiCreateManyArgs<ExtArgs>
+            args: Prisma.GabiPersonalizacaoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>[]
+            args: Prisma.GabiPersonalizacaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>[]
           }
           delete: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           update: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           deleteMany: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiDeleteManyArgs<ExtArgs>
+            args: Prisma.GabiPersonalizacaoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiUpdateManyArgs<ExtArgs>
+            args: Prisma.GabiPersonalizacaoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
+            args: Prisma.GabiPersonalizacaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiPersonalizacaoPayload>
           }
           aggregate: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePersonalizacaoOrganizacaoGabiai>
+            args: Prisma.GabiPersonalizacaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiPersonalizacao>
           }
           groupBy: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PersonalizacaoOrganizacaoGabiaiGroupByOutputType>[]
+            args: Prisma.GabiPersonalizacaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiPersonalizacaoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PersonalizacaoOrganizacaoGabiaiCountArgs<ExtArgs>
-            result: $Utils.Optional<PersonalizacaoOrganizacaoGabiaiCountAggregateOutputType> | number
+            args: Prisma.GabiPersonalizacaoCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiPersonalizacaoCountAggregateOutputType> | number
           }
         }
       }
@@ -5053,33 +5053,33 @@ export namespace Prisma {
 
 
   /**
-   * Count Type ConversaCompletaGabiCountOutputType
+   * Count Type GabiConversaCountOutputType
    */
 
-  export type ConversaCompletaGabiCountOutputType = {
-    messages: number
+  export type GabiConversaCountOutputType = {
+    mensagens_gabi_conversa: number
   }
 
-  export type ConversaCompletaGabiCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    messages?: boolean | ConversaCompletaGabiCountOutputTypeCountMessagesArgs
+  export type GabiConversaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    mensagens_gabi_conversa?: boolean | GabiConversaCountOutputTypeCountMensagens_gabi_conversaArgs
   }
 
   // Custom InputTypes
   /**
-   * ConversaCompletaGabiCountOutputType without action
+   * GabiConversaCountOutputType without action
    */
-  export type ConversaCompletaGabiCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabiCountOutputType
+     * Select specific fields to fetch from the GabiConversaCountOutputType
      */
-    select?: ConversaCompletaGabiCountOutputTypeSelect<ExtArgs> | null
+    select?: GabiConversaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * ConversaCompletaGabiCountOutputType without action
+   * GabiConversaCountOutputType without action
    */
-  export type ConversaCompletaGabiCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MensagemIndividualGabiaiWhereInput
+  export type GabiConversaCountOutputTypeCountMensagens_gabi_conversaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiMensagemWhereInput
   }
 
 
@@ -37952,359 +37952,359 @@ export namespace Prisma {
 
 
   /**
-   * Model ConversaCompletaGabi
+   * Model GabiConversa
    */
 
-  export type AggregateConversaCompletaGabi = {
-    _count: ConversaCompletaGabiCountAggregateOutputType | null
-    _min: ConversaCompletaGabiMinAggregateOutputType | null
-    _max: ConversaCompletaGabiMaxAggregateOutputType | null
+  export type AggregateGabiConversa = {
+    _count: GabiConversaCountAggregateOutputType | null
+    _min: GabiConversaMinAggregateOutputType | null
+    _max: GabiConversaMaxAggregateOutputType | null
   }
 
-  export type ConversaCompletaGabiMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    title: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiConversaMinAggregateOutputType = {
+    id_gabi_conversa: string | null
+    id_organizacao_gabi_conversa: string | null
+    id_produto_gabi_conversa: string | null
+    id_usuario_gabi_conversa: string | null
+    titulo_gabi_conversa: string | null
+    data_criacao_gabi_conversa: Date | null
+    data_atualizacao_gabi_conversa: Date | null
   }
 
-  export type ConversaCompletaGabiMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    title: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiConversaMaxAggregateOutputType = {
+    id_gabi_conversa: string | null
+    id_organizacao_gabi_conversa: string | null
+    id_produto_gabi_conversa: string | null
+    id_usuario_gabi_conversa: string | null
+    titulo_gabi_conversa: string | null
+    data_criacao_gabi_conversa: Date | null
+    data_atualizacao_gabi_conversa: Date | null
   }
 
-  export type ConversaCompletaGabiCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    title: number
-    created_at: number
-    updated_at: number
+  export type GabiConversaCountAggregateOutputType = {
+    id_gabi_conversa: number
+    id_organizacao_gabi_conversa: number
+    id_produto_gabi_conversa: number
+    id_usuario_gabi_conversa: number
+    titulo_gabi_conversa: number
+    data_criacao_gabi_conversa: number
+    data_atualizacao_gabi_conversa: number
     _all: number
   }
 
 
-  export type ConversaCompletaGabiMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    title?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiConversaMinAggregateInputType = {
+    id_gabi_conversa?: true
+    id_organizacao_gabi_conversa?: true
+    id_produto_gabi_conversa?: true
+    id_usuario_gabi_conversa?: true
+    titulo_gabi_conversa?: true
+    data_criacao_gabi_conversa?: true
+    data_atualizacao_gabi_conversa?: true
   }
 
-  export type ConversaCompletaGabiMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    title?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiConversaMaxAggregateInputType = {
+    id_gabi_conversa?: true
+    id_organizacao_gabi_conversa?: true
+    id_produto_gabi_conversa?: true
+    id_usuario_gabi_conversa?: true
+    titulo_gabi_conversa?: true
+    data_criacao_gabi_conversa?: true
+    data_atualizacao_gabi_conversa?: true
   }
 
-  export type ConversaCompletaGabiCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    title?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiConversaCountAggregateInputType = {
+    id_gabi_conversa?: true
+    id_organizacao_gabi_conversa?: true
+    id_produto_gabi_conversa?: true
+    id_usuario_gabi_conversa?: true
+    titulo_gabi_conversa?: true
+    data_criacao_gabi_conversa?: true
+    data_atualizacao_gabi_conversa?: true
     _all?: true
   }
 
-  export type ConversaCompletaGabiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConversaCompletaGabi to aggregate.
+     * Filter which GabiConversa to aggregate.
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConversaCompletaGabis to fetch.
+     * Determine the order of GabiConversas to fetch.
      */
-    orderBy?: ConversaCompletaGabiOrderByWithRelationInput | ConversaCompletaGabiOrderByWithRelationInput[]
+    orderBy?: GabiConversaOrderByWithRelationInput | GabiConversaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ConversaCompletaGabiWhereUniqueInput
+    cursor?: GabiConversaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConversaCompletaGabis from the position of the cursor.
+     * Take `±n` GabiConversas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConversaCompletaGabis.
+     * Skip the first `n` GabiConversas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ConversaCompletaGabis
+     * Count returned GabiConversas
     **/
-    _count?: true | ConversaCompletaGabiCountAggregateInputType
+    _count?: true | GabiConversaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ConversaCompletaGabiMinAggregateInputType
+    _min?: GabiConversaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ConversaCompletaGabiMaxAggregateInputType
+    _max?: GabiConversaMaxAggregateInputType
   }
 
-  export type GetConversaCompletaGabiAggregateType<T extends ConversaCompletaGabiAggregateArgs> = {
-        [P in keyof T & keyof AggregateConversaCompletaGabi]: P extends '_count' | 'count'
+  export type GetGabiConversaAggregateType<T extends GabiConversaAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiConversa]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateConversaCompletaGabi[P]>
-      : GetScalarType<T[P], AggregateConversaCompletaGabi[P]>
+        : GetScalarType<T[P], AggregateGabiConversa[P]>
+      : GetScalarType<T[P], AggregateGabiConversa[P]>
   }
 
 
 
 
-  export type ConversaCompletaGabiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConversaCompletaGabiWhereInput
-    orderBy?: ConversaCompletaGabiOrderByWithAggregationInput | ConversaCompletaGabiOrderByWithAggregationInput[]
-    by: ConversaCompletaGabiScalarFieldEnum[] | ConversaCompletaGabiScalarFieldEnum
-    having?: ConversaCompletaGabiScalarWhereWithAggregatesInput
+  export type GabiConversaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiConversaWhereInput
+    orderBy?: GabiConversaOrderByWithAggregationInput | GabiConversaOrderByWithAggregationInput[]
+    by: GabiConversaScalarFieldEnum[] | GabiConversaScalarFieldEnum
+    having?: GabiConversaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ConversaCompletaGabiCountAggregateInputType | true
-    _min?: ConversaCompletaGabiMinAggregateInputType
-    _max?: ConversaCompletaGabiMaxAggregateInputType
+    _count?: GabiConversaCountAggregateInputType | true
+    _min?: GabiConversaMinAggregateInputType
+    _max?: GabiConversaMaxAggregateInputType
   }
 
-  export type ConversaCompletaGabiGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    title: string | null
-    created_at: Date
-    updated_at: Date
-    _count: ConversaCompletaGabiCountAggregateOutputType | null
-    _min: ConversaCompletaGabiMinAggregateOutputType | null
-    _max: ConversaCompletaGabiMaxAggregateOutputType | null
+  export type GabiConversaGroupByOutputType = {
+    id_gabi_conversa: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa: string | null
+    id_usuario_gabi_conversa: string | null
+    titulo_gabi_conversa: string | null
+    data_criacao_gabi_conversa: Date
+    data_atualizacao_gabi_conversa: Date
+    _count: GabiConversaCountAggregateOutputType | null
+    _min: GabiConversaMinAggregateOutputType | null
+    _max: GabiConversaMaxAggregateOutputType | null
   }
 
-  type GetConversaCompletaGabiGroupByPayload<T extends ConversaCompletaGabiGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiConversaGroupByPayload<T extends GabiConversaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ConversaCompletaGabiGroupByOutputType, T['by']> &
+      PickEnumerable<GabiConversaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ConversaCompletaGabiGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiConversaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ConversaCompletaGabiGroupByOutputType[P]>
-            : GetScalarType<T[P], ConversaCompletaGabiGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiConversaGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiConversaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ConversaCompletaGabiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    title?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    messages?: boolean | ConversaCompletaGabi$messagesArgs<ExtArgs>
-    _count?: boolean | ConversaCompletaGabiCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["conversaCompletaGabi"]>
+  export type GabiConversaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_conversa?: boolean
+    id_organizacao_gabi_conversa?: boolean
+    id_produto_gabi_conversa?: boolean
+    id_usuario_gabi_conversa?: boolean
+    titulo_gabi_conversa?: boolean
+    data_criacao_gabi_conversa?: boolean
+    data_atualizacao_gabi_conversa?: boolean
+    mensagens_gabi_conversa?: boolean | GabiConversa$mensagens_gabi_conversaArgs<ExtArgs>
+    _count?: boolean | GabiConversaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gabiConversa"]>
 
-  export type ConversaCompletaGabiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    title?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["conversaCompletaGabi"]>
+  export type GabiConversaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_conversa?: boolean
+    id_organizacao_gabi_conversa?: boolean
+    id_produto_gabi_conversa?: boolean
+    id_usuario_gabi_conversa?: boolean
+    titulo_gabi_conversa?: boolean
+    data_criacao_gabi_conversa?: boolean
+    data_atualizacao_gabi_conversa?: boolean
+  }, ExtArgs["result"]["gabiConversa"]>
 
-  export type ConversaCompletaGabiSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    title?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type GabiConversaSelectScalar = {
+    id_gabi_conversa?: boolean
+    id_organizacao_gabi_conversa?: boolean
+    id_produto_gabi_conversa?: boolean
+    id_usuario_gabi_conversa?: boolean
+    titulo_gabi_conversa?: boolean
+    data_criacao_gabi_conversa?: boolean
+    data_atualizacao_gabi_conversa?: boolean
   }
 
-  export type ConversaCompletaGabiInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    messages?: boolean | ConversaCompletaGabi$messagesArgs<ExtArgs>
-    _count?: boolean | ConversaCompletaGabiCountOutputTypeDefaultArgs<ExtArgs>
+  export type GabiConversaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    mensagens_gabi_conversa?: boolean | GabiConversa$mensagens_gabi_conversaArgs<ExtArgs>
+    _count?: boolean | GabiConversaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type ConversaCompletaGabiIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type GabiConversaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $ConversaCompletaGabiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ConversaCompletaGabi"
+  export type $GabiConversaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiConversa"
     objects: {
-      messages: Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>[]
+      mensagens_gabi_conversa: Prisma.$GabiMensagemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      title: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["conversaCompletaGabi"]>
+      id_gabi_conversa: string
+      id_organizacao_gabi_conversa: string
+      id_produto_gabi_conversa: string | null
+      id_usuario_gabi_conversa: string | null
+      titulo_gabi_conversa: string | null
+      data_criacao_gabi_conversa: Date
+      data_atualizacao_gabi_conversa: Date
+    }, ExtArgs["result"]["gabiConversa"]>
     composites: {}
   }
 
-  type ConversaCompletaGabiGetPayload<S extends boolean | null | undefined | ConversaCompletaGabiDefaultArgs> = $Result.GetResult<Prisma.$ConversaCompletaGabiPayload, S>
+  type GabiConversaGetPayload<S extends boolean | null | undefined | GabiConversaDefaultArgs> = $Result.GetResult<Prisma.$GabiConversaPayload, S>
 
-  type ConversaCompletaGabiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ConversaCompletaGabiFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ConversaCompletaGabiCountAggregateInputType | true
+  type GabiConversaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiConversaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiConversaCountAggregateInputType | true
     }
 
-  export interface ConversaCompletaGabiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversaCompletaGabi'], meta: { name: 'ConversaCompletaGabi' } }
+  export interface GabiConversaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiConversa'], meta: { name: 'GabiConversa' } }
     /**
-     * Find zero or one ConversaCompletaGabi that matches the filter.
-     * @param {ConversaCompletaGabiFindUniqueArgs} args - Arguments to find a ConversaCompletaGabi
+     * Find zero or one GabiConversa that matches the filter.
+     * @param {GabiConversaFindUniqueArgs} args - Arguments to find a GabiConversa
      * @example
-     * // Get one ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.findUnique({
+     * // Get one GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ConversaCompletaGabiFindUniqueArgs>(args: SelectSubset<T, ConversaCompletaGabiFindUniqueArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiConversaFindUniqueArgs>(args: SelectSubset<T, GabiConversaFindUniqueArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ConversaCompletaGabi that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiConversa that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ConversaCompletaGabiFindUniqueOrThrowArgs} args - Arguments to find a ConversaCompletaGabi
+     * @param {GabiConversaFindUniqueOrThrowArgs} args - Arguments to find a GabiConversa
      * @example
-     * // Get one ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.findUniqueOrThrow({
+     * // Get one GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ConversaCompletaGabiFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversaCompletaGabiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiConversaFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiConversaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ConversaCompletaGabi that matches the filter.
+     * Find the first GabiConversa that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiFindFirstArgs} args - Arguments to find a ConversaCompletaGabi
+     * @param {GabiConversaFindFirstArgs} args - Arguments to find a GabiConversa
      * @example
-     * // Get one ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.findFirst({
+     * // Get one GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ConversaCompletaGabiFindFirstArgs>(args?: SelectSubset<T, ConversaCompletaGabiFindFirstArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiConversaFindFirstArgs>(args?: SelectSubset<T, GabiConversaFindFirstArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ConversaCompletaGabi that matches the filter or
+     * Find the first GabiConversa that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiFindFirstOrThrowArgs} args - Arguments to find a ConversaCompletaGabi
+     * @param {GabiConversaFindFirstOrThrowArgs} args - Arguments to find a GabiConversa
      * @example
-     * // Get one ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.findFirstOrThrow({
+     * // Get one GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ConversaCompletaGabiFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversaCompletaGabiFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiConversaFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiConversaFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ConversaCompletaGabis that matches the filter.
+     * Find zero or more GabiConversas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiConversaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ConversaCompletaGabis
-     * const conversaCompletaGabis = await prisma.conversaCompletaGabi.findMany()
+     * // Get all GabiConversas
+     * const gabiConversas = await prisma.gabiConversa.findMany()
      * 
-     * // Get first 10 ConversaCompletaGabis
-     * const conversaCompletaGabis = await prisma.conversaCompletaGabi.findMany({ take: 10 })
+     * // Get first 10 GabiConversas
+     * const gabiConversas = await prisma.gabiConversa.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const conversaCompletaGabiWithIdOnly = await prisma.conversaCompletaGabi.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_conversa`
+     * const gabiConversaWithId_gabi_conversaOnly = await prisma.gabiConversa.findMany({ select: { id_gabi_conversa: true } })
      * 
      */
-    findMany<T extends ConversaCompletaGabiFindManyArgs>(args?: SelectSubset<T, ConversaCompletaGabiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiConversaFindManyArgs>(args?: SelectSubset<T, GabiConversaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ConversaCompletaGabi.
-     * @param {ConversaCompletaGabiCreateArgs} args - Arguments to create a ConversaCompletaGabi.
+     * Create a GabiConversa.
+     * @param {GabiConversaCreateArgs} args - Arguments to create a GabiConversa.
      * @example
-     * // Create one ConversaCompletaGabi
-     * const ConversaCompletaGabi = await prisma.conversaCompletaGabi.create({
+     * // Create one GabiConversa
+     * const GabiConversa = await prisma.gabiConversa.create({
      *   data: {
-     *     // ... data to create a ConversaCompletaGabi
+     *     // ... data to create a GabiConversa
      *   }
      * })
      * 
      */
-    create<T extends ConversaCompletaGabiCreateArgs>(args: SelectSubset<T, ConversaCompletaGabiCreateArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiConversaCreateArgs>(args: SelectSubset<T, GabiConversaCreateArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ConversaCompletaGabis.
-     * @param {ConversaCompletaGabiCreateManyArgs} args - Arguments to create many ConversaCompletaGabis.
+     * Create many GabiConversas.
+     * @param {GabiConversaCreateManyArgs} args - Arguments to create many GabiConversas.
      * @example
-     * // Create many ConversaCompletaGabis
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.createMany({
+     * // Create many GabiConversas
+     * const gabiConversa = await prisma.gabiConversa.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ConversaCompletaGabiCreateManyArgs>(args?: SelectSubset<T, ConversaCompletaGabiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiConversaCreateManyArgs>(args?: SelectSubset<T, GabiConversaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ConversaCompletaGabis and returns the data saved in the database.
-     * @param {ConversaCompletaGabiCreateManyAndReturnArgs} args - Arguments to create many ConversaCompletaGabis.
+     * Create many GabiConversas and returns the data saved in the database.
+     * @param {GabiConversaCreateManyAndReturnArgs} args - Arguments to create many GabiConversas.
      * @example
-     * // Create many ConversaCompletaGabis
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.createManyAndReturn({
+     * // Create many GabiConversas
+     * const gabiConversa = await prisma.gabiConversa.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ConversaCompletaGabis and only return the `id`
-     * const conversaCompletaGabiWithIdOnly = await prisma.conversaCompletaGabi.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiConversas and only return the `id_gabi_conversa`
+     * const gabiConversaWithId_gabi_conversaOnly = await prisma.gabiConversa.createManyAndReturn({ 
+     *   select: { id_gabi_conversa: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -38313,28 +38313,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ConversaCompletaGabiCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversaCompletaGabiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiConversaCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiConversaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ConversaCompletaGabi.
-     * @param {ConversaCompletaGabiDeleteArgs} args - Arguments to delete one ConversaCompletaGabi.
+     * Delete a GabiConversa.
+     * @param {GabiConversaDeleteArgs} args - Arguments to delete one GabiConversa.
      * @example
-     * // Delete one ConversaCompletaGabi
-     * const ConversaCompletaGabi = await prisma.conversaCompletaGabi.delete({
+     * // Delete one GabiConversa
+     * const GabiConversa = await prisma.gabiConversa.delete({
      *   where: {
-     *     // ... filter to delete one ConversaCompletaGabi
+     *     // ... filter to delete one GabiConversa
      *   }
      * })
      * 
      */
-    delete<T extends ConversaCompletaGabiDeleteArgs>(args: SelectSubset<T, ConversaCompletaGabiDeleteArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiConversaDeleteArgs>(args: SelectSubset<T, GabiConversaDeleteArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ConversaCompletaGabi.
-     * @param {ConversaCompletaGabiUpdateArgs} args - Arguments to update one ConversaCompletaGabi.
+     * Update one GabiConversa.
+     * @param {GabiConversaUpdateArgs} args - Arguments to update one GabiConversa.
      * @example
-     * // Update one ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.update({
+     * // Update one GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -38344,30 +38344,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ConversaCompletaGabiUpdateArgs>(args: SelectSubset<T, ConversaCompletaGabiUpdateArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiConversaUpdateArgs>(args: SelectSubset<T, GabiConversaUpdateArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ConversaCompletaGabis.
-     * @param {ConversaCompletaGabiDeleteManyArgs} args - Arguments to filter ConversaCompletaGabis to delete.
+     * Delete zero or more GabiConversas.
+     * @param {GabiConversaDeleteManyArgs} args - Arguments to filter GabiConversas to delete.
      * @example
-     * // Delete a few ConversaCompletaGabis
-     * const { count } = await prisma.conversaCompletaGabi.deleteMany({
+     * // Delete a few GabiConversas
+     * const { count } = await prisma.gabiConversa.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ConversaCompletaGabiDeleteManyArgs>(args?: SelectSubset<T, ConversaCompletaGabiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiConversaDeleteManyArgs>(args?: SelectSubset<T, GabiConversaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ConversaCompletaGabis.
+     * Update zero or more GabiConversas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiConversaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ConversaCompletaGabis
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.updateMany({
+     * // Update many GabiConversas
+     * const gabiConversa = await prisma.gabiConversa.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -38377,56 +38377,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ConversaCompletaGabiUpdateManyArgs>(args: SelectSubset<T, ConversaCompletaGabiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiConversaUpdateManyArgs>(args: SelectSubset<T, GabiConversaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ConversaCompletaGabi.
-     * @param {ConversaCompletaGabiUpsertArgs} args - Arguments to update or create a ConversaCompletaGabi.
+     * Create or update one GabiConversa.
+     * @param {GabiConversaUpsertArgs} args - Arguments to update or create a GabiConversa.
      * @example
-     * // Update or create a ConversaCompletaGabi
-     * const conversaCompletaGabi = await prisma.conversaCompletaGabi.upsert({
+     * // Update or create a GabiConversa
+     * const gabiConversa = await prisma.gabiConversa.upsert({
      *   create: {
-     *     // ... data to create a ConversaCompletaGabi
+     *     // ... data to create a GabiConversa
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ConversaCompletaGabi we want to update
+     *     // ... the filter for the GabiConversa we want to update
      *   }
      * })
      */
-    upsert<T extends ConversaCompletaGabiUpsertArgs>(args: SelectSubset<T, ConversaCompletaGabiUpsertArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiConversaUpsertArgs>(args: SelectSubset<T, GabiConversaUpsertArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ConversaCompletaGabis.
+     * Count the number of GabiConversas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiCountArgs} args - Arguments to filter ConversaCompletaGabis to count.
+     * @param {GabiConversaCountArgs} args - Arguments to filter GabiConversas to count.
      * @example
-     * // Count the number of ConversaCompletaGabis
-     * const count = await prisma.conversaCompletaGabi.count({
+     * // Count the number of GabiConversas
+     * const count = await prisma.gabiConversa.count({
      *   where: {
-     *     // ... the filter for the ConversaCompletaGabis we want to count
+     *     // ... the filter for the GabiConversas we want to count
      *   }
      * })
     **/
-    count<T extends ConversaCompletaGabiCountArgs>(
-      args?: Subset<T, ConversaCompletaGabiCountArgs>,
+    count<T extends GabiConversaCountArgs>(
+      args?: Subset<T, GabiConversaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ConversaCompletaGabiCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiConversaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ConversaCompletaGabi.
+     * Allows you to perform aggregations operations on a GabiConversa.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiConversaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -38446,13 +38446,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ConversaCompletaGabiAggregateArgs>(args: Subset<T, ConversaCompletaGabiAggregateArgs>): Prisma.PrismaPromise<GetConversaCompletaGabiAggregateType<T>>
+    aggregate<T extends GabiConversaAggregateArgs>(args: Subset<T, GabiConversaAggregateArgs>): Prisma.PrismaPromise<GetGabiConversaAggregateType<T>>
 
     /**
-     * Group by ConversaCompletaGabi.
+     * Group by GabiConversa.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConversaCompletaGabiGroupByArgs} args - Group by arguments.
+     * @param {GabiConversaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -38467,14 +38467,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ConversaCompletaGabiGroupByArgs,
+      T extends GabiConversaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ConversaCompletaGabiGroupByArgs['orderBy'] }
-        : { orderBy?: ConversaCompletaGabiGroupByArgs['orderBy'] },
+        ? { orderBy: GabiConversaGroupByArgs['orderBy'] }
+        : { orderBy?: GabiConversaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -38523,22 +38523,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ConversaCompletaGabiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversaCompletaGabiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiConversaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiConversaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ConversaCompletaGabi model
+   * Fields of the GabiConversa model
    */
-  readonly fields: ConversaCompletaGabiFieldRefs;
+  readonly fields: GabiConversaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ConversaCompletaGabi.
+   * The delegate class that acts as a "Promise-like" for GabiConversa.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ConversaCompletaGabiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiConversaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    messages<T extends ConversaCompletaGabi$messagesArgs<ExtArgs> = {}>(args?: Subset<T, ConversaCompletaGabi$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findMany"> | Null>
+    mensagens_gabi_conversa<T extends GabiConversa$mensagens_gabi_conversaArgs<ExtArgs> = {}>(args?: Subset<T, GabiConversa$mensagens_gabi_conversaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -38565,752 +38565,752 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ConversaCompletaGabi model
+   * Fields of the GabiConversa model
    */ 
-  interface ConversaCompletaGabiFieldRefs {
-    readonly id: FieldRef<"ConversaCompletaGabi", 'String'>
-    readonly tenant_id: FieldRef<"ConversaCompletaGabi", 'String'>
-    readonly product_id: FieldRef<"ConversaCompletaGabi", 'String'>
-    readonly user_id: FieldRef<"ConversaCompletaGabi", 'String'>
-    readonly title: FieldRef<"ConversaCompletaGabi", 'String'>
-    readonly created_at: FieldRef<"ConversaCompletaGabi", 'DateTime'>
-    readonly updated_at: FieldRef<"ConversaCompletaGabi", 'DateTime'>
+  interface GabiConversaFieldRefs {
+    readonly id_gabi_conversa: FieldRef<"GabiConversa", 'String'>
+    readonly id_organizacao_gabi_conversa: FieldRef<"GabiConversa", 'String'>
+    readonly id_produto_gabi_conversa: FieldRef<"GabiConversa", 'String'>
+    readonly id_usuario_gabi_conversa: FieldRef<"GabiConversa", 'String'>
+    readonly titulo_gabi_conversa: FieldRef<"GabiConversa", 'String'>
+    readonly data_criacao_gabi_conversa: FieldRef<"GabiConversa", 'DateTime'>
+    readonly data_atualizacao_gabi_conversa: FieldRef<"GabiConversa", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ConversaCompletaGabi findUnique
+   * GabiConversa findUnique
    */
-  export type ConversaCompletaGabiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter, which ConversaCompletaGabi to fetch.
+     * Filter, which GabiConversa to fetch.
      */
-    where: ConversaCompletaGabiWhereUniqueInput
+    where: GabiConversaWhereUniqueInput
   }
 
   /**
-   * ConversaCompletaGabi findUniqueOrThrow
+   * GabiConversa findUniqueOrThrow
    */
-  export type ConversaCompletaGabiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter, which ConversaCompletaGabi to fetch.
+     * Filter, which GabiConversa to fetch.
      */
-    where: ConversaCompletaGabiWhereUniqueInput
+    where: GabiConversaWhereUniqueInput
   }
 
   /**
-   * ConversaCompletaGabi findFirst
+   * GabiConversa findFirst
    */
-  export type ConversaCompletaGabiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter, which ConversaCompletaGabi to fetch.
+     * Filter, which GabiConversa to fetch.
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConversaCompletaGabis to fetch.
+     * Determine the order of GabiConversas to fetch.
      */
-    orderBy?: ConversaCompletaGabiOrderByWithRelationInput | ConversaCompletaGabiOrderByWithRelationInput[]
+    orderBy?: GabiConversaOrderByWithRelationInput | GabiConversaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConversaCompletaGabis.
+     * Sets the position for searching for GabiConversas.
      */
-    cursor?: ConversaCompletaGabiWhereUniqueInput
+    cursor?: GabiConversaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConversaCompletaGabis from the position of the cursor.
+     * Take `±n` GabiConversas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConversaCompletaGabis.
+     * Skip the first `n` GabiConversas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConversaCompletaGabis.
+     * Filter by unique combinations of GabiConversas.
      */
-    distinct?: ConversaCompletaGabiScalarFieldEnum | ConversaCompletaGabiScalarFieldEnum[]
+    distinct?: GabiConversaScalarFieldEnum | GabiConversaScalarFieldEnum[]
   }
 
   /**
-   * ConversaCompletaGabi findFirstOrThrow
+   * GabiConversa findFirstOrThrow
    */
-  export type ConversaCompletaGabiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter, which ConversaCompletaGabi to fetch.
+     * Filter, which GabiConversa to fetch.
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConversaCompletaGabis to fetch.
+     * Determine the order of GabiConversas to fetch.
      */
-    orderBy?: ConversaCompletaGabiOrderByWithRelationInput | ConversaCompletaGabiOrderByWithRelationInput[]
+    orderBy?: GabiConversaOrderByWithRelationInput | GabiConversaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConversaCompletaGabis.
+     * Sets the position for searching for GabiConversas.
      */
-    cursor?: ConversaCompletaGabiWhereUniqueInput
+    cursor?: GabiConversaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConversaCompletaGabis from the position of the cursor.
+     * Take `±n` GabiConversas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConversaCompletaGabis.
+     * Skip the first `n` GabiConversas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConversaCompletaGabis.
+     * Filter by unique combinations of GabiConversas.
      */
-    distinct?: ConversaCompletaGabiScalarFieldEnum | ConversaCompletaGabiScalarFieldEnum[]
+    distinct?: GabiConversaScalarFieldEnum | GabiConversaScalarFieldEnum[]
   }
 
   /**
-   * ConversaCompletaGabi findMany
+   * GabiConversa findMany
    */
-  export type ConversaCompletaGabiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter, which ConversaCompletaGabis to fetch.
+     * Filter, which GabiConversas to fetch.
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConversaCompletaGabis to fetch.
+     * Determine the order of GabiConversas to fetch.
      */
-    orderBy?: ConversaCompletaGabiOrderByWithRelationInput | ConversaCompletaGabiOrderByWithRelationInput[]
+    orderBy?: GabiConversaOrderByWithRelationInput | GabiConversaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ConversaCompletaGabis.
+     * Sets the position for listing GabiConversas.
      */
-    cursor?: ConversaCompletaGabiWhereUniqueInput
+    cursor?: GabiConversaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConversaCompletaGabis from the position of the cursor.
+     * Take `±n` GabiConversas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConversaCompletaGabis.
+     * Skip the first `n` GabiConversas.
      */
     skip?: number
-    distinct?: ConversaCompletaGabiScalarFieldEnum | ConversaCompletaGabiScalarFieldEnum[]
+    distinct?: GabiConversaScalarFieldEnum | GabiConversaScalarFieldEnum[]
   }
 
   /**
-   * ConversaCompletaGabi create
+   * GabiConversa create
    */
-  export type ConversaCompletaGabiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * The data needed to create a ConversaCompletaGabi.
+     * The data needed to create a GabiConversa.
      */
-    data: XOR<ConversaCompletaGabiCreateInput, ConversaCompletaGabiUncheckedCreateInput>
+    data: XOR<GabiConversaCreateInput, GabiConversaUncheckedCreateInput>
   }
 
   /**
-   * ConversaCompletaGabi createMany
+   * GabiConversa createMany
    */
-  export type ConversaCompletaGabiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ConversaCompletaGabis.
+     * The data used to create many GabiConversas.
      */
-    data: ConversaCompletaGabiCreateManyInput | ConversaCompletaGabiCreateManyInput[]
+    data: GabiConversaCreateManyInput | GabiConversaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ConversaCompletaGabi createManyAndReturn
+   * GabiConversa createManyAndReturn
    */
-  export type ConversaCompletaGabiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiConversaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ConversaCompletaGabis.
+     * The data used to create many GabiConversas.
      */
-    data: ConversaCompletaGabiCreateManyInput | ConversaCompletaGabiCreateManyInput[]
+    data: GabiConversaCreateManyInput | GabiConversaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ConversaCompletaGabi update
+   * GabiConversa update
    */
-  export type ConversaCompletaGabiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * The data needed to update a ConversaCompletaGabi.
+     * The data needed to update a GabiConversa.
      */
-    data: XOR<ConversaCompletaGabiUpdateInput, ConversaCompletaGabiUncheckedUpdateInput>
+    data: XOR<GabiConversaUpdateInput, GabiConversaUncheckedUpdateInput>
     /**
-     * Choose, which ConversaCompletaGabi to update.
+     * Choose, which GabiConversa to update.
      */
-    where: ConversaCompletaGabiWhereUniqueInput
+    where: GabiConversaWhereUniqueInput
   }
 
   /**
-   * ConversaCompletaGabi updateMany
+   * GabiConversa updateMany
    */
-  export type ConversaCompletaGabiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ConversaCompletaGabis.
+     * The data used to update GabiConversas.
      */
-    data: XOR<ConversaCompletaGabiUpdateManyMutationInput, ConversaCompletaGabiUncheckedUpdateManyInput>
+    data: XOR<GabiConversaUpdateManyMutationInput, GabiConversaUncheckedUpdateManyInput>
     /**
-     * Filter which ConversaCompletaGabis to update
+     * Filter which GabiConversas to update
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
   }
 
   /**
-   * ConversaCompletaGabi upsert
+   * GabiConversa upsert
    */
-  export type ConversaCompletaGabiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * The filter to search for the ConversaCompletaGabi to update in case it exists.
+     * The filter to search for the GabiConversa to update in case it exists.
      */
-    where: ConversaCompletaGabiWhereUniqueInput
+    where: GabiConversaWhereUniqueInput
     /**
-     * In case the ConversaCompletaGabi found by the `where` argument doesn't exist, create a new ConversaCompletaGabi with this data.
+     * In case the GabiConversa found by the `where` argument doesn't exist, create a new GabiConversa with this data.
      */
-    create: XOR<ConversaCompletaGabiCreateInput, ConversaCompletaGabiUncheckedCreateInput>
+    create: XOR<GabiConversaCreateInput, GabiConversaUncheckedCreateInput>
     /**
-     * In case the ConversaCompletaGabi was found with the provided `where` argument, update it with this data.
+     * In case the GabiConversa was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ConversaCompletaGabiUpdateInput, ConversaCompletaGabiUncheckedUpdateInput>
+    update: XOR<GabiConversaUpdateInput, GabiConversaUncheckedUpdateInput>
   }
 
   /**
-   * ConversaCompletaGabi delete
+   * GabiConversa delete
    */
-  export type ConversaCompletaGabiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
     /**
-     * Filter which ConversaCompletaGabi to delete.
+     * Filter which GabiConversa to delete.
      */
-    where: ConversaCompletaGabiWhereUniqueInput
+    where: GabiConversaWhereUniqueInput
   }
 
   /**
-   * ConversaCompletaGabi deleteMany
+   * GabiConversa deleteMany
    */
-  export type ConversaCompletaGabiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConversaCompletaGabis to delete
+     * Filter which GabiConversas to delete
      */
-    where?: ConversaCompletaGabiWhereInput
+    where?: GabiConversaWhereInput
   }
 
   /**
-   * ConversaCompletaGabi.messages
+   * GabiConversa.mensagens_gabi_conversa
    */
-  export type ConversaCompletaGabi$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversa$mensagens_gabi_conversaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
-    where?: MensagemIndividualGabiaiWhereInput
-    orderBy?: MensagemIndividualGabiaiOrderByWithRelationInput | MensagemIndividualGabiaiOrderByWithRelationInput[]
-    cursor?: MensagemIndividualGabiaiWhereUniqueInput
+    include?: GabiMensagemInclude<ExtArgs> | null
+    where?: GabiMensagemWhereInput
+    orderBy?: GabiMensagemOrderByWithRelationInput | GabiMensagemOrderByWithRelationInput[]
+    cursor?: GabiMensagemWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: MensagemIndividualGabiaiScalarFieldEnum | MensagemIndividualGabiaiScalarFieldEnum[]
+    distinct?: GabiMensagemScalarFieldEnum | GabiMensagemScalarFieldEnum[]
   }
 
   /**
-   * ConversaCompletaGabi without action
+   * GabiConversa without action
    */
-  export type ConversaCompletaGabiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiConversaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConversaCompletaGabi
+     * Select specific fields to fetch from the GabiConversa
      */
-    select?: ConversaCompletaGabiSelect<ExtArgs> | null
+    select?: GabiConversaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConversaCompletaGabiInclude<ExtArgs> | null
+    include?: GabiConversaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model MensagemIndividualGabiai
+   * Model GabiMensagem
    */
 
-  export type AggregateMensagemIndividualGabiai = {
-    _count: MensagemIndividualGabiaiCountAggregateOutputType | null
-    _min: MensagemIndividualGabiaiMinAggregateOutputType | null
-    _max: MensagemIndividualGabiaiMaxAggregateOutputType | null
+  export type AggregateGabiMensagem = {
+    _count: GabiMensagemCountAggregateOutputType | null
+    _min: GabiMensagemMinAggregateOutputType | null
+    _max: GabiMensagemMaxAggregateOutputType | null
   }
 
-  export type MensagemIndividualGabiaiMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    role: string | null
-    content: string | null
-    attachments: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiMensagemMinAggregateOutputType = {
+    id_gabi_mensagem: string | null
+    id_organizacao_gabi_mensagem: string | null
+    id_produto_gabi_mensagem: string | null
+    id_usuario_gabi_mensagem: string | null
+    id_conversa_gabi_mensagem: string | null
+    papel_gabi_mensagem: string | null
+    conteudo_gabi_mensagem: string | null
+    anexos_gabi_mensagem: string | null
+    data_criacao_gabi_mensagem: Date | null
+    data_atualizacao_gabi_mensagem: Date | null
   }
 
-  export type MensagemIndividualGabiaiMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    role: string | null
-    content: string | null
-    attachments: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiMensagemMaxAggregateOutputType = {
+    id_gabi_mensagem: string | null
+    id_organizacao_gabi_mensagem: string | null
+    id_produto_gabi_mensagem: string | null
+    id_usuario_gabi_mensagem: string | null
+    id_conversa_gabi_mensagem: string | null
+    papel_gabi_mensagem: string | null
+    conteudo_gabi_mensagem: string | null
+    anexos_gabi_mensagem: string | null
+    data_criacao_gabi_mensagem: Date | null
+    data_atualizacao_gabi_mensagem: Date | null
   }
 
-  export type MensagemIndividualGabiaiCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    conversation_id: number
-    role: number
-    content: number
-    attachments: number
-    created_at: number
-    updated_at: number
+  export type GabiMensagemCountAggregateOutputType = {
+    id_gabi_mensagem: number
+    id_organizacao_gabi_mensagem: number
+    id_produto_gabi_mensagem: number
+    id_usuario_gabi_mensagem: number
+    id_conversa_gabi_mensagem: number
+    papel_gabi_mensagem: number
+    conteudo_gabi_mensagem: number
+    anexos_gabi_mensagem: number
+    data_criacao_gabi_mensagem: number
+    data_atualizacao_gabi_mensagem: number
     _all: number
   }
 
 
-  export type MensagemIndividualGabiaiMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    role?: true
-    content?: true
-    attachments?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiMensagemMinAggregateInputType = {
+    id_gabi_mensagem?: true
+    id_organizacao_gabi_mensagem?: true
+    id_produto_gabi_mensagem?: true
+    id_usuario_gabi_mensagem?: true
+    id_conversa_gabi_mensagem?: true
+    papel_gabi_mensagem?: true
+    conteudo_gabi_mensagem?: true
+    anexos_gabi_mensagem?: true
+    data_criacao_gabi_mensagem?: true
+    data_atualizacao_gabi_mensagem?: true
   }
 
-  export type MensagemIndividualGabiaiMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    role?: true
-    content?: true
-    attachments?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiMensagemMaxAggregateInputType = {
+    id_gabi_mensagem?: true
+    id_organizacao_gabi_mensagem?: true
+    id_produto_gabi_mensagem?: true
+    id_usuario_gabi_mensagem?: true
+    id_conversa_gabi_mensagem?: true
+    papel_gabi_mensagem?: true
+    conteudo_gabi_mensagem?: true
+    anexos_gabi_mensagem?: true
+    data_criacao_gabi_mensagem?: true
+    data_atualizacao_gabi_mensagem?: true
   }
 
-  export type MensagemIndividualGabiaiCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    role?: true
-    content?: true
-    attachments?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiMensagemCountAggregateInputType = {
+    id_gabi_mensagem?: true
+    id_organizacao_gabi_mensagem?: true
+    id_produto_gabi_mensagem?: true
+    id_usuario_gabi_mensagem?: true
+    id_conversa_gabi_mensagem?: true
+    papel_gabi_mensagem?: true
+    conteudo_gabi_mensagem?: true
+    anexos_gabi_mensagem?: true
+    data_criacao_gabi_mensagem?: true
+    data_atualizacao_gabi_mensagem?: true
     _all?: true
   }
 
-  export type MensagemIndividualGabiaiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MensagemIndividualGabiai to aggregate.
+     * Filter which GabiMensagem to aggregate.
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MensagemIndividualGabiais to fetch.
+     * Determine the order of GabiMensagems to fetch.
      */
-    orderBy?: MensagemIndividualGabiaiOrderByWithRelationInput | MensagemIndividualGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiMensagemOrderByWithRelationInput | GabiMensagemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: MensagemIndividualGabiaiWhereUniqueInput
+    cursor?: GabiMensagemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MensagemIndividualGabiais from the position of the cursor.
+     * Take `±n` GabiMensagems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MensagemIndividualGabiais.
+     * Skip the first `n` GabiMensagems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned MensagemIndividualGabiais
+     * Count returned GabiMensagems
     **/
-    _count?: true | MensagemIndividualGabiaiCountAggregateInputType
+    _count?: true | GabiMensagemCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: MensagemIndividualGabiaiMinAggregateInputType
+    _min?: GabiMensagemMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: MensagemIndividualGabiaiMaxAggregateInputType
+    _max?: GabiMensagemMaxAggregateInputType
   }
 
-  export type GetMensagemIndividualGabiaiAggregateType<T extends MensagemIndividualGabiaiAggregateArgs> = {
-        [P in keyof T & keyof AggregateMensagemIndividualGabiai]: P extends '_count' | 'count'
+  export type GetGabiMensagemAggregateType<T extends GabiMensagemAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiMensagem]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateMensagemIndividualGabiai[P]>
-      : GetScalarType<T[P], AggregateMensagemIndividualGabiai[P]>
+        : GetScalarType<T[P], AggregateGabiMensagem[P]>
+      : GetScalarType<T[P], AggregateGabiMensagem[P]>
   }
 
 
 
 
-  export type MensagemIndividualGabiaiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MensagemIndividualGabiaiWhereInput
-    orderBy?: MensagemIndividualGabiaiOrderByWithAggregationInput | MensagemIndividualGabiaiOrderByWithAggregationInput[]
-    by: MensagemIndividualGabiaiScalarFieldEnum[] | MensagemIndividualGabiaiScalarFieldEnum
-    having?: MensagemIndividualGabiaiScalarWhereWithAggregatesInput
+  export type GabiMensagemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiMensagemWhereInput
+    orderBy?: GabiMensagemOrderByWithAggregationInput | GabiMensagemOrderByWithAggregationInput[]
+    by: GabiMensagemScalarFieldEnum[] | GabiMensagemScalarFieldEnum
+    having?: GabiMensagemScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: MensagemIndividualGabiaiCountAggregateInputType | true
-    _min?: MensagemIndividualGabiaiMinAggregateInputType
-    _max?: MensagemIndividualGabiaiMaxAggregateInputType
+    _count?: GabiMensagemCountAggregateInputType | true
+    _min?: GabiMensagemMinAggregateInputType
+    _max?: GabiMensagemMaxAggregateInputType
   }
 
-  export type MensagemIndividualGabiaiGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string
-    role: string
-    content: string
-    attachments: string | null
-    created_at: Date
-    updated_at: Date
-    _count: MensagemIndividualGabiaiCountAggregateOutputType | null
-    _min: MensagemIndividualGabiaiMinAggregateOutputType | null
-    _max: MensagemIndividualGabiaiMaxAggregateOutputType | null
+  export type GabiMensagemGroupByOutputType = {
+    id_gabi_mensagem: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem: string | null
+    id_usuario_gabi_mensagem: string | null
+    id_conversa_gabi_mensagem: string
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem: string | null
+    data_criacao_gabi_mensagem: Date
+    data_atualizacao_gabi_mensagem: Date
+    _count: GabiMensagemCountAggregateOutputType | null
+    _min: GabiMensagemMinAggregateOutputType | null
+    _max: GabiMensagemMaxAggregateOutputType | null
   }
 
-  type GetMensagemIndividualGabiaiGroupByPayload<T extends MensagemIndividualGabiaiGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiMensagemGroupByPayload<T extends GabiMensagemGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<MensagemIndividualGabiaiGroupByOutputType, T['by']> &
+      PickEnumerable<GabiMensagemGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof MensagemIndividualGabiaiGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiMensagemGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], MensagemIndividualGabiaiGroupByOutputType[P]>
-            : GetScalarType<T[P], MensagemIndividualGabiaiGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiMensagemGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiMensagemGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type MensagemIndividualGabiaiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    role?: boolean
-    content?: boolean
-    attachments?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    conversation?: boolean | ConversaCompletaGabiDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["mensagemIndividualGabiai"]>
+  export type GabiMensagemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_mensagem?: boolean
+    id_organizacao_gabi_mensagem?: boolean
+    id_produto_gabi_mensagem?: boolean
+    id_usuario_gabi_mensagem?: boolean
+    id_conversa_gabi_mensagem?: boolean
+    papel_gabi_mensagem?: boolean
+    conteudo_gabi_mensagem?: boolean
+    anexos_gabi_mensagem?: boolean
+    data_criacao_gabi_mensagem?: boolean
+    data_atualizacao_gabi_mensagem?: boolean
+    conversa_gabi_mensagem?: boolean | GabiConversaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gabiMensagem"]>
 
-  export type MensagemIndividualGabiaiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    role?: boolean
-    content?: boolean
-    attachments?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    conversation?: boolean | ConversaCompletaGabiDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["mensagemIndividualGabiai"]>
+  export type GabiMensagemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_mensagem?: boolean
+    id_organizacao_gabi_mensagem?: boolean
+    id_produto_gabi_mensagem?: boolean
+    id_usuario_gabi_mensagem?: boolean
+    id_conversa_gabi_mensagem?: boolean
+    papel_gabi_mensagem?: boolean
+    conteudo_gabi_mensagem?: boolean
+    anexos_gabi_mensagem?: boolean
+    data_criacao_gabi_mensagem?: boolean
+    data_atualizacao_gabi_mensagem?: boolean
+    conversa_gabi_mensagem?: boolean | GabiConversaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gabiMensagem"]>
 
-  export type MensagemIndividualGabiaiSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    role?: boolean
-    content?: boolean
-    attachments?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type GabiMensagemSelectScalar = {
+    id_gabi_mensagem?: boolean
+    id_organizacao_gabi_mensagem?: boolean
+    id_produto_gabi_mensagem?: boolean
+    id_usuario_gabi_mensagem?: boolean
+    id_conversa_gabi_mensagem?: boolean
+    papel_gabi_mensagem?: boolean
+    conteudo_gabi_mensagem?: boolean
+    anexos_gabi_mensagem?: boolean
+    data_criacao_gabi_mensagem?: boolean
+    data_atualizacao_gabi_mensagem?: boolean
   }
 
-  export type MensagemIndividualGabiaiInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    conversation?: boolean | ConversaCompletaGabiDefaultArgs<ExtArgs>
+  export type GabiMensagemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversa_gabi_mensagem?: boolean | GabiConversaDefaultArgs<ExtArgs>
   }
-  export type MensagemIndividualGabiaiIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    conversation?: boolean | ConversaCompletaGabiDefaultArgs<ExtArgs>
+  export type GabiMensagemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversa_gabi_mensagem?: boolean | GabiConversaDefaultArgs<ExtArgs>
   }
 
-  export type $MensagemIndividualGabiaiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "MensagemIndividualGabiai"
+  export type $GabiMensagemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiMensagem"
     objects: {
-      conversation: Prisma.$ConversaCompletaGabiPayload<ExtArgs>
+      conversa_gabi_mensagem: Prisma.$GabiConversaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      conversation_id: string
-      role: string
-      content: string
-      attachments: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["mensagemIndividualGabiai"]>
+      id_gabi_mensagem: string
+      id_organizacao_gabi_mensagem: string
+      id_produto_gabi_mensagem: string | null
+      id_usuario_gabi_mensagem: string | null
+      id_conversa_gabi_mensagem: string
+      papel_gabi_mensagem: string
+      conteudo_gabi_mensagem: string
+      anexos_gabi_mensagem: string | null
+      data_criacao_gabi_mensagem: Date
+      data_atualizacao_gabi_mensagem: Date
+    }, ExtArgs["result"]["gabiMensagem"]>
     composites: {}
   }
 
-  type MensagemIndividualGabiaiGetPayload<S extends boolean | null | undefined | MensagemIndividualGabiaiDefaultArgs> = $Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload, S>
+  type GabiMensagemGetPayload<S extends boolean | null | undefined | GabiMensagemDefaultArgs> = $Result.GetResult<Prisma.$GabiMensagemPayload, S>
 
-  type MensagemIndividualGabiaiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<MensagemIndividualGabiaiFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: MensagemIndividualGabiaiCountAggregateInputType | true
+  type GabiMensagemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiMensagemFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiMensagemCountAggregateInputType | true
     }
 
-  export interface MensagemIndividualGabiaiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MensagemIndividualGabiai'], meta: { name: 'MensagemIndividualGabiai' } }
+  export interface GabiMensagemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiMensagem'], meta: { name: 'GabiMensagem' } }
     /**
-     * Find zero or one MensagemIndividualGabiai that matches the filter.
-     * @param {MensagemIndividualGabiaiFindUniqueArgs} args - Arguments to find a MensagemIndividualGabiai
+     * Find zero or one GabiMensagem that matches the filter.
+     * @param {GabiMensagemFindUniqueArgs} args - Arguments to find a GabiMensagem
      * @example
-     * // Get one MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.findUnique({
+     * // Get one GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends MensagemIndividualGabiaiFindUniqueArgs>(args: SelectSubset<T, MensagemIndividualGabiaiFindUniqueArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiMensagemFindUniqueArgs>(args: SelectSubset<T, GabiMensagemFindUniqueArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one MensagemIndividualGabiai that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiMensagem that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {MensagemIndividualGabiaiFindUniqueOrThrowArgs} args - Arguments to find a MensagemIndividualGabiai
+     * @param {GabiMensagemFindUniqueOrThrowArgs} args - Arguments to find a GabiMensagem
      * @example
-     * // Get one MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.findUniqueOrThrow({
+     * // Get one GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends MensagemIndividualGabiaiFindUniqueOrThrowArgs>(args: SelectSubset<T, MensagemIndividualGabiaiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiMensagemFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiMensagemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first MensagemIndividualGabiai that matches the filter.
+     * Find the first GabiMensagem that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiFindFirstArgs} args - Arguments to find a MensagemIndividualGabiai
+     * @param {GabiMensagemFindFirstArgs} args - Arguments to find a GabiMensagem
      * @example
-     * // Get one MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.findFirst({
+     * // Get one GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends MensagemIndividualGabiaiFindFirstArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiFindFirstArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiMensagemFindFirstArgs>(args?: SelectSubset<T, GabiMensagemFindFirstArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first MensagemIndividualGabiai that matches the filter or
+     * Find the first GabiMensagem that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiFindFirstOrThrowArgs} args - Arguments to find a MensagemIndividualGabiai
+     * @param {GabiMensagemFindFirstOrThrowArgs} args - Arguments to find a GabiMensagem
      * @example
-     * // Get one MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.findFirstOrThrow({
+     * // Get one GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends MensagemIndividualGabiaiFindFirstOrThrowArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiFindFirstOrThrowArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiMensagemFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiMensagemFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more MensagemIndividualGabiais that matches the filter.
+     * Find zero or more GabiMensagems that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiMensagemFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all MensagemIndividualGabiais
-     * const mensagemIndividualGabiais = await prisma.mensagemIndividualGabiai.findMany()
+     * // Get all GabiMensagems
+     * const gabiMensagems = await prisma.gabiMensagem.findMany()
      * 
-     * // Get first 10 MensagemIndividualGabiais
-     * const mensagemIndividualGabiais = await prisma.mensagemIndividualGabiai.findMany({ take: 10 })
+     * // Get first 10 GabiMensagems
+     * const gabiMensagems = await prisma.gabiMensagem.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const mensagemIndividualGabiaiWithIdOnly = await prisma.mensagemIndividualGabiai.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_mensagem`
+     * const gabiMensagemWithId_gabi_mensagemOnly = await prisma.gabiMensagem.findMany({ select: { id_gabi_mensagem: true } })
      * 
      */
-    findMany<T extends MensagemIndividualGabiaiFindManyArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiMensagemFindManyArgs>(args?: SelectSubset<T, GabiMensagemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a MensagemIndividualGabiai.
-     * @param {MensagemIndividualGabiaiCreateArgs} args - Arguments to create a MensagemIndividualGabiai.
+     * Create a GabiMensagem.
+     * @param {GabiMensagemCreateArgs} args - Arguments to create a GabiMensagem.
      * @example
-     * // Create one MensagemIndividualGabiai
-     * const MensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.create({
+     * // Create one GabiMensagem
+     * const GabiMensagem = await prisma.gabiMensagem.create({
      *   data: {
-     *     // ... data to create a MensagemIndividualGabiai
+     *     // ... data to create a GabiMensagem
      *   }
      * })
      * 
      */
-    create<T extends MensagemIndividualGabiaiCreateArgs>(args: SelectSubset<T, MensagemIndividualGabiaiCreateArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiMensagemCreateArgs>(args: SelectSubset<T, GabiMensagemCreateArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many MensagemIndividualGabiais.
-     * @param {MensagemIndividualGabiaiCreateManyArgs} args - Arguments to create many MensagemIndividualGabiais.
+     * Create many GabiMensagems.
+     * @param {GabiMensagemCreateManyArgs} args - Arguments to create many GabiMensagems.
      * @example
-     * // Create many MensagemIndividualGabiais
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.createMany({
+     * // Create many GabiMensagems
+     * const gabiMensagem = await prisma.gabiMensagem.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends MensagemIndividualGabiaiCreateManyArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiMensagemCreateManyArgs>(args?: SelectSubset<T, GabiMensagemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many MensagemIndividualGabiais and returns the data saved in the database.
-     * @param {MensagemIndividualGabiaiCreateManyAndReturnArgs} args - Arguments to create many MensagemIndividualGabiais.
+     * Create many GabiMensagems and returns the data saved in the database.
+     * @param {GabiMensagemCreateManyAndReturnArgs} args - Arguments to create many GabiMensagems.
      * @example
-     * // Create many MensagemIndividualGabiais
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.createManyAndReturn({
+     * // Create many GabiMensagems
+     * const gabiMensagem = await prisma.gabiMensagem.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many MensagemIndividualGabiais and only return the `id`
-     * const mensagemIndividualGabiaiWithIdOnly = await prisma.mensagemIndividualGabiai.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiMensagems and only return the `id_gabi_mensagem`
+     * const gabiMensagemWithId_gabi_mensagemOnly = await prisma.gabiMensagem.createManyAndReturn({ 
+     *   select: { id_gabi_mensagem: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -39319,28 +39319,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends MensagemIndividualGabiaiCreateManyAndReturnArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiMensagemCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiMensagemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a MensagemIndividualGabiai.
-     * @param {MensagemIndividualGabiaiDeleteArgs} args - Arguments to delete one MensagemIndividualGabiai.
+     * Delete a GabiMensagem.
+     * @param {GabiMensagemDeleteArgs} args - Arguments to delete one GabiMensagem.
      * @example
-     * // Delete one MensagemIndividualGabiai
-     * const MensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.delete({
+     * // Delete one GabiMensagem
+     * const GabiMensagem = await prisma.gabiMensagem.delete({
      *   where: {
-     *     // ... filter to delete one MensagemIndividualGabiai
+     *     // ... filter to delete one GabiMensagem
      *   }
      * })
      * 
      */
-    delete<T extends MensagemIndividualGabiaiDeleteArgs>(args: SelectSubset<T, MensagemIndividualGabiaiDeleteArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiMensagemDeleteArgs>(args: SelectSubset<T, GabiMensagemDeleteArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one MensagemIndividualGabiai.
-     * @param {MensagemIndividualGabiaiUpdateArgs} args - Arguments to update one MensagemIndividualGabiai.
+     * Update one GabiMensagem.
+     * @param {GabiMensagemUpdateArgs} args - Arguments to update one GabiMensagem.
      * @example
-     * // Update one MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.update({
+     * // Update one GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39350,30 +39350,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends MensagemIndividualGabiaiUpdateArgs>(args: SelectSubset<T, MensagemIndividualGabiaiUpdateArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiMensagemUpdateArgs>(args: SelectSubset<T, GabiMensagemUpdateArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more MensagemIndividualGabiais.
-     * @param {MensagemIndividualGabiaiDeleteManyArgs} args - Arguments to filter MensagemIndividualGabiais to delete.
+     * Delete zero or more GabiMensagems.
+     * @param {GabiMensagemDeleteManyArgs} args - Arguments to filter GabiMensagems to delete.
      * @example
-     * // Delete a few MensagemIndividualGabiais
-     * const { count } = await prisma.mensagemIndividualGabiai.deleteMany({
+     * // Delete a few GabiMensagems
+     * const { count } = await prisma.gabiMensagem.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends MensagemIndividualGabiaiDeleteManyArgs>(args?: SelectSubset<T, MensagemIndividualGabiaiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiMensagemDeleteManyArgs>(args?: SelectSubset<T, GabiMensagemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more MensagemIndividualGabiais.
+     * Update zero or more GabiMensagems.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiMensagemUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many MensagemIndividualGabiais
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.updateMany({
+     * // Update many GabiMensagems
+     * const gabiMensagem = await prisma.gabiMensagem.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39383,56 +39383,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends MensagemIndividualGabiaiUpdateManyArgs>(args: SelectSubset<T, MensagemIndividualGabiaiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiMensagemUpdateManyArgs>(args: SelectSubset<T, GabiMensagemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one MensagemIndividualGabiai.
-     * @param {MensagemIndividualGabiaiUpsertArgs} args - Arguments to update or create a MensagemIndividualGabiai.
+     * Create or update one GabiMensagem.
+     * @param {GabiMensagemUpsertArgs} args - Arguments to update or create a GabiMensagem.
      * @example
-     * // Update or create a MensagemIndividualGabiai
-     * const mensagemIndividualGabiai = await prisma.mensagemIndividualGabiai.upsert({
+     * // Update or create a GabiMensagem
+     * const gabiMensagem = await prisma.gabiMensagem.upsert({
      *   create: {
-     *     // ... data to create a MensagemIndividualGabiai
+     *     // ... data to create a GabiMensagem
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the MensagemIndividualGabiai we want to update
+     *     // ... the filter for the GabiMensagem we want to update
      *   }
      * })
      */
-    upsert<T extends MensagemIndividualGabiaiUpsertArgs>(args: SelectSubset<T, MensagemIndividualGabiaiUpsertArgs<ExtArgs>>): Prisma__MensagemIndividualGabiaiClient<$Result.GetResult<Prisma.$MensagemIndividualGabiaiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiMensagemUpsertArgs>(args: SelectSubset<T, GabiMensagemUpsertArgs<ExtArgs>>): Prisma__GabiMensagemClient<$Result.GetResult<Prisma.$GabiMensagemPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of MensagemIndividualGabiais.
+     * Count the number of GabiMensagems.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiCountArgs} args - Arguments to filter MensagemIndividualGabiais to count.
+     * @param {GabiMensagemCountArgs} args - Arguments to filter GabiMensagems to count.
      * @example
-     * // Count the number of MensagemIndividualGabiais
-     * const count = await prisma.mensagemIndividualGabiai.count({
+     * // Count the number of GabiMensagems
+     * const count = await prisma.gabiMensagem.count({
      *   where: {
-     *     // ... the filter for the MensagemIndividualGabiais we want to count
+     *     // ... the filter for the GabiMensagems we want to count
      *   }
      * })
     **/
-    count<T extends MensagemIndividualGabiaiCountArgs>(
-      args?: Subset<T, MensagemIndividualGabiaiCountArgs>,
+    count<T extends GabiMensagemCountArgs>(
+      args?: Subset<T, GabiMensagemCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], MensagemIndividualGabiaiCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiMensagemCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a MensagemIndividualGabiai.
+     * Allows you to perform aggregations operations on a GabiMensagem.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiMensagemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -39452,13 +39452,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends MensagemIndividualGabiaiAggregateArgs>(args: Subset<T, MensagemIndividualGabiaiAggregateArgs>): Prisma.PrismaPromise<GetMensagemIndividualGabiaiAggregateType<T>>
+    aggregate<T extends GabiMensagemAggregateArgs>(args: Subset<T, GabiMensagemAggregateArgs>): Prisma.PrismaPromise<GetGabiMensagemAggregateType<T>>
 
     /**
-     * Group by MensagemIndividualGabiai.
+     * Group by GabiMensagem.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MensagemIndividualGabiaiGroupByArgs} args - Group by arguments.
+     * @param {GabiMensagemGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -39473,14 +39473,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends MensagemIndividualGabiaiGroupByArgs,
+      T extends GabiMensagemGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: MensagemIndividualGabiaiGroupByArgs['orderBy'] }
-        : { orderBy?: MensagemIndividualGabiaiGroupByArgs['orderBy'] },
+        ? { orderBy: GabiMensagemGroupByArgs['orderBy'] }
+        : { orderBy?: GabiMensagemGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -39529,22 +39529,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, MensagemIndividualGabiaiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMensagemIndividualGabiaiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiMensagemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiMensagemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the MensagemIndividualGabiai model
+   * Fields of the GabiMensagem model
    */
-  readonly fields: MensagemIndividualGabiaiFieldRefs;
+  readonly fields: GabiMensagemFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for MensagemIndividualGabiai.
+   * The delegate class that acts as a "Promise-like" for GabiMensagem.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__MensagemIndividualGabiaiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiMensagemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    conversation<T extends ConversaCompletaGabiDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ConversaCompletaGabiDefaultArgs<ExtArgs>>): Prisma__ConversaCompletaGabiClient<$Result.GetResult<Prisma.$ConversaCompletaGabiPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    conversa_gabi_mensagem<T extends GabiConversaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GabiConversaDefaultArgs<ExtArgs>>): Prisma__GabiConversaClient<$Result.GetResult<Prisma.$GabiConversaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -39571,804 +39571,804 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the MensagemIndividualGabiai model
+   * Fields of the GabiMensagem model
    */ 
-  interface MensagemIndividualGabiaiFieldRefs {
-    readonly id: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly tenant_id: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly product_id: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly user_id: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly conversation_id: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly role: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly content: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly attachments: FieldRef<"MensagemIndividualGabiai", 'String'>
-    readonly created_at: FieldRef<"MensagemIndividualGabiai", 'DateTime'>
-    readonly updated_at: FieldRef<"MensagemIndividualGabiai", 'DateTime'>
+  interface GabiMensagemFieldRefs {
+    readonly id_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly id_organizacao_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly id_produto_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly id_usuario_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly id_conversa_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly papel_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly conteudo_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly anexos_gabi_mensagem: FieldRef<"GabiMensagem", 'String'>
+    readonly data_criacao_gabi_mensagem: FieldRef<"GabiMensagem", 'DateTime'>
+    readonly data_atualizacao_gabi_mensagem: FieldRef<"GabiMensagem", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * MensagemIndividualGabiai findUnique
+   * GabiMensagem findUnique
    */
-  export type MensagemIndividualGabiaiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter, which MensagemIndividualGabiai to fetch.
+     * Filter, which GabiMensagem to fetch.
      */
-    where: MensagemIndividualGabiaiWhereUniqueInput
+    where: GabiMensagemWhereUniqueInput
   }
 
   /**
-   * MensagemIndividualGabiai findUniqueOrThrow
+   * GabiMensagem findUniqueOrThrow
    */
-  export type MensagemIndividualGabiaiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter, which MensagemIndividualGabiai to fetch.
+     * Filter, which GabiMensagem to fetch.
      */
-    where: MensagemIndividualGabiaiWhereUniqueInput
+    where: GabiMensagemWhereUniqueInput
   }
 
   /**
-   * MensagemIndividualGabiai findFirst
+   * GabiMensagem findFirst
    */
-  export type MensagemIndividualGabiaiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter, which MensagemIndividualGabiai to fetch.
+     * Filter, which GabiMensagem to fetch.
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MensagemIndividualGabiais to fetch.
+     * Determine the order of GabiMensagems to fetch.
      */
-    orderBy?: MensagemIndividualGabiaiOrderByWithRelationInput | MensagemIndividualGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiMensagemOrderByWithRelationInput | GabiMensagemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MensagemIndividualGabiais.
+     * Sets the position for searching for GabiMensagems.
      */
-    cursor?: MensagemIndividualGabiaiWhereUniqueInput
+    cursor?: GabiMensagemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MensagemIndividualGabiais from the position of the cursor.
+     * Take `±n` GabiMensagems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MensagemIndividualGabiais.
+     * Skip the first `n` GabiMensagems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MensagemIndividualGabiais.
+     * Filter by unique combinations of GabiMensagems.
      */
-    distinct?: MensagemIndividualGabiaiScalarFieldEnum | MensagemIndividualGabiaiScalarFieldEnum[]
+    distinct?: GabiMensagemScalarFieldEnum | GabiMensagemScalarFieldEnum[]
   }
 
   /**
-   * MensagemIndividualGabiai findFirstOrThrow
+   * GabiMensagem findFirstOrThrow
    */
-  export type MensagemIndividualGabiaiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter, which MensagemIndividualGabiai to fetch.
+     * Filter, which GabiMensagem to fetch.
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MensagemIndividualGabiais to fetch.
+     * Determine the order of GabiMensagems to fetch.
      */
-    orderBy?: MensagemIndividualGabiaiOrderByWithRelationInput | MensagemIndividualGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiMensagemOrderByWithRelationInput | GabiMensagemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MensagemIndividualGabiais.
+     * Sets the position for searching for GabiMensagems.
      */
-    cursor?: MensagemIndividualGabiaiWhereUniqueInput
+    cursor?: GabiMensagemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MensagemIndividualGabiais from the position of the cursor.
+     * Take `±n` GabiMensagems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MensagemIndividualGabiais.
+     * Skip the first `n` GabiMensagems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MensagemIndividualGabiais.
+     * Filter by unique combinations of GabiMensagems.
      */
-    distinct?: MensagemIndividualGabiaiScalarFieldEnum | MensagemIndividualGabiaiScalarFieldEnum[]
+    distinct?: GabiMensagemScalarFieldEnum | GabiMensagemScalarFieldEnum[]
   }
 
   /**
-   * MensagemIndividualGabiai findMany
+   * GabiMensagem findMany
    */
-  export type MensagemIndividualGabiaiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter, which MensagemIndividualGabiais to fetch.
+     * Filter, which GabiMensagems to fetch.
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MensagemIndividualGabiais to fetch.
+     * Determine the order of GabiMensagems to fetch.
      */
-    orderBy?: MensagemIndividualGabiaiOrderByWithRelationInput | MensagemIndividualGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiMensagemOrderByWithRelationInput | GabiMensagemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing MensagemIndividualGabiais.
+     * Sets the position for listing GabiMensagems.
      */
-    cursor?: MensagemIndividualGabiaiWhereUniqueInput
+    cursor?: GabiMensagemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MensagemIndividualGabiais from the position of the cursor.
+     * Take `±n` GabiMensagems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MensagemIndividualGabiais.
+     * Skip the first `n` GabiMensagems.
      */
     skip?: number
-    distinct?: MensagemIndividualGabiaiScalarFieldEnum | MensagemIndividualGabiaiScalarFieldEnum[]
+    distinct?: GabiMensagemScalarFieldEnum | GabiMensagemScalarFieldEnum[]
   }
 
   /**
-   * MensagemIndividualGabiai create
+   * GabiMensagem create
    */
-  export type MensagemIndividualGabiaiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * The data needed to create a MensagemIndividualGabiai.
+     * The data needed to create a GabiMensagem.
      */
-    data: XOR<MensagemIndividualGabiaiCreateInput, MensagemIndividualGabiaiUncheckedCreateInput>
+    data: XOR<GabiMensagemCreateInput, GabiMensagemUncheckedCreateInput>
   }
 
   /**
-   * MensagemIndividualGabiai createMany
+   * GabiMensagem createMany
    */
-  export type MensagemIndividualGabiaiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many MensagemIndividualGabiais.
+     * The data used to create many GabiMensagems.
      */
-    data: MensagemIndividualGabiaiCreateManyInput | MensagemIndividualGabiaiCreateManyInput[]
+    data: GabiMensagemCreateManyInput | GabiMensagemCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MensagemIndividualGabiai createManyAndReturn
+   * GabiMensagem createManyAndReturn
    */
-  export type MensagemIndividualGabiaiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiMensagemSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many MensagemIndividualGabiais.
+     * The data used to create many GabiMensagems.
      */
-    data: MensagemIndividualGabiaiCreateManyInput | MensagemIndividualGabiaiCreateManyInput[]
+    data: GabiMensagemCreateManyInput | GabiMensagemCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: GabiMensagemIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * MensagemIndividualGabiai update
+   * GabiMensagem update
    */
-  export type MensagemIndividualGabiaiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * The data needed to update a MensagemIndividualGabiai.
+     * The data needed to update a GabiMensagem.
      */
-    data: XOR<MensagemIndividualGabiaiUpdateInput, MensagemIndividualGabiaiUncheckedUpdateInput>
+    data: XOR<GabiMensagemUpdateInput, GabiMensagemUncheckedUpdateInput>
     /**
-     * Choose, which MensagemIndividualGabiai to update.
+     * Choose, which GabiMensagem to update.
      */
-    where: MensagemIndividualGabiaiWhereUniqueInput
+    where: GabiMensagemWhereUniqueInput
   }
 
   /**
-   * MensagemIndividualGabiai updateMany
+   * GabiMensagem updateMany
    */
-  export type MensagemIndividualGabiaiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update MensagemIndividualGabiais.
+     * The data used to update GabiMensagems.
      */
-    data: XOR<MensagemIndividualGabiaiUpdateManyMutationInput, MensagemIndividualGabiaiUncheckedUpdateManyInput>
+    data: XOR<GabiMensagemUpdateManyMutationInput, GabiMensagemUncheckedUpdateManyInput>
     /**
-     * Filter which MensagemIndividualGabiais to update
+     * Filter which GabiMensagems to update
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
   }
 
   /**
-   * MensagemIndividualGabiai upsert
+   * GabiMensagem upsert
    */
-  export type MensagemIndividualGabiaiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * The filter to search for the MensagemIndividualGabiai to update in case it exists.
+     * The filter to search for the GabiMensagem to update in case it exists.
      */
-    where: MensagemIndividualGabiaiWhereUniqueInput
+    where: GabiMensagemWhereUniqueInput
     /**
-     * In case the MensagemIndividualGabiai found by the `where` argument doesn't exist, create a new MensagemIndividualGabiai with this data.
+     * In case the GabiMensagem found by the `where` argument doesn't exist, create a new GabiMensagem with this data.
      */
-    create: XOR<MensagemIndividualGabiaiCreateInput, MensagemIndividualGabiaiUncheckedCreateInput>
+    create: XOR<GabiMensagemCreateInput, GabiMensagemUncheckedCreateInput>
     /**
-     * In case the MensagemIndividualGabiai was found with the provided `where` argument, update it with this data.
+     * In case the GabiMensagem was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<MensagemIndividualGabiaiUpdateInput, MensagemIndividualGabiaiUncheckedUpdateInput>
+    update: XOR<GabiMensagemUpdateInput, GabiMensagemUncheckedUpdateInput>
   }
 
   /**
-   * MensagemIndividualGabiai delete
+   * GabiMensagem delete
    */
-  export type MensagemIndividualGabiaiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
     /**
-     * Filter which MensagemIndividualGabiai to delete.
+     * Filter which GabiMensagem to delete.
      */
-    where: MensagemIndividualGabiaiWhereUniqueInput
+    where: GabiMensagemWhereUniqueInput
   }
 
   /**
-   * MensagemIndividualGabiai deleteMany
+   * GabiMensagem deleteMany
    */
-  export type MensagemIndividualGabiaiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MensagemIndividualGabiais to delete
+     * Filter which GabiMensagems to delete
      */
-    where?: MensagemIndividualGabiaiWhereInput
+    where?: GabiMensagemWhereInput
   }
 
   /**
-   * MensagemIndividualGabiai without action
+   * GabiMensagem without action
    */
-  export type MensagemIndividualGabiaiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiMensagemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MensagemIndividualGabiai
+     * Select specific fields to fetch from the GabiMensagem
      */
-    select?: MensagemIndividualGabiaiSelect<ExtArgs> | null
+    select?: GabiMensagemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: MensagemIndividualGabiaiInclude<ExtArgs> | null
+    include?: GabiMensagemInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model GabiaLogUso
+   * Model GabiLogUso
    */
 
-  export type AggregateGabiaLogUso = {
-    _count: GabiaLogUsoCountAggregateOutputType | null
-    _avg: GabiaLogUsoAvgAggregateOutputType | null
-    _sum: GabiaLogUsoSumAggregateOutputType | null
-    _min: GabiaLogUsoMinAggregateOutputType | null
-    _max: GabiaLogUsoMaxAggregateOutputType | null
+  export type AggregateGabiLogUso = {
+    _count: GabiLogUsoCountAggregateOutputType | null
+    _avg: GabiLogUsoAvgAggregateOutputType | null
+    _sum: GabiLogUsoSumAggregateOutputType | null
+    _min: GabiLogUsoMinAggregateOutputType | null
+    _max: GabiLogUsoMaxAggregateOutputType | null
   }
 
-  export type GabiaLogUsoAvgAggregateOutputType = {
-    tokens_input: number | null
-    tokens_output: number | null
-    cost_usd: number | null
+  export type GabiLogUsoAvgAggregateOutputType = {
+    tokens_input_gabi_log_uso: number | null
+    tokens_output_gabi_log_uso: number | null
+    custo_usd_gabi_log_uso: number | null
   }
 
-  export type GabiaLogUsoSumAggregateOutputType = {
-    tokens_input: number | null
-    tokens_output: number | null
-    cost_usd: number | null
+  export type GabiLogUsoSumAggregateOutputType = {
+    tokens_input_gabi_log_uso: number | null
+    tokens_output_gabi_log_uso: number | null
+    custo_usd_gabi_log_uso: number | null
   }
 
-  export type GabiaLogUsoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    action_taken: string | null
-    conversation_snapshot: string | null
-    actor_type: string | null
-    triggered_by: string | null
-    model_used: string | null
-    tokens_input: number | null
-    tokens_output: number | null
-    cost_usd: number | null
-    created_at: Date | null
+  export type GabiLogUsoMinAggregateOutputType = {
+    id_gabi_log_uso: string | null
+    id_organizacao_gabi_log_uso: string | null
+    id_produto_gabi_log_uso: string | null
+    id_usuario_gabi_log_uso: string | null
+    acao_gabi_log_uso: string | null
+    snapshot_conversa_gabi_log_uso: string | null
+    tipo_ator_gabi_log_uso: string | null
+    disparado_por_gabi_log_uso: string | null
+    modelo_gabi_log_uso: string | null
+    tokens_input_gabi_log_uso: number | null
+    tokens_output_gabi_log_uso: number | null
+    custo_usd_gabi_log_uso: number | null
+    data_criacao_gabi_log_uso: Date | null
   }
 
-  export type GabiaLogUsoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    action_taken: string | null
-    conversation_snapshot: string | null
-    actor_type: string | null
-    triggered_by: string | null
-    model_used: string | null
-    tokens_input: number | null
-    tokens_output: number | null
-    cost_usd: number | null
-    created_at: Date | null
+  export type GabiLogUsoMaxAggregateOutputType = {
+    id_gabi_log_uso: string | null
+    id_organizacao_gabi_log_uso: string | null
+    id_produto_gabi_log_uso: string | null
+    id_usuario_gabi_log_uso: string | null
+    acao_gabi_log_uso: string | null
+    snapshot_conversa_gabi_log_uso: string | null
+    tipo_ator_gabi_log_uso: string | null
+    disparado_por_gabi_log_uso: string | null
+    modelo_gabi_log_uso: string | null
+    tokens_input_gabi_log_uso: number | null
+    tokens_output_gabi_log_uso: number | null
+    custo_usd_gabi_log_uso: number | null
+    data_criacao_gabi_log_uso: Date | null
   }
 
-  export type GabiaLogUsoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    action_taken: number
-    conversation_snapshot: number
-    actor_type: number
-    triggered_by: number
-    model_used: number
-    tokens_input: number
-    tokens_output: number
-    cost_usd: number
-    created_at: number
+  export type GabiLogUsoCountAggregateOutputType = {
+    id_gabi_log_uso: number
+    id_organizacao_gabi_log_uso: number
+    id_produto_gabi_log_uso: number
+    id_usuario_gabi_log_uso: number
+    acao_gabi_log_uso: number
+    snapshot_conversa_gabi_log_uso: number
+    tipo_ator_gabi_log_uso: number
+    disparado_por_gabi_log_uso: number
+    modelo_gabi_log_uso: number
+    tokens_input_gabi_log_uso: number
+    tokens_output_gabi_log_uso: number
+    custo_usd_gabi_log_uso: number
+    data_criacao_gabi_log_uso: number
     _all: number
   }
 
 
-  export type GabiaLogUsoAvgAggregateInputType = {
-    tokens_input?: true
-    tokens_output?: true
-    cost_usd?: true
+  export type GabiLogUsoAvgAggregateInputType = {
+    tokens_input_gabi_log_uso?: true
+    tokens_output_gabi_log_uso?: true
+    custo_usd_gabi_log_uso?: true
   }
 
-  export type GabiaLogUsoSumAggregateInputType = {
-    tokens_input?: true
-    tokens_output?: true
-    cost_usd?: true
+  export type GabiLogUsoSumAggregateInputType = {
+    tokens_input_gabi_log_uso?: true
+    tokens_output_gabi_log_uso?: true
+    custo_usd_gabi_log_uso?: true
   }
 
-  export type GabiaLogUsoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    action_taken?: true
-    conversation_snapshot?: true
-    actor_type?: true
-    triggered_by?: true
-    model_used?: true
-    tokens_input?: true
-    tokens_output?: true
-    cost_usd?: true
-    created_at?: true
+  export type GabiLogUsoMinAggregateInputType = {
+    id_gabi_log_uso?: true
+    id_organizacao_gabi_log_uso?: true
+    id_produto_gabi_log_uso?: true
+    id_usuario_gabi_log_uso?: true
+    acao_gabi_log_uso?: true
+    snapshot_conversa_gabi_log_uso?: true
+    tipo_ator_gabi_log_uso?: true
+    disparado_por_gabi_log_uso?: true
+    modelo_gabi_log_uso?: true
+    tokens_input_gabi_log_uso?: true
+    tokens_output_gabi_log_uso?: true
+    custo_usd_gabi_log_uso?: true
+    data_criacao_gabi_log_uso?: true
   }
 
-  export type GabiaLogUsoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    action_taken?: true
-    conversation_snapshot?: true
-    actor_type?: true
-    triggered_by?: true
-    model_used?: true
-    tokens_input?: true
-    tokens_output?: true
-    cost_usd?: true
-    created_at?: true
+  export type GabiLogUsoMaxAggregateInputType = {
+    id_gabi_log_uso?: true
+    id_organizacao_gabi_log_uso?: true
+    id_produto_gabi_log_uso?: true
+    id_usuario_gabi_log_uso?: true
+    acao_gabi_log_uso?: true
+    snapshot_conversa_gabi_log_uso?: true
+    tipo_ator_gabi_log_uso?: true
+    disparado_por_gabi_log_uso?: true
+    modelo_gabi_log_uso?: true
+    tokens_input_gabi_log_uso?: true
+    tokens_output_gabi_log_uso?: true
+    custo_usd_gabi_log_uso?: true
+    data_criacao_gabi_log_uso?: true
   }
 
-  export type GabiaLogUsoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    action_taken?: true
-    conversation_snapshot?: true
-    actor_type?: true
-    triggered_by?: true
-    model_used?: true
-    tokens_input?: true
-    tokens_output?: true
-    cost_usd?: true
-    created_at?: true
+  export type GabiLogUsoCountAggregateInputType = {
+    id_gabi_log_uso?: true
+    id_organizacao_gabi_log_uso?: true
+    id_produto_gabi_log_uso?: true
+    id_usuario_gabi_log_uso?: true
+    acao_gabi_log_uso?: true
+    snapshot_conversa_gabi_log_uso?: true
+    tipo_ator_gabi_log_uso?: true
+    disparado_por_gabi_log_uso?: true
+    modelo_gabi_log_uso?: true
+    tokens_input_gabi_log_uso?: true
+    tokens_output_gabi_log_uso?: true
+    custo_usd_gabi_log_uso?: true
+    data_criacao_gabi_log_uso?: true
     _all?: true
   }
 
-  export type GabiaLogUsoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaLogUso to aggregate.
+     * Filter which GabiLogUso to aggregate.
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaLogUsos to fetch.
+     * Determine the order of GabiLogUsos to fetch.
      */
-    orderBy?: GabiaLogUsoOrderByWithRelationInput | GabiaLogUsoOrderByWithRelationInput[]
+    orderBy?: GabiLogUsoOrderByWithRelationInput | GabiLogUsoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: GabiaLogUsoWhereUniqueInput
+    cursor?: GabiLogUsoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaLogUsos from the position of the cursor.
+     * Take `±n` GabiLogUsos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaLogUsos.
+     * Skip the first `n` GabiLogUsos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned GabiaLogUsos
+     * Count returned GabiLogUsos
     **/
-    _count?: true | GabiaLogUsoCountAggregateInputType
+    _count?: true | GabiLogUsoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: GabiaLogUsoAvgAggregateInputType
+    _avg?: GabiLogUsoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: GabiaLogUsoSumAggregateInputType
+    _sum?: GabiLogUsoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: GabiaLogUsoMinAggregateInputType
+    _min?: GabiLogUsoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: GabiaLogUsoMaxAggregateInputType
+    _max?: GabiLogUsoMaxAggregateInputType
   }
 
-  export type GetGabiaLogUsoAggregateType<T extends GabiaLogUsoAggregateArgs> = {
-        [P in keyof T & keyof AggregateGabiaLogUso]: P extends '_count' | 'count'
+  export type GetGabiLogUsoAggregateType<T extends GabiLogUsoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiLogUso]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateGabiaLogUso[P]>
-      : GetScalarType<T[P], AggregateGabiaLogUso[P]>
+        : GetScalarType<T[P], AggregateGabiLogUso[P]>
+      : GetScalarType<T[P], AggregateGabiLogUso[P]>
   }
 
 
 
 
-  export type GabiaLogUsoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GabiaLogUsoWhereInput
-    orderBy?: GabiaLogUsoOrderByWithAggregationInput | GabiaLogUsoOrderByWithAggregationInput[]
-    by: GabiaLogUsoScalarFieldEnum[] | GabiaLogUsoScalarFieldEnum
-    having?: GabiaLogUsoScalarWhereWithAggregatesInput
+  export type GabiLogUsoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiLogUsoWhereInput
+    orderBy?: GabiLogUsoOrderByWithAggregationInput | GabiLogUsoOrderByWithAggregationInput[]
+    by: GabiLogUsoScalarFieldEnum[] | GabiLogUsoScalarFieldEnum
+    having?: GabiLogUsoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: GabiaLogUsoCountAggregateInputType | true
-    _avg?: GabiaLogUsoAvgAggregateInputType
-    _sum?: GabiaLogUsoSumAggregateInputType
-    _min?: GabiaLogUsoMinAggregateInputType
-    _max?: GabiaLogUsoMaxAggregateInputType
+    _count?: GabiLogUsoCountAggregateInputType | true
+    _avg?: GabiLogUsoAvgAggregateInputType
+    _sum?: GabiLogUsoSumAggregateInputType
+    _min?: GabiLogUsoMinAggregateInputType
+    _max?: GabiLogUsoMaxAggregateInputType
   }
 
-  export type GabiaLogUsoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    action_taken: string
-    conversation_snapshot: string
-    actor_type: string
-    triggered_by: string
-    model_used: string | null
-    tokens_input: number
-    tokens_output: number
-    cost_usd: number
-    created_at: Date
-    _count: GabiaLogUsoCountAggregateOutputType | null
-    _avg: GabiaLogUsoAvgAggregateOutputType | null
-    _sum: GabiaLogUsoSumAggregateOutputType | null
-    _min: GabiaLogUsoMinAggregateOutputType | null
-    _max: GabiaLogUsoMaxAggregateOutputType | null
+  export type GabiLogUsoGroupByOutputType = {
+    id_gabi_log_uso: string
+    id_organizacao_gabi_log_uso: string
+    id_produto_gabi_log_uso: string | null
+    id_usuario_gabi_log_uso: string | null
+    acao_gabi_log_uso: string
+    snapshot_conversa_gabi_log_uso: string
+    tipo_ator_gabi_log_uso: string
+    disparado_por_gabi_log_uso: string
+    modelo_gabi_log_uso: string | null
+    tokens_input_gabi_log_uso: number
+    tokens_output_gabi_log_uso: number
+    custo_usd_gabi_log_uso: number
+    data_criacao_gabi_log_uso: Date
+    _count: GabiLogUsoCountAggregateOutputType | null
+    _avg: GabiLogUsoAvgAggregateOutputType | null
+    _sum: GabiLogUsoSumAggregateOutputType | null
+    _min: GabiLogUsoMinAggregateOutputType | null
+    _max: GabiLogUsoMaxAggregateOutputType | null
   }
 
-  type GetGabiaLogUsoGroupByPayload<T extends GabiaLogUsoGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiLogUsoGroupByPayload<T extends GabiLogUsoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<GabiaLogUsoGroupByOutputType, T['by']> &
+      PickEnumerable<GabiLogUsoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof GabiaLogUsoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiLogUsoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], GabiaLogUsoGroupByOutputType[P]>
-            : GetScalarType<T[P], GabiaLogUsoGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiLogUsoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiLogUsoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type GabiaLogUsoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    action_taken?: boolean
-    conversation_snapshot?: boolean
-    actor_type?: boolean
-    triggered_by?: boolean
-    model_used?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
-  }, ExtArgs["result"]["gabiaLogUso"]>
+  export type GabiLogUsoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_log_uso?: boolean
+    id_organizacao_gabi_log_uso?: boolean
+    id_produto_gabi_log_uso?: boolean
+    id_usuario_gabi_log_uso?: boolean
+    acao_gabi_log_uso?: boolean
+    snapshot_conversa_gabi_log_uso?: boolean
+    tipo_ator_gabi_log_uso?: boolean
+    disparado_por_gabi_log_uso?: boolean
+    modelo_gabi_log_uso?: boolean
+    tokens_input_gabi_log_uso?: boolean
+    tokens_output_gabi_log_uso?: boolean
+    custo_usd_gabi_log_uso?: boolean
+    data_criacao_gabi_log_uso?: boolean
+  }, ExtArgs["result"]["gabiLogUso"]>
 
-  export type GabiaLogUsoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    action_taken?: boolean
-    conversation_snapshot?: boolean
-    actor_type?: boolean
-    triggered_by?: boolean
-    model_used?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
-  }, ExtArgs["result"]["gabiaLogUso"]>
+  export type GabiLogUsoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_log_uso?: boolean
+    id_organizacao_gabi_log_uso?: boolean
+    id_produto_gabi_log_uso?: boolean
+    id_usuario_gabi_log_uso?: boolean
+    acao_gabi_log_uso?: boolean
+    snapshot_conversa_gabi_log_uso?: boolean
+    tipo_ator_gabi_log_uso?: boolean
+    disparado_por_gabi_log_uso?: boolean
+    modelo_gabi_log_uso?: boolean
+    tokens_input_gabi_log_uso?: boolean
+    tokens_output_gabi_log_uso?: boolean
+    custo_usd_gabi_log_uso?: boolean
+    data_criacao_gabi_log_uso?: boolean
+  }, ExtArgs["result"]["gabiLogUso"]>
 
-  export type GabiaLogUsoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    action_taken?: boolean
-    conversation_snapshot?: boolean
-    actor_type?: boolean
-    triggered_by?: boolean
-    model_used?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
+  export type GabiLogUsoSelectScalar = {
+    id_gabi_log_uso?: boolean
+    id_organizacao_gabi_log_uso?: boolean
+    id_produto_gabi_log_uso?: boolean
+    id_usuario_gabi_log_uso?: boolean
+    acao_gabi_log_uso?: boolean
+    snapshot_conversa_gabi_log_uso?: boolean
+    tipo_ator_gabi_log_uso?: boolean
+    disparado_por_gabi_log_uso?: boolean
+    modelo_gabi_log_uso?: boolean
+    tokens_input_gabi_log_uso?: boolean
+    tokens_output_gabi_log_uso?: boolean
+    custo_usd_gabi_log_uso?: boolean
+    data_criacao_gabi_log_uso?: boolean
   }
 
 
-  export type $GabiaLogUsoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "GabiaLogUso"
+  export type $GabiLogUsoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiLogUso"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      action_taken: string
-      conversation_snapshot: string
-      actor_type: string
-      triggered_by: string
-      model_used: string | null
-      tokens_input: number
-      tokens_output: number
-      cost_usd: number
-      created_at: Date
-    }, ExtArgs["result"]["gabiaLogUso"]>
+      id_gabi_log_uso: string
+      id_organizacao_gabi_log_uso: string
+      id_produto_gabi_log_uso: string | null
+      id_usuario_gabi_log_uso: string | null
+      acao_gabi_log_uso: string
+      snapshot_conversa_gabi_log_uso: string
+      tipo_ator_gabi_log_uso: string
+      disparado_por_gabi_log_uso: string
+      modelo_gabi_log_uso: string | null
+      tokens_input_gabi_log_uso: number
+      tokens_output_gabi_log_uso: number
+      custo_usd_gabi_log_uso: number
+      data_criacao_gabi_log_uso: Date
+    }, ExtArgs["result"]["gabiLogUso"]>
     composites: {}
   }
 
-  type GabiaLogUsoGetPayload<S extends boolean | null | undefined | GabiaLogUsoDefaultArgs> = $Result.GetResult<Prisma.$GabiaLogUsoPayload, S>
+  type GabiLogUsoGetPayload<S extends boolean | null | undefined | GabiLogUsoDefaultArgs> = $Result.GetResult<Prisma.$GabiLogUsoPayload, S>
 
-  type GabiaLogUsoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<GabiaLogUsoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: GabiaLogUsoCountAggregateInputType | true
+  type GabiLogUsoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiLogUsoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiLogUsoCountAggregateInputType | true
     }
 
-  export interface GabiaLogUsoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiaLogUso'], meta: { name: 'GabiaLogUso' } }
+  export interface GabiLogUsoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiLogUso'], meta: { name: 'GabiLogUso' } }
     /**
-     * Find zero or one GabiaLogUso that matches the filter.
-     * @param {GabiaLogUsoFindUniqueArgs} args - Arguments to find a GabiaLogUso
+     * Find zero or one GabiLogUso that matches the filter.
+     * @param {GabiLogUsoFindUniqueArgs} args - Arguments to find a GabiLogUso
      * @example
-     * // Get one GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.findUnique({
+     * // Get one GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends GabiaLogUsoFindUniqueArgs>(args: SelectSubset<T, GabiaLogUsoFindUniqueArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiLogUsoFindUniqueArgs>(args: SelectSubset<T, GabiLogUsoFindUniqueArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one GabiaLogUso that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiLogUso that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {GabiaLogUsoFindUniqueOrThrowArgs} args - Arguments to find a GabiaLogUso
+     * @param {GabiLogUsoFindUniqueOrThrowArgs} args - Arguments to find a GabiLogUso
      * @example
-     * // Get one GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.findUniqueOrThrow({
+     * // Get one GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends GabiaLogUsoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiaLogUsoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiLogUsoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiLogUsoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first GabiaLogUso that matches the filter.
+     * Find the first GabiLogUso that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoFindFirstArgs} args - Arguments to find a GabiaLogUso
+     * @param {GabiLogUsoFindFirstArgs} args - Arguments to find a GabiLogUso
      * @example
-     * // Get one GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.findFirst({
+     * // Get one GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends GabiaLogUsoFindFirstArgs>(args?: SelectSubset<T, GabiaLogUsoFindFirstArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiLogUsoFindFirstArgs>(args?: SelectSubset<T, GabiLogUsoFindFirstArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first GabiaLogUso that matches the filter or
+     * Find the first GabiLogUso that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoFindFirstOrThrowArgs} args - Arguments to find a GabiaLogUso
+     * @param {GabiLogUsoFindFirstOrThrowArgs} args - Arguments to find a GabiLogUso
      * @example
-     * // Get one GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.findFirstOrThrow({
+     * // Get one GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends GabiaLogUsoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiaLogUsoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiLogUsoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiLogUsoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more GabiaLogUsos that matches the filter.
+     * Find zero or more GabiLogUsos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiLogUsoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all GabiaLogUsos
-     * const gabiaLogUsos = await prisma.gabiaLogUso.findMany()
+     * // Get all GabiLogUsos
+     * const gabiLogUsos = await prisma.gabiLogUso.findMany()
      * 
-     * // Get first 10 GabiaLogUsos
-     * const gabiaLogUsos = await prisma.gabiaLogUso.findMany({ take: 10 })
+     * // Get first 10 GabiLogUsos
+     * const gabiLogUsos = await prisma.gabiLogUso.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const gabiaLogUsoWithIdOnly = await prisma.gabiaLogUso.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_log_uso`
+     * const gabiLogUsoWithId_gabi_log_usoOnly = await prisma.gabiLogUso.findMany({ select: { id_gabi_log_uso: true } })
      * 
      */
-    findMany<T extends GabiaLogUsoFindManyArgs>(args?: SelectSubset<T, GabiaLogUsoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiLogUsoFindManyArgs>(args?: SelectSubset<T, GabiLogUsoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a GabiaLogUso.
-     * @param {GabiaLogUsoCreateArgs} args - Arguments to create a GabiaLogUso.
+     * Create a GabiLogUso.
+     * @param {GabiLogUsoCreateArgs} args - Arguments to create a GabiLogUso.
      * @example
-     * // Create one GabiaLogUso
-     * const GabiaLogUso = await prisma.gabiaLogUso.create({
+     * // Create one GabiLogUso
+     * const GabiLogUso = await prisma.gabiLogUso.create({
      *   data: {
-     *     // ... data to create a GabiaLogUso
+     *     // ... data to create a GabiLogUso
      *   }
      * })
      * 
      */
-    create<T extends GabiaLogUsoCreateArgs>(args: SelectSubset<T, GabiaLogUsoCreateArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiLogUsoCreateArgs>(args: SelectSubset<T, GabiLogUsoCreateArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many GabiaLogUsos.
-     * @param {GabiaLogUsoCreateManyArgs} args - Arguments to create many GabiaLogUsos.
+     * Create many GabiLogUsos.
+     * @param {GabiLogUsoCreateManyArgs} args - Arguments to create many GabiLogUsos.
      * @example
-     * // Create many GabiaLogUsos
-     * const gabiaLogUso = await prisma.gabiaLogUso.createMany({
+     * // Create many GabiLogUsos
+     * const gabiLogUso = await prisma.gabiLogUso.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends GabiaLogUsoCreateManyArgs>(args?: SelectSubset<T, GabiaLogUsoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiLogUsoCreateManyArgs>(args?: SelectSubset<T, GabiLogUsoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many GabiaLogUsos and returns the data saved in the database.
-     * @param {GabiaLogUsoCreateManyAndReturnArgs} args - Arguments to create many GabiaLogUsos.
+     * Create many GabiLogUsos and returns the data saved in the database.
+     * @param {GabiLogUsoCreateManyAndReturnArgs} args - Arguments to create many GabiLogUsos.
      * @example
-     * // Create many GabiaLogUsos
-     * const gabiaLogUso = await prisma.gabiaLogUso.createManyAndReturn({
+     * // Create many GabiLogUsos
+     * const gabiLogUso = await prisma.gabiLogUso.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many GabiaLogUsos and only return the `id`
-     * const gabiaLogUsoWithIdOnly = await prisma.gabiaLogUso.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiLogUsos and only return the `id_gabi_log_uso`
+     * const gabiLogUsoWithId_gabi_log_usoOnly = await prisma.gabiLogUso.createManyAndReturn({ 
+     *   select: { id_gabi_log_uso: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -40377,28 +40377,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends GabiaLogUsoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiaLogUsoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiLogUsoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiLogUsoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a GabiaLogUso.
-     * @param {GabiaLogUsoDeleteArgs} args - Arguments to delete one GabiaLogUso.
+     * Delete a GabiLogUso.
+     * @param {GabiLogUsoDeleteArgs} args - Arguments to delete one GabiLogUso.
      * @example
-     * // Delete one GabiaLogUso
-     * const GabiaLogUso = await prisma.gabiaLogUso.delete({
+     * // Delete one GabiLogUso
+     * const GabiLogUso = await prisma.gabiLogUso.delete({
      *   where: {
-     *     // ... filter to delete one GabiaLogUso
+     *     // ... filter to delete one GabiLogUso
      *   }
      * })
      * 
      */
-    delete<T extends GabiaLogUsoDeleteArgs>(args: SelectSubset<T, GabiaLogUsoDeleteArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiLogUsoDeleteArgs>(args: SelectSubset<T, GabiLogUsoDeleteArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one GabiaLogUso.
-     * @param {GabiaLogUsoUpdateArgs} args - Arguments to update one GabiaLogUso.
+     * Update one GabiLogUso.
+     * @param {GabiLogUsoUpdateArgs} args - Arguments to update one GabiLogUso.
      * @example
-     * // Update one GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.update({
+     * // Update one GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -40408,30 +40408,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends GabiaLogUsoUpdateArgs>(args: SelectSubset<T, GabiaLogUsoUpdateArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiLogUsoUpdateArgs>(args: SelectSubset<T, GabiLogUsoUpdateArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more GabiaLogUsos.
-     * @param {GabiaLogUsoDeleteManyArgs} args - Arguments to filter GabiaLogUsos to delete.
+     * Delete zero or more GabiLogUsos.
+     * @param {GabiLogUsoDeleteManyArgs} args - Arguments to filter GabiLogUsos to delete.
      * @example
-     * // Delete a few GabiaLogUsos
-     * const { count } = await prisma.gabiaLogUso.deleteMany({
+     * // Delete a few GabiLogUsos
+     * const { count } = await prisma.gabiLogUso.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends GabiaLogUsoDeleteManyArgs>(args?: SelectSubset<T, GabiaLogUsoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiLogUsoDeleteManyArgs>(args?: SelectSubset<T, GabiLogUsoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more GabiaLogUsos.
+     * Update zero or more GabiLogUsos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiLogUsoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many GabiaLogUsos
-     * const gabiaLogUso = await prisma.gabiaLogUso.updateMany({
+     * // Update many GabiLogUsos
+     * const gabiLogUso = await prisma.gabiLogUso.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -40441,56 +40441,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends GabiaLogUsoUpdateManyArgs>(args: SelectSubset<T, GabiaLogUsoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiLogUsoUpdateManyArgs>(args: SelectSubset<T, GabiLogUsoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one GabiaLogUso.
-     * @param {GabiaLogUsoUpsertArgs} args - Arguments to update or create a GabiaLogUso.
+     * Create or update one GabiLogUso.
+     * @param {GabiLogUsoUpsertArgs} args - Arguments to update or create a GabiLogUso.
      * @example
-     * // Update or create a GabiaLogUso
-     * const gabiaLogUso = await prisma.gabiaLogUso.upsert({
+     * // Update or create a GabiLogUso
+     * const gabiLogUso = await prisma.gabiLogUso.upsert({
      *   create: {
-     *     // ... data to create a GabiaLogUso
+     *     // ... data to create a GabiLogUso
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the GabiaLogUso we want to update
+     *     // ... the filter for the GabiLogUso we want to update
      *   }
      * })
      */
-    upsert<T extends GabiaLogUsoUpsertArgs>(args: SelectSubset<T, GabiaLogUsoUpsertArgs<ExtArgs>>): Prisma__GabiaLogUsoClient<$Result.GetResult<Prisma.$GabiaLogUsoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiLogUsoUpsertArgs>(args: SelectSubset<T, GabiLogUsoUpsertArgs<ExtArgs>>): Prisma__GabiLogUsoClient<$Result.GetResult<Prisma.$GabiLogUsoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of GabiaLogUsos.
+     * Count the number of GabiLogUsos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoCountArgs} args - Arguments to filter GabiaLogUsos to count.
+     * @param {GabiLogUsoCountArgs} args - Arguments to filter GabiLogUsos to count.
      * @example
-     * // Count the number of GabiaLogUsos
-     * const count = await prisma.gabiaLogUso.count({
+     * // Count the number of GabiLogUsos
+     * const count = await prisma.gabiLogUso.count({
      *   where: {
-     *     // ... the filter for the GabiaLogUsos we want to count
+     *     // ... the filter for the GabiLogUsos we want to count
      *   }
      * })
     **/
-    count<T extends GabiaLogUsoCountArgs>(
-      args?: Subset<T, GabiaLogUsoCountArgs>,
+    count<T extends GabiLogUsoCountArgs>(
+      args?: Subset<T, GabiLogUsoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], GabiaLogUsoCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiLogUsoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a GabiaLogUso.
+     * Allows you to perform aggregations operations on a GabiLogUso.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiLogUsoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -40510,13 +40510,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends GabiaLogUsoAggregateArgs>(args: Subset<T, GabiaLogUsoAggregateArgs>): Prisma.PrismaPromise<GetGabiaLogUsoAggregateType<T>>
+    aggregate<T extends GabiLogUsoAggregateArgs>(args: Subset<T, GabiLogUsoAggregateArgs>): Prisma.PrismaPromise<GetGabiLogUsoAggregateType<T>>
 
     /**
-     * Group by GabiaLogUso.
+     * Group by GabiLogUso.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaLogUsoGroupByArgs} args - Group by arguments.
+     * @param {GabiLogUsoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -40531,14 +40531,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends GabiaLogUsoGroupByArgs,
+      T extends GabiLogUsoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: GabiaLogUsoGroupByArgs['orderBy'] }
-        : { orderBy?: GabiaLogUsoGroupByArgs['orderBy'] },
+        ? { orderBy: GabiLogUsoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiLogUsoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -40587,20 +40587,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, GabiaLogUsoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiaLogUsoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiLogUsoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiLogUsoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the GabiaLogUso model
+   * Fields of the GabiLogUso model
    */
-  readonly fields: GabiaLogUsoFieldRefs;
+  readonly fields: GabiLogUsoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for GabiaLogUso.
+   * The delegate class that acts as a "Promise-like" for GabiLogUso.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__GabiaLogUsoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiLogUsoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -40628,730 +40628,730 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the GabiaLogUso model
+   * Fields of the GabiLogUso model
    */ 
-  interface GabiaLogUsoFieldRefs {
-    readonly id: FieldRef<"GabiaLogUso", 'String'>
-    readonly tenant_id: FieldRef<"GabiaLogUso", 'String'>
-    readonly product_id: FieldRef<"GabiaLogUso", 'String'>
-    readonly user_id: FieldRef<"GabiaLogUso", 'String'>
-    readonly action_taken: FieldRef<"GabiaLogUso", 'String'>
-    readonly conversation_snapshot: FieldRef<"GabiaLogUso", 'String'>
-    readonly actor_type: FieldRef<"GabiaLogUso", 'String'>
-    readonly triggered_by: FieldRef<"GabiaLogUso", 'String'>
-    readonly model_used: FieldRef<"GabiaLogUso", 'String'>
-    readonly tokens_input: FieldRef<"GabiaLogUso", 'Int'>
-    readonly tokens_output: FieldRef<"GabiaLogUso", 'Int'>
-    readonly cost_usd: FieldRef<"GabiaLogUso", 'Float'>
-    readonly created_at: FieldRef<"GabiaLogUso", 'DateTime'>
+  interface GabiLogUsoFieldRefs {
+    readonly id_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly id_organizacao_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly id_produto_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly id_usuario_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly acao_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly snapshot_conversa_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly tipo_ator_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly disparado_por_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly modelo_gabi_log_uso: FieldRef<"GabiLogUso", 'String'>
+    readonly tokens_input_gabi_log_uso: FieldRef<"GabiLogUso", 'Int'>
+    readonly tokens_output_gabi_log_uso: FieldRef<"GabiLogUso", 'Int'>
+    readonly custo_usd_gabi_log_uso: FieldRef<"GabiLogUso", 'Float'>
+    readonly data_criacao_gabi_log_uso: FieldRef<"GabiLogUso", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * GabiaLogUso findUnique
+   * GabiLogUso findUnique
    */
-  export type GabiaLogUsoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaLogUso to fetch.
+     * Filter, which GabiLogUso to fetch.
      */
-    where: GabiaLogUsoWhereUniqueInput
+    where: GabiLogUsoWhereUniqueInput
   }
 
   /**
-   * GabiaLogUso findUniqueOrThrow
+   * GabiLogUso findUniqueOrThrow
    */
-  export type GabiaLogUsoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaLogUso to fetch.
+     * Filter, which GabiLogUso to fetch.
      */
-    where: GabiaLogUsoWhereUniqueInput
+    where: GabiLogUsoWhereUniqueInput
   }
 
   /**
-   * GabiaLogUso findFirst
+   * GabiLogUso findFirst
    */
-  export type GabiaLogUsoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaLogUso to fetch.
+     * Filter, which GabiLogUso to fetch.
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaLogUsos to fetch.
+     * Determine the order of GabiLogUsos to fetch.
      */
-    orderBy?: GabiaLogUsoOrderByWithRelationInput | GabiaLogUsoOrderByWithRelationInput[]
+    orderBy?: GabiLogUsoOrderByWithRelationInput | GabiLogUsoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaLogUsos.
+     * Sets the position for searching for GabiLogUsos.
      */
-    cursor?: GabiaLogUsoWhereUniqueInput
+    cursor?: GabiLogUsoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaLogUsos from the position of the cursor.
+     * Take `±n` GabiLogUsos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaLogUsos.
+     * Skip the first `n` GabiLogUsos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaLogUsos.
+     * Filter by unique combinations of GabiLogUsos.
      */
-    distinct?: GabiaLogUsoScalarFieldEnum | GabiaLogUsoScalarFieldEnum[]
+    distinct?: GabiLogUsoScalarFieldEnum | GabiLogUsoScalarFieldEnum[]
   }
 
   /**
-   * GabiaLogUso findFirstOrThrow
+   * GabiLogUso findFirstOrThrow
    */
-  export type GabiaLogUsoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaLogUso to fetch.
+     * Filter, which GabiLogUso to fetch.
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaLogUsos to fetch.
+     * Determine the order of GabiLogUsos to fetch.
      */
-    orderBy?: GabiaLogUsoOrderByWithRelationInput | GabiaLogUsoOrderByWithRelationInput[]
+    orderBy?: GabiLogUsoOrderByWithRelationInput | GabiLogUsoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaLogUsos.
+     * Sets the position for searching for GabiLogUsos.
      */
-    cursor?: GabiaLogUsoWhereUniqueInput
+    cursor?: GabiLogUsoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaLogUsos from the position of the cursor.
+     * Take `±n` GabiLogUsos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaLogUsos.
+     * Skip the first `n` GabiLogUsos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaLogUsos.
+     * Filter by unique combinations of GabiLogUsos.
      */
-    distinct?: GabiaLogUsoScalarFieldEnum | GabiaLogUsoScalarFieldEnum[]
+    distinct?: GabiLogUsoScalarFieldEnum | GabiLogUsoScalarFieldEnum[]
   }
 
   /**
-   * GabiaLogUso findMany
+   * GabiLogUso findMany
    */
-  export type GabiaLogUsoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaLogUsos to fetch.
+     * Filter, which GabiLogUsos to fetch.
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaLogUsos to fetch.
+     * Determine the order of GabiLogUsos to fetch.
      */
-    orderBy?: GabiaLogUsoOrderByWithRelationInput | GabiaLogUsoOrderByWithRelationInput[]
+    orderBy?: GabiLogUsoOrderByWithRelationInput | GabiLogUsoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing GabiaLogUsos.
+     * Sets the position for listing GabiLogUsos.
      */
-    cursor?: GabiaLogUsoWhereUniqueInput
+    cursor?: GabiLogUsoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaLogUsos from the position of the cursor.
+     * Take `±n` GabiLogUsos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaLogUsos.
+     * Skip the first `n` GabiLogUsos.
      */
     skip?: number
-    distinct?: GabiaLogUsoScalarFieldEnum | GabiaLogUsoScalarFieldEnum[]
+    distinct?: GabiLogUsoScalarFieldEnum | GabiLogUsoScalarFieldEnum[]
   }
 
   /**
-   * GabiaLogUso create
+   * GabiLogUso create
    */
-  export type GabiaLogUsoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * The data needed to create a GabiaLogUso.
+     * The data needed to create a GabiLogUso.
      */
-    data: XOR<GabiaLogUsoCreateInput, GabiaLogUsoUncheckedCreateInput>
+    data: XOR<GabiLogUsoCreateInput, GabiLogUsoUncheckedCreateInput>
   }
 
   /**
-   * GabiaLogUso createMany
+   * GabiLogUso createMany
    */
-  export type GabiaLogUsoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many GabiaLogUsos.
+     * The data used to create many GabiLogUsos.
      */
-    data: GabiaLogUsoCreateManyInput | GabiaLogUsoCreateManyInput[]
+    data: GabiLogUsoCreateManyInput | GabiLogUsoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaLogUso createManyAndReturn
+   * GabiLogUso createManyAndReturn
    */
-  export type GabiaLogUsoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiLogUsoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many GabiaLogUsos.
+     * The data used to create many GabiLogUsos.
      */
-    data: GabiaLogUsoCreateManyInput | GabiaLogUsoCreateManyInput[]
+    data: GabiLogUsoCreateManyInput | GabiLogUsoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaLogUso update
+   * GabiLogUso update
    */
-  export type GabiaLogUsoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * The data needed to update a GabiaLogUso.
+     * The data needed to update a GabiLogUso.
      */
-    data: XOR<GabiaLogUsoUpdateInput, GabiaLogUsoUncheckedUpdateInput>
+    data: XOR<GabiLogUsoUpdateInput, GabiLogUsoUncheckedUpdateInput>
     /**
-     * Choose, which GabiaLogUso to update.
+     * Choose, which GabiLogUso to update.
      */
-    where: GabiaLogUsoWhereUniqueInput
+    where: GabiLogUsoWhereUniqueInput
   }
 
   /**
-   * GabiaLogUso updateMany
+   * GabiLogUso updateMany
    */
-  export type GabiaLogUsoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update GabiaLogUsos.
+     * The data used to update GabiLogUsos.
      */
-    data: XOR<GabiaLogUsoUpdateManyMutationInput, GabiaLogUsoUncheckedUpdateManyInput>
+    data: XOR<GabiLogUsoUpdateManyMutationInput, GabiLogUsoUncheckedUpdateManyInput>
     /**
-     * Filter which GabiaLogUsos to update
+     * Filter which GabiLogUsos to update
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
   }
 
   /**
-   * GabiaLogUso upsert
+   * GabiLogUso upsert
    */
-  export type GabiaLogUsoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * The filter to search for the GabiaLogUso to update in case it exists.
+     * The filter to search for the GabiLogUso to update in case it exists.
      */
-    where: GabiaLogUsoWhereUniqueInput
+    where: GabiLogUsoWhereUniqueInput
     /**
-     * In case the GabiaLogUso found by the `where` argument doesn't exist, create a new GabiaLogUso with this data.
+     * In case the GabiLogUso found by the `where` argument doesn't exist, create a new GabiLogUso with this data.
      */
-    create: XOR<GabiaLogUsoCreateInput, GabiaLogUsoUncheckedCreateInput>
+    create: XOR<GabiLogUsoCreateInput, GabiLogUsoUncheckedCreateInput>
     /**
-     * In case the GabiaLogUso was found with the provided `where` argument, update it with this data.
+     * In case the GabiLogUso was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<GabiaLogUsoUpdateInput, GabiaLogUsoUncheckedUpdateInput>
+    update: XOR<GabiLogUsoUpdateInput, GabiLogUsoUncheckedUpdateInput>
   }
 
   /**
-   * GabiaLogUso delete
+   * GabiLogUso delete
    */
-  export type GabiaLogUsoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
     /**
-     * Filter which GabiaLogUso to delete.
+     * Filter which GabiLogUso to delete.
      */
-    where: GabiaLogUsoWhereUniqueInput
+    where: GabiLogUsoWhereUniqueInput
   }
 
   /**
-   * GabiaLogUso deleteMany
+   * GabiLogUso deleteMany
    */
-  export type GabiaLogUsoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaLogUsos to delete
+     * Filter which GabiLogUsos to delete
      */
-    where?: GabiaLogUsoWhereInput
+    where?: GabiLogUsoWhereInput
   }
 
   /**
-   * GabiaLogUso without action
+   * GabiLogUso without action
    */
-  export type GabiaLogUsoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiLogUsoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaLogUso
+     * Select specific fields to fetch from the GabiLogUso
      */
-    select?: GabiaLogUsoSelect<ExtArgs> | null
+    select?: GabiLogUsoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model GabiaTokenConsumidos
+   * Model GabiTokenConsumido
    */
 
-  export type AggregateGabiaTokenConsumidos = {
-    _count: GabiaTokenConsumidosCountAggregateOutputType | null
-    _avg: GabiaTokenConsumidosAvgAggregateOutputType | null
-    _sum: GabiaTokenConsumidosSumAggregateOutputType | null
-    _min: GabiaTokenConsumidosMinAggregateOutputType | null
-    _max: GabiaTokenConsumidosMaxAggregateOutputType | null
+  export type AggregateGabiTokenConsumido = {
+    _count: GabiTokenConsumidoCountAggregateOutputType | null
+    _avg: GabiTokenConsumidoAvgAggregateOutputType | null
+    _sum: GabiTokenConsumidoSumAggregateOutputType | null
+    _min: GabiTokenConsumidoMinAggregateOutputType | null
+    _max: GabiTokenConsumidoMaxAggregateOutputType | null
   }
 
-  export type GabiaTokenConsumidosAvgAggregateOutputType = {
-    tokens_input: number | null
-    tokens_output: number | null
-    tokens_total: number | null
+  export type GabiTokenConsumidoAvgAggregateOutputType = {
+    tokens_input_gabi_token_consumido: number | null
+    tokens_output_gabi_token_consumido: number | null
+    tokens_total_gabi_token_consumido: number | null
   }
 
-  export type GabiaTokenConsumidosSumAggregateOutputType = {
-    tokens_input: number | null
-    tokens_output: number | null
-    tokens_total: number | null
+  export type GabiTokenConsumidoSumAggregateOutputType = {
+    tokens_input_gabi_token_consumido: number | null
+    tokens_output_gabi_token_consumido: number | null
+    tokens_total_gabi_token_consumido: number | null
   }
 
-  export type GabiaTokenConsumidosMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    campo: string | null
-    tokens_input: number | null
-    tokens_output: number | null
-    tokens_total: number | null
-    mes_ref: string | null
-    created_at: Date | null
+  export type GabiTokenConsumidoMinAggregateOutputType = {
+    id_gabi_token_consumido: string | null
+    id_organizacao_gabi_token_consumido: string | null
+    id_produto_gabi_token_consumido: string | null
+    id_usuario_gabi_token_consumido: string | null
+    campo_gabi_token_consumido: string | null
+    tokens_input_gabi_token_consumido: number | null
+    tokens_output_gabi_token_consumido: number | null
+    tokens_total_gabi_token_consumido: number | null
+    mes_ref_gabi_token_consumido: string | null
+    data_criacao_gabi_token_consumido: Date | null
   }
 
-  export type GabiaTokenConsumidosMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    campo: string | null
-    tokens_input: number | null
-    tokens_output: number | null
-    tokens_total: number | null
-    mes_ref: string | null
-    created_at: Date | null
+  export type GabiTokenConsumidoMaxAggregateOutputType = {
+    id_gabi_token_consumido: string | null
+    id_organizacao_gabi_token_consumido: string | null
+    id_produto_gabi_token_consumido: string | null
+    id_usuario_gabi_token_consumido: string | null
+    campo_gabi_token_consumido: string | null
+    tokens_input_gabi_token_consumido: number | null
+    tokens_output_gabi_token_consumido: number | null
+    tokens_total_gabi_token_consumido: number | null
+    mes_ref_gabi_token_consumido: string | null
+    data_criacao_gabi_token_consumido: Date | null
   }
 
-  export type GabiaTokenConsumidosCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    campo: number
-    tokens_input: number
-    tokens_output: number
-    tokens_total: number
-    mes_ref: number
-    created_at: number
+  export type GabiTokenConsumidoCountAggregateOutputType = {
+    id_gabi_token_consumido: number
+    id_organizacao_gabi_token_consumido: number
+    id_produto_gabi_token_consumido: number
+    id_usuario_gabi_token_consumido: number
+    campo_gabi_token_consumido: number
+    tokens_input_gabi_token_consumido: number
+    tokens_output_gabi_token_consumido: number
+    tokens_total_gabi_token_consumido: number
+    mes_ref_gabi_token_consumido: number
+    data_criacao_gabi_token_consumido: number
     _all: number
   }
 
 
-  export type GabiaTokenConsumidosAvgAggregateInputType = {
-    tokens_input?: true
-    tokens_output?: true
-    tokens_total?: true
+  export type GabiTokenConsumidoAvgAggregateInputType = {
+    tokens_input_gabi_token_consumido?: true
+    tokens_output_gabi_token_consumido?: true
+    tokens_total_gabi_token_consumido?: true
   }
 
-  export type GabiaTokenConsumidosSumAggregateInputType = {
-    tokens_input?: true
-    tokens_output?: true
-    tokens_total?: true
+  export type GabiTokenConsumidoSumAggregateInputType = {
+    tokens_input_gabi_token_consumido?: true
+    tokens_output_gabi_token_consumido?: true
+    tokens_total_gabi_token_consumido?: true
   }
 
-  export type GabiaTokenConsumidosMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    campo?: true
-    tokens_input?: true
-    tokens_output?: true
-    tokens_total?: true
-    mes_ref?: true
-    created_at?: true
+  export type GabiTokenConsumidoMinAggregateInputType = {
+    id_gabi_token_consumido?: true
+    id_organizacao_gabi_token_consumido?: true
+    id_produto_gabi_token_consumido?: true
+    id_usuario_gabi_token_consumido?: true
+    campo_gabi_token_consumido?: true
+    tokens_input_gabi_token_consumido?: true
+    tokens_output_gabi_token_consumido?: true
+    tokens_total_gabi_token_consumido?: true
+    mes_ref_gabi_token_consumido?: true
+    data_criacao_gabi_token_consumido?: true
   }
 
-  export type GabiaTokenConsumidosMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    campo?: true
-    tokens_input?: true
-    tokens_output?: true
-    tokens_total?: true
-    mes_ref?: true
-    created_at?: true
+  export type GabiTokenConsumidoMaxAggregateInputType = {
+    id_gabi_token_consumido?: true
+    id_organizacao_gabi_token_consumido?: true
+    id_produto_gabi_token_consumido?: true
+    id_usuario_gabi_token_consumido?: true
+    campo_gabi_token_consumido?: true
+    tokens_input_gabi_token_consumido?: true
+    tokens_output_gabi_token_consumido?: true
+    tokens_total_gabi_token_consumido?: true
+    mes_ref_gabi_token_consumido?: true
+    data_criacao_gabi_token_consumido?: true
   }
 
-  export type GabiaTokenConsumidosCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    campo?: true
-    tokens_input?: true
-    tokens_output?: true
-    tokens_total?: true
-    mes_ref?: true
-    created_at?: true
+  export type GabiTokenConsumidoCountAggregateInputType = {
+    id_gabi_token_consumido?: true
+    id_organizacao_gabi_token_consumido?: true
+    id_produto_gabi_token_consumido?: true
+    id_usuario_gabi_token_consumido?: true
+    campo_gabi_token_consumido?: true
+    tokens_input_gabi_token_consumido?: true
+    tokens_output_gabi_token_consumido?: true
+    tokens_total_gabi_token_consumido?: true
+    mes_ref_gabi_token_consumido?: true
+    data_criacao_gabi_token_consumido?: true
     _all?: true
   }
 
-  export type GabiaTokenConsumidosAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaTokenConsumidos to aggregate.
+     * Filter which GabiTokenConsumido to aggregate.
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenConsumidos to fetch.
+     * Determine the order of GabiTokenConsumidos to fetch.
      */
-    orderBy?: GabiaTokenConsumidosOrderByWithRelationInput | GabiaTokenConsumidosOrderByWithRelationInput[]
+    orderBy?: GabiTokenConsumidoOrderByWithRelationInput | GabiTokenConsumidoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: GabiaTokenConsumidosWhereUniqueInput
+    cursor?: GabiTokenConsumidoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenConsumidos from the position of the cursor.
+     * Take `±n` GabiTokenConsumidos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenConsumidos.
+     * Skip the first `n` GabiTokenConsumidos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned GabiaTokenConsumidos
+     * Count returned GabiTokenConsumidos
     **/
-    _count?: true | GabiaTokenConsumidosCountAggregateInputType
+    _count?: true | GabiTokenConsumidoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: GabiaTokenConsumidosAvgAggregateInputType
+    _avg?: GabiTokenConsumidoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: GabiaTokenConsumidosSumAggregateInputType
+    _sum?: GabiTokenConsumidoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: GabiaTokenConsumidosMinAggregateInputType
+    _min?: GabiTokenConsumidoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: GabiaTokenConsumidosMaxAggregateInputType
+    _max?: GabiTokenConsumidoMaxAggregateInputType
   }
 
-  export type GetGabiaTokenConsumidosAggregateType<T extends GabiaTokenConsumidosAggregateArgs> = {
-        [P in keyof T & keyof AggregateGabiaTokenConsumidos]: P extends '_count' | 'count'
+  export type GetGabiTokenConsumidoAggregateType<T extends GabiTokenConsumidoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiTokenConsumido]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateGabiaTokenConsumidos[P]>
-      : GetScalarType<T[P], AggregateGabiaTokenConsumidos[P]>
+        : GetScalarType<T[P], AggregateGabiTokenConsumido[P]>
+      : GetScalarType<T[P], AggregateGabiTokenConsumido[P]>
   }
 
 
 
 
-  export type GabiaTokenConsumidosGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GabiaTokenConsumidosWhereInput
-    orderBy?: GabiaTokenConsumidosOrderByWithAggregationInput | GabiaTokenConsumidosOrderByWithAggregationInput[]
-    by: GabiaTokenConsumidosScalarFieldEnum[] | GabiaTokenConsumidosScalarFieldEnum
-    having?: GabiaTokenConsumidosScalarWhereWithAggregatesInput
+  export type GabiTokenConsumidoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiTokenConsumidoWhereInput
+    orderBy?: GabiTokenConsumidoOrderByWithAggregationInput | GabiTokenConsumidoOrderByWithAggregationInput[]
+    by: GabiTokenConsumidoScalarFieldEnum[] | GabiTokenConsumidoScalarFieldEnum
+    having?: GabiTokenConsumidoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: GabiaTokenConsumidosCountAggregateInputType | true
-    _avg?: GabiaTokenConsumidosAvgAggregateInputType
-    _sum?: GabiaTokenConsumidosSumAggregateInputType
-    _min?: GabiaTokenConsumidosMinAggregateInputType
-    _max?: GabiaTokenConsumidosMaxAggregateInputType
+    _count?: GabiTokenConsumidoCountAggregateInputType | true
+    _avg?: GabiTokenConsumidoAvgAggregateInputType
+    _sum?: GabiTokenConsumidoSumAggregateInputType
+    _min?: GabiTokenConsumidoMinAggregateInputType
+    _max?: GabiTokenConsumidoMaxAggregateInputType
   }
 
-  export type GabiaTokenConsumidosGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string
-    user_id: string
-    campo: string
-    tokens_input: number
-    tokens_output: number
-    tokens_total: number
-    mes_ref: string
-    created_at: Date
-    _count: GabiaTokenConsumidosCountAggregateOutputType | null
-    _avg: GabiaTokenConsumidosAvgAggregateOutputType | null
-    _sum: GabiaTokenConsumidosSumAggregateOutputType | null
-    _min: GabiaTokenConsumidosMinAggregateOutputType | null
-    _max: GabiaTokenConsumidosMaxAggregateOutputType | null
+  export type GabiTokenConsumidoGroupByOutputType = {
+    id_gabi_token_consumido: string
+    id_organizacao_gabi_token_consumido: string
+    id_produto_gabi_token_consumido: string
+    id_usuario_gabi_token_consumido: string
+    campo_gabi_token_consumido: string
+    tokens_input_gabi_token_consumido: number
+    tokens_output_gabi_token_consumido: number
+    tokens_total_gabi_token_consumido: number
+    mes_ref_gabi_token_consumido: string
+    data_criacao_gabi_token_consumido: Date
+    _count: GabiTokenConsumidoCountAggregateOutputType | null
+    _avg: GabiTokenConsumidoAvgAggregateOutputType | null
+    _sum: GabiTokenConsumidoSumAggregateOutputType | null
+    _min: GabiTokenConsumidoMinAggregateOutputType | null
+    _max: GabiTokenConsumidoMaxAggregateOutputType | null
   }
 
-  type GetGabiaTokenConsumidosGroupByPayload<T extends GabiaTokenConsumidosGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiTokenConsumidoGroupByPayload<T extends GabiTokenConsumidoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<GabiaTokenConsumidosGroupByOutputType, T['by']> &
+      PickEnumerable<GabiTokenConsumidoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof GabiaTokenConsumidosGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiTokenConsumidoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], GabiaTokenConsumidosGroupByOutputType[P]>
-            : GetScalarType<T[P], GabiaTokenConsumidosGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiTokenConsumidoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiTokenConsumidoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type GabiaTokenConsumidosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    campo?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    tokens_total?: boolean
-    mes_ref?: boolean
-    created_at?: boolean
-  }, ExtArgs["result"]["gabiaTokenConsumidos"]>
+  export type GabiTokenConsumidoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_token_consumido?: boolean
+    id_organizacao_gabi_token_consumido?: boolean
+    id_produto_gabi_token_consumido?: boolean
+    id_usuario_gabi_token_consumido?: boolean
+    campo_gabi_token_consumido?: boolean
+    tokens_input_gabi_token_consumido?: boolean
+    tokens_output_gabi_token_consumido?: boolean
+    tokens_total_gabi_token_consumido?: boolean
+    mes_ref_gabi_token_consumido?: boolean
+    data_criacao_gabi_token_consumido?: boolean
+  }, ExtArgs["result"]["gabiTokenConsumido"]>
 
-  export type GabiaTokenConsumidosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    campo?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    tokens_total?: boolean
-    mes_ref?: boolean
-    created_at?: boolean
-  }, ExtArgs["result"]["gabiaTokenConsumidos"]>
+  export type GabiTokenConsumidoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_token_consumido?: boolean
+    id_organizacao_gabi_token_consumido?: boolean
+    id_produto_gabi_token_consumido?: boolean
+    id_usuario_gabi_token_consumido?: boolean
+    campo_gabi_token_consumido?: boolean
+    tokens_input_gabi_token_consumido?: boolean
+    tokens_output_gabi_token_consumido?: boolean
+    tokens_total_gabi_token_consumido?: boolean
+    mes_ref_gabi_token_consumido?: boolean
+    data_criacao_gabi_token_consumido?: boolean
+  }, ExtArgs["result"]["gabiTokenConsumido"]>
 
-  export type GabiaTokenConsumidosSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    campo?: boolean
-    tokens_input?: boolean
-    tokens_output?: boolean
-    tokens_total?: boolean
-    mes_ref?: boolean
-    created_at?: boolean
+  export type GabiTokenConsumidoSelectScalar = {
+    id_gabi_token_consumido?: boolean
+    id_organizacao_gabi_token_consumido?: boolean
+    id_produto_gabi_token_consumido?: boolean
+    id_usuario_gabi_token_consumido?: boolean
+    campo_gabi_token_consumido?: boolean
+    tokens_input_gabi_token_consumido?: boolean
+    tokens_output_gabi_token_consumido?: boolean
+    tokens_total_gabi_token_consumido?: boolean
+    mes_ref_gabi_token_consumido?: boolean
+    data_criacao_gabi_token_consumido?: boolean
   }
 
 
-  export type $GabiaTokenConsumidosPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "GabiaTokenConsumidos"
+  export type $GabiTokenConsumidoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiTokenConsumido"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string
-      user_id: string
-      campo: string
-      tokens_input: number
-      tokens_output: number
-      tokens_total: number
-      mes_ref: string
-      created_at: Date
-    }, ExtArgs["result"]["gabiaTokenConsumidos"]>
+      id_gabi_token_consumido: string
+      id_organizacao_gabi_token_consumido: string
+      id_produto_gabi_token_consumido: string
+      id_usuario_gabi_token_consumido: string
+      campo_gabi_token_consumido: string
+      tokens_input_gabi_token_consumido: number
+      tokens_output_gabi_token_consumido: number
+      tokens_total_gabi_token_consumido: number
+      mes_ref_gabi_token_consumido: string
+      data_criacao_gabi_token_consumido: Date
+    }, ExtArgs["result"]["gabiTokenConsumido"]>
     composites: {}
   }
 
-  type GabiaTokenConsumidosGetPayload<S extends boolean | null | undefined | GabiaTokenConsumidosDefaultArgs> = $Result.GetResult<Prisma.$GabiaTokenConsumidosPayload, S>
+  type GabiTokenConsumidoGetPayload<S extends boolean | null | undefined | GabiTokenConsumidoDefaultArgs> = $Result.GetResult<Prisma.$GabiTokenConsumidoPayload, S>
 
-  type GabiaTokenConsumidosCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<GabiaTokenConsumidosFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: GabiaTokenConsumidosCountAggregateInputType | true
+  type GabiTokenConsumidoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiTokenConsumidoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiTokenConsumidoCountAggregateInputType | true
     }
 
-  export interface GabiaTokenConsumidosDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiaTokenConsumidos'], meta: { name: 'GabiaTokenConsumidos' } }
+  export interface GabiTokenConsumidoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiTokenConsumido'], meta: { name: 'GabiTokenConsumido' } }
     /**
-     * Find zero or one GabiaTokenConsumidos that matches the filter.
-     * @param {GabiaTokenConsumidosFindUniqueArgs} args - Arguments to find a GabiaTokenConsumidos
+     * Find zero or one GabiTokenConsumido that matches the filter.
+     * @param {GabiTokenConsumidoFindUniqueArgs} args - Arguments to find a GabiTokenConsumido
      * @example
-     * // Get one GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findUnique({
+     * // Get one GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends GabiaTokenConsumidosFindUniqueArgs>(args: SelectSubset<T, GabiaTokenConsumidosFindUniqueArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiTokenConsumidoFindUniqueArgs>(args: SelectSubset<T, GabiTokenConsumidoFindUniqueArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one GabiaTokenConsumidos that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiTokenConsumido that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {GabiaTokenConsumidosFindUniqueOrThrowArgs} args - Arguments to find a GabiaTokenConsumidos
+     * @param {GabiTokenConsumidoFindUniqueOrThrowArgs} args - Arguments to find a GabiTokenConsumido
      * @example
-     * // Get one GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findUniqueOrThrow({
+     * // Get one GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends GabiaTokenConsumidosFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiaTokenConsumidosFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiTokenConsumidoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiTokenConsumidoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first GabiaTokenConsumidos that matches the filter.
+     * Find the first GabiTokenConsumido that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosFindFirstArgs} args - Arguments to find a GabiaTokenConsumidos
+     * @param {GabiTokenConsumidoFindFirstArgs} args - Arguments to find a GabiTokenConsumido
      * @example
-     * // Get one GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findFirst({
+     * // Get one GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends GabiaTokenConsumidosFindFirstArgs>(args?: SelectSubset<T, GabiaTokenConsumidosFindFirstArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiTokenConsumidoFindFirstArgs>(args?: SelectSubset<T, GabiTokenConsumidoFindFirstArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first GabiaTokenConsumidos that matches the filter or
+     * Find the first GabiTokenConsumido that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosFindFirstOrThrowArgs} args - Arguments to find a GabiaTokenConsumidos
+     * @param {GabiTokenConsumidoFindFirstOrThrowArgs} args - Arguments to find a GabiTokenConsumido
      * @example
-     * // Get one GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findFirstOrThrow({
+     * // Get one GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends GabiaTokenConsumidosFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiaTokenConsumidosFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiTokenConsumidoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiTokenConsumidoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more GabiaTokenConsumidos that matches the filter.
+     * Find zero or more GabiTokenConsumidos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiTokenConsumidoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findMany()
+     * // Get all GabiTokenConsumidos
+     * const gabiTokenConsumidos = await prisma.gabiTokenConsumido.findMany()
      * 
-     * // Get first 10 GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.findMany({ take: 10 })
+     * // Get first 10 GabiTokenConsumidos
+     * const gabiTokenConsumidos = await prisma.gabiTokenConsumido.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const gabiaTokenConsumidosWithIdOnly = await prisma.gabiaTokenConsumidos.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_token_consumido`
+     * const gabiTokenConsumidoWithId_gabi_token_consumidoOnly = await prisma.gabiTokenConsumido.findMany({ select: { id_gabi_token_consumido: true } })
      * 
      */
-    findMany<T extends GabiaTokenConsumidosFindManyArgs>(args?: SelectSubset<T, GabiaTokenConsumidosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiTokenConsumidoFindManyArgs>(args?: SelectSubset<T, GabiTokenConsumidoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosCreateArgs} args - Arguments to create a GabiaTokenConsumidos.
+     * Create a GabiTokenConsumido.
+     * @param {GabiTokenConsumidoCreateArgs} args - Arguments to create a GabiTokenConsumido.
      * @example
-     * // Create one GabiaTokenConsumidos
-     * const GabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.create({
+     * // Create one GabiTokenConsumido
+     * const GabiTokenConsumido = await prisma.gabiTokenConsumido.create({
      *   data: {
-     *     // ... data to create a GabiaTokenConsumidos
+     *     // ... data to create a GabiTokenConsumido
      *   }
      * })
      * 
      */
-    create<T extends GabiaTokenConsumidosCreateArgs>(args: SelectSubset<T, GabiaTokenConsumidosCreateArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiTokenConsumidoCreateArgs>(args: SelectSubset<T, GabiTokenConsumidoCreateArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosCreateManyArgs} args - Arguments to create many GabiaTokenConsumidos.
+     * Create many GabiTokenConsumidos.
+     * @param {GabiTokenConsumidoCreateManyArgs} args - Arguments to create many GabiTokenConsumidos.
      * @example
-     * // Create many GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.createMany({
+     * // Create many GabiTokenConsumidos
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends GabiaTokenConsumidosCreateManyArgs>(args?: SelectSubset<T, GabiaTokenConsumidosCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiTokenConsumidoCreateManyArgs>(args?: SelectSubset<T, GabiTokenConsumidoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many GabiaTokenConsumidos and returns the data saved in the database.
-     * @param {GabiaTokenConsumidosCreateManyAndReturnArgs} args - Arguments to create many GabiaTokenConsumidos.
+     * Create many GabiTokenConsumidos and returns the data saved in the database.
+     * @param {GabiTokenConsumidoCreateManyAndReturnArgs} args - Arguments to create many GabiTokenConsumidos.
      * @example
-     * // Create many GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.createManyAndReturn({
+     * // Create many GabiTokenConsumidos
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many GabiaTokenConsumidos and only return the `id`
-     * const gabiaTokenConsumidosWithIdOnly = await prisma.gabiaTokenConsumidos.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiTokenConsumidos and only return the `id_gabi_token_consumido`
+     * const gabiTokenConsumidoWithId_gabi_token_consumidoOnly = await prisma.gabiTokenConsumido.createManyAndReturn({ 
+     *   select: { id_gabi_token_consumido: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -41360,28 +41360,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends GabiaTokenConsumidosCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiaTokenConsumidosCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiTokenConsumidoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiTokenConsumidoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosDeleteArgs} args - Arguments to delete one GabiaTokenConsumidos.
+     * Delete a GabiTokenConsumido.
+     * @param {GabiTokenConsumidoDeleteArgs} args - Arguments to delete one GabiTokenConsumido.
      * @example
-     * // Delete one GabiaTokenConsumidos
-     * const GabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.delete({
+     * // Delete one GabiTokenConsumido
+     * const GabiTokenConsumido = await prisma.gabiTokenConsumido.delete({
      *   where: {
-     *     // ... filter to delete one GabiaTokenConsumidos
+     *     // ... filter to delete one GabiTokenConsumido
      *   }
      * })
      * 
      */
-    delete<T extends GabiaTokenConsumidosDeleteArgs>(args: SelectSubset<T, GabiaTokenConsumidosDeleteArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiTokenConsumidoDeleteArgs>(args: SelectSubset<T, GabiTokenConsumidoDeleteArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosUpdateArgs} args - Arguments to update one GabiaTokenConsumidos.
+     * Update one GabiTokenConsumido.
+     * @param {GabiTokenConsumidoUpdateArgs} args - Arguments to update one GabiTokenConsumido.
      * @example
-     * // Update one GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.update({
+     * // Update one GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -41391,30 +41391,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends GabiaTokenConsumidosUpdateArgs>(args: SelectSubset<T, GabiaTokenConsumidosUpdateArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiTokenConsumidoUpdateArgs>(args: SelectSubset<T, GabiTokenConsumidoUpdateArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosDeleteManyArgs} args - Arguments to filter GabiaTokenConsumidos to delete.
+     * Delete zero or more GabiTokenConsumidos.
+     * @param {GabiTokenConsumidoDeleteManyArgs} args - Arguments to filter GabiTokenConsumidos to delete.
      * @example
-     * // Delete a few GabiaTokenConsumidos
-     * const { count } = await prisma.gabiaTokenConsumidos.deleteMany({
+     * // Delete a few GabiTokenConsumidos
+     * const { count } = await prisma.gabiTokenConsumido.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends GabiaTokenConsumidosDeleteManyArgs>(args?: SelectSubset<T, GabiaTokenConsumidosDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiTokenConsumidoDeleteManyArgs>(args?: SelectSubset<T, GabiTokenConsumidoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more GabiaTokenConsumidos.
+     * Update zero or more GabiTokenConsumidos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiTokenConsumidoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.updateMany({
+     * // Update many GabiTokenConsumidos
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -41424,56 +41424,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends GabiaTokenConsumidosUpdateManyArgs>(args: SelectSubset<T, GabiaTokenConsumidosUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiTokenConsumidoUpdateManyArgs>(args: SelectSubset<T, GabiTokenConsumidoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one GabiaTokenConsumidos.
-     * @param {GabiaTokenConsumidosUpsertArgs} args - Arguments to update or create a GabiaTokenConsumidos.
+     * Create or update one GabiTokenConsumido.
+     * @param {GabiTokenConsumidoUpsertArgs} args - Arguments to update or create a GabiTokenConsumido.
      * @example
-     * // Update or create a GabiaTokenConsumidos
-     * const gabiaTokenConsumidos = await prisma.gabiaTokenConsumidos.upsert({
+     * // Update or create a GabiTokenConsumido
+     * const gabiTokenConsumido = await prisma.gabiTokenConsumido.upsert({
      *   create: {
-     *     // ... data to create a GabiaTokenConsumidos
+     *     // ... data to create a GabiTokenConsumido
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the GabiaTokenConsumidos we want to update
+     *     // ... the filter for the GabiTokenConsumido we want to update
      *   }
      * })
      */
-    upsert<T extends GabiaTokenConsumidosUpsertArgs>(args: SelectSubset<T, GabiaTokenConsumidosUpsertArgs<ExtArgs>>): Prisma__GabiaTokenConsumidosClient<$Result.GetResult<Prisma.$GabiaTokenConsumidosPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiTokenConsumidoUpsertArgs>(args: SelectSubset<T, GabiTokenConsumidoUpsertArgs<ExtArgs>>): Prisma__GabiTokenConsumidoClient<$Result.GetResult<Prisma.$GabiTokenConsumidoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of GabiaTokenConsumidos.
+     * Count the number of GabiTokenConsumidos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosCountArgs} args - Arguments to filter GabiaTokenConsumidos to count.
+     * @param {GabiTokenConsumidoCountArgs} args - Arguments to filter GabiTokenConsumidos to count.
      * @example
-     * // Count the number of GabiaTokenConsumidos
-     * const count = await prisma.gabiaTokenConsumidos.count({
+     * // Count the number of GabiTokenConsumidos
+     * const count = await prisma.gabiTokenConsumido.count({
      *   where: {
-     *     // ... the filter for the GabiaTokenConsumidos we want to count
+     *     // ... the filter for the GabiTokenConsumidos we want to count
      *   }
      * })
     **/
-    count<T extends GabiaTokenConsumidosCountArgs>(
-      args?: Subset<T, GabiaTokenConsumidosCountArgs>,
+    count<T extends GabiTokenConsumidoCountArgs>(
+      args?: Subset<T, GabiTokenConsumidoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], GabiaTokenConsumidosCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiTokenConsumidoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a GabiaTokenConsumidos.
+     * Allows you to perform aggregations operations on a GabiTokenConsumido.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiTokenConsumidoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -41493,13 +41493,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends GabiaTokenConsumidosAggregateArgs>(args: Subset<T, GabiaTokenConsumidosAggregateArgs>): Prisma.PrismaPromise<GetGabiaTokenConsumidosAggregateType<T>>
+    aggregate<T extends GabiTokenConsumidoAggregateArgs>(args: Subset<T, GabiTokenConsumidoAggregateArgs>): Prisma.PrismaPromise<GetGabiTokenConsumidoAggregateType<T>>
 
     /**
-     * Group by GabiaTokenConsumidos.
+     * Group by GabiTokenConsumido.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenConsumidosGroupByArgs} args - Group by arguments.
+     * @param {GabiTokenConsumidoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -41514,14 +41514,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends GabiaTokenConsumidosGroupByArgs,
+      T extends GabiTokenConsumidoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: GabiaTokenConsumidosGroupByArgs['orderBy'] }
-        : { orderBy?: GabiaTokenConsumidosGroupByArgs['orderBy'] },
+        ? { orderBy: GabiTokenConsumidoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiTokenConsumidoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -41570,20 +41570,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, GabiaTokenConsumidosGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiaTokenConsumidosGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiTokenConsumidoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiTokenConsumidoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the GabiaTokenConsumidos model
+   * Fields of the GabiTokenConsumido model
    */
-  readonly fields: GabiaTokenConsumidosFieldRefs;
+  readonly fields: GabiTokenConsumidoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for GabiaTokenConsumidos.
+   * The delegate class that acts as a "Promise-like" for GabiTokenConsumido.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__GabiaTokenConsumidosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiTokenConsumidoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -41611,690 +41611,690 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the GabiaTokenConsumidos model
+   * Fields of the GabiTokenConsumido model
    */ 
-  interface GabiaTokenConsumidosFieldRefs {
-    readonly id: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly tenant_id: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly product_id: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly user_id: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly campo: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly tokens_input: FieldRef<"GabiaTokenConsumidos", 'Int'>
-    readonly tokens_output: FieldRef<"GabiaTokenConsumidos", 'Int'>
-    readonly tokens_total: FieldRef<"GabiaTokenConsumidos", 'Int'>
-    readonly mes_ref: FieldRef<"GabiaTokenConsumidos", 'String'>
-    readonly created_at: FieldRef<"GabiaTokenConsumidos", 'DateTime'>
+  interface GabiTokenConsumidoFieldRefs {
+    readonly id_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly id_organizacao_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly id_produto_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly id_usuario_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly campo_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly tokens_input_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'Int'>
+    readonly tokens_output_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'Int'>
+    readonly tokens_total_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'Int'>
+    readonly mes_ref_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'String'>
+    readonly data_criacao_gabi_token_consumido: FieldRef<"GabiTokenConsumido", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * GabiaTokenConsumidos findUnique
+   * GabiTokenConsumido findUnique
    */
-  export type GabiaTokenConsumidosFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenConsumidos to fetch.
+     * Filter, which GabiTokenConsumido to fetch.
      */
-    where: GabiaTokenConsumidosWhereUniqueInput
+    where: GabiTokenConsumidoWhereUniqueInput
   }
 
   /**
-   * GabiaTokenConsumidos findUniqueOrThrow
+   * GabiTokenConsumido findUniqueOrThrow
    */
-  export type GabiaTokenConsumidosFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenConsumidos to fetch.
+     * Filter, which GabiTokenConsumido to fetch.
      */
-    where: GabiaTokenConsumidosWhereUniqueInput
+    where: GabiTokenConsumidoWhereUniqueInput
   }
 
   /**
-   * GabiaTokenConsumidos findFirst
+   * GabiTokenConsumido findFirst
    */
-  export type GabiaTokenConsumidosFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenConsumidos to fetch.
+     * Filter, which GabiTokenConsumido to fetch.
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenConsumidos to fetch.
+     * Determine the order of GabiTokenConsumidos to fetch.
      */
-    orderBy?: GabiaTokenConsumidosOrderByWithRelationInput | GabiaTokenConsumidosOrderByWithRelationInput[]
+    orderBy?: GabiTokenConsumidoOrderByWithRelationInput | GabiTokenConsumidoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaTokenConsumidos.
+     * Sets the position for searching for GabiTokenConsumidos.
      */
-    cursor?: GabiaTokenConsumidosWhereUniqueInput
+    cursor?: GabiTokenConsumidoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenConsumidos from the position of the cursor.
+     * Take `±n` GabiTokenConsumidos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenConsumidos.
+     * Skip the first `n` GabiTokenConsumidos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaTokenConsumidos.
+     * Filter by unique combinations of GabiTokenConsumidos.
      */
-    distinct?: GabiaTokenConsumidosScalarFieldEnum | GabiaTokenConsumidosScalarFieldEnum[]
+    distinct?: GabiTokenConsumidoScalarFieldEnum | GabiTokenConsumidoScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenConsumidos findFirstOrThrow
+   * GabiTokenConsumido findFirstOrThrow
    */
-  export type GabiaTokenConsumidosFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenConsumidos to fetch.
+     * Filter, which GabiTokenConsumido to fetch.
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenConsumidos to fetch.
+     * Determine the order of GabiTokenConsumidos to fetch.
      */
-    orderBy?: GabiaTokenConsumidosOrderByWithRelationInput | GabiaTokenConsumidosOrderByWithRelationInput[]
+    orderBy?: GabiTokenConsumidoOrderByWithRelationInput | GabiTokenConsumidoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaTokenConsumidos.
+     * Sets the position for searching for GabiTokenConsumidos.
      */
-    cursor?: GabiaTokenConsumidosWhereUniqueInput
+    cursor?: GabiTokenConsumidoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenConsumidos from the position of the cursor.
+     * Take `±n` GabiTokenConsumidos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenConsumidos.
+     * Skip the first `n` GabiTokenConsumidos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaTokenConsumidos.
+     * Filter by unique combinations of GabiTokenConsumidos.
      */
-    distinct?: GabiaTokenConsumidosScalarFieldEnum | GabiaTokenConsumidosScalarFieldEnum[]
+    distinct?: GabiTokenConsumidoScalarFieldEnum | GabiTokenConsumidoScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenConsumidos findMany
+   * GabiTokenConsumido findMany
    */
-  export type GabiaTokenConsumidosFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenConsumidos to fetch.
+     * Filter, which GabiTokenConsumidos to fetch.
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenConsumidos to fetch.
+     * Determine the order of GabiTokenConsumidos to fetch.
      */
-    orderBy?: GabiaTokenConsumidosOrderByWithRelationInput | GabiaTokenConsumidosOrderByWithRelationInput[]
+    orderBy?: GabiTokenConsumidoOrderByWithRelationInput | GabiTokenConsumidoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing GabiaTokenConsumidos.
+     * Sets the position for listing GabiTokenConsumidos.
      */
-    cursor?: GabiaTokenConsumidosWhereUniqueInput
+    cursor?: GabiTokenConsumidoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenConsumidos from the position of the cursor.
+     * Take `±n` GabiTokenConsumidos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenConsumidos.
+     * Skip the first `n` GabiTokenConsumidos.
      */
     skip?: number
-    distinct?: GabiaTokenConsumidosScalarFieldEnum | GabiaTokenConsumidosScalarFieldEnum[]
+    distinct?: GabiTokenConsumidoScalarFieldEnum | GabiTokenConsumidoScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenConsumidos create
+   * GabiTokenConsumido create
    */
-  export type GabiaTokenConsumidosCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * The data needed to create a GabiaTokenConsumidos.
+     * The data needed to create a GabiTokenConsumido.
      */
-    data: XOR<GabiaTokenConsumidosCreateInput, GabiaTokenConsumidosUncheckedCreateInput>
+    data: XOR<GabiTokenConsumidoCreateInput, GabiTokenConsumidoUncheckedCreateInput>
   }
 
   /**
-   * GabiaTokenConsumidos createMany
+   * GabiTokenConsumido createMany
    */
-  export type GabiaTokenConsumidosCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many GabiaTokenConsumidos.
+     * The data used to create many GabiTokenConsumidos.
      */
-    data: GabiaTokenConsumidosCreateManyInput | GabiaTokenConsumidosCreateManyInput[]
+    data: GabiTokenConsumidoCreateManyInput | GabiTokenConsumidoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaTokenConsumidos createManyAndReturn
+   * GabiTokenConsumido createManyAndReturn
    */
-  export type GabiaTokenConsumidosCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiTokenConsumidoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many GabiaTokenConsumidos.
+     * The data used to create many GabiTokenConsumidos.
      */
-    data: GabiaTokenConsumidosCreateManyInput | GabiaTokenConsumidosCreateManyInput[]
+    data: GabiTokenConsumidoCreateManyInput | GabiTokenConsumidoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaTokenConsumidos update
+   * GabiTokenConsumido update
    */
-  export type GabiaTokenConsumidosUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * The data needed to update a GabiaTokenConsumidos.
+     * The data needed to update a GabiTokenConsumido.
      */
-    data: XOR<GabiaTokenConsumidosUpdateInput, GabiaTokenConsumidosUncheckedUpdateInput>
+    data: XOR<GabiTokenConsumidoUpdateInput, GabiTokenConsumidoUncheckedUpdateInput>
     /**
-     * Choose, which GabiaTokenConsumidos to update.
+     * Choose, which GabiTokenConsumido to update.
      */
-    where: GabiaTokenConsumidosWhereUniqueInput
+    where: GabiTokenConsumidoWhereUniqueInput
   }
 
   /**
-   * GabiaTokenConsumidos updateMany
+   * GabiTokenConsumido updateMany
    */
-  export type GabiaTokenConsumidosUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update GabiaTokenConsumidos.
+     * The data used to update GabiTokenConsumidos.
      */
-    data: XOR<GabiaTokenConsumidosUpdateManyMutationInput, GabiaTokenConsumidosUncheckedUpdateManyInput>
+    data: XOR<GabiTokenConsumidoUpdateManyMutationInput, GabiTokenConsumidoUncheckedUpdateManyInput>
     /**
-     * Filter which GabiaTokenConsumidos to update
+     * Filter which GabiTokenConsumidos to update
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
   }
 
   /**
-   * GabiaTokenConsumidos upsert
+   * GabiTokenConsumido upsert
    */
-  export type GabiaTokenConsumidosUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * The filter to search for the GabiaTokenConsumidos to update in case it exists.
+     * The filter to search for the GabiTokenConsumido to update in case it exists.
      */
-    where: GabiaTokenConsumidosWhereUniqueInput
+    where: GabiTokenConsumidoWhereUniqueInput
     /**
-     * In case the GabiaTokenConsumidos found by the `where` argument doesn't exist, create a new GabiaTokenConsumidos with this data.
+     * In case the GabiTokenConsumido found by the `where` argument doesn't exist, create a new GabiTokenConsumido with this data.
      */
-    create: XOR<GabiaTokenConsumidosCreateInput, GabiaTokenConsumidosUncheckedCreateInput>
+    create: XOR<GabiTokenConsumidoCreateInput, GabiTokenConsumidoUncheckedCreateInput>
     /**
-     * In case the GabiaTokenConsumidos was found with the provided `where` argument, update it with this data.
+     * In case the GabiTokenConsumido was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<GabiaTokenConsumidosUpdateInput, GabiaTokenConsumidosUncheckedUpdateInput>
+    update: XOR<GabiTokenConsumidoUpdateInput, GabiTokenConsumidoUncheckedUpdateInput>
   }
 
   /**
-   * GabiaTokenConsumidos delete
+   * GabiTokenConsumido delete
    */
-  export type GabiaTokenConsumidosDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
     /**
-     * Filter which GabiaTokenConsumidos to delete.
+     * Filter which GabiTokenConsumido to delete.
      */
-    where: GabiaTokenConsumidosWhereUniqueInput
+    where: GabiTokenConsumidoWhereUniqueInput
   }
 
   /**
-   * GabiaTokenConsumidos deleteMany
+   * GabiTokenConsumido deleteMany
    */
-  export type GabiaTokenConsumidosDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaTokenConsumidos to delete
+     * Filter which GabiTokenConsumidos to delete
      */
-    where?: GabiaTokenConsumidosWhereInput
+    where?: GabiTokenConsumidoWhereInput
   }
 
   /**
-   * GabiaTokenConsumidos without action
+   * GabiTokenConsumido without action
    */
-  export type GabiaTokenConsumidosDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenConsumidoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenConsumidos
+     * Select specific fields to fetch from the GabiTokenConsumido
      */
-    select?: GabiaTokenConsumidosSelect<ExtArgs> | null
+    select?: GabiTokenConsumidoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model GabiaTokenWorkspace
+   * Model GabiTokenWorkspace
    */
 
-  export type AggregateGabiaTokenWorkspace = {
-    _count: GabiaTokenWorkspaceCountAggregateOutputType | null
-    _avg: GabiaTokenWorkspaceAvgAggregateOutputType | null
-    _sum: GabiaTokenWorkspaceSumAggregateOutputType | null
-    _min: GabiaTokenWorkspaceMinAggregateOutputType | null
-    _max: GabiaTokenWorkspaceMaxAggregateOutputType | null
+  export type AggregateGabiTokenWorkspace = {
+    _count: GabiTokenWorkspaceCountAggregateOutputType | null
+    _avg: GabiTokenWorkspaceAvgAggregateOutputType | null
+    _sum: GabiTokenWorkspaceSumAggregateOutputType | null
+    _min: GabiTokenWorkspaceMinAggregateOutputType | null
+    _max: GabiTokenWorkspaceMaxAggregateOutputType | null
   }
 
-  export type GabiaTokenWorkspaceAvgAggregateOutputType = {
-    quota_mensal: number | null
-    tokens_usados: number | null
+  export type GabiTokenWorkspaceAvgAggregateOutputType = {
+    quota_mensal_gabi_token_workspace: number | null
+    tokens_usados_gabi_token_workspace: number | null
   }
 
-  export type GabiaTokenWorkspaceSumAggregateOutputType = {
-    quota_mensal: number | null
-    tokens_usados: number | null
+  export type GabiTokenWorkspaceSumAggregateOutputType = {
+    quota_mensal_gabi_token_workspace: number | null
+    tokens_usados_gabi_token_workspace: number | null
   }
 
-  export type GabiaTokenWorkspaceMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    quota_mensal: number | null
-    mes_ref: string | null
-    tokens_usados: number | null
-    updated_at: Date | null
+  export type GabiTokenWorkspaceMinAggregateOutputType = {
+    id_gabi_token_workspace: string | null
+    id_organizacao_gabi_token_workspace: string | null
+    id_produto_gabi_token_workspace: string | null
+    quota_mensal_gabi_token_workspace: number | null
+    mes_ref_gabi_token_workspace: string | null
+    tokens_usados_gabi_token_workspace: number | null
+    data_atualizacao_gabi_token_workspace: Date | null
   }
 
-  export type GabiaTokenWorkspaceMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    quota_mensal: number | null
-    mes_ref: string | null
-    tokens_usados: number | null
-    updated_at: Date | null
+  export type GabiTokenWorkspaceMaxAggregateOutputType = {
+    id_gabi_token_workspace: string | null
+    id_organizacao_gabi_token_workspace: string | null
+    id_produto_gabi_token_workspace: string | null
+    quota_mensal_gabi_token_workspace: number | null
+    mes_ref_gabi_token_workspace: string | null
+    tokens_usados_gabi_token_workspace: number | null
+    data_atualizacao_gabi_token_workspace: Date | null
   }
 
-  export type GabiaTokenWorkspaceCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    quota_mensal: number
-    mes_ref: number
-    tokens_usados: number
-    updated_at: number
+  export type GabiTokenWorkspaceCountAggregateOutputType = {
+    id_gabi_token_workspace: number
+    id_organizacao_gabi_token_workspace: number
+    id_produto_gabi_token_workspace: number
+    quota_mensal_gabi_token_workspace: number
+    mes_ref_gabi_token_workspace: number
+    tokens_usados_gabi_token_workspace: number
+    data_atualizacao_gabi_token_workspace: number
     _all: number
   }
 
 
-  export type GabiaTokenWorkspaceAvgAggregateInputType = {
-    quota_mensal?: true
-    tokens_usados?: true
+  export type GabiTokenWorkspaceAvgAggregateInputType = {
+    quota_mensal_gabi_token_workspace?: true
+    tokens_usados_gabi_token_workspace?: true
   }
 
-  export type GabiaTokenWorkspaceSumAggregateInputType = {
-    quota_mensal?: true
-    tokens_usados?: true
+  export type GabiTokenWorkspaceSumAggregateInputType = {
+    quota_mensal_gabi_token_workspace?: true
+    tokens_usados_gabi_token_workspace?: true
   }
 
-  export type GabiaTokenWorkspaceMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    quota_mensal?: true
-    mes_ref?: true
-    tokens_usados?: true
-    updated_at?: true
+  export type GabiTokenWorkspaceMinAggregateInputType = {
+    id_gabi_token_workspace?: true
+    id_organizacao_gabi_token_workspace?: true
+    id_produto_gabi_token_workspace?: true
+    quota_mensal_gabi_token_workspace?: true
+    mes_ref_gabi_token_workspace?: true
+    tokens_usados_gabi_token_workspace?: true
+    data_atualizacao_gabi_token_workspace?: true
   }
 
-  export type GabiaTokenWorkspaceMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    quota_mensal?: true
-    mes_ref?: true
-    tokens_usados?: true
-    updated_at?: true
+  export type GabiTokenWorkspaceMaxAggregateInputType = {
+    id_gabi_token_workspace?: true
+    id_organizacao_gabi_token_workspace?: true
+    id_produto_gabi_token_workspace?: true
+    quota_mensal_gabi_token_workspace?: true
+    mes_ref_gabi_token_workspace?: true
+    tokens_usados_gabi_token_workspace?: true
+    data_atualizacao_gabi_token_workspace?: true
   }
 
-  export type GabiaTokenWorkspaceCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    quota_mensal?: true
-    mes_ref?: true
-    tokens_usados?: true
-    updated_at?: true
+  export type GabiTokenWorkspaceCountAggregateInputType = {
+    id_gabi_token_workspace?: true
+    id_organizacao_gabi_token_workspace?: true
+    id_produto_gabi_token_workspace?: true
+    quota_mensal_gabi_token_workspace?: true
+    mes_ref_gabi_token_workspace?: true
+    tokens_usados_gabi_token_workspace?: true
+    data_atualizacao_gabi_token_workspace?: true
     _all?: true
   }
 
-  export type GabiaTokenWorkspaceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaTokenWorkspace to aggregate.
+     * Filter which GabiTokenWorkspace to aggregate.
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenWorkspaces to fetch.
+     * Determine the order of GabiTokenWorkspaces to fetch.
      */
-    orderBy?: GabiaTokenWorkspaceOrderByWithRelationInput | GabiaTokenWorkspaceOrderByWithRelationInput[]
+    orderBy?: GabiTokenWorkspaceOrderByWithRelationInput | GabiTokenWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: GabiaTokenWorkspaceWhereUniqueInput
+    cursor?: GabiTokenWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenWorkspaces from the position of the cursor.
+     * Take `±n` GabiTokenWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenWorkspaces.
+     * Skip the first `n` GabiTokenWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned GabiaTokenWorkspaces
+     * Count returned GabiTokenWorkspaces
     **/
-    _count?: true | GabiaTokenWorkspaceCountAggregateInputType
+    _count?: true | GabiTokenWorkspaceCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: GabiaTokenWorkspaceAvgAggregateInputType
+    _avg?: GabiTokenWorkspaceAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: GabiaTokenWorkspaceSumAggregateInputType
+    _sum?: GabiTokenWorkspaceSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: GabiaTokenWorkspaceMinAggregateInputType
+    _min?: GabiTokenWorkspaceMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: GabiaTokenWorkspaceMaxAggregateInputType
+    _max?: GabiTokenWorkspaceMaxAggregateInputType
   }
 
-  export type GetGabiaTokenWorkspaceAggregateType<T extends GabiaTokenWorkspaceAggregateArgs> = {
-        [P in keyof T & keyof AggregateGabiaTokenWorkspace]: P extends '_count' | 'count'
+  export type GetGabiTokenWorkspaceAggregateType<T extends GabiTokenWorkspaceAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiTokenWorkspace]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateGabiaTokenWorkspace[P]>
-      : GetScalarType<T[P], AggregateGabiaTokenWorkspace[P]>
+        : GetScalarType<T[P], AggregateGabiTokenWorkspace[P]>
+      : GetScalarType<T[P], AggregateGabiTokenWorkspace[P]>
   }
 
 
 
 
-  export type GabiaTokenWorkspaceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GabiaTokenWorkspaceWhereInput
-    orderBy?: GabiaTokenWorkspaceOrderByWithAggregationInput | GabiaTokenWorkspaceOrderByWithAggregationInput[]
-    by: GabiaTokenWorkspaceScalarFieldEnum[] | GabiaTokenWorkspaceScalarFieldEnum
-    having?: GabiaTokenWorkspaceScalarWhereWithAggregatesInput
+  export type GabiTokenWorkspaceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiTokenWorkspaceWhereInput
+    orderBy?: GabiTokenWorkspaceOrderByWithAggregationInput | GabiTokenWorkspaceOrderByWithAggregationInput[]
+    by: GabiTokenWorkspaceScalarFieldEnum[] | GabiTokenWorkspaceScalarFieldEnum
+    having?: GabiTokenWorkspaceScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: GabiaTokenWorkspaceCountAggregateInputType | true
-    _avg?: GabiaTokenWorkspaceAvgAggregateInputType
-    _sum?: GabiaTokenWorkspaceSumAggregateInputType
-    _min?: GabiaTokenWorkspaceMinAggregateInputType
-    _max?: GabiaTokenWorkspaceMaxAggregateInputType
+    _count?: GabiTokenWorkspaceCountAggregateInputType | true
+    _avg?: GabiTokenWorkspaceAvgAggregateInputType
+    _sum?: GabiTokenWorkspaceSumAggregateInputType
+    _min?: GabiTokenWorkspaceMinAggregateInputType
+    _max?: GabiTokenWorkspaceMaxAggregateInputType
   }
 
-  export type GabiaTokenWorkspaceGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string
-    quota_mensal: number
-    mes_ref: string
-    tokens_usados: number
-    updated_at: Date
-    _count: GabiaTokenWorkspaceCountAggregateOutputType | null
-    _avg: GabiaTokenWorkspaceAvgAggregateOutputType | null
-    _sum: GabiaTokenWorkspaceSumAggregateOutputType | null
-    _min: GabiaTokenWorkspaceMinAggregateOutputType | null
-    _max: GabiaTokenWorkspaceMaxAggregateOutputType | null
+  export type GabiTokenWorkspaceGroupByOutputType = {
+    id_gabi_token_workspace: string
+    id_organizacao_gabi_token_workspace: string
+    id_produto_gabi_token_workspace: string
+    quota_mensal_gabi_token_workspace: number
+    mes_ref_gabi_token_workspace: string
+    tokens_usados_gabi_token_workspace: number
+    data_atualizacao_gabi_token_workspace: Date
+    _count: GabiTokenWorkspaceCountAggregateOutputType | null
+    _avg: GabiTokenWorkspaceAvgAggregateOutputType | null
+    _sum: GabiTokenWorkspaceSumAggregateOutputType | null
+    _min: GabiTokenWorkspaceMinAggregateOutputType | null
+    _max: GabiTokenWorkspaceMaxAggregateOutputType | null
   }
 
-  type GetGabiaTokenWorkspaceGroupByPayload<T extends GabiaTokenWorkspaceGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiTokenWorkspaceGroupByPayload<T extends GabiTokenWorkspaceGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<GabiaTokenWorkspaceGroupByOutputType, T['by']> &
+      PickEnumerable<GabiTokenWorkspaceGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof GabiaTokenWorkspaceGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiTokenWorkspaceGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], GabiaTokenWorkspaceGroupByOutputType[P]>
-            : GetScalarType<T[P], GabiaTokenWorkspaceGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiTokenWorkspaceGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiTokenWorkspaceGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type GabiaTokenWorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    quota_mensal?: boolean
-    mes_ref?: boolean
-    tokens_usados?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["gabiaTokenWorkspace"]>
+  export type GabiTokenWorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_token_workspace?: boolean
+    id_organizacao_gabi_token_workspace?: boolean
+    id_produto_gabi_token_workspace?: boolean
+    quota_mensal_gabi_token_workspace?: boolean
+    mes_ref_gabi_token_workspace?: boolean
+    tokens_usados_gabi_token_workspace?: boolean
+    data_atualizacao_gabi_token_workspace?: boolean
+  }, ExtArgs["result"]["gabiTokenWorkspace"]>
 
-  export type GabiaTokenWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    quota_mensal?: boolean
-    mes_ref?: boolean
-    tokens_usados?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["gabiaTokenWorkspace"]>
+  export type GabiTokenWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_token_workspace?: boolean
+    id_organizacao_gabi_token_workspace?: boolean
+    id_produto_gabi_token_workspace?: boolean
+    quota_mensal_gabi_token_workspace?: boolean
+    mes_ref_gabi_token_workspace?: boolean
+    tokens_usados_gabi_token_workspace?: boolean
+    data_atualizacao_gabi_token_workspace?: boolean
+  }, ExtArgs["result"]["gabiTokenWorkspace"]>
 
-  export type GabiaTokenWorkspaceSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    quota_mensal?: boolean
-    mes_ref?: boolean
-    tokens_usados?: boolean
-    updated_at?: boolean
+  export type GabiTokenWorkspaceSelectScalar = {
+    id_gabi_token_workspace?: boolean
+    id_organizacao_gabi_token_workspace?: boolean
+    id_produto_gabi_token_workspace?: boolean
+    quota_mensal_gabi_token_workspace?: boolean
+    mes_ref_gabi_token_workspace?: boolean
+    tokens_usados_gabi_token_workspace?: boolean
+    data_atualizacao_gabi_token_workspace?: boolean
   }
 
 
-  export type $GabiaTokenWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "GabiaTokenWorkspace"
+  export type $GabiTokenWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiTokenWorkspace"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string
-      quota_mensal: number
-      mes_ref: string
-      tokens_usados: number
-      updated_at: Date
-    }, ExtArgs["result"]["gabiaTokenWorkspace"]>
+      id_gabi_token_workspace: string
+      id_organizacao_gabi_token_workspace: string
+      id_produto_gabi_token_workspace: string
+      quota_mensal_gabi_token_workspace: number
+      mes_ref_gabi_token_workspace: string
+      tokens_usados_gabi_token_workspace: number
+      data_atualizacao_gabi_token_workspace: Date
+    }, ExtArgs["result"]["gabiTokenWorkspace"]>
     composites: {}
   }
 
-  type GabiaTokenWorkspaceGetPayload<S extends boolean | null | undefined | GabiaTokenWorkspaceDefaultArgs> = $Result.GetResult<Prisma.$GabiaTokenWorkspacePayload, S>
+  type GabiTokenWorkspaceGetPayload<S extends boolean | null | undefined | GabiTokenWorkspaceDefaultArgs> = $Result.GetResult<Prisma.$GabiTokenWorkspacePayload, S>
 
-  type GabiaTokenWorkspaceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<GabiaTokenWorkspaceFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: GabiaTokenWorkspaceCountAggregateInputType | true
+  type GabiTokenWorkspaceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiTokenWorkspaceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiTokenWorkspaceCountAggregateInputType | true
     }
 
-  export interface GabiaTokenWorkspaceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiaTokenWorkspace'], meta: { name: 'GabiaTokenWorkspace' } }
+  export interface GabiTokenWorkspaceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiTokenWorkspace'], meta: { name: 'GabiTokenWorkspace' } }
     /**
-     * Find zero or one GabiaTokenWorkspace that matches the filter.
-     * @param {GabiaTokenWorkspaceFindUniqueArgs} args - Arguments to find a GabiaTokenWorkspace
+     * Find zero or one GabiTokenWorkspace that matches the filter.
+     * @param {GabiTokenWorkspaceFindUniqueArgs} args - Arguments to find a GabiTokenWorkspace
      * @example
-     * // Get one GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.findUnique({
+     * // Get one GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends GabiaTokenWorkspaceFindUniqueArgs>(args: SelectSubset<T, GabiaTokenWorkspaceFindUniqueArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiTokenWorkspaceFindUniqueArgs>(args: SelectSubset<T, GabiTokenWorkspaceFindUniqueArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one GabiaTokenWorkspace that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiTokenWorkspace that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {GabiaTokenWorkspaceFindUniqueOrThrowArgs} args - Arguments to find a GabiaTokenWorkspace
+     * @param {GabiTokenWorkspaceFindUniqueOrThrowArgs} args - Arguments to find a GabiTokenWorkspace
      * @example
-     * // Get one GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.findUniqueOrThrow({
+     * // Get one GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends GabiaTokenWorkspaceFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiaTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiTokenWorkspaceFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first GabiaTokenWorkspace that matches the filter.
+     * Find the first GabiTokenWorkspace that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceFindFirstArgs} args - Arguments to find a GabiaTokenWorkspace
+     * @param {GabiTokenWorkspaceFindFirstArgs} args - Arguments to find a GabiTokenWorkspace
      * @example
-     * // Get one GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.findFirst({
+     * // Get one GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends GabiaTokenWorkspaceFindFirstArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceFindFirstArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiTokenWorkspaceFindFirstArgs>(args?: SelectSubset<T, GabiTokenWorkspaceFindFirstArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first GabiaTokenWorkspace that matches the filter or
+     * Find the first GabiTokenWorkspace that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceFindFirstOrThrowArgs} args - Arguments to find a GabiaTokenWorkspace
+     * @param {GabiTokenWorkspaceFindFirstOrThrowArgs} args - Arguments to find a GabiTokenWorkspace
      * @example
-     * // Get one GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.findFirstOrThrow({
+     * // Get one GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends GabiaTokenWorkspaceFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiTokenWorkspaceFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiTokenWorkspaceFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more GabiaTokenWorkspaces that matches the filter.
+     * Find zero or more GabiTokenWorkspaces that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiTokenWorkspaceFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all GabiaTokenWorkspaces
-     * const gabiaTokenWorkspaces = await prisma.gabiaTokenWorkspace.findMany()
+     * // Get all GabiTokenWorkspaces
+     * const gabiTokenWorkspaces = await prisma.gabiTokenWorkspace.findMany()
      * 
-     * // Get first 10 GabiaTokenWorkspaces
-     * const gabiaTokenWorkspaces = await prisma.gabiaTokenWorkspace.findMany({ take: 10 })
+     * // Get first 10 GabiTokenWorkspaces
+     * const gabiTokenWorkspaces = await prisma.gabiTokenWorkspace.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const gabiaTokenWorkspaceWithIdOnly = await prisma.gabiaTokenWorkspace.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_token_workspace`
+     * const gabiTokenWorkspaceWithId_gabi_token_workspaceOnly = await prisma.gabiTokenWorkspace.findMany({ select: { id_gabi_token_workspace: true } })
      * 
      */
-    findMany<T extends GabiaTokenWorkspaceFindManyArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiTokenWorkspaceFindManyArgs>(args?: SelectSubset<T, GabiTokenWorkspaceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a GabiaTokenWorkspace.
-     * @param {GabiaTokenWorkspaceCreateArgs} args - Arguments to create a GabiaTokenWorkspace.
+     * Create a GabiTokenWorkspace.
+     * @param {GabiTokenWorkspaceCreateArgs} args - Arguments to create a GabiTokenWorkspace.
      * @example
-     * // Create one GabiaTokenWorkspace
-     * const GabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.create({
+     * // Create one GabiTokenWorkspace
+     * const GabiTokenWorkspace = await prisma.gabiTokenWorkspace.create({
      *   data: {
-     *     // ... data to create a GabiaTokenWorkspace
+     *     // ... data to create a GabiTokenWorkspace
      *   }
      * })
      * 
      */
-    create<T extends GabiaTokenWorkspaceCreateArgs>(args: SelectSubset<T, GabiaTokenWorkspaceCreateArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiTokenWorkspaceCreateArgs>(args: SelectSubset<T, GabiTokenWorkspaceCreateArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many GabiaTokenWorkspaces.
-     * @param {GabiaTokenWorkspaceCreateManyArgs} args - Arguments to create many GabiaTokenWorkspaces.
+     * Create many GabiTokenWorkspaces.
+     * @param {GabiTokenWorkspaceCreateManyArgs} args - Arguments to create many GabiTokenWorkspaces.
      * @example
-     * // Create many GabiaTokenWorkspaces
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.createMany({
+     * // Create many GabiTokenWorkspaces
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends GabiaTokenWorkspaceCreateManyArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiTokenWorkspaceCreateManyArgs>(args?: SelectSubset<T, GabiTokenWorkspaceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many GabiaTokenWorkspaces and returns the data saved in the database.
-     * @param {GabiaTokenWorkspaceCreateManyAndReturnArgs} args - Arguments to create many GabiaTokenWorkspaces.
+     * Create many GabiTokenWorkspaces and returns the data saved in the database.
+     * @param {GabiTokenWorkspaceCreateManyAndReturnArgs} args - Arguments to create many GabiTokenWorkspaces.
      * @example
-     * // Create many GabiaTokenWorkspaces
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.createManyAndReturn({
+     * // Create many GabiTokenWorkspaces
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many GabiaTokenWorkspaces and only return the `id`
-     * const gabiaTokenWorkspaceWithIdOnly = await prisma.gabiaTokenWorkspace.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiTokenWorkspaces and only return the `id_gabi_token_workspace`
+     * const gabiTokenWorkspaceWithId_gabi_token_workspaceOnly = await prisma.gabiTokenWorkspace.createManyAndReturn({ 
+     *   select: { id_gabi_token_workspace: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -42303,28 +42303,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends GabiaTokenWorkspaceCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiTokenWorkspaceCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiTokenWorkspaceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a GabiaTokenWorkspace.
-     * @param {GabiaTokenWorkspaceDeleteArgs} args - Arguments to delete one GabiaTokenWorkspace.
+     * Delete a GabiTokenWorkspace.
+     * @param {GabiTokenWorkspaceDeleteArgs} args - Arguments to delete one GabiTokenWorkspace.
      * @example
-     * // Delete one GabiaTokenWorkspace
-     * const GabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.delete({
+     * // Delete one GabiTokenWorkspace
+     * const GabiTokenWorkspace = await prisma.gabiTokenWorkspace.delete({
      *   where: {
-     *     // ... filter to delete one GabiaTokenWorkspace
+     *     // ... filter to delete one GabiTokenWorkspace
      *   }
      * })
      * 
      */
-    delete<T extends GabiaTokenWorkspaceDeleteArgs>(args: SelectSubset<T, GabiaTokenWorkspaceDeleteArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiTokenWorkspaceDeleteArgs>(args: SelectSubset<T, GabiTokenWorkspaceDeleteArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one GabiaTokenWorkspace.
-     * @param {GabiaTokenWorkspaceUpdateArgs} args - Arguments to update one GabiaTokenWorkspace.
+     * Update one GabiTokenWorkspace.
+     * @param {GabiTokenWorkspaceUpdateArgs} args - Arguments to update one GabiTokenWorkspace.
      * @example
-     * // Update one GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.update({
+     * // Update one GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -42334,30 +42334,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends GabiaTokenWorkspaceUpdateArgs>(args: SelectSubset<T, GabiaTokenWorkspaceUpdateArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiTokenWorkspaceUpdateArgs>(args: SelectSubset<T, GabiTokenWorkspaceUpdateArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more GabiaTokenWorkspaces.
-     * @param {GabiaTokenWorkspaceDeleteManyArgs} args - Arguments to filter GabiaTokenWorkspaces to delete.
+     * Delete zero or more GabiTokenWorkspaces.
+     * @param {GabiTokenWorkspaceDeleteManyArgs} args - Arguments to filter GabiTokenWorkspaces to delete.
      * @example
-     * // Delete a few GabiaTokenWorkspaces
-     * const { count } = await prisma.gabiaTokenWorkspace.deleteMany({
+     * // Delete a few GabiTokenWorkspaces
+     * const { count } = await prisma.gabiTokenWorkspace.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends GabiaTokenWorkspaceDeleteManyArgs>(args?: SelectSubset<T, GabiaTokenWorkspaceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiTokenWorkspaceDeleteManyArgs>(args?: SelectSubset<T, GabiTokenWorkspaceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more GabiaTokenWorkspaces.
+     * Update zero or more GabiTokenWorkspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiTokenWorkspaceUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many GabiaTokenWorkspaces
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.updateMany({
+     * // Update many GabiTokenWorkspaces
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -42367,56 +42367,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends GabiaTokenWorkspaceUpdateManyArgs>(args: SelectSubset<T, GabiaTokenWorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiTokenWorkspaceUpdateManyArgs>(args: SelectSubset<T, GabiTokenWorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one GabiaTokenWorkspace.
-     * @param {GabiaTokenWorkspaceUpsertArgs} args - Arguments to update or create a GabiaTokenWorkspace.
+     * Create or update one GabiTokenWorkspace.
+     * @param {GabiTokenWorkspaceUpsertArgs} args - Arguments to update or create a GabiTokenWorkspace.
      * @example
-     * // Update or create a GabiaTokenWorkspace
-     * const gabiaTokenWorkspace = await prisma.gabiaTokenWorkspace.upsert({
+     * // Update or create a GabiTokenWorkspace
+     * const gabiTokenWorkspace = await prisma.gabiTokenWorkspace.upsert({
      *   create: {
-     *     // ... data to create a GabiaTokenWorkspace
+     *     // ... data to create a GabiTokenWorkspace
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the GabiaTokenWorkspace we want to update
+     *     // ... the filter for the GabiTokenWorkspace we want to update
      *   }
      * })
      */
-    upsert<T extends GabiaTokenWorkspaceUpsertArgs>(args: SelectSubset<T, GabiaTokenWorkspaceUpsertArgs<ExtArgs>>): Prisma__GabiaTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiaTokenWorkspacePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiTokenWorkspaceUpsertArgs>(args: SelectSubset<T, GabiTokenWorkspaceUpsertArgs<ExtArgs>>): Prisma__GabiTokenWorkspaceClient<$Result.GetResult<Prisma.$GabiTokenWorkspacePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of GabiaTokenWorkspaces.
+     * Count the number of GabiTokenWorkspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceCountArgs} args - Arguments to filter GabiaTokenWorkspaces to count.
+     * @param {GabiTokenWorkspaceCountArgs} args - Arguments to filter GabiTokenWorkspaces to count.
      * @example
-     * // Count the number of GabiaTokenWorkspaces
-     * const count = await prisma.gabiaTokenWorkspace.count({
+     * // Count the number of GabiTokenWorkspaces
+     * const count = await prisma.gabiTokenWorkspace.count({
      *   where: {
-     *     // ... the filter for the GabiaTokenWorkspaces we want to count
+     *     // ... the filter for the GabiTokenWorkspaces we want to count
      *   }
      * })
     **/
-    count<T extends GabiaTokenWorkspaceCountArgs>(
-      args?: Subset<T, GabiaTokenWorkspaceCountArgs>,
+    count<T extends GabiTokenWorkspaceCountArgs>(
+      args?: Subset<T, GabiTokenWorkspaceCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], GabiaTokenWorkspaceCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiTokenWorkspaceCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a GabiaTokenWorkspace.
+     * Allows you to perform aggregations operations on a GabiTokenWorkspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiTokenWorkspaceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -42436,13 +42436,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends GabiaTokenWorkspaceAggregateArgs>(args: Subset<T, GabiaTokenWorkspaceAggregateArgs>): Prisma.PrismaPromise<GetGabiaTokenWorkspaceAggregateType<T>>
+    aggregate<T extends GabiTokenWorkspaceAggregateArgs>(args: Subset<T, GabiTokenWorkspaceAggregateArgs>): Prisma.PrismaPromise<GetGabiTokenWorkspaceAggregateType<T>>
 
     /**
-     * Group by GabiaTokenWorkspace.
+     * Group by GabiTokenWorkspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GabiaTokenWorkspaceGroupByArgs} args - Group by arguments.
+     * @param {GabiTokenWorkspaceGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -42457,14 +42457,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends GabiaTokenWorkspaceGroupByArgs,
+      T extends GabiTokenWorkspaceGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: GabiaTokenWorkspaceGroupByArgs['orderBy'] }
-        : { orderBy?: GabiaTokenWorkspaceGroupByArgs['orderBy'] },
+        ? { orderBy: GabiTokenWorkspaceGroupByArgs['orderBy'] }
+        : { orderBy?: GabiTokenWorkspaceGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -42513,20 +42513,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, GabiaTokenWorkspaceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiaTokenWorkspaceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiTokenWorkspaceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiTokenWorkspaceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the GabiaTokenWorkspace model
+   * Fields of the GabiTokenWorkspace model
    */
-  readonly fields: GabiaTokenWorkspaceFieldRefs;
+  readonly fields: GabiTokenWorkspaceFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for GabiaTokenWorkspace.
+   * The delegate class that acts as a "Promise-like" for GabiTokenWorkspace.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__GabiaTokenWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiTokenWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -42554,682 +42554,693 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the GabiaTokenWorkspace model
+   * Fields of the GabiTokenWorkspace model
    */ 
-  interface GabiaTokenWorkspaceFieldRefs {
-    readonly id: FieldRef<"GabiaTokenWorkspace", 'String'>
-    readonly tenant_id: FieldRef<"GabiaTokenWorkspace", 'String'>
-    readonly product_id: FieldRef<"GabiaTokenWorkspace", 'String'>
-    readonly quota_mensal: FieldRef<"GabiaTokenWorkspace", 'Int'>
-    readonly mes_ref: FieldRef<"GabiaTokenWorkspace", 'String'>
-    readonly tokens_usados: FieldRef<"GabiaTokenWorkspace", 'Int'>
-    readonly updated_at: FieldRef<"GabiaTokenWorkspace", 'DateTime'>
+  interface GabiTokenWorkspaceFieldRefs {
+    readonly id_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'String'>
+    readonly id_organizacao_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'String'>
+    readonly id_produto_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'String'>
+    readonly quota_mensal_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'Int'>
+    readonly mes_ref_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'String'>
+    readonly tokens_usados_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'Int'>
+    readonly data_atualizacao_gabi_token_workspace: FieldRef<"GabiTokenWorkspace", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * GabiaTokenWorkspace findUnique
+   * GabiTokenWorkspace findUnique
    */
-  export type GabiaTokenWorkspaceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenWorkspace to fetch.
+     * Filter, which GabiTokenWorkspace to fetch.
      */
-    where: GabiaTokenWorkspaceWhereUniqueInput
+    where: GabiTokenWorkspaceWhereUniqueInput
   }
 
   /**
-   * GabiaTokenWorkspace findUniqueOrThrow
+   * GabiTokenWorkspace findUniqueOrThrow
    */
-  export type GabiaTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenWorkspace to fetch.
+     * Filter, which GabiTokenWorkspace to fetch.
      */
-    where: GabiaTokenWorkspaceWhereUniqueInput
+    where: GabiTokenWorkspaceWhereUniqueInput
   }
 
   /**
-   * GabiaTokenWorkspace findFirst
+   * GabiTokenWorkspace findFirst
    */
-  export type GabiaTokenWorkspaceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenWorkspace to fetch.
+     * Filter, which GabiTokenWorkspace to fetch.
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenWorkspaces to fetch.
+     * Determine the order of GabiTokenWorkspaces to fetch.
      */
-    orderBy?: GabiaTokenWorkspaceOrderByWithRelationInput | GabiaTokenWorkspaceOrderByWithRelationInput[]
+    orderBy?: GabiTokenWorkspaceOrderByWithRelationInput | GabiTokenWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaTokenWorkspaces.
+     * Sets the position for searching for GabiTokenWorkspaces.
      */
-    cursor?: GabiaTokenWorkspaceWhereUniqueInput
+    cursor?: GabiTokenWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenWorkspaces from the position of the cursor.
+     * Take `±n` GabiTokenWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenWorkspaces.
+     * Skip the first `n` GabiTokenWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaTokenWorkspaces.
+     * Filter by unique combinations of GabiTokenWorkspaces.
      */
-    distinct?: GabiaTokenWorkspaceScalarFieldEnum | GabiaTokenWorkspaceScalarFieldEnum[]
+    distinct?: GabiTokenWorkspaceScalarFieldEnum | GabiTokenWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenWorkspace findFirstOrThrow
+   * GabiTokenWorkspace findFirstOrThrow
    */
-  export type GabiaTokenWorkspaceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenWorkspace to fetch.
+     * Filter, which GabiTokenWorkspace to fetch.
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenWorkspaces to fetch.
+     * Determine the order of GabiTokenWorkspaces to fetch.
      */
-    orderBy?: GabiaTokenWorkspaceOrderByWithRelationInput | GabiaTokenWorkspaceOrderByWithRelationInput[]
+    orderBy?: GabiTokenWorkspaceOrderByWithRelationInput | GabiTokenWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GabiaTokenWorkspaces.
+     * Sets the position for searching for GabiTokenWorkspaces.
      */
-    cursor?: GabiaTokenWorkspaceWhereUniqueInput
+    cursor?: GabiTokenWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenWorkspaces from the position of the cursor.
+     * Take `±n` GabiTokenWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenWorkspaces.
+     * Skip the first `n` GabiTokenWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GabiaTokenWorkspaces.
+     * Filter by unique combinations of GabiTokenWorkspaces.
      */
-    distinct?: GabiaTokenWorkspaceScalarFieldEnum | GabiaTokenWorkspaceScalarFieldEnum[]
+    distinct?: GabiTokenWorkspaceScalarFieldEnum | GabiTokenWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenWorkspace findMany
+   * GabiTokenWorkspace findMany
    */
-  export type GabiaTokenWorkspaceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which GabiaTokenWorkspaces to fetch.
+     * Filter, which GabiTokenWorkspaces to fetch.
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GabiaTokenWorkspaces to fetch.
+     * Determine the order of GabiTokenWorkspaces to fetch.
      */
-    orderBy?: GabiaTokenWorkspaceOrderByWithRelationInput | GabiaTokenWorkspaceOrderByWithRelationInput[]
+    orderBy?: GabiTokenWorkspaceOrderByWithRelationInput | GabiTokenWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing GabiaTokenWorkspaces.
+     * Sets the position for listing GabiTokenWorkspaces.
      */
-    cursor?: GabiaTokenWorkspaceWhereUniqueInput
+    cursor?: GabiTokenWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GabiaTokenWorkspaces from the position of the cursor.
+     * Take `±n` GabiTokenWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GabiaTokenWorkspaces.
+     * Skip the first `n` GabiTokenWorkspaces.
      */
     skip?: number
-    distinct?: GabiaTokenWorkspaceScalarFieldEnum | GabiaTokenWorkspaceScalarFieldEnum[]
+    distinct?: GabiTokenWorkspaceScalarFieldEnum | GabiTokenWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * GabiaTokenWorkspace create
+   * GabiTokenWorkspace create
    */
-  export type GabiaTokenWorkspaceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * The data needed to create a GabiaTokenWorkspace.
+     * The data needed to create a GabiTokenWorkspace.
      */
-    data: XOR<GabiaTokenWorkspaceCreateInput, GabiaTokenWorkspaceUncheckedCreateInput>
+    data: XOR<GabiTokenWorkspaceCreateInput, GabiTokenWorkspaceUncheckedCreateInput>
   }
 
   /**
-   * GabiaTokenWorkspace createMany
+   * GabiTokenWorkspace createMany
    */
-  export type GabiaTokenWorkspaceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many GabiaTokenWorkspaces.
+     * The data used to create many GabiTokenWorkspaces.
      */
-    data: GabiaTokenWorkspaceCreateManyInput | GabiaTokenWorkspaceCreateManyInput[]
+    data: GabiTokenWorkspaceCreateManyInput | GabiTokenWorkspaceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaTokenWorkspace createManyAndReturn
+   * GabiTokenWorkspace createManyAndReturn
    */
-  export type GabiaTokenWorkspaceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many GabiaTokenWorkspaces.
+     * The data used to create many GabiTokenWorkspaces.
      */
-    data: GabiaTokenWorkspaceCreateManyInput | GabiaTokenWorkspaceCreateManyInput[]
+    data: GabiTokenWorkspaceCreateManyInput | GabiTokenWorkspaceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GabiaTokenWorkspace update
+   * GabiTokenWorkspace update
    */
-  export type GabiaTokenWorkspaceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * The data needed to update a GabiaTokenWorkspace.
+     * The data needed to update a GabiTokenWorkspace.
      */
-    data: XOR<GabiaTokenWorkspaceUpdateInput, GabiaTokenWorkspaceUncheckedUpdateInput>
+    data: XOR<GabiTokenWorkspaceUpdateInput, GabiTokenWorkspaceUncheckedUpdateInput>
     /**
-     * Choose, which GabiaTokenWorkspace to update.
+     * Choose, which GabiTokenWorkspace to update.
      */
-    where: GabiaTokenWorkspaceWhereUniqueInput
+    where: GabiTokenWorkspaceWhereUniqueInput
   }
 
   /**
-   * GabiaTokenWorkspace updateMany
+   * GabiTokenWorkspace updateMany
    */
-  export type GabiaTokenWorkspaceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update GabiaTokenWorkspaces.
+     * The data used to update GabiTokenWorkspaces.
      */
-    data: XOR<GabiaTokenWorkspaceUpdateManyMutationInput, GabiaTokenWorkspaceUncheckedUpdateManyInput>
+    data: XOR<GabiTokenWorkspaceUpdateManyMutationInput, GabiTokenWorkspaceUncheckedUpdateManyInput>
     /**
-     * Filter which GabiaTokenWorkspaces to update
+     * Filter which GabiTokenWorkspaces to update
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
   }
 
   /**
-   * GabiaTokenWorkspace upsert
+   * GabiTokenWorkspace upsert
    */
-  export type GabiaTokenWorkspaceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * The filter to search for the GabiaTokenWorkspace to update in case it exists.
+     * The filter to search for the GabiTokenWorkspace to update in case it exists.
      */
-    where: GabiaTokenWorkspaceWhereUniqueInput
+    where: GabiTokenWorkspaceWhereUniqueInput
     /**
-     * In case the GabiaTokenWorkspace found by the `where` argument doesn't exist, create a new GabiaTokenWorkspace with this data.
+     * In case the GabiTokenWorkspace found by the `where` argument doesn't exist, create a new GabiTokenWorkspace with this data.
      */
-    create: XOR<GabiaTokenWorkspaceCreateInput, GabiaTokenWorkspaceUncheckedCreateInput>
+    create: XOR<GabiTokenWorkspaceCreateInput, GabiTokenWorkspaceUncheckedCreateInput>
     /**
-     * In case the GabiaTokenWorkspace was found with the provided `where` argument, update it with this data.
+     * In case the GabiTokenWorkspace was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<GabiaTokenWorkspaceUpdateInput, GabiaTokenWorkspaceUncheckedUpdateInput>
+    update: XOR<GabiTokenWorkspaceUpdateInput, GabiTokenWorkspaceUncheckedUpdateInput>
   }
 
   /**
-   * GabiaTokenWorkspace delete
+   * GabiTokenWorkspace delete
    */
-  export type GabiaTokenWorkspaceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter which GabiaTokenWorkspace to delete.
+     * Filter which GabiTokenWorkspace to delete.
      */
-    where: GabiaTokenWorkspaceWhereUniqueInput
+    where: GabiTokenWorkspaceWhereUniqueInput
   }
 
   /**
-   * GabiaTokenWorkspace deleteMany
+   * GabiTokenWorkspace deleteMany
    */
-  export type GabiaTokenWorkspaceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GabiaTokenWorkspaces to delete
+     * Filter which GabiTokenWorkspaces to delete
      */
-    where?: GabiaTokenWorkspaceWhereInput
+    where?: GabiTokenWorkspaceWhereInput
   }
 
   /**
-   * GabiaTokenWorkspace without action
+   * GabiTokenWorkspace without action
    */
-  export type GabiaTokenWorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiTokenWorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GabiaTokenWorkspace
+     * Select specific fields to fetch from the GabiTokenWorkspace
      */
-    select?: GabiaTokenWorkspaceSelect<ExtArgs> | null
+    select?: GabiTokenWorkspaceSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model PersonalizacaoOrganizacaoGabiai
+   * Model GabiPersonalizacao
    */
 
-  export type AggregatePersonalizacaoOrganizacaoGabiai = {
-    _count: PersonalizacaoOrganizacaoGabiaiCountAggregateOutputType | null
-    _min: PersonalizacaoOrganizacaoGabiaiMinAggregateOutputType | null
-    _max: PersonalizacaoOrganizacaoGabiaiMaxAggregateOutputType | null
+  export type AggregateGabiPersonalizacao = {
+    _count: GabiPersonalizacaoCountAggregateOutputType | null
+    _min: GabiPersonalizacaoMinAggregateOutputType | null
+    _max: GabiPersonalizacaoMaxAggregateOutputType | null
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    system_prompt: string | null
-    tom_voz: string | null
-    limitacoes: string | null
-    instrucoes_extras: string | null
-    ativo: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiPersonalizacaoMinAggregateOutputType = {
+    id_gabi_personalizacao: string | null
+    id_organizacao_gabi_personalizacao: string | null
+    id_produto_gabi_personalizacao: string | null
+    id_usuario_gabi_personalizacao: string | null
+    prompt_sistema_gabi_personalizacao: string | null
+    tom_voz_gabi_personalizacao: string | null
+    limitacoes_gabi_personalizacao: string | null
+    instrucoes_extras_gabi_personalizacao: string | null
+    ativa_gabi_personalizacao: boolean | null
+    data_criacao_gabi_personalizacao: Date | null
+    data_atualizacao_gabi_personalizacao: Date | null
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    system_prompt: string | null
-    tom_voz: string | null
-    limitacoes: string | null
-    instrucoes_extras: string | null
-    ativo: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type GabiPersonalizacaoMaxAggregateOutputType = {
+    id_gabi_personalizacao: string | null
+    id_organizacao_gabi_personalizacao: string | null
+    id_produto_gabi_personalizacao: string | null
+    id_usuario_gabi_personalizacao: string | null
+    prompt_sistema_gabi_personalizacao: string | null
+    tom_voz_gabi_personalizacao: string | null
+    limitacoes_gabi_personalizacao: string | null
+    instrucoes_extras_gabi_personalizacao: string | null
+    ativa_gabi_personalizacao: boolean | null
+    data_criacao_gabi_personalizacao: Date | null
+    data_atualizacao_gabi_personalizacao: Date | null
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    system_prompt: number
-    tom_voz: number
-    limitacoes: number
-    instrucoes_extras: number
-    ativo: number
-    created_at: number
-    updated_at: number
+  export type GabiPersonalizacaoCountAggregateOutputType = {
+    id_gabi_personalizacao: number
+    id_organizacao_gabi_personalizacao: number
+    id_produto_gabi_personalizacao: number
+    id_usuario_gabi_personalizacao: number
+    prompt_sistema_gabi_personalizacao: number
+    tom_voz_gabi_personalizacao: number
+    limitacoes_gabi_personalizacao: number
+    instrucoes_extras_gabi_personalizacao: number
+    ativa_gabi_personalizacao: number
+    data_criacao_gabi_personalizacao: number
+    data_atualizacao_gabi_personalizacao: number
     _all: number
   }
 
 
-  export type PersonalizacaoOrganizacaoGabiaiMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    system_prompt?: true
-    tom_voz?: true
-    limitacoes?: true
-    instrucoes_extras?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiPersonalizacaoMinAggregateInputType = {
+    id_gabi_personalizacao?: true
+    id_organizacao_gabi_personalizacao?: true
+    id_produto_gabi_personalizacao?: true
+    id_usuario_gabi_personalizacao?: true
+    prompt_sistema_gabi_personalizacao?: true
+    tom_voz_gabi_personalizacao?: true
+    limitacoes_gabi_personalizacao?: true
+    instrucoes_extras_gabi_personalizacao?: true
+    ativa_gabi_personalizacao?: true
+    data_criacao_gabi_personalizacao?: true
+    data_atualizacao_gabi_personalizacao?: true
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    system_prompt?: true
-    tom_voz?: true
-    limitacoes?: true
-    instrucoes_extras?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiPersonalizacaoMaxAggregateInputType = {
+    id_gabi_personalizacao?: true
+    id_organizacao_gabi_personalizacao?: true
+    id_produto_gabi_personalizacao?: true
+    id_usuario_gabi_personalizacao?: true
+    prompt_sistema_gabi_personalizacao?: true
+    tom_voz_gabi_personalizacao?: true
+    limitacoes_gabi_personalizacao?: true
+    instrucoes_extras_gabi_personalizacao?: true
+    ativa_gabi_personalizacao?: true
+    data_criacao_gabi_personalizacao?: true
+    data_atualizacao_gabi_personalizacao?: true
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    system_prompt?: true
-    tom_voz?: true
-    limitacoes?: true
-    instrucoes_extras?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+  export type GabiPersonalizacaoCountAggregateInputType = {
+    id_gabi_personalizacao?: true
+    id_organizacao_gabi_personalizacao?: true
+    id_produto_gabi_personalizacao?: true
+    id_usuario_gabi_personalizacao?: true
+    prompt_sistema_gabi_personalizacao?: true
+    tom_voz_gabi_personalizacao?: true
+    limitacoes_gabi_personalizacao?: true
+    instrucoes_extras_gabi_personalizacao?: true
+    ativa_gabi_personalizacao?: true
+    data_criacao_gabi_personalizacao?: true
+    data_atualizacao_gabi_personalizacao?: true
     _all?: true
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PersonalizacaoOrganizacaoGabiai to aggregate.
+     * Filter which GabiPersonalizacao to aggregate.
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PersonalizacaoOrganizacaoGabiais to fetch.
+     * Determine the order of GabiPersonalizacaos to fetch.
      */
-    orderBy?: PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput | PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiPersonalizacaoOrderByWithRelationInput | GabiPersonalizacaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    cursor?: GabiPersonalizacaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PersonalizacaoOrganizacaoGabiais from the position of the cursor.
+     * Take `±n` GabiPersonalizacaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PersonalizacaoOrganizacaoGabiais.
+     * Skip the first `n` GabiPersonalizacaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PersonalizacaoOrganizacaoGabiais
+     * Count returned GabiPersonalizacaos
     **/
-    _count?: true | PersonalizacaoOrganizacaoGabiaiCountAggregateInputType
+    _count?: true | GabiPersonalizacaoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PersonalizacaoOrganizacaoGabiaiMinAggregateInputType
+    _min?: GabiPersonalizacaoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PersonalizacaoOrganizacaoGabiaiMaxAggregateInputType
+    _max?: GabiPersonalizacaoMaxAggregateInputType
   }
 
-  export type GetPersonalizacaoOrganizacaoGabiaiAggregateType<T extends PersonalizacaoOrganizacaoGabiaiAggregateArgs> = {
-        [P in keyof T & keyof AggregatePersonalizacaoOrganizacaoGabiai]: P extends '_count' | 'count'
+  export type GetGabiPersonalizacaoAggregateType<T extends GabiPersonalizacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiPersonalizacao]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePersonalizacaoOrganizacaoGabiai[P]>
-      : GetScalarType<T[P], AggregatePersonalizacaoOrganizacaoGabiai[P]>
+        : GetScalarType<T[P], AggregateGabiPersonalizacao[P]>
+      : GetScalarType<T[P], AggregateGabiPersonalizacao[P]>
   }
 
 
 
 
-  export type PersonalizacaoOrganizacaoGabiaiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
-    orderBy?: PersonalizacaoOrganizacaoGabiaiOrderByWithAggregationInput | PersonalizacaoOrganizacaoGabiaiOrderByWithAggregationInput[]
-    by: PersonalizacaoOrganizacaoGabiaiScalarFieldEnum[] | PersonalizacaoOrganizacaoGabiaiScalarFieldEnum
-    having?: PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput
+  export type GabiPersonalizacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiPersonalizacaoWhereInput
+    orderBy?: GabiPersonalizacaoOrderByWithAggregationInput | GabiPersonalizacaoOrderByWithAggregationInput[]
+    by: GabiPersonalizacaoScalarFieldEnum[] | GabiPersonalizacaoScalarFieldEnum
+    having?: GabiPersonalizacaoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PersonalizacaoOrganizacaoGabiaiCountAggregateInputType | true
-    _min?: PersonalizacaoOrganizacaoGabiaiMinAggregateInputType
-    _max?: PersonalizacaoOrganizacaoGabiaiMaxAggregateInputType
+    _count?: GabiPersonalizacaoCountAggregateInputType | true
+    _min?: GabiPersonalizacaoMinAggregateInputType
+    _max?: GabiPersonalizacaoMaxAggregateInputType
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    system_prompt: string | null
-    tom_voz: string | null
-    limitacoes: string | null
-    instrucoes_extras: string | null
-    ativo: boolean
-    created_at: Date
-    updated_at: Date
-    _count: PersonalizacaoOrganizacaoGabiaiCountAggregateOutputType | null
-    _min: PersonalizacaoOrganizacaoGabiaiMinAggregateOutputType | null
-    _max: PersonalizacaoOrganizacaoGabiaiMaxAggregateOutputType | null
+  export type GabiPersonalizacaoGroupByOutputType = {
+    id_gabi_personalizacao: string
+    id_organizacao_gabi_personalizacao: string
+    id_produto_gabi_personalizacao: string | null
+    id_usuario_gabi_personalizacao: string | null
+    prompt_sistema_gabi_personalizacao: string | null
+    tom_voz_gabi_personalizacao: string | null
+    limitacoes_gabi_personalizacao: string | null
+    instrucoes_extras_gabi_personalizacao: string | null
+    ativa_gabi_personalizacao: boolean
+    data_criacao_gabi_personalizacao: Date
+    data_atualizacao_gabi_personalizacao: Date
+    _count: GabiPersonalizacaoCountAggregateOutputType | null
+    _min: GabiPersonalizacaoMinAggregateOutputType | null
+    _max: GabiPersonalizacaoMaxAggregateOutputType | null
   }
 
-  type GetPersonalizacaoOrganizacaoGabiaiGroupByPayload<T extends PersonalizacaoOrganizacaoGabiaiGroupByArgs> = Prisma.PrismaPromise<
+  type GetGabiPersonalizacaoGroupByPayload<T extends GabiPersonalizacaoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PersonalizacaoOrganizacaoGabiaiGroupByOutputType, T['by']> &
+      PickEnumerable<GabiPersonalizacaoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PersonalizacaoOrganizacaoGabiaiGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GabiPersonalizacaoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PersonalizacaoOrganizacaoGabiaiGroupByOutputType[P]>
-            : GetScalarType<T[P], PersonalizacaoOrganizacaoGabiaiGroupByOutputType[P]>
+              : GetScalarType<T[P], GabiPersonalizacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiPersonalizacaoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    system_prompt?: boolean
-    tom_voz?: boolean
-    limitacoes?: boolean
-    instrucoes_extras?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["personalizacaoOrganizacaoGabiai"]>
+  export type GabiPersonalizacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_personalizacao?: boolean
+    id_organizacao_gabi_personalizacao?: boolean
+    id_produto_gabi_personalizacao?: boolean
+    id_usuario_gabi_personalizacao?: boolean
+    prompt_sistema_gabi_personalizacao?: boolean
+    tom_voz_gabi_personalizacao?: boolean
+    limitacoes_gabi_personalizacao?: boolean
+    instrucoes_extras_gabi_personalizacao?: boolean
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: boolean
+    data_atualizacao_gabi_personalizacao?: boolean
+  }, ExtArgs["result"]["gabiPersonalizacao"]>
 
-  export type PersonalizacaoOrganizacaoGabiaiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    system_prompt?: boolean
-    tom_voz?: boolean
-    limitacoes?: boolean
-    instrucoes_extras?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["personalizacaoOrganizacaoGabiai"]>
+  export type GabiPersonalizacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_gabi_personalizacao?: boolean
+    id_organizacao_gabi_personalizacao?: boolean
+    id_produto_gabi_personalizacao?: boolean
+    id_usuario_gabi_personalizacao?: boolean
+    prompt_sistema_gabi_personalizacao?: boolean
+    tom_voz_gabi_personalizacao?: boolean
+    limitacoes_gabi_personalizacao?: boolean
+    instrucoes_extras_gabi_personalizacao?: boolean
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: boolean
+    data_atualizacao_gabi_personalizacao?: boolean
+  }, ExtArgs["result"]["gabiPersonalizacao"]>
 
-  export type PersonalizacaoOrganizacaoGabiaiSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    system_prompt?: boolean
-    tom_voz?: boolean
-    limitacoes?: boolean
-    instrucoes_extras?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type GabiPersonalizacaoSelectScalar = {
+    id_gabi_personalizacao?: boolean
+    id_organizacao_gabi_personalizacao?: boolean
+    id_produto_gabi_personalizacao?: boolean
+    id_usuario_gabi_personalizacao?: boolean
+    prompt_sistema_gabi_personalizacao?: boolean
+    tom_voz_gabi_personalizacao?: boolean
+    limitacoes_gabi_personalizacao?: boolean
+    instrucoes_extras_gabi_personalizacao?: boolean
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: boolean
+    data_atualizacao_gabi_personalizacao?: boolean
   }
 
 
-  export type $PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PersonalizacaoOrganizacaoGabiai"
+  export type $GabiPersonalizacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiPersonalizacao"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      system_prompt: string | null
-      tom_voz: string | null
-      limitacoes: string | null
-      instrucoes_extras: string | null
-      ativo: boolean
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["personalizacaoOrganizacaoGabiai"]>
+      id_gabi_personalizacao: string
+      id_organizacao_gabi_personalizacao: string
+      id_produto_gabi_personalizacao: string | null
+      id_usuario_gabi_personalizacao: string | null
+      prompt_sistema_gabi_personalizacao: string | null
+      tom_voz_gabi_personalizacao: string | null
+      limitacoes_gabi_personalizacao: string | null
+      instrucoes_extras_gabi_personalizacao: string | null
+      ativa_gabi_personalizacao: boolean
+      data_criacao_gabi_personalizacao: Date
+      data_atualizacao_gabi_personalizacao: Date
+    }, ExtArgs["result"]["gabiPersonalizacao"]>
     composites: {}
   }
 
-  type PersonalizacaoOrganizacaoGabiaiGetPayload<S extends boolean | null | undefined | PersonalizacaoOrganizacaoGabiaiDefaultArgs> = $Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload, S>
+  type GabiPersonalizacaoGetPayload<S extends boolean | null | undefined | GabiPersonalizacaoDefaultArgs> = $Result.GetResult<Prisma.$GabiPersonalizacaoPayload, S>
 
-  type PersonalizacaoOrganizacaoGabiaiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PersonalizacaoOrganizacaoGabiaiFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: PersonalizacaoOrganizacaoGabiaiCountAggregateInputType | true
+  type GabiPersonalizacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiPersonalizacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiPersonalizacaoCountAggregateInputType | true
     }
 
-  export interface PersonalizacaoOrganizacaoGabiaiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PersonalizacaoOrganizacaoGabiai'], meta: { name: 'PersonalizacaoOrganizacaoGabiai' } }
+  export interface GabiPersonalizacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiPersonalizacao'], meta: { name: 'GabiPersonalizacao' } }
     /**
-     * Find zero or one PersonalizacaoOrganizacaoGabiai that matches the filter.
-     * @param {PersonalizacaoOrganizacaoGabiaiFindUniqueArgs} args - Arguments to find a PersonalizacaoOrganizacaoGabiai
+     * Find zero or one GabiPersonalizacao that matches the filter.
+     * @param {GabiPersonalizacaoFindUniqueArgs} args - Arguments to find a GabiPersonalizacao
      * @example
-     * // Get one PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.findUnique({
+     * // Get one GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PersonalizacaoOrganizacaoGabiaiFindUniqueArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiFindUniqueArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GabiPersonalizacaoFindUniqueArgs>(args: SelectSubset<T, GabiPersonalizacaoFindUniqueArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one PersonalizacaoOrganizacaoGabiai that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GabiPersonalizacao that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {PersonalizacaoOrganizacaoGabiaiFindUniqueOrThrowArgs} args - Arguments to find a PersonalizacaoOrganizacaoGabiai
+     * @param {GabiPersonalizacaoFindUniqueOrThrowArgs} args - Arguments to find a GabiPersonalizacao
      * @example
-     * // Get one PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.findUniqueOrThrow({
+     * // Get one GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PersonalizacaoOrganizacaoGabiaiFindUniqueOrThrowArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GabiPersonalizacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiPersonalizacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first PersonalizacaoOrganizacaoGabiai that matches the filter.
+     * Find the first GabiPersonalizacao that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiFindFirstArgs} args - Arguments to find a PersonalizacaoOrganizacaoGabiai
+     * @param {GabiPersonalizacaoFindFirstArgs} args - Arguments to find a GabiPersonalizacao
      * @example
-     * // Get one PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.findFirst({
+     * // Get one GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PersonalizacaoOrganizacaoGabiaiFindFirstArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiFindFirstArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GabiPersonalizacaoFindFirstArgs>(args?: SelectSubset<T, GabiPersonalizacaoFindFirstArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first PersonalizacaoOrganizacaoGabiai that matches the filter or
+     * Find the first GabiPersonalizacao that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiFindFirstOrThrowArgs} args - Arguments to find a PersonalizacaoOrganizacaoGabiai
+     * @param {GabiPersonalizacaoFindFirstOrThrowArgs} args - Arguments to find a GabiPersonalizacao
      * @example
-     * // Get one PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.findFirstOrThrow({
+     * // Get one GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PersonalizacaoOrganizacaoGabiaiFindFirstOrThrowArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiFindFirstOrThrowArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GabiPersonalizacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiPersonalizacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more PersonalizacaoOrganizacaoGabiais that matches the filter.
+     * Find zero or more GabiPersonalizacaos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GabiPersonalizacaoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PersonalizacaoOrganizacaoGabiais
-     * const personalizacaoOrganizacaoGabiais = await prisma.personalizacaoOrganizacaoGabiai.findMany()
+     * // Get all GabiPersonalizacaos
+     * const gabiPersonalizacaos = await prisma.gabiPersonalizacao.findMany()
      * 
-     * // Get first 10 PersonalizacaoOrganizacaoGabiais
-     * const personalizacaoOrganizacaoGabiais = await prisma.personalizacaoOrganizacaoGabiai.findMany({ take: 10 })
+     * // Get first 10 GabiPersonalizacaos
+     * const gabiPersonalizacaos = await prisma.gabiPersonalizacao.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const personalizacaoOrganizacaoGabiaiWithIdOnly = await prisma.personalizacaoOrganizacaoGabiai.findMany({ select: { id: true } })
+     * // Only select the `id_gabi_personalizacao`
+     * const gabiPersonalizacaoWithId_gabi_personalizacaoOnly = await prisma.gabiPersonalizacao.findMany({ select: { id_gabi_personalizacao: true } })
      * 
      */
-    findMany<T extends PersonalizacaoOrganizacaoGabiaiFindManyArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GabiPersonalizacaoFindManyArgs>(args?: SelectSubset<T, GabiPersonalizacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a PersonalizacaoOrganizacaoGabiai.
-     * @param {PersonalizacaoOrganizacaoGabiaiCreateArgs} args - Arguments to create a PersonalizacaoOrganizacaoGabiai.
+     * Create a GabiPersonalizacao.
+     * @param {GabiPersonalizacaoCreateArgs} args - Arguments to create a GabiPersonalizacao.
      * @example
-     * // Create one PersonalizacaoOrganizacaoGabiai
-     * const PersonalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.create({
+     * // Create one GabiPersonalizacao
+     * const GabiPersonalizacao = await prisma.gabiPersonalizacao.create({
      *   data: {
-     *     // ... data to create a PersonalizacaoOrganizacaoGabiai
+     *     // ... data to create a GabiPersonalizacao
      *   }
      * })
      * 
      */
-    create<T extends PersonalizacaoOrganizacaoGabiaiCreateArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiCreateArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GabiPersonalizacaoCreateArgs>(args: SelectSubset<T, GabiPersonalizacaoCreateArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many PersonalizacaoOrganizacaoGabiais.
-     * @param {PersonalizacaoOrganizacaoGabiaiCreateManyArgs} args - Arguments to create many PersonalizacaoOrganizacaoGabiais.
+     * Create many GabiPersonalizacaos.
+     * @param {GabiPersonalizacaoCreateManyArgs} args - Arguments to create many GabiPersonalizacaos.
      * @example
-     * // Create many PersonalizacaoOrganizacaoGabiais
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.createMany({
+     * // Create many GabiPersonalizacaos
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PersonalizacaoOrganizacaoGabiaiCreateManyArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GabiPersonalizacaoCreateManyArgs>(args?: SelectSubset<T, GabiPersonalizacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PersonalizacaoOrganizacaoGabiais and returns the data saved in the database.
-     * @param {PersonalizacaoOrganizacaoGabiaiCreateManyAndReturnArgs} args - Arguments to create many PersonalizacaoOrganizacaoGabiais.
+     * Create many GabiPersonalizacaos and returns the data saved in the database.
+     * @param {GabiPersonalizacaoCreateManyAndReturnArgs} args - Arguments to create many GabiPersonalizacaos.
      * @example
-     * // Create many PersonalizacaoOrganizacaoGabiais
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.createManyAndReturn({
+     * // Create many GabiPersonalizacaos
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PersonalizacaoOrganizacaoGabiais and only return the `id`
-     * const personalizacaoOrganizacaoGabiaiWithIdOnly = await prisma.personalizacaoOrganizacaoGabiai.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many GabiPersonalizacaos and only return the `id_gabi_personalizacao`
+     * const gabiPersonalizacaoWithId_gabi_personalizacaoOnly = await prisma.gabiPersonalizacao.createManyAndReturn({ 
+     *   select: { id_gabi_personalizacao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -43238,28 +43249,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PersonalizacaoOrganizacaoGabiaiCreateManyAndReturnArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GabiPersonalizacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiPersonalizacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a PersonalizacaoOrganizacaoGabiai.
-     * @param {PersonalizacaoOrganizacaoGabiaiDeleteArgs} args - Arguments to delete one PersonalizacaoOrganizacaoGabiai.
+     * Delete a GabiPersonalizacao.
+     * @param {GabiPersonalizacaoDeleteArgs} args - Arguments to delete one GabiPersonalizacao.
      * @example
-     * // Delete one PersonalizacaoOrganizacaoGabiai
-     * const PersonalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.delete({
+     * // Delete one GabiPersonalizacao
+     * const GabiPersonalizacao = await prisma.gabiPersonalizacao.delete({
      *   where: {
-     *     // ... filter to delete one PersonalizacaoOrganizacaoGabiai
+     *     // ... filter to delete one GabiPersonalizacao
      *   }
      * })
      * 
      */
-    delete<T extends PersonalizacaoOrganizacaoGabiaiDeleteArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiDeleteArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GabiPersonalizacaoDeleteArgs>(args: SelectSubset<T, GabiPersonalizacaoDeleteArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one PersonalizacaoOrganizacaoGabiai.
-     * @param {PersonalizacaoOrganizacaoGabiaiUpdateArgs} args - Arguments to update one PersonalizacaoOrganizacaoGabiai.
+     * Update one GabiPersonalizacao.
+     * @param {GabiPersonalizacaoUpdateArgs} args - Arguments to update one GabiPersonalizacao.
      * @example
-     * // Update one PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.update({
+     * // Update one GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -43269,30 +43280,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PersonalizacaoOrganizacaoGabiaiUpdateArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiUpdateArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GabiPersonalizacaoUpdateArgs>(args: SelectSubset<T, GabiPersonalizacaoUpdateArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more PersonalizacaoOrganizacaoGabiais.
-     * @param {PersonalizacaoOrganizacaoGabiaiDeleteManyArgs} args - Arguments to filter PersonalizacaoOrganizacaoGabiais to delete.
+     * Delete zero or more GabiPersonalizacaos.
+     * @param {GabiPersonalizacaoDeleteManyArgs} args - Arguments to filter GabiPersonalizacaos to delete.
      * @example
-     * // Delete a few PersonalizacaoOrganizacaoGabiais
-     * const { count } = await prisma.personalizacaoOrganizacaoGabiai.deleteMany({
+     * // Delete a few GabiPersonalizacaos
+     * const { count } = await prisma.gabiPersonalizacao.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PersonalizacaoOrganizacaoGabiaiDeleteManyArgs>(args?: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GabiPersonalizacaoDeleteManyArgs>(args?: SelectSubset<T, GabiPersonalizacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PersonalizacaoOrganizacaoGabiais.
+     * Update zero or more GabiPersonalizacaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GabiPersonalizacaoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PersonalizacaoOrganizacaoGabiais
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.updateMany({
+     * // Update many GabiPersonalizacaos
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -43302,56 +43313,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PersonalizacaoOrganizacaoGabiaiUpdateManyArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GabiPersonalizacaoUpdateManyArgs>(args: SelectSubset<T, GabiPersonalizacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one PersonalizacaoOrganizacaoGabiai.
-     * @param {PersonalizacaoOrganizacaoGabiaiUpsertArgs} args - Arguments to update or create a PersonalizacaoOrganizacaoGabiai.
+     * Create or update one GabiPersonalizacao.
+     * @param {GabiPersonalizacaoUpsertArgs} args - Arguments to update or create a GabiPersonalizacao.
      * @example
-     * // Update or create a PersonalizacaoOrganizacaoGabiai
-     * const personalizacaoOrganizacaoGabiai = await prisma.personalizacaoOrganizacaoGabiai.upsert({
+     * // Update or create a GabiPersonalizacao
+     * const gabiPersonalizacao = await prisma.gabiPersonalizacao.upsert({
      *   create: {
-     *     // ... data to create a PersonalizacaoOrganizacaoGabiai
+     *     // ... data to create a GabiPersonalizacao
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PersonalizacaoOrganizacaoGabiai we want to update
+     *     // ... the filter for the GabiPersonalizacao we want to update
      *   }
      * })
      */
-    upsert<T extends PersonalizacaoOrganizacaoGabiaiUpsertArgs>(args: SelectSubset<T, PersonalizacaoOrganizacaoGabiaiUpsertArgs<ExtArgs>>): Prisma__PersonalizacaoOrganizacaoGabiaiClient<$Result.GetResult<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GabiPersonalizacaoUpsertArgs>(args: SelectSubset<T, GabiPersonalizacaoUpsertArgs<ExtArgs>>): Prisma__GabiPersonalizacaoClient<$Result.GetResult<Prisma.$GabiPersonalizacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of PersonalizacaoOrganizacaoGabiais.
+     * Count the number of GabiPersonalizacaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiCountArgs} args - Arguments to filter PersonalizacaoOrganizacaoGabiais to count.
+     * @param {GabiPersonalizacaoCountArgs} args - Arguments to filter GabiPersonalizacaos to count.
      * @example
-     * // Count the number of PersonalizacaoOrganizacaoGabiais
-     * const count = await prisma.personalizacaoOrganizacaoGabiai.count({
+     * // Count the number of GabiPersonalizacaos
+     * const count = await prisma.gabiPersonalizacao.count({
      *   where: {
-     *     // ... the filter for the PersonalizacaoOrganizacaoGabiais we want to count
+     *     // ... the filter for the GabiPersonalizacaos we want to count
      *   }
      * })
     **/
-    count<T extends PersonalizacaoOrganizacaoGabiaiCountArgs>(
-      args?: Subset<T, PersonalizacaoOrganizacaoGabiaiCountArgs>,
+    count<T extends GabiPersonalizacaoCountArgs>(
+      args?: Subset<T, GabiPersonalizacaoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PersonalizacaoOrganizacaoGabiaiCountAggregateOutputType>
+          : GetScalarType<T['select'], GabiPersonalizacaoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PersonalizacaoOrganizacaoGabiai.
+     * Allows you to perform aggregations operations on a GabiPersonalizacao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GabiPersonalizacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -43371,13 +43382,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PersonalizacaoOrganizacaoGabiaiAggregateArgs>(args: Subset<T, PersonalizacaoOrganizacaoGabiaiAggregateArgs>): Prisma.PrismaPromise<GetPersonalizacaoOrganizacaoGabiaiAggregateType<T>>
+    aggregate<T extends GabiPersonalizacaoAggregateArgs>(args: Subset<T, GabiPersonalizacaoAggregateArgs>): Prisma.PrismaPromise<GetGabiPersonalizacaoAggregateType<T>>
 
     /**
-     * Group by PersonalizacaoOrganizacaoGabiai.
+     * Group by GabiPersonalizacao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PersonalizacaoOrganizacaoGabiaiGroupByArgs} args - Group by arguments.
+     * @param {GabiPersonalizacaoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -43392,14 +43403,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PersonalizacaoOrganizacaoGabiaiGroupByArgs,
+      T extends GabiPersonalizacaoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PersonalizacaoOrganizacaoGabiaiGroupByArgs['orderBy'] }
-        : { orderBy?: PersonalizacaoOrganizacaoGabiaiGroupByArgs['orderBy'] },
+        ? { orderBy: GabiPersonalizacaoGroupByArgs['orderBy'] }
+        : { orderBy?: GabiPersonalizacaoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -43448,20 +43459,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PersonalizacaoOrganizacaoGabiaiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPersonalizacaoOrganizacaoGabiaiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GabiPersonalizacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiPersonalizacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PersonalizacaoOrganizacaoGabiai model
+   * Fields of the GabiPersonalizacao model
    */
-  readonly fields: PersonalizacaoOrganizacaoGabiaiFieldRefs;
+  readonly fields: GabiPersonalizacaoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PersonalizacaoOrganizacaoGabiai.
+   * The delegate class that acts as a "Promise-like" for GabiPersonalizacao.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PersonalizacaoOrganizacaoGabiaiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GabiPersonalizacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -43489,304 +43500,305 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PersonalizacaoOrganizacaoGabiai model
+   * Fields of the GabiPersonalizacao model
    */ 
-  interface PersonalizacaoOrganizacaoGabiaiFieldRefs {
-    readonly id: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly tenant_id: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly product_id: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly system_prompt: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly tom_voz: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly limitacoes: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly instrucoes_extras: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'String'>
-    readonly ativo: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'Boolean'>
-    readonly created_at: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'DateTime'>
-    readonly updated_at: FieldRef<"PersonalizacaoOrganizacaoGabiai", 'DateTime'>
+  interface GabiPersonalizacaoFieldRefs {
+    readonly id_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly id_organizacao_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly id_produto_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly id_usuario_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly prompt_sistema_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly tom_voz_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly limitacoes_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly instrucoes_extras_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'String'>
+    readonly ativa_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'Boolean'>
+    readonly data_criacao_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'DateTime'>
+    readonly data_atualizacao_gabi_personalizacao: FieldRef<"GabiPersonalizacao", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PersonalizacaoOrganizacaoGabiai findUnique
+   * GabiPersonalizacao findUnique
    */
-  export type PersonalizacaoOrganizacaoGabiaiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter, which PersonalizacaoOrganizacaoGabiai to fetch.
+     * Filter, which GabiPersonalizacao to fetch.
      */
-    where: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    where: GabiPersonalizacaoWhereUniqueInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai findUniqueOrThrow
+   * GabiPersonalizacao findUniqueOrThrow
    */
-  export type PersonalizacaoOrganizacaoGabiaiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter, which PersonalizacaoOrganizacaoGabiai to fetch.
+     * Filter, which GabiPersonalizacao to fetch.
      */
-    where: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    where: GabiPersonalizacaoWhereUniqueInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai findFirst
+   * GabiPersonalizacao findFirst
    */
-  export type PersonalizacaoOrganizacaoGabiaiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter, which PersonalizacaoOrganizacaoGabiai to fetch.
+     * Filter, which GabiPersonalizacao to fetch.
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PersonalizacaoOrganizacaoGabiais to fetch.
+     * Determine the order of GabiPersonalizacaos to fetch.
      */
-    orderBy?: PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput | PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiPersonalizacaoOrderByWithRelationInput | GabiPersonalizacaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PersonalizacaoOrganizacaoGabiais.
+     * Sets the position for searching for GabiPersonalizacaos.
      */
-    cursor?: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    cursor?: GabiPersonalizacaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PersonalizacaoOrganizacaoGabiais from the position of the cursor.
+     * Take `±n` GabiPersonalizacaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PersonalizacaoOrganizacaoGabiais.
+     * Skip the first `n` GabiPersonalizacaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PersonalizacaoOrganizacaoGabiais.
+     * Filter by unique combinations of GabiPersonalizacaos.
      */
-    distinct?: PersonalizacaoOrganizacaoGabiaiScalarFieldEnum | PersonalizacaoOrganizacaoGabiaiScalarFieldEnum[]
+    distinct?: GabiPersonalizacaoScalarFieldEnum | GabiPersonalizacaoScalarFieldEnum[]
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai findFirstOrThrow
+   * GabiPersonalizacao findFirstOrThrow
    */
-  export type PersonalizacaoOrganizacaoGabiaiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter, which PersonalizacaoOrganizacaoGabiai to fetch.
+     * Filter, which GabiPersonalizacao to fetch.
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PersonalizacaoOrganizacaoGabiais to fetch.
+     * Determine the order of GabiPersonalizacaos to fetch.
      */
-    orderBy?: PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput | PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiPersonalizacaoOrderByWithRelationInput | GabiPersonalizacaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PersonalizacaoOrganizacaoGabiais.
+     * Sets the position for searching for GabiPersonalizacaos.
      */
-    cursor?: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    cursor?: GabiPersonalizacaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PersonalizacaoOrganizacaoGabiais from the position of the cursor.
+     * Take `±n` GabiPersonalizacaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PersonalizacaoOrganizacaoGabiais.
+     * Skip the first `n` GabiPersonalizacaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PersonalizacaoOrganizacaoGabiais.
+     * Filter by unique combinations of GabiPersonalizacaos.
      */
-    distinct?: PersonalizacaoOrganizacaoGabiaiScalarFieldEnum | PersonalizacaoOrganizacaoGabiaiScalarFieldEnum[]
+    distinct?: GabiPersonalizacaoScalarFieldEnum | GabiPersonalizacaoScalarFieldEnum[]
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai findMany
+   * GabiPersonalizacao findMany
    */
-  export type PersonalizacaoOrganizacaoGabiaiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter, which PersonalizacaoOrganizacaoGabiais to fetch.
+     * Filter, which GabiPersonalizacaos to fetch.
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PersonalizacaoOrganizacaoGabiais to fetch.
+     * Determine the order of GabiPersonalizacaos to fetch.
      */
-    orderBy?: PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput | PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput[]
+    orderBy?: GabiPersonalizacaoOrderByWithRelationInput | GabiPersonalizacaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PersonalizacaoOrganizacaoGabiais.
+     * Sets the position for listing GabiPersonalizacaos.
      */
-    cursor?: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    cursor?: GabiPersonalizacaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PersonalizacaoOrganizacaoGabiais from the position of the cursor.
+     * Take `±n` GabiPersonalizacaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PersonalizacaoOrganizacaoGabiais.
+     * Skip the first `n` GabiPersonalizacaos.
      */
     skip?: number
-    distinct?: PersonalizacaoOrganizacaoGabiaiScalarFieldEnum | PersonalizacaoOrganizacaoGabiaiScalarFieldEnum[]
+    distinct?: GabiPersonalizacaoScalarFieldEnum | GabiPersonalizacaoScalarFieldEnum[]
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai create
+   * GabiPersonalizacao create
    */
-  export type PersonalizacaoOrganizacaoGabiaiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * The data needed to create a PersonalizacaoOrganizacaoGabiai.
+     * The data needed to create a GabiPersonalizacao.
      */
-    data: XOR<PersonalizacaoOrganizacaoGabiaiCreateInput, PersonalizacaoOrganizacaoGabiaiUncheckedCreateInput>
+    data: XOR<GabiPersonalizacaoCreateInput, GabiPersonalizacaoUncheckedCreateInput>
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai createMany
+   * GabiPersonalizacao createMany
    */
-  export type PersonalizacaoOrganizacaoGabiaiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PersonalizacaoOrganizacaoGabiais.
+     * The data used to create many GabiPersonalizacaos.
      */
-    data: PersonalizacaoOrganizacaoGabiaiCreateManyInput | PersonalizacaoOrganizacaoGabiaiCreateManyInput[]
+    data: GabiPersonalizacaoCreateManyInput | GabiPersonalizacaoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai createManyAndReturn
+   * GabiPersonalizacao createManyAndReturn
    */
-  export type PersonalizacaoOrganizacaoGabiaiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GabiPersonalizacaoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many PersonalizacaoOrganizacaoGabiais.
+     * The data used to create many GabiPersonalizacaos.
      */
-    data: PersonalizacaoOrganizacaoGabiaiCreateManyInput | PersonalizacaoOrganizacaoGabiaiCreateManyInput[]
+    data: GabiPersonalizacaoCreateManyInput | GabiPersonalizacaoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai update
+   * GabiPersonalizacao update
    */
-  export type PersonalizacaoOrganizacaoGabiaiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * The data needed to update a PersonalizacaoOrganizacaoGabiai.
+     * The data needed to update a GabiPersonalizacao.
      */
-    data: XOR<PersonalizacaoOrganizacaoGabiaiUpdateInput, PersonalizacaoOrganizacaoGabiaiUncheckedUpdateInput>
+    data: XOR<GabiPersonalizacaoUpdateInput, GabiPersonalizacaoUncheckedUpdateInput>
     /**
-     * Choose, which PersonalizacaoOrganizacaoGabiai to update.
+     * Choose, which GabiPersonalizacao to update.
      */
-    where: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    where: GabiPersonalizacaoWhereUniqueInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai updateMany
+   * GabiPersonalizacao updateMany
    */
-  export type PersonalizacaoOrganizacaoGabiaiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PersonalizacaoOrganizacaoGabiais.
+     * The data used to update GabiPersonalizacaos.
      */
-    data: XOR<PersonalizacaoOrganizacaoGabiaiUpdateManyMutationInput, PersonalizacaoOrganizacaoGabiaiUncheckedUpdateManyInput>
+    data: XOR<GabiPersonalizacaoUpdateManyMutationInput, GabiPersonalizacaoUncheckedUpdateManyInput>
     /**
-     * Filter which PersonalizacaoOrganizacaoGabiais to update
+     * Filter which GabiPersonalizacaos to update
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai upsert
+   * GabiPersonalizacao upsert
    */
-  export type PersonalizacaoOrganizacaoGabiaiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * The filter to search for the PersonalizacaoOrganizacaoGabiai to update in case it exists.
+     * The filter to search for the GabiPersonalizacao to update in case it exists.
      */
-    where: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    where: GabiPersonalizacaoWhereUniqueInput
     /**
-     * In case the PersonalizacaoOrganizacaoGabiai found by the `where` argument doesn't exist, create a new PersonalizacaoOrganizacaoGabiai with this data.
+     * In case the GabiPersonalizacao found by the `where` argument doesn't exist, create a new GabiPersonalizacao with this data.
      */
-    create: XOR<PersonalizacaoOrganizacaoGabiaiCreateInput, PersonalizacaoOrganizacaoGabiaiUncheckedCreateInput>
+    create: XOR<GabiPersonalizacaoCreateInput, GabiPersonalizacaoUncheckedCreateInput>
     /**
-     * In case the PersonalizacaoOrganizacaoGabiai was found with the provided `where` argument, update it with this data.
+     * In case the GabiPersonalizacao was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PersonalizacaoOrganizacaoGabiaiUpdateInput, PersonalizacaoOrganizacaoGabiaiUncheckedUpdateInput>
+    update: XOR<GabiPersonalizacaoUpdateInput, GabiPersonalizacaoUncheckedUpdateInput>
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai delete
+   * GabiPersonalizacao delete
    */
-  export type PersonalizacaoOrganizacaoGabiaiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
     /**
-     * Filter which PersonalizacaoOrganizacaoGabiai to delete.
+     * Filter which GabiPersonalizacao to delete.
      */
-    where: PersonalizacaoOrganizacaoGabiaiWhereUniqueInput
+    where: GabiPersonalizacaoWhereUniqueInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai deleteMany
+   * GabiPersonalizacao deleteMany
    */
-  export type PersonalizacaoOrganizacaoGabiaiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PersonalizacaoOrganizacaoGabiais to delete
+     * Filter which GabiPersonalizacaos to delete
      */
-    where?: PersonalizacaoOrganizacaoGabiaiWhereInput
+    where?: GabiPersonalizacaoWhereInput
   }
 
   /**
-   * PersonalizacaoOrganizacaoGabiai without action
+   * GabiPersonalizacao without action
    */
-  export type PersonalizacaoOrganizacaoGabiaiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GabiPersonalizacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PersonalizacaoOrganizacaoGabiai
+     * Select specific fields to fetch from the GabiPersonalizacao
      */
-    select?: PersonalizacaoOrganizacaoGabiaiSelect<ExtArgs> | null
+    select?: GabiPersonalizacaoSelect<ExtArgs> | null
   }
 
 
@@ -51100,97 +51112,98 @@ export namespace Prisma {
   export type ConfigDisponibilidadeAgendaScalarFieldEnum = (typeof ConfigDisponibilidadeAgendaScalarFieldEnum)[keyof typeof ConfigDisponibilidadeAgendaScalarFieldEnum]
 
 
-  export const ConversaCompletaGabiScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    title: 'title',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const GabiConversaScalarFieldEnum: {
+    id_gabi_conversa: 'id_gabi_conversa',
+    id_organizacao_gabi_conversa: 'id_organizacao_gabi_conversa',
+    id_produto_gabi_conversa: 'id_produto_gabi_conversa',
+    id_usuario_gabi_conversa: 'id_usuario_gabi_conversa',
+    titulo_gabi_conversa: 'titulo_gabi_conversa',
+    data_criacao_gabi_conversa: 'data_criacao_gabi_conversa',
+    data_atualizacao_gabi_conversa: 'data_atualizacao_gabi_conversa'
   };
 
-  export type ConversaCompletaGabiScalarFieldEnum = (typeof ConversaCompletaGabiScalarFieldEnum)[keyof typeof ConversaCompletaGabiScalarFieldEnum]
+  export type GabiConversaScalarFieldEnum = (typeof GabiConversaScalarFieldEnum)[keyof typeof GabiConversaScalarFieldEnum]
 
 
-  export const MensagemIndividualGabiaiScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    conversation_id: 'conversation_id',
-    role: 'role',
-    content: 'content',
-    attachments: 'attachments',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const GabiMensagemScalarFieldEnum: {
+    id_gabi_mensagem: 'id_gabi_mensagem',
+    id_organizacao_gabi_mensagem: 'id_organizacao_gabi_mensagem',
+    id_produto_gabi_mensagem: 'id_produto_gabi_mensagem',
+    id_usuario_gabi_mensagem: 'id_usuario_gabi_mensagem',
+    id_conversa_gabi_mensagem: 'id_conversa_gabi_mensagem',
+    papel_gabi_mensagem: 'papel_gabi_mensagem',
+    conteudo_gabi_mensagem: 'conteudo_gabi_mensagem',
+    anexos_gabi_mensagem: 'anexos_gabi_mensagem',
+    data_criacao_gabi_mensagem: 'data_criacao_gabi_mensagem',
+    data_atualizacao_gabi_mensagem: 'data_atualizacao_gabi_mensagem'
   };
 
-  export type MensagemIndividualGabiaiScalarFieldEnum = (typeof MensagemIndividualGabiaiScalarFieldEnum)[keyof typeof MensagemIndividualGabiaiScalarFieldEnum]
+  export type GabiMensagemScalarFieldEnum = (typeof GabiMensagemScalarFieldEnum)[keyof typeof GabiMensagemScalarFieldEnum]
 
 
-  export const GabiaLogUsoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    action_taken: 'action_taken',
-    conversation_snapshot: 'conversation_snapshot',
-    actor_type: 'actor_type',
-    triggered_by: 'triggered_by',
-    model_used: 'model_used',
-    tokens_input: 'tokens_input',
-    tokens_output: 'tokens_output',
-    cost_usd: 'cost_usd',
-    created_at: 'created_at'
+  export const GabiLogUsoScalarFieldEnum: {
+    id_gabi_log_uso: 'id_gabi_log_uso',
+    id_organizacao_gabi_log_uso: 'id_organizacao_gabi_log_uso',
+    id_produto_gabi_log_uso: 'id_produto_gabi_log_uso',
+    id_usuario_gabi_log_uso: 'id_usuario_gabi_log_uso',
+    acao_gabi_log_uso: 'acao_gabi_log_uso',
+    snapshot_conversa_gabi_log_uso: 'snapshot_conversa_gabi_log_uso',
+    tipo_ator_gabi_log_uso: 'tipo_ator_gabi_log_uso',
+    disparado_por_gabi_log_uso: 'disparado_por_gabi_log_uso',
+    modelo_gabi_log_uso: 'modelo_gabi_log_uso',
+    tokens_input_gabi_log_uso: 'tokens_input_gabi_log_uso',
+    tokens_output_gabi_log_uso: 'tokens_output_gabi_log_uso',
+    custo_usd_gabi_log_uso: 'custo_usd_gabi_log_uso',
+    data_criacao_gabi_log_uso: 'data_criacao_gabi_log_uso'
   };
 
-  export type GabiaLogUsoScalarFieldEnum = (typeof GabiaLogUsoScalarFieldEnum)[keyof typeof GabiaLogUsoScalarFieldEnum]
+  export type GabiLogUsoScalarFieldEnum = (typeof GabiLogUsoScalarFieldEnum)[keyof typeof GabiLogUsoScalarFieldEnum]
 
 
-  export const GabiaTokenConsumidosScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    campo: 'campo',
-    tokens_input: 'tokens_input',
-    tokens_output: 'tokens_output',
-    tokens_total: 'tokens_total',
-    mes_ref: 'mes_ref',
-    created_at: 'created_at'
+  export const GabiTokenConsumidoScalarFieldEnum: {
+    id_gabi_token_consumido: 'id_gabi_token_consumido',
+    id_organizacao_gabi_token_consumido: 'id_organizacao_gabi_token_consumido',
+    id_produto_gabi_token_consumido: 'id_produto_gabi_token_consumido',
+    id_usuario_gabi_token_consumido: 'id_usuario_gabi_token_consumido',
+    campo_gabi_token_consumido: 'campo_gabi_token_consumido',
+    tokens_input_gabi_token_consumido: 'tokens_input_gabi_token_consumido',
+    tokens_output_gabi_token_consumido: 'tokens_output_gabi_token_consumido',
+    tokens_total_gabi_token_consumido: 'tokens_total_gabi_token_consumido',
+    mes_ref_gabi_token_consumido: 'mes_ref_gabi_token_consumido',
+    data_criacao_gabi_token_consumido: 'data_criacao_gabi_token_consumido'
   };
 
-  export type GabiaTokenConsumidosScalarFieldEnum = (typeof GabiaTokenConsumidosScalarFieldEnum)[keyof typeof GabiaTokenConsumidosScalarFieldEnum]
+  export type GabiTokenConsumidoScalarFieldEnum = (typeof GabiTokenConsumidoScalarFieldEnum)[keyof typeof GabiTokenConsumidoScalarFieldEnum]
 
 
-  export const GabiaTokenWorkspaceScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    quota_mensal: 'quota_mensal',
-    mes_ref: 'mes_ref',
-    tokens_usados: 'tokens_usados',
-    updated_at: 'updated_at'
+  export const GabiTokenWorkspaceScalarFieldEnum: {
+    id_gabi_token_workspace: 'id_gabi_token_workspace',
+    id_organizacao_gabi_token_workspace: 'id_organizacao_gabi_token_workspace',
+    id_produto_gabi_token_workspace: 'id_produto_gabi_token_workspace',
+    quota_mensal_gabi_token_workspace: 'quota_mensal_gabi_token_workspace',
+    mes_ref_gabi_token_workspace: 'mes_ref_gabi_token_workspace',
+    tokens_usados_gabi_token_workspace: 'tokens_usados_gabi_token_workspace',
+    data_atualizacao_gabi_token_workspace: 'data_atualizacao_gabi_token_workspace'
   };
 
-  export type GabiaTokenWorkspaceScalarFieldEnum = (typeof GabiaTokenWorkspaceScalarFieldEnum)[keyof typeof GabiaTokenWorkspaceScalarFieldEnum]
+  export type GabiTokenWorkspaceScalarFieldEnum = (typeof GabiTokenWorkspaceScalarFieldEnum)[keyof typeof GabiTokenWorkspaceScalarFieldEnum]
 
 
-  export const PersonalizacaoOrganizacaoGabiaiScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    system_prompt: 'system_prompt',
-    tom_voz: 'tom_voz',
-    limitacoes: 'limitacoes',
-    instrucoes_extras: 'instrucoes_extras',
-    ativo: 'ativo',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const GabiPersonalizacaoScalarFieldEnum: {
+    id_gabi_personalizacao: 'id_gabi_personalizacao',
+    id_organizacao_gabi_personalizacao: 'id_organizacao_gabi_personalizacao',
+    id_produto_gabi_personalizacao: 'id_produto_gabi_personalizacao',
+    id_usuario_gabi_personalizacao: 'id_usuario_gabi_personalizacao',
+    prompt_sistema_gabi_personalizacao: 'prompt_sistema_gabi_personalizacao',
+    tom_voz_gabi_personalizacao: 'tom_voz_gabi_personalizacao',
+    limitacoes_gabi_personalizacao: 'limitacoes_gabi_personalizacao',
+    instrucoes_extras_gabi_personalizacao: 'instrucoes_extras_gabi_personalizacao',
+    ativa_gabi_personalizacao: 'ativa_gabi_personalizacao',
+    data_criacao_gabi_personalizacao: 'data_criacao_gabi_personalizacao',
+    data_atualizacao_gabi_personalizacao: 'data_atualizacao_gabi_personalizacao'
   };
 
-  export type PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = (typeof PersonalizacaoOrganizacaoGabiaiScalarFieldEnum)[keyof typeof PersonalizacaoOrganizacaoGabiaiScalarFieldEnum]
+  export type GabiPersonalizacaoScalarFieldEnum = (typeof GabiPersonalizacaoScalarFieldEnum)[keyof typeof GabiPersonalizacaoScalarFieldEnum]
 
 
   export const UserPreferencesScalarFieldEnum: {
@@ -54720,464 +54733,469 @@ export namespace Prisma {
     data_atualizacao_config_disponibilidade_agenda?: DateTimeWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | Date | string
   }
 
-  export type ConversaCompletaGabiWhereInput = {
-    AND?: ConversaCompletaGabiWhereInput | ConversaCompletaGabiWhereInput[]
-    OR?: ConversaCompletaGabiWhereInput[]
-    NOT?: ConversaCompletaGabiWhereInput | ConversaCompletaGabiWhereInput[]
-    id?: StringFilter<"ConversaCompletaGabi"> | string
-    tenant_id?: StringFilter<"ConversaCompletaGabi"> | string
-    product_id?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    user_id?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    title?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    created_at?: DateTimeFilter<"ConversaCompletaGabi"> | Date | string
-    updated_at?: DateTimeFilter<"ConversaCompletaGabi"> | Date | string
-    messages?: MensagemIndividualGabiaiListRelationFilter
+  export type GabiConversaWhereInput = {
+    AND?: GabiConversaWhereInput | GabiConversaWhereInput[]
+    OR?: GabiConversaWhereInput[]
+    NOT?: GabiConversaWhereInput | GabiConversaWhereInput[]
+    id_gabi_conversa?: StringFilter<"GabiConversa"> | string
+    id_organizacao_gabi_conversa?: StringFilter<"GabiConversa"> | string
+    id_produto_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    id_usuario_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    titulo_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    data_criacao_gabi_conversa?: DateTimeFilter<"GabiConversa"> | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFilter<"GabiConversa"> | Date | string
+    mensagens_gabi_conversa?: GabiMensagemListRelationFilter
   }
 
-  export type ConversaCompletaGabiOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    title?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    messages?: MensagemIndividualGabiaiOrderByRelationAggregateInput
+  export type GabiConversaOrderByWithRelationInput = {
+    id_gabi_conversa?: SortOrder
+    id_organizacao_gabi_conversa?: SortOrder
+    id_produto_gabi_conversa?: SortOrderInput | SortOrder
+    id_usuario_gabi_conversa?: SortOrderInput | SortOrder
+    titulo_gabi_conversa?: SortOrderInput | SortOrder
+    data_criacao_gabi_conversa?: SortOrder
+    data_atualizacao_gabi_conversa?: SortOrder
+    mensagens_gabi_conversa?: GabiMensagemOrderByRelationAggregateInput
   }
 
-  export type ConversaCompletaGabiWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ConversaCompletaGabiWhereInput | ConversaCompletaGabiWhereInput[]
-    OR?: ConversaCompletaGabiWhereInput[]
-    NOT?: ConversaCompletaGabiWhereInput | ConversaCompletaGabiWhereInput[]
-    tenant_id?: StringFilter<"ConversaCompletaGabi"> | string
-    product_id?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    user_id?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    title?: StringNullableFilter<"ConversaCompletaGabi"> | string | null
-    created_at?: DateTimeFilter<"ConversaCompletaGabi"> | Date | string
-    updated_at?: DateTimeFilter<"ConversaCompletaGabi"> | Date | string
-    messages?: MensagemIndividualGabiaiListRelationFilter
-  }, "id">
+  export type GabiConversaWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_conversa?: string
+    AND?: GabiConversaWhereInput | GabiConversaWhereInput[]
+    OR?: GabiConversaWhereInput[]
+    NOT?: GabiConversaWhereInput | GabiConversaWhereInput[]
+    id_organizacao_gabi_conversa?: StringFilter<"GabiConversa"> | string
+    id_produto_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    id_usuario_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    titulo_gabi_conversa?: StringNullableFilter<"GabiConversa"> | string | null
+    data_criacao_gabi_conversa?: DateTimeFilter<"GabiConversa"> | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFilter<"GabiConversa"> | Date | string
+    mensagens_gabi_conversa?: GabiMensagemListRelationFilter
+  }, "id_gabi_conversa">
 
-  export type ConversaCompletaGabiOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    title?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: ConversaCompletaGabiCountOrderByAggregateInput
-    _max?: ConversaCompletaGabiMaxOrderByAggregateInput
-    _min?: ConversaCompletaGabiMinOrderByAggregateInput
+  export type GabiConversaOrderByWithAggregationInput = {
+    id_gabi_conversa?: SortOrder
+    id_organizacao_gabi_conversa?: SortOrder
+    id_produto_gabi_conversa?: SortOrderInput | SortOrder
+    id_usuario_gabi_conversa?: SortOrderInput | SortOrder
+    titulo_gabi_conversa?: SortOrderInput | SortOrder
+    data_criacao_gabi_conversa?: SortOrder
+    data_atualizacao_gabi_conversa?: SortOrder
+    _count?: GabiConversaCountOrderByAggregateInput
+    _max?: GabiConversaMaxOrderByAggregateInput
+    _min?: GabiConversaMinOrderByAggregateInput
   }
 
-  export type ConversaCompletaGabiScalarWhereWithAggregatesInput = {
-    AND?: ConversaCompletaGabiScalarWhereWithAggregatesInput | ConversaCompletaGabiScalarWhereWithAggregatesInput[]
-    OR?: ConversaCompletaGabiScalarWhereWithAggregatesInput[]
-    NOT?: ConversaCompletaGabiScalarWhereWithAggregatesInput | ConversaCompletaGabiScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ConversaCompletaGabi"> | string
-    tenant_id?: StringWithAggregatesFilter<"ConversaCompletaGabi"> | string
-    product_id?: StringNullableWithAggregatesFilter<"ConversaCompletaGabi"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"ConversaCompletaGabi"> | string | null
-    title?: StringNullableWithAggregatesFilter<"ConversaCompletaGabi"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ConversaCompletaGabi"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ConversaCompletaGabi"> | Date | string
+  export type GabiConversaScalarWhereWithAggregatesInput = {
+    AND?: GabiConversaScalarWhereWithAggregatesInput | GabiConversaScalarWhereWithAggregatesInput[]
+    OR?: GabiConversaScalarWhereWithAggregatesInput[]
+    NOT?: GabiConversaScalarWhereWithAggregatesInput | GabiConversaScalarWhereWithAggregatesInput[]
+    id_gabi_conversa?: StringWithAggregatesFilter<"GabiConversa"> | string
+    id_organizacao_gabi_conversa?: StringWithAggregatesFilter<"GabiConversa"> | string
+    id_produto_gabi_conversa?: StringNullableWithAggregatesFilter<"GabiConversa"> | string | null
+    id_usuario_gabi_conversa?: StringNullableWithAggregatesFilter<"GabiConversa"> | string | null
+    titulo_gabi_conversa?: StringNullableWithAggregatesFilter<"GabiConversa"> | string | null
+    data_criacao_gabi_conversa?: DateTimeWithAggregatesFilter<"GabiConversa"> | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeWithAggregatesFilter<"GabiConversa"> | Date | string
   }
 
-  export type MensagemIndividualGabiaiWhereInput = {
-    AND?: MensagemIndividualGabiaiWhereInput | MensagemIndividualGabiaiWhereInput[]
-    OR?: MensagemIndividualGabiaiWhereInput[]
-    NOT?: MensagemIndividualGabiaiWhereInput | MensagemIndividualGabiaiWhereInput[]
-    id?: StringFilter<"MensagemIndividualGabiai"> | string
-    tenant_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    product_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    user_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    conversation_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    role?: StringFilter<"MensagemIndividualGabiai"> | string
-    content?: StringFilter<"MensagemIndividualGabiai"> | string
-    attachments?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    created_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
-    updated_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
-    conversation?: XOR<ConversaCompletaGabiRelationFilter, ConversaCompletaGabiWhereInput>
+  export type GabiMensagemWhereInput = {
+    AND?: GabiMensagemWhereInput | GabiMensagemWhereInput[]
+    OR?: GabiMensagemWhereInput[]
+    NOT?: GabiMensagemWhereInput | GabiMensagemWhereInput[]
+    id_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    id_organizacao_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    id_produto_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_usuario_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_conversa_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    papel_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    conteudo_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    anexos_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    data_criacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
+    conversa_gabi_mensagem?: XOR<GabiConversaRelationFilter, GabiConversaWhereInput>
   }
 
-  export type MensagemIndividualGabiaiOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    attachments?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    conversation?: ConversaCompletaGabiOrderByWithRelationInput
+  export type GabiMensagemOrderByWithRelationInput = {
+    id_gabi_mensagem?: SortOrder
+    id_organizacao_gabi_mensagem?: SortOrder
+    id_produto_gabi_mensagem?: SortOrderInput | SortOrder
+    id_usuario_gabi_mensagem?: SortOrderInput | SortOrder
+    id_conversa_gabi_mensagem?: SortOrder
+    papel_gabi_mensagem?: SortOrder
+    conteudo_gabi_mensagem?: SortOrder
+    anexos_gabi_mensagem?: SortOrderInput | SortOrder
+    data_criacao_gabi_mensagem?: SortOrder
+    data_atualizacao_gabi_mensagem?: SortOrder
+    conversa_gabi_mensagem?: GabiConversaOrderByWithRelationInput
   }
 
-  export type MensagemIndividualGabiaiWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: MensagemIndividualGabiaiWhereInput | MensagemIndividualGabiaiWhereInput[]
-    OR?: MensagemIndividualGabiaiWhereInput[]
-    NOT?: MensagemIndividualGabiaiWhereInput | MensagemIndividualGabiaiWhereInput[]
-    tenant_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    product_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    user_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    conversation_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    role?: StringFilter<"MensagemIndividualGabiai"> | string
-    content?: StringFilter<"MensagemIndividualGabiai"> | string
-    attachments?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    created_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
-    updated_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
-    conversation?: XOR<ConversaCompletaGabiRelationFilter, ConversaCompletaGabiWhereInput>
-  }, "id">
+  export type GabiMensagemWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_mensagem?: string
+    AND?: GabiMensagemWhereInput | GabiMensagemWhereInput[]
+    OR?: GabiMensagemWhereInput[]
+    NOT?: GabiMensagemWhereInput | GabiMensagemWhereInput[]
+    id_organizacao_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    id_produto_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_usuario_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_conversa_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    papel_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    conteudo_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    anexos_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    data_criacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
+    conversa_gabi_mensagem?: XOR<GabiConversaRelationFilter, GabiConversaWhereInput>
+  }, "id_gabi_mensagem">
 
-  export type MensagemIndividualGabiaiOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    attachments?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: MensagemIndividualGabiaiCountOrderByAggregateInput
-    _max?: MensagemIndividualGabiaiMaxOrderByAggregateInput
-    _min?: MensagemIndividualGabiaiMinOrderByAggregateInput
+  export type GabiMensagemOrderByWithAggregationInput = {
+    id_gabi_mensagem?: SortOrder
+    id_organizacao_gabi_mensagem?: SortOrder
+    id_produto_gabi_mensagem?: SortOrderInput | SortOrder
+    id_usuario_gabi_mensagem?: SortOrderInput | SortOrder
+    id_conversa_gabi_mensagem?: SortOrder
+    papel_gabi_mensagem?: SortOrder
+    conteudo_gabi_mensagem?: SortOrder
+    anexos_gabi_mensagem?: SortOrderInput | SortOrder
+    data_criacao_gabi_mensagem?: SortOrder
+    data_atualizacao_gabi_mensagem?: SortOrder
+    _count?: GabiMensagemCountOrderByAggregateInput
+    _max?: GabiMensagemMaxOrderByAggregateInput
+    _min?: GabiMensagemMinOrderByAggregateInput
   }
 
-  export type MensagemIndividualGabiaiScalarWhereWithAggregatesInput = {
-    AND?: MensagemIndividualGabiaiScalarWhereWithAggregatesInput | MensagemIndividualGabiaiScalarWhereWithAggregatesInput[]
-    OR?: MensagemIndividualGabiaiScalarWhereWithAggregatesInput[]
-    NOT?: MensagemIndividualGabiaiScalarWhereWithAggregatesInput | MensagemIndividualGabiaiScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"MensagemIndividualGabiai"> | string
-    tenant_id?: StringWithAggregatesFilter<"MensagemIndividualGabiai"> | string
-    product_id?: StringNullableWithAggregatesFilter<"MensagemIndividualGabiai"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"MensagemIndividualGabiai"> | string | null
-    conversation_id?: StringWithAggregatesFilter<"MensagemIndividualGabiai"> | string
-    role?: StringWithAggregatesFilter<"MensagemIndividualGabiai"> | string
-    content?: StringWithAggregatesFilter<"MensagemIndividualGabiai"> | string
-    attachments?: StringNullableWithAggregatesFilter<"MensagemIndividualGabiai"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"MensagemIndividualGabiai"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"MensagemIndividualGabiai"> | Date | string
+  export type GabiMensagemScalarWhereWithAggregatesInput = {
+    AND?: GabiMensagemScalarWhereWithAggregatesInput | GabiMensagemScalarWhereWithAggregatesInput[]
+    OR?: GabiMensagemScalarWhereWithAggregatesInput[]
+    NOT?: GabiMensagemScalarWhereWithAggregatesInput | GabiMensagemScalarWhereWithAggregatesInput[]
+    id_gabi_mensagem?: StringWithAggregatesFilter<"GabiMensagem"> | string
+    id_organizacao_gabi_mensagem?: StringWithAggregatesFilter<"GabiMensagem"> | string
+    id_produto_gabi_mensagem?: StringNullableWithAggregatesFilter<"GabiMensagem"> | string | null
+    id_usuario_gabi_mensagem?: StringNullableWithAggregatesFilter<"GabiMensagem"> | string | null
+    id_conversa_gabi_mensagem?: StringWithAggregatesFilter<"GabiMensagem"> | string
+    papel_gabi_mensagem?: StringWithAggregatesFilter<"GabiMensagem"> | string
+    conteudo_gabi_mensagem?: StringWithAggregatesFilter<"GabiMensagem"> | string
+    anexos_gabi_mensagem?: StringNullableWithAggregatesFilter<"GabiMensagem"> | string | null
+    data_criacao_gabi_mensagem?: DateTimeWithAggregatesFilter<"GabiMensagem"> | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeWithAggregatesFilter<"GabiMensagem"> | Date | string
   }
 
-  export type GabiaLogUsoWhereInput = {
-    AND?: GabiaLogUsoWhereInput | GabiaLogUsoWhereInput[]
-    OR?: GabiaLogUsoWhereInput[]
-    NOT?: GabiaLogUsoWhereInput | GabiaLogUsoWhereInput[]
-    id?: StringFilter<"GabiaLogUso"> | string
-    tenant_id?: StringFilter<"GabiaLogUso"> | string
-    product_id?: StringNullableFilter<"GabiaLogUso"> | string | null
-    user_id?: StringNullableFilter<"GabiaLogUso"> | string | null
-    action_taken?: StringFilter<"GabiaLogUso"> | string
-    conversation_snapshot?: StringFilter<"GabiaLogUso"> | string
-    actor_type?: StringFilter<"GabiaLogUso"> | string
-    triggered_by?: StringFilter<"GabiaLogUso"> | string
-    model_used?: StringNullableFilter<"GabiaLogUso"> | string | null
-    tokens_input?: IntFilter<"GabiaLogUso"> | number
-    tokens_output?: IntFilter<"GabiaLogUso"> | number
-    cost_usd?: FloatFilter<"GabiaLogUso"> | number
-    created_at?: DateTimeFilter<"GabiaLogUso"> | Date | string
+  export type GabiLogUsoWhereInput = {
+    AND?: GabiLogUsoWhereInput | GabiLogUsoWhereInput[]
+    OR?: GabiLogUsoWhereInput[]
+    NOT?: GabiLogUsoWhereInput | GabiLogUsoWhereInput[]
+    id_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    id_organizacao_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    id_produto_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    id_usuario_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    acao_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    snapshot_conversa_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    tipo_ator_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    disparado_por_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    modelo_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    tokens_input_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
+    tokens_output_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
+    custo_usd_gabi_log_uso?: FloatFilter<"GabiLogUso"> | number
+    data_criacao_gabi_log_uso?: DateTimeFilter<"GabiLogUso"> | Date | string
   }
 
-  export type GabiaLogUsoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    action_taken?: SortOrder
-    conversation_snapshot?: SortOrder
-    actor_type?: SortOrder
-    triggered_by?: SortOrder
-    model_used?: SortOrderInput | SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
+  export type GabiLogUsoOrderByWithRelationInput = {
+    id_gabi_log_uso?: SortOrder
+    id_organizacao_gabi_log_uso?: SortOrder
+    id_produto_gabi_log_uso?: SortOrderInput | SortOrder
+    id_usuario_gabi_log_uso?: SortOrderInput | SortOrder
+    acao_gabi_log_uso?: SortOrder
+    snapshot_conversa_gabi_log_uso?: SortOrder
+    tipo_ator_gabi_log_uso?: SortOrder
+    disparado_por_gabi_log_uso?: SortOrder
+    modelo_gabi_log_uso?: SortOrderInput | SortOrder
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
+    data_criacao_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaLogUsoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: GabiaLogUsoWhereInput | GabiaLogUsoWhereInput[]
-    OR?: GabiaLogUsoWhereInput[]
-    NOT?: GabiaLogUsoWhereInput | GabiaLogUsoWhereInput[]
-    tenant_id?: StringFilter<"GabiaLogUso"> | string
-    product_id?: StringNullableFilter<"GabiaLogUso"> | string | null
-    user_id?: StringNullableFilter<"GabiaLogUso"> | string | null
-    action_taken?: StringFilter<"GabiaLogUso"> | string
-    conversation_snapshot?: StringFilter<"GabiaLogUso"> | string
-    actor_type?: StringFilter<"GabiaLogUso"> | string
-    triggered_by?: StringFilter<"GabiaLogUso"> | string
-    model_used?: StringNullableFilter<"GabiaLogUso"> | string | null
-    tokens_input?: IntFilter<"GabiaLogUso"> | number
-    tokens_output?: IntFilter<"GabiaLogUso"> | number
-    cost_usd?: FloatFilter<"GabiaLogUso"> | number
-    created_at?: DateTimeFilter<"GabiaLogUso"> | Date | string
-  }, "id">
+  export type GabiLogUsoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_log_uso?: string
+    AND?: GabiLogUsoWhereInput | GabiLogUsoWhereInput[]
+    OR?: GabiLogUsoWhereInput[]
+    NOT?: GabiLogUsoWhereInput | GabiLogUsoWhereInput[]
+    id_organizacao_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    id_produto_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    id_usuario_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    acao_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    snapshot_conversa_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    tipo_ator_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    disparado_por_gabi_log_uso?: StringFilter<"GabiLogUso"> | string
+    modelo_gabi_log_uso?: StringNullableFilter<"GabiLogUso"> | string | null
+    tokens_input_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
+    tokens_output_gabi_log_uso?: IntFilter<"GabiLogUso"> | number
+    custo_usd_gabi_log_uso?: FloatFilter<"GabiLogUso"> | number
+    data_criacao_gabi_log_uso?: DateTimeFilter<"GabiLogUso"> | Date | string
+  }, "id_gabi_log_uso">
 
-  export type GabiaLogUsoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    action_taken?: SortOrder
-    conversation_snapshot?: SortOrder
-    actor_type?: SortOrder
-    triggered_by?: SortOrder
-    model_used?: SortOrderInput | SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    _count?: GabiaLogUsoCountOrderByAggregateInput
-    _avg?: GabiaLogUsoAvgOrderByAggregateInput
-    _max?: GabiaLogUsoMaxOrderByAggregateInput
-    _min?: GabiaLogUsoMinOrderByAggregateInput
-    _sum?: GabiaLogUsoSumOrderByAggregateInput
+  export type GabiLogUsoOrderByWithAggregationInput = {
+    id_gabi_log_uso?: SortOrder
+    id_organizacao_gabi_log_uso?: SortOrder
+    id_produto_gabi_log_uso?: SortOrderInput | SortOrder
+    id_usuario_gabi_log_uso?: SortOrderInput | SortOrder
+    acao_gabi_log_uso?: SortOrder
+    snapshot_conversa_gabi_log_uso?: SortOrder
+    tipo_ator_gabi_log_uso?: SortOrder
+    disparado_por_gabi_log_uso?: SortOrder
+    modelo_gabi_log_uso?: SortOrderInput | SortOrder
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
+    data_criacao_gabi_log_uso?: SortOrder
+    _count?: GabiLogUsoCountOrderByAggregateInput
+    _avg?: GabiLogUsoAvgOrderByAggregateInput
+    _max?: GabiLogUsoMaxOrderByAggregateInput
+    _min?: GabiLogUsoMinOrderByAggregateInput
+    _sum?: GabiLogUsoSumOrderByAggregateInput
   }
 
-  export type GabiaLogUsoScalarWhereWithAggregatesInput = {
-    AND?: GabiaLogUsoScalarWhereWithAggregatesInput | GabiaLogUsoScalarWhereWithAggregatesInput[]
-    OR?: GabiaLogUsoScalarWhereWithAggregatesInput[]
-    NOT?: GabiaLogUsoScalarWhereWithAggregatesInput | GabiaLogUsoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    tenant_id?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    product_id?: StringNullableWithAggregatesFilter<"GabiaLogUso"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"GabiaLogUso"> | string | null
-    action_taken?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    conversation_snapshot?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    actor_type?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    triggered_by?: StringWithAggregatesFilter<"GabiaLogUso"> | string
-    model_used?: StringNullableWithAggregatesFilter<"GabiaLogUso"> | string | null
-    tokens_input?: IntWithAggregatesFilter<"GabiaLogUso"> | number
-    tokens_output?: IntWithAggregatesFilter<"GabiaLogUso"> | number
-    cost_usd?: FloatWithAggregatesFilter<"GabiaLogUso"> | number
-    created_at?: DateTimeWithAggregatesFilter<"GabiaLogUso"> | Date | string
+  export type GabiLogUsoScalarWhereWithAggregatesInput = {
+    AND?: GabiLogUsoScalarWhereWithAggregatesInput | GabiLogUsoScalarWhereWithAggregatesInput[]
+    OR?: GabiLogUsoScalarWhereWithAggregatesInput[]
+    NOT?: GabiLogUsoScalarWhereWithAggregatesInput | GabiLogUsoScalarWhereWithAggregatesInput[]
+    id_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    id_organizacao_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    id_produto_gabi_log_uso?: StringNullableWithAggregatesFilter<"GabiLogUso"> | string | null
+    id_usuario_gabi_log_uso?: StringNullableWithAggregatesFilter<"GabiLogUso"> | string | null
+    acao_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    snapshot_conversa_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    tipo_ator_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    disparado_por_gabi_log_uso?: StringWithAggregatesFilter<"GabiLogUso"> | string
+    modelo_gabi_log_uso?: StringNullableWithAggregatesFilter<"GabiLogUso"> | string | null
+    tokens_input_gabi_log_uso?: IntWithAggregatesFilter<"GabiLogUso"> | number
+    tokens_output_gabi_log_uso?: IntWithAggregatesFilter<"GabiLogUso"> | number
+    custo_usd_gabi_log_uso?: FloatWithAggregatesFilter<"GabiLogUso"> | number
+    data_criacao_gabi_log_uso?: DateTimeWithAggregatesFilter<"GabiLogUso"> | Date | string
   }
 
-  export type GabiaTokenConsumidosWhereInput = {
-    AND?: GabiaTokenConsumidosWhereInput | GabiaTokenConsumidosWhereInput[]
-    OR?: GabiaTokenConsumidosWhereInput[]
-    NOT?: GabiaTokenConsumidosWhereInput | GabiaTokenConsumidosWhereInput[]
-    id?: StringFilter<"GabiaTokenConsumidos"> | string
-    tenant_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    product_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    user_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    campo?: StringFilter<"GabiaTokenConsumidos"> | string
-    tokens_input?: IntFilter<"GabiaTokenConsumidos"> | number
-    tokens_output?: IntFilter<"GabiaTokenConsumidos"> | number
-    tokens_total?: IntFilter<"GabiaTokenConsumidos"> | number
-    mes_ref?: StringFilter<"GabiaTokenConsumidos"> | string
-    created_at?: DateTimeFilter<"GabiaTokenConsumidos"> | Date | string
+  export type GabiTokenConsumidoWhereInput = {
+    AND?: GabiTokenConsumidoWhereInput | GabiTokenConsumidoWhereInput[]
+    OR?: GabiTokenConsumidoWhereInput[]
+    NOT?: GabiTokenConsumidoWhereInput | GabiTokenConsumidoWhereInput[]
+    id_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    id_organizacao_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    id_produto_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    id_usuario_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    campo_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    tokens_input_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    tokens_output_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    tokens_total_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    mes_ref_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    data_criacao_gabi_token_consumido?: DateTimeFilter<"GabiTokenConsumido"> | Date | string
   }
 
-  export type GabiaTokenConsumidosOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    campo?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
-    mes_ref?: SortOrder
-    created_at?: SortOrder
+  export type GabiTokenConsumidoOrderByWithRelationInput = {
+    id_gabi_token_consumido?: SortOrder
+    id_organizacao_gabi_token_consumido?: SortOrder
+    id_produto_gabi_token_consumido?: SortOrder
+    id_usuario_gabi_token_consumido?: SortOrder
+    campo_gabi_token_consumido?: SortOrder
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
+    mes_ref_gabi_token_consumido?: SortOrder
+    data_criacao_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenConsumidosWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: GabiaTokenConsumidosWhereInput | GabiaTokenConsumidosWhereInput[]
-    OR?: GabiaTokenConsumidosWhereInput[]
-    NOT?: GabiaTokenConsumidosWhereInput | GabiaTokenConsumidosWhereInput[]
-    tenant_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    product_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    user_id?: StringFilter<"GabiaTokenConsumidos"> | string
-    campo?: StringFilter<"GabiaTokenConsumidos"> | string
-    tokens_input?: IntFilter<"GabiaTokenConsumidos"> | number
-    tokens_output?: IntFilter<"GabiaTokenConsumidos"> | number
-    tokens_total?: IntFilter<"GabiaTokenConsumidos"> | number
-    mes_ref?: StringFilter<"GabiaTokenConsumidos"> | string
-    created_at?: DateTimeFilter<"GabiaTokenConsumidos"> | Date | string
-  }, "id">
+  export type GabiTokenConsumidoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_token_consumido?: string
+    AND?: GabiTokenConsumidoWhereInput | GabiTokenConsumidoWhereInput[]
+    OR?: GabiTokenConsumidoWhereInput[]
+    NOT?: GabiTokenConsumidoWhereInput | GabiTokenConsumidoWhereInput[]
+    id_organizacao_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    id_produto_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    id_usuario_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    campo_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    tokens_input_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    tokens_output_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    tokens_total_gabi_token_consumido?: IntFilter<"GabiTokenConsumido"> | number
+    mes_ref_gabi_token_consumido?: StringFilter<"GabiTokenConsumido"> | string
+    data_criacao_gabi_token_consumido?: DateTimeFilter<"GabiTokenConsumido"> | Date | string
+  }, "id_gabi_token_consumido">
 
-  export type GabiaTokenConsumidosOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    campo?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
-    mes_ref?: SortOrder
-    created_at?: SortOrder
-    _count?: GabiaTokenConsumidosCountOrderByAggregateInput
-    _avg?: GabiaTokenConsumidosAvgOrderByAggregateInput
-    _max?: GabiaTokenConsumidosMaxOrderByAggregateInput
-    _min?: GabiaTokenConsumidosMinOrderByAggregateInput
-    _sum?: GabiaTokenConsumidosSumOrderByAggregateInput
+  export type GabiTokenConsumidoOrderByWithAggregationInput = {
+    id_gabi_token_consumido?: SortOrder
+    id_organizacao_gabi_token_consumido?: SortOrder
+    id_produto_gabi_token_consumido?: SortOrder
+    id_usuario_gabi_token_consumido?: SortOrder
+    campo_gabi_token_consumido?: SortOrder
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
+    mes_ref_gabi_token_consumido?: SortOrder
+    data_criacao_gabi_token_consumido?: SortOrder
+    _count?: GabiTokenConsumidoCountOrderByAggregateInput
+    _avg?: GabiTokenConsumidoAvgOrderByAggregateInput
+    _max?: GabiTokenConsumidoMaxOrderByAggregateInput
+    _min?: GabiTokenConsumidoMinOrderByAggregateInput
+    _sum?: GabiTokenConsumidoSumOrderByAggregateInput
   }
 
-  export type GabiaTokenConsumidosScalarWhereWithAggregatesInput = {
-    AND?: GabiaTokenConsumidosScalarWhereWithAggregatesInput | GabiaTokenConsumidosScalarWhereWithAggregatesInput[]
-    OR?: GabiaTokenConsumidosScalarWhereWithAggregatesInput[]
-    NOT?: GabiaTokenConsumidosScalarWhereWithAggregatesInput | GabiaTokenConsumidosScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    tenant_id?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    product_id?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    user_id?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    campo?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    tokens_input?: IntWithAggregatesFilter<"GabiaTokenConsumidos"> | number
-    tokens_output?: IntWithAggregatesFilter<"GabiaTokenConsumidos"> | number
-    tokens_total?: IntWithAggregatesFilter<"GabiaTokenConsumidos"> | number
-    mes_ref?: StringWithAggregatesFilter<"GabiaTokenConsumidos"> | string
-    created_at?: DateTimeWithAggregatesFilter<"GabiaTokenConsumidos"> | Date | string
+  export type GabiTokenConsumidoScalarWhereWithAggregatesInput = {
+    AND?: GabiTokenConsumidoScalarWhereWithAggregatesInput | GabiTokenConsumidoScalarWhereWithAggregatesInput[]
+    OR?: GabiTokenConsumidoScalarWhereWithAggregatesInput[]
+    NOT?: GabiTokenConsumidoScalarWhereWithAggregatesInput | GabiTokenConsumidoScalarWhereWithAggregatesInput[]
+    id_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    id_organizacao_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    id_produto_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    id_usuario_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    campo_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    tokens_input_gabi_token_consumido?: IntWithAggregatesFilter<"GabiTokenConsumido"> | number
+    tokens_output_gabi_token_consumido?: IntWithAggregatesFilter<"GabiTokenConsumido"> | number
+    tokens_total_gabi_token_consumido?: IntWithAggregatesFilter<"GabiTokenConsumido"> | number
+    mes_ref_gabi_token_consumido?: StringWithAggregatesFilter<"GabiTokenConsumido"> | string
+    data_criacao_gabi_token_consumido?: DateTimeWithAggregatesFilter<"GabiTokenConsumido"> | Date | string
   }
 
-  export type GabiaTokenWorkspaceWhereInput = {
-    AND?: GabiaTokenWorkspaceWhereInput | GabiaTokenWorkspaceWhereInput[]
-    OR?: GabiaTokenWorkspaceWhereInput[]
-    NOT?: GabiaTokenWorkspaceWhereInput | GabiaTokenWorkspaceWhereInput[]
-    id?: StringFilter<"GabiaTokenWorkspace"> | string
-    tenant_id?: StringFilter<"GabiaTokenWorkspace"> | string
-    product_id?: StringFilter<"GabiaTokenWorkspace"> | string
-    quota_mensal?: IntFilter<"GabiaTokenWorkspace"> | number
-    mes_ref?: StringFilter<"GabiaTokenWorkspace"> | string
-    tokens_usados?: IntFilter<"GabiaTokenWorkspace"> | number
-    updated_at?: DateTimeFilter<"GabiaTokenWorkspace"> | Date | string
+  export type GabiTokenWorkspaceWhereInput = {
+    AND?: GabiTokenWorkspaceWhereInput | GabiTokenWorkspaceWhereInput[]
+    OR?: GabiTokenWorkspaceWhereInput[]
+    NOT?: GabiTokenWorkspaceWhereInput | GabiTokenWorkspaceWhereInput[]
+    id_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    id_organizacao_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    id_produto_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    quota_mensal_gabi_token_workspace?: IntFilter<"GabiTokenWorkspace"> | number
+    mes_ref_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    tokens_usados_gabi_token_workspace?: IntFilter<"GabiTokenWorkspace"> | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFilter<"GabiTokenWorkspace"> | Date | string
   }
 
-  export type GabiaTokenWorkspaceOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    quota_mensal?: SortOrder
-    mes_ref?: SortOrder
-    tokens_usados?: SortOrder
-    updated_at?: SortOrder
+  export type GabiTokenWorkspaceOrderByWithRelationInput = {
+    id_gabi_token_workspace?: SortOrder
+    id_organizacao_gabi_token_workspace?: SortOrder
+    id_produto_gabi_token_workspace?: SortOrder
+    quota_mensal_gabi_token_workspace?: SortOrder
+    mes_ref_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
+    data_atualizacao_gabi_token_workspace?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_product_id_mes_ref?: GabiaTokenWorkspaceTenant_idProduct_idMes_refCompoundUniqueInput
-    AND?: GabiaTokenWorkspaceWhereInput | GabiaTokenWorkspaceWhereInput[]
-    OR?: GabiaTokenWorkspaceWhereInput[]
-    NOT?: GabiaTokenWorkspaceWhereInput | GabiaTokenWorkspaceWhereInput[]
-    tenant_id?: StringFilter<"GabiaTokenWorkspace"> | string
-    product_id?: StringFilter<"GabiaTokenWorkspace"> | string
-    quota_mensal?: IntFilter<"GabiaTokenWorkspace"> | number
-    mes_ref?: StringFilter<"GabiaTokenWorkspace"> | string
-    tokens_usados?: IntFilter<"GabiaTokenWorkspace"> | number
-    updated_at?: DateTimeFilter<"GabiaTokenWorkspace"> | Date | string
-  }, "id" | "tenant_id_product_id_mes_ref">
+  export type GabiTokenWorkspaceWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_token_workspace?: string
+    id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace?: GabiTokenWorkspaceId_organizacao_gabi_token_workspaceId_produto_gabi_token_workspaceMes_ref_gabi_token_workspaceCompoundUniqueInput
+    AND?: GabiTokenWorkspaceWhereInput | GabiTokenWorkspaceWhereInput[]
+    OR?: GabiTokenWorkspaceWhereInput[]
+    NOT?: GabiTokenWorkspaceWhereInput | GabiTokenWorkspaceWhereInput[]
+    id_organizacao_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    id_produto_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    quota_mensal_gabi_token_workspace?: IntFilter<"GabiTokenWorkspace"> | number
+    mes_ref_gabi_token_workspace?: StringFilter<"GabiTokenWorkspace"> | string
+    tokens_usados_gabi_token_workspace?: IntFilter<"GabiTokenWorkspace"> | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFilter<"GabiTokenWorkspace"> | Date | string
+  }, "id_gabi_token_workspace" | "id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace">
 
-  export type GabiaTokenWorkspaceOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    quota_mensal?: SortOrder
-    mes_ref?: SortOrder
-    tokens_usados?: SortOrder
-    updated_at?: SortOrder
-    _count?: GabiaTokenWorkspaceCountOrderByAggregateInput
-    _avg?: GabiaTokenWorkspaceAvgOrderByAggregateInput
-    _max?: GabiaTokenWorkspaceMaxOrderByAggregateInput
-    _min?: GabiaTokenWorkspaceMinOrderByAggregateInput
-    _sum?: GabiaTokenWorkspaceSumOrderByAggregateInput
+  export type GabiTokenWorkspaceOrderByWithAggregationInput = {
+    id_gabi_token_workspace?: SortOrder
+    id_organizacao_gabi_token_workspace?: SortOrder
+    id_produto_gabi_token_workspace?: SortOrder
+    quota_mensal_gabi_token_workspace?: SortOrder
+    mes_ref_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
+    data_atualizacao_gabi_token_workspace?: SortOrder
+    _count?: GabiTokenWorkspaceCountOrderByAggregateInput
+    _avg?: GabiTokenWorkspaceAvgOrderByAggregateInput
+    _max?: GabiTokenWorkspaceMaxOrderByAggregateInput
+    _min?: GabiTokenWorkspaceMinOrderByAggregateInput
+    _sum?: GabiTokenWorkspaceSumOrderByAggregateInput
   }
 
-  export type GabiaTokenWorkspaceScalarWhereWithAggregatesInput = {
-    AND?: GabiaTokenWorkspaceScalarWhereWithAggregatesInput | GabiaTokenWorkspaceScalarWhereWithAggregatesInput[]
-    OR?: GabiaTokenWorkspaceScalarWhereWithAggregatesInput[]
-    NOT?: GabiaTokenWorkspaceScalarWhereWithAggregatesInput | GabiaTokenWorkspaceScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"GabiaTokenWorkspace"> | string
-    tenant_id?: StringWithAggregatesFilter<"GabiaTokenWorkspace"> | string
-    product_id?: StringWithAggregatesFilter<"GabiaTokenWorkspace"> | string
-    quota_mensal?: IntWithAggregatesFilter<"GabiaTokenWorkspace"> | number
-    mes_ref?: StringWithAggregatesFilter<"GabiaTokenWorkspace"> | string
-    tokens_usados?: IntWithAggregatesFilter<"GabiaTokenWorkspace"> | number
-    updated_at?: DateTimeWithAggregatesFilter<"GabiaTokenWorkspace"> | Date | string
+  export type GabiTokenWorkspaceScalarWhereWithAggregatesInput = {
+    AND?: GabiTokenWorkspaceScalarWhereWithAggregatesInput | GabiTokenWorkspaceScalarWhereWithAggregatesInput[]
+    OR?: GabiTokenWorkspaceScalarWhereWithAggregatesInput[]
+    NOT?: GabiTokenWorkspaceScalarWhereWithAggregatesInput | GabiTokenWorkspaceScalarWhereWithAggregatesInput[]
+    id_gabi_token_workspace?: StringWithAggregatesFilter<"GabiTokenWorkspace"> | string
+    id_organizacao_gabi_token_workspace?: StringWithAggregatesFilter<"GabiTokenWorkspace"> | string
+    id_produto_gabi_token_workspace?: StringWithAggregatesFilter<"GabiTokenWorkspace"> | string
+    quota_mensal_gabi_token_workspace?: IntWithAggregatesFilter<"GabiTokenWorkspace"> | number
+    mes_ref_gabi_token_workspace?: StringWithAggregatesFilter<"GabiTokenWorkspace"> | string
+    tokens_usados_gabi_token_workspace?: IntWithAggregatesFilter<"GabiTokenWorkspace"> | number
+    data_atualizacao_gabi_token_workspace?: DateTimeWithAggregatesFilter<"GabiTokenWorkspace"> | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiWhereInput = {
-    AND?: PersonalizacaoOrganizacaoGabiaiWhereInput | PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    OR?: PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    NOT?: PersonalizacaoOrganizacaoGabiaiWhereInput | PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    id?: StringFilter<"PersonalizacaoOrganizacaoGabiai"> | string
-    tenant_id?: StringFilter<"PersonalizacaoOrganizacaoGabiai"> | string
-    product_id?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    system_prompt?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    tom_voz?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    limitacoes?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    instrucoes_extras?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    ativo?: BoolFilter<"PersonalizacaoOrganizacaoGabiai"> | boolean
-    created_at?: DateTimeFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
-    updated_at?: DateTimeFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
+  export type GabiPersonalizacaoWhereInput = {
+    AND?: GabiPersonalizacaoWhereInput | GabiPersonalizacaoWhereInput[]
+    OR?: GabiPersonalizacaoWhereInput[]
+    NOT?: GabiPersonalizacaoWhereInput | GabiPersonalizacaoWhereInput[]
+    id_gabi_personalizacao?: StringFilter<"GabiPersonalizacao"> | string
+    id_organizacao_gabi_personalizacao?: StringFilter<"GabiPersonalizacao"> | string
+    id_produto_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    id_usuario_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    prompt_sistema_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    tom_voz_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    limitacoes_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    instrucoes_extras_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    ativa_gabi_personalizacao?: BoolFilter<"GabiPersonalizacao"> | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFilter<"GabiPersonalizacao"> | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFilter<"GabiPersonalizacao"> | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    system_prompt?: SortOrderInput | SortOrder
-    tom_voz?: SortOrderInput | SortOrder
-    limitacoes?: SortOrderInput | SortOrder
-    instrucoes_extras?: SortOrderInput | SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiPersonalizacaoOrderByWithRelationInput = {
+    id_gabi_personalizacao?: SortOrder
+    id_organizacao_gabi_personalizacao?: SortOrder
+    id_produto_gabi_personalizacao?: SortOrderInput | SortOrder
+    id_usuario_gabi_personalizacao?: SortOrderInput | SortOrder
+    prompt_sistema_gabi_personalizacao?: SortOrderInput | SortOrder
+    tom_voz_gabi_personalizacao?: SortOrderInput | SortOrder
+    limitacoes_gabi_personalizacao?: SortOrderInput | SortOrder
+    instrucoes_extras_gabi_personalizacao?: SortOrderInput | SortOrder
+    ativa_gabi_personalizacao?: SortOrder
+    data_criacao_gabi_personalizacao?: SortOrder
+    data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id?: string
-    AND?: PersonalizacaoOrganizacaoGabiaiWhereInput | PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    OR?: PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    NOT?: PersonalizacaoOrganizacaoGabiaiWhereInput | PersonalizacaoOrganizacaoGabiaiWhereInput[]
-    product_id?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    system_prompt?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    tom_voz?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    limitacoes?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    instrucoes_extras?: StringNullableFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    ativo?: BoolFilter<"PersonalizacaoOrganizacaoGabiai"> | boolean
-    created_at?: DateTimeFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
-    updated_at?: DateTimeFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
-  }, "id" | "tenant_id">
+  export type GabiPersonalizacaoWhereUniqueInput = Prisma.AtLeast<{
+    id_gabi_personalizacao?: string
+    id_organizacao_gabi_personalizacao?: string
+    AND?: GabiPersonalizacaoWhereInput | GabiPersonalizacaoWhereInput[]
+    OR?: GabiPersonalizacaoWhereInput[]
+    NOT?: GabiPersonalizacaoWhereInput | GabiPersonalizacaoWhereInput[]
+    id_produto_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    id_usuario_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    prompt_sistema_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    tom_voz_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    limitacoes_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    instrucoes_extras_gabi_personalizacao?: StringNullableFilter<"GabiPersonalizacao"> | string | null
+    ativa_gabi_personalizacao?: BoolFilter<"GabiPersonalizacao"> | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFilter<"GabiPersonalizacao"> | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFilter<"GabiPersonalizacao"> | Date | string
+  }, "id_gabi_personalizacao" | "id_organizacao_gabi_personalizacao">
 
-  export type PersonalizacaoOrganizacaoGabiaiOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    system_prompt?: SortOrderInput | SortOrder
-    tom_voz?: SortOrderInput | SortOrder
-    limitacoes?: SortOrderInput | SortOrder
-    instrucoes_extras?: SortOrderInput | SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: PersonalizacaoOrganizacaoGabiaiCountOrderByAggregateInput
-    _max?: PersonalizacaoOrganizacaoGabiaiMaxOrderByAggregateInput
-    _min?: PersonalizacaoOrganizacaoGabiaiMinOrderByAggregateInput
+  export type GabiPersonalizacaoOrderByWithAggregationInput = {
+    id_gabi_personalizacao?: SortOrder
+    id_organizacao_gabi_personalizacao?: SortOrder
+    id_produto_gabi_personalizacao?: SortOrderInput | SortOrder
+    id_usuario_gabi_personalizacao?: SortOrderInput | SortOrder
+    prompt_sistema_gabi_personalizacao?: SortOrderInput | SortOrder
+    tom_voz_gabi_personalizacao?: SortOrderInput | SortOrder
+    limitacoes_gabi_personalizacao?: SortOrderInput | SortOrder
+    instrucoes_extras_gabi_personalizacao?: SortOrderInput | SortOrder
+    ativa_gabi_personalizacao?: SortOrder
+    data_criacao_gabi_personalizacao?: SortOrder
+    data_atualizacao_gabi_personalizacao?: SortOrder
+    _count?: GabiPersonalizacaoCountOrderByAggregateInput
+    _max?: GabiPersonalizacaoMaxOrderByAggregateInput
+    _min?: GabiPersonalizacaoMinOrderByAggregateInput
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput = {
-    AND?: PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput | PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput[]
-    OR?: PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput[]
-    NOT?: PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput | PersonalizacaoOrganizacaoGabiaiScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string
-    tenant_id?: StringWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string
-    product_id?: StringNullableWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    system_prompt?: StringNullableWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    tom_voz?: StringNullableWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    limitacoes?: StringNullableWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    instrucoes_extras?: StringNullableWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | string | null
-    ativo?: BoolWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
+  export type GabiPersonalizacaoScalarWhereWithAggregatesInput = {
+    AND?: GabiPersonalizacaoScalarWhereWithAggregatesInput | GabiPersonalizacaoScalarWhereWithAggregatesInput[]
+    OR?: GabiPersonalizacaoScalarWhereWithAggregatesInput[]
+    NOT?: GabiPersonalizacaoScalarWhereWithAggregatesInput | GabiPersonalizacaoScalarWhereWithAggregatesInput[]
+    id_gabi_personalizacao?: StringWithAggregatesFilter<"GabiPersonalizacao"> | string
+    id_organizacao_gabi_personalizacao?: StringWithAggregatesFilter<"GabiPersonalizacao"> | string
+    id_produto_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    id_usuario_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    prompt_sistema_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    tom_voz_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    limitacoes_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    instrucoes_extras_gabi_personalizacao?: StringNullableWithAggregatesFilter<"GabiPersonalizacao"> | string | null
+    ativa_gabi_personalizacao?: BoolWithAggregatesFilter<"GabiPersonalizacao"> | boolean
+    data_criacao_gabi_personalizacao?: DateTimeWithAggregatesFilter<"GabiPersonalizacao"> | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeWithAggregatesFilter<"GabiPersonalizacao"> | Date | string
   }
 
   export type UserPreferencesWhereInput = {
@@ -59425,532 +59443,539 @@ export namespace Prisma {
     data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversaCompletaGabiCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    title?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    messages?: MensagemIndividualGabiaiCreateNestedManyWithoutConversationInput
+  export type GabiConversaCreateInput = {
+    id_gabi_conversa?: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa?: string | null
+    id_usuario_gabi_conversa?: string | null
+    titulo_gabi_conversa?: string | null
+    data_criacao_gabi_conversa?: Date | string
+    data_atualizacao_gabi_conversa?: Date | string
+    mensagens_gabi_conversa?: GabiMensagemCreateNestedManyWithoutConversa_gabi_mensagemInput
   }
 
-  export type ConversaCompletaGabiUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    title?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    messages?: MensagemIndividualGabiaiUncheckedCreateNestedManyWithoutConversationInput
+  export type GabiConversaUncheckedCreateInput = {
+    id_gabi_conversa?: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa?: string | null
+    id_usuario_gabi_conversa?: string | null
+    titulo_gabi_conversa?: string | null
+    data_criacao_gabi_conversa?: Date | string
+    data_atualizacao_gabi_conversa?: Date | string
+    mensagens_gabi_conversa?: GabiMensagemUncheckedCreateNestedManyWithoutConversa_gabi_mensagemInput
   }
 
-  export type ConversaCompletaGabiUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    messages?: MensagemIndividualGabiaiUpdateManyWithoutConversationNestedInput
+  export type GabiConversaUpdateInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    mensagens_gabi_conversa?: GabiMensagemUpdateManyWithoutConversa_gabi_mensagemNestedInput
   }
 
-  export type ConversaCompletaGabiUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    messages?: MensagemIndividualGabiaiUncheckedUpdateManyWithoutConversationNestedInput
+  export type GabiConversaUncheckedUpdateInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    mensagens_gabi_conversa?: GabiMensagemUncheckedUpdateManyWithoutConversa_gabi_mensagemNestedInput
   }
 
-  export type ConversaCompletaGabiCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    title?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiConversaCreateManyInput = {
+    id_gabi_conversa?: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa?: string | null
+    id_usuario_gabi_conversa?: string | null
+    titulo_gabi_conversa?: string | null
+    data_criacao_gabi_conversa?: Date | string
+    data_atualizacao_gabi_conversa?: Date | string
   }
 
-  export type ConversaCompletaGabiUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiConversaUpdateManyMutationInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversaCompletaGabiUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiConversaUncheckedUpdateManyInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    conversation: ConversaCompletaGabiCreateNestedOneWithoutMessagesInput
+  export type GabiMensagemCreateInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
+    conversa_gabi_mensagem: GabiConversaCreateNestedOneWithoutMensagens_gabi_conversaInput
   }
 
-  export type MensagemIndividualGabiaiUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id: string
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiMensagemUncheckedCreateInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    id_conversa_gabi_mensagem: string
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
   }
 
-  export type MensagemIndividualGabiaiUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    conversation?: ConversaCompletaGabiUpdateOneRequiredWithoutMessagesNestedInput
+  export type GabiMensagemUpdateInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversa_gabi_mensagem?: GabiConversaUpdateOneRequiredWithoutMensagens_gabi_conversaNestedInput
   }
 
-  export type MensagemIndividualGabiaiUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUncheckedUpdateInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id: string
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiMensagemCreateManyInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    id_conversa_gabi_mensagem: string
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
   }
 
-  export type MensagemIndividualGabiaiUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUpdateManyMutationInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUncheckedUpdateManyInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaLogUsoCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    action_taken: string
-    conversation_snapshot: string
-    actor_type?: string
-    triggered_by: string
-    model_used?: string | null
-    tokens_input?: number
-    tokens_output?: number
-    cost_usd?: number
-    created_at?: Date | string
+  export type GabiLogUsoCreateInput = {
+    id_gabi_log_uso?: string
+    id_organizacao_gabi_log_uso: string
+    id_produto_gabi_log_uso?: string | null
+    id_usuario_gabi_log_uso?: string | null
+    acao_gabi_log_uso: string
+    snapshot_conversa_gabi_log_uso: string
+    tipo_ator_gabi_log_uso?: string
+    disparado_por_gabi_log_uso: string
+    modelo_gabi_log_uso?: string | null
+    tokens_input_gabi_log_uso?: number
+    tokens_output_gabi_log_uso?: number
+    custo_usd_gabi_log_uso?: number
+    data_criacao_gabi_log_uso?: Date | string
   }
 
-  export type GabiaLogUsoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    action_taken: string
-    conversation_snapshot: string
-    actor_type?: string
-    triggered_by: string
-    model_used?: string | null
-    tokens_input?: number
-    tokens_output?: number
-    cost_usd?: number
-    created_at?: Date | string
+  export type GabiLogUsoUncheckedCreateInput = {
+    id_gabi_log_uso?: string
+    id_organizacao_gabi_log_uso: string
+    id_produto_gabi_log_uso?: string | null
+    id_usuario_gabi_log_uso?: string | null
+    acao_gabi_log_uso: string
+    snapshot_conversa_gabi_log_uso: string
+    tipo_ator_gabi_log_uso?: string
+    disparado_por_gabi_log_uso: string
+    modelo_gabi_log_uso?: string | null
+    tokens_input_gabi_log_uso?: number
+    tokens_output_gabi_log_uso?: number
+    custo_usd_gabi_log_uso?: number
+    data_criacao_gabi_log_uso?: Date | string
   }
 
-  export type GabiaLogUsoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action_taken?: StringFieldUpdateOperationsInput | string
-    conversation_snapshot?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    triggered_by?: StringFieldUpdateOperationsInput | string
-    model_used?: NullableStringFieldUpdateOperationsInput | string | null
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    cost_usd?: FloatFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiLogUsoUpdateInput = {
+    id_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    snapshot_conversa_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    tipo_ator_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    disparado_por_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaLogUsoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action_taken?: StringFieldUpdateOperationsInput | string
-    conversation_snapshot?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    triggered_by?: StringFieldUpdateOperationsInput | string
-    model_used?: NullableStringFieldUpdateOperationsInput | string | null
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    cost_usd?: FloatFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiLogUsoUncheckedUpdateInput = {
+    id_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    snapshot_conversa_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    tipo_ator_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    disparado_por_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaLogUsoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    action_taken: string
-    conversation_snapshot: string
-    actor_type?: string
-    triggered_by: string
-    model_used?: string | null
-    tokens_input?: number
-    tokens_output?: number
-    cost_usd?: number
-    created_at?: Date | string
+  export type GabiLogUsoCreateManyInput = {
+    id_gabi_log_uso?: string
+    id_organizacao_gabi_log_uso: string
+    id_produto_gabi_log_uso?: string | null
+    id_usuario_gabi_log_uso?: string | null
+    acao_gabi_log_uso: string
+    snapshot_conversa_gabi_log_uso: string
+    tipo_ator_gabi_log_uso?: string
+    disparado_por_gabi_log_uso: string
+    modelo_gabi_log_uso?: string | null
+    tokens_input_gabi_log_uso?: number
+    tokens_output_gabi_log_uso?: number
+    custo_usd_gabi_log_uso?: number
+    data_criacao_gabi_log_uso?: Date | string
   }
 
-  export type GabiaLogUsoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action_taken?: StringFieldUpdateOperationsInput | string
-    conversation_snapshot?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    triggered_by?: StringFieldUpdateOperationsInput | string
-    model_used?: NullableStringFieldUpdateOperationsInput | string | null
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    cost_usd?: FloatFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiLogUsoUpdateManyMutationInput = {
+    id_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    snapshot_conversa_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    tipo_ator_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    disparado_por_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaLogUsoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action_taken?: StringFieldUpdateOperationsInput | string
-    conversation_snapshot?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    triggered_by?: StringFieldUpdateOperationsInput | string
-    model_used?: NullableStringFieldUpdateOperationsInput | string | null
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    cost_usd?: FloatFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiLogUsoUncheckedUpdateManyInput = {
+    id_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    snapshot_conversa_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    tipo_ator_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    disparado_por_gabi_log_uso?: StringFieldUpdateOperationsInput | string
+    modelo_gabi_log_uso?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_log_uso?: IntFieldUpdateOperationsInput | number
+    custo_usd_gabi_log_uso?: FloatFieldUpdateOperationsInput | number
+    data_criacao_gabi_log_uso?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenConsumidosCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id: string
-    campo: string
-    tokens_input: number
-    tokens_output: number
-    tokens_total: number
-    mes_ref: string
-    created_at?: Date | string
+  export type GabiTokenConsumidoCreateInput = {
+    id_gabi_token_consumido?: string
+    id_organizacao_gabi_token_consumido: string
+    id_produto_gabi_token_consumido: string
+    id_usuario_gabi_token_consumido: string
+    campo_gabi_token_consumido: string
+    tokens_input_gabi_token_consumido: number
+    tokens_output_gabi_token_consumido: number
+    tokens_total_gabi_token_consumido: number
+    mes_ref_gabi_token_consumido: string
+    data_criacao_gabi_token_consumido?: Date | string
   }
 
-  export type GabiaTokenConsumidosUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id: string
-    campo: string
-    tokens_input: number
-    tokens_output: number
-    tokens_total: number
-    mes_ref: string
-    created_at?: Date | string
+  export type GabiTokenConsumidoUncheckedCreateInput = {
+    id_gabi_token_consumido?: string
+    id_organizacao_gabi_token_consumido: string
+    id_produto_gabi_token_consumido: string
+    id_usuario_gabi_token_consumido: string
+    campo_gabi_token_consumido: string
+    tokens_input_gabi_token_consumido: number
+    tokens_output_gabi_token_consumido: number
+    tokens_total_gabi_token_consumido: number
+    mes_ref_gabi_token_consumido: string
+    data_criacao_gabi_token_consumido?: Date | string
   }
 
-  export type GabiaTokenConsumidosUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    campo?: StringFieldUpdateOperationsInput | string
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    tokens_total?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenConsumidoUpdateInput = {
+    id_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    campo_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    tokens_input_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_total_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    data_criacao_gabi_token_consumido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenConsumidosUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    campo?: StringFieldUpdateOperationsInput | string
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    tokens_total?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenConsumidoUncheckedUpdateInput = {
+    id_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    campo_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    tokens_input_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_total_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    data_criacao_gabi_token_consumido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenConsumidosCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id: string
-    campo: string
-    tokens_input: number
-    tokens_output: number
-    tokens_total: number
-    mes_ref: string
-    created_at?: Date | string
+  export type GabiTokenConsumidoCreateManyInput = {
+    id_gabi_token_consumido?: string
+    id_organizacao_gabi_token_consumido: string
+    id_produto_gabi_token_consumido: string
+    id_usuario_gabi_token_consumido: string
+    campo_gabi_token_consumido: string
+    tokens_input_gabi_token_consumido: number
+    tokens_output_gabi_token_consumido: number
+    tokens_total_gabi_token_consumido: number
+    mes_ref_gabi_token_consumido: string
+    data_criacao_gabi_token_consumido?: Date | string
   }
 
-  export type GabiaTokenConsumidosUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    campo?: StringFieldUpdateOperationsInput | string
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    tokens_total?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenConsumidoUpdateManyMutationInput = {
+    id_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    campo_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    tokens_input_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_total_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    data_criacao_gabi_token_consumido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenConsumidosUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    campo?: StringFieldUpdateOperationsInput | string
-    tokens_input?: IntFieldUpdateOperationsInput | number
-    tokens_output?: IntFieldUpdateOperationsInput | number
-    tokens_total?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenConsumidoUncheckedUpdateManyInput = {
+    id_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    id_usuario_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    campo_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    tokens_input_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_output_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    tokens_total_gabi_token_consumido?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_consumido?: StringFieldUpdateOperationsInput | string
+    data_criacao_gabi_token_consumido?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenWorkspaceCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    quota_mensal: number
-    mes_ref: string
-    tokens_usados?: number
-    updated_at?: Date | string
+  export type GabiTokenWorkspaceCreateInput = {
+    id_gabi_token_workspace?: string
+    id_organizacao_gabi_token_workspace: string
+    id_produto_gabi_token_workspace: string
+    quota_mensal_gabi_token_workspace: number
+    mes_ref_gabi_token_workspace: string
+    tokens_usados_gabi_token_workspace?: number
+    data_atualizacao_gabi_token_workspace?: Date | string
   }
 
-  export type GabiaTokenWorkspaceUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    quota_mensal: number
-    mes_ref: string
-    tokens_usados?: number
-    updated_at?: Date | string
+  export type GabiTokenWorkspaceUncheckedCreateInput = {
+    id_gabi_token_workspace?: string
+    id_organizacao_gabi_token_workspace: string
+    id_produto_gabi_token_workspace: string
+    quota_mensal_gabi_token_workspace: number
+    mes_ref_gabi_token_workspace: string
+    tokens_usados_gabi_token_workspace?: number
+    data_atualizacao_gabi_token_workspace?: Date | string
   }
 
-  export type GabiaTokenWorkspaceUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    quota_mensal?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    tokens_usados?: IntFieldUpdateOperationsInput | number
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenWorkspaceUpdateInput = {
+    id_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    quota_mensal_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    tokens_usados_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenWorkspaceUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    quota_mensal?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    tokens_usados?: IntFieldUpdateOperationsInput | number
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenWorkspaceUncheckedUpdateInput = {
+    id_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    quota_mensal_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    tokens_usados_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenWorkspaceCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    quota_mensal: number
-    mes_ref: string
-    tokens_usados?: number
-    updated_at?: Date | string
+  export type GabiTokenWorkspaceCreateManyInput = {
+    id_gabi_token_workspace?: string
+    id_organizacao_gabi_token_workspace: string
+    id_produto_gabi_token_workspace: string
+    quota_mensal_gabi_token_workspace: number
+    mes_ref_gabi_token_workspace: string
+    tokens_usados_gabi_token_workspace?: number
+    data_atualizacao_gabi_token_workspace?: Date | string
   }
 
-  export type GabiaTokenWorkspaceUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    quota_mensal?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    tokens_usados?: IntFieldUpdateOperationsInput | number
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenWorkspaceUpdateManyMutationInput = {
+    id_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    quota_mensal_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    tokens_usados_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GabiaTokenWorkspaceUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    quota_mensal?: IntFieldUpdateOperationsInput | number
-    mes_ref?: StringFieldUpdateOperationsInput | string
-    tokens_usados?: IntFieldUpdateOperationsInput | number
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiTokenWorkspaceUncheckedUpdateManyInput = {
+    id_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    quota_mensal_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    mes_ref_gabi_token_workspace?: StringFieldUpdateOperationsInput | string
+    tokens_usados_gabi_token_workspace?: IntFieldUpdateOperationsInput | number
+    data_atualizacao_gabi_token_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    system_prompt?: string | null
-    tom_voz?: string | null
-    limitacoes?: string | null
-    instrucoes_extras?: string | null
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiPersonalizacaoCreateInput = {
+    id_gabi_personalizacao?: string
+    id_organizacao_gabi_personalizacao: string
+    id_produto_gabi_personalizacao?: string | null
+    id_usuario_gabi_personalizacao?: string | null
+    prompt_sistema_gabi_personalizacao?: string | null
+    tom_voz_gabi_personalizacao?: string | null
+    limitacoes_gabi_personalizacao?: string | null
+    instrucoes_extras_gabi_personalizacao?: string | null
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: Date | string
+    data_atualizacao_gabi_personalizacao?: Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    system_prompt?: string | null
-    tom_voz?: string | null
-    limitacoes?: string | null
-    instrucoes_extras?: string | null
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiPersonalizacaoUncheckedCreateInput = {
+    id_gabi_personalizacao?: string
+    id_organizacao_gabi_personalizacao: string
+    id_produto_gabi_personalizacao?: string | null
+    id_usuario_gabi_personalizacao?: string | null
+    prompt_sistema_gabi_personalizacao?: string | null
+    tom_voz_gabi_personalizacao?: string | null
+    limitacoes_gabi_personalizacao?: string | null
+    instrucoes_extras_gabi_personalizacao?: string | null
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: Date | string
+    data_atualizacao_gabi_personalizacao?: Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    system_prompt?: NullableStringFieldUpdateOperationsInput | string | null
-    tom_voz?: NullableStringFieldUpdateOperationsInput | string | null
-    limitacoes?: NullableStringFieldUpdateOperationsInput | string | null
-    instrucoes_extras?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiPersonalizacaoUpdateInput = {
+    id_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt_sistema_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tom_voz_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    limitacoes_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    instrucoes_extras_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    ativa_gabi_personalizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    system_prompt?: NullableStringFieldUpdateOperationsInput | string | null
-    tom_voz?: NullableStringFieldUpdateOperationsInput | string | null
-    limitacoes?: NullableStringFieldUpdateOperationsInput | string | null
-    instrucoes_extras?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiPersonalizacaoUncheckedUpdateInput = {
+    id_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt_sistema_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tom_voz_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    limitacoes_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    instrucoes_extras_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    ativa_gabi_personalizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    system_prompt?: string | null
-    tom_voz?: string | null
-    limitacoes?: string | null
-    instrucoes_extras?: string | null
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiPersonalizacaoCreateManyInput = {
+    id_gabi_personalizacao?: string
+    id_organizacao_gabi_personalizacao: string
+    id_produto_gabi_personalizacao?: string | null
+    id_usuario_gabi_personalizacao?: string | null
+    prompt_sistema_gabi_personalizacao?: string | null
+    tom_voz_gabi_personalizacao?: string | null
+    limitacoes_gabi_personalizacao?: string | null
+    instrucoes_extras_gabi_personalizacao?: string | null
+    ativa_gabi_personalizacao?: boolean
+    data_criacao_gabi_personalizacao?: Date | string
+    data_atualizacao_gabi_personalizacao?: Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    system_prompt?: NullableStringFieldUpdateOperationsInput | string | null
-    tom_voz?: NullableStringFieldUpdateOperationsInput | string | null
-    limitacoes?: NullableStringFieldUpdateOperationsInput | string | null
-    instrucoes_extras?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiPersonalizacaoUpdateManyMutationInput = {
+    id_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt_sistema_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tom_voz_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    limitacoes_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    instrucoes_extras_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    ativa_gabi_personalizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    system_prompt?: NullableStringFieldUpdateOperationsInput | string | null
-    tom_voz?: NullableStringFieldUpdateOperationsInput | string | null
-    limitacoes?: NullableStringFieldUpdateOperationsInput | string | null
-    instrucoes_extras?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiPersonalizacaoUncheckedUpdateManyInput = {
+    id_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_personalizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt_sistema_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tom_voz_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    limitacoes_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    instrucoes_extras_gabi_personalizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    ativa_gabi_personalizacao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserPreferencesCreateInput = {
@@ -63048,284 +63073,287 @@ export namespace Prisma {
     dias_semana_config_disponibilidade_agenda?: SortOrder
   }
 
-  export type MensagemIndividualGabiaiListRelationFilter = {
-    every?: MensagemIndividualGabiaiWhereInput
-    some?: MensagemIndividualGabiaiWhereInput
-    none?: MensagemIndividualGabiaiWhereInput
+  export type GabiMensagemListRelationFilter = {
+    every?: GabiMensagemWhereInput
+    some?: GabiMensagemWhereInput
+    none?: GabiMensagemWhereInput
   }
 
-  export type MensagemIndividualGabiaiOrderByRelationAggregateInput = {
+  export type GabiMensagemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ConversaCompletaGabiCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    title?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiConversaCountOrderByAggregateInput = {
+    id_gabi_conversa?: SortOrder
+    id_organizacao_gabi_conversa?: SortOrder
+    id_produto_gabi_conversa?: SortOrder
+    id_usuario_gabi_conversa?: SortOrder
+    titulo_gabi_conversa?: SortOrder
+    data_criacao_gabi_conversa?: SortOrder
+    data_atualizacao_gabi_conversa?: SortOrder
   }
 
-  export type ConversaCompletaGabiMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    title?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiConversaMaxOrderByAggregateInput = {
+    id_gabi_conversa?: SortOrder
+    id_organizacao_gabi_conversa?: SortOrder
+    id_produto_gabi_conversa?: SortOrder
+    id_usuario_gabi_conversa?: SortOrder
+    titulo_gabi_conversa?: SortOrder
+    data_criacao_gabi_conversa?: SortOrder
+    data_atualizacao_gabi_conversa?: SortOrder
   }
 
-  export type ConversaCompletaGabiMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    title?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiConversaMinOrderByAggregateInput = {
+    id_gabi_conversa?: SortOrder
+    id_organizacao_gabi_conversa?: SortOrder
+    id_produto_gabi_conversa?: SortOrder
+    id_usuario_gabi_conversa?: SortOrder
+    titulo_gabi_conversa?: SortOrder
+    data_criacao_gabi_conversa?: SortOrder
+    data_atualizacao_gabi_conversa?: SortOrder
   }
 
-  export type ConversaCompletaGabiRelationFilter = {
-    is?: ConversaCompletaGabiWhereInput
-    isNot?: ConversaCompletaGabiWhereInput
+  export type GabiConversaRelationFilter = {
+    is?: GabiConversaWhereInput
+    isNot?: GabiConversaWhereInput
   }
 
-  export type MensagemIndividualGabiaiCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    attachments?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiMensagemCountOrderByAggregateInput = {
+    id_gabi_mensagem?: SortOrder
+    id_organizacao_gabi_mensagem?: SortOrder
+    id_produto_gabi_mensagem?: SortOrder
+    id_usuario_gabi_mensagem?: SortOrder
+    id_conversa_gabi_mensagem?: SortOrder
+    papel_gabi_mensagem?: SortOrder
+    conteudo_gabi_mensagem?: SortOrder
+    anexos_gabi_mensagem?: SortOrder
+    data_criacao_gabi_mensagem?: SortOrder
+    data_atualizacao_gabi_mensagem?: SortOrder
   }
 
-  export type MensagemIndividualGabiaiMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    attachments?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiMensagemMaxOrderByAggregateInput = {
+    id_gabi_mensagem?: SortOrder
+    id_organizacao_gabi_mensagem?: SortOrder
+    id_produto_gabi_mensagem?: SortOrder
+    id_usuario_gabi_mensagem?: SortOrder
+    id_conversa_gabi_mensagem?: SortOrder
+    papel_gabi_mensagem?: SortOrder
+    conteudo_gabi_mensagem?: SortOrder
+    anexos_gabi_mensagem?: SortOrder
+    data_criacao_gabi_mensagem?: SortOrder
+    data_atualizacao_gabi_mensagem?: SortOrder
   }
 
-  export type MensagemIndividualGabiaiMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    role?: SortOrder
-    content?: SortOrder
-    attachments?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiMensagemMinOrderByAggregateInput = {
+    id_gabi_mensagem?: SortOrder
+    id_organizacao_gabi_mensagem?: SortOrder
+    id_produto_gabi_mensagem?: SortOrder
+    id_usuario_gabi_mensagem?: SortOrder
+    id_conversa_gabi_mensagem?: SortOrder
+    papel_gabi_mensagem?: SortOrder
+    conteudo_gabi_mensagem?: SortOrder
+    anexos_gabi_mensagem?: SortOrder
+    data_criacao_gabi_mensagem?: SortOrder
+    data_atualizacao_gabi_mensagem?: SortOrder
   }
 
-  export type GabiaLogUsoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    action_taken?: SortOrder
-    conversation_snapshot?: SortOrder
-    actor_type?: SortOrder
-    triggered_by?: SortOrder
-    model_used?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
+  export type GabiLogUsoCountOrderByAggregateInput = {
+    id_gabi_log_uso?: SortOrder
+    id_organizacao_gabi_log_uso?: SortOrder
+    id_produto_gabi_log_uso?: SortOrder
+    id_usuario_gabi_log_uso?: SortOrder
+    acao_gabi_log_uso?: SortOrder
+    snapshot_conversa_gabi_log_uso?: SortOrder
+    tipo_ator_gabi_log_uso?: SortOrder
+    disparado_por_gabi_log_uso?: SortOrder
+    modelo_gabi_log_uso?: SortOrder
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
+    data_criacao_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaLogUsoAvgOrderByAggregateInput = {
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
+  export type GabiLogUsoAvgOrderByAggregateInput = {
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaLogUsoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    action_taken?: SortOrder
-    conversation_snapshot?: SortOrder
-    actor_type?: SortOrder
-    triggered_by?: SortOrder
-    model_used?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
+  export type GabiLogUsoMaxOrderByAggregateInput = {
+    id_gabi_log_uso?: SortOrder
+    id_organizacao_gabi_log_uso?: SortOrder
+    id_produto_gabi_log_uso?: SortOrder
+    id_usuario_gabi_log_uso?: SortOrder
+    acao_gabi_log_uso?: SortOrder
+    snapshot_conversa_gabi_log_uso?: SortOrder
+    tipo_ator_gabi_log_uso?: SortOrder
+    disparado_por_gabi_log_uso?: SortOrder
+    modelo_gabi_log_uso?: SortOrder
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
+    data_criacao_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaLogUsoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    action_taken?: SortOrder
-    conversation_snapshot?: SortOrder
-    actor_type?: SortOrder
-    triggered_by?: SortOrder
-    model_used?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
+  export type GabiLogUsoMinOrderByAggregateInput = {
+    id_gabi_log_uso?: SortOrder
+    id_organizacao_gabi_log_uso?: SortOrder
+    id_produto_gabi_log_uso?: SortOrder
+    id_usuario_gabi_log_uso?: SortOrder
+    acao_gabi_log_uso?: SortOrder
+    snapshot_conversa_gabi_log_uso?: SortOrder
+    tipo_ator_gabi_log_uso?: SortOrder
+    disparado_por_gabi_log_uso?: SortOrder
+    modelo_gabi_log_uso?: SortOrder
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
+    data_criacao_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaLogUsoSumOrderByAggregateInput = {
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    cost_usd?: SortOrder
+  export type GabiLogUsoSumOrderByAggregateInput = {
+    tokens_input_gabi_log_uso?: SortOrder
+    tokens_output_gabi_log_uso?: SortOrder
+    custo_usd_gabi_log_uso?: SortOrder
   }
 
-  export type GabiaTokenConsumidosCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    campo?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
-    mes_ref?: SortOrder
-    created_at?: SortOrder
+  export type GabiTokenConsumidoCountOrderByAggregateInput = {
+    id_gabi_token_consumido?: SortOrder
+    id_organizacao_gabi_token_consumido?: SortOrder
+    id_produto_gabi_token_consumido?: SortOrder
+    id_usuario_gabi_token_consumido?: SortOrder
+    campo_gabi_token_consumido?: SortOrder
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
+    mes_ref_gabi_token_consumido?: SortOrder
+    data_criacao_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenConsumidosAvgOrderByAggregateInput = {
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
+  export type GabiTokenConsumidoAvgOrderByAggregateInput = {
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenConsumidosMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    campo?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
-    mes_ref?: SortOrder
-    created_at?: SortOrder
+  export type GabiTokenConsumidoMaxOrderByAggregateInput = {
+    id_gabi_token_consumido?: SortOrder
+    id_organizacao_gabi_token_consumido?: SortOrder
+    id_produto_gabi_token_consumido?: SortOrder
+    id_usuario_gabi_token_consumido?: SortOrder
+    campo_gabi_token_consumido?: SortOrder
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
+    mes_ref_gabi_token_consumido?: SortOrder
+    data_criacao_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenConsumidosMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    campo?: SortOrder
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
-    mes_ref?: SortOrder
-    created_at?: SortOrder
+  export type GabiTokenConsumidoMinOrderByAggregateInput = {
+    id_gabi_token_consumido?: SortOrder
+    id_organizacao_gabi_token_consumido?: SortOrder
+    id_produto_gabi_token_consumido?: SortOrder
+    id_usuario_gabi_token_consumido?: SortOrder
+    campo_gabi_token_consumido?: SortOrder
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
+    mes_ref_gabi_token_consumido?: SortOrder
+    data_criacao_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenConsumidosSumOrderByAggregateInput = {
-    tokens_input?: SortOrder
-    tokens_output?: SortOrder
-    tokens_total?: SortOrder
+  export type GabiTokenConsumidoSumOrderByAggregateInput = {
+    tokens_input_gabi_token_consumido?: SortOrder
+    tokens_output_gabi_token_consumido?: SortOrder
+    tokens_total_gabi_token_consumido?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceTenant_idProduct_idMes_refCompoundUniqueInput = {
-    tenant_id: string
-    product_id: string
-    mes_ref: string
+  export type GabiTokenWorkspaceId_organizacao_gabi_token_workspaceId_produto_gabi_token_workspaceMes_ref_gabi_token_workspaceCompoundUniqueInput = {
+    id_organizacao_gabi_token_workspace: string
+    id_produto_gabi_token_workspace: string
+    mes_ref_gabi_token_workspace: string
   }
 
-  export type GabiaTokenWorkspaceCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    quota_mensal?: SortOrder
-    mes_ref?: SortOrder
-    tokens_usados?: SortOrder
-    updated_at?: SortOrder
+  export type GabiTokenWorkspaceCountOrderByAggregateInput = {
+    id_gabi_token_workspace?: SortOrder
+    id_organizacao_gabi_token_workspace?: SortOrder
+    id_produto_gabi_token_workspace?: SortOrder
+    quota_mensal_gabi_token_workspace?: SortOrder
+    mes_ref_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
+    data_atualizacao_gabi_token_workspace?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceAvgOrderByAggregateInput = {
-    quota_mensal?: SortOrder
-    tokens_usados?: SortOrder
+  export type GabiTokenWorkspaceAvgOrderByAggregateInput = {
+    quota_mensal_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    quota_mensal?: SortOrder
-    mes_ref?: SortOrder
-    tokens_usados?: SortOrder
-    updated_at?: SortOrder
+  export type GabiTokenWorkspaceMaxOrderByAggregateInput = {
+    id_gabi_token_workspace?: SortOrder
+    id_organizacao_gabi_token_workspace?: SortOrder
+    id_produto_gabi_token_workspace?: SortOrder
+    quota_mensal_gabi_token_workspace?: SortOrder
+    mes_ref_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
+    data_atualizacao_gabi_token_workspace?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    quota_mensal?: SortOrder
-    mes_ref?: SortOrder
-    tokens_usados?: SortOrder
-    updated_at?: SortOrder
+  export type GabiTokenWorkspaceMinOrderByAggregateInput = {
+    id_gabi_token_workspace?: SortOrder
+    id_organizacao_gabi_token_workspace?: SortOrder
+    id_produto_gabi_token_workspace?: SortOrder
+    quota_mensal_gabi_token_workspace?: SortOrder
+    mes_ref_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
+    data_atualizacao_gabi_token_workspace?: SortOrder
   }
 
-  export type GabiaTokenWorkspaceSumOrderByAggregateInput = {
-    quota_mensal?: SortOrder
-    tokens_usados?: SortOrder
+  export type GabiTokenWorkspaceSumOrderByAggregateInput = {
+    quota_mensal_gabi_token_workspace?: SortOrder
+    tokens_usados_gabi_token_workspace?: SortOrder
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    system_prompt?: SortOrder
-    tom_voz?: SortOrder
-    limitacoes?: SortOrder
-    instrucoes_extras?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiPersonalizacaoCountOrderByAggregateInput = {
+    id_gabi_personalizacao?: SortOrder
+    id_organizacao_gabi_personalizacao?: SortOrder
+    id_produto_gabi_personalizacao?: SortOrder
+    id_usuario_gabi_personalizacao?: SortOrder
+    prompt_sistema_gabi_personalizacao?: SortOrder
+    tom_voz_gabi_personalizacao?: SortOrder
+    limitacoes_gabi_personalizacao?: SortOrder
+    instrucoes_extras_gabi_personalizacao?: SortOrder
+    ativa_gabi_personalizacao?: SortOrder
+    data_criacao_gabi_personalizacao?: SortOrder
+    data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    system_prompt?: SortOrder
-    tom_voz?: SortOrder
-    limitacoes?: SortOrder
-    instrucoes_extras?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiPersonalizacaoMaxOrderByAggregateInput = {
+    id_gabi_personalizacao?: SortOrder
+    id_organizacao_gabi_personalizacao?: SortOrder
+    id_produto_gabi_personalizacao?: SortOrder
+    id_usuario_gabi_personalizacao?: SortOrder
+    prompt_sistema_gabi_personalizacao?: SortOrder
+    tom_voz_gabi_personalizacao?: SortOrder
+    limitacoes_gabi_personalizacao?: SortOrder
+    instrucoes_extras_gabi_personalizacao?: SortOrder
+    ativa_gabi_personalizacao?: SortOrder
+    data_criacao_gabi_personalizacao?: SortOrder
+    data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
-  export type PersonalizacaoOrganizacaoGabiaiMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    system_prompt?: SortOrder
-    tom_voz?: SortOrder
-    limitacoes?: SortOrder
-    instrucoes_extras?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type GabiPersonalizacaoMinOrderByAggregateInput = {
+    id_gabi_personalizacao?: SortOrder
+    id_organizacao_gabi_personalizacao?: SortOrder
+    id_produto_gabi_personalizacao?: SortOrder
+    id_usuario_gabi_personalizacao?: SortOrder
+    prompt_sistema_gabi_personalizacao?: SortOrder
+    tom_voz_gabi_personalizacao?: SortOrder
+    limitacoes_gabi_personalizacao?: SortOrder
+    instrucoes_extras_gabi_personalizacao?: SortOrder
+    ativa_gabi_personalizacao?: SortOrder
+    data_criacao_gabi_personalizacao?: SortOrder
+    data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
   export type UserPreferencesCountOrderByAggregateInput = {
@@ -64451,60 +64479,60 @@ export namespace Prisma {
     update?: XOR<XOR<AgendaUsuarioUpdateToOneWithWhereWithoutConfig_agenda_usuarioInput, AgendaUsuarioUpdateWithoutConfig_agenda_usuarioInput>, AgendaUsuarioUncheckedUpdateWithoutConfig_agenda_usuarioInput>
   }
 
-  export type MensagemIndividualGabiaiCreateNestedManyWithoutConversationInput = {
-    create?: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput> | MensagemIndividualGabiaiCreateWithoutConversationInput[] | MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput[]
-    connectOrCreate?: MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput | MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput[]
-    createMany?: MensagemIndividualGabiaiCreateManyConversationInputEnvelope
-    connect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
+  export type GabiMensagemCreateNestedManyWithoutConversa_gabi_mensagemInput = {
+    create?: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput> | GabiMensagemCreateWithoutConversa_gabi_mensagemInput[] | GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput[]
+    connectOrCreate?: GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput | GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput[]
+    createMany?: GabiMensagemCreateManyConversa_gabi_mensagemInputEnvelope
+    connect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
   }
 
-  export type MensagemIndividualGabiaiUncheckedCreateNestedManyWithoutConversationInput = {
-    create?: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput> | MensagemIndividualGabiaiCreateWithoutConversationInput[] | MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput[]
-    connectOrCreate?: MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput | MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput[]
-    createMany?: MensagemIndividualGabiaiCreateManyConversationInputEnvelope
-    connect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
+  export type GabiMensagemUncheckedCreateNestedManyWithoutConversa_gabi_mensagemInput = {
+    create?: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput> | GabiMensagemCreateWithoutConversa_gabi_mensagemInput[] | GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput[]
+    connectOrCreate?: GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput | GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput[]
+    createMany?: GabiMensagemCreateManyConversa_gabi_mensagemInputEnvelope
+    connect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
   }
 
-  export type MensagemIndividualGabiaiUpdateManyWithoutConversationNestedInput = {
-    create?: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput> | MensagemIndividualGabiaiCreateWithoutConversationInput[] | MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput[]
-    connectOrCreate?: MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput | MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput[]
-    upsert?: MensagemIndividualGabiaiUpsertWithWhereUniqueWithoutConversationInput | MensagemIndividualGabiaiUpsertWithWhereUniqueWithoutConversationInput[]
-    createMany?: MensagemIndividualGabiaiCreateManyConversationInputEnvelope
-    set?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    disconnect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    delete?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    connect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    update?: MensagemIndividualGabiaiUpdateWithWhereUniqueWithoutConversationInput | MensagemIndividualGabiaiUpdateWithWhereUniqueWithoutConversationInput[]
-    updateMany?: MensagemIndividualGabiaiUpdateManyWithWhereWithoutConversationInput | MensagemIndividualGabiaiUpdateManyWithWhereWithoutConversationInput[]
-    deleteMany?: MensagemIndividualGabiaiScalarWhereInput | MensagemIndividualGabiaiScalarWhereInput[]
+  export type GabiMensagemUpdateManyWithoutConversa_gabi_mensagemNestedInput = {
+    create?: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput> | GabiMensagemCreateWithoutConversa_gabi_mensagemInput[] | GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput[]
+    connectOrCreate?: GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput | GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput[]
+    upsert?: GabiMensagemUpsertWithWhereUniqueWithoutConversa_gabi_mensagemInput | GabiMensagemUpsertWithWhereUniqueWithoutConversa_gabi_mensagemInput[]
+    createMany?: GabiMensagemCreateManyConversa_gabi_mensagemInputEnvelope
+    set?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    disconnect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    delete?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    connect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    update?: GabiMensagemUpdateWithWhereUniqueWithoutConversa_gabi_mensagemInput | GabiMensagemUpdateWithWhereUniqueWithoutConversa_gabi_mensagemInput[]
+    updateMany?: GabiMensagemUpdateManyWithWhereWithoutConversa_gabi_mensagemInput | GabiMensagemUpdateManyWithWhereWithoutConversa_gabi_mensagemInput[]
+    deleteMany?: GabiMensagemScalarWhereInput | GabiMensagemScalarWhereInput[]
   }
 
-  export type MensagemIndividualGabiaiUncheckedUpdateManyWithoutConversationNestedInput = {
-    create?: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput> | MensagemIndividualGabiaiCreateWithoutConversationInput[] | MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput[]
-    connectOrCreate?: MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput | MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput[]
-    upsert?: MensagemIndividualGabiaiUpsertWithWhereUniqueWithoutConversationInput | MensagemIndividualGabiaiUpsertWithWhereUniqueWithoutConversationInput[]
-    createMany?: MensagemIndividualGabiaiCreateManyConversationInputEnvelope
-    set?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    disconnect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    delete?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    connect?: MensagemIndividualGabiaiWhereUniqueInput | MensagemIndividualGabiaiWhereUniqueInput[]
-    update?: MensagemIndividualGabiaiUpdateWithWhereUniqueWithoutConversationInput | MensagemIndividualGabiaiUpdateWithWhereUniqueWithoutConversationInput[]
-    updateMany?: MensagemIndividualGabiaiUpdateManyWithWhereWithoutConversationInput | MensagemIndividualGabiaiUpdateManyWithWhereWithoutConversationInput[]
-    deleteMany?: MensagemIndividualGabiaiScalarWhereInput | MensagemIndividualGabiaiScalarWhereInput[]
+  export type GabiMensagemUncheckedUpdateManyWithoutConversa_gabi_mensagemNestedInput = {
+    create?: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput> | GabiMensagemCreateWithoutConversa_gabi_mensagemInput[] | GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput[]
+    connectOrCreate?: GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput | GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput[]
+    upsert?: GabiMensagemUpsertWithWhereUniqueWithoutConversa_gabi_mensagemInput | GabiMensagemUpsertWithWhereUniqueWithoutConversa_gabi_mensagemInput[]
+    createMany?: GabiMensagemCreateManyConversa_gabi_mensagemInputEnvelope
+    set?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    disconnect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    delete?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    connect?: GabiMensagemWhereUniqueInput | GabiMensagemWhereUniqueInput[]
+    update?: GabiMensagemUpdateWithWhereUniqueWithoutConversa_gabi_mensagemInput | GabiMensagemUpdateWithWhereUniqueWithoutConversa_gabi_mensagemInput[]
+    updateMany?: GabiMensagemUpdateManyWithWhereWithoutConversa_gabi_mensagemInput | GabiMensagemUpdateManyWithWhereWithoutConversa_gabi_mensagemInput[]
+    deleteMany?: GabiMensagemScalarWhereInput | GabiMensagemScalarWhereInput[]
   }
 
-  export type ConversaCompletaGabiCreateNestedOneWithoutMessagesInput = {
-    create?: XOR<ConversaCompletaGabiCreateWithoutMessagesInput, ConversaCompletaGabiUncheckedCreateWithoutMessagesInput>
-    connectOrCreate?: ConversaCompletaGabiCreateOrConnectWithoutMessagesInput
-    connect?: ConversaCompletaGabiWhereUniqueInput
+  export type GabiConversaCreateNestedOneWithoutMensagens_gabi_conversaInput = {
+    create?: XOR<GabiConversaCreateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedCreateWithoutMensagens_gabi_conversaInput>
+    connectOrCreate?: GabiConversaCreateOrConnectWithoutMensagens_gabi_conversaInput
+    connect?: GabiConversaWhereUniqueInput
   }
 
-  export type ConversaCompletaGabiUpdateOneRequiredWithoutMessagesNestedInput = {
-    create?: XOR<ConversaCompletaGabiCreateWithoutMessagesInput, ConversaCompletaGabiUncheckedCreateWithoutMessagesInput>
-    connectOrCreate?: ConversaCompletaGabiCreateOrConnectWithoutMessagesInput
-    upsert?: ConversaCompletaGabiUpsertWithoutMessagesInput
-    connect?: ConversaCompletaGabiWhereUniqueInput
-    update?: XOR<XOR<ConversaCompletaGabiUpdateToOneWithWhereWithoutMessagesInput, ConversaCompletaGabiUpdateWithoutMessagesInput>, ConversaCompletaGabiUncheckedUpdateWithoutMessagesInput>
+  export type GabiConversaUpdateOneRequiredWithoutMensagens_gabi_conversaNestedInput = {
+    create?: XOR<GabiConversaCreateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedCreateWithoutMensagens_gabi_conversaInput>
+    connectOrCreate?: GabiConversaCreateOrConnectWithoutMensagens_gabi_conversaInput
+    upsert?: GabiConversaUpsertWithoutMensagens_gabi_conversaInput
+    connect?: GabiConversaWhereUniqueInput
+    update?: XOR<XOR<GabiConversaUpdateToOneWithWhereWithoutMensagens_gabi_conversaInput, GabiConversaUpdateWithoutMensagens_gabi_conversaInput>, GabiConversaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
   }
 
   export type EnumNCMStatusSincronizacaoFieldUpdateOperationsInput = {
@@ -66830,126 +66858,126 @@ export namespace Prisma {
     horarios_agenda_usuario?: HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelNestedInput
   }
 
-  export type MensagemIndividualGabiaiCreateWithoutConversationInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiMensagemCreateWithoutConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
   }
 
-  export type MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
   }
 
-  export type MensagemIndividualGabiaiCreateOrConnectWithoutConversationInput = {
-    where: MensagemIndividualGabiaiWhereUniqueInput
-    create: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput>
+  export type GabiMensagemCreateOrConnectWithoutConversa_gabi_mensagemInput = {
+    where: GabiMensagemWhereUniqueInput
+    create: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput>
   }
 
-  export type MensagemIndividualGabiaiCreateManyConversationInputEnvelope = {
-    data: MensagemIndividualGabiaiCreateManyConversationInput | MensagemIndividualGabiaiCreateManyConversationInput[]
+  export type GabiMensagemCreateManyConversa_gabi_mensagemInputEnvelope = {
+    data: GabiMensagemCreateManyConversa_gabi_mensagemInput | GabiMensagemCreateManyConversa_gabi_mensagemInput[]
     skipDuplicates?: boolean
   }
 
-  export type MensagemIndividualGabiaiUpsertWithWhereUniqueWithoutConversationInput = {
-    where: MensagemIndividualGabiaiWhereUniqueInput
-    update: XOR<MensagemIndividualGabiaiUpdateWithoutConversationInput, MensagemIndividualGabiaiUncheckedUpdateWithoutConversationInput>
-    create: XOR<MensagemIndividualGabiaiCreateWithoutConversationInput, MensagemIndividualGabiaiUncheckedCreateWithoutConversationInput>
+  export type GabiMensagemUpsertWithWhereUniqueWithoutConversa_gabi_mensagemInput = {
+    where: GabiMensagemWhereUniqueInput
+    update: XOR<GabiMensagemUpdateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedUpdateWithoutConversa_gabi_mensagemInput>
+    create: XOR<GabiMensagemCreateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedCreateWithoutConversa_gabi_mensagemInput>
   }
 
-  export type MensagemIndividualGabiaiUpdateWithWhereUniqueWithoutConversationInput = {
-    where: MensagemIndividualGabiaiWhereUniqueInput
-    data: XOR<MensagemIndividualGabiaiUpdateWithoutConversationInput, MensagemIndividualGabiaiUncheckedUpdateWithoutConversationInput>
+  export type GabiMensagemUpdateWithWhereUniqueWithoutConversa_gabi_mensagemInput = {
+    where: GabiMensagemWhereUniqueInput
+    data: XOR<GabiMensagemUpdateWithoutConversa_gabi_mensagemInput, GabiMensagemUncheckedUpdateWithoutConversa_gabi_mensagemInput>
   }
 
-  export type MensagemIndividualGabiaiUpdateManyWithWhereWithoutConversationInput = {
-    where: MensagemIndividualGabiaiScalarWhereInput
-    data: XOR<MensagemIndividualGabiaiUpdateManyMutationInput, MensagemIndividualGabiaiUncheckedUpdateManyWithoutConversationInput>
+  export type GabiMensagemUpdateManyWithWhereWithoutConversa_gabi_mensagemInput = {
+    where: GabiMensagemScalarWhereInput
+    data: XOR<GabiMensagemUpdateManyMutationInput, GabiMensagemUncheckedUpdateManyWithoutConversa_gabi_mensagemInput>
   }
 
-  export type MensagemIndividualGabiaiScalarWhereInput = {
-    AND?: MensagemIndividualGabiaiScalarWhereInput | MensagemIndividualGabiaiScalarWhereInput[]
-    OR?: MensagemIndividualGabiaiScalarWhereInput[]
-    NOT?: MensagemIndividualGabiaiScalarWhereInput | MensagemIndividualGabiaiScalarWhereInput[]
-    id?: StringFilter<"MensagemIndividualGabiai"> | string
-    tenant_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    product_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    user_id?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    conversation_id?: StringFilter<"MensagemIndividualGabiai"> | string
-    role?: StringFilter<"MensagemIndividualGabiai"> | string
-    content?: StringFilter<"MensagemIndividualGabiai"> | string
-    attachments?: StringNullableFilter<"MensagemIndividualGabiai"> | string | null
-    created_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
-    updated_at?: DateTimeFilter<"MensagemIndividualGabiai"> | Date | string
+  export type GabiMensagemScalarWhereInput = {
+    AND?: GabiMensagemScalarWhereInput | GabiMensagemScalarWhereInput[]
+    OR?: GabiMensagemScalarWhereInput[]
+    NOT?: GabiMensagemScalarWhereInput | GabiMensagemScalarWhereInput[]
+    id_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    id_organizacao_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    id_produto_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_usuario_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    id_conversa_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    papel_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    conteudo_gabi_mensagem?: StringFilter<"GabiMensagem"> | string
+    anexos_gabi_mensagem?: StringNullableFilter<"GabiMensagem"> | string | null
+    data_criacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFilter<"GabiMensagem"> | Date | string
   }
 
-  export type ConversaCompletaGabiCreateWithoutMessagesInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    title?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiConversaCreateWithoutMensagens_gabi_conversaInput = {
+    id_gabi_conversa?: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa?: string | null
+    id_usuario_gabi_conversa?: string | null
+    titulo_gabi_conversa?: string | null
+    data_criacao_gabi_conversa?: Date | string
+    data_atualizacao_gabi_conversa?: Date | string
   }
 
-  export type ConversaCompletaGabiUncheckedCreateWithoutMessagesInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    title?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiConversaUncheckedCreateWithoutMensagens_gabi_conversaInput = {
+    id_gabi_conversa?: string
+    id_organizacao_gabi_conversa: string
+    id_produto_gabi_conversa?: string | null
+    id_usuario_gabi_conversa?: string | null
+    titulo_gabi_conversa?: string | null
+    data_criacao_gabi_conversa?: Date | string
+    data_atualizacao_gabi_conversa?: Date | string
   }
 
-  export type ConversaCompletaGabiCreateOrConnectWithoutMessagesInput = {
-    where: ConversaCompletaGabiWhereUniqueInput
-    create: XOR<ConversaCompletaGabiCreateWithoutMessagesInput, ConversaCompletaGabiUncheckedCreateWithoutMessagesInput>
+  export type GabiConversaCreateOrConnectWithoutMensagens_gabi_conversaInput = {
+    where: GabiConversaWhereUniqueInput
+    create: XOR<GabiConversaCreateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedCreateWithoutMensagens_gabi_conversaInput>
   }
 
-  export type ConversaCompletaGabiUpsertWithoutMessagesInput = {
-    update: XOR<ConversaCompletaGabiUpdateWithoutMessagesInput, ConversaCompletaGabiUncheckedUpdateWithoutMessagesInput>
-    create: XOR<ConversaCompletaGabiCreateWithoutMessagesInput, ConversaCompletaGabiUncheckedCreateWithoutMessagesInput>
-    where?: ConversaCompletaGabiWhereInput
+  export type GabiConversaUpsertWithoutMensagens_gabi_conversaInput = {
+    update: XOR<GabiConversaUpdateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
+    create: XOR<GabiConversaCreateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedCreateWithoutMensagens_gabi_conversaInput>
+    where?: GabiConversaWhereInput
   }
 
-  export type ConversaCompletaGabiUpdateToOneWithWhereWithoutMessagesInput = {
-    where?: ConversaCompletaGabiWhereInput
-    data: XOR<ConversaCompletaGabiUpdateWithoutMessagesInput, ConversaCompletaGabiUncheckedUpdateWithoutMessagesInput>
+  export type GabiConversaUpdateToOneWithWhereWithoutMensagens_gabi_conversaInput = {
+    where?: GabiConversaWhereInput
+    data: XOR<GabiConversaUpdateWithoutMensagens_gabi_conversaInput, GabiConversaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
   }
 
-  export type ConversaCompletaGabiUpdateWithoutMessagesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiConversaUpdateWithoutMensagens_gabi_conversaInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConversaCompletaGabiUncheckedUpdateWithoutMessagesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiConversaUncheckedUpdateWithoutMensagens_gabi_conversaInput = {
+    id_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_gabi_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesParticipantesCreateManyAtividade_atividades_participantesInput = {
@@ -67516,52 +67544,52 @@ export namespace Prisma {
     data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiCreateManyConversationInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    role: string
-    content: string
-    attachments?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type GabiMensagemCreateManyConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: string
+    id_organizacao_gabi_mensagem: string
+    id_produto_gabi_mensagem?: string | null
+    id_usuario_gabi_mensagem?: string | null
+    papel_gabi_mensagem: string
+    conteudo_gabi_mensagem: string
+    anexos_gabi_mensagem?: string | null
+    data_criacao_gabi_mensagem?: Date | string
+    data_atualizacao_gabi_mensagem?: Date | string
   }
 
-  export type MensagemIndividualGabiaiUpdateWithoutConversationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUpdateWithoutConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiUncheckedUpdateWithoutConversationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUncheckedUpdateWithoutConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MensagemIndividualGabiaiUncheckedUpdateManyWithoutConversationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    attachments?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type GabiMensagemUncheckedUpdateManyWithoutConversa_gabi_mensagemInput = {
+    id_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    papel_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_gabi_mensagem?: StringFieldUpdateOperationsInput | string
+    anexos_gabi_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_gabi_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
@@ -67598,9 +67626,9 @@ export namespace Prisma {
      */
     export type HorarioDisponivelCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HorarioDisponivelCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ConversaCompletaGabiCountOutputTypeDefaultArgs instead
+     * @deprecated Use GabiConversaCountOutputTypeDefaultArgs instead
      */
-    export type ConversaCompletaGabiCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConversaCompletaGabiCountOutputTypeDefaultArgs<ExtArgs>
+    export type GabiConversaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiConversaCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use AtividadesDadosDefaultArgs instead
      */
@@ -67730,29 +67758,29 @@ export namespace Prisma {
      */
     export type ConfigDisponibilidadeAgendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfigDisponibilidadeAgendaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ConversaCompletaGabiDefaultArgs instead
+     * @deprecated Use GabiConversaDefaultArgs instead
      */
-    export type ConversaCompletaGabiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConversaCompletaGabiDefaultArgs<ExtArgs>
+    export type GabiConversaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiConversaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use MensagemIndividualGabiaiDefaultArgs instead
+     * @deprecated Use GabiMensagemDefaultArgs instead
      */
-    export type MensagemIndividualGabiaiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MensagemIndividualGabiaiDefaultArgs<ExtArgs>
+    export type GabiMensagemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiMensagemDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use GabiaLogUsoDefaultArgs instead
+     * @deprecated Use GabiLogUsoDefaultArgs instead
      */
-    export type GabiaLogUsoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiaLogUsoDefaultArgs<ExtArgs>
+    export type GabiLogUsoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiLogUsoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use GabiaTokenConsumidosDefaultArgs instead
+     * @deprecated Use GabiTokenConsumidoDefaultArgs instead
      */
-    export type GabiaTokenConsumidosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiaTokenConsumidosDefaultArgs<ExtArgs>
+    export type GabiTokenConsumidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiTokenConsumidoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use GabiaTokenWorkspaceDefaultArgs instead
+     * @deprecated Use GabiTokenWorkspaceDefaultArgs instead
      */
-    export type GabiaTokenWorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiaTokenWorkspaceDefaultArgs<ExtArgs>
+    export type GabiTokenWorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiTokenWorkspaceDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use PersonalizacaoOrganizacaoGabiaiDefaultArgs instead
+     * @deprecated Use GabiPersonalizacaoDefaultArgs instead
      */
-    export type PersonalizacaoOrganizacaoGabiaiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PersonalizacaoOrganizacaoGabiaiDefaultArgs<ExtArgs>
+    export type GabiPersonalizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiPersonalizacaoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UserPreferencesDefaultArgs instead
      */

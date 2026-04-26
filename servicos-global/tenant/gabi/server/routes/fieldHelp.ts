@@ -55,16 +55,26 @@ fieldHelpRouter.get('/api/v1/gabi/admin/products/:productId/tokens/stats', async
     const prismaClient = prismaModule.default
 
     // Agrega por tenant para o mês atual
-    const quotas = await prismaClient.gabiaTokenWorkspace.findMany({
-      where: { product_id: productId, mes_ref: mesRef },
+    const quotas = await prismaClient.gabiTokenWorkspace.findMany({
+      where: {
+        id_produto_gabi_token_workspace: productId,
+        mes_ref_gabi_token_workspace: mesRef,
+      },
     })
 
-    const totalConsumido = quotas.reduce((s: number, q) => s + (q.tokens_usados as number), 0)
+    const totalConsumido = quotas.reduce(
+      (s: number, q) => s + q.tokens_usados_gabi_token_workspace,
+      0,
+    )
     const totalTenants = quotas.length
     const mediaPorTenant = totalTenants > 0 ? Math.round(totalConsumido / totalTenants) : 0
-    const maiorConsumo = quotas.reduce(
-      (max, q) => (!max || (q.tokens_usados as number) > (max.tokens_usados as number) ? q : max),
-      null as typeof quotas[0] | null,
+    const maiorConsumo = quotas.reduce<typeof quotas[0] | null>(
+      (max, q) =>
+        !max ||
+        q.tokens_usados_gabi_token_workspace > max.tokens_usados_gabi_token_workspace
+          ? q
+          : max,
+      null,
     )
 
     res.json({
@@ -73,7 +83,10 @@ fieldHelpRouter.get('/api/v1/gabi/admin/products/:productId/tokens/stats', async
       total_tenants: totalTenants,
       media_por_tenant: mediaPorTenant,
       maior_consumo: maiorConsumo
-        ? { tenant_id: maiorConsumo.tenant_id, tokens: maiorConsumo.tokens_usados }
+        ? {
+            tenant_id: maiorConsumo.id_organizacao_gabi_token_workspace,
+            tokens: maiorConsumo.tokens_usados_gabi_token_workspace,
+          }
         : null,
     })
   } catch (err) {

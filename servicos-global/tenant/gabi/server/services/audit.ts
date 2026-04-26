@@ -10,27 +10,27 @@ export async function auditGabiAction(
   tenantId: string,
   actionTaken: string,
   conversationSnapshot: string,
-  productId?: string
+  productId?: string,
 ) {
   if (!conversationSnapshot) {
     throw new AppError(
       'Obrigatório fornecer conversationSnapshot para auditar ação da Gabi (Barreira 2)',
       400,
-      'MISSING_SNAPSHOT'
+      'MISSING_SNAPSHOT',
     )
   }
 
   // Cria o log com falha intencional se DB expirar, servindo de rollback (Barreira 3)
-  const log = await prisma.gabiaLogUso.create({
+  const log = await prisma.gabiLogUso.create({
     data: {
-      tenant_id: tenantId,
-      product_id: productId,
-      user_id: userId,
-      action_taken: actionTaken,
-      conversation_snapshot: conversationSnapshot,
-      actor_type: 'gabi', // Barreira 5: Ator identificado como gabi
-      triggered_by: userId
-    }
+      id_organizacao_gabi_log_uso: tenantId,
+      id_produto_gabi_log_uso: productId ?? null,
+      id_usuario_gabi_log_uso: userId,
+      acao_gabi_log_uso: actionTaken,
+      snapshot_conversa_gabi_log_uso: conversationSnapshot,
+      tipo_ator_gabi_log_uso: 'gabi', // Barreira 5: Ator identificado como gabi
+      disparado_por_gabi_log_uso: userId,
+    },
   })
 
   return log

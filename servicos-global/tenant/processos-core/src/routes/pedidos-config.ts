@@ -92,8 +92,8 @@ interface PedidoStatusDB {
   ordem_pedido_status:               number
   padrao_pedido_status:              boolean
   gerenciado_sistema_pedido_status:  boolean
-  created_at:                        Date | string
-  updated_at:                        Date | string
+  data_criacao_pedido_status:        Date | string
+  data_atualizacao_pedido_status:    Date | string
 }
 
 function mapStatus(s: PedidoStatusDB): Record<string, unknown> {
@@ -108,8 +108,8 @@ function mapStatus(s: PedidoStatusDB): Record<string, unknown> {
     ordem:      s.ordem_pedido_status,
     is_padrao:  s.padrao_pedido_status,
     is_sistema: s.gerenciado_sistema_pedido_status,
-    created_at: s.created_at,
-    updated_at: s.updated_at,
+    created_at: s.data_criacao_pedido_status,
+    updated_at: s.data_atualizacao_pedido_status,
   }
 }
 

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:36:14.631Z
+// Gerado em: 2026-04-26T00:41:08.208Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -417,8 +417,8 @@ model PedidoStatus {
   ordem_pedido_status               Int      @default(0)
   padrao_pedido_status              Boolean  @default(false)
   gerenciado_sistema_pedido_status  Boolean  @default(false)
-  created_at                        DateTime @default(now())
-  updated_at                        DateTime @updatedAt
+  data_criacao_pedido_status        DateTime @default(now())
+  data_atualizacao_pedido_status    DateTime @updatedAt
 
   @@unique([id_organizacao, nome_pedido_status])
   @@index([id_organizacao])

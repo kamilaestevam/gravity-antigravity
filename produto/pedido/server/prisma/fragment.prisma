@@ -388,8 +388,8 @@ model PedidoStatus {
   ordem_pedido_status               Int      @default(0)
   padrao_pedido_status              Boolean  @default(false)
   gerenciado_sistema_pedido_status  Boolean  @default(false)
-  created_at                        DateTime @default(now())
-  updated_at                        DateTime @updatedAt
+  data_criacao_pedido_status        DateTime @default(now())
+  data_atualizacao_pedido_status    DateTime @updatedAt
 
   @@unique([id_organizacao, nome_pedido_status])
   @@index([id_organizacao])

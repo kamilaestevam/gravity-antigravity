@@ -724,20 +724,20 @@ model PedidoSnapshotEmpresa {
 /// Snapshot congelado da OPE (Operação) vinculada ao pedido,
 /// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
 model PedidoSnapshotOpe {
-  id                    String   @id @default(cuid())
-  id_organizacao        String
-  id_workspace          String?
-  id_pedido             String
+  id_pedido_snapshot_ope                String   @id @default(cuid())
+  id_organizacao_pedido_snapshot_ope    String
+  id_workspace_pedido_snapshot_ope      String?
+  id_pedido_pedido_snapshot_ope         String
 
   // Identidade da OPE
-  codigo_ope            String   // "Código OPE - Catálogo"
-  versao_ope            String?  // "Versão OPE - Catálogo"
-  situacao_ope          String?  // "Situação OPE - Catálogo"
-  nome_ope              String?  // "Nome OPE - Catálogo"
-  cnpj_raiz_empresa     String?  // "CNPJ Raiz Empresa - Catálogo" — 8 primeiros dígitos do CNPJ da empresa dona da OPE
+  codigo_ope_pedido_snapshot_ope        String
+  versao_ope_pedido_snapshot_ope        String?
+  situacao_ope_pedido_snapshot_ope      String?
+  nome_ope_pedido_snapshot_ope          String?
+  cnpj_raiz_empresa_pedido_snapshot_ope String?
 
   // Endereço da OPE
-  pais_ope              String?
+  pais_ope_pedido_snapshot_ope String?
   estado_ope            String?
   cidade_ope            String?
   endereco_ope          String?
@@ -749,11 +749,11 @@ model PedidoSnapshotOpe {
   congelado_em          DateTime @default(now())
   motivo_congelamento   String
 
-  pedido                Pedido   @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                Pedido   @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_pedido])
-  @@index([id_organizacao, codigo_ope])
+  @@index([id_organizacao_pedido_snapshot_ope])
+  @@index([id_organizacao_pedido_snapshot_ope, id_pedido_pedido_snapshot_ope])
+  @@index([id_organizacao_pedido_snapshot_ope, codigo_ope_pedido_snapshot_ope])
   @@map("pedido_snapshot_ope")
 }
 

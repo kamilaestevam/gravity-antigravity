@@ -765,20 +765,20 @@ model PedidoConfigAtualizacaoCadastros {
   id_workspace             String
 
   // Política de atualização por papel (Empresa)
-  atualiza_importador      Boolean  @default(false)
-  atualiza_exportador      Boolean  @default(false)
-  atualiza_fabricante      Boolean  @default(false)
-  atualiza_agente          Boolean  @default(false)
-  atualiza_despachante     Boolean  @default(false)
-  atualiza_armador         Boolean  @default(false)
+  atualiza_importador                          Boolean  @default(false)
+  atualiza_exportador_politica_snapshot_cadastros  Boolean  @default(false)
+  atualiza_fabricante_politica_snapshot_cadastros  Boolean  @default(false)
+  atualiza_agente_politica_snapshot_cadastros      Boolean  @default(false)
+  atualiza_despachante_politica_snapshot_cadastros Boolean  @default(false)
+  atualiza_armador_politica_snapshot_cadastros     Boolean  @default(false)
 
   // Política de atualização da OPE
-  atualiza_ope             Boolean  @default(false)
+  atualiza_ope_politica_snapshot_cadastros         Boolean  @default(false)
 
   // Em quais transições de status re-snapshotar
-  resnap_em_emissao        Boolean  @default(true)
-  resnap_em_embarque       Boolean  @default(false)
-  resnap_em_desembaraco    Boolean  @default(false)
+  gatilho_emissao_politica_snapshot_cadastros      Boolean  @default(true)
+  gatilho_embarque_politica_snapshot_cadastros     Boolean  @default(false)
+  gatilho_desembaraco_politica_snapshot_cadastros  Boolean  @default(false)
 
   created_at               DateTime @default(now())
   updated_at               DateTime @updatedAt

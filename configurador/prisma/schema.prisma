@@ -108,7 +108,7 @@ model Usuario {
   id            String   @id @default(cuid()) @map("id_usuario")
   tenant_id     String   @map("id_organizacao_usuario")
   clerk_user_id String   @unique
-  email         String   @map("email_usuario")
+  email_usuario String
   name          String   @map("nome_usuario")
   role          UsuarioTipo @default(PADRAO) @map("tipo_usuario")
 
@@ -127,7 +127,7 @@ model Usuario {
   memberships       UsuarioWorkspace[]
 
   // Email único por tenant
-  @@unique([tenant_id, email])
+  @@unique([tenant_id, email_usuario])
   // Índices obrigatórios (tenant_id base + compostos)
   @@index([tenant_id])
   @@index([tenant_id, data_criacao_usuario])

@@ -153,7 +153,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       where: { id_organizacao: idParsed.data },
       include: {
         users_organizacao: {
-          select: { id: true, name: true, email: true, role: true, data_criacao_usuario: true },
+          select: { id: true, name: true, email_usuario: true, role: true, data_criacao_usuario: true },
           orderBy: { data_criacao_usuario: 'desc' as const },
           take: 50,
         },
@@ -191,7 +191,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       tenant: {
         id: id_organizacao,
         ...tenantRest,
-        users: users_organizacao.map(({ role, data_criacao_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario })),
+        users: users_organizacao.map(({ role, data_criacao_usuario, email_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario, email: email_usuario })),
         companies: companies_organizacao,
         subscriptions: subscriptions_organizacao,
         product_configs: product_configs_organizacao,
@@ -431,7 +431,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
         select: {
           id: true,
           name: true,
-          email: true,
+          email_usuario: true,
           role: true,
           data_criacao_usuario: true,
           tenant_id: true,
@@ -471,11 +471,12 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario`, `data_criacao_usuario` → `created_at`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, ...rest }) => ({
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
       created_at: data_criacao_usuario,
+      email: email_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
@@ -724,9 +725,9 @@ adminRouter.post('/deploy', async (req, res, next) => {
     // Resolve nome do admin a partir do banco
     const user = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email_usuario: true },
     })
-    const deployedBy = user?.name ?? user?.email ?? req.auth.clerkUserId
+    const deployedBy = user?.name ?? user?.email_usuario ?? req.auth.clerkUserId
 
     const deploy = await deployLogService.create({
       ...parsed.data,
@@ -1265,7 +1266,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 
     const user = await prisma.usuario.findUnique({
       where: { id: req.params.userId },
-      select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
+      select: { id: true, email_usuario: true, role: true, clerk_user_id: true, tenant_id: true },
     })
     if (!user || user.tenant_id !== req.auth.tenantId) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -1274,7 +1275,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
     const updated = await prisma.usuario.update({
       where: { id: req.params.userId },
       data: { role: parsed.data.role },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email_usuario: true, role: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
@@ -1283,9 +1284,9 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
       newRole: updated.role,
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario`
-    const { role: updRole, ...updRest } = updated
-    res.json({ user: { ...updRest, tipo_usuario: updRole } })
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `email_usuario` → `email`
+    const { role: updRole, email_usuario, ...updRest } = updated
+    res.json({ user: { ...updRest, tipo_usuario: updRole, email: email_usuario } })
   } catch (err) {
     next(err)
   }
@@ -1318,7 +1319,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.usuario.findFirst({ where: { email, tenant_id: req.auth.tenantId } })
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, tenant_id: req.auth.tenantId } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1333,7 +1334,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
       data: {
         tenant_id:     req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
-        email,
+        email_usuario: email,
         name,
         role,
       },
@@ -1350,13 +1351,13 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
       resource_id: user.id,
       action: 'USER_INVITED',
       action_detail: `Convite enviado — role=${role}`,
-      after: { email: user.email, role: user.role },
+      after: { email: user.email_usuario, role: user.role },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, tipo_usuario: user.role },
+      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.role },
     })
   } catch (err) {
     next(err)

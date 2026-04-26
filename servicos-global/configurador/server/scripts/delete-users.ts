@@ -14,7 +14,7 @@ async function main() {
   console.log('🧹 Deletando usuários...\n')
 
   for (const email of EMAILS_TO_DELETE) {
-    const user = await prisma.usuario.findFirst({ where: { email } })
+    const user = await prisma.usuario.findFirst({ where: { email_usuario: email } })
 
     if (!user) {
       console.log(`⚠  ${email} — não encontrado, pulando`)

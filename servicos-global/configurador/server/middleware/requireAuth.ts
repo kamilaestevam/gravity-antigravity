@@ -79,7 +79,7 @@ export async function requireAuth(
 
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({
-            where: { email: primaryEmail },
+            where: { email_usuario: primaryEmail },
             select: { id: true, tenant_id: true, role: true, name: true },
           })
           if (candidates.length === 1) {

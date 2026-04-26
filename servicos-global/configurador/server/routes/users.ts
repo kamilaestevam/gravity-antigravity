@@ -58,7 +58,7 @@ usersRouter.get('/', async (req, res, next) => {
       select: {
         id: true,
         name: true,
-        email: true,
+        email_usuario: true,
         role: true,
         data_criacao_usuario: true,
         memberships: {
@@ -72,11 +72,12 @@ usersRouter.get('/', async (req, res, next) => {
       },
       orderBy: { data_criacao_usuario: 'desc' },
     })
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario`, `data_criacao_usuario` → `created_at`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, ...rest }) => ({
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
       created_at: data_criacao_usuario,
+      email: email_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
@@ -107,7 +108,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     // Verifica se usuário já existe no tenant
     const existing = await prisma.usuario.findFirst({
-      where: { tenant_id: req.auth.tenantId, email },
+      where: { tenant_id: req.auth.tenantId, email_usuario: email },
     })
     if (existing) {
       throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
@@ -152,7 +153,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
         data: {
           tenant_id: req.auth.tenantId,
           clerk_user_id: `pending_${invitation.id}`,
-          email,
+          email_usuario: email,
           name,
           role,
         },
@@ -176,7 +177,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, tipo_usuario: user.role },
+      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.role },
     })
   } catch (err) {
     next(err)
@@ -353,7 +354,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
     const updated = await prisma.usuario.update({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
       data: { role: parsed.data.role },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email_usuario: true, role: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
@@ -362,9 +363,9 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       newRole: parsed.data.role,
     }).catch(() => {})
 
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario`
-    const { role, ...rest } = updated
-    res.json({ user: { ...rest, tipo_usuario: role } })
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `email_usuario` → `email`
+    const { role, email_usuario, ...rest } = updated
+    res.json({ user: { ...rest, tipo_usuario: role, email: email_usuario } })
   } catch (err) {
     next(err)
   }

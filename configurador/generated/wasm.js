@@ -143,7 +143,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   clerk_user_id: 'clerk_user_id',
-  email: 'email',
+  email_usuario: 'email_usuario',
   name: 'name',
   role: 'role',
   preferred_company_id: 'preferred_company_id',

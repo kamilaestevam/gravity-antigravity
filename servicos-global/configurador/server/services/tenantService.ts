@@ -121,7 +121,7 @@ export const tenantService = {
           data: {
             tenant_id: newTenant.id_organizacao,
             clerk_user_id: clerkUserId,
-            email: owner.email,
+            email_usuario: owner.email,
             name: owner.name,
             role: 'MASTER',
           },

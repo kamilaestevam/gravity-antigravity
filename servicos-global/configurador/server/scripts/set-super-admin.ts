@@ -33,8 +33,8 @@ async function main() {
   }
 
   const user = await prisma.usuario.findFirst({
-    where: { email },
-    select: { id: true, email: true, role: true, tenant_id: true, clerk_user_id: true },
+    where: { email_usuario: email },
+    select: { id: true, email_usuario: true, role: true, tenant_id: true, clerk_user_id: true },
   })
 
   if (!user) {
@@ -44,7 +44,7 @@ async function main() {
 
   console.log(`\nUsuário encontrado:`)
   console.log(`  ID:       ${user.id}`)
-  console.log(`  Email:    ${user.email}`)
+  console.log(`  Email:    ${user.email_usuario}`)
   console.log(`  Role atual: ${user.role}`)
   console.log(`  TenantID: ${user.tenant_id}`)
 
@@ -56,11 +56,11 @@ async function main() {
   const updated = await prisma.usuario.update({
     where: { id: user.id },
     data: { role },
-    select: { id: true, email: true, role: true },
+    select: { id: true, email_usuario: true, role: true },
   })
 
   console.log(`\n✓ Role atualizado: ${user.role} → ${updated.role}`)
-  console.log(`  Usuário: ${updated.email}`)
+  console.log(`  Usuário: ${updated.email_usuario}`)
   console.log(`  Frontend lerá o novo role na próxima chamada a /api/v1/me`)
 }
 

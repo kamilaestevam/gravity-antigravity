@@ -673,7 +673,7 @@ model PedidoDashboardPainel {
 /// / despachante / armador) no momento da emissão ou re-snapshot do pedido.
 /// Referência ao banco Cadastros via SUID lógico (sem FK física).
 model PedidoSnapshotEmpresa {
-  id                    String   @id @default(cuid())
+  id_pedido_snapshot_empresa String   @id @default(cuid())
   id_organizacao        String
   id_workspace          String?
   id_pedido             String
@@ -683,9 +683,9 @@ model PedidoSnapshotEmpresa {
   suid_empresa          String   // referência lógica ao Cadastros (sem FK física)
   nome_empresa          String
   nome_fantasia         String?
-  documento_principal   String   // CNPJ / EIN / VAT / TIN
-  tipo_documento        String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
-  cnpj_raiz             String?  // primeiros 8 dígitos do CNPJ — para empresas BR
+  documento_principal_pedido_snapshot_empresa String   // CNPJ / EIN / VAT / TIN
+  tipo_documento_pedido_snapshot_empresa      String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
+  cnpj_raiz_pedido_snapshot_empresa           String?  // primeiros 8 dígitos do CNPJ — para empresas BR
 
   // Endereço
   endereco_logradouro   String?

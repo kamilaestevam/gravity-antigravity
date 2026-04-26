@@ -17362,109 +17362,109 @@ export namespace Prisma {
   }
 
   export type SegurancaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    actor_id: string | null
-    actor_type: string | null
-    action: string | null
-    severity: string | null
-    status: string | null
-    description: string | null
-    ip: string | null
-    endpoint: string | null
-    user_id: string | null
-    product_id: string | null
-    correlation_id: string | null
-    created_at: Date | null
+    id_seguranca: string | null
+    id_organizacao_seguranca: string | null
+    id_ator_seguranca: string | null
+    tipo_ator_seguranca: string | null
+    acao_seguranca: string | null
+    severidade_seguranca: string | null
+    status_seguranca: string | null
+    descricao_seguranca: string | null
+    ip_seguranca: string | null
+    endpoint_seguranca: string | null
+    id_usuario_seguranca: string | null
+    id_produto_seguranca: string | null
+    id_correlacao_seguranca: string | null
+    data_criacao_seguranca: Date | null
   }
 
   export type SegurancaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    actor_id: string | null
-    actor_type: string | null
-    action: string | null
-    severity: string | null
-    status: string | null
-    description: string | null
-    ip: string | null
-    endpoint: string | null
-    user_id: string | null
-    product_id: string | null
-    correlation_id: string | null
-    created_at: Date | null
+    id_seguranca: string | null
+    id_organizacao_seguranca: string | null
+    id_ator_seguranca: string | null
+    tipo_ator_seguranca: string | null
+    acao_seguranca: string | null
+    severidade_seguranca: string | null
+    status_seguranca: string | null
+    descricao_seguranca: string | null
+    ip_seguranca: string | null
+    endpoint_seguranca: string | null
+    id_usuario_seguranca: string | null
+    id_produto_seguranca: string | null
+    id_correlacao_seguranca: string | null
+    data_criacao_seguranca: Date | null
   }
 
   export type SegurancaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    actor_id: number
-    actor_type: number
-    action: number
-    severity: number
-    status: number
-    description: number
-    ip: number
-    endpoint: number
-    user_id: number
-    product_id: number
-    correlation_id: number
-    metadata: number
-    created_at: number
+    id_seguranca: number
+    id_organizacao_seguranca: number
+    id_ator_seguranca: number
+    tipo_ator_seguranca: number
+    acao_seguranca: number
+    severidade_seguranca: number
+    status_seguranca: number
+    descricao_seguranca: number
+    ip_seguranca: number
+    endpoint_seguranca: number
+    id_usuario_seguranca: number
+    id_produto_seguranca: number
+    id_correlacao_seguranca: number
+    metadata_seguranca: number
+    data_criacao_seguranca: number
     _all: number
   }
 
 
   export type SegurancaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_id?: true
-    actor_type?: true
-    action?: true
-    severity?: true
-    status?: true
-    description?: true
-    ip?: true
-    endpoint?: true
-    user_id?: true
-    product_id?: true
-    correlation_id?: true
-    created_at?: true
+    id_seguranca?: true
+    id_organizacao_seguranca?: true
+    id_ator_seguranca?: true
+    tipo_ator_seguranca?: true
+    acao_seguranca?: true
+    severidade_seguranca?: true
+    status_seguranca?: true
+    descricao_seguranca?: true
+    ip_seguranca?: true
+    endpoint_seguranca?: true
+    id_usuario_seguranca?: true
+    id_produto_seguranca?: true
+    id_correlacao_seguranca?: true
+    data_criacao_seguranca?: true
   }
 
   export type SegurancaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_id?: true
-    actor_type?: true
-    action?: true
-    severity?: true
-    status?: true
-    description?: true
-    ip?: true
-    endpoint?: true
-    user_id?: true
-    product_id?: true
-    correlation_id?: true
-    created_at?: true
+    id_seguranca?: true
+    id_organizacao_seguranca?: true
+    id_ator_seguranca?: true
+    tipo_ator_seguranca?: true
+    acao_seguranca?: true
+    severidade_seguranca?: true
+    status_seguranca?: true
+    descricao_seguranca?: true
+    ip_seguranca?: true
+    endpoint_seguranca?: true
+    id_usuario_seguranca?: true
+    id_produto_seguranca?: true
+    id_correlacao_seguranca?: true
+    data_criacao_seguranca?: true
   }
 
   export type SegurancaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_id?: true
-    actor_type?: true
-    action?: true
-    severity?: true
-    status?: true
-    description?: true
-    ip?: true
-    endpoint?: true
-    user_id?: true
-    product_id?: true
-    correlation_id?: true
-    metadata?: true
-    created_at?: true
+    id_seguranca?: true
+    id_organizacao_seguranca?: true
+    id_ator_seguranca?: true
+    tipo_ator_seguranca?: true
+    acao_seguranca?: true
+    severidade_seguranca?: true
+    status_seguranca?: true
+    descricao_seguranca?: true
+    ip_seguranca?: true
+    endpoint_seguranca?: true
+    id_usuario_seguranca?: true
+    id_produto_seguranca?: true
+    id_correlacao_seguranca?: true
+    metadata_seguranca?: true
+    data_criacao_seguranca?: true
     _all?: true
   }
 
@@ -17541,21 +17541,21 @@ export namespace Prisma {
   }
 
   export type SegurancaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    actor_id: string
-    actor_type: string
-    action: string
-    severity: string
-    status: string
-    description: string | null
-    ip: string | null
-    endpoint: string | null
-    user_id: string | null
-    product_id: string | null
-    correlation_id: string | null
-    metadata: JsonValue | null
-    created_at: Date
+    id_seguranca: string
+    id_organizacao_seguranca: string
+    id_ator_seguranca: string
+    tipo_ator_seguranca: string
+    acao_seguranca: string
+    severidade_seguranca: string
+    status_seguranca: string
+    descricao_seguranca: string | null
+    ip_seguranca: string | null
+    endpoint_seguranca: string | null
+    id_usuario_seguranca: string | null
+    id_produto_seguranca: string | null
+    id_correlacao_seguranca: string | null
+    metadata_seguranca: JsonValue | null
+    data_criacao_seguranca: Date
     _count: SegurancaCountAggregateOutputType | null
     _min: SegurancaMinAggregateOutputType | null
     _max: SegurancaMaxAggregateOutputType | null
@@ -17576,57 +17576,57 @@ export namespace Prisma {
 
 
   export type SegurancaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    actor_id?: boolean
-    actor_type?: boolean
-    action?: boolean
-    severity?: boolean
-    status?: boolean
-    description?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    correlation_id?: boolean
-    metadata?: boolean
-    created_at?: boolean
+    id_seguranca?: boolean
+    id_organizacao_seguranca?: boolean
+    id_ator_seguranca?: boolean
+    tipo_ator_seguranca?: boolean
+    acao_seguranca?: boolean
+    severidade_seguranca?: boolean
+    status_seguranca?: boolean
+    descricao_seguranca?: boolean
+    ip_seguranca?: boolean
+    endpoint_seguranca?: boolean
+    id_usuario_seguranca?: boolean
+    id_produto_seguranca?: boolean
+    id_correlacao_seguranca?: boolean
+    metadata_seguranca?: boolean
+    data_criacao_seguranca?: boolean
   }, ExtArgs["result"]["seguranca"]>
 
   export type SegurancaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    actor_id?: boolean
-    actor_type?: boolean
-    action?: boolean
-    severity?: boolean
-    status?: boolean
-    description?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    correlation_id?: boolean
-    metadata?: boolean
-    created_at?: boolean
+    id_seguranca?: boolean
+    id_organizacao_seguranca?: boolean
+    id_ator_seguranca?: boolean
+    tipo_ator_seguranca?: boolean
+    acao_seguranca?: boolean
+    severidade_seguranca?: boolean
+    status_seguranca?: boolean
+    descricao_seguranca?: boolean
+    ip_seguranca?: boolean
+    endpoint_seguranca?: boolean
+    id_usuario_seguranca?: boolean
+    id_produto_seguranca?: boolean
+    id_correlacao_seguranca?: boolean
+    metadata_seguranca?: boolean
+    data_criacao_seguranca?: boolean
   }, ExtArgs["result"]["seguranca"]>
 
   export type SegurancaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    actor_id?: boolean
-    actor_type?: boolean
-    action?: boolean
-    severity?: boolean
-    status?: boolean
-    description?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    correlation_id?: boolean
-    metadata?: boolean
-    created_at?: boolean
+    id_seguranca?: boolean
+    id_organizacao_seguranca?: boolean
+    id_ator_seguranca?: boolean
+    tipo_ator_seguranca?: boolean
+    acao_seguranca?: boolean
+    severidade_seguranca?: boolean
+    status_seguranca?: boolean
+    descricao_seguranca?: boolean
+    ip_seguranca?: boolean
+    endpoint_seguranca?: boolean
+    id_usuario_seguranca?: boolean
+    id_produto_seguranca?: boolean
+    id_correlacao_seguranca?: boolean
+    metadata_seguranca?: boolean
+    data_criacao_seguranca?: boolean
   }
 
 
@@ -17634,21 +17634,21 @@ export namespace Prisma {
     name: "Seguranca"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      actor_id: string
-      actor_type: string
-      action: string
-      severity: string
-      status: string
-      description: string | null
-      ip: string | null
-      endpoint: string | null
-      user_id: string | null
-      product_id: string | null
-      correlation_id: string | null
-      metadata: Prisma.JsonValue | null
-      created_at: Date
+      id_seguranca: string
+      id_organizacao_seguranca: string
+      id_ator_seguranca: string
+      tipo_ator_seguranca: string
+      acao_seguranca: string
+      severidade_seguranca: string
+      status_seguranca: string
+      descricao_seguranca: string | null
+      ip_seguranca: string | null
+      endpoint_seguranca: string | null
+      id_usuario_seguranca: string | null
+      id_produto_seguranca: string | null
+      id_correlacao_seguranca: string | null
+      metadata_seguranca: Prisma.JsonValue | null
+      data_criacao_seguranca: Date
     }, ExtArgs["result"]["seguranca"]>
     composites: {}
   }
@@ -17732,8 +17732,8 @@ export namespace Prisma {
      * // Get first 10 Segurancas
      * const segurancas = await prisma.seguranca.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const segurancaWithIdOnly = await prisma.seguranca.findMany({ select: { id: true } })
+     * // Only select the `id_seguranca`
+     * const segurancaWithId_segurancaOnly = await prisma.seguranca.findMany({ select: { id_seguranca: true } })
      * 
      */
     findMany<T extends SegurancaFindManyArgs>(args?: SelectSubset<T, SegurancaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SegurancaPayload<ExtArgs>, T, "findMany">>
@@ -17777,9 +17777,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Segurancas and only return the `id`
-     * const segurancaWithIdOnly = await prisma.seguranca.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Segurancas and only return the `id_seguranca`
+     * const segurancaWithId_segurancaOnly = await prisma.seguranca.createManyAndReturn({ 
+     *   select: { id_seguranca: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -18042,21 +18042,21 @@ export namespace Prisma {
    * Fields of the Seguranca model
    */ 
   interface SegurancaFieldRefs {
-    readonly id: FieldRef<"Seguranca", 'String'>
-    readonly tenant_id: FieldRef<"Seguranca", 'String'>
-    readonly actor_id: FieldRef<"Seguranca", 'String'>
-    readonly actor_type: FieldRef<"Seguranca", 'String'>
-    readonly action: FieldRef<"Seguranca", 'String'>
-    readonly severity: FieldRef<"Seguranca", 'String'>
-    readonly status: FieldRef<"Seguranca", 'String'>
-    readonly description: FieldRef<"Seguranca", 'String'>
-    readonly ip: FieldRef<"Seguranca", 'String'>
-    readonly endpoint: FieldRef<"Seguranca", 'String'>
-    readonly user_id: FieldRef<"Seguranca", 'String'>
-    readonly product_id: FieldRef<"Seguranca", 'String'>
-    readonly correlation_id: FieldRef<"Seguranca", 'String'>
-    readonly metadata: FieldRef<"Seguranca", 'Json'>
-    readonly created_at: FieldRef<"Seguranca", 'DateTime'>
+    readonly id_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_organizacao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_ator_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly tipo_ator_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly acao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly severidade_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly status_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly descricao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly ip_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly endpoint_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_usuario_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_produto_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_correlacao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly metadata_seguranca: FieldRef<"Seguranca", 'Json'>
+    readonly data_criacao_seguranca: FieldRef<"Seguranca", 'DateTime'>
   }
     
 
@@ -26645,21 +26645,21 @@ export namespace Prisma {
 
 
   export const SegurancaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    actor_id: 'actor_id',
-    actor_type: 'actor_type',
-    action: 'action',
-    severity: 'severity',
-    status: 'status',
-    description: 'description',
-    ip: 'ip',
-    endpoint: 'endpoint',
-    user_id: 'user_id',
-    product_id: 'product_id',
-    correlation_id: 'correlation_id',
-    metadata: 'metadata',
-    created_at: 'created_at'
+    id_seguranca: 'id_seguranca',
+    id_organizacao_seguranca: 'id_organizacao_seguranca',
+    id_ator_seguranca: 'id_ator_seguranca',
+    tipo_ator_seguranca: 'tipo_ator_seguranca',
+    acao_seguranca: 'acao_seguranca',
+    severidade_seguranca: 'severidade_seguranca',
+    status_seguranca: 'status_seguranca',
+    descricao_seguranca: 'descricao_seguranca',
+    ip_seguranca: 'ip_seguranca',
+    endpoint_seguranca: 'endpoint_seguranca',
+    id_usuario_seguranca: 'id_usuario_seguranca',
+    id_produto_seguranca: 'id_produto_seguranca',
+    id_correlacao_seguranca: 'id_correlacao_seguranca',
+    metadata_seguranca: 'metadata_seguranca',
+    data_criacao_seguranca: 'data_criacao_seguranca'
   };
 
   export type SegurancaScalarFieldEnum = (typeof SegurancaScalarFieldEnum)[keyof typeof SegurancaScalarFieldEnum]
@@ -28300,78 +28300,78 @@ export namespace Prisma {
     AND?: SegurancaWhereInput | SegurancaWhereInput[]
     OR?: SegurancaWhereInput[]
     NOT?: SegurancaWhereInput | SegurancaWhereInput[]
-    id?: StringFilter<"Seguranca"> | string
-    tenant_id?: StringFilter<"Seguranca"> | string
-    actor_id?: StringFilter<"Seguranca"> | string
-    actor_type?: StringFilter<"Seguranca"> | string
-    action?: StringFilter<"Seguranca"> | string
-    severity?: StringFilter<"Seguranca"> | string
-    status?: StringFilter<"Seguranca"> | string
-    description?: StringNullableFilter<"Seguranca"> | string | null
-    ip?: StringNullableFilter<"Seguranca"> | string | null
-    endpoint?: StringNullableFilter<"Seguranca"> | string | null
-    user_id?: StringNullableFilter<"Seguranca"> | string | null
-    product_id?: StringNullableFilter<"Seguranca"> | string | null
-    correlation_id?: StringNullableFilter<"Seguranca"> | string | null
-    metadata?: JsonNullableFilter<"Seguranca">
-    created_at?: DateTimeFilter<"Seguranca"> | Date | string
+    id_seguranca?: StringFilter<"Seguranca"> | string
+    id_organizacao_seguranca?: StringFilter<"Seguranca"> | string
+    id_ator_seguranca?: StringFilter<"Seguranca"> | string
+    tipo_ator_seguranca?: StringFilter<"Seguranca"> | string
+    acao_seguranca?: StringFilter<"Seguranca"> | string
+    severidade_seguranca?: StringFilter<"Seguranca"> | string
+    status_seguranca?: StringFilter<"Seguranca"> | string
+    descricao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    ip_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    endpoint_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_usuario_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_produto_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_correlacao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    metadata_seguranca?: JsonNullableFilter<"Seguranca">
+    data_criacao_seguranca?: DateTimeFilter<"Seguranca"> | Date | string
   }
 
   export type SegurancaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_id?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    severity?: SortOrder
-    status?: SortOrder
-    description?: SortOrderInput | SortOrder
-    ip?: SortOrderInput | SortOrder
-    endpoint?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    product_id?: SortOrderInput | SortOrder
-    correlation_id?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_seguranca?: SortOrder
+    id_organizacao_seguranca?: SortOrder
+    id_ator_seguranca?: SortOrder
+    tipo_ator_seguranca?: SortOrder
+    acao_seguranca?: SortOrder
+    severidade_seguranca?: SortOrder
+    status_seguranca?: SortOrder
+    descricao_seguranca?: SortOrderInput | SortOrder
+    ip_seguranca?: SortOrderInput | SortOrder
+    endpoint_seguranca?: SortOrderInput | SortOrder
+    id_usuario_seguranca?: SortOrderInput | SortOrder
+    id_produto_seguranca?: SortOrderInput | SortOrder
+    id_correlacao_seguranca?: SortOrderInput | SortOrder
+    metadata_seguranca?: SortOrderInput | SortOrder
+    data_criacao_seguranca?: SortOrder
   }
 
   export type SegurancaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_seguranca?: string
     AND?: SegurancaWhereInput | SegurancaWhereInput[]
     OR?: SegurancaWhereInput[]
     NOT?: SegurancaWhereInput | SegurancaWhereInput[]
-    tenant_id?: StringFilter<"Seguranca"> | string
-    actor_id?: StringFilter<"Seguranca"> | string
-    actor_type?: StringFilter<"Seguranca"> | string
-    action?: StringFilter<"Seguranca"> | string
-    severity?: StringFilter<"Seguranca"> | string
-    status?: StringFilter<"Seguranca"> | string
-    description?: StringNullableFilter<"Seguranca"> | string | null
-    ip?: StringNullableFilter<"Seguranca"> | string | null
-    endpoint?: StringNullableFilter<"Seguranca"> | string | null
-    user_id?: StringNullableFilter<"Seguranca"> | string | null
-    product_id?: StringNullableFilter<"Seguranca"> | string | null
-    correlation_id?: StringNullableFilter<"Seguranca"> | string | null
-    metadata?: JsonNullableFilter<"Seguranca">
-    created_at?: DateTimeFilter<"Seguranca"> | Date | string
-  }, "id">
+    id_organizacao_seguranca?: StringFilter<"Seguranca"> | string
+    id_ator_seguranca?: StringFilter<"Seguranca"> | string
+    tipo_ator_seguranca?: StringFilter<"Seguranca"> | string
+    acao_seguranca?: StringFilter<"Seguranca"> | string
+    severidade_seguranca?: StringFilter<"Seguranca"> | string
+    status_seguranca?: StringFilter<"Seguranca"> | string
+    descricao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    ip_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    endpoint_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_usuario_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_produto_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_correlacao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    metadata_seguranca?: JsonNullableFilter<"Seguranca">
+    data_criacao_seguranca?: DateTimeFilter<"Seguranca"> | Date | string
+  }, "id_seguranca">
 
   export type SegurancaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_id?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    severity?: SortOrder
-    status?: SortOrder
-    description?: SortOrderInput | SortOrder
-    ip?: SortOrderInput | SortOrder
-    endpoint?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    product_id?: SortOrderInput | SortOrder
-    correlation_id?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_seguranca?: SortOrder
+    id_organizacao_seguranca?: SortOrder
+    id_ator_seguranca?: SortOrder
+    tipo_ator_seguranca?: SortOrder
+    acao_seguranca?: SortOrder
+    severidade_seguranca?: SortOrder
+    status_seguranca?: SortOrder
+    descricao_seguranca?: SortOrderInput | SortOrder
+    ip_seguranca?: SortOrderInput | SortOrder
+    endpoint_seguranca?: SortOrderInput | SortOrder
+    id_usuario_seguranca?: SortOrderInput | SortOrder
+    id_produto_seguranca?: SortOrderInput | SortOrder
+    id_correlacao_seguranca?: SortOrderInput | SortOrder
+    metadata_seguranca?: SortOrderInput | SortOrder
+    data_criacao_seguranca?: SortOrder
     _count?: SegurancaCountOrderByAggregateInput
     _max?: SegurancaMaxOrderByAggregateInput
     _min?: SegurancaMinOrderByAggregateInput
@@ -28381,21 +28381,21 @@ export namespace Prisma {
     AND?: SegurancaScalarWhereWithAggregatesInput | SegurancaScalarWhereWithAggregatesInput[]
     OR?: SegurancaScalarWhereWithAggregatesInput[]
     NOT?: SegurancaScalarWhereWithAggregatesInput | SegurancaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Seguranca"> | string
-    tenant_id?: StringWithAggregatesFilter<"Seguranca"> | string
-    actor_id?: StringWithAggregatesFilter<"Seguranca"> | string
-    actor_type?: StringWithAggregatesFilter<"Seguranca"> | string
-    action?: StringWithAggregatesFilter<"Seguranca"> | string
-    severity?: StringWithAggregatesFilter<"Seguranca"> | string
-    status?: StringWithAggregatesFilter<"Seguranca"> | string
-    description?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    ip?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    endpoint?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    product_id?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    correlation_id?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    metadata?: JsonNullableWithAggregatesFilter<"Seguranca">
-    created_at?: DateTimeWithAggregatesFilter<"Seguranca"> | Date | string
+    id_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    id_organizacao_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    id_ator_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    tipo_ator_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    acao_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    severidade_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    status_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    descricao_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    ip_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    endpoint_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_usuario_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_produto_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_correlacao_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    metadata_seguranca?: JsonNullableWithAggregatesFilter<"Seguranca">
+    data_criacao_seguranca?: DateTimeWithAggregatesFilter<"Seguranca"> | Date | string
   }
 
   export type RequisicoesWhereInput = {
@@ -30489,129 +30489,129 @@ export namespace Prisma {
   }
 
   export type SegurancaCreateInput = {
-    id?: string
-    tenant_id: string
-    actor_id: string
-    actor_type: string
-    action: string
-    severity: string
-    status?: string
-    description?: string | null
-    ip?: string | null
-    endpoint?: string | null
-    user_id?: string | null
-    product_id?: string | null
-    correlation_id?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
+    id_seguranca?: string
+    id_organizacao_seguranca: string
+    id_ator_seguranca: string
+    tipo_ator_seguranca: string
+    acao_seguranca: string
+    severidade_seguranca: string
+    status_seguranca?: string
+    descricao_seguranca?: string | null
+    ip_seguranca?: string | null
+    endpoint_seguranca?: string | null
+    id_usuario_seguranca?: string | null
+    id_produto_seguranca?: string | null
+    id_correlacao_seguranca?: string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    actor_id: string
-    actor_type: string
-    action: string
-    severity: string
-    status?: string
-    description?: string | null
-    ip?: string | null
-    endpoint?: string | null
-    user_id?: string | null
-    product_id?: string | null
-    correlation_id?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
+    id_seguranca?: string
+    id_organizacao_seguranca: string
+    id_ator_seguranca: string
+    tipo_ator_seguranca: string
+    acao_seguranca: string
+    severidade_seguranca: string
+    status_seguranca?: string
+    descricao_seguranca?: string | null
+    ip_seguranca?: string | null
+    endpoint_seguranca?: string | null
+    id_usuario_seguranca?: string | null
+    id_produto_seguranca?: string | null
+    id_correlacao_seguranca?: string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    severity?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    correlation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    acao_seguranca?: StringFieldUpdateOperationsInput | string
+    severidade_seguranca?: StringFieldUpdateOperationsInput | string
+    status_seguranca?: StringFieldUpdateOperationsInput | string
+    descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    severity?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    correlation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    acao_seguranca?: StringFieldUpdateOperationsInput | string
+    severidade_seguranca?: StringFieldUpdateOperationsInput | string
+    status_seguranca?: StringFieldUpdateOperationsInput | string
+    descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    actor_id: string
-    actor_type: string
-    action: string
-    severity: string
-    status?: string
-    description?: string | null
-    ip?: string | null
-    endpoint?: string | null
-    user_id?: string | null
-    product_id?: string | null
-    correlation_id?: string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
+    id_seguranca?: string
+    id_organizacao_seguranca: string
+    id_ator_seguranca: string
+    tipo_ator_seguranca: string
+    acao_seguranca: string
+    severidade_seguranca: string
+    status_seguranca?: string
+    descricao_seguranca?: string | null
+    ip_seguranca?: string | null
+    endpoint_seguranca?: string | null
+    id_usuario_seguranca?: string | null
+    id_produto_seguranca?: string | null
+    id_correlacao_seguranca?: string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    severity?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    correlation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    acao_seguranca?: StringFieldUpdateOperationsInput | string
+    severidade_seguranca?: StringFieldUpdateOperationsInput | string
+    status_seguranca?: StringFieldUpdateOperationsInput | string
+    descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    severity?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    correlation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
+    acao_seguranca?: StringFieldUpdateOperationsInput | string
+    severidade_seguranca?: StringFieldUpdateOperationsInput | string
+    status_seguranca?: StringFieldUpdateOperationsInput | string
+    descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RequisicoesCreateInput = {
@@ -32751,55 +32751,55 @@ export namespace Prisma {
   }
 
   export type SegurancaCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_id?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    severity?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    correlation_id?: SortOrder
-    metadata?: SortOrder
-    created_at?: SortOrder
+    id_seguranca?: SortOrder
+    id_organizacao_seguranca?: SortOrder
+    id_ator_seguranca?: SortOrder
+    tipo_ator_seguranca?: SortOrder
+    acao_seguranca?: SortOrder
+    severidade_seguranca?: SortOrder
+    status_seguranca?: SortOrder
+    descricao_seguranca?: SortOrder
+    ip_seguranca?: SortOrder
+    endpoint_seguranca?: SortOrder
+    id_usuario_seguranca?: SortOrder
+    id_produto_seguranca?: SortOrder
+    id_correlacao_seguranca?: SortOrder
+    metadata_seguranca?: SortOrder
+    data_criacao_seguranca?: SortOrder
   }
 
   export type SegurancaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_id?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    severity?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    correlation_id?: SortOrder
-    created_at?: SortOrder
+    id_seguranca?: SortOrder
+    id_organizacao_seguranca?: SortOrder
+    id_ator_seguranca?: SortOrder
+    tipo_ator_seguranca?: SortOrder
+    acao_seguranca?: SortOrder
+    severidade_seguranca?: SortOrder
+    status_seguranca?: SortOrder
+    descricao_seguranca?: SortOrder
+    ip_seguranca?: SortOrder
+    endpoint_seguranca?: SortOrder
+    id_usuario_seguranca?: SortOrder
+    id_produto_seguranca?: SortOrder
+    id_correlacao_seguranca?: SortOrder
+    data_criacao_seguranca?: SortOrder
   }
 
   export type SegurancaMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_id?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    severity?: SortOrder
-    status?: SortOrder
-    description?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    correlation_id?: SortOrder
-    created_at?: SortOrder
+    id_seguranca?: SortOrder
+    id_organizacao_seguranca?: SortOrder
+    id_ator_seguranca?: SortOrder
+    tipo_ator_seguranca?: SortOrder
+    acao_seguranca?: SortOrder
+    severidade_seguranca?: SortOrder
+    status_seguranca?: SortOrder
+    descricao_seguranca?: SortOrder
+    ip_seguranca?: SortOrder
+    endpoint_seguranca?: SortOrder
+    id_usuario_seguranca?: SortOrder
+    id_produto_seguranca?: SortOrder
+    id_correlacao_seguranca?: SortOrder
+    data_criacao_seguranca?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<

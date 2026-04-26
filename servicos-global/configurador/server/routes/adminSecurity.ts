@@ -151,23 +151,40 @@ async function fetchStats() {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
   const [totalEvents, bySeverity, blockedCount, recentEvents] = await Promise.all([
-    prisma.seguranca.count({ where: { created_at: { gte: since } } }),
+    prisma.seguranca.count({ where: { data_criacao_seguranca: { gte: since } } }),
     prisma.seguranca.groupBy({
-      by: ['severity'],
-      where: { created_at: { gte: since } },
+      by: ['severidade_seguranca'],
+      where: { data_criacao_seguranca: { gte: since } },
       _count: { _all: true },
     }),
-    prisma.seguranca.count({ where: { status: 'BLOCKED', created_at: { gte: since } } }),
+    prisma.seguranca.count({
+      where: { status_seguranca: 'BLOCKED', data_criacao_seguranca: { gte: since } },
+    }),
     prisma.seguranca.findMany({
-      where: { created_at: { gte: since } },
-      orderBy: { created_at: 'desc' },
+      where: { data_criacao_seguranca: { gte: since } },
+      orderBy: { data_criacao_seguranca: 'desc' },
       take: 5,
-      select: { id: true, action: true, severity: true, created_at: true },
+      select: {
+        id_seguranca: true,
+        acao_seguranca: true,
+        severidade_seguranca: true,
+        data_criacao_seguranca: true,
+      },
     }),
   ])
 
-  const criticalCount = bySeverity.find((g) => g.severity === 'CRITICAL')?._count._all ?? 0
-  const warningCount = bySeverity.find((g) => g.severity === 'WARNING')?._count._all ?? 0
+  const criticalCount =
+    bySeverity.find((g) => g.severidade_seguranca === 'CRITICAL')?._count._all ?? 0
+  const warningCount =
+    bySeverity.find((g) => g.severidade_seguranca === 'WARNING')?._count._all ?? 0
+
+  // DTO: Seguranca rename → contrato legado da UI
+  const recentEventsDto = recentEvents.map((e) => ({
+    id: e.id_seguranca,
+    action: e.acao_seguranca,
+    severity: e.severidade_seguranca,
+    created_at: e.data_criacao_seguranca,
+  }))
 
   return {
     period: '24h' as const,
@@ -175,7 +192,7 @@ async function fetchStats() {
     criticalCount,
     warningCount,
     blockedCount,
-    recentEvents,
+    recentEvents: recentEventsDto,
   }
 }
 
@@ -258,22 +275,41 @@ adminSecurityRouter.get('/events', async (req, res, next) => {
     const query = EventsQuerySchema.parse(req.query)
 
     const where: Record<string, unknown> = {}
-    if (query.severity) where.severity = query.severity
-    if (query.action) where.action = query.action
-    if (query.tenant_id) where.tenant_id = query.tenant_id
+    if (query.severity) where.severidade_seguranca = query.severity
+    if (query.action) where.acao_seguranca = query.action
+    if (query.tenant_id) where.id_organizacao_seguranca = query.tenant_id
 
     const [events, total] = await Promise.all([
       prisma.seguranca.findMany({
         where,
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_seguranca: 'desc' },
         take: query.limit,
         skip: query.offset,
       }),
       prisma.seguranca.count({ where }),
     ])
 
+    // DTO: Seguranca rename → contrato legado da UI
+    const eventsDto = events.map((e) => ({
+      id: e.id_seguranca,
+      tenant_id: e.id_organizacao_seguranca,
+      actor_id: e.id_ator_seguranca,
+      actor_type: e.tipo_ator_seguranca,
+      action: e.acao_seguranca,
+      severity: e.severidade_seguranca,
+      status: e.status_seguranca,
+      description: e.descricao_seguranca,
+      ip: e.ip_seguranca,
+      endpoint: e.endpoint_seguranca,
+      user_id: e.id_usuario_seguranca,
+      product_id: e.id_produto_seguranca,
+      correlation_id: e.id_correlacao_seguranca,
+      metadata: e.metadata_seguranca,
+      created_at: e.data_criacao_seguranca,
+    }))
+
     res.json({
-      events,
+      events: eventsDto,
       pagination: { total, limit: query.limit, offset: query.offset },
     })
   } catch (err) {
@@ -360,13 +396,44 @@ adminSecurityInternalRouter.post('/events', requireInternalKey, async (req, res,
     const data = CreateEventSchema.parse(req.body)
     // Prisma espera `InputJsonValue` para `metadata`; o Zod gera `Record<string, unknown>`.
     // Cast explícito para satisfazer o tipo do Prisma sem perder validação do schema.
+    // Mapeia campos legados do Zod para o schema Prisma renomeado
     const event = await prisma.seguranca.create({
       data: {
-        ...data,
-        metadata: data.metadata as Prisma.InputJsonValue | undefined,
+        id_organizacao_seguranca: data.tenant_id,
+        id_ator_seguranca: data.actor_id,
+        tipo_ator_seguranca: data.actor_type,
+        acao_seguranca: data.action,
+        severidade_seguranca: data.severity,
+        status_seguranca: data.status,
+        descricao_seguranca: data.description,
+        ip_seguranca: data.ip,
+        endpoint_seguranca: data.endpoint,
+        id_usuario_seguranca: data.user_id,
+        id_produto_seguranca: data.product_id,
+        id_correlacao_seguranca: data.correlation_id,
+        metadata_seguranca: data.metadata as Prisma.InputJsonValue | undefined,
       },
     })
-    res.status(201).json({ event })
+    // DTO: Seguranca rename → contrato legado para o caller (securityAuditLogger)
+    res.status(201).json({
+      event: {
+        id: event.id_seguranca,
+        tenant_id: event.id_organizacao_seguranca,
+        actor_id: event.id_ator_seguranca,
+        actor_type: event.tipo_ator_seguranca,
+        action: event.acao_seguranca,
+        severity: event.severidade_seguranca,
+        status: event.status_seguranca,
+        description: event.descricao_seguranca,
+        ip: event.ip_seguranca,
+        endpoint: event.endpoint_seguranca,
+        user_id: event.id_usuario_seguranca,
+        product_id: event.id_produto_seguranca,
+        correlation_id: event.id_correlacao_seguranca,
+        metadata: event.metadata_seguranca,
+        created_at: event.data_criacao_seguranca,
+      },
+    })
   } catch (err) {
     next(err)
   }

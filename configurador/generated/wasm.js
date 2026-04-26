@@ -308,21 +308,21 @@ exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
 };
 
 exports.Prisma.SegurancaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  actor_id: 'actor_id',
-  actor_type: 'actor_type',
-  action: 'action',
-  severity: 'severity',
-  status: 'status',
-  description: 'description',
-  ip: 'ip',
-  endpoint: 'endpoint',
-  user_id: 'user_id',
-  product_id: 'product_id',
-  correlation_id: 'correlation_id',
-  metadata: 'metadata',
-  created_at: 'created_at'
+  id_seguranca: 'id_seguranca',
+  id_organizacao_seguranca: 'id_organizacao_seguranca',
+  id_ator_seguranca: 'id_ator_seguranca',
+  tipo_ator_seguranca: 'tipo_ator_seguranca',
+  acao_seguranca: 'acao_seguranca',
+  severidade_seguranca: 'severidade_seguranca',
+  status_seguranca: 'status_seguranca',
+  descricao_seguranca: 'descricao_seguranca',
+  ip_seguranca: 'ip_seguranca',
+  endpoint_seguranca: 'endpoint_seguranca',
+  id_usuario_seguranca: 'id_usuario_seguranca',
+  id_produto_seguranca: 'id_produto_seguranca',
+  id_correlacao_seguranca: 'id_correlacao_seguranca',
+  metadata_seguranca: 'metadata_seguranca',
+  data_criacao_seguranca: 'data_criacao_seguranca'
 };
 
 exports.Prisma.RequisicoesScalarFieldEnum = {

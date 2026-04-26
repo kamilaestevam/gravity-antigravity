@@ -560,27 +560,27 @@ model FornecedorOrganizacao {
 // ---------------------------------------------------------------------------
 
 model Seguranca {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  actor_id       String
-  actor_type     String // USER | SYSTEM | GABI_IA | ADMIN
-  action         String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
-  severity       String // CRITICAL | WARNING | INFO
-  status         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
-  description    String?
-  ip             String?
-  endpoint       String?
-  user_id        String?
-  product_id     String?
-  correlation_id String?
-  metadata       Json?    @default("{}")
-  created_at     DateTime @default(now())
+  id_seguranca             String   @id @default(cuid())
+  id_organizacao_seguranca String
+  id_ator_seguranca        String
+  tipo_ator_seguranca      String // USER | SYSTEM | GABI_IA | ADMIN
+  acao_seguranca           String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
+  severidade_seguranca     String // CRITICAL | WARNING | INFO
+  status_seguranca         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
+  descricao_seguranca      String?
+  ip_seguranca             String?
+  endpoint_seguranca       String?
+  id_usuario_seguranca     String?
+  id_produto_seguranca     String?
+  id_correlacao_seguranca  String?
+  metadata_seguranca       Json?    @default("{}")
+  data_criacao_seguranca   DateTime @default(now())
 
-  @@index([created_at])
-  @@index([severity])
-  @@index([action])
-  @@index([tenant_id, created_at])
-  @@index([severity, created_at])
+  @@index([data_criacao_seguranca])
+  @@index([severidade_seguranca])
+  @@index([acao_seguranca])
+  @@index([id_organizacao_seguranca, data_criacao_seguranca])
+  @@index([severidade_seguranca, data_criacao_seguranca])
   @@map("seguranca")
 }
 

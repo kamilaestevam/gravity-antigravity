@@ -134,24 +134,23 @@ export type ExportarJob = $Result.DefaultSelection<Prisma.$ExportarJobPayload>
  */
 export type HistoricoLog = $Result.DefaultSelection<Prisma.$HistoricoLogPayload>
 /**
- * Model AlertRule
+ * Model RegraAlerta
  * 
  */
-export type AlertRule = $Result.DefaultSelection<Prisma.$AlertRulePayload>
+export type RegraAlerta = $Result.DefaultSelection<Prisma.$RegraAlertaPayload>
 /**
- * Model AlertEvent
+ * Model EventoAlerta
  * 
  */
-export type AlertEvent = $Result.DefaultSelection<Prisma.$AlertEventPayload>
+export type EventoAlerta = $Result.DefaultSelection<Prisma.$EventoAlertaPayload>
 /**
- * Model AlertNotificationLog
+ * Model NotificacaoAlerta
  * 
  */
-export type AlertNotificationLog = $Result.DefaultSelection<Prisma.$AlertNotificationLogPayload>
+export type NotificacaoAlerta = $Result.DefaultSelection<Prisma.$NotificacaoAlertaPayload>
 /**
  * Model ExportarResultado
- * Resultado de exportação em background (acima de 10k registros).
- * Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
+ * 
  */
 export type ExportarResultado = $Result.DefaultSelection<Prisma.$ExportarResultadoPayload>
 /**
@@ -790,34 +789,34 @@ export class PrismaClient<
   get historicoLog(): Prisma.HistoricoLogDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertRule`: Exposes CRUD operations for the **AlertRule** model.
+   * `prisma.regraAlerta`: Exposes CRUD operations for the **RegraAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertRules
-    * const alertRules = await prisma.alertRule.findMany()
+    * // Fetch zero or more RegraAlertas
+    * const regraAlertas = await prisma.regraAlerta.findMany()
     * ```
     */
-  get alertRule(): Prisma.AlertRuleDelegate<ExtArgs>;
+  get regraAlerta(): Prisma.RegraAlertaDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertEvent`: Exposes CRUD operations for the **AlertEvent** model.
+   * `prisma.eventoAlerta`: Exposes CRUD operations for the **EventoAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertEvents
-    * const alertEvents = await prisma.alertEvent.findMany()
+    * // Fetch zero or more EventoAlertas
+    * const eventoAlertas = await prisma.eventoAlerta.findMany()
     * ```
     */
-  get alertEvent(): Prisma.AlertEventDelegate<ExtArgs>;
+  get eventoAlerta(): Prisma.EventoAlertaDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertNotificationLog`: Exposes CRUD operations for the **AlertNotificationLog** model.
+   * `prisma.notificacaoAlerta`: Exposes CRUD operations for the **NotificacaoAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertNotificationLogs
-    * const alertNotificationLogs = await prisma.alertNotificationLog.findMany()
+    * // Fetch zero or more NotificacaoAlertas
+    * const notificacaoAlertas = await prisma.notificacaoAlerta.findMany()
     * ```
     */
-  get alertNotificationLog(): Prisma.AlertNotificationLogDelegate<ExtArgs>;
+  get notificacaoAlerta(): Prisma.NotificacaoAlertaDelegate<ExtArgs>;
 
   /**
    * `prisma.exportarResultado`: Exposes CRUD operations for the **ExportarResultado** model.
@@ -1463,9 +1462,9 @@ export namespace Prisma {
     RelatoriosConfiguracao: 'RelatoriosConfiguracao',
     ExportarJob: 'ExportarJob',
     HistoricoLog: 'HistoricoLog',
-    AlertRule: 'AlertRule',
-    AlertEvent: 'AlertEvent',
-    AlertNotificationLog: 'AlertNotificationLog',
+    RegraAlerta: 'RegraAlerta',
+    EventoAlerta: 'EventoAlerta',
+    NotificacaoAlerta: 'NotificacaoAlerta',
     ExportarResultado: 'ExportarResultado',
     Agenda: 'Agenda',
     Slot: 'Slot',
@@ -1499,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportarResultado" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3183,213 +3182,213 @@ export namespace Prisma {
           }
         }
       }
-      AlertRule: {
-        payload: Prisma.$AlertRulePayload<ExtArgs>
-        fields: Prisma.AlertRuleFieldRefs
+      RegraAlerta: {
+        payload: Prisma.$RegraAlertaPayload<ExtArgs>
+        fields: Prisma.RegraAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertRuleFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload> | null
+            args: Prisma.RegraAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertRuleFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertRuleFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload> | null
+            args: Prisma.RegraAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertRuleFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertRuleFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>[]
+            args: Prisma.RegraAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertRuleCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertRuleCreateManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertRuleCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>[]
+            args: Prisma.RegraAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertRuleDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           update: {
-            args: Prisma.AlertRuleUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertRuleDeleteManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertRuleUpdateManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertRuleUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertRuleAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertRule>
+            args: Prisma.RegraAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegraAlerta>
           }
           groupBy: {
-            args: Prisma.AlertRuleGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertRuleGroupByOutputType>[]
+            args: Prisma.RegraAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegraAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertRuleCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertRuleCountAggregateOutputType> | number
+            args: Prisma.RegraAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<RegraAlertaCountAggregateOutputType> | number
           }
         }
       }
-      AlertEvent: {
-        payload: Prisma.$AlertEventPayload<ExtArgs>
-        fields: Prisma.AlertEventFieldRefs
+      EventoAlerta: {
+        payload: Prisma.$EventoAlertaPayload<ExtArgs>
+        fields: Prisma.EventoAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertEventFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload> | null
+            args: Prisma.EventoAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertEventFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertEventFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload> | null
+            args: Prisma.EventoAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertEventFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertEventFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>[]
+            args: Prisma.EventoAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertEventCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertEventCreateManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertEventCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>[]
+            args: Prisma.EventoAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertEventDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           update: {
-            args: Prisma.AlertEventUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertEventDeleteManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertEventUpdateManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertEventUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertEventAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertEvent>
+            args: Prisma.EventoAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventoAlerta>
           }
           groupBy: {
-            args: Prisma.AlertEventGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertEventGroupByOutputType>[]
+            args: Prisma.EventoAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventoAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertEventCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertEventCountAggregateOutputType> | number
+            args: Prisma.EventoAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<EventoAlertaCountAggregateOutputType> | number
           }
         }
       }
-      AlertNotificationLog: {
-        payload: Prisma.$AlertNotificationLogPayload<ExtArgs>
-        fields: Prisma.AlertNotificationLogFieldRefs
+      NotificacaoAlerta: {
+        payload: Prisma.$NotificacaoAlertaPayload<ExtArgs>
+        fields: Prisma.NotificacaoAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertNotificationLogFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload> | null
+            args: Prisma.NotificacaoAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertNotificationLogFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload> | null
+            args: Prisma.NotificacaoAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertNotificationLogFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertNotificationLogFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>[]
+            args: Prisma.NotificacaoAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertNotificationLogCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertNotificationLogCreateManyArgs<ExtArgs>
+            args: Prisma.NotificacaoAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertNotificationLogCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>[]
+            args: Prisma.NotificacaoAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertNotificationLogDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           update: {
-            args: Prisma.AlertNotificationLogUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertNotificationLogDeleteManyArgs<ExtArgs>
+            args: Prisma.NotificacaoAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertNotificationLogUpdateManyArgs<ExtArgs>
+            args: Prisma.NotificacaoAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertNotificationLogUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.NotificacaoAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificacaoAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertNotificationLogAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertNotificationLog>
+            args: Prisma.NotificacaoAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNotificacaoAlerta>
           }
           groupBy: {
-            args: Prisma.AlertNotificationLogGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertNotificationLogGroupByOutputType>[]
+            args: Prisma.NotificacaoAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NotificacaoAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertNotificationLogCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertNotificationLogCountAggregateOutputType> | number
+            args: Prisma.NotificacaoAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<NotificacaoAlertaCountAggregateOutputType> | number
           }
         }
       }
@@ -4930,64 +4929,64 @@ export namespace Prisma {
 
 
   /**
-   * Count Type AlertRuleCountOutputType
+   * Count Type RegraAlertaCountOutputType
    */
 
-  export type AlertRuleCountOutputType = {
-    alerts: number
+  export type RegraAlertaCountOutputType = {
+    eventos_regra_alerta: number
   }
 
-  export type AlertRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alerts?: boolean | AlertRuleCountOutputTypeCountAlertsArgs
+  export type RegraAlertaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    eventos_regra_alerta?: boolean | RegraAlertaCountOutputTypeCountEventos_regra_alertaArgs
   }
 
   // Custom InputTypes
   /**
-   * AlertRuleCountOutputType without action
+   * RegraAlertaCountOutputType without action
    */
-  export type AlertRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRuleCountOutputType
+     * Select specific fields to fetch from the RegraAlertaCountOutputType
      */
-    select?: AlertRuleCountOutputTypeSelect<ExtArgs> | null
+    select?: RegraAlertaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AlertRuleCountOutputType without action
+   * RegraAlertaCountOutputType without action
    */
-  export type AlertRuleCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertEventWhereInput
+  export type RegraAlertaCountOutputTypeCountEventos_regra_alertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventoAlertaWhereInput
   }
 
 
   /**
-   * Count Type AlertEventCountOutputType
+   * Count Type EventoAlertaCountOutputType
    */
 
-  export type AlertEventCountOutputType = {
-    notifications: number
+  export type EventoAlertaCountOutputType = {
+    notificacoes_evento_alerta: number
   }
 
-  export type AlertEventCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    notifications?: boolean | AlertEventCountOutputTypeCountNotificationsArgs
+  export type EventoAlertaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    notificacoes_evento_alerta?: boolean | EventoAlertaCountOutputTypeCountNotificacoes_evento_alertaArgs
   }
 
   // Custom InputTypes
   /**
-   * AlertEventCountOutputType without action
+   * EventoAlertaCountOutputType without action
    */
-  export type AlertEventCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEventCountOutputType
+     * Select specific fields to fetch from the EventoAlertaCountOutputType
      */
-    select?: AlertEventCountOutputTypeSelect<ExtArgs> | null
+    select?: EventoAlertaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AlertEventCountOutputType without action
+   * EventoAlertaCountOutputType without action
    */
-  export type AlertEventCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertNotificationLogWhereInput
+  export type EventoAlertaCountOutputTypeCountNotificacoes_evento_alertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificacaoAlertaWhereInput
   }
 
 
@@ -28431,131 +28430,131 @@ export namespace Prisma {
   }
 
   export type HistoricoLogMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    actor_id: string | null
-    actor_name: string | null
-    actor_ip: string | null
-    module: string | null
-    resource_type: string | null
-    resource_id: string | null
-    action: string | null
-    action_detail: string | null
-    status: $Enums.EventoStatus | null
-    error_message: string | null
-    integrity_hash: string | null
-    product_id: string | null
-    user_id: string | null
-    created_at: Date | null
+    id_historico_log: string | null
+    id_organizacao_historico_log: string | null
+    id_produto_historico_log: string | null
+    id_usuario_historico_log: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor | null
+    id_ator_historico_log: string | null
+    nome_ator_historico_log: string | null
+    ip_ator_historico_log: string | null
+    modulo_historico_log: string | null
+    tipo_recurso_historico_log: string | null
+    id_recurso_historico_log: string | null
+    acao_historico_log: string | null
+    detalhe_acao_historico_log: string | null
+    status_historico_log: $Enums.EventoStatus | null
+    mensagem_erro_historico_log: string | null
+    hash_integridade_historico_log: string | null
+    data_criacao_historico_log: Date | null
   }
 
   export type HistoricoLogMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    actor_id: string | null
-    actor_name: string | null
-    actor_ip: string | null
-    module: string | null
-    resource_type: string | null
-    resource_id: string | null
-    action: string | null
-    action_detail: string | null
-    status: $Enums.EventoStatus | null
-    error_message: string | null
-    integrity_hash: string | null
-    product_id: string | null
-    user_id: string | null
-    created_at: Date | null
+    id_historico_log: string | null
+    id_organizacao_historico_log: string | null
+    id_produto_historico_log: string | null
+    id_usuario_historico_log: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor | null
+    id_ator_historico_log: string | null
+    nome_ator_historico_log: string | null
+    ip_ator_historico_log: string | null
+    modulo_historico_log: string | null
+    tipo_recurso_historico_log: string | null
+    id_recurso_historico_log: string | null
+    acao_historico_log: string | null
+    detalhe_acao_historico_log: string | null
+    status_historico_log: $Enums.EventoStatus | null
+    mensagem_erro_historico_log: string | null
+    hash_integridade_historico_log: string | null
+    data_criacao_historico_log: Date | null
   }
 
   export type HistoricoLogCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    actor_type: number
-    actor_id: number
-    actor_name: number
-    actor_ip: number
-    actor_metadata: number
-    module: number
-    resource_type: number
-    resource_id: number
-    action: number
-    action_detail: number
-    before: number
-    after: number
-    status: number
-    error_message: number
-    integrity_hash: number
-    product_id: number
-    user_id: number
-    created_at: number
+    id_historico_log: number
+    id_organizacao_historico_log: number
+    id_produto_historico_log: number
+    id_usuario_historico_log: number
+    tipo_ator_historico_log: number
+    id_ator_historico_log: number
+    nome_ator_historico_log: number
+    ip_ator_historico_log: number
+    metadata_ator_historico_log: number
+    modulo_historico_log: number
+    tipo_recurso_historico_log: number
+    id_recurso_historico_log: number
+    acao_historico_log: number
+    detalhe_acao_historico_log: number
+    estado_anterior_historico_log: number
+    estado_posterior_historico_log: number
+    status_historico_log: number
+    mensagem_erro_historico_log: number
+    hash_integridade_historico_log: number
+    data_criacao_historico_log: number
     _all: number
   }
 
 
   export type HistoricoLogMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    actor_ip?: true
-    module?: true
-    resource_type?: true
-    resource_id?: true
-    action?: true
-    action_detail?: true
-    status?: true
-    error_message?: true
-    integrity_hash?: true
-    product_id?: true
-    user_id?: true
-    created_at?: true
+    id_historico_log?: true
+    id_organizacao_historico_log?: true
+    id_produto_historico_log?: true
+    id_usuario_historico_log?: true
+    tipo_ator_historico_log?: true
+    id_ator_historico_log?: true
+    nome_ator_historico_log?: true
+    ip_ator_historico_log?: true
+    modulo_historico_log?: true
+    tipo_recurso_historico_log?: true
+    id_recurso_historico_log?: true
+    acao_historico_log?: true
+    detalhe_acao_historico_log?: true
+    status_historico_log?: true
+    mensagem_erro_historico_log?: true
+    hash_integridade_historico_log?: true
+    data_criacao_historico_log?: true
   }
 
   export type HistoricoLogMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    actor_ip?: true
-    module?: true
-    resource_type?: true
-    resource_id?: true
-    action?: true
-    action_detail?: true
-    status?: true
-    error_message?: true
-    integrity_hash?: true
-    product_id?: true
-    user_id?: true
-    created_at?: true
+    id_historico_log?: true
+    id_organizacao_historico_log?: true
+    id_produto_historico_log?: true
+    id_usuario_historico_log?: true
+    tipo_ator_historico_log?: true
+    id_ator_historico_log?: true
+    nome_ator_historico_log?: true
+    ip_ator_historico_log?: true
+    modulo_historico_log?: true
+    tipo_recurso_historico_log?: true
+    id_recurso_historico_log?: true
+    acao_historico_log?: true
+    detalhe_acao_historico_log?: true
+    status_historico_log?: true
+    mensagem_erro_historico_log?: true
+    hash_integridade_historico_log?: true
+    data_criacao_historico_log?: true
   }
 
   export type HistoricoLogCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    actor_ip?: true
-    actor_metadata?: true
-    module?: true
-    resource_type?: true
-    resource_id?: true
-    action?: true
-    action_detail?: true
-    before?: true
-    after?: true
-    status?: true
-    error_message?: true
-    integrity_hash?: true
-    product_id?: true
-    user_id?: true
-    created_at?: true
+    id_historico_log?: true
+    id_organizacao_historico_log?: true
+    id_produto_historico_log?: true
+    id_usuario_historico_log?: true
+    tipo_ator_historico_log?: true
+    id_ator_historico_log?: true
+    nome_ator_historico_log?: true
+    ip_ator_historico_log?: true
+    metadata_ator_historico_log?: true
+    modulo_historico_log?: true
+    tipo_recurso_historico_log?: true
+    id_recurso_historico_log?: true
+    acao_historico_log?: true
+    detalhe_acao_historico_log?: true
+    estado_anterior_historico_log?: true
+    estado_posterior_historico_log?: true
+    status_historico_log?: true
+    mensagem_erro_historico_log?: true
+    hash_integridade_historico_log?: true
+    data_criacao_historico_log?: true
     _all?: true
   }
 
@@ -28632,26 +28631,26 @@ export namespace Prisma {
   }
 
   export type HistoricoLogGroupByOutputType = {
-    id: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    actor_ip: string | null
-    actor_metadata: JsonValue | null
-    module: string
-    resource_type: string
-    resource_id: string | null
-    action: string
-    action_detail: string
-    before: JsonValue | null
-    after: JsonValue | null
-    status: $Enums.EventoStatus
-    error_message: string | null
-    integrity_hash: string
-    product_id: string | null
-    user_id: string | null
-    created_at: Date
+    id_historico_log: string
+    id_organizacao_historico_log: string
+    id_produto_historico_log: string | null
+    id_usuario_historico_log: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor
+    id_ator_historico_log: string
+    nome_ator_historico_log: string
+    ip_ator_historico_log: string | null
+    metadata_ator_historico_log: JsonValue | null
+    modulo_historico_log: string
+    tipo_recurso_historico_log: string
+    id_recurso_historico_log: string | null
+    acao_historico_log: string
+    detalhe_acao_historico_log: string
+    estado_anterior_historico_log: JsonValue | null
+    estado_posterior_historico_log: JsonValue | null
+    status_historico_log: $Enums.EventoStatus
+    mensagem_erro_historico_log: string | null
+    hash_integridade_historico_log: string
+    data_criacao_historico_log: Date
     _count: HistoricoLogCountAggregateOutputType | null
     _min: HistoricoLogMinAggregateOutputType | null
     _max: HistoricoLogMaxAggregateOutputType | null
@@ -28672,72 +28671,72 @@ export namespace Prisma {
 
 
   export type HistoricoLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    actor_ip?: boolean
-    actor_metadata?: boolean
-    module?: boolean
-    resource_type?: boolean
-    resource_id?: boolean
-    action?: boolean
-    action_detail?: boolean
-    before?: boolean
-    after?: boolean
-    status?: boolean
-    error_message?: boolean
-    integrity_hash?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    created_at?: boolean
+    id_historico_log?: boolean
+    id_organizacao_historico_log?: boolean
+    id_produto_historico_log?: boolean
+    id_usuario_historico_log?: boolean
+    tipo_ator_historico_log?: boolean
+    id_ator_historico_log?: boolean
+    nome_ator_historico_log?: boolean
+    ip_ator_historico_log?: boolean
+    metadata_ator_historico_log?: boolean
+    modulo_historico_log?: boolean
+    tipo_recurso_historico_log?: boolean
+    id_recurso_historico_log?: boolean
+    acao_historico_log?: boolean
+    detalhe_acao_historico_log?: boolean
+    estado_anterior_historico_log?: boolean
+    estado_posterior_historico_log?: boolean
+    status_historico_log?: boolean
+    mensagem_erro_historico_log?: boolean
+    hash_integridade_historico_log?: boolean
+    data_criacao_historico_log?: boolean
   }, ExtArgs["result"]["historicoLog"]>
 
   export type HistoricoLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    actor_ip?: boolean
-    actor_metadata?: boolean
-    module?: boolean
-    resource_type?: boolean
-    resource_id?: boolean
-    action?: boolean
-    action_detail?: boolean
-    before?: boolean
-    after?: boolean
-    status?: boolean
-    error_message?: boolean
-    integrity_hash?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    created_at?: boolean
+    id_historico_log?: boolean
+    id_organizacao_historico_log?: boolean
+    id_produto_historico_log?: boolean
+    id_usuario_historico_log?: boolean
+    tipo_ator_historico_log?: boolean
+    id_ator_historico_log?: boolean
+    nome_ator_historico_log?: boolean
+    ip_ator_historico_log?: boolean
+    metadata_ator_historico_log?: boolean
+    modulo_historico_log?: boolean
+    tipo_recurso_historico_log?: boolean
+    id_recurso_historico_log?: boolean
+    acao_historico_log?: boolean
+    detalhe_acao_historico_log?: boolean
+    estado_anterior_historico_log?: boolean
+    estado_posterior_historico_log?: boolean
+    status_historico_log?: boolean
+    mensagem_erro_historico_log?: boolean
+    hash_integridade_historico_log?: boolean
+    data_criacao_historico_log?: boolean
   }, ExtArgs["result"]["historicoLog"]>
 
   export type HistoricoLogSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    actor_ip?: boolean
-    actor_metadata?: boolean
-    module?: boolean
-    resource_type?: boolean
-    resource_id?: boolean
-    action?: boolean
-    action_detail?: boolean
-    before?: boolean
-    after?: boolean
-    status?: boolean
-    error_message?: boolean
-    integrity_hash?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    created_at?: boolean
+    id_historico_log?: boolean
+    id_organizacao_historico_log?: boolean
+    id_produto_historico_log?: boolean
+    id_usuario_historico_log?: boolean
+    tipo_ator_historico_log?: boolean
+    id_ator_historico_log?: boolean
+    nome_ator_historico_log?: boolean
+    ip_ator_historico_log?: boolean
+    metadata_ator_historico_log?: boolean
+    modulo_historico_log?: boolean
+    tipo_recurso_historico_log?: boolean
+    id_recurso_historico_log?: boolean
+    acao_historico_log?: boolean
+    detalhe_acao_historico_log?: boolean
+    estado_anterior_historico_log?: boolean
+    estado_posterior_historico_log?: boolean
+    status_historico_log?: boolean
+    mensagem_erro_historico_log?: boolean
+    hash_integridade_historico_log?: boolean
+    data_criacao_historico_log?: boolean
   }
 
 
@@ -28745,26 +28744,26 @@ export namespace Prisma {
     name: "HistoricoLog"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      actor_type: $Enums.AcaoExecutadaPor
-      actor_id: string
-      actor_name: string
-      actor_ip: string | null
-      actor_metadata: Prisma.JsonValue | null
-      module: string
-      resource_type: string
-      resource_id: string | null
-      action: string
-      action_detail: string
-      before: Prisma.JsonValue | null
-      after: Prisma.JsonValue | null
-      status: $Enums.EventoStatus
-      error_message: string | null
-      integrity_hash: string
-      product_id: string | null
-      user_id: string | null
-      created_at: Date
+      id_historico_log: string
+      id_organizacao_historico_log: string
+      id_produto_historico_log: string | null
+      id_usuario_historico_log: string | null
+      tipo_ator_historico_log: $Enums.AcaoExecutadaPor
+      id_ator_historico_log: string
+      nome_ator_historico_log: string
+      ip_ator_historico_log: string | null
+      metadata_ator_historico_log: Prisma.JsonValue | null
+      modulo_historico_log: string
+      tipo_recurso_historico_log: string
+      id_recurso_historico_log: string | null
+      acao_historico_log: string
+      detalhe_acao_historico_log: string
+      estado_anterior_historico_log: Prisma.JsonValue | null
+      estado_posterior_historico_log: Prisma.JsonValue | null
+      status_historico_log: $Enums.EventoStatus
+      mensagem_erro_historico_log: string | null
+      hash_integridade_historico_log: string
+      data_criacao_historico_log: Date
     }, ExtArgs["result"]["historicoLog"]>
     composites: {}
   }
@@ -28848,8 +28847,8 @@ export namespace Prisma {
      * // Get first 10 HistoricoLogs
      * const historicoLogs = await prisma.historicoLog.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const historicoLogWithIdOnly = await prisma.historicoLog.findMany({ select: { id: true } })
+     * // Only select the `id_historico_log`
+     * const historicoLogWithId_historico_logOnly = await prisma.historicoLog.findMany({ select: { id_historico_log: true } })
      * 
      */
     findMany<T extends HistoricoLogFindManyArgs>(args?: SelectSubset<T, HistoricoLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricoLogPayload<ExtArgs>, T, "findMany">>
@@ -28893,9 +28892,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many HistoricoLogs and only return the `id`
-     * const historicoLogWithIdOnly = await prisma.historicoLog.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many HistoricoLogs and only return the `id_historico_log`
+     * const historicoLogWithId_historico_logOnly = await prisma.historicoLog.createManyAndReturn({ 
+     *   select: { id_historico_log: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -29158,26 +29157,26 @@ export namespace Prisma {
    * Fields of the HistoricoLog model
    */ 
   interface HistoricoLogFieldRefs {
-    readonly id: FieldRef<"HistoricoLog", 'String'>
-    readonly tenant_id: FieldRef<"HistoricoLog", 'String'>
-    readonly actor_type: FieldRef<"HistoricoLog", 'AcaoExecutadaPor'>
-    readonly actor_id: FieldRef<"HistoricoLog", 'String'>
-    readonly actor_name: FieldRef<"HistoricoLog", 'String'>
-    readonly actor_ip: FieldRef<"HistoricoLog", 'String'>
-    readonly actor_metadata: FieldRef<"HistoricoLog", 'Json'>
-    readonly module: FieldRef<"HistoricoLog", 'String'>
-    readonly resource_type: FieldRef<"HistoricoLog", 'String'>
-    readonly resource_id: FieldRef<"HistoricoLog", 'String'>
-    readonly action: FieldRef<"HistoricoLog", 'String'>
-    readonly action_detail: FieldRef<"HistoricoLog", 'String'>
-    readonly before: FieldRef<"HistoricoLog", 'Json'>
-    readonly after: FieldRef<"HistoricoLog", 'Json'>
-    readonly status: FieldRef<"HistoricoLog", 'EventoStatus'>
-    readonly error_message: FieldRef<"HistoricoLog", 'String'>
-    readonly integrity_hash: FieldRef<"HistoricoLog", 'String'>
-    readonly product_id: FieldRef<"HistoricoLog", 'String'>
-    readonly user_id: FieldRef<"HistoricoLog", 'String'>
-    readonly created_at: FieldRef<"HistoricoLog", 'DateTime'>
+    readonly id_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_organizacao_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_produto_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_usuario_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly tipo_ator_historico_log: FieldRef<"HistoricoLog", 'AcaoExecutadaPor'>
+    readonly id_ator_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly nome_ator_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly ip_ator_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly metadata_ator_historico_log: FieldRef<"HistoricoLog", 'Json'>
+    readonly modulo_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly tipo_recurso_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly id_recurso_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly acao_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly detalhe_acao_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly estado_anterior_historico_log: FieldRef<"HistoricoLog", 'Json'>
+    readonly estado_posterior_historico_log: FieldRef<"HistoricoLog", 'Json'>
+    readonly status_historico_log: FieldRef<"HistoricoLog", 'EventoStatus'>
+    readonly mensagem_erro_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly hash_integridade_historico_log: FieldRef<"HistoricoLog", 'String'>
+    readonly data_criacao_historico_log: FieldRef<"HistoricoLog", 'DateTime'>
   }
     
 
@@ -29467,517 +29466,539 @@ export namespace Prisma {
 
 
   /**
-   * Model AlertRule
+   * Model RegraAlerta
    */
 
-  export type AggregateAlertRule = {
-    _count: AlertRuleCountAggregateOutputType | null
-    _avg: AlertRuleAvgAggregateOutputType | null
-    _sum: AlertRuleSumAggregateOutputType | null
-    _min: AlertRuleMinAggregateOutputType | null
-    _max: AlertRuleMaxAggregateOutputType | null
+  export type AggregateRegraAlerta = {
+    _count: RegraAlertaCountAggregateOutputType | null
+    _avg: RegraAlertaAvgAggregateOutputType | null
+    _sum: RegraAlertaSumAggregateOutputType | null
+    _min: RegraAlertaMinAggregateOutputType | null
+    _max: RegraAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertRuleAvgAggregateOutputType = {
-    threshold_count: number | null
-    threshold_window_seconds: number | null
+  export type RegraAlertaAvgAggregateOutputType = {
+    limiar_contagem_regra_alerta: number | null
+    limiar_janela_segundos_regra_alerta: number | null
   }
 
-  export type AlertRuleSumAggregateOutputType = {
-    threshold_count: number | null
-    threshold_window_seconds: number | null
+  export type RegraAlertaSumAggregateOutputType = {
+    limiar_contagem_regra_alerta: number | null
+    limiar_janela_segundos_regra_alerta: number | null
   }
 
-  export type AlertRuleMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    name: string | null
-    description: string | null
-    enabled: boolean | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    action: string | null
-    module: string | null
-    status_filter: $Enums.EventoStatus | null
-    threshold_count: number | null
-    threshold_window_seconds: number | null
-    channel_inapp: boolean | null
-    channel_email: boolean | null
-    channel_whatsapp: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type RegraAlertaMinAggregateOutputType = {
+    id_regra_alerta: string | null
+    id_organizacao_regra_alerta: string | null
+    id_produto_regra_alerta: string | null
+    id_usuario_regra_alerta: string | null
+    nome_regra_alerta: string | null
+    descricao_regra_alerta: string | null
+    habilitada_regra_alerta: boolean | null
+    tipo_ator_regra_alerta: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta: string | null
+    modulo_regra_alerta: string | null
+    filtro_status_regra_alerta: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta: number | null
+    limiar_janela_segundos_regra_alerta: number | null
+    canal_inapp_regra_alerta: boolean | null
+    canal_email_regra_alerta: boolean | null
+    canal_whatsapp_regra_alerta: boolean | null
+    data_criacao_regra_alerta: Date | null
+    data_atualizacao_regra_alerta: Date | null
   }
 
-  export type AlertRuleMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    name: string | null
-    description: string | null
-    enabled: boolean | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    action: string | null
-    module: string | null
-    status_filter: $Enums.EventoStatus | null
-    threshold_count: number | null
-    threshold_window_seconds: number | null
-    channel_inapp: boolean | null
-    channel_email: boolean | null
-    channel_whatsapp: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type RegraAlertaMaxAggregateOutputType = {
+    id_regra_alerta: string | null
+    id_organizacao_regra_alerta: string | null
+    id_produto_regra_alerta: string | null
+    id_usuario_regra_alerta: string | null
+    nome_regra_alerta: string | null
+    descricao_regra_alerta: string | null
+    habilitada_regra_alerta: boolean | null
+    tipo_ator_regra_alerta: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta: string | null
+    modulo_regra_alerta: string | null
+    filtro_status_regra_alerta: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta: number | null
+    limiar_janela_segundos_regra_alerta: number | null
+    canal_inapp_regra_alerta: boolean | null
+    canal_email_regra_alerta: boolean | null
+    canal_whatsapp_regra_alerta: boolean | null
+    data_criacao_regra_alerta: Date | null
+    data_atualizacao_regra_alerta: Date | null
   }
 
-  export type AlertRuleCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    name: number
-    description: number
-    enabled: number
-    actor_type: number
-    action: number
-    module: number
-    status_filter: number
-    threshold_count: number
-    threshold_window_seconds: number
-    channel_inapp: number
-    channel_email: number
-    channel_whatsapp: number
-    recipients_email: number
-    recipients_whatsapp: number
-    recipients_user_ids: number
-    created_at: number
-    updated_at: number
+  export type RegraAlertaCountAggregateOutputType = {
+    id_regra_alerta: number
+    id_organizacao_regra_alerta: number
+    id_produto_regra_alerta: number
+    id_usuario_regra_alerta: number
+    nome_regra_alerta: number
+    descricao_regra_alerta: number
+    habilitada_regra_alerta: number
+    tipo_ator_regra_alerta: number
+    acao_regra_alerta: number
+    modulo_regra_alerta: number
+    filtro_status_regra_alerta: number
+    limiar_contagem_regra_alerta: number
+    limiar_janela_segundos_regra_alerta: number
+    canal_inapp_regra_alerta: number
+    canal_email_regra_alerta: number
+    canal_whatsapp_regra_alerta: number
+    destinatarios_email_regra_alerta: number
+    destinatarios_whatsapp_regra_alerta: number
+    destinatarios_usuarios_regra_alerta: number
+    data_criacao_regra_alerta: number
+    data_atualizacao_regra_alerta: number
     _all: number
   }
 
 
-  export type AlertRuleAvgAggregateInputType = {
-    threshold_count?: true
-    threshold_window_seconds?: true
+  export type RegraAlertaAvgAggregateInputType = {
+    limiar_contagem_regra_alerta?: true
+    limiar_janela_segundos_regra_alerta?: true
   }
 
-  export type AlertRuleSumAggregateInputType = {
-    threshold_count?: true
-    threshold_window_seconds?: true
+  export type RegraAlertaSumAggregateInputType = {
+    limiar_contagem_regra_alerta?: true
+    limiar_janela_segundos_regra_alerta?: true
   }
 
-  export type AlertRuleMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    description?: true
-    enabled?: true
-    actor_type?: true
-    action?: true
-    module?: true
-    status_filter?: true
-    threshold_count?: true
-    threshold_window_seconds?: true
-    channel_inapp?: true
-    channel_email?: true
-    channel_whatsapp?: true
-    created_at?: true
-    updated_at?: true
+  export type RegraAlertaMinAggregateInputType = {
+    id_regra_alerta?: true
+    id_organizacao_regra_alerta?: true
+    id_produto_regra_alerta?: true
+    id_usuario_regra_alerta?: true
+    nome_regra_alerta?: true
+    descricao_regra_alerta?: true
+    habilitada_regra_alerta?: true
+    tipo_ator_regra_alerta?: true
+    acao_regra_alerta?: true
+    modulo_regra_alerta?: true
+    filtro_status_regra_alerta?: true
+    limiar_contagem_regra_alerta?: true
+    limiar_janela_segundos_regra_alerta?: true
+    canal_inapp_regra_alerta?: true
+    canal_email_regra_alerta?: true
+    canal_whatsapp_regra_alerta?: true
+    data_criacao_regra_alerta?: true
+    data_atualizacao_regra_alerta?: true
   }
 
-  export type AlertRuleMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    description?: true
-    enabled?: true
-    actor_type?: true
-    action?: true
-    module?: true
-    status_filter?: true
-    threshold_count?: true
-    threshold_window_seconds?: true
-    channel_inapp?: true
-    channel_email?: true
-    channel_whatsapp?: true
-    created_at?: true
-    updated_at?: true
+  export type RegraAlertaMaxAggregateInputType = {
+    id_regra_alerta?: true
+    id_organizacao_regra_alerta?: true
+    id_produto_regra_alerta?: true
+    id_usuario_regra_alerta?: true
+    nome_regra_alerta?: true
+    descricao_regra_alerta?: true
+    habilitada_regra_alerta?: true
+    tipo_ator_regra_alerta?: true
+    acao_regra_alerta?: true
+    modulo_regra_alerta?: true
+    filtro_status_regra_alerta?: true
+    limiar_contagem_regra_alerta?: true
+    limiar_janela_segundos_regra_alerta?: true
+    canal_inapp_regra_alerta?: true
+    canal_email_regra_alerta?: true
+    canal_whatsapp_regra_alerta?: true
+    data_criacao_regra_alerta?: true
+    data_atualizacao_regra_alerta?: true
   }
 
-  export type AlertRuleCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    description?: true
-    enabled?: true
-    actor_type?: true
-    action?: true
-    module?: true
-    status_filter?: true
-    threshold_count?: true
-    threshold_window_seconds?: true
-    channel_inapp?: true
-    channel_email?: true
-    channel_whatsapp?: true
-    recipients_email?: true
-    recipients_whatsapp?: true
-    recipients_user_ids?: true
-    created_at?: true
-    updated_at?: true
+  export type RegraAlertaCountAggregateInputType = {
+    id_regra_alerta?: true
+    id_organizacao_regra_alerta?: true
+    id_produto_regra_alerta?: true
+    id_usuario_regra_alerta?: true
+    nome_regra_alerta?: true
+    descricao_regra_alerta?: true
+    habilitada_regra_alerta?: true
+    tipo_ator_regra_alerta?: true
+    acao_regra_alerta?: true
+    modulo_regra_alerta?: true
+    filtro_status_regra_alerta?: true
+    limiar_contagem_regra_alerta?: true
+    limiar_janela_segundos_regra_alerta?: true
+    canal_inapp_regra_alerta?: true
+    canal_email_regra_alerta?: true
+    canal_whatsapp_regra_alerta?: true
+    destinatarios_email_regra_alerta?: true
+    destinatarios_whatsapp_regra_alerta?: true
+    destinatarios_usuarios_regra_alerta?: true
+    data_criacao_regra_alerta?: true
+    data_atualizacao_regra_alerta?: true
     _all?: true
   }
 
-  export type AlertRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertRule to aggregate.
+     * Filter which RegraAlerta to aggregate.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertRules
+     * Count returned RegraAlertas
     **/
-    _count?: true | AlertRuleCountAggregateInputType
+    _count?: true | RegraAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertRuleAvgAggregateInputType
+    _avg?: RegraAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertRuleSumAggregateInputType
+    _sum?: RegraAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertRuleMinAggregateInputType
+    _min?: RegraAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertRuleMaxAggregateInputType
+    _max?: RegraAlertaMaxAggregateInputType
   }
 
-  export type GetAlertRuleAggregateType<T extends AlertRuleAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertRule]: P extends '_count' | 'count'
+  export type GetRegraAlertaAggregateType<T extends RegraAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegraAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertRule[P]>
-      : GetScalarType<T[P], AggregateAlertRule[P]>
+        : GetScalarType<T[P], AggregateRegraAlerta[P]>
+      : GetScalarType<T[P], AggregateRegraAlerta[P]>
   }
 
 
 
 
-  export type AlertRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertRuleWhereInput
-    orderBy?: AlertRuleOrderByWithAggregationInput | AlertRuleOrderByWithAggregationInput[]
-    by: AlertRuleScalarFieldEnum[] | AlertRuleScalarFieldEnum
-    having?: AlertRuleScalarWhereWithAggregatesInput
+  export type RegraAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegraAlertaWhereInput
+    orderBy?: RegraAlertaOrderByWithAggregationInput | RegraAlertaOrderByWithAggregationInput[]
+    by: RegraAlertaScalarFieldEnum[] | RegraAlertaScalarFieldEnum
+    having?: RegraAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertRuleCountAggregateInputType | true
-    _avg?: AlertRuleAvgAggregateInputType
-    _sum?: AlertRuleSumAggregateInputType
-    _min?: AlertRuleMinAggregateInputType
-    _max?: AlertRuleMaxAggregateInputType
+    _count?: RegraAlertaCountAggregateInputType | true
+    _avg?: RegraAlertaAvgAggregateInputType
+    _sum?: RegraAlertaSumAggregateInputType
+    _min?: RegraAlertaMinAggregateInputType
+    _max?: RegraAlertaMaxAggregateInputType
   }
 
-  export type AlertRuleGroupByOutputType = {
-    id: string
-    tenant_id: string | null
-    name: string
-    description: string | null
-    enabled: boolean
-    actor_type: $Enums.AcaoExecutadaPor | null
-    action: string | null
-    module: string | null
-    status_filter: $Enums.EventoStatus | null
-    threshold_count: number | null
-    threshold_window_seconds: number | null
-    channel_inapp: boolean
-    channel_email: boolean
-    channel_whatsapp: boolean
-    recipients_email: string[]
-    recipients_whatsapp: string[]
-    recipients_user_ids: string[]
-    created_at: Date
-    updated_at: Date
-    _count: AlertRuleCountAggregateOutputType | null
-    _avg: AlertRuleAvgAggregateOutputType | null
-    _sum: AlertRuleSumAggregateOutputType | null
-    _min: AlertRuleMinAggregateOutputType | null
-    _max: AlertRuleMaxAggregateOutputType | null
+  export type RegraAlertaGroupByOutputType = {
+    id_regra_alerta: string
+    id_organizacao_regra_alerta: string | null
+    id_produto_regra_alerta: string | null
+    id_usuario_regra_alerta: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta: string | null
+    habilitada_regra_alerta: boolean
+    tipo_ator_regra_alerta: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta: string | null
+    modulo_regra_alerta: string | null
+    filtro_status_regra_alerta: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta: number | null
+    limiar_janela_segundos_regra_alerta: number | null
+    canal_inapp_regra_alerta: boolean
+    canal_email_regra_alerta: boolean
+    canal_whatsapp_regra_alerta: boolean
+    destinatarios_email_regra_alerta: string[]
+    destinatarios_whatsapp_regra_alerta: string[]
+    destinatarios_usuarios_regra_alerta: string[]
+    data_criacao_regra_alerta: Date
+    data_atualizacao_regra_alerta: Date
+    _count: RegraAlertaCountAggregateOutputType | null
+    _avg: RegraAlertaAvgAggregateOutputType | null
+    _sum: RegraAlertaSumAggregateOutputType | null
+    _min: RegraAlertaMinAggregateOutputType | null
+    _max: RegraAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertRuleGroupByPayload<T extends AlertRuleGroupByArgs> = Prisma.PrismaPromise<
+  type GetRegraAlertaGroupByPayload<T extends RegraAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertRuleGroupByOutputType, T['by']> &
+      PickEnumerable<RegraAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertRuleGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RegraAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertRuleGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertRuleGroupByOutputType[P]>
+              : GetScalarType<T[P], RegraAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], RegraAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    description?: boolean
-    enabled?: boolean
-    actor_type?: boolean
-    action?: boolean
-    module?: boolean
-    status_filter?: boolean
-    threshold_count?: boolean
-    threshold_window_seconds?: boolean
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: boolean
-    recipients_whatsapp?: boolean
-    recipients_user_ids?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    alerts?: boolean | AlertRule$alertsArgs<ExtArgs>
-    _count?: boolean | AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertRule"]>
+  export type RegraAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_regra_alerta?: boolean
+    id_organizacao_regra_alerta?: boolean
+    id_produto_regra_alerta?: boolean
+    id_usuario_regra_alerta?: boolean
+    nome_regra_alerta?: boolean
+    descricao_regra_alerta?: boolean
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: boolean
+    acao_regra_alerta?: boolean
+    modulo_regra_alerta?: boolean
+    filtro_status_regra_alerta?: boolean
+    limiar_contagem_regra_alerta?: boolean
+    limiar_janela_segundos_regra_alerta?: boolean
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: boolean
+    destinatarios_whatsapp_regra_alerta?: boolean
+    destinatarios_usuarios_regra_alerta?: boolean
+    data_criacao_regra_alerta?: boolean
+    data_atualizacao_regra_alerta?: boolean
+    eventos_regra_alerta?: boolean | RegraAlerta$eventos_regra_alertaArgs<ExtArgs>
+    _count?: boolean | RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["regraAlerta"]>
 
-  export type AlertRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    description?: boolean
-    enabled?: boolean
-    actor_type?: boolean
-    action?: boolean
-    module?: boolean
-    status_filter?: boolean
-    threshold_count?: boolean
-    threshold_window_seconds?: boolean
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: boolean
-    recipients_whatsapp?: boolean
-    recipients_user_ids?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["alertRule"]>
+  export type RegraAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_regra_alerta?: boolean
+    id_organizacao_regra_alerta?: boolean
+    id_produto_regra_alerta?: boolean
+    id_usuario_regra_alerta?: boolean
+    nome_regra_alerta?: boolean
+    descricao_regra_alerta?: boolean
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: boolean
+    acao_regra_alerta?: boolean
+    modulo_regra_alerta?: boolean
+    filtro_status_regra_alerta?: boolean
+    limiar_contagem_regra_alerta?: boolean
+    limiar_janela_segundos_regra_alerta?: boolean
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: boolean
+    destinatarios_whatsapp_regra_alerta?: boolean
+    destinatarios_usuarios_regra_alerta?: boolean
+    data_criacao_regra_alerta?: boolean
+    data_atualizacao_regra_alerta?: boolean
+  }, ExtArgs["result"]["regraAlerta"]>
 
-  export type AlertRuleSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    description?: boolean
-    enabled?: boolean
-    actor_type?: boolean
-    action?: boolean
-    module?: boolean
-    status_filter?: boolean
-    threshold_count?: boolean
-    threshold_window_seconds?: boolean
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: boolean
-    recipients_whatsapp?: boolean
-    recipients_user_ids?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type RegraAlertaSelectScalar = {
+    id_regra_alerta?: boolean
+    id_organizacao_regra_alerta?: boolean
+    id_produto_regra_alerta?: boolean
+    id_usuario_regra_alerta?: boolean
+    nome_regra_alerta?: boolean
+    descricao_regra_alerta?: boolean
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: boolean
+    acao_regra_alerta?: boolean
+    modulo_regra_alerta?: boolean
+    filtro_status_regra_alerta?: boolean
+    limiar_contagem_regra_alerta?: boolean
+    limiar_janela_segundos_regra_alerta?: boolean
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: boolean
+    destinatarios_whatsapp_regra_alerta?: boolean
+    destinatarios_usuarios_regra_alerta?: boolean
+    data_criacao_regra_alerta?: boolean
+    data_atualizacao_regra_alerta?: boolean
   }
 
-  export type AlertRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alerts?: boolean | AlertRule$alertsArgs<ExtArgs>
-    _count?: boolean | AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
+  export type RegraAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    eventos_regra_alerta?: boolean | RegraAlerta$eventos_regra_alertaArgs<ExtArgs>
+    _count?: boolean | RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AlertRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type RegraAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $AlertRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertRule"
+  export type $RegraAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegraAlerta"
     objects: {
-      alerts: Prisma.$AlertEventPayload<ExtArgs>[]
+      eventos_regra_alerta: Prisma.$EventoAlertaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string | null
-      name: string
-      description: string | null
-      enabled: boolean
-      actor_type: $Enums.AcaoExecutadaPor | null
-      action: string | null
-      module: string | null
-      status_filter: $Enums.EventoStatus | null
-      threshold_count: number | null
-      threshold_window_seconds: number | null
-      channel_inapp: boolean
-      channel_email: boolean
-      channel_whatsapp: boolean
-      recipients_email: string[]
-      recipients_whatsapp: string[]
-      recipients_user_ids: string[]
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["alertRule"]>
+      id_regra_alerta: string
+      id_organizacao_regra_alerta: string | null
+      id_produto_regra_alerta: string | null
+      id_usuario_regra_alerta: string | null
+      nome_regra_alerta: string
+      descricao_regra_alerta: string | null
+      habilitada_regra_alerta: boolean
+      tipo_ator_regra_alerta: $Enums.AcaoExecutadaPor | null
+      acao_regra_alerta: string | null
+      modulo_regra_alerta: string | null
+      filtro_status_regra_alerta: $Enums.EventoStatus | null
+      limiar_contagem_regra_alerta: number | null
+      limiar_janela_segundos_regra_alerta: number | null
+      canal_inapp_regra_alerta: boolean
+      canal_email_regra_alerta: boolean
+      canal_whatsapp_regra_alerta: boolean
+      destinatarios_email_regra_alerta: string[]
+      destinatarios_whatsapp_regra_alerta: string[]
+      destinatarios_usuarios_regra_alerta: string[]
+      data_criacao_regra_alerta: Date
+      data_atualizacao_regra_alerta: Date
+    }, ExtArgs["result"]["regraAlerta"]>
     composites: {}
   }
 
-  type AlertRuleGetPayload<S extends boolean | null | undefined | AlertRuleDefaultArgs> = $Result.GetResult<Prisma.$AlertRulePayload, S>
+  type RegraAlertaGetPayload<S extends boolean | null | undefined | RegraAlertaDefaultArgs> = $Result.GetResult<Prisma.$RegraAlertaPayload, S>
 
-  type AlertRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertRuleFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertRuleCountAggregateInputType | true
+  type RegraAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<RegraAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: RegraAlertaCountAggregateInputType | true
     }
 
-  export interface AlertRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertRule'], meta: { name: 'AlertRule' } }
+  export interface RegraAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegraAlerta'], meta: { name: 'RegraAlerta' } }
     /**
-     * Find zero or one AlertRule that matches the filter.
-     * @param {AlertRuleFindUniqueArgs} args - Arguments to find a AlertRule
+     * Find zero or one RegraAlerta that matches the filter.
+     * @param {RegraAlertaFindUniqueArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findUnique({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertRuleFindUniqueArgs>(args: SelectSubset<T, AlertRuleFindUniqueArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends RegraAlertaFindUniqueArgs>(args: SelectSubset<T, RegraAlertaFindUniqueArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertRule that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one RegraAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertRuleFindUniqueOrThrowArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindUniqueOrThrowArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findUniqueOrThrow({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends RegraAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, RegraAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertRule that matches the filter.
+     * Find the first RegraAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindFirstArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindFirstArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findFirst({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertRuleFindFirstArgs>(args?: SelectSubset<T, AlertRuleFindFirstArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends RegraAlertaFindFirstArgs>(args?: SelectSubset<T, RegraAlertaFindFirstArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertRule that matches the filter or
+     * Find the first RegraAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindFirstOrThrowArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindFirstOrThrowArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findFirstOrThrow({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends RegraAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, RegraAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertRules that matches the filter.
+     * Find zero or more RegraAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RegraAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertRules
-     * const alertRules = await prisma.alertRule.findMany()
+     * // Get all RegraAlertas
+     * const regraAlertas = await prisma.regraAlerta.findMany()
      * 
-     * // Get first 10 AlertRules
-     * const alertRules = await prisma.alertRule.findMany({ take: 10 })
+     * // Get first 10 RegraAlertas
+     * const regraAlertas = await prisma.regraAlerta.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const alertRuleWithIdOnly = await prisma.alertRule.findMany({ select: { id: true } })
+     * // Only select the `id_regra_alerta`
+     * const regraAlertaWithId_regra_alertaOnly = await prisma.regraAlerta.findMany({ select: { id_regra_alerta: true } })
      * 
      */
-    findMany<T extends AlertRuleFindManyArgs>(args?: SelectSubset<T, AlertRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends RegraAlertaFindManyArgs>(args?: SelectSubset<T, RegraAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertRule.
-     * @param {AlertRuleCreateArgs} args - Arguments to create a AlertRule.
+     * Create a RegraAlerta.
+     * @param {RegraAlertaCreateArgs} args - Arguments to create a RegraAlerta.
      * @example
-     * // Create one AlertRule
-     * const AlertRule = await prisma.alertRule.create({
+     * // Create one RegraAlerta
+     * const RegraAlerta = await prisma.regraAlerta.create({
      *   data: {
-     *     // ... data to create a AlertRule
+     *     // ... data to create a RegraAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertRuleCreateArgs>(args: SelectSubset<T, AlertRuleCreateArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends RegraAlertaCreateArgs>(args: SelectSubset<T, RegraAlertaCreateArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertRules.
-     * @param {AlertRuleCreateManyArgs} args - Arguments to create many AlertRules.
+     * Create many RegraAlertas.
+     * @param {RegraAlertaCreateManyArgs} args - Arguments to create many RegraAlertas.
      * @example
-     * // Create many AlertRules
-     * const alertRule = await prisma.alertRule.createMany({
+     * // Create many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertRuleCreateManyArgs>(args?: SelectSubset<T, AlertRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RegraAlertaCreateManyArgs>(args?: SelectSubset<T, RegraAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertRules and returns the data saved in the database.
-     * @param {AlertRuleCreateManyAndReturnArgs} args - Arguments to create many AlertRules.
+     * Create many RegraAlertas and returns the data saved in the database.
+     * @param {RegraAlertaCreateManyAndReturnArgs} args - Arguments to create many RegraAlertas.
      * @example
-     * // Create many AlertRules
-     * const alertRule = await prisma.alertRule.createManyAndReturn({
+     * // Create many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertRules and only return the `id`
-     * const alertRuleWithIdOnly = await prisma.alertRule.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many RegraAlertas and only return the `id_regra_alerta`
+     * const regraAlertaWithId_regra_alertaOnly = await prisma.regraAlerta.createManyAndReturn({ 
+     *   select: { id_regra_alerta: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -29986,28 +30007,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends RegraAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, RegraAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertRule.
-     * @param {AlertRuleDeleteArgs} args - Arguments to delete one AlertRule.
+     * Delete a RegraAlerta.
+     * @param {RegraAlertaDeleteArgs} args - Arguments to delete one RegraAlerta.
      * @example
-     * // Delete one AlertRule
-     * const AlertRule = await prisma.alertRule.delete({
+     * // Delete one RegraAlerta
+     * const RegraAlerta = await prisma.regraAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertRule
+     *     // ... filter to delete one RegraAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertRuleDeleteArgs>(args: SelectSubset<T, AlertRuleDeleteArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends RegraAlertaDeleteArgs>(args: SelectSubset<T, RegraAlertaDeleteArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertRule.
-     * @param {AlertRuleUpdateArgs} args - Arguments to update one AlertRule.
+     * Update one RegraAlerta.
+     * @param {RegraAlertaUpdateArgs} args - Arguments to update one RegraAlerta.
      * @example
-     * // Update one AlertRule
-     * const alertRule = await prisma.alertRule.update({
+     * // Update one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -30017,30 +30038,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertRuleUpdateArgs>(args: SelectSubset<T, AlertRuleUpdateArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends RegraAlertaUpdateArgs>(args: SelectSubset<T, RegraAlertaUpdateArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertRules.
-     * @param {AlertRuleDeleteManyArgs} args - Arguments to filter AlertRules to delete.
+     * Delete zero or more RegraAlertas.
+     * @param {RegraAlertaDeleteManyArgs} args - Arguments to filter RegraAlertas to delete.
      * @example
-     * // Delete a few AlertRules
-     * const { count } = await prisma.alertRule.deleteMany({
+     * // Delete a few RegraAlertas
+     * const { count } = await prisma.regraAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertRuleDeleteManyArgs>(args?: SelectSubset<T, AlertRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RegraAlertaDeleteManyArgs>(args?: SelectSubset<T, RegraAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertRules.
+     * Update zero or more RegraAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RegraAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertRules
-     * const alertRule = await prisma.alertRule.updateMany({
+     * // Update many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -30050,56 +30071,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertRuleUpdateManyArgs>(args: SelectSubset<T, AlertRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RegraAlertaUpdateManyArgs>(args: SelectSubset<T, RegraAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertRule.
-     * @param {AlertRuleUpsertArgs} args - Arguments to update or create a AlertRule.
+     * Create or update one RegraAlerta.
+     * @param {RegraAlertaUpsertArgs} args - Arguments to update or create a RegraAlerta.
      * @example
-     * // Update or create a AlertRule
-     * const alertRule = await prisma.alertRule.upsert({
+     * // Update or create a RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertRule
+     *     // ... data to create a RegraAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertRule we want to update
+     *     // ... the filter for the RegraAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertRuleUpsertArgs>(args: SelectSubset<T, AlertRuleUpsertArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends RegraAlertaUpsertArgs>(args: SelectSubset<T, RegraAlertaUpsertArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertRules.
+     * Count the number of RegraAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleCountArgs} args - Arguments to filter AlertRules to count.
+     * @param {RegraAlertaCountArgs} args - Arguments to filter RegraAlertas to count.
      * @example
-     * // Count the number of AlertRules
-     * const count = await prisma.alertRule.count({
+     * // Count the number of RegraAlertas
+     * const count = await prisma.regraAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertRules we want to count
+     *     // ... the filter for the RegraAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertRuleCountArgs>(
-      args?: Subset<T, AlertRuleCountArgs>,
+    count<T extends RegraAlertaCountArgs>(
+      args?: Subset<T, RegraAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertRuleCountAggregateOutputType>
+          : GetScalarType<T['select'], RegraAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertRule.
+     * Allows you to perform aggregations operations on a RegraAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RegraAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -30119,13 +30140,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertRuleAggregateArgs>(args: Subset<T, AlertRuleAggregateArgs>): Prisma.PrismaPromise<GetAlertRuleAggregateType<T>>
+    aggregate<T extends RegraAlertaAggregateArgs>(args: Subset<T, RegraAlertaAggregateArgs>): Prisma.PrismaPromise<GetRegraAlertaAggregateType<T>>
 
     /**
-     * Group by AlertRule.
+     * Group by RegraAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleGroupByArgs} args - Group by arguments.
+     * @param {RegraAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -30140,14 +30161,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertRuleGroupByArgs,
+      T extends RegraAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertRuleGroupByArgs['orderBy'] }
-        : { orderBy?: AlertRuleGroupByArgs['orderBy'] },
+        ? { orderBy: RegraAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: RegraAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -30196,22 +30217,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RegraAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegraAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertRule model
+   * Fields of the RegraAlerta model
    */
-  readonly fields: AlertRuleFieldRefs;
+  readonly fields: RegraAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertRule.
+   * The delegate class that acts as a "Promise-like" for RegraAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RegraAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    alerts<T extends AlertRule$alertsArgs<ExtArgs> = {}>(args?: Subset<T, AlertRule$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findMany"> | Null>
+    eventos_regra_alerta<T extends RegraAlerta$eventos_regra_alertaArgs<ExtArgs> = {}>(args?: Subset<T, RegraAlerta$eventos_regra_alertaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -30238,869 +30259,893 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertRule model
+   * Fields of the RegraAlerta model
    */ 
-  interface AlertRuleFieldRefs {
-    readonly id: FieldRef<"AlertRule", 'String'>
-    readonly tenant_id: FieldRef<"AlertRule", 'String'>
-    readonly name: FieldRef<"AlertRule", 'String'>
-    readonly description: FieldRef<"AlertRule", 'String'>
-    readonly enabled: FieldRef<"AlertRule", 'Boolean'>
-    readonly actor_type: FieldRef<"AlertRule", 'AcaoExecutadaPor'>
-    readonly action: FieldRef<"AlertRule", 'String'>
-    readonly module: FieldRef<"AlertRule", 'String'>
-    readonly status_filter: FieldRef<"AlertRule", 'EventoStatus'>
-    readonly threshold_count: FieldRef<"AlertRule", 'Int'>
-    readonly threshold_window_seconds: FieldRef<"AlertRule", 'Int'>
-    readonly channel_inapp: FieldRef<"AlertRule", 'Boolean'>
-    readonly channel_email: FieldRef<"AlertRule", 'Boolean'>
-    readonly channel_whatsapp: FieldRef<"AlertRule", 'Boolean'>
-    readonly recipients_email: FieldRef<"AlertRule", 'String[]'>
-    readonly recipients_whatsapp: FieldRef<"AlertRule", 'String[]'>
-    readonly recipients_user_ids: FieldRef<"AlertRule", 'String[]'>
-    readonly created_at: FieldRef<"AlertRule", 'DateTime'>
-    readonly updated_at: FieldRef<"AlertRule", 'DateTime'>
+  interface RegraAlertaFieldRefs {
+    readonly id_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly id_organizacao_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly id_produto_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly id_usuario_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly nome_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly descricao_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly habilitada_regra_alerta: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly tipo_ator_regra_alerta: FieldRef<"RegraAlerta", 'AcaoExecutadaPor'>
+    readonly acao_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly modulo_regra_alerta: FieldRef<"RegraAlerta", 'String'>
+    readonly filtro_status_regra_alerta: FieldRef<"RegraAlerta", 'EventoStatus'>
+    readonly limiar_contagem_regra_alerta: FieldRef<"RegraAlerta", 'Int'>
+    readonly limiar_janela_segundos_regra_alerta: FieldRef<"RegraAlerta", 'Int'>
+    readonly canal_inapp_regra_alerta: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly canal_email_regra_alerta: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly canal_whatsapp_regra_alerta: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly destinatarios_email_regra_alerta: FieldRef<"RegraAlerta", 'String[]'>
+    readonly destinatarios_whatsapp_regra_alerta: FieldRef<"RegraAlerta", 'String[]'>
+    readonly destinatarios_usuarios_regra_alerta: FieldRef<"RegraAlerta", 'String[]'>
+    readonly data_criacao_regra_alerta: FieldRef<"RegraAlerta", 'DateTime'>
+    readonly data_atualizacao_regra_alerta: FieldRef<"RegraAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertRule findUnique
+   * RegraAlerta findUnique
    */
-  export type AlertRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule findUniqueOrThrow
+   * RegraAlerta findUniqueOrThrow
    */
-  export type AlertRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule findFirst
+   * RegraAlerta findFirst
    */
-  export type AlertRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertRules.
+     * Sets the position for searching for RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertRules.
+     * Filter by unique combinations of RegraAlertas.
      */
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule findFirstOrThrow
+   * RegraAlerta findFirstOrThrow
    */
-  export type AlertRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertRules.
+     * Sets the position for searching for RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertRules.
+     * Filter by unique combinations of RegraAlertas.
      */
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule findMany
+   * RegraAlerta findMany
    */
-  export type AlertRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRules to fetch.
+     * Filter, which RegraAlertas to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertRules.
+     * Sets the position for listing RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule create
+   * RegraAlerta create
    */
-  export type AlertRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertRule.
+     * The data needed to create a RegraAlerta.
      */
-    data: XOR<AlertRuleCreateInput, AlertRuleUncheckedCreateInput>
+    data: XOR<RegraAlertaCreateInput, RegraAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertRule createMany
+   * RegraAlerta createMany
    */
-  export type AlertRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertRules.
+     * The data used to create many RegraAlertas.
      */
-    data: AlertRuleCreateManyInput | AlertRuleCreateManyInput[]
+    data: RegraAlertaCreateManyInput | RegraAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertRule createManyAndReturn
+   * RegraAlerta createManyAndReturn
    */
-  export type AlertRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RegraAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertRules.
+     * The data used to create many RegraAlertas.
      */
-    data: AlertRuleCreateManyInput | AlertRuleCreateManyInput[]
+    data: RegraAlertaCreateManyInput | RegraAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertRule update
+   * RegraAlerta update
    */
-  export type AlertRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertRule.
+     * The data needed to update a RegraAlerta.
      */
-    data: XOR<AlertRuleUpdateInput, AlertRuleUncheckedUpdateInput>
+    data: XOR<RegraAlertaUpdateInput, RegraAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertRule to update.
+     * Choose, which RegraAlerta to update.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule updateMany
+   * RegraAlerta updateMany
    */
-  export type AlertRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertRules.
+     * The data used to update RegraAlertas.
      */
-    data: XOR<AlertRuleUpdateManyMutationInput, AlertRuleUncheckedUpdateManyInput>
+    data: XOR<RegraAlertaUpdateManyMutationInput, RegraAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertRules to update
+     * Filter which RegraAlertas to update
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
   }
 
   /**
-   * AlertRule upsert
+   * RegraAlerta upsert
    */
-  export type AlertRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertRule to update in case it exists.
+     * The filter to search for the RegraAlerta to update in case it exists.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
     /**
-     * In case the AlertRule found by the `where` argument doesn't exist, create a new AlertRule with this data.
+     * In case the RegraAlerta found by the `where` argument doesn't exist, create a new RegraAlerta with this data.
      */
-    create: XOR<AlertRuleCreateInput, AlertRuleUncheckedCreateInput>
+    create: XOR<RegraAlertaCreateInput, RegraAlertaUncheckedCreateInput>
     /**
-     * In case the AlertRule was found with the provided `where` argument, update it with this data.
+     * In case the RegraAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertRuleUpdateInput, AlertRuleUncheckedUpdateInput>
+    update: XOR<RegraAlertaUpdateInput, RegraAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertRule delete
+   * RegraAlerta delete
    */
-  export type AlertRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertRule to delete.
+     * Filter which RegraAlerta to delete.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule deleteMany
+   * RegraAlerta deleteMany
    */
-  export type AlertRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertRules to delete
+     * Filter which RegraAlertas to delete
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
   }
 
   /**
-   * AlertRule.alerts
+   * RegraAlerta.eventos_regra_alerta
    */
-  export type AlertRule$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlerta$eventos_regra_alertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
-    where?: AlertEventWhereInput
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
-    cursor?: AlertEventWhereUniqueInput
+    include?: EventoAlertaInclude<ExtArgs> | null
+    where?: EventoAlertaWhereInput
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
+    cursor?: EventoAlertaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule without action
+   * RegraAlerta without action
    */
-  export type AlertRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model AlertEvent
+   * Model EventoAlerta
    */
 
-  export type AggregateAlertEvent = {
-    _count: AlertEventCountAggregateOutputType | null
-    _avg: AlertEventAvgAggregateOutputType | null
-    _sum: AlertEventSumAggregateOutputType | null
-    _min: AlertEventMinAggregateOutputType | null
-    _max: AlertEventMaxAggregateOutputType | null
+  export type AggregateEventoAlerta = {
+    _count: EventoAlertaCountAggregateOutputType | null
+    _avg: EventoAlertaAvgAggregateOutputType | null
+    _sum: EventoAlertaSumAggregateOutputType | null
+    _min: EventoAlertaMinAggregateOutputType | null
+    _max: EventoAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertEventAvgAggregateOutputType = {
-    event_count: number | null
-    window_seconds: number | null
+  export type EventoAlertaAvgAggregateOutputType = {
+    contagem_eventos_evento_alerta: number | null
+    janela_segundos_evento_alerta: number | null
   }
 
-  export type AlertEventSumAggregateOutputType = {
-    event_count: number | null
-    window_seconds: number | null
+  export type EventoAlertaSumAggregateOutputType = {
+    contagem_eventos_evento_alerta: number | null
+    janela_segundos_evento_alerta: number | null
   }
 
-  export type AlertEventMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    rule_id: string | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    actor_id: string | null
-    actor_name: string | null
-    module: string | null
-    action: string | null
-    event_count: number | null
-    window_seconds: number | null
-    status: $Enums.AlertaStatus | null
-    reviewed_by: string | null
-    reviewed_at: Date | null
-    notes: string | null
-    created_at: Date | null
+  export type EventoAlertaMinAggregateOutputType = {
+    id_evento_alerta: string | null
+    id_organizacao_evento_alerta: string | null
+    id_produto_evento_alerta: string | null
+    id_usuario_evento_alerta: string | null
+    id_regra_evento_alerta: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor | null
+    id_ator_evento_alerta: string | null
+    nome_ator_evento_alerta: string | null
+    modulo_evento_alerta: string | null
+    acao_evento_alerta: string | null
+    contagem_eventos_evento_alerta: number | null
+    janela_segundos_evento_alerta: number | null
+    status_evento_alerta: $Enums.AlertaStatus | null
+    revisado_por_evento_alerta: string | null
+    revisado_em_evento_alerta: Date | null
+    notas_evento_alerta: string | null
+    data_criacao_evento_alerta: Date | null
   }
 
-  export type AlertEventMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    rule_id: string | null
-    actor_type: $Enums.AcaoExecutadaPor | null
-    actor_id: string | null
-    actor_name: string | null
-    module: string | null
-    action: string | null
-    event_count: number | null
-    window_seconds: number | null
-    status: $Enums.AlertaStatus | null
-    reviewed_by: string | null
-    reviewed_at: Date | null
-    notes: string | null
-    created_at: Date | null
+  export type EventoAlertaMaxAggregateOutputType = {
+    id_evento_alerta: string | null
+    id_organizacao_evento_alerta: string | null
+    id_produto_evento_alerta: string | null
+    id_usuario_evento_alerta: string | null
+    id_regra_evento_alerta: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor | null
+    id_ator_evento_alerta: string | null
+    nome_ator_evento_alerta: string | null
+    modulo_evento_alerta: string | null
+    acao_evento_alerta: string | null
+    contagem_eventos_evento_alerta: number | null
+    janela_segundos_evento_alerta: number | null
+    status_evento_alerta: $Enums.AlertaStatus | null
+    revisado_por_evento_alerta: string | null
+    revisado_em_evento_alerta: Date | null
+    notas_evento_alerta: string | null
+    data_criacao_evento_alerta: Date | null
   }
 
-  export type AlertEventCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    rule_id: number
-    actor_type: number
-    actor_id: number
-    actor_name: number
-    module: number
-    action: number
-    event_count: number
-    window_seconds: number
-    audit_log_ids: number
-    status: number
-    reviewed_by: number
-    reviewed_at: number
-    notes: number
-    created_at: number
+  export type EventoAlertaCountAggregateOutputType = {
+    id_evento_alerta: number
+    id_organizacao_evento_alerta: number
+    id_produto_evento_alerta: number
+    id_usuario_evento_alerta: number
+    id_regra_evento_alerta: number
+    tipo_ator_evento_alerta: number
+    id_ator_evento_alerta: number
+    nome_ator_evento_alerta: number
+    modulo_evento_alerta: number
+    acao_evento_alerta: number
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta: number
+    status_evento_alerta: number
+    revisado_por_evento_alerta: number
+    revisado_em_evento_alerta: number
+    notas_evento_alerta: number
+    data_criacao_evento_alerta: number
     _all: number
   }
 
 
-  export type AlertEventAvgAggregateInputType = {
-    event_count?: true
-    window_seconds?: true
+  export type EventoAlertaAvgAggregateInputType = {
+    contagem_eventos_evento_alerta?: true
+    janela_segundos_evento_alerta?: true
   }
 
-  export type AlertEventSumAggregateInputType = {
-    event_count?: true
-    window_seconds?: true
+  export type EventoAlertaSumAggregateInputType = {
+    contagem_eventos_evento_alerta?: true
+    janela_segundos_evento_alerta?: true
   }
 
-  export type AlertEventMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    rule_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    module?: true
-    action?: true
-    event_count?: true
-    window_seconds?: true
-    status?: true
-    reviewed_by?: true
-    reviewed_at?: true
-    notes?: true
-    created_at?: true
+  export type EventoAlertaMinAggregateInputType = {
+    id_evento_alerta?: true
+    id_organizacao_evento_alerta?: true
+    id_produto_evento_alerta?: true
+    id_usuario_evento_alerta?: true
+    id_regra_evento_alerta?: true
+    tipo_ator_evento_alerta?: true
+    id_ator_evento_alerta?: true
+    nome_ator_evento_alerta?: true
+    modulo_evento_alerta?: true
+    acao_evento_alerta?: true
+    contagem_eventos_evento_alerta?: true
+    janela_segundos_evento_alerta?: true
+    status_evento_alerta?: true
+    revisado_por_evento_alerta?: true
+    revisado_em_evento_alerta?: true
+    notas_evento_alerta?: true
+    data_criacao_evento_alerta?: true
   }
 
-  export type AlertEventMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    rule_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    module?: true
-    action?: true
-    event_count?: true
-    window_seconds?: true
-    status?: true
-    reviewed_by?: true
-    reviewed_at?: true
-    notes?: true
-    created_at?: true
+  export type EventoAlertaMaxAggregateInputType = {
+    id_evento_alerta?: true
+    id_organizacao_evento_alerta?: true
+    id_produto_evento_alerta?: true
+    id_usuario_evento_alerta?: true
+    id_regra_evento_alerta?: true
+    tipo_ator_evento_alerta?: true
+    id_ator_evento_alerta?: true
+    nome_ator_evento_alerta?: true
+    modulo_evento_alerta?: true
+    acao_evento_alerta?: true
+    contagem_eventos_evento_alerta?: true
+    janela_segundos_evento_alerta?: true
+    status_evento_alerta?: true
+    revisado_por_evento_alerta?: true
+    revisado_em_evento_alerta?: true
+    notas_evento_alerta?: true
+    data_criacao_evento_alerta?: true
   }
 
-  export type AlertEventCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    rule_id?: true
-    actor_type?: true
-    actor_id?: true
-    actor_name?: true
-    module?: true
-    action?: true
-    event_count?: true
-    window_seconds?: true
-    audit_log_ids?: true
-    status?: true
-    reviewed_by?: true
-    reviewed_at?: true
-    notes?: true
-    created_at?: true
+  export type EventoAlertaCountAggregateInputType = {
+    id_evento_alerta?: true
+    id_organizacao_evento_alerta?: true
+    id_produto_evento_alerta?: true
+    id_usuario_evento_alerta?: true
+    id_regra_evento_alerta?: true
+    tipo_ator_evento_alerta?: true
+    id_ator_evento_alerta?: true
+    nome_ator_evento_alerta?: true
+    modulo_evento_alerta?: true
+    acao_evento_alerta?: true
+    contagem_eventos_evento_alerta?: true
+    janela_segundos_evento_alerta?: true
+    ids_logs_auditoria_evento_alerta?: true
+    status_evento_alerta?: true
+    revisado_por_evento_alerta?: true
+    revisado_em_evento_alerta?: true
+    notas_evento_alerta?: true
+    data_criacao_evento_alerta?: true
     _all?: true
   }
 
-  export type AlertEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertEvent to aggregate.
+     * Filter which EventoAlerta to aggregate.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertEvents
+     * Count returned EventoAlertas
     **/
-    _count?: true | AlertEventCountAggregateInputType
+    _count?: true | EventoAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertEventAvgAggregateInputType
+    _avg?: EventoAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertEventSumAggregateInputType
+    _sum?: EventoAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertEventMinAggregateInputType
+    _min?: EventoAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertEventMaxAggregateInputType
+    _max?: EventoAlertaMaxAggregateInputType
   }
 
-  export type GetAlertEventAggregateType<T extends AlertEventAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertEvent]: P extends '_count' | 'count'
+  export type GetEventoAlertaAggregateType<T extends EventoAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventoAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertEvent[P]>
-      : GetScalarType<T[P], AggregateAlertEvent[P]>
+        : GetScalarType<T[P], AggregateEventoAlerta[P]>
+      : GetScalarType<T[P], AggregateEventoAlerta[P]>
   }
 
 
 
 
-  export type AlertEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertEventWhereInput
-    orderBy?: AlertEventOrderByWithAggregationInput | AlertEventOrderByWithAggregationInput[]
-    by: AlertEventScalarFieldEnum[] | AlertEventScalarFieldEnum
-    having?: AlertEventScalarWhereWithAggregatesInput
+  export type EventoAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventoAlertaWhereInput
+    orderBy?: EventoAlertaOrderByWithAggregationInput | EventoAlertaOrderByWithAggregationInput[]
+    by: EventoAlertaScalarFieldEnum[] | EventoAlertaScalarFieldEnum
+    having?: EventoAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertEventCountAggregateInputType | true
-    _avg?: AlertEventAvgAggregateInputType
-    _sum?: AlertEventSumAggregateInputType
-    _min?: AlertEventMinAggregateInputType
-    _max?: AlertEventMaxAggregateInputType
+    _count?: EventoAlertaCountAggregateInputType | true
+    _avg?: EventoAlertaAvgAggregateInputType
+    _sum?: EventoAlertaSumAggregateInputType
+    _min?: EventoAlertaMinAggregateInputType
+    _max?: EventoAlertaMaxAggregateInputType
   }
 
-  export type AlertEventGroupByOutputType = {
-    id: string
-    tenant_id: string
-    rule_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids: string[]
-    status: $Enums.AlertaStatus
-    reviewed_by: string | null
-    reviewed_at: Date | null
-    notes: string | null
-    created_at: Date
-    _count: AlertEventCountAggregateOutputType | null
-    _avg: AlertEventAvgAggregateOutputType | null
-    _sum: AlertEventSumAggregateOutputType | null
-    _min: AlertEventMinAggregateOutputType | null
-    _max: AlertEventMaxAggregateOutputType | null
+  export type EventoAlertaGroupByOutputType = {
+    id_evento_alerta: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta: string | null
+    id_usuario_evento_alerta: string | null
+    id_regra_evento_alerta: string
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta: string[]
+    status_evento_alerta: $Enums.AlertaStatus
+    revisado_por_evento_alerta: string | null
+    revisado_em_evento_alerta: Date | null
+    notas_evento_alerta: string | null
+    data_criacao_evento_alerta: Date
+    _count: EventoAlertaCountAggregateOutputType | null
+    _avg: EventoAlertaAvgAggregateOutputType | null
+    _sum: EventoAlertaSumAggregateOutputType | null
+    _min: EventoAlertaMinAggregateOutputType | null
+    _max: EventoAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertEventGroupByPayload<T extends AlertEventGroupByArgs> = Prisma.PrismaPromise<
+  type GetEventoAlertaGroupByPayload<T extends EventoAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertEventGroupByOutputType, T['by']> &
+      PickEnumerable<EventoAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertEventGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof EventoAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertEventGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertEventGroupByOutputType[P]>
+              : GetScalarType<T[P], EventoAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], EventoAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    rule_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    module?: boolean
-    action?: boolean
-    event_count?: boolean
-    window_seconds?: boolean
-    audit_log_ids?: boolean
-    status?: boolean
-    reviewed_by?: boolean
-    reviewed_at?: boolean
-    notes?: boolean
-    created_at?: boolean
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-    notifications?: boolean | AlertEvent$notificationsArgs<ExtArgs>
-    _count?: boolean | AlertEventCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertEvent"]>
+  export type EventoAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_evento_alerta?: boolean
+    id_organizacao_evento_alerta?: boolean
+    id_produto_evento_alerta?: boolean
+    id_usuario_evento_alerta?: boolean
+    id_regra_evento_alerta?: boolean
+    tipo_ator_evento_alerta?: boolean
+    id_ator_evento_alerta?: boolean
+    nome_ator_evento_alerta?: boolean
+    modulo_evento_alerta?: boolean
+    acao_evento_alerta?: boolean
+    contagem_eventos_evento_alerta?: boolean
+    janela_segundos_evento_alerta?: boolean
+    ids_logs_auditoria_evento_alerta?: boolean
+    status_evento_alerta?: boolean
+    revisado_por_evento_alerta?: boolean
+    revisado_em_evento_alerta?: boolean
+    notas_evento_alerta?: boolean
+    data_criacao_evento_alerta?: boolean
+    regra_evento_alerta?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+    notificacoes_evento_alerta?: boolean | EventoAlerta$notificacoes_evento_alertaArgs<ExtArgs>
+    _count?: boolean | EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventoAlerta"]>
 
-  export type AlertEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    rule_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    module?: boolean
-    action?: boolean
-    event_count?: boolean
-    window_seconds?: boolean
-    audit_log_ids?: boolean
-    status?: boolean
-    reviewed_by?: boolean
-    reviewed_at?: boolean
-    notes?: boolean
-    created_at?: boolean
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertEvent"]>
+  export type EventoAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_evento_alerta?: boolean
+    id_organizacao_evento_alerta?: boolean
+    id_produto_evento_alerta?: boolean
+    id_usuario_evento_alerta?: boolean
+    id_regra_evento_alerta?: boolean
+    tipo_ator_evento_alerta?: boolean
+    id_ator_evento_alerta?: boolean
+    nome_ator_evento_alerta?: boolean
+    modulo_evento_alerta?: boolean
+    acao_evento_alerta?: boolean
+    contagem_eventos_evento_alerta?: boolean
+    janela_segundos_evento_alerta?: boolean
+    ids_logs_auditoria_evento_alerta?: boolean
+    status_evento_alerta?: boolean
+    revisado_por_evento_alerta?: boolean
+    revisado_em_evento_alerta?: boolean
+    notas_evento_alerta?: boolean
+    data_criacao_evento_alerta?: boolean
+    regra_evento_alerta?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventoAlerta"]>
 
-  export type AlertEventSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    rule_id?: boolean
-    actor_type?: boolean
-    actor_id?: boolean
-    actor_name?: boolean
-    module?: boolean
-    action?: boolean
-    event_count?: boolean
-    window_seconds?: boolean
-    audit_log_ids?: boolean
-    status?: boolean
-    reviewed_by?: boolean
-    reviewed_at?: boolean
-    notes?: boolean
-    created_at?: boolean
+  export type EventoAlertaSelectScalar = {
+    id_evento_alerta?: boolean
+    id_organizacao_evento_alerta?: boolean
+    id_produto_evento_alerta?: boolean
+    id_usuario_evento_alerta?: boolean
+    id_regra_evento_alerta?: boolean
+    tipo_ator_evento_alerta?: boolean
+    id_ator_evento_alerta?: boolean
+    nome_ator_evento_alerta?: boolean
+    modulo_evento_alerta?: boolean
+    acao_evento_alerta?: boolean
+    contagem_eventos_evento_alerta?: boolean
+    janela_segundos_evento_alerta?: boolean
+    ids_logs_auditoria_evento_alerta?: boolean
+    status_evento_alerta?: boolean
+    revisado_por_evento_alerta?: boolean
+    revisado_em_evento_alerta?: boolean
+    notas_evento_alerta?: boolean
+    data_criacao_evento_alerta?: boolean
   }
 
-  export type AlertEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-    notifications?: boolean | AlertEvent$notificationsArgs<ExtArgs>
-    _count?: boolean | AlertEventCountOutputTypeDefaultArgs<ExtArgs>
+  export type EventoAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    regra_evento_alerta?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+    notificacoes_evento_alerta?: boolean | EventoAlerta$notificacoes_evento_alertaArgs<ExtArgs>
+    _count?: boolean | EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AlertEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
+  export type EventoAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    regra_evento_alerta?: boolean | RegraAlertaDefaultArgs<ExtArgs>
   }
 
-  export type $AlertEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertEvent"
+  export type $EventoAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventoAlerta"
     objects: {
-      rule: Prisma.$AlertRulePayload<ExtArgs>
-      notifications: Prisma.$AlertNotificationLogPayload<ExtArgs>[]
+      regra_evento_alerta: Prisma.$RegraAlertaPayload<ExtArgs>
+      notificacoes_evento_alerta: Prisma.$NotificacaoAlertaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      rule_id: string
-      actor_type: $Enums.AcaoExecutadaPor
-      actor_id: string
-      actor_name: string
-      module: string
-      action: string
-      event_count: number
-      window_seconds: number
-      audit_log_ids: string[]
-      status: $Enums.AlertaStatus
-      reviewed_by: string | null
-      reviewed_at: Date | null
-      notes: string | null
-      created_at: Date
-    }, ExtArgs["result"]["alertEvent"]>
+      id_evento_alerta: string
+      id_organizacao_evento_alerta: string
+      id_produto_evento_alerta: string | null
+      id_usuario_evento_alerta: string | null
+      id_regra_evento_alerta: string
+      tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+      id_ator_evento_alerta: string
+      nome_ator_evento_alerta: string
+      modulo_evento_alerta: string
+      acao_evento_alerta: string
+      contagem_eventos_evento_alerta: number
+      janela_segundos_evento_alerta: number
+      ids_logs_auditoria_evento_alerta: string[]
+      status_evento_alerta: $Enums.AlertaStatus
+      revisado_por_evento_alerta: string | null
+      revisado_em_evento_alerta: Date | null
+      notas_evento_alerta: string | null
+      data_criacao_evento_alerta: Date
+    }, ExtArgs["result"]["eventoAlerta"]>
     composites: {}
   }
 
-  type AlertEventGetPayload<S extends boolean | null | undefined | AlertEventDefaultArgs> = $Result.GetResult<Prisma.$AlertEventPayload, S>
+  type EventoAlertaGetPayload<S extends boolean | null | undefined | EventoAlertaDefaultArgs> = $Result.GetResult<Prisma.$EventoAlertaPayload, S>
 
-  type AlertEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertEventFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertEventCountAggregateInputType | true
+  type EventoAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<EventoAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: EventoAlertaCountAggregateInputType | true
     }
 
-  export interface AlertEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertEvent'], meta: { name: 'AlertEvent' } }
+  export interface EventoAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventoAlerta'], meta: { name: 'EventoAlerta' } }
     /**
-     * Find zero or one AlertEvent that matches the filter.
-     * @param {AlertEventFindUniqueArgs} args - Arguments to find a AlertEvent
+     * Find zero or one EventoAlerta that matches the filter.
+     * @param {EventoAlertaFindUniqueArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findUnique({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertEventFindUniqueArgs>(args: SelectSubset<T, AlertEventFindUniqueArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends EventoAlertaFindUniqueArgs>(args: SelectSubset<T, EventoAlertaFindUniqueArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertEvent that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one EventoAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertEventFindUniqueOrThrowArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindUniqueOrThrowArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findUniqueOrThrow({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertEventFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends EventoAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, EventoAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertEvent that matches the filter.
+     * Find the first EventoAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindFirstArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindFirstArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findFirst({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertEventFindFirstArgs>(args?: SelectSubset<T, AlertEventFindFirstArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends EventoAlertaFindFirstArgs>(args?: SelectSubset<T, EventoAlertaFindFirstArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertEvent that matches the filter or
+     * Find the first EventoAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindFirstOrThrowArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindFirstOrThrowArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findFirstOrThrow({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertEventFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends EventoAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, EventoAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertEvents that matches the filter.
+     * Find zero or more EventoAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {EventoAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertEvents
-     * const alertEvents = await prisma.alertEvent.findMany()
+     * // Get all EventoAlertas
+     * const eventoAlertas = await prisma.eventoAlerta.findMany()
      * 
-     * // Get first 10 AlertEvents
-     * const alertEvents = await prisma.alertEvent.findMany({ take: 10 })
+     * // Get first 10 EventoAlertas
+     * const eventoAlertas = await prisma.eventoAlerta.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const alertEventWithIdOnly = await prisma.alertEvent.findMany({ select: { id: true } })
+     * // Only select the `id_evento_alerta`
+     * const eventoAlertaWithId_evento_alertaOnly = await prisma.eventoAlerta.findMany({ select: { id_evento_alerta: true } })
      * 
      */
-    findMany<T extends AlertEventFindManyArgs>(args?: SelectSubset<T, AlertEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends EventoAlertaFindManyArgs>(args?: SelectSubset<T, EventoAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertEvent.
-     * @param {AlertEventCreateArgs} args - Arguments to create a AlertEvent.
+     * Create a EventoAlerta.
+     * @param {EventoAlertaCreateArgs} args - Arguments to create a EventoAlerta.
      * @example
-     * // Create one AlertEvent
-     * const AlertEvent = await prisma.alertEvent.create({
+     * // Create one EventoAlerta
+     * const EventoAlerta = await prisma.eventoAlerta.create({
      *   data: {
-     *     // ... data to create a AlertEvent
+     *     // ... data to create a EventoAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertEventCreateArgs>(args: SelectSubset<T, AlertEventCreateArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends EventoAlertaCreateArgs>(args: SelectSubset<T, EventoAlertaCreateArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertEvents.
-     * @param {AlertEventCreateManyArgs} args - Arguments to create many AlertEvents.
+     * Create many EventoAlertas.
+     * @param {EventoAlertaCreateManyArgs} args - Arguments to create many EventoAlertas.
      * @example
-     * // Create many AlertEvents
-     * const alertEvent = await prisma.alertEvent.createMany({
+     * // Create many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertEventCreateManyArgs>(args?: SelectSubset<T, AlertEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends EventoAlertaCreateManyArgs>(args?: SelectSubset<T, EventoAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertEvents and returns the data saved in the database.
-     * @param {AlertEventCreateManyAndReturnArgs} args - Arguments to create many AlertEvents.
+     * Create many EventoAlertas and returns the data saved in the database.
+     * @param {EventoAlertaCreateManyAndReturnArgs} args - Arguments to create many EventoAlertas.
      * @example
-     * // Create many AlertEvents
-     * const alertEvent = await prisma.alertEvent.createManyAndReturn({
+     * // Create many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertEvents and only return the `id`
-     * const alertEventWithIdOnly = await prisma.alertEvent.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many EventoAlertas and only return the `id_evento_alerta`
+     * const eventoAlertaWithId_evento_alertaOnly = await prisma.eventoAlerta.createManyAndReturn({ 
+     *   select: { id_evento_alerta: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -31109,28 +31154,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertEventCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends EventoAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, EventoAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertEvent.
-     * @param {AlertEventDeleteArgs} args - Arguments to delete one AlertEvent.
+     * Delete a EventoAlerta.
+     * @param {EventoAlertaDeleteArgs} args - Arguments to delete one EventoAlerta.
      * @example
-     * // Delete one AlertEvent
-     * const AlertEvent = await prisma.alertEvent.delete({
+     * // Delete one EventoAlerta
+     * const EventoAlerta = await prisma.eventoAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertEvent
+     *     // ... filter to delete one EventoAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertEventDeleteArgs>(args: SelectSubset<T, AlertEventDeleteArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends EventoAlertaDeleteArgs>(args: SelectSubset<T, EventoAlertaDeleteArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertEvent.
-     * @param {AlertEventUpdateArgs} args - Arguments to update one AlertEvent.
+     * Update one EventoAlerta.
+     * @param {EventoAlertaUpdateArgs} args - Arguments to update one EventoAlerta.
      * @example
-     * // Update one AlertEvent
-     * const alertEvent = await prisma.alertEvent.update({
+     * // Update one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -31140,30 +31185,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertEventUpdateArgs>(args: SelectSubset<T, AlertEventUpdateArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends EventoAlertaUpdateArgs>(args: SelectSubset<T, EventoAlertaUpdateArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertEvents.
-     * @param {AlertEventDeleteManyArgs} args - Arguments to filter AlertEvents to delete.
+     * Delete zero or more EventoAlertas.
+     * @param {EventoAlertaDeleteManyArgs} args - Arguments to filter EventoAlertas to delete.
      * @example
-     * // Delete a few AlertEvents
-     * const { count } = await prisma.alertEvent.deleteMany({
+     * // Delete a few EventoAlertas
+     * const { count } = await prisma.eventoAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertEventDeleteManyArgs>(args?: SelectSubset<T, AlertEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends EventoAlertaDeleteManyArgs>(args?: SelectSubset<T, EventoAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertEvents.
+     * Update zero or more EventoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {EventoAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertEvents
-     * const alertEvent = await prisma.alertEvent.updateMany({
+     * // Update many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -31173,56 +31218,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertEventUpdateManyArgs>(args: SelectSubset<T, AlertEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends EventoAlertaUpdateManyArgs>(args: SelectSubset<T, EventoAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertEvent.
-     * @param {AlertEventUpsertArgs} args - Arguments to update or create a AlertEvent.
+     * Create or update one EventoAlerta.
+     * @param {EventoAlertaUpsertArgs} args - Arguments to update or create a EventoAlerta.
      * @example
-     * // Update or create a AlertEvent
-     * const alertEvent = await prisma.alertEvent.upsert({
+     * // Update or create a EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertEvent
+     *     // ... data to create a EventoAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertEvent we want to update
+     *     // ... the filter for the EventoAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertEventUpsertArgs>(args: SelectSubset<T, AlertEventUpsertArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends EventoAlertaUpsertArgs>(args: SelectSubset<T, EventoAlertaUpsertArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertEvents.
+     * Count the number of EventoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventCountArgs} args - Arguments to filter AlertEvents to count.
+     * @param {EventoAlertaCountArgs} args - Arguments to filter EventoAlertas to count.
      * @example
-     * // Count the number of AlertEvents
-     * const count = await prisma.alertEvent.count({
+     * // Count the number of EventoAlertas
+     * const count = await prisma.eventoAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertEvents we want to count
+     *     // ... the filter for the EventoAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertEventCountArgs>(
-      args?: Subset<T, AlertEventCountArgs>,
+    count<T extends EventoAlertaCountArgs>(
+      args?: Subset<T, EventoAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertEventCountAggregateOutputType>
+          : GetScalarType<T['select'], EventoAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertEvent.
+     * Allows you to perform aggregations operations on a EventoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {EventoAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -31242,13 +31287,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertEventAggregateArgs>(args: Subset<T, AlertEventAggregateArgs>): Prisma.PrismaPromise<GetAlertEventAggregateType<T>>
+    aggregate<T extends EventoAlertaAggregateArgs>(args: Subset<T, EventoAlertaAggregateArgs>): Prisma.PrismaPromise<GetEventoAlertaAggregateType<T>>
 
     /**
-     * Group by AlertEvent.
+     * Group by EventoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventGroupByArgs} args - Group by arguments.
+     * @param {EventoAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -31263,14 +31308,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertEventGroupByArgs,
+      T extends EventoAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertEventGroupByArgs['orderBy'] }
-        : { orderBy?: AlertEventGroupByArgs['orderBy'] },
+        ? { orderBy: EventoAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: EventoAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -31319,23 +31364,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, EventoAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventoAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertEvent model
+   * Fields of the EventoAlerta model
    */
-  readonly fields: AlertEventFieldRefs;
+  readonly fields: EventoAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertEvent.
+   * The delegate class that acts as a "Promise-like" for EventoAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__EventoAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    rule<T extends AlertRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AlertRuleDefaultArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    notifications<T extends AlertEvent$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, AlertEvent$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findMany"> | Null>
+    regra_evento_alerta<T extends RegraAlertaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegraAlertaDefaultArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    notificacoes_evento_alerta<T extends EventoAlerta$notificacoes_evento_alertaArgs<ExtArgs> = {}>(args?: Subset<T, EventoAlerta$notificacoes_evento_alertaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -31362,788 +31407,823 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertEvent model
+   * Fields of the EventoAlerta model
    */ 
-  interface AlertEventFieldRefs {
-    readonly id: FieldRef<"AlertEvent", 'String'>
-    readonly tenant_id: FieldRef<"AlertEvent", 'String'>
-    readonly rule_id: FieldRef<"AlertEvent", 'String'>
-    readonly actor_type: FieldRef<"AlertEvent", 'AcaoExecutadaPor'>
-    readonly actor_id: FieldRef<"AlertEvent", 'String'>
-    readonly actor_name: FieldRef<"AlertEvent", 'String'>
-    readonly module: FieldRef<"AlertEvent", 'String'>
-    readonly action: FieldRef<"AlertEvent", 'String'>
-    readonly event_count: FieldRef<"AlertEvent", 'Int'>
-    readonly window_seconds: FieldRef<"AlertEvent", 'Int'>
-    readonly audit_log_ids: FieldRef<"AlertEvent", 'String[]'>
-    readonly status: FieldRef<"AlertEvent", 'AlertaStatus'>
-    readonly reviewed_by: FieldRef<"AlertEvent", 'String'>
-    readonly reviewed_at: FieldRef<"AlertEvent", 'DateTime'>
-    readonly notes: FieldRef<"AlertEvent", 'String'>
-    readonly created_at: FieldRef<"AlertEvent", 'DateTime'>
+  interface EventoAlertaFieldRefs {
+    readonly id_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly id_organizacao_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly id_produto_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly id_usuario_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly id_regra_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly tipo_ator_evento_alerta: FieldRef<"EventoAlerta", 'AcaoExecutadaPor'>
+    readonly id_ator_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly nome_ator_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly modulo_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly acao_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly contagem_eventos_evento_alerta: FieldRef<"EventoAlerta", 'Int'>
+    readonly janela_segundos_evento_alerta: FieldRef<"EventoAlerta", 'Int'>
+    readonly ids_logs_auditoria_evento_alerta: FieldRef<"EventoAlerta", 'String[]'>
+    readonly status_evento_alerta: FieldRef<"EventoAlerta", 'AlertaStatus'>
+    readonly revisado_por_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly revisado_em_evento_alerta: FieldRef<"EventoAlerta", 'DateTime'>
+    readonly notas_evento_alerta: FieldRef<"EventoAlerta", 'String'>
+    readonly data_criacao_evento_alerta: FieldRef<"EventoAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertEvent findUnique
+   * EventoAlerta findUnique
    */
-  export type AlertEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent findUniqueOrThrow
+   * EventoAlerta findUniqueOrThrow
    */
-  export type AlertEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent findFirst
+   * EventoAlerta findFirst
    */
-  export type AlertEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertEvents.
+     * Sets the position for searching for EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertEvents.
+     * Filter by unique combinations of EventoAlertas.
      */
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent findFirstOrThrow
+   * EventoAlerta findFirstOrThrow
    */
-  export type AlertEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertEvents.
+     * Sets the position for searching for EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertEvents.
+     * Filter by unique combinations of EventoAlertas.
      */
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent findMany
+   * EventoAlerta findMany
    */
-  export type AlertEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvents to fetch.
+     * Filter, which EventoAlertas to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertEvents.
+     * Sets the position for listing EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent create
+   * EventoAlerta create
    */
-  export type AlertEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertEvent.
+     * The data needed to create a EventoAlerta.
      */
-    data: XOR<AlertEventCreateInput, AlertEventUncheckedCreateInput>
+    data: XOR<EventoAlertaCreateInput, EventoAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertEvent createMany
+   * EventoAlerta createMany
    */
-  export type AlertEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertEvents.
+     * The data used to create many EventoAlertas.
      */
-    data: AlertEventCreateManyInput | AlertEventCreateManyInput[]
+    data: EventoAlertaCreateManyInput | EventoAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertEvent createManyAndReturn
+   * EventoAlerta createManyAndReturn
    */
-  export type AlertEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelectCreateManyAndReturn<ExtArgs> | null
+    select?: EventoAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertEvents.
+     * The data used to create many EventoAlertas.
      */
-    data: AlertEventCreateManyInput | AlertEventCreateManyInput[]
+    data: EventoAlertaCreateManyInput | EventoAlertaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: EventoAlertaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * AlertEvent update
+   * EventoAlerta update
    */
-  export type AlertEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertEvent.
+     * The data needed to update a EventoAlerta.
      */
-    data: XOR<AlertEventUpdateInput, AlertEventUncheckedUpdateInput>
+    data: XOR<EventoAlertaUpdateInput, EventoAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertEvent to update.
+     * Choose, which EventoAlerta to update.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent updateMany
+   * EventoAlerta updateMany
    */
-  export type AlertEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertEvents.
+     * The data used to update EventoAlertas.
      */
-    data: XOR<AlertEventUpdateManyMutationInput, AlertEventUncheckedUpdateManyInput>
+    data: XOR<EventoAlertaUpdateManyMutationInput, EventoAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertEvents to update
+     * Filter which EventoAlertas to update
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
   }
 
   /**
-   * AlertEvent upsert
+   * EventoAlerta upsert
    */
-  export type AlertEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertEvent to update in case it exists.
+     * The filter to search for the EventoAlerta to update in case it exists.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
     /**
-     * In case the AlertEvent found by the `where` argument doesn't exist, create a new AlertEvent with this data.
+     * In case the EventoAlerta found by the `where` argument doesn't exist, create a new EventoAlerta with this data.
      */
-    create: XOR<AlertEventCreateInput, AlertEventUncheckedCreateInput>
+    create: XOR<EventoAlertaCreateInput, EventoAlertaUncheckedCreateInput>
     /**
-     * In case the AlertEvent was found with the provided `where` argument, update it with this data.
+     * In case the EventoAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertEventUpdateInput, AlertEventUncheckedUpdateInput>
+    update: XOR<EventoAlertaUpdateInput, EventoAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertEvent delete
+   * EventoAlerta delete
    */
-  export type AlertEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertEvent to delete.
+     * Filter which EventoAlerta to delete.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent deleteMany
+   * EventoAlerta deleteMany
    */
-  export type AlertEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertEvents to delete
+     * Filter which EventoAlertas to delete
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
   }
 
   /**
-   * AlertEvent.notifications
+   * EventoAlerta.notificacoes_evento_alerta
    */
-  export type AlertEvent$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlerta$notificacoes_evento_alertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
-    where?: AlertNotificationLogWhereInput
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
-    cursor?: AlertNotificationLogWhereUniqueInput
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
+    where?: NotificacaoAlertaWhereInput
+    orderBy?: NotificacaoAlertaOrderByWithRelationInput | NotificacaoAlertaOrderByWithRelationInput[]
+    cursor?: NotificacaoAlertaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: NotificacaoAlertaScalarFieldEnum | NotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent without action
+   * EventoAlerta without action
    */
-  export type AlertEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model AlertNotificationLog
+   * Model NotificacaoAlerta
    */
 
-  export type AggregateAlertNotificationLog = {
-    _count: AlertNotificationLogCountAggregateOutputType | null
-    _avg: AlertNotificationLogAvgAggregateOutputType | null
-    _sum: AlertNotificationLogSumAggregateOutputType | null
-    _min: AlertNotificationLogMinAggregateOutputType | null
-    _max: AlertNotificationLogMaxAggregateOutputType | null
+  export type AggregateNotificacaoAlerta = {
+    _count: NotificacaoAlertaCountAggregateOutputType | null
+    _avg: NotificacaoAlertaAvgAggregateOutputType | null
+    _sum: NotificacaoAlertaSumAggregateOutputType | null
+    _min: NotificacaoAlertaMinAggregateOutputType | null
+    _max: NotificacaoAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertNotificationLogAvgAggregateOutputType = {
-    attempts: number | null
+  export type NotificacaoAlertaAvgAggregateOutputType = {
+    tentativas_notificacao_alerta: number | null
   }
 
-  export type AlertNotificationLogSumAggregateOutputType = {
-    attempts: number | null
+  export type NotificacaoAlertaSumAggregateOutputType = {
+    tentativas_notificacao_alerta: number | null
   }
 
-  export type AlertNotificationLogMinAggregateOutputType = {
-    id: string | null
-    alert_event_id: string | null
-    channel: string | null
-    recipient: string | null
-    status: string | null
-    attempts: number | null
-    error_message: string | null
-    sent_at: Date | null
-    created_at: Date | null
+  export type NotificacaoAlertaMinAggregateOutputType = {
+    id_notificacao_alerta: string | null
+    id_organizacao_notificacao_alerta: string | null
+    id_produto_notificacao_alerta: string | null
+    id_usuario_notificacao_alerta: string | null
+    id_evento_notificacao_alerta: string | null
+    canal_notificacao_alerta: string | null
+    destinatario_notificacao_alerta: string | null
+    status_notificacao_alerta: string | null
+    tentativas_notificacao_alerta: number | null
+    mensagem_erro_notificacao_alerta: string | null
+    enviado_em_notificacao_alerta: Date | null
+    data_criacao_notificacao_alerta: Date | null
   }
 
-  export type AlertNotificationLogMaxAggregateOutputType = {
-    id: string | null
-    alert_event_id: string | null
-    channel: string | null
-    recipient: string | null
-    status: string | null
-    attempts: number | null
-    error_message: string | null
-    sent_at: Date | null
-    created_at: Date | null
+  export type NotificacaoAlertaMaxAggregateOutputType = {
+    id_notificacao_alerta: string | null
+    id_organizacao_notificacao_alerta: string | null
+    id_produto_notificacao_alerta: string | null
+    id_usuario_notificacao_alerta: string | null
+    id_evento_notificacao_alerta: string | null
+    canal_notificacao_alerta: string | null
+    destinatario_notificacao_alerta: string | null
+    status_notificacao_alerta: string | null
+    tentativas_notificacao_alerta: number | null
+    mensagem_erro_notificacao_alerta: string | null
+    enviado_em_notificacao_alerta: Date | null
+    data_criacao_notificacao_alerta: Date | null
   }
 
-  export type AlertNotificationLogCountAggregateOutputType = {
-    id: number
-    alert_event_id: number
-    channel: number
-    recipient: number
-    status: number
-    attempts: number
-    error_message: number
-    sent_at: number
-    created_at: number
+  export type NotificacaoAlertaCountAggregateOutputType = {
+    id_notificacao_alerta: number
+    id_organizacao_notificacao_alerta: number
+    id_produto_notificacao_alerta: number
+    id_usuario_notificacao_alerta: number
+    id_evento_notificacao_alerta: number
+    canal_notificacao_alerta: number
+    destinatario_notificacao_alerta: number
+    status_notificacao_alerta: number
+    tentativas_notificacao_alerta: number
+    mensagem_erro_notificacao_alerta: number
+    enviado_em_notificacao_alerta: number
+    data_criacao_notificacao_alerta: number
     _all: number
   }
 
 
-  export type AlertNotificationLogAvgAggregateInputType = {
-    attempts?: true
+  export type NotificacaoAlertaAvgAggregateInputType = {
+    tentativas_notificacao_alerta?: true
   }
 
-  export type AlertNotificationLogSumAggregateInputType = {
-    attempts?: true
+  export type NotificacaoAlertaSumAggregateInputType = {
+    tentativas_notificacao_alerta?: true
   }
 
-  export type AlertNotificationLogMinAggregateInputType = {
-    id?: true
-    alert_event_id?: true
-    channel?: true
-    recipient?: true
-    status?: true
-    attempts?: true
-    error_message?: true
-    sent_at?: true
-    created_at?: true
+  export type NotificacaoAlertaMinAggregateInputType = {
+    id_notificacao_alerta?: true
+    id_organizacao_notificacao_alerta?: true
+    id_produto_notificacao_alerta?: true
+    id_usuario_notificacao_alerta?: true
+    id_evento_notificacao_alerta?: true
+    canal_notificacao_alerta?: true
+    destinatario_notificacao_alerta?: true
+    status_notificacao_alerta?: true
+    tentativas_notificacao_alerta?: true
+    mensagem_erro_notificacao_alerta?: true
+    enviado_em_notificacao_alerta?: true
+    data_criacao_notificacao_alerta?: true
   }
 
-  export type AlertNotificationLogMaxAggregateInputType = {
-    id?: true
-    alert_event_id?: true
-    channel?: true
-    recipient?: true
-    status?: true
-    attempts?: true
-    error_message?: true
-    sent_at?: true
-    created_at?: true
+  export type NotificacaoAlertaMaxAggregateInputType = {
+    id_notificacao_alerta?: true
+    id_organizacao_notificacao_alerta?: true
+    id_produto_notificacao_alerta?: true
+    id_usuario_notificacao_alerta?: true
+    id_evento_notificacao_alerta?: true
+    canal_notificacao_alerta?: true
+    destinatario_notificacao_alerta?: true
+    status_notificacao_alerta?: true
+    tentativas_notificacao_alerta?: true
+    mensagem_erro_notificacao_alerta?: true
+    enviado_em_notificacao_alerta?: true
+    data_criacao_notificacao_alerta?: true
   }
 
-  export type AlertNotificationLogCountAggregateInputType = {
-    id?: true
-    alert_event_id?: true
-    channel?: true
-    recipient?: true
-    status?: true
-    attempts?: true
-    error_message?: true
-    sent_at?: true
-    created_at?: true
+  export type NotificacaoAlertaCountAggregateInputType = {
+    id_notificacao_alerta?: true
+    id_organizacao_notificacao_alerta?: true
+    id_produto_notificacao_alerta?: true
+    id_usuario_notificacao_alerta?: true
+    id_evento_notificacao_alerta?: true
+    canal_notificacao_alerta?: true
+    destinatario_notificacao_alerta?: true
+    status_notificacao_alerta?: true
+    tentativas_notificacao_alerta?: true
+    mensagem_erro_notificacao_alerta?: true
+    enviado_em_notificacao_alerta?: true
+    data_criacao_notificacao_alerta?: true
     _all?: true
   }
 
-  export type AlertNotificationLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertNotificationLog to aggregate.
+     * Filter which NotificacaoAlerta to aggregate.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of NotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: NotificacaoAlertaOrderByWithRelationInput | NotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: NotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` NotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` NotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertNotificationLogs
+     * Count returned NotificacaoAlertas
     **/
-    _count?: true | AlertNotificationLogCountAggregateInputType
+    _count?: true | NotificacaoAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertNotificationLogAvgAggregateInputType
+    _avg?: NotificacaoAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertNotificationLogSumAggregateInputType
+    _sum?: NotificacaoAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertNotificationLogMinAggregateInputType
+    _min?: NotificacaoAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertNotificationLogMaxAggregateInputType
+    _max?: NotificacaoAlertaMaxAggregateInputType
   }
 
-  export type GetAlertNotificationLogAggregateType<T extends AlertNotificationLogAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertNotificationLog]: P extends '_count' | 'count'
+  export type GetNotificacaoAlertaAggregateType<T extends NotificacaoAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateNotificacaoAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertNotificationLog[P]>
-      : GetScalarType<T[P], AggregateAlertNotificationLog[P]>
+        : GetScalarType<T[P], AggregateNotificacaoAlerta[P]>
+      : GetScalarType<T[P], AggregateNotificacaoAlerta[P]>
   }
 
 
 
 
-  export type AlertNotificationLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertNotificationLogWhereInput
-    orderBy?: AlertNotificationLogOrderByWithAggregationInput | AlertNotificationLogOrderByWithAggregationInput[]
-    by: AlertNotificationLogScalarFieldEnum[] | AlertNotificationLogScalarFieldEnum
-    having?: AlertNotificationLogScalarWhereWithAggregatesInput
+  export type NotificacaoAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificacaoAlertaWhereInput
+    orderBy?: NotificacaoAlertaOrderByWithAggregationInput | NotificacaoAlertaOrderByWithAggregationInput[]
+    by: NotificacaoAlertaScalarFieldEnum[] | NotificacaoAlertaScalarFieldEnum
+    having?: NotificacaoAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertNotificationLogCountAggregateInputType | true
-    _avg?: AlertNotificationLogAvgAggregateInputType
-    _sum?: AlertNotificationLogSumAggregateInputType
-    _min?: AlertNotificationLogMinAggregateInputType
-    _max?: AlertNotificationLogMaxAggregateInputType
+    _count?: NotificacaoAlertaCountAggregateInputType | true
+    _avg?: NotificacaoAlertaAvgAggregateInputType
+    _sum?: NotificacaoAlertaSumAggregateInputType
+    _min?: NotificacaoAlertaMinAggregateInputType
+    _max?: NotificacaoAlertaMaxAggregateInputType
   }
 
-  export type AlertNotificationLogGroupByOutputType = {
-    id: string
-    alert_event_id: string
-    channel: string
-    recipient: string
-    status: string
-    attempts: number
-    error_message: string | null
-    sent_at: Date | null
-    created_at: Date
-    _count: AlertNotificationLogCountAggregateOutputType | null
-    _avg: AlertNotificationLogAvgAggregateOutputType | null
-    _sum: AlertNotificationLogSumAggregateOutputType | null
-    _min: AlertNotificationLogMinAggregateOutputType | null
-    _max: AlertNotificationLogMaxAggregateOutputType | null
+  export type NotificacaoAlertaGroupByOutputType = {
+    id_notificacao_alerta: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta: string | null
+    id_usuario_notificacao_alerta: string | null
+    id_evento_notificacao_alerta: string
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta: string
+    tentativas_notificacao_alerta: number
+    mensagem_erro_notificacao_alerta: string | null
+    enviado_em_notificacao_alerta: Date | null
+    data_criacao_notificacao_alerta: Date
+    _count: NotificacaoAlertaCountAggregateOutputType | null
+    _avg: NotificacaoAlertaAvgAggregateOutputType | null
+    _sum: NotificacaoAlertaSumAggregateOutputType | null
+    _min: NotificacaoAlertaMinAggregateOutputType | null
+    _max: NotificacaoAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertNotificationLogGroupByPayload<T extends AlertNotificationLogGroupByArgs> = Prisma.PrismaPromise<
+  type GetNotificacaoAlertaGroupByPayload<T extends NotificacaoAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertNotificationLogGroupByOutputType, T['by']> &
+      PickEnumerable<NotificacaoAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertNotificationLogGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NotificacaoAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertNotificationLogGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertNotificationLogGroupByOutputType[P]>
+              : GetScalarType<T[P], NotificacaoAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], NotificacaoAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertNotificationLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    alert_event_id?: boolean
-    channel?: boolean
-    recipient?: boolean
-    status?: boolean
-    attempts?: boolean
-    error_message?: boolean
-    sent_at?: boolean
-    created_at?: boolean
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertNotificationLog"]>
+  export type NotificacaoAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_notificacao_alerta?: boolean
+    id_organizacao_notificacao_alerta?: boolean
+    id_produto_notificacao_alerta?: boolean
+    id_usuario_notificacao_alerta?: boolean
+    id_evento_notificacao_alerta?: boolean
+    canal_notificacao_alerta?: boolean
+    destinatario_notificacao_alerta?: boolean
+    status_notificacao_alerta?: boolean
+    tentativas_notificacao_alerta?: boolean
+    mensagem_erro_notificacao_alerta?: boolean
+    enviado_em_notificacao_alerta?: boolean
+    data_criacao_notificacao_alerta?: boolean
+    evento_notificacao_alerta?: boolean | EventoAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notificacaoAlerta"]>
 
-  export type AlertNotificationLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    alert_event_id?: boolean
-    channel?: boolean
-    recipient?: boolean
-    status?: boolean
-    attempts?: boolean
-    error_message?: boolean
-    sent_at?: boolean
-    created_at?: boolean
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertNotificationLog"]>
+  export type NotificacaoAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_notificacao_alerta?: boolean
+    id_organizacao_notificacao_alerta?: boolean
+    id_produto_notificacao_alerta?: boolean
+    id_usuario_notificacao_alerta?: boolean
+    id_evento_notificacao_alerta?: boolean
+    canal_notificacao_alerta?: boolean
+    destinatario_notificacao_alerta?: boolean
+    status_notificacao_alerta?: boolean
+    tentativas_notificacao_alerta?: boolean
+    mensagem_erro_notificacao_alerta?: boolean
+    enviado_em_notificacao_alerta?: boolean
+    data_criacao_notificacao_alerta?: boolean
+    evento_notificacao_alerta?: boolean | EventoAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notificacaoAlerta"]>
 
-  export type AlertNotificationLogSelectScalar = {
-    id?: boolean
-    alert_event_id?: boolean
-    channel?: boolean
-    recipient?: boolean
-    status?: boolean
-    attempts?: boolean
-    error_message?: boolean
-    sent_at?: boolean
-    created_at?: boolean
+  export type NotificacaoAlertaSelectScalar = {
+    id_notificacao_alerta?: boolean
+    id_organizacao_notificacao_alerta?: boolean
+    id_produto_notificacao_alerta?: boolean
+    id_usuario_notificacao_alerta?: boolean
+    id_evento_notificacao_alerta?: boolean
+    canal_notificacao_alerta?: boolean
+    destinatario_notificacao_alerta?: boolean
+    status_notificacao_alerta?: boolean
+    tentativas_notificacao_alerta?: boolean
+    mensagem_erro_notificacao_alerta?: boolean
+    enviado_em_notificacao_alerta?: boolean
+    data_criacao_notificacao_alerta?: boolean
   }
 
-  export type AlertNotificationLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
+  export type NotificacaoAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    evento_notificacao_alerta?: boolean | EventoAlertaDefaultArgs<ExtArgs>
   }
-  export type AlertNotificationLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
+  export type NotificacaoAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    evento_notificacao_alerta?: boolean | EventoAlertaDefaultArgs<ExtArgs>
   }
 
-  export type $AlertNotificationLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertNotificationLog"
+  export type $NotificacaoAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NotificacaoAlerta"
     objects: {
-      alert_event: Prisma.$AlertEventPayload<ExtArgs>
+      evento_notificacao_alerta: Prisma.$EventoAlertaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      alert_event_id: string
-      channel: string
-      recipient: string
-      status: string
-      attempts: number
-      error_message: string | null
-      sent_at: Date | null
-      created_at: Date
-    }, ExtArgs["result"]["alertNotificationLog"]>
+      id_notificacao_alerta: string
+      id_organizacao_notificacao_alerta: string
+      id_produto_notificacao_alerta: string | null
+      id_usuario_notificacao_alerta: string | null
+      id_evento_notificacao_alerta: string
+      canal_notificacao_alerta: string
+      destinatario_notificacao_alerta: string
+      status_notificacao_alerta: string
+      tentativas_notificacao_alerta: number
+      mensagem_erro_notificacao_alerta: string | null
+      enviado_em_notificacao_alerta: Date | null
+      data_criacao_notificacao_alerta: Date
+    }, ExtArgs["result"]["notificacaoAlerta"]>
     composites: {}
   }
 
-  type AlertNotificationLogGetPayload<S extends boolean | null | undefined | AlertNotificationLogDefaultArgs> = $Result.GetResult<Prisma.$AlertNotificationLogPayload, S>
+  type NotificacaoAlertaGetPayload<S extends boolean | null | undefined | NotificacaoAlertaDefaultArgs> = $Result.GetResult<Prisma.$NotificacaoAlertaPayload, S>
 
-  type AlertNotificationLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertNotificationLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertNotificationLogCountAggregateInputType | true
+  type NotificacaoAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NotificacaoAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NotificacaoAlertaCountAggregateInputType | true
     }
 
-  export interface AlertNotificationLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertNotificationLog'], meta: { name: 'AlertNotificationLog' } }
+  export interface NotificacaoAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NotificacaoAlerta'], meta: { name: 'NotificacaoAlerta' } }
     /**
-     * Find zero or one AlertNotificationLog that matches the filter.
-     * @param {AlertNotificationLogFindUniqueArgs} args - Arguments to find a AlertNotificationLog
+     * Find zero or one NotificacaoAlerta that matches the filter.
+     * @param {NotificacaoAlertaFindUniqueArgs} args - Arguments to find a NotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findUnique({
+     * // Get one NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertNotificationLogFindUniqueArgs>(args: SelectSubset<T, AlertNotificationLogFindUniqueArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NotificacaoAlertaFindUniqueArgs>(args: SelectSubset<T, NotificacaoAlertaFindUniqueArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertNotificationLog that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NotificacaoAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertNotificationLogFindUniqueOrThrowArgs} args - Arguments to find a AlertNotificationLog
+     * @param {NotificacaoAlertaFindUniqueOrThrowArgs} args - Arguments to find a NotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findUniqueOrThrow({
+     * // Get one NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertNotificationLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NotificacaoAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertNotificationLog that matches the filter.
+     * Find the first NotificacaoAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindFirstArgs} args - Arguments to find a AlertNotificationLog
+     * @param {NotificacaoAlertaFindFirstArgs} args - Arguments to find a NotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findFirst({
+     * // Get one NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertNotificationLogFindFirstArgs>(args?: SelectSubset<T, AlertNotificationLogFindFirstArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NotificacaoAlertaFindFirstArgs>(args?: SelectSubset<T, NotificacaoAlertaFindFirstArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertNotificationLog that matches the filter or
+     * Find the first NotificacaoAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindFirstOrThrowArgs} args - Arguments to find a AlertNotificationLog
+     * @param {NotificacaoAlertaFindFirstOrThrowArgs} args - Arguments to find a NotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findFirstOrThrow({
+     * // Get one NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertNotificationLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertNotificationLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NotificacaoAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificacaoAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertNotificationLogs that matches the filter.
+     * Find zero or more NotificacaoAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NotificacaoAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertNotificationLogs
-     * const alertNotificationLogs = await prisma.alertNotificationLog.findMany()
+     * // Get all NotificacaoAlertas
+     * const notificacaoAlertas = await prisma.notificacaoAlerta.findMany()
      * 
-     * // Get first 10 AlertNotificationLogs
-     * const alertNotificationLogs = await prisma.alertNotificationLog.findMany({ take: 10 })
+     * // Get first 10 NotificacaoAlertas
+     * const notificacaoAlertas = await prisma.notificacaoAlerta.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const alertNotificationLogWithIdOnly = await prisma.alertNotificationLog.findMany({ select: { id: true } })
+     * // Only select the `id_notificacao_alerta`
+     * const notificacaoAlertaWithId_notificacao_alertaOnly = await prisma.notificacaoAlerta.findMany({ select: { id_notificacao_alerta: true } })
      * 
      */
-    findMany<T extends AlertNotificationLogFindManyArgs>(args?: SelectSubset<T, AlertNotificationLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NotificacaoAlertaFindManyArgs>(args?: SelectSubset<T, NotificacaoAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertNotificationLog.
-     * @param {AlertNotificationLogCreateArgs} args - Arguments to create a AlertNotificationLog.
+     * Create a NotificacaoAlerta.
+     * @param {NotificacaoAlertaCreateArgs} args - Arguments to create a NotificacaoAlerta.
      * @example
-     * // Create one AlertNotificationLog
-     * const AlertNotificationLog = await prisma.alertNotificationLog.create({
+     * // Create one NotificacaoAlerta
+     * const NotificacaoAlerta = await prisma.notificacaoAlerta.create({
      *   data: {
-     *     // ... data to create a AlertNotificationLog
+     *     // ... data to create a NotificacaoAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertNotificationLogCreateArgs>(args: SelectSubset<T, AlertNotificationLogCreateArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NotificacaoAlertaCreateArgs>(args: SelectSubset<T, NotificacaoAlertaCreateArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertNotificationLogs.
-     * @param {AlertNotificationLogCreateManyArgs} args - Arguments to create many AlertNotificationLogs.
+     * Create many NotificacaoAlertas.
+     * @param {NotificacaoAlertaCreateManyArgs} args - Arguments to create many NotificacaoAlertas.
      * @example
-     * // Create many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.createMany({
+     * // Create many NotificacaoAlertas
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertNotificationLogCreateManyArgs>(args?: SelectSubset<T, AlertNotificationLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NotificacaoAlertaCreateManyArgs>(args?: SelectSubset<T, NotificacaoAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertNotificationLogs and returns the data saved in the database.
-     * @param {AlertNotificationLogCreateManyAndReturnArgs} args - Arguments to create many AlertNotificationLogs.
+     * Create many NotificacaoAlertas and returns the data saved in the database.
+     * @param {NotificacaoAlertaCreateManyAndReturnArgs} args - Arguments to create many NotificacaoAlertas.
      * @example
-     * // Create many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.createManyAndReturn({
+     * // Create many NotificacaoAlertas
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertNotificationLogs and only return the `id`
-     * const alertNotificationLogWithIdOnly = await prisma.alertNotificationLog.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NotificacaoAlertas and only return the `id_notificacao_alerta`
+     * const notificacaoAlertaWithId_notificacao_alertaOnly = await prisma.notificacaoAlerta.createManyAndReturn({ 
+     *   select: { id_notificacao_alerta: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -32152,28 +32232,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertNotificationLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertNotificationLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NotificacaoAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificacaoAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertNotificationLog.
-     * @param {AlertNotificationLogDeleteArgs} args - Arguments to delete one AlertNotificationLog.
+     * Delete a NotificacaoAlerta.
+     * @param {NotificacaoAlertaDeleteArgs} args - Arguments to delete one NotificacaoAlerta.
      * @example
-     * // Delete one AlertNotificationLog
-     * const AlertNotificationLog = await prisma.alertNotificationLog.delete({
+     * // Delete one NotificacaoAlerta
+     * const NotificacaoAlerta = await prisma.notificacaoAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertNotificationLog
+     *     // ... filter to delete one NotificacaoAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertNotificationLogDeleteArgs>(args: SelectSubset<T, AlertNotificationLogDeleteArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NotificacaoAlertaDeleteArgs>(args: SelectSubset<T, NotificacaoAlertaDeleteArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertNotificationLog.
-     * @param {AlertNotificationLogUpdateArgs} args - Arguments to update one AlertNotificationLog.
+     * Update one NotificacaoAlerta.
+     * @param {NotificacaoAlertaUpdateArgs} args - Arguments to update one NotificacaoAlerta.
      * @example
-     * // Update one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.update({
+     * // Update one NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -32183,30 +32263,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertNotificationLogUpdateArgs>(args: SelectSubset<T, AlertNotificationLogUpdateArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NotificacaoAlertaUpdateArgs>(args: SelectSubset<T, NotificacaoAlertaUpdateArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertNotificationLogs.
-     * @param {AlertNotificationLogDeleteManyArgs} args - Arguments to filter AlertNotificationLogs to delete.
+     * Delete zero or more NotificacaoAlertas.
+     * @param {NotificacaoAlertaDeleteManyArgs} args - Arguments to filter NotificacaoAlertas to delete.
      * @example
-     * // Delete a few AlertNotificationLogs
-     * const { count } = await prisma.alertNotificationLog.deleteMany({
+     * // Delete a few NotificacaoAlertas
+     * const { count } = await prisma.notificacaoAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertNotificationLogDeleteManyArgs>(args?: SelectSubset<T, AlertNotificationLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NotificacaoAlertaDeleteManyArgs>(args?: SelectSubset<T, NotificacaoAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertNotificationLogs.
+     * Update zero or more NotificacaoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NotificacaoAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.updateMany({
+     * // Update many NotificacaoAlertas
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -32216,56 +32296,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertNotificationLogUpdateManyArgs>(args: SelectSubset<T, AlertNotificationLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NotificacaoAlertaUpdateManyArgs>(args: SelectSubset<T, NotificacaoAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertNotificationLog.
-     * @param {AlertNotificationLogUpsertArgs} args - Arguments to update or create a AlertNotificationLog.
+     * Create or update one NotificacaoAlerta.
+     * @param {NotificacaoAlertaUpsertArgs} args - Arguments to update or create a NotificacaoAlerta.
      * @example
-     * // Update or create a AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.upsert({
+     * // Update or create a NotificacaoAlerta
+     * const notificacaoAlerta = await prisma.notificacaoAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertNotificationLog
+     *     // ... data to create a NotificacaoAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertNotificationLog we want to update
+     *     // ... the filter for the NotificacaoAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertNotificationLogUpsertArgs>(args: SelectSubset<T, AlertNotificationLogUpsertArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NotificacaoAlertaUpsertArgs>(args: SelectSubset<T, NotificacaoAlertaUpsertArgs<ExtArgs>>): Prisma__NotificacaoAlertaClient<$Result.GetResult<Prisma.$NotificacaoAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertNotificationLogs.
+     * Count the number of NotificacaoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogCountArgs} args - Arguments to filter AlertNotificationLogs to count.
+     * @param {NotificacaoAlertaCountArgs} args - Arguments to filter NotificacaoAlertas to count.
      * @example
-     * // Count the number of AlertNotificationLogs
-     * const count = await prisma.alertNotificationLog.count({
+     * // Count the number of NotificacaoAlertas
+     * const count = await prisma.notificacaoAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertNotificationLogs we want to count
+     *     // ... the filter for the NotificacaoAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertNotificationLogCountArgs>(
-      args?: Subset<T, AlertNotificationLogCountArgs>,
+    count<T extends NotificacaoAlertaCountArgs>(
+      args?: Subset<T, NotificacaoAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertNotificationLogCountAggregateOutputType>
+          : GetScalarType<T['select'], NotificacaoAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertNotificationLog.
+     * Allows you to perform aggregations operations on a NotificacaoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NotificacaoAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -32285,13 +32365,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertNotificationLogAggregateArgs>(args: Subset<T, AlertNotificationLogAggregateArgs>): Prisma.PrismaPromise<GetAlertNotificationLogAggregateType<T>>
+    aggregate<T extends NotificacaoAlertaAggregateArgs>(args: Subset<T, NotificacaoAlertaAggregateArgs>): Prisma.PrismaPromise<GetNotificacaoAlertaAggregateType<T>>
 
     /**
-     * Group by AlertNotificationLog.
+     * Group by NotificacaoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogGroupByArgs} args - Group by arguments.
+     * @param {NotificacaoAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -32306,14 +32386,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertNotificationLogGroupByArgs,
+      T extends NotificacaoAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertNotificationLogGroupByArgs['orderBy'] }
-        : { orderBy?: AlertNotificationLogGroupByArgs['orderBy'] },
+        ? { orderBy: NotificacaoAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: NotificacaoAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -32362,22 +32442,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertNotificationLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertNotificationLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NotificacaoAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNotificacaoAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertNotificationLog model
+   * Fields of the NotificacaoAlerta model
    */
-  readonly fields: AlertNotificationLogFieldRefs;
+  readonly fields: NotificacaoAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertNotificationLog.
+   * The delegate class that acts as a "Promise-like" for NotificacaoAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertNotificationLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NotificacaoAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    alert_event<T extends AlertEventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AlertEventDefaultArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    evento_notificacao_alerta<T extends EventoAlertaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventoAlertaDefaultArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32404,347 +32484,350 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertNotificationLog model
+   * Fields of the NotificacaoAlerta model
    */ 
-  interface AlertNotificationLogFieldRefs {
-    readonly id: FieldRef<"AlertNotificationLog", 'String'>
-    readonly alert_event_id: FieldRef<"AlertNotificationLog", 'String'>
-    readonly channel: FieldRef<"AlertNotificationLog", 'String'>
-    readonly recipient: FieldRef<"AlertNotificationLog", 'String'>
-    readonly status: FieldRef<"AlertNotificationLog", 'String'>
-    readonly attempts: FieldRef<"AlertNotificationLog", 'Int'>
-    readonly error_message: FieldRef<"AlertNotificationLog", 'String'>
-    readonly sent_at: FieldRef<"AlertNotificationLog", 'DateTime'>
-    readonly created_at: FieldRef<"AlertNotificationLog", 'DateTime'>
+  interface NotificacaoAlertaFieldRefs {
+    readonly id_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly id_organizacao_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly id_produto_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly id_usuario_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly id_evento_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly canal_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly destinatario_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly status_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly tentativas_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'Int'>
+    readonly mensagem_erro_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'String'>
+    readonly enviado_em_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'DateTime'>
+    readonly data_criacao_notificacao_alerta: FieldRef<"NotificacaoAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertNotificationLog findUnique
+   * NotificacaoAlerta findUnique
    */
-  export type AlertNotificationLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which NotificacaoAlerta to fetch.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: NotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog findUniqueOrThrow
+   * NotificacaoAlerta findUniqueOrThrow
    */
-  export type AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which NotificacaoAlerta to fetch.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: NotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog findFirst
+   * NotificacaoAlerta findFirst
    */
-  export type AlertNotificationLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which NotificacaoAlerta to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of NotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: NotificacaoAlertaOrderByWithRelationInput | NotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertNotificationLogs.
+     * Sets the position for searching for NotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: NotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` NotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` NotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertNotificationLogs.
+     * Filter by unique combinations of NotificacaoAlertas.
      */
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: NotificacaoAlertaScalarFieldEnum | NotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog findFirstOrThrow
+   * NotificacaoAlerta findFirstOrThrow
    */
-  export type AlertNotificationLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which NotificacaoAlerta to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of NotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: NotificacaoAlertaOrderByWithRelationInput | NotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertNotificationLogs.
+     * Sets the position for searching for NotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: NotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` NotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` NotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertNotificationLogs.
+     * Filter by unique combinations of NotificacaoAlertas.
      */
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: NotificacaoAlertaScalarFieldEnum | NotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog findMany
+   * NotificacaoAlerta findMany
    */
-  export type AlertNotificationLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLogs to fetch.
+     * Filter, which NotificacaoAlertas to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of NotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: NotificacaoAlertaOrderByWithRelationInput | NotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertNotificationLogs.
+     * Sets the position for listing NotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: NotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` NotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` NotificacaoAlertas.
      */
     skip?: number
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: NotificacaoAlertaScalarFieldEnum | NotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog create
+   * NotificacaoAlerta create
    */
-  export type AlertNotificationLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertNotificationLog.
+     * The data needed to create a NotificacaoAlerta.
      */
-    data: XOR<AlertNotificationLogCreateInput, AlertNotificationLogUncheckedCreateInput>
+    data: XOR<NotificacaoAlertaCreateInput, NotificacaoAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertNotificationLog createMany
+   * NotificacaoAlerta createMany
    */
-  export type AlertNotificationLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertNotificationLogs.
+     * The data used to create many NotificacaoAlertas.
      */
-    data: AlertNotificationLogCreateManyInput | AlertNotificationLogCreateManyInput[]
+    data: NotificacaoAlertaCreateManyInput | NotificacaoAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertNotificationLog createManyAndReturn
+   * NotificacaoAlerta createManyAndReturn
    */
-  export type AlertNotificationLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NotificacaoAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertNotificationLogs.
+     * The data used to create many NotificacaoAlertas.
      */
-    data: AlertNotificationLogCreateManyInput | AlertNotificationLogCreateManyInput[]
+    data: NotificacaoAlertaCreateManyInput | NotificacaoAlertaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: NotificacaoAlertaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * AlertNotificationLog update
+   * NotificacaoAlerta update
    */
-  export type AlertNotificationLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertNotificationLog.
+     * The data needed to update a NotificacaoAlerta.
      */
-    data: XOR<AlertNotificationLogUpdateInput, AlertNotificationLogUncheckedUpdateInput>
+    data: XOR<NotificacaoAlertaUpdateInput, NotificacaoAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertNotificationLog to update.
+     * Choose, which NotificacaoAlerta to update.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: NotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog updateMany
+   * NotificacaoAlerta updateMany
    */
-  export type AlertNotificationLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertNotificationLogs.
+     * The data used to update NotificacaoAlertas.
      */
-    data: XOR<AlertNotificationLogUpdateManyMutationInput, AlertNotificationLogUncheckedUpdateManyInput>
+    data: XOR<NotificacaoAlertaUpdateManyMutationInput, NotificacaoAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertNotificationLogs to update
+     * Filter which NotificacaoAlertas to update
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
   }
 
   /**
-   * AlertNotificationLog upsert
+   * NotificacaoAlerta upsert
    */
-  export type AlertNotificationLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertNotificationLog to update in case it exists.
+     * The filter to search for the NotificacaoAlerta to update in case it exists.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: NotificacaoAlertaWhereUniqueInput
     /**
-     * In case the AlertNotificationLog found by the `where` argument doesn't exist, create a new AlertNotificationLog with this data.
+     * In case the NotificacaoAlerta found by the `where` argument doesn't exist, create a new NotificacaoAlerta with this data.
      */
-    create: XOR<AlertNotificationLogCreateInput, AlertNotificationLogUncheckedCreateInput>
+    create: XOR<NotificacaoAlertaCreateInput, NotificacaoAlertaUncheckedCreateInput>
     /**
-     * In case the AlertNotificationLog was found with the provided `where` argument, update it with this data.
+     * In case the NotificacaoAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertNotificationLogUpdateInput, AlertNotificationLogUncheckedUpdateInput>
+    update: XOR<NotificacaoAlertaUpdateInput, NotificacaoAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertNotificationLog delete
+   * NotificacaoAlerta delete
    */
-  export type AlertNotificationLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertNotificationLog to delete.
+     * Filter which NotificacaoAlerta to delete.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: NotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog deleteMany
+   * NotificacaoAlerta deleteMany
    */
-  export type AlertNotificationLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertNotificationLogs to delete
+     * Filter which NotificacaoAlertas to delete
      */
-    where?: AlertNotificationLogWhereInput
+    where?: NotificacaoAlertaWhereInput
   }
 
   /**
-   * AlertNotificationLog without action
+   * NotificacaoAlerta without action
    */
-  export type AlertNotificationLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NotificacaoAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the NotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: NotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: NotificacaoAlertaInclude<ExtArgs> | null
   }
 
 
@@ -32761,95 +32844,107 @@ export namespace Prisma {
   }
 
   export type ExportarResultadoAvgAggregateOutputType = {
-    record_count: number | null
+    contagem_registros_exportar_resultado: number | null
   }
 
   export type ExportarResultadoSumAggregateOutputType = {
-    record_count: number | null
+    contagem_registros_exportar_resultado: number | null
   }
 
   export type ExportarResultadoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    format: string | null
-    content: string | null
-    status: string | null
-    record_count: number | null
-    error: string | null
-    created_at: Date | null
-    expires_at: Date | null
+    id_exportar_resultado: string | null
+    id_organizacao_exportar_resultado: string | null
+    id_produto_exportar_resultado: string | null
+    id_usuario_exportar_resultado: string | null
+    formato_exportar_resultado: string | null
+    conteudo_exportar_resultado: string | null
+    status_exportar_resultado: string | null
+    contagem_registros_exportar_resultado: number | null
+    erro_exportar_resultado: string | null
+    data_criacao_exportar_resultado: Date | null
+    expira_em_exportar_resultado: Date | null
   }
 
   export type ExportarResultadoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    format: string | null
-    content: string | null
-    status: string | null
-    record_count: number | null
-    error: string | null
-    created_at: Date | null
-    expires_at: Date | null
+    id_exportar_resultado: string | null
+    id_organizacao_exportar_resultado: string | null
+    id_produto_exportar_resultado: string | null
+    id_usuario_exportar_resultado: string | null
+    formato_exportar_resultado: string | null
+    conteudo_exportar_resultado: string | null
+    status_exportar_resultado: string | null
+    contagem_registros_exportar_resultado: number | null
+    erro_exportar_resultado: string | null
+    data_criacao_exportar_resultado: Date | null
+    expira_em_exportar_resultado: Date | null
   }
 
   export type ExportarResultadoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    format: number
-    content: number
-    status: number
-    record_count: number
-    filters: number
-    error: number
-    created_at: number
-    expires_at: number
+    id_exportar_resultado: number
+    id_organizacao_exportar_resultado: number
+    id_produto_exportar_resultado: number
+    id_usuario_exportar_resultado: number
+    formato_exportar_resultado: number
+    conteudo_exportar_resultado: number
+    status_exportar_resultado: number
+    contagem_registros_exportar_resultado: number
+    filtros_exportar_resultado: number
+    erro_exportar_resultado: number
+    data_criacao_exportar_resultado: number
+    expira_em_exportar_resultado: number
     _all: number
   }
 
 
   export type ExportarResultadoAvgAggregateInputType = {
-    record_count?: true
+    contagem_registros_exportar_resultado?: true
   }
 
   export type ExportarResultadoSumAggregateInputType = {
-    record_count?: true
+    contagem_registros_exportar_resultado?: true
   }
 
   export type ExportarResultadoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    format?: true
-    content?: true
-    status?: true
-    record_count?: true
-    error?: true
-    created_at?: true
-    expires_at?: true
+    id_exportar_resultado?: true
+    id_organizacao_exportar_resultado?: true
+    id_produto_exportar_resultado?: true
+    id_usuario_exportar_resultado?: true
+    formato_exportar_resultado?: true
+    conteudo_exportar_resultado?: true
+    status_exportar_resultado?: true
+    contagem_registros_exportar_resultado?: true
+    erro_exportar_resultado?: true
+    data_criacao_exportar_resultado?: true
+    expira_em_exportar_resultado?: true
   }
 
   export type ExportarResultadoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    format?: true
-    content?: true
-    status?: true
-    record_count?: true
-    error?: true
-    created_at?: true
-    expires_at?: true
+    id_exportar_resultado?: true
+    id_organizacao_exportar_resultado?: true
+    id_produto_exportar_resultado?: true
+    id_usuario_exportar_resultado?: true
+    formato_exportar_resultado?: true
+    conteudo_exportar_resultado?: true
+    status_exportar_resultado?: true
+    contagem_registros_exportar_resultado?: true
+    erro_exportar_resultado?: true
+    data_criacao_exportar_resultado?: true
+    expira_em_exportar_resultado?: true
   }
 
   export type ExportarResultadoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    format?: true
-    content?: true
-    status?: true
-    record_count?: true
-    filters?: true
-    error?: true
-    created_at?: true
-    expires_at?: true
+    id_exportar_resultado?: true
+    id_organizacao_exportar_resultado?: true
+    id_produto_exportar_resultado?: true
+    id_usuario_exportar_resultado?: true
+    formato_exportar_resultado?: true
+    conteudo_exportar_resultado?: true
+    status_exportar_resultado?: true
+    contagem_registros_exportar_resultado?: true
+    filtros_exportar_resultado?: true
+    erro_exportar_resultado?: true
+    data_criacao_exportar_resultado?: true
+    expira_em_exportar_resultado?: true
     _all?: true
   }
 
@@ -32940,16 +33035,18 @@ export namespace Prisma {
   }
 
   export type ExportarResultadoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    format: string
-    content: string
-    status: string
-    record_count: number
-    filters: JsonValue | null
-    error: string | null
-    created_at: Date
-    expires_at: Date
+    id_exportar_resultado: string
+    id_organizacao_exportar_resultado: string
+    id_produto_exportar_resultado: string | null
+    id_usuario_exportar_resultado: string | null
+    formato_exportar_resultado: string
+    conteudo_exportar_resultado: string
+    status_exportar_resultado: string
+    contagem_registros_exportar_resultado: number
+    filtros_exportar_resultado: JsonValue | null
+    erro_exportar_resultado: string | null
+    data_criacao_exportar_resultado: Date
+    expira_em_exportar_resultado: Date
     _count: ExportarResultadoCountAggregateOutputType | null
     _avg: ExportarResultadoAvgAggregateOutputType | null
     _sum: ExportarResultadoSumAggregateOutputType | null
@@ -32972,42 +33069,48 @@ export namespace Prisma {
 
 
   export type ExportarResultadoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    format?: boolean
-    content?: boolean
-    status?: boolean
-    record_count?: boolean
-    filters?: boolean
-    error?: boolean
-    created_at?: boolean
-    expires_at?: boolean
+    id_exportar_resultado?: boolean
+    id_organizacao_exportar_resultado?: boolean
+    id_produto_exportar_resultado?: boolean
+    id_usuario_exportar_resultado?: boolean
+    formato_exportar_resultado?: boolean
+    conteudo_exportar_resultado?: boolean
+    status_exportar_resultado?: boolean
+    contagem_registros_exportar_resultado?: boolean
+    filtros_exportar_resultado?: boolean
+    erro_exportar_resultado?: boolean
+    data_criacao_exportar_resultado?: boolean
+    expira_em_exportar_resultado?: boolean
   }, ExtArgs["result"]["exportarResultado"]>
 
   export type ExportarResultadoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    format?: boolean
-    content?: boolean
-    status?: boolean
-    record_count?: boolean
-    filters?: boolean
-    error?: boolean
-    created_at?: boolean
-    expires_at?: boolean
+    id_exportar_resultado?: boolean
+    id_organizacao_exportar_resultado?: boolean
+    id_produto_exportar_resultado?: boolean
+    id_usuario_exportar_resultado?: boolean
+    formato_exportar_resultado?: boolean
+    conteudo_exportar_resultado?: boolean
+    status_exportar_resultado?: boolean
+    contagem_registros_exportar_resultado?: boolean
+    filtros_exportar_resultado?: boolean
+    erro_exportar_resultado?: boolean
+    data_criacao_exportar_resultado?: boolean
+    expira_em_exportar_resultado?: boolean
   }, ExtArgs["result"]["exportarResultado"]>
 
   export type ExportarResultadoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    format?: boolean
-    content?: boolean
-    status?: boolean
-    record_count?: boolean
-    filters?: boolean
-    error?: boolean
-    created_at?: boolean
-    expires_at?: boolean
+    id_exportar_resultado?: boolean
+    id_organizacao_exportar_resultado?: boolean
+    id_produto_exportar_resultado?: boolean
+    id_usuario_exportar_resultado?: boolean
+    formato_exportar_resultado?: boolean
+    conteudo_exportar_resultado?: boolean
+    status_exportar_resultado?: boolean
+    contagem_registros_exportar_resultado?: boolean
+    filtros_exportar_resultado?: boolean
+    erro_exportar_resultado?: boolean
+    data_criacao_exportar_resultado?: boolean
+    expira_em_exportar_resultado?: boolean
   }
 
 
@@ -33015,16 +33118,18 @@ export namespace Prisma {
     name: "ExportarResultado"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      format: string
-      content: string
-      status: string
-      record_count: number
-      filters: Prisma.JsonValue | null
-      error: string | null
-      created_at: Date
-      expires_at: Date
+      id_exportar_resultado: string
+      id_organizacao_exportar_resultado: string
+      id_produto_exportar_resultado: string | null
+      id_usuario_exportar_resultado: string | null
+      formato_exportar_resultado: string
+      conteudo_exportar_resultado: string
+      status_exportar_resultado: string
+      contagem_registros_exportar_resultado: number
+      filtros_exportar_resultado: Prisma.JsonValue | null
+      erro_exportar_resultado: string | null
+      data_criacao_exportar_resultado: Date
+      expira_em_exportar_resultado: Date
     }, ExtArgs["result"]["exportarResultado"]>
     composites: {}
   }
@@ -33108,8 +33213,8 @@ export namespace Prisma {
      * // Get first 10 ExportarResultados
      * const exportarResultados = await prisma.exportarResultado.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const exportarResultadoWithIdOnly = await prisma.exportarResultado.findMany({ select: { id: true } })
+     * // Only select the `id_exportar_resultado`
+     * const exportarResultadoWithId_exportar_resultadoOnly = await prisma.exportarResultado.findMany({ select: { id_exportar_resultado: true } })
      * 
      */
     findMany<T extends ExportarResultadoFindManyArgs>(args?: SelectSubset<T, ExportarResultadoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportarResultadoPayload<ExtArgs>, T, "findMany">>
@@ -33153,9 +33258,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ExportarResultados and only return the `id`
-     * const exportarResultadoWithIdOnly = await prisma.exportarResultado.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ExportarResultados and only return the `id_exportar_resultado`
+     * const exportarResultadoWithId_exportar_resultadoOnly = await prisma.exportarResultado.createManyAndReturn({ 
+     *   select: { id_exportar_resultado: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -33418,16 +33523,18 @@ export namespace Prisma {
    * Fields of the ExportarResultado model
    */ 
   interface ExportarResultadoFieldRefs {
-    readonly id: FieldRef<"ExportarResultado", 'String'>
-    readonly tenant_id: FieldRef<"ExportarResultado", 'String'>
-    readonly format: FieldRef<"ExportarResultado", 'String'>
-    readonly content: FieldRef<"ExportarResultado", 'String'>
-    readonly status: FieldRef<"ExportarResultado", 'String'>
-    readonly record_count: FieldRef<"ExportarResultado", 'Int'>
-    readonly filters: FieldRef<"ExportarResultado", 'Json'>
-    readonly error: FieldRef<"ExportarResultado", 'String'>
-    readonly created_at: FieldRef<"ExportarResultado", 'DateTime'>
-    readonly expires_at: FieldRef<"ExportarResultado", 'DateTime'>
+    readonly id_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly id_organizacao_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly id_produto_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly id_usuario_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly formato_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly conteudo_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly status_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly contagem_registros_exportar_resultado: FieldRef<"ExportarResultado", 'Int'>
+    readonly filtros_exportar_resultado: FieldRef<"ExportarResultado", 'Json'>
+    readonly erro_exportar_resultado: FieldRef<"ExportarResultado", 'String'>
+    readonly data_criacao_exportar_resultado: FieldRef<"ExportarResultado", 'DateTime'>
+    readonly expira_em_exportar_resultado: FieldRef<"ExportarResultado", 'DateTime'>
   }
     
 
@@ -50719,104 +50826,113 @@ export namespace Prisma {
 
 
   export const HistoricoLogScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    actor_type: 'actor_type',
-    actor_id: 'actor_id',
-    actor_name: 'actor_name',
-    actor_ip: 'actor_ip',
-    actor_metadata: 'actor_metadata',
-    module: 'module',
-    resource_type: 'resource_type',
-    resource_id: 'resource_id',
-    action: 'action',
-    action_detail: 'action_detail',
-    before: 'before',
-    after: 'after',
-    status: 'status',
-    error_message: 'error_message',
-    integrity_hash: 'integrity_hash',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    created_at: 'created_at'
+    id_historico_log: 'id_historico_log',
+    id_organizacao_historico_log: 'id_organizacao_historico_log',
+    id_produto_historico_log: 'id_produto_historico_log',
+    id_usuario_historico_log: 'id_usuario_historico_log',
+    tipo_ator_historico_log: 'tipo_ator_historico_log',
+    id_ator_historico_log: 'id_ator_historico_log',
+    nome_ator_historico_log: 'nome_ator_historico_log',
+    ip_ator_historico_log: 'ip_ator_historico_log',
+    metadata_ator_historico_log: 'metadata_ator_historico_log',
+    modulo_historico_log: 'modulo_historico_log',
+    tipo_recurso_historico_log: 'tipo_recurso_historico_log',
+    id_recurso_historico_log: 'id_recurso_historico_log',
+    acao_historico_log: 'acao_historico_log',
+    detalhe_acao_historico_log: 'detalhe_acao_historico_log',
+    estado_anterior_historico_log: 'estado_anterior_historico_log',
+    estado_posterior_historico_log: 'estado_posterior_historico_log',
+    status_historico_log: 'status_historico_log',
+    mensagem_erro_historico_log: 'mensagem_erro_historico_log',
+    hash_integridade_historico_log: 'hash_integridade_historico_log',
+    data_criacao_historico_log: 'data_criacao_historico_log'
   };
 
   export type HistoricoLogScalarFieldEnum = (typeof HistoricoLogScalarFieldEnum)[keyof typeof HistoricoLogScalarFieldEnum]
 
 
-  export const AlertRuleScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    name: 'name',
-    description: 'description',
-    enabled: 'enabled',
-    actor_type: 'actor_type',
-    action: 'action',
-    module: 'module',
-    status_filter: 'status_filter',
-    threshold_count: 'threshold_count',
-    threshold_window_seconds: 'threshold_window_seconds',
-    channel_inapp: 'channel_inapp',
-    channel_email: 'channel_email',
-    channel_whatsapp: 'channel_whatsapp',
-    recipients_email: 'recipients_email',
-    recipients_whatsapp: 'recipients_whatsapp',
-    recipients_user_ids: 'recipients_user_ids',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const RegraAlertaScalarFieldEnum: {
+    id_regra_alerta: 'id_regra_alerta',
+    id_organizacao_regra_alerta: 'id_organizacao_regra_alerta',
+    id_produto_regra_alerta: 'id_produto_regra_alerta',
+    id_usuario_regra_alerta: 'id_usuario_regra_alerta',
+    nome_regra_alerta: 'nome_regra_alerta',
+    descricao_regra_alerta: 'descricao_regra_alerta',
+    habilitada_regra_alerta: 'habilitada_regra_alerta',
+    tipo_ator_regra_alerta: 'tipo_ator_regra_alerta',
+    acao_regra_alerta: 'acao_regra_alerta',
+    modulo_regra_alerta: 'modulo_regra_alerta',
+    filtro_status_regra_alerta: 'filtro_status_regra_alerta',
+    limiar_contagem_regra_alerta: 'limiar_contagem_regra_alerta',
+    limiar_janela_segundos_regra_alerta: 'limiar_janela_segundos_regra_alerta',
+    canal_inapp_regra_alerta: 'canal_inapp_regra_alerta',
+    canal_email_regra_alerta: 'canal_email_regra_alerta',
+    canal_whatsapp_regra_alerta: 'canal_whatsapp_regra_alerta',
+    destinatarios_email_regra_alerta: 'destinatarios_email_regra_alerta',
+    destinatarios_whatsapp_regra_alerta: 'destinatarios_whatsapp_regra_alerta',
+    destinatarios_usuarios_regra_alerta: 'destinatarios_usuarios_regra_alerta',
+    data_criacao_regra_alerta: 'data_criacao_regra_alerta',
+    data_atualizacao_regra_alerta: 'data_atualizacao_regra_alerta'
   };
 
-  export type AlertRuleScalarFieldEnum = (typeof AlertRuleScalarFieldEnum)[keyof typeof AlertRuleScalarFieldEnum]
+  export type RegraAlertaScalarFieldEnum = (typeof RegraAlertaScalarFieldEnum)[keyof typeof RegraAlertaScalarFieldEnum]
 
 
-  export const AlertEventScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    rule_id: 'rule_id',
-    actor_type: 'actor_type',
-    actor_id: 'actor_id',
-    actor_name: 'actor_name',
-    module: 'module',
-    action: 'action',
-    event_count: 'event_count',
-    window_seconds: 'window_seconds',
-    audit_log_ids: 'audit_log_ids',
-    status: 'status',
-    reviewed_by: 'reviewed_by',
-    reviewed_at: 'reviewed_at',
-    notes: 'notes',
-    created_at: 'created_at'
+  export const EventoAlertaScalarFieldEnum: {
+    id_evento_alerta: 'id_evento_alerta',
+    id_organizacao_evento_alerta: 'id_organizacao_evento_alerta',
+    id_produto_evento_alerta: 'id_produto_evento_alerta',
+    id_usuario_evento_alerta: 'id_usuario_evento_alerta',
+    id_regra_evento_alerta: 'id_regra_evento_alerta',
+    tipo_ator_evento_alerta: 'tipo_ator_evento_alerta',
+    id_ator_evento_alerta: 'id_ator_evento_alerta',
+    nome_ator_evento_alerta: 'nome_ator_evento_alerta',
+    modulo_evento_alerta: 'modulo_evento_alerta',
+    acao_evento_alerta: 'acao_evento_alerta',
+    contagem_eventos_evento_alerta: 'contagem_eventos_evento_alerta',
+    janela_segundos_evento_alerta: 'janela_segundos_evento_alerta',
+    ids_logs_auditoria_evento_alerta: 'ids_logs_auditoria_evento_alerta',
+    status_evento_alerta: 'status_evento_alerta',
+    revisado_por_evento_alerta: 'revisado_por_evento_alerta',
+    revisado_em_evento_alerta: 'revisado_em_evento_alerta',
+    notas_evento_alerta: 'notas_evento_alerta',
+    data_criacao_evento_alerta: 'data_criacao_evento_alerta'
   };
 
-  export type AlertEventScalarFieldEnum = (typeof AlertEventScalarFieldEnum)[keyof typeof AlertEventScalarFieldEnum]
+  export type EventoAlertaScalarFieldEnum = (typeof EventoAlertaScalarFieldEnum)[keyof typeof EventoAlertaScalarFieldEnum]
 
 
-  export const AlertNotificationLogScalarFieldEnum: {
-    id: 'id',
-    alert_event_id: 'alert_event_id',
-    channel: 'channel',
-    recipient: 'recipient',
-    status: 'status',
-    attempts: 'attempts',
-    error_message: 'error_message',
-    sent_at: 'sent_at',
-    created_at: 'created_at'
+  export const NotificacaoAlertaScalarFieldEnum: {
+    id_notificacao_alerta: 'id_notificacao_alerta',
+    id_organizacao_notificacao_alerta: 'id_organizacao_notificacao_alerta',
+    id_produto_notificacao_alerta: 'id_produto_notificacao_alerta',
+    id_usuario_notificacao_alerta: 'id_usuario_notificacao_alerta',
+    id_evento_notificacao_alerta: 'id_evento_notificacao_alerta',
+    canal_notificacao_alerta: 'canal_notificacao_alerta',
+    destinatario_notificacao_alerta: 'destinatario_notificacao_alerta',
+    status_notificacao_alerta: 'status_notificacao_alerta',
+    tentativas_notificacao_alerta: 'tentativas_notificacao_alerta',
+    mensagem_erro_notificacao_alerta: 'mensagem_erro_notificacao_alerta',
+    enviado_em_notificacao_alerta: 'enviado_em_notificacao_alerta',
+    data_criacao_notificacao_alerta: 'data_criacao_notificacao_alerta'
   };
 
-  export type AlertNotificationLogScalarFieldEnum = (typeof AlertNotificationLogScalarFieldEnum)[keyof typeof AlertNotificationLogScalarFieldEnum]
+  export type NotificacaoAlertaScalarFieldEnum = (typeof NotificacaoAlertaScalarFieldEnum)[keyof typeof NotificacaoAlertaScalarFieldEnum]
 
 
   export const ExportarResultadoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    format: 'format',
-    content: 'content',
-    status: 'status',
-    record_count: 'record_count',
-    filters: 'filters',
-    error: 'error',
-    created_at: 'created_at',
-    expires_at: 'expires_at'
+    id_exportar_resultado: 'id_exportar_resultado',
+    id_organizacao_exportar_resultado: 'id_organizacao_exportar_resultado',
+    id_produto_exportar_resultado: 'id_produto_exportar_resultado',
+    id_usuario_exportar_resultado: 'id_usuario_exportar_resultado',
+    formato_exportar_resultado: 'formato_exportar_resultado',
+    conteudo_exportar_resultado: 'conteudo_exportar_resultado',
+    status_exportar_resultado: 'status_exportar_resultado',
+    contagem_registros_exportar_resultado: 'contagem_registros_exportar_resultado',
+    filtros_exportar_resultado: 'filtros_exportar_resultado',
+    erro_exportar_resultado: 'erro_exportar_resultado',
+    data_criacao_exportar_resultado: 'data_criacao_exportar_resultado',
+    expira_em_exportar_resultado: 'expira_em_exportar_resultado'
   };
 
   export type ExportarResultadoScalarFieldEnum = (typeof ExportarResultadoScalarFieldEnum)[keyof typeof ExportarResultadoScalarFieldEnum]
@@ -53594,98 +53710,98 @@ export namespace Prisma {
     AND?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     OR?: HistoricoLogWhereInput[]
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
-    id?: StringFilter<"HistoricoLog"> | string
-    tenant_id?: StringFilter<"HistoricoLog"> | string
-    actor_type?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringFilter<"HistoricoLog"> | string
-    actor_name?: StringFilter<"HistoricoLog"> | string
-    actor_ip?: StringNullableFilter<"HistoricoLog"> | string | null
-    actor_metadata?: JsonNullableFilter<"HistoricoLog">
-    module?: StringFilter<"HistoricoLog"> | string
-    resource_type?: StringFilter<"HistoricoLog"> | string
-    resource_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    action?: StringFilter<"HistoricoLog"> | string
-    action_detail?: StringFilter<"HistoricoLog"> | string
-    before?: JsonNullableFilter<"HistoricoLog">
-    after?: JsonNullableFilter<"HistoricoLog">
-    status?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
-    error_message?: StringNullableFilter<"HistoricoLog"> | string | null
-    integrity_hash?: StringFilter<"HistoricoLog"> | string
-    product_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    user_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    created_at?: DateTimeFilter<"HistoricoLog"> | Date | string
+    id_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_organizacao_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_produto_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    id_usuario_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFilter<"HistoricoLog"> | string
+    nome_ator_historico_log?: StringFilter<"HistoricoLog"> | string
+    ip_ator_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    metadata_ator_historico_log?: JsonNullableFilter<"HistoricoLog">
+    modulo_historico_log?: StringFilter<"HistoricoLog"> | string
+    tipo_recurso_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_recurso_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    acao_historico_log?: StringFilter<"HistoricoLog"> | string
+    detalhe_acao_historico_log?: StringFilter<"HistoricoLog"> | string
+    estado_anterior_historico_log?: JsonNullableFilter<"HistoricoLog">
+    estado_posterior_historico_log?: JsonNullableFilter<"HistoricoLog">
+    status_historico_log?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
+    mensagem_erro_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    hash_integridade_historico_log?: StringFilter<"HistoricoLog"> | string
+    data_criacao_historico_log?: DateTimeFilter<"HistoricoLog"> | Date | string
   }
 
   export type HistoricoLogOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    actor_ip?: SortOrderInput | SortOrder
-    actor_metadata?: SortOrderInput | SortOrder
-    module?: SortOrder
-    resource_type?: SortOrder
-    resource_id?: SortOrderInput | SortOrder
-    action?: SortOrder
-    action_detail?: SortOrder
-    before?: SortOrderInput | SortOrder
-    after?: SortOrderInput | SortOrder
-    status?: SortOrder
-    error_message?: SortOrderInput | SortOrder
-    integrity_hash?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_historico_log?: SortOrder
+    id_organizacao_historico_log?: SortOrder
+    id_produto_historico_log?: SortOrderInput | SortOrder
+    id_usuario_historico_log?: SortOrderInput | SortOrder
+    tipo_ator_historico_log?: SortOrder
+    id_ator_historico_log?: SortOrder
+    nome_ator_historico_log?: SortOrder
+    ip_ator_historico_log?: SortOrderInput | SortOrder
+    metadata_ator_historico_log?: SortOrderInput | SortOrder
+    modulo_historico_log?: SortOrder
+    tipo_recurso_historico_log?: SortOrder
+    id_recurso_historico_log?: SortOrderInput | SortOrder
+    acao_historico_log?: SortOrder
+    detalhe_acao_historico_log?: SortOrder
+    estado_anterior_historico_log?: SortOrderInput | SortOrder
+    estado_posterior_historico_log?: SortOrderInput | SortOrder
+    status_historico_log?: SortOrder
+    mensagem_erro_historico_log?: SortOrderInput | SortOrder
+    hash_integridade_historico_log?: SortOrder
+    data_criacao_historico_log?: SortOrder
   }
 
   export type HistoricoLogWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_historico_log?: string
     AND?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     OR?: HistoricoLogWhereInput[]
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
-    tenant_id?: StringFilter<"HistoricoLog"> | string
-    actor_type?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringFilter<"HistoricoLog"> | string
-    actor_name?: StringFilter<"HistoricoLog"> | string
-    actor_ip?: StringNullableFilter<"HistoricoLog"> | string | null
-    actor_metadata?: JsonNullableFilter<"HistoricoLog">
-    module?: StringFilter<"HistoricoLog"> | string
-    resource_type?: StringFilter<"HistoricoLog"> | string
-    resource_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    action?: StringFilter<"HistoricoLog"> | string
-    action_detail?: StringFilter<"HistoricoLog"> | string
-    before?: JsonNullableFilter<"HistoricoLog">
-    after?: JsonNullableFilter<"HistoricoLog">
-    status?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
-    error_message?: StringNullableFilter<"HistoricoLog"> | string | null
-    integrity_hash?: StringFilter<"HistoricoLog"> | string
-    product_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    user_id?: StringNullableFilter<"HistoricoLog"> | string | null
-    created_at?: DateTimeFilter<"HistoricoLog"> | Date | string
-  }, "id">
+    id_organizacao_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_produto_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    id_usuario_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFilter<"HistoricoLog"> | string
+    nome_ator_historico_log?: StringFilter<"HistoricoLog"> | string
+    ip_ator_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    metadata_ator_historico_log?: JsonNullableFilter<"HistoricoLog">
+    modulo_historico_log?: StringFilter<"HistoricoLog"> | string
+    tipo_recurso_historico_log?: StringFilter<"HistoricoLog"> | string
+    id_recurso_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    acao_historico_log?: StringFilter<"HistoricoLog"> | string
+    detalhe_acao_historico_log?: StringFilter<"HistoricoLog"> | string
+    estado_anterior_historico_log?: JsonNullableFilter<"HistoricoLog">
+    estado_posterior_historico_log?: JsonNullableFilter<"HistoricoLog">
+    status_historico_log?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
+    mensagem_erro_historico_log?: StringNullableFilter<"HistoricoLog"> | string | null
+    hash_integridade_historico_log?: StringFilter<"HistoricoLog"> | string
+    data_criacao_historico_log?: DateTimeFilter<"HistoricoLog"> | Date | string
+  }, "id_historico_log">
 
   export type HistoricoLogOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    actor_ip?: SortOrderInput | SortOrder
-    actor_metadata?: SortOrderInput | SortOrder
-    module?: SortOrder
-    resource_type?: SortOrder
-    resource_id?: SortOrderInput | SortOrder
-    action?: SortOrder
-    action_detail?: SortOrder
-    before?: SortOrderInput | SortOrder
-    after?: SortOrderInput | SortOrder
-    status?: SortOrder
-    error_message?: SortOrderInput | SortOrder
-    integrity_hash?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_historico_log?: SortOrder
+    id_organizacao_historico_log?: SortOrder
+    id_produto_historico_log?: SortOrderInput | SortOrder
+    id_usuario_historico_log?: SortOrderInput | SortOrder
+    tipo_ator_historico_log?: SortOrder
+    id_ator_historico_log?: SortOrder
+    nome_ator_historico_log?: SortOrder
+    ip_ator_historico_log?: SortOrderInput | SortOrder
+    metadata_ator_historico_log?: SortOrderInput | SortOrder
+    modulo_historico_log?: SortOrder
+    tipo_recurso_historico_log?: SortOrder
+    id_recurso_historico_log?: SortOrderInput | SortOrder
+    acao_historico_log?: SortOrder
+    detalhe_acao_historico_log?: SortOrder
+    estado_anterior_historico_log?: SortOrderInput | SortOrder
+    estado_posterior_historico_log?: SortOrderInput | SortOrder
+    status_historico_log?: SortOrder
+    mensagem_erro_historico_log?: SortOrderInput | SortOrder
+    hash_integridade_historico_log?: SortOrder
+    data_criacao_historico_log?: SortOrder
     _count?: HistoricoLogCountOrderByAggregateInput
     _max?: HistoricoLogMaxOrderByAggregateInput
     _min?: HistoricoLogMinOrderByAggregateInput
@@ -53695,403 +53811,446 @@ export namespace Prisma {
     AND?: HistoricoLogScalarWhereWithAggregatesInput | HistoricoLogScalarWhereWithAggregatesInput[]
     OR?: HistoricoLogScalarWhereWithAggregatesInput[]
     NOT?: HistoricoLogScalarWhereWithAggregatesInput | HistoricoLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    tenant_id?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    actor_type?: EnumAcaoExecutadaPorWithAggregatesFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    actor_name?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    actor_ip?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    actor_metadata?: JsonNullableWithAggregatesFilter<"HistoricoLog">
-    module?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    resource_type?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    resource_id?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    action?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    action_detail?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    before?: JsonNullableWithAggregatesFilter<"HistoricoLog">
-    after?: JsonNullableWithAggregatesFilter<"HistoricoLog">
-    status?: EnumEventoStatusWithAggregatesFilter<"HistoricoLog"> | $Enums.EventoStatus
-    error_message?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    integrity_hash?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    product_id?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"HistoricoLog"> | Date | string
+    id_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    id_organizacao_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    id_produto_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    id_usuario_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorWithAggregatesFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    nome_ator_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    ip_ator_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    metadata_ator_historico_log?: JsonNullableWithAggregatesFilter<"HistoricoLog">
+    modulo_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    tipo_recurso_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    id_recurso_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    acao_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    detalhe_acao_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    estado_anterior_historico_log?: JsonNullableWithAggregatesFilter<"HistoricoLog">
+    estado_posterior_historico_log?: JsonNullableWithAggregatesFilter<"HistoricoLog">
+    status_historico_log?: EnumEventoStatusWithAggregatesFilter<"HistoricoLog"> | $Enums.EventoStatus
+    mensagem_erro_historico_log?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
+    hash_integridade_historico_log?: StringWithAggregatesFilter<"HistoricoLog"> | string
+    data_criacao_historico_log?: DateTimeWithAggregatesFilter<"HistoricoLog"> | Date | string
   }
 
-  export type AlertRuleWhereInput = {
-    AND?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    OR?: AlertRuleWhereInput[]
-    NOT?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    id?: StringFilter<"AlertRule"> | string
-    tenant_id?: StringNullableFilter<"AlertRule"> | string | null
-    name?: StringFilter<"AlertRule"> | string
-    description?: StringNullableFilter<"AlertRule"> | string | null
-    enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumAcaoExecutadaPorNullableFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
-    action?: StringNullableFilter<"AlertRule"> | string | null
-    module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventoStatusNullableFilter<"AlertRule"> | $Enums.EventoStatus | null
-    threshold_count?: IntNullableFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolFilter<"AlertRule"> | boolean
-    channel_email?: BoolFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeFilter<"AlertRule"> | Date | string
-    alerts?: AlertEventListRelationFilter
+  export type RegraAlertaWhereInput = {
+    AND?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    OR?: RegraAlertaWhereInput[]
+    NOT?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    id_regra_alerta?: StringFilter<"RegraAlerta"> | string
+    id_organizacao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    id_produto_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    id_usuario_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    nome_regra_alerta?: StringFilter<"RegraAlerta"> | string
+    descricao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    habilitada_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    tipo_ator_regra_alerta?: EnumAcaoExecutadaPorNullableFilter<"RegraAlerta"> | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    modulo_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    filtro_status_regra_alerta?: EnumEventoStatusNullableFilter<"RegraAlerta"> | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: IntNullableFilter<"RegraAlerta"> | number | null
+    limiar_janela_segundos_regra_alerta?: IntNullableFilter<"RegraAlerta"> | number | null
+    canal_inapp_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    canal_email_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    canal_whatsapp_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    destinatarios_email_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_whatsapp_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_usuarios_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    data_criacao_regra_alerta?: DateTimeFilter<"RegraAlerta"> | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFilter<"RegraAlerta"> | Date | string
+    eventos_regra_alerta?: EventoAlertaListRelationFilter
   }
 
-  export type AlertRuleOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrderInput | SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    enabled?: SortOrder
-    actor_type?: SortOrderInput | SortOrder
-    action?: SortOrderInput | SortOrder
-    module?: SortOrderInput | SortOrder
-    status_filter?: SortOrderInput | SortOrder
-    threshold_count?: SortOrderInput | SortOrder
-    threshold_window_seconds?: SortOrderInput | SortOrder
-    channel_inapp?: SortOrder
-    channel_email?: SortOrder
-    channel_whatsapp?: SortOrder
-    recipients_email?: SortOrder
-    recipients_whatsapp?: SortOrder
-    recipients_user_ids?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    alerts?: AlertEventOrderByRelationAggregateInput
+  export type RegraAlertaOrderByWithRelationInput = {
+    id_regra_alerta?: SortOrder
+    id_organizacao_regra_alerta?: SortOrderInput | SortOrder
+    id_produto_regra_alerta?: SortOrderInput | SortOrder
+    id_usuario_regra_alerta?: SortOrderInput | SortOrder
+    nome_regra_alerta?: SortOrder
+    descricao_regra_alerta?: SortOrderInput | SortOrder
+    habilitada_regra_alerta?: SortOrder
+    tipo_ator_regra_alerta?: SortOrderInput | SortOrder
+    acao_regra_alerta?: SortOrderInput | SortOrder
+    modulo_regra_alerta?: SortOrderInput | SortOrder
+    filtro_status_regra_alerta?: SortOrderInput | SortOrder
+    limiar_contagem_regra_alerta?: SortOrderInput | SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrderInput | SortOrder
+    canal_inapp_regra_alerta?: SortOrder
+    canal_email_regra_alerta?: SortOrder
+    canal_whatsapp_regra_alerta?: SortOrder
+    destinatarios_email_regra_alerta?: SortOrder
+    destinatarios_whatsapp_regra_alerta?: SortOrder
+    destinatarios_usuarios_regra_alerta?: SortOrder
+    data_criacao_regra_alerta?: SortOrder
+    data_atualizacao_regra_alerta?: SortOrder
+    eventos_regra_alerta?: EventoAlertaOrderByRelationAggregateInput
   }
 
-  export type AlertRuleWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    OR?: AlertRuleWhereInput[]
-    NOT?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    tenant_id?: StringNullableFilter<"AlertRule"> | string | null
-    name?: StringFilter<"AlertRule"> | string
-    description?: StringNullableFilter<"AlertRule"> | string | null
-    enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumAcaoExecutadaPorNullableFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
-    action?: StringNullableFilter<"AlertRule"> | string | null
-    module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventoStatusNullableFilter<"AlertRule"> | $Enums.EventoStatus | null
-    threshold_count?: IntNullableFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolFilter<"AlertRule"> | boolean
-    channel_email?: BoolFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeFilter<"AlertRule"> | Date | string
-    alerts?: AlertEventListRelationFilter
-  }, "id">
+  export type RegraAlertaWhereUniqueInput = Prisma.AtLeast<{
+    id_regra_alerta?: string
+    AND?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    OR?: RegraAlertaWhereInput[]
+    NOT?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    id_organizacao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    id_produto_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    id_usuario_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    nome_regra_alerta?: StringFilter<"RegraAlerta"> | string
+    descricao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    habilitada_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    tipo_ator_regra_alerta?: EnumAcaoExecutadaPorNullableFilter<"RegraAlerta"> | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    modulo_regra_alerta?: StringNullableFilter<"RegraAlerta"> | string | null
+    filtro_status_regra_alerta?: EnumEventoStatusNullableFilter<"RegraAlerta"> | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: IntNullableFilter<"RegraAlerta"> | number | null
+    limiar_janela_segundos_regra_alerta?: IntNullableFilter<"RegraAlerta"> | number | null
+    canal_inapp_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    canal_email_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    canal_whatsapp_regra_alerta?: BoolFilter<"RegraAlerta"> | boolean
+    destinatarios_email_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_whatsapp_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_usuarios_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    data_criacao_regra_alerta?: DateTimeFilter<"RegraAlerta"> | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFilter<"RegraAlerta"> | Date | string
+    eventos_regra_alerta?: EventoAlertaListRelationFilter
+  }, "id_regra_alerta">
 
-  export type AlertRuleOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrderInput | SortOrder
-    name?: SortOrder
-    description?: SortOrderInput | SortOrder
-    enabled?: SortOrder
-    actor_type?: SortOrderInput | SortOrder
-    action?: SortOrderInput | SortOrder
-    module?: SortOrderInput | SortOrder
-    status_filter?: SortOrderInput | SortOrder
-    threshold_count?: SortOrderInput | SortOrder
-    threshold_window_seconds?: SortOrderInput | SortOrder
-    channel_inapp?: SortOrder
-    channel_email?: SortOrder
-    channel_whatsapp?: SortOrder
-    recipients_email?: SortOrder
-    recipients_whatsapp?: SortOrder
-    recipients_user_ids?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: AlertRuleCountOrderByAggregateInput
-    _avg?: AlertRuleAvgOrderByAggregateInput
-    _max?: AlertRuleMaxOrderByAggregateInput
-    _min?: AlertRuleMinOrderByAggregateInput
-    _sum?: AlertRuleSumOrderByAggregateInput
+  export type RegraAlertaOrderByWithAggregationInput = {
+    id_regra_alerta?: SortOrder
+    id_organizacao_regra_alerta?: SortOrderInput | SortOrder
+    id_produto_regra_alerta?: SortOrderInput | SortOrder
+    id_usuario_regra_alerta?: SortOrderInput | SortOrder
+    nome_regra_alerta?: SortOrder
+    descricao_regra_alerta?: SortOrderInput | SortOrder
+    habilitada_regra_alerta?: SortOrder
+    tipo_ator_regra_alerta?: SortOrderInput | SortOrder
+    acao_regra_alerta?: SortOrderInput | SortOrder
+    modulo_regra_alerta?: SortOrderInput | SortOrder
+    filtro_status_regra_alerta?: SortOrderInput | SortOrder
+    limiar_contagem_regra_alerta?: SortOrderInput | SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrderInput | SortOrder
+    canal_inapp_regra_alerta?: SortOrder
+    canal_email_regra_alerta?: SortOrder
+    canal_whatsapp_regra_alerta?: SortOrder
+    destinatarios_email_regra_alerta?: SortOrder
+    destinatarios_whatsapp_regra_alerta?: SortOrder
+    destinatarios_usuarios_regra_alerta?: SortOrder
+    data_criacao_regra_alerta?: SortOrder
+    data_atualizacao_regra_alerta?: SortOrder
+    _count?: RegraAlertaCountOrderByAggregateInput
+    _avg?: RegraAlertaAvgOrderByAggregateInput
+    _max?: RegraAlertaMaxOrderByAggregateInput
+    _min?: RegraAlertaMinOrderByAggregateInput
+    _sum?: RegraAlertaSumOrderByAggregateInput
   }
 
-  export type AlertRuleScalarWhereWithAggregatesInput = {
-    AND?: AlertRuleScalarWhereWithAggregatesInput | AlertRuleScalarWhereWithAggregatesInput[]
-    OR?: AlertRuleScalarWhereWithAggregatesInput[]
-    NOT?: AlertRuleScalarWhereWithAggregatesInput | AlertRuleScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertRule"> | string
-    tenant_id?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    name?: StringWithAggregatesFilter<"AlertRule"> | string
-    description?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    enabled?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    actor_type?: EnumAcaoExecutadaPorNullableWithAggregatesFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
-    action?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    module?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventoStatusNullableWithAggregatesFilter<"AlertRule"> | $Enums.EventoStatus | null
-    threshold_count?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    channel_email?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeWithAggregatesFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AlertRule"> | Date | string
+  export type RegraAlertaScalarWhereWithAggregatesInput = {
+    AND?: RegraAlertaScalarWhereWithAggregatesInput | RegraAlertaScalarWhereWithAggregatesInput[]
+    OR?: RegraAlertaScalarWhereWithAggregatesInput[]
+    NOT?: RegraAlertaScalarWhereWithAggregatesInput | RegraAlertaScalarWhereWithAggregatesInput[]
+    id_regra_alerta?: StringWithAggregatesFilter<"RegraAlerta"> | string
+    id_organizacao_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    id_produto_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    id_usuario_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    nome_regra_alerta?: StringWithAggregatesFilter<"RegraAlerta"> | string
+    descricao_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    habilitada_regra_alerta?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    tipo_ator_regra_alerta?: EnumAcaoExecutadaPorNullableWithAggregatesFilter<"RegraAlerta"> | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    modulo_regra_alerta?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    filtro_status_regra_alerta?: EnumEventoStatusNullableWithAggregatesFilter<"RegraAlerta"> | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: IntNullableWithAggregatesFilter<"RegraAlerta"> | number | null
+    limiar_janela_segundos_regra_alerta?: IntNullableWithAggregatesFilter<"RegraAlerta"> | number | null
+    canal_inapp_regra_alerta?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    canal_email_regra_alerta?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    canal_whatsapp_regra_alerta?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    destinatarios_email_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_whatsapp_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    destinatarios_usuarios_regra_alerta?: StringNullableListFilter<"RegraAlerta">
+    data_criacao_regra_alerta?: DateTimeWithAggregatesFilter<"RegraAlerta"> | Date | string
+    data_atualizacao_regra_alerta?: DateTimeWithAggregatesFilter<"RegraAlerta"> | Date | string
   }
 
-  export type AlertEventWhereInput = {
-    AND?: AlertEventWhereInput | AlertEventWhereInput[]
-    OR?: AlertEventWhereInput[]
-    NOT?: AlertEventWhereInput | AlertEventWhereInput[]
-    id?: StringFilter<"AlertEvent"> | string
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
-    rule?: XOR<AlertRuleRelationFilter, AlertRuleWhereInput>
-    notifications?: AlertNotificationLogListRelationFilter
+  export type EventoAlertaWhereInput = {
+    AND?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    OR?: EventoAlertaWhereInput[]
+    NOT?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    id_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    id_organizacao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    id_produto_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_usuario_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_regra_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"EventoAlerta"> | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    nome_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    modulo_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    acao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    contagem_eventos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    janela_segundos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    ids_logs_auditoria_evento_alerta?: StringNullableListFilter<"EventoAlerta">
+    status_evento_alerta?: EnumAlertaStatusFilter<"EventoAlerta"> | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    revisado_em_evento_alerta?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notas_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    data_criacao_evento_alerta?: DateTimeFilter<"EventoAlerta"> | Date | string
+    regra_evento_alerta?: XOR<RegraAlertaRelationFilter, RegraAlertaWhereInput>
+    notificacoes_evento_alerta?: NotificacaoAlertaListRelationFilter
   }
 
-  export type AlertEventOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    rule_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    module?: SortOrder
-    action?: SortOrder
-    event_count?: SortOrder
-    window_seconds?: SortOrder
-    audit_log_ids?: SortOrder
-    status?: SortOrder
-    reviewed_by?: SortOrderInput | SortOrder
-    reviewed_at?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    rule?: AlertRuleOrderByWithRelationInput
-    notifications?: AlertNotificationLogOrderByRelationAggregateInput
+  export type EventoAlertaOrderByWithRelationInput = {
+    id_evento_alerta?: SortOrder
+    id_organizacao_evento_alerta?: SortOrder
+    id_produto_evento_alerta?: SortOrderInput | SortOrder
+    id_usuario_evento_alerta?: SortOrderInput | SortOrder
+    id_regra_evento_alerta?: SortOrder
+    tipo_ator_evento_alerta?: SortOrder
+    id_ator_evento_alerta?: SortOrder
+    nome_ator_evento_alerta?: SortOrder
+    modulo_evento_alerta?: SortOrder
+    acao_evento_alerta?: SortOrder
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
+    ids_logs_auditoria_evento_alerta?: SortOrder
+    status_evento_alerta?: SortOrder
+    revisado_por_evento_alerta?: SortOrderInput | SortOrder
+    revisado_em_evento_alerta?: SortOrderInput | SortOrder
+    notas_evento_alerta?: SortOrderInput | SortOrder
+    data_criacao_evento_alerta?: SortOrder
+    regra_evento_alerta?: RegraAlertaOrderByWithRelationInput
+    notificacoes_evento_alerta?: NotificacaoAlertaOrderByRelationAggregateInput
   }
 
-  export type AlertEventWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: AlertEventWhereInput | AlertEventWhereInput[]
-    OR?: AlertEventWhereInput[]
-    NOT?: AlertEventWhereInput | AlertEventWhereInput[]
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
-    rule?: XOR<AlertRuleRelationFilter, AlertRuleWhereInput>
-    notifications?: AlertNotificationLogListRelationFilter
-  }, "id">
+  export type EventoAlertaWhereUniqueInput = Prisma.AtLeast<{
+    id_evento_alerta?: string
+    AND?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    OR?: EventoAlertaWhereInput[]
+    NOT?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    id_organizacao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    id_produto_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_usuario_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_regra_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"EventoAlerta"> | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    nome_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    modulo_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    acao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    contagem_eventos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    janela_segundos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    ids_logs_auditoria_evento_alerta?: StringNullableListFilter<"EventoAlerta">
+    status_evento_alerta?: EnumAlertaStatusFilter<"EventoAlerta"> | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    revisado_em_evento_alerta?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notas_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    data_criacao_evento_alerta?: DateTimeFilter<"EventoAlerta"> | Date | string
+    regra_evento_alerta?: XOR<RegraAlertaRelationFilter, RegraAlertaWhereInput>
+    notificacoes_evento_alerta?: NotificacaoAlertaListRelationFilter
+  }, "id_evento_alerta">
 
-  export type AlertEventOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    rule_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    module?: SortOrder
-    action?: SortOrder
-    event_count?: SortOrder
-    window_seconds?: SortOrder
-    audit_log_ids?: SortOrder
-    status?: SortOrder
-    reviewed_by?: SortOrderInput | SortOrder
-    reviewed_at?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    _count?: AlertEventCountOrderByAggregateInput
-    _avg?: AlertEventAvgOrderByAggregateInput
-    _max?: AlertEventMaxOrderByAggregateInput
-    _min?: AlertEventMinOrderByAggregateInput
-    _sum?: AlertEventSumOrderByAggregateInput
+  export type EventoAlertaOrderByWithAggregationInput = {
+    id_evento_alerta?: SortOrder
+    id_organizacao_evento_alerta?: SortOrder
+    id_produto_evento_alerta?: SortOrderInput | SortOrder
+    id_usuario_evento_alerta?: SortOrderInput | SortOrder
+    id_regra_evento_alerta?: SortOrder
+    tipo_ator_evento_alerta?: SortOrder
+    id_ator_evento_alerta?: SortOrder
+    nome_ator_evento_alerta?: SortOrder
+    modulo_evento_alerta?: SortOrder
+    acao_evento_alerta?: SortOrder
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
+    ids_logs_auditoria_evento_alerta?: SortOrder
+    status_evento_alerta?: SortOrder
+    revisado_por_evento_alerta?: SortOrderInput | SortOrder
+    revisado_em_evento_alerta?: SortOrderInput | SortOrder
+    notas_evento_alerta?: SortOrderInput | SortOrder
+    data_criacao_evento_alerta?: SortOrder
+    _count?: EventoAlertaCountOrderByAggregateInput
+    _avg?: EventoAlertaAvgOrderByAggregateInput
+    _max?: EventoAlertaMaxOrderByAggregateInput
+    _min?: EventoAlertaMinOrderByAggregateInput
+    _sum?: EventoAlertaSumOrderByAggregateInput
   }
 
-  export type AlertEventScalarWhereWithAggregatesInput = {
-    AND?: AlertEventScalarWhereWithAggregatesInput | AlertEventScalarWhereWithAggregatesInput[]
-    OR?: AlertEventScalarWhereWithAggregatesInput[]
-    NOT?: AlertEventScalarWhereWithAggregatesInput | AlertEventScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    tenant_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    rule_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    actor_type?: EnumAcaoExecutadaPorWithAggregatesFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    actor_name?: StringWithAggregatesFilter<"AlertEvent"> | string
-    module?: StringWithAggregatesFilter<"AlertEvent"> | string
-    action?: StringWithAggregatesFilter<"AlertEvent"> | string
-    event_count?: IntWithAggregatesFilter<"AlertEvent"> | number
-    window_seconds?: IntWithAggregatesFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertaStatusWithAggregatesFilter<"AlertEvent"> | $Enums.AlertaStatus
-    reviewed_by?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableWithAggregatesFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AlertEvent"> | Date | string
+  export type EventoAlertaScalarWhereWithAggregatesInput = {
+    AND?: EventoAlertaScalarWhereWithAggregatesInput | EventoAlertaScalarWhereWithAggregatesInput[]
+    OR?: EventoAlertaScalarWhereWithAggregatesInput[]
+    NOT?: EventoAlertaScalarWhereWithAggregatesInput | EventoAlertaScalarWhereWithAggregatesInput[]
+    id_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    id_organizacao_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    id_produto_evento_alerta?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    id_usuario_evento_alerta?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    id_regra_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorWithAggregatesFilter<"EventoAlerta"> | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    nome_ator_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    modulo_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    acao_evento_alerta?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    contagem_eventos_evento_alerta?: IntWithAggregatesFilter<"EventoAlerta"> | number
+    janela_segundos_evento_alerta?: IntWithAggregatesFilter<"EventoAlerta"> | number
+    ids_logs_auditoria_evento_alerta?: StringNullableListFilter<"EventoAlerta">
+    status_evento_alerta?: EnumAlertaStatusWithAggregatesFilter<"EventoAlerta"> | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    revisado_em_evento_alerta?: DateTimeNullableWithAggregatesFilter<"EventoAlerta"> | Date | string | null
+    notas_evento_alerta?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    data_criacao_evento_alerta?: DateTimeWithAggregatesFilter<"EventoAlerta"> | Date | string
   }
 
-  export type AlertNotificationLogWhereInput = {
-    AND?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    OR?: AlertNotificationLogWhereInput[]
-    NOT?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    id?: StringFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
-    alert_event?: XOR<AlertEventRelationFilter, AlertEventWhereInput>
+  export type NotificacaoAlertaWhereInput = {
+    AND?: NotificacaoAlertaWhereInput | NotificacaoAlertaWhereInput[]
+    OR?: NotificacaoAlertaWhereInput[]
+    NOT?: NotificacaoAlertaWhereInput | NotificacaoAlertaWhereInput[]
+    id_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    id_organizacao_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    id_produto_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_usuario_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_evento_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    canal_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    destinatario_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    status_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    tentativas_notificacao_alerta?: IntFilter<"NotificacaoAlerta"> | number
+    mensagem_erro_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    enviado_em_notificacao_alerta?: DateTimeNullableFilter<"NotificacaoAlerta"> | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFilter<"NotificacaoAlerta"> | Date | string
+    evento_notificacao_alerta?: XOR<EventoAlertaRelationFilter, EventoAlertaWhereInput>
   }
 
-  export type AlertNotificationLogOrderByWithRelationInput = {
-    id?: SortOrder
-    alert_event_id?: SortOrder
-    channel?: SortOrder
-    recipient?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    error_message?: SortOrderInput | SortOrder
-    sent_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    alert_event?: AlertEventOrderByWithRelationInput
+  export type NotificacaoAlertaOrderByWithRelationInput = {
+    id_notificacao_alerta?: SortOrder
+    id_organizacao_notificacao_alerta?: SortOrder
+    id_produto_notificacao_alerta?: SortOrderInput | SortOrder
+    id_usuario_notificacao_alerta?: SortOrderInput | SortOrder
+    id_evento_notificacao_alerta?: SortOrder
+    canal_notificacao_alerta?: SortOrder
+    destinatario_notificacao_alerta?: SortOrder
+    status_notificacao_alerta?: SortOrder
+    tentativas_notificacao_alerta?: SortOrder
+    mensagem_erro_notificacao_alerta?: SortOrderInput | SortOrder
+    enviado_em_notificacao_alerta?: SortOrderInput | SortOrder
+    data_criacao_notificacao_alerta?: SortOrder
+    evento_notificacao_alerta?: EventoAlertaOrderByWithRelationInput
   }
 
-  export type AlertNotificationLogWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    OR?: AlertNotificationLogWhereInput[]
-    NOT?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
-    alert_event?: XOR<AlertEventRelationFilter, AlertEventWhereInput>
-  }, "id">
+  export type NotificacaoAlertaWhereUniqueInput = Prisma.AtLeast<{
+    id_notificacao_alerta?: string
+    AND?: NotificacaoAlertaWhereInput | NotificacaoAlertaWhereInput[]
+    OR?: NotificacaoAlertaWhereInput[]
+    NOT?: NotificacaoAlertaWhereInput | NotificacaoAlertaWhereInput[]
+    id_organizacao_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    id_produto_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_usuario_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_evento_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    canal_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    destinatario_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    status_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    tentativas_notificacao_alerta?: IntFilter<"NotificacaoAlerta"> | number
+    mensagem_erro_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    enviado_em_notificacao_alerta?: DateTimeNullableFilter<"NotificacaoAlerta"> | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFilter<"NotificacaoAlerta"> | Date | string
+    evento_notificacao_alerta?: XOR<EventoAlertaRelationFilter, EventoAlertaWhereInput>
+  }, "id_notificacao_alerta">
 
-  export type AlertNotificationLogOrderByWithAggregationInput = {
-    id?: SortOrder
-    alert_event_id?: SortOrder
-    channel?: SortOrder
-    recipient?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    error_message?: SortOrderInput | SortOrder
-    sent_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    _count?: AlertNotificationLogCountOrderByAggregateInput
-    _avg?: AlertNotificationLogAvgOrderByAggregateInput
-    _max?: AlertNotificationLogMaxOrderByAggregateInput
-    _min?: AlertNotificationLogMinOrderByAggregateInput
-    _sum?: AlertNotificationLogSumOrderByAggregateInput
+  export type NotificacaoAlertaOrderByWithAggregationInput = {
+    id_notificacao_alerta?: SortOrder
+    id_organizacao_notificacao_alerta?: SortOrder
+    id_produto_notificacao_alerta?: SortOrderInput | SortOrder
+    id_usuario_notificacao_alerta?: SortOrderInput | SortOrder
+    id_evento_notificacao_alerta?: SortOrder
+    canal_notificacao_alerta?: SortOrder
+    destinatario_notificacao_alerta?: SortOrder
+    status_notificacao_alerta?: SortOrder
+    tentativas_notificacao_alerta?: SortOrder
+    mensagem_erro_notificacao_alerta?: SortOrderInput | SortOrder
+    enviado_em_notificacao_alerta?: SortOrderInput | SortOrder
+    data_criacao_notificacao_alerta?: SortOrder
+    _count?: NotificacaoAlertaCountOrderByAggregateInput
+    _avg?: NotificacaoAlertaAvgOrderByAggregateInput
+    _max?: NotificacaoAlertaMaxOrderByAggregateInput
+    _min?: NotificacaoAlertaMinOrderByAggregateInput
+    _sum?: NotificacaoAlertaSumOrderByAggregateInput
   }
 
-  export type AlertNotificationLogScalarWhereWithAggregatesInput = {
-    AND?: AlertNotificationLogScalarWhereWithAggregatesInput | AlertNotificationLogScalarWhereWithAggregatesInput[]
-    OR?: AlertNotificationLogScalarWhereWithAggregatesInput[]
-    NOT?: AlertNotificationLogScalarWhereWithAggregatesInput | AlertNotificationLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    channel?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    recipient?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    status?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    attempts?: IntWithAggregatesFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableWithAggregatesFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableWithAggregatesFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AlertNotificationLog"> | Date | string
+  export type NotificacaoAlertaScalarWhereWithAggregatesInput = {
+    AND?: NotificacaoAlertaScalarWhereWithAggregatesInput | NotificacaoAlertaScalarWhereWithAggregatesInput[]
+    OR?: NotificacaoAlertaScalarWhereWithAggregatesInput[]
+    NOT?: NotificacaoAlertaScalarWhereWithAggregatesInput | NotificacaoAlertaScalarWhereWithAggregatesInput[]
+    id_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    id_organizacao_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    id_produto_notificacao_alerta?: StringNullableWithAggregatesFilter<"NotificacaoAlerta"> | string | null
+    id_usuario_notificacao_alerta?: StringNullableWithAggregatesFilter<"NotificacaoAlerta"> | string | null
+    id_evento_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    canal_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    destinatario_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    status_notificacao_alerta?: StringWithAggregatesFilter<"NotificacaoAlerta"> | string
+    tentativas_notificacao_alerta?: IntWithAggregatesFilter<"NotificacaoAlerta"> | number
+    mensagem_erro_notificacao_alerta?: StringNullableWithAggregatesFilter<"NotificacaoAlerta"> | string | null
+    enviado_em_notificacao_alerta?: DateTimeNullableWithAggregatesFilter<"NotificacaoAlerta"> | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeWithAggregatesFilter<"NotificacaoAlerta"> | Date | string
   }
 
   export type ExportarResultadoWhereInput = {
     AND?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
     OR?: ExportarResultadoWhereInput[]
     NOT?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
-    id?: StringFilter<"ExportarResultado"> | string
-    tenant_id?: StringFilter<"ExportarResultado"> | string
-    format?: StringFilter<"ExportarResultado"> | string
-    content?: StringFilter<"ExportarResultado"> | string
-    status?: StringFilter<"ExportarResultado"> | string
-    record_count?: IntFilter<"ExportarResultado"> | number
-    filters?: JsonNullableFilter<"ExportarResultado">
-    error?: StringNullableFilter<"ExportarResultado"> | string | null
-    created_at?: DateTimeFilter<"ExportarResultado"> | Date | string
-    expires_at?: DateTimeFilter<"ExportarResultado"> | Date | string
+    id_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    id_organizacao_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    id_produto_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    id_usuario_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    formato_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    conteudo_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    status_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    contagem_registros_exportar_resultado?: IntFilter<"ExportarResultado"> | number
+    filtros_exportar_resultado?: JsonNullableFilter<"ExportarResultado">
+    erro_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    data_criacao_exportar_resultado?: DateTimeFilter<"ExportarResultado"> | Date | string
+    expira_em_exportar_resultado?: DateTimeFilter<"ExportarResultado"> | Date | string
   }
 
   export type ExportarResultadoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    format?: SortOrder
-    content?: SortOrder
-    status?: SortOrder
-    record_count?: SortOrder
-    filters?: SortOrderInput | SortOrder
-    error?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    expires_at?: SortOrder
+    id_exportar_resultado?: SortOrder
+    id_organizacao_exportar_resultado?: SortOrder
+    id_produto_exportar_resultado?: SortOrderInput | SortOrder
+    id_usuario_exportar_resultado?: SortOrderInput | SortOrder
+    formato_exportar_resultado?: SortOrder
+    conteudo_exportar_resultado?: SortOrder
+    status_exportar_resultado?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
+    filtros_exportar_resultado?: SortOrderInput | SortOrder
+    erro_exportar_resultado?: SortOrderInput | SortOrder
+    data_criacao_exportar_resultado?: SortOrder
+    expira_em_exportar_resultado?: SortOrder
   }
 
   export type ExportarResultadoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_exportar_resultado?: string
     AND?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
     OR?: ExportarResultadoWhereInput[]
     NOT?: ExportarResultadoWhereInput | ExportarResultadoWhereInput[]
-    tenant_id?: StringFilter<"ExportarResultado"> | string
-    format?: StringFilter<"ExportarResultado"> | string
-    content?: StringFilter<"ExportarResultado"> | string
-    status?: StringFilter<"ExportarResultado"> | string
-    record_count?: IntFilter<"ExportarResultado"> | number
-    filters?: JsonNullableFilter<"ExportarResultado">
-    error?: StringNullableFilter<"ExportarResultado"> | string | null
-    created_at?: DateTimeFilter<"ExportarResultado"> | Date | string
-    expires_at?: DateTimeFilter<"ExportarResultado"> | Date | string
-  }, "id">
+    id_organizacao_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    id_produto_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    id_usuario_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    formato_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    conteudo_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    status_exportar_resultado?: StringFilter<"ExportarResultado"> | string
+    contagem_registros_exportar_resultado?: IntFilter<"ExportarResultado"> | number
+    filtros_exportar_resultado?: JsonNullableFilter<"ExportarResultado">
+    erro_exportar_resultado?: StringNullableFilter<"ExportarResultado"> | string | null
+    data_criacao_exportar_resultado?: DateTimeFilter<"ExportarResultado"> | Date | string
+    expira_em_exportar_resultado?: DateTimeFilter<"ExportarResultado"> | Date | string
+  }, "id_exportar_resultado">
 
   export type ExportarResultadoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    format?: SortOrder
-    content?: SortOrder
-    status?: SortOrder
-    record_count?: SortOrder
-    filters?: SortOrderInput | SortOrder
-    error?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    expires_at?: SortOrder
+    id_exportar_resultado?: SortOrder
+    id_organizacao_exportar_resultado?: SortOrder
+    id_produto_exportar_resultado?: SortOrderInput | SortOrder
+    id_usuario_exportar_resultado?: SortOrderInput | SortOrder
+    formato_exportar_resultado?: SortOrder
+    conteudo_exportar_resultado?: SortOrder
+    status_exportar_resultado?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
+    filtros_exportar_resultado?: SortOrderInput | SortOrder
+    erro_exportar_resultado?: SortOrderInput | SortOrder
+    data_criacao_exportar_resultado?: SortOrder
+    expira_em_exportar_resultado?: SortOrder
     _count?: ExportarResultadoCountOrderByAggregateInput
     _avg?: ExportarResultadoAvgOrderByAggregateInput
     _max?: ExportarResultadoMaxOrderByAggregateInput
@@ -54103,16 +54262,18 @@ export namespace Prisma {
     AND?: ExportarResultadoScalarWhereWithAggregatesInput | ExportarResultadoScalarWhereWithAggregatesInput[]
     OR?: ExportarResultadoScalarWhereWithAggregatesInput[]
     NOT?: ExportarResultadoScalarWhereWithAggregatesInput | ExportarResultadoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    tenant_id?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    format?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    content?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    status?: StringWithAggregatesFilter<"ExportarResultado"> | string
-    record_count?: IntWithAggregatesFilter<"ExportarResultado"> | number
-    filters?: JsonNullableWithAggregatesFilter<"ExportarResultado">
-    error?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ExportarResultado"> | Date | string
-    expires_at?: DateTimeWithAggregatesFilter<"ExportarResultado"> | Date | string
+    id_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    id_organizacao_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    id_produto_exportar_resultado?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
+    id_usuario_exportar_resultado?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
+    formato_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    conteudo_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    status_exportar_resultado?: StringWithAggregatesFilter<"ExportarResultado"> | string
+    contagem_registros_exportar_resultado?: IntWithAggregatesFilter<"ExportarResultado"> | number
+    filtros_exportar_resultado?: JsonNullableWithAggregatesFilter<"ExportarResultado">
+    erro_exportar_resultado?: StringNullableWithAggregatesFilter<"ExportarResultado"> | string | null
+    data_criacao_exportar_resultado?: DateTimeWithAggregatesFilter<"ExportarResultado"> | Date | string
+    expira_em_exportar_resultado?: DateTimeWithAggregatesFilter<"ExportarResultado"> | Date | string
   }
 
   export type AgendaWhereInput = {
@@ -58042,632 +58203,695 @@ export namespace Prisma {
   }
 
   export type HistoricoLogCreateInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    actor_ip?: string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module: string
-    resource_type: string
-    resource_id?: string | null
-    action: string
-    action_detail: string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.EventoStatus
-    error_message?: string | null
-    integrity_hash: string
-    product_id?: string | null
-    user_id?: string | null
-    created_at?: Date | string
+    id_historico_log?: string
+    id_organizacao_historico_log: string
+    id_produto_historico_log?: string | null
+    id_usuario_historico_log?: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor
+    id_ator_historico_log: string
+    nome_ator_historico_log: string
+    ip_ator_historico_log?: string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log: string
+    tipo_recurso_historico_log: string
+    id_recurso_historico_log?: string | null
+    acao_historico_log: string
+    detalhe_acao_historico_log: string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: $Enums.EventoStatus
+    mensagem_erro_historico_log?: string | null
+    hash_integridade_historico_log: string
+    data_criacao_historico_log?: Date | string
   }
 
   export type HistoricoLogUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    actor_ip?: string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module: string
-    resource_type: string
-    resource_id?: string | null
-    action: string
-    action_detail: string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.EventoStatus
-    error_message?: string | null
-    integrity_hash: string
-    product_id?: string | null
-    user_id?: string | null
-    created_at?: Date | string
+    id_historico_log?: string
+    id_organizacao_historico_log: string
+    id_produto_historico_log?: string | null
+    id_usuario_historico_log?: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor
+    id_ator_historico_log: string
+    nome_ator_historico_log: string
+    ip_ator_historico_log?: string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log: string
+    tipo_recurso_historico_log: string
+    id_recurso_historico_log?: string | null
+    acao_historico_log: string
+    detalhe_acao_historico_log: string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: $Enums.EventoStatus
+    mensagem_erro_historico_log?: string | null
+    hash_integridade_historico_log: string
+    data_criacao_historico_log?: Date | string
   }
 
   export type HistoricoLogUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module?: StringFieldUpdateOperationsInput | string
-    resource_type?: StringFieldUpdateOperationsInput | string
-    resource_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action?: StringFieldUpdateOperationsInput | string
-    action_detail?: StringFieldUpdateOperationsInput | string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    integrity_hash?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    ip_ator_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log?: StringFieldUpdateOperationsInput | string
+    tipo_recurso_historico_log?: StringFieldUpdateOperationsInput | string
+    id_recurso_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_historico_log?: StringFieldUpdateOperationsInput | string
+    detalhe_acao_historico_log?: StringFieldUpdateOperationsInput | string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
+    mensagem_erro_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_integridade_historico_log?: StringFieldUpdateOperationsInput | string
+    data_criacao_historico_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type HistoricoLogUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module?: StringFieldUpdateOperationsInput | string
-    resource_type?: StringFieldUpdateOperationsInput | string
-    resource_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action?: StringFieldUpdateOperationsInput | string
-    action_detail?: StringFieldUpdateOperationsInput | string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    integrity_hash?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    ip_ator_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log?: StringFieldUpdateOperationsInput | string
+    tipo_recurso_historico_log?: StringFieldUpdateOperationsInput | string
+    id_recurso_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_historico_log?: StringFieldUpdateOperationsInput | string
+    detalhe_acao_historico_log?: StringFieldUpdateOperationsInput | string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
+    mensagem_erro_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_integridade_historico_log?: StringFieldUpdateOperationsInput | string
+    data_criacao_historico_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type HistoricoLogCreateManyInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    actor_ip?: string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module: string
-    resource_type: string
-    resource_id?: string | null
-    action: string
-    action_detail: string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.EventoStatus
-    error_message?: string | null
-    integrity_hash: string
-    product_id?: string | null
-    user_id?: string | null
-    created_at?: Date | string
+    id_historico_log?: string
+    id_organizacao_historico_log: string
+    id_produto_historico_log?: string | null
+    id_usuario_historico_log?: string | null
+    tipo_ator_historico_log: $Enums.AcaoExecutadaPor
+    id_ator_historico_log: string
+    nome_ator_historico_log: string
+    ip_ator_historico_log?: string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log: string
+    tipo_recurso_historico_log: string
+    id_recurso_historico_log?: string | null
+    acao_historico_log: string
+    detalhe_acao_historico_log: string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: $Enums.EventoStatus
+    mensagem_erro_historico_log?: string | null
+    hash_integridade_historico_log: string
+    data_criacao_historico_log?: Date | string
   }
 
   export type HistoricoLogUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module?: StringFieldUpdateOperationsInput | string
-    resource_type?: StringFieldUpdateOperationsInput | string
-    resource_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action?: StringFieldUpdateOperationsInput | string
-    action_detail?: StringFieldUpdateOperationsInput | string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    integrity_hash?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    ip_ator_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log?: StringFieldUpdateOperationsInput | string
+    tipo_recurso_historico_log?: StringFieldUpdateOperationsInput | string
+    id_recurso_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_historico_log?: StringFieldUpdateOperationsInput | string
+    detalhe_acao_historico_log?: StringFieldUpdateOperationsInput | string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
+    mensagem_erro_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_integridade_historico_log?: StringFieldUpdateOperationsInput | string
+    data_criacao_historico_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type HistoricoLogUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
-    actor_metadata?: NullableJsonNullValueInput | InputJsonValue
-    module?: StringFieldUpdateOperationsInput | string
-    resource_type?: StringFieldUpdateOperationsInput | string
-    resource_id?: NullableStringFieldUpdateOperationsInput | string | null
-    action?: StringFieldUpdateOperationsInput | string
-    action_detail?: StringFieldUpdateOperationsInput | string
-    before?: NullableJsonNullValueInput | InputJsonValue
-    after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    integrity_hash?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_historico_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_historico_log?: StringFieldUpdateOperationsInput | string
+    id_produto_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_historico_log?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    nome_ator_historico_log?: StringFieldUpdateOperationsInput | string
+    ip_ator_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata_ator_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    modulo_historico_log?: StringFieldUpdateOperationsInput | string
+    tipo_recurso_historico_log?: StringFieldUpdateOperationsInput | string
+    id_recurso_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    acao_historico_log?: StringFieldUpdateOperationsInput | string
+    detalhe_acao_historico_log?: StringFieldUpdateOperationsInput | string
+    estado_anterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    estado_posterior_historico_log?: NullableJsonNullValueInput | InputJsonValue
+    status_historico_log?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
+    mensagem_erro_historico_log?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_integridade_historico_log?: StringFieldUpdateOperationsInput | string
+    data_criacao_historico_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleCreateInput = {
-    id?: string
-    tenant_id?: string | null
-    name: string
-    description?: string | null
-    enabled?: boolean
-    actor_type?: $Enums.AcaoExecutadaPor | null
-    action?: string | null
-    module?: string | null
-    status_filter?: $Enums.EventoStatus | null
-    threshold_count?: number | null
-    threshold_window_seconds?: number | null
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
-    created_at?: Date | string
-    updated_at?: Date | string
-    alerts?: AlertEventCreateNestedManyWithoutRuleInput
+  export type RegraAlertaCreateInput = {
+    id_regra_alerta?: string
+    id_organizacao_regra_alerta?: string | null
+    id_produto_regra_alerta?: string | null
+    id_usuario_regra_alerta?: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta?: string | null
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: string | null
+    modulo_regra_alerta?: string | null
+    filtro_status_regra_alerta?: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: number | null
+    limiar_janela_segundos_regra_alerta?: number | null
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: RegraAlertaCreatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: Date | string
+    data_atualizacao_regra_alerta?: Date | string
+    eventos_regra_alerta?: EventoAlertaCreateNestedManyWithoutRegra_evento_alertaInput
   }
 
-  export type AlertRuleUncheckedCreateInput = {
-    id?: string
-    tenant_id?: string | null
-    name: string
-    description?: string | null
-    enabled?: boolean
-    actor_type?: $Enums.AcaoExecutadaPor | null
-    action?: string | null
-    module?: string | null
-    status_filter?: $Enums.EventoStatus | null
-    threshold_count?: number | null
-    threshold_window_seconds?: number | null
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
-    created_at?: Date | string
-    updated_at?: Date | string
-    alerts?: AlertEventUncheckedCreateNestedManyWithoutRuleInput
+  export type RegraAlertaUncheckedCreateInput = {
+    id_regra_alerta?: string
+    id_organizacao_regra_alerta?: string | null
+    id_produto_regra_alerta?: string | null
+    id_usuario_regra_alerta?: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta?: string | null
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: string | null
+    modulo_regra_alerta?: string | null
+    filtro_status_regra_alerta?: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: number | null
+    limiar_janela_segundos_regra_alerta?: number | null
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: RegraAlertaCreatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: Date | string
+    data_atualizacao_regra_alerta?: Date | string
+    eventos_regra_alerta?: EventoAlertaUncheckedCreateNestedManyWithoutRegra_evento_alertaInput
   }
 
-  export type AlertRuleUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: AlertEventUpdateManyWithoutRuleNestedInput
+  export type RegraAlertaUpdateInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    eventos_regra_alerta?: EventoAlertaUpdateManyWithoutRegra_evento_alertaNestedInput
   }
 
-  export type AlertRuleUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: AlertEventUncheckedUpdateManyWithoutRuleNestedInput
+  export type RegraAlertaUncheckedUpdateInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    eventos_regra_alerta?: EventoAlertaUncheckedUpdateManyWithoutRegra_evento_alertaNestedInput
   }
 
-  export type AlertRuleCreateManyInput = {
-    id?: string
-    tenant_id?: string | null
-    name: string
-    description?: string | null
-    enabled?: boolean
-    actor_type?: $Enums.AcaoExecutadaPor | null
-    action?: string | null
-    module?: string | null
-    status_filter?: $Enums.EventoStatus | null
-    threshold_count?: number | null
-    threshold_window_seconds?: number | null
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type RegraAlertaCreateManyInput = {
+    id_regra_alerta?: string
+    id_organizacao_regra_alerta?: string | null
+    id_produto_regra_alerta?: string | null
+    id_usuario_regra_alerta?: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta?: string | null
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: string | null
+    modulo_regra_alerta?: string | null
+    filtro_status_regra_alerta?: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: number | null
+    limiar_janela_segundos_regra_alerta?: number | null
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: RegraAlertaCreatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: Date | string
+    data_atualizacao_regra_alerta?: Date | string
   }
 
-  export type AlertRuleUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type RegraAlertaUpdateManyMutationInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type RegraAlertaUncheckedUpdateManyInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertEventCreateInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    rule: AlertRuleCreateNestedOneWithoutAlertsInput
-    notifications?: AlertNotificationLogCreateNestedManyWithoutAlert_eventInput
+  export type EventoAlertaCreateInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
+    regra_evento_alerta: RegraAlertaCreateNestedOneWithoutEventos_regra_alertaInput
+    notificacoes_evento_alerta?: NotificacaoAlertaCreateNestedManyWithoutEvento_notificacao_alertaInput
   }
 
-  export type AlertEventUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    rule_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    notifications?: AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput
+  export type EventoAlertaUncheckedCreateInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    id_regra_evento_alerta: string
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaUncheckedCreateNestedManyWithoutEvento_notificacao_alertaInput
   }
 
-  export type AlertEventUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    rule?: AlertRuleUpdateOneRequiredWithoutAlertsNestedInput
-    notifications?: AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput
+  export type EventoAlertaUpdateInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    regra_evento_alerta?: RegraAlertaUpdateOneRequiredWithoutEventos_regra_alertaNestedInput
+    notificacoes_evento_alerta?: NotificacaoAlertaUpdateManyWithoutEvento_notificacao_alertaNestedInput
   }
 
-  export type AlertEventUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput
+  export type EventoAlertaUncheckedUpdateInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaUncheckedUpdateManyWithoutEvento_notificacao_alertaNestedInput
   }
 
-  export type AlertEventCreateManyInput = {
-    id?: string
-    tenant_id: string
-    rule_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
+  export type EventoAlertaCreateManyInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    id_regra_evento_alerta: string
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
   }
 
-  export type AlertEventUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EventoAlertaUpdateManyMutationInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertEventUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EventoAlertaUncheckedUpdateManyInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateInput = {
-    id?: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
-    alert_event: AlertEventCreateNestedOneWithoutNotificationsInput
+  export type NotificacaoAlertaCreateInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
+    evento_notificacao_alerta: EventoAlertaCreateNestedOneWithoutNotificacoes_evento_alertaInput
   }
 
-  export type AlertNotificationLogUncheckedCreateInput = {
-    id?: string
-    alert_event_id: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
+  export type NotificacaoAlertaUncheckedCreateInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    id_evento_notificacao_alerta: string
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
   }
 
-  export type AlertNotificationLogUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alert_event?: AlertEventUpdateOneRequiredWithoutNotificationsNestedInput
+  export type NotificacaoAlertaUpdateInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    evento_notificacao_alerta?: EventoAlertaUpdateOneRequiredWithoutNotificacoes_evento_alertaNestedInput
   }
 
-  export type AlertNotificationLogUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    alert_event_id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUncheckedUpdateInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateManyInput = {
-    id?: string
-    alert_event_id: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
+  export type NotificacaoAlertaCreateManyInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    id_evento_notificacao_alerta: string
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
   }
 
-  export type AlertNotificationLogUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUpdateManyMutationInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    alert_event_id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUncheckedUpdateManyInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_evento_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarResultadoCreateInput = {
-    id?: string
-    tenant_id: string
-    format: string
-    content: string
-    status?: string
-    record_count?: number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: string | null
-    created_at?: Date | string
-    expires_at: Date | string
+    id_exportar_resultado?: string
+    id_organizacao_exportar_resultado: string
+    id_produto_exportar_resultado?: string | null
+    id_usuario_exportar_resultado?: string | null
+    formato_exportar_resultado: string
+    conteudo_exportar_resultado: string
+    status_exportar_resultado?: string
+    contagem_registros_exportar_resultado?: number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: string | null
+    data_criacao_exportar_resultado?: Date | string
+    expira_em_exportar_resultado: Date | string
   }
 
   export type ExportarResultadoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    format: string
-    content: string
-    status?: string
-    record_count?: number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: string | null
-    created_at?: Date | string
-    expires_at: Date | string
+    id_exportar_resultado?: string
+    id_organizacao_exportar_resultado: string
+    id_produto_exportar_resultado?: string | null
+    id_usuario_exportar_resultado?: string | null
+    formato_exportar_resultado: string
+    conteudo_exportar_resultado: string
+    status_exportar_resultado?: string
+    contagem_registros_exportar_resultado?: number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: string | null
+    data_criacao_exportar_resultado?: Date | string
+    expira_em_exportar_resultado: Date | string
   }
 
   export type ExportarResultadoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    format?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    record_count?: IntFieldUpdateOperationsInput | number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    status_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    contagem_registros_exportar_resultado?: IntFieldUpdateOperationsInput | number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
+    expira_em_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarResultadoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    format?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    record_count?: IntFieldUpdateOperationsInput | number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    status_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    contagem_registros_exportar_resultado?: IntFieldUpdateOperationsInput | number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
+    expira_em_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarResultadoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    format: string
-    content: string
-    status?: string
-    record_count?: number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: string | null
-    created_at?: Date | string
-    expires_at: Date | string
+    id_exportar_resultado?: string
+    id_organizacao_exportar_resultado: string
+    id_produto_exportar_resultado?: string | null
+    id_usuario_exportar_resultado?: string | null
+    formato_exportar_resultado: string
+    conteudo_exportar_resultado: string
+    status_exportar_resultado?: string
+    contagem_registros_exportar_resultado?: number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: string | null
+    data_criacao_exportar_resultado?: Date | string
+    expira_em_exportar_resultado: Date | string
   }
 
   export type ExportarResultadoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    format?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    record_count?: IntFieldUpdateOperationsInput | number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    status_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    contagem_registros_exportar_resultado?: IntFieldUpdateOperationsInput | number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
+    expira_em_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarResultadoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    format?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    record_count?: IntFieldUpdateOperationsInput | number
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    error?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    formato_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    conteudo_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    status_exportar_resultado?: StringFieldUpdateOperationsInput | string
+    contagem_registros_exportar_resultado?: IntFieldUpdateOperationsInput | number
+    filtros_exportar_resultado?: NullableJsonNullValueInput | InputJsonValue
+    erro_exportar_resultado?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
+    expira_em_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgendaCreateInput = {
@@ -61987,66 +62211,66 @@ export namespace Prisma {
   }
 
   export type HistoricoLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    actor_ip?: SortOrder
-    actor_metadata?: SortOrder
-    module?: SortOrder
-    resource_type?: SortOrder
-    resource_id?: SortOrder
-    action?: SortOrder
-    action_detail?: SortOrder
-    before?: SortOrder
-    after?: SortOrder
-    status?: SortOrder
-    error_message?: SortOrder
-    integrity_hash?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
+    id_historico_log?: SortOrder
+    id_organizacao_historico_log?: SortOrder
+    id_produto_historico_log?: SortOrder
+    id_usuario_historico_log?: SortOrder
+    tipo_ator_historico_log?: SortOrder
+    id_ator_historico_log?: SortOrder
+    nome_ator_historico_log?: SortOrder
+    ip_ator_historico_log?: SortOrder
+    metadata_ator_historico_log?: SortOrder
+    modulo_historico_log?: SortOrder
+    tipo_recurso_historico_log?: SortOrder
+    id_recurso_historico_log?: SortOrder
+    acao_historico_log?: SortOrder
+    detalhe_acao_historico_log?: SortOrder
+    estado_anterior_historico_log?: SortOrder
+    estado_posterior_historico_log?: SortOrder
+    status_historico_log?: SortOrder
+    mensagem_erro_historico_log?: SortOrder
+    hash_integridade_historico_log?: SortOrder
+    data_criacao_historico_log?: SortOrder
   }
 
   export type HistoricoLogMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    actor_ip?: SortOrder
-    module?: SortOrder
-    resource_type?: SortOrder
-    resource_id?: SortOrder
-    action?: SortOrder
-    action_detail?: SortOrder
-    status?: SortOrder
-    error_message?: SortOrder
-    integrity_hash?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
+    id_historico_log?: SortOrder
+    id_organizacao_historico_log?: SortOrder
+    id_produto_historico_log?: SortOrder
+    id_usuario_historico_log?: SortOrder
+    tipo_ator_historico_log?: SortOrder
+    id_ator_historico_log?: SortOrder
+    nome_ator_historico_log?: SortOrder
+    ip_ator_historico_log?: SortOrder
+    modulo_historico_log?: SortOrder
+    tipo_recurso_historico_log?: SortOrder
+    id_recurso_historico_log?: SortOrder
+    acao_historico_log?: SortOrder
+    detalhe_acao_historico_log?: SortOrder
+    status_historico_log?: SortOrder
+    mensagem_erro_historico_log?: SortOrder
+    hash_integridade_historico_log?: SortOrder
+    data_criacao_historico_log?: SortOrder
   }
 
   export type HistoricoLogMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    actor_ip?: SortOrder
-    module?: SortOrder
-    resource_type?: SortOrder
-    resource_id?: SortOrder
-    action?: SortOrder
-    action_detail?: SortOrder
-    status?: SortOrder
-    error_message?: SortOrder
-    integrity_hash?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
+    id_historico_log?: SortOrder
+    id_organizacao_historico_log?: SortOrder
+    id_produto_historico_log?: SortOrder
+    id_usuario_historico_log?: SortOrder
+    tipo_ator_historico_log?: SortOrder
+    id_ator_historico_log?: SortOrder
+    nome_ator_historico_log?: SortOrder
+    ip_ator_historico_log?: SortOrder
+    modulo_historico_log?: SortOrder
+    tipo_recurso_historico_log?: SortOrder
+    id_recurso_historico_log?: SortOrder
+    acao_historico_log?: SortOrder
+    detalhe_acao_historico_log?: SortOrder
+    status_historico_log?: SortOrder
+    mensagem_erro_historico_log?: SortOrder
+    hash_integridade_historico_log?: SortOrder
+    data_criacao_historico_log?: SortOrder
   }
 
   export type EnumAcaoExecutadaPorWithAggregatesFilter<$PrismaModel = never> = {
@@ -62083,84 +62307,90 @@ export namespace Prisma {
     not?: NestedEnumEventoStatusNullableFilter<$PrismaModel> | $Enums.EventoStatus | null
   }
 
-  export type AlertEventListRelationFilter = {
-    every?: AlertEventWhereInput
-    some?: AlertEventWhereInput
-    none?: AlertEventWhereInput
+  export type EventoAlertaListRelationFilter = {
+    every?: EventoAlertaWhereInput
+    some?: EventoAlertaWhereInput
+    none?: EventoAlertaWhereInput
   }
 
-  export type AlertEventOrderByRelationAggregateInput = {
+  export type EventoAlertaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AlertRuleCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    enabled?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    module?: SortOrder
-    status_filter?: SortOrder
-    threshold_count?: SortOrder
-    threshold_window_seconds?: SortOrder
-    channel_inapp?: SortOrder
-    channel_email?: SortOrder
-    channel_whatsapp?: SortOrder
-    recipients_email?: SortOrder
-    recipients_whatsapp?: SortOrder
-    recipients_user_ids?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type RegraAlertaCountOrderByAggregateInput = {
+    id_regra_alerta?: SortOrder
+    id_organizacao_regra_alerta?: SortOrder
+    id_produto_regra_alerta?: SortOrder
+    id_usuario_regra_alerta?: SortOrder
+    nome_regra_alerta?: SortOrder
+    descricao_regra_alerta?: SortOrder
+    habilitada_regra_alerta?: SortOrder
+    tipo_ator_regra_alerta?: SortOrder
+    acao_regra_alerta?: SortOrder
+    modulo_regra_alerta?: SortOrder
+    filtro_status_regra_alerta?: SortOrder
+    limiar_contagem_regra_alerta?: SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrder
+    canal_inapp_regra_alerta?: SortOrder
+    canal_email_regra_alerta?: SortOrder
+    canal_whatsapp_regra_alerta?: SortOrder
+    destinatarios_email_regra_alerta?: SortOrder
+    destinatarios_whatsapp_regra_alerta?: SortOrder
+    destinatarios_usuarios_regra_alerta?: SortOrder
+    data_criacao_regra_alerta?: SortOrder
+    data_atualizacao_regra_alerta?: SortOrder
   }
 
-  export type AlertRuleAvgOrderByAggregateInput = {
-    threshold_count?: SortOrder
-    threshold_window_seconds?: SortOrder
+  export type RegraAlertaAvgOrderByAggregateInput = {
+    limiar_contagem_regra_alerta?: SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrder
   }
 
-  export type AlertRuleMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    enabled?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    module?: SortOrder
-    status_filter?: SortOrder
-    threshold_count?: SortOrder
-    threshold_window_seconds?: SortOrder
-    channel_inapp?: SortOrder
-    channel_email?: SortOrder
-    channel_whatsapp?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type RegraAlertaMaxOrderByAggregateInput = {
+    id_regra_alerta?: SortOrder
+    id_organizacao_regra_alerta?: SortOrder
+    id_produto_regra_alerta?: SortOrder
+    id_usuario_regra_alerta?: SortOrder
+    nome_regra_alerta?: SortOrder
+    descricao_regra_alerta?: SortOrder
+    habilitada_regra_alerta?: SortOrder
+    tipo_ator_regra_alerta?: SortOrder
+    acao_regra_alerta?: SortOrder
+    modulo_regra_alerta?: SortOrder
+    filtro_status_regra_alerta?: SortOrder
+    limiar_contagem_regra_alerta?: SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrder
+    canal_inapp_regra_alerta?: SortOrder
+    canal_email_regra_alerta?: SortOrder
+    canal_whatsapp_regra_alerta?: SortOrder
+    data_criacao_regra_alerta?: SortOrder
+    data_atualizacao_regra_alerta?: SortOrder
   }
 
-  export type AlertRuleMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    description?: SortOrder
-    enabled?: SortOrder
-    actor_type?: SortOrder
-    action?: SortOrder
-    module?: SortOrder
-    status_filter?: SortOrder
-    threshold_count?: SortOrder
-    threshold_window_seconds?: SortOrder
-    channel_inapp?: SortOrder
-    channel_email?: SortOrder
-    channel_whatsapp?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type RegraAlertaMinOrderByAggregateInput = {
+    id_regra_alerta?: SortOrder
+    id_organizacao_regra_alerta?: SortOrder
+    id_produto_regra_alerta?: SortOrder
+    id_usuario_regra_alerta?: SortOrder
+    nome_regra_alerta?: SortOrder
+    descricao_regra_alerta?: SortOrder
+    habilitada_regra_alerta?: SortOrder
+    tipo_ator_regra_alerta?: SortOrder
+    acao_regra_alerta?: SortOrder
+    modulo_regra_alerta?: SortOrder
+    filtro_status_regra_alerta?: SortOrder
+    limiar_contagem_regra_alerta?: SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrder
+    canal_inapp_regra_alerta?: SortOrder
+    canal_email_regra_alerta?: SortOrder
+    canal_whatsapp_regra_alerta?: SortOrder
+    data_criacao_regra_alerta?: SortOrder
+    data_atualizacao_regra_alerta?: SortOrder
   }
 
-  export type AlertRuleSumOrderByAggregateInput = {
-    threshold_count?: SortOrder
-    threshold_window_seconds?: SortOrder
+  export type RegraAlertaSumOrderByAggregateInput = {
+    limiar_contagem_regra_alerta?: SortOrder
+    limiar_janela_segundos_regra_alerta?: SortOrder
   }
 
   export type EnumAcaoExecutadaPorNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -62190,84 +62420,90 @@ export namespace Prisma {
     not?: NestedEnumAlertaStatusFilter<$PrismaModel> | $Enums.AlertaStatus
   }
 
-  export type AlertRuleRelationFilter = {
-    is?: AlertRuleWhereInput
-    isNot?: AlertRuleWhereInput
+  export type RegraAlertaRelationFilter = {
+    is?: RegraAlertaWhereInput
+    isNot?: RegraAlertaWhereInput
   }
 
-  export type AlertNotificationLogListRelationFilter = {
-    every?: AlertNotificationLogWhereInput
-    some?: AlertNotificationLogWhereInput
-    none?: AlertNotificationLogWhereInput
+  export type NotificacaoAlertaListRelationFilter = {
+    every?: NotificacaoAlertaWhereInput
+    some?: NotificacaoAlertaWhereInput
+    none?: NotificacaoAlertaWhereInput
   }
 
-  export type AlertNotificationLogOrderByRelationAggregateInput = {
+  export type NotificacaoAlertaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AlertEventCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    rule_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    module?: SortOrder
-    action?: SortOrder
-    event_count?: SortOrder
-    window_seconds?: SortOrder
-    audit_log_ids?: SortOrder
-    status?: SortOrder
-    reviewed_by?: SortOrder
-    reviewed_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
+  export type EventoAlertaCountOrderByAggregateInput = {
+    id_evento_alerta?: SortOrder
+    id_organizacao_evento_alerta?: SortOrder
+    id_produto_evento_alerta?: SortOrder
+    id_usuario_evento_alerta?: SortOrder
+    id_regra_evento_alerta?: SortOrder
+    tipo_ator_evento_alerta?: SortOrder
+    id_ator_evento_alerta?: SortOrder
+    nome_ator_evento_alerta?: SortOrder
+    modulo_evento_alerta?: SortOrder
+    acao_evento_alerta?: SortOrder
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
+    ids_logs_auditoria_evento_alerta?: SortOrder
+    status_evento_alerta?: SortOrder
+    revisado_por_evento_alerta?: SortOrder
+    revisado_em_evento_alerta?: SortOrder
+    notas_evento_alerta?: SortOrder
+    data_criacao_evento_alerta?: SortOrder
   }
 
-  export type AlertEventAvgOrderByAggregateInput = {
-    event_count?: SortOrder
-    window_seconds?: SortOrder
+  export type EventoAlertaAvgOrderByAggregateInput = {
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
   }
 
-  export type AlertEventMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    rule_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    module?: SortOrder
-    action?: SortOrder
-    event_count?: SortOrder
-    window_seconds?: SortOrder
-    status?: SortOrder
-    reviewed_by?: SortOrder
-    reviewed_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
+  export type EventoAlertaMaxOrderByAggregateInput = {
+    id_evento_alerta?: SortOrder
+    id_organizacao_evento_alerta?: SortOrder
+    id_produto_evento_alerta?: SortOrder
+    id_usuario_evento_alerta?: SortOrder
+    id_regra_evento_alerta?: SortOrder
+    tipo_ator_evento_alerta?: SortOrder
+    id_ator_evento_alerta?: SortOrder
+    nome_ator_evento_alerta?: SortOrder
+    modulo_evento_alerta?: SortOrder
+    acao_evento_alerta?: SortOrder
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
+    status_evento_alerta?: SortOrder
+    revisado_por_evento_alerta?: SortOrder
+    revisado_em_evento_alerta?: SortOrder
+    notas_evento_alerta?: SortOrder
+    data_criacao_evento_alerta?: SortOrder
   }
 
-  export type AlertEventMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    rule_id?: SortOrder
-    actor_type?: SortOrder
-    actor_id?: SortOrder
-    actor_name?: SortOrder
-    module?: SortOrder
-    action?: SortOrder
-    event_count?: SortOrder
-    window_seconds?: SortOrder
-    status?: SortOrder
-    reviewed_by?: SortOrder
-    reviewed_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
+  export type EventoAlertaMinOrderByAggregateInput = {
+    id_evento_alerta?: SortOrder
+    id_organizacao_evento_alerta?: SortOrder
+    id_produto_evento_alerta?: SortOrder
+    id_usuario_evento_alerta?: SortOrder
+    id_regra_evento_alerta?: SortOrder
+    tipo_ator_evento_alerta?: SortOrder
+    id_ator_evento_alerta?: SortOrder
+    nome_ator_evento_alerta?: SortOrder
+    modulo_evento_alerta?: SortOrder
+    acao_evento_alerta?: SortOrder
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
+    status_evento_alerta?: SortOrder
+    revisado_por_evento_alerta?: SortOrder
+    revisado_em_evento_alerta?: SortOrder
+    notas_evento_alerta?: SortOrder
+    data_criacao_evento_alerta?: SortOrder
   }
 
-  export type AlertEventSumOrderByAggregateInput = {
-    event_count?: SortOrder
-    window_seconds?: SortOrder
+  export type EventoAlertaSumOrderByAggregateInput = {
+    contagem_eventos_evento_alerta?: SortOrder
+    janela_segundos_evento_alerta?: SortOrder
   }
 
   export type EnumAlertaStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -62280,98 +62516,113 @@ export namespace Prisma {
     _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
   }
 
-  export type AlertEventRelationFilter = {
-    is?: AlertEventWhereInput
-    isNot?: AlertEventWhereInput
+  export type EventoAlertaRelationFilter = {
+    is?: EventoAlertaWhereInput
+    isNot?: EventoAlertaWhereInput
   }
 
-  export type AlertNotificationLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    alert_event_id?: SortOrder
-    channel?: SortOrder
-    recipient?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    error_message?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
+  export type NotificacaoAlertaCountOrderByAggregateInput = {
+    id_notificacao_alerta?: SortOrder
+    id_organizacao_notificacao_alerta?: SortOrder
+    id_produto_notificacao_alerta?: SortOrder
+    id_usuario_notificacao_alerta?: SortOrder
+    id_evento_notificacao_alerta?: SortOrder
+    canal_notificacao_alerta?: SortOrder
+    destinatario_notificacao_alerta?: SortOrder
+    status_notificacao_alerta?: SortOrder
+    tentativas_notificacao_alerta?: SortOrder
+    mensagem_erro_notificacao_alerta?: SortOrder
+    enviado_em_notificacao_alerta?: SortOrder
+    data_criacao_notificacao_alerta?: SortOrder
   }
 
-  export type AlertNotificationLogAvgOrderByAggregateInput = {
-    attempts?: SortOrder
+  export type NotificacaoAlertaAvgOrderByAggregateInput = {
+    tentativas_notificacao_alerta?: SortOrder
   }
 
-  export type AlertNotificationLogMaxOrderByAggregateInput = {
-    id?: SortOrder
-    alert_event_id?: SortOrder
-    channel?: SortOrder
-    recipient?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    error_message?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
+  export type NotificacaoAlertaMaxOrderByAggregateInput = {
+    id_notificacao_alerta?: SortOrder
+    id_organizacao_notificacao_alerta?: SortOrder
+    id_produto_notificacao_alerta?: SortOrder
+    id_usuario_notificacao_alerta?: SortOrder
+    id_evento_notificacao_alerta?: SortOrder
+    canal_notificacao_alerta?: SortOrder
+    destinatario_notificacao_alerta?: SortOrder
+    status_notificacao_alerta?: SortOrder
+    tentativas_notificacao_alerta?: SortOrder
+    mensagem_erro_notificacao_alerta?: SortOrder
+    enviado_em_notificacao_alerta?: SortOrder
+    data_criacao_notificacao_alerta?: SortOrder
   }
 
-  export type AlertNotificationLogMinOrderByAggregateInput = {
-    id?: SortOrder
-    alert_event_id?: SortOrder
-    channel?: SortOrder
-    recipient?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    error_message?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
+  export type NotificacaoAlertaMinOrderByAggregateInput = {
+    id_notificacao_alerta?: SortOrder
+    id_organizacao_notificacao_alerta?: SortOrder
+    id_produto_notificacao_alerta?: SortOrder
+    id_usuario_notificacao_alerta?: SortOrder
+    id_evento_notificacao_alerta?: SortOrder
+    canal_notificacao_alerta?: SortOrder
+    destinatario_notificacao_alerta?: SortOrder
+    status_notificacao_alerta?: SortOrder
+    tentativas_notificacao_alerta?: SortOrder
+    mensagem_erro_notificacao_alerta?: SortOrder
+    enviado_em_notificacao_alerta?: SortOrder
+    data_criacao_notificacao_alerta?: SortOrder
   }
 
-  export type AlertNotificationLogSumOrderByAggregateInput = {
-    attempts?: SortOrder
+  export type NotificacaoAlertaSumOrderByAggregateInput = {
+    tentativas_notificacao_alerta?: SortOrder
   }
 
   export type ExportarResultadoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    format?: SortOrder
-    content?: SortOrder
-    status?: SortOrder
-    record_count?: SortOrder
-    filters?: SortOrder
-    error?: SortOrder
-    created_at?: SortOrder
-    expires_at?: SortOrder
+    id_exportar_resultado?: SortOrder
+    id_organizacao_exportar_resultado?: SortOrder
+    id_produto_exportar_resultado?: SortOrder
+    id_usuario_exportar_resultado?: SortOrder
+    formato_exportar_resultado?: SortOrder
+    conteudo_exportar_resultado?: SortOrder
+    status_exportar_resultado?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
+    filtros_exportar_resultado?: SortOrder
+    erro_exportar_resultado?: SortOrder
+    data_criacao_exportar_resultado?: SortOrder
+    expira_em_exportar_resultado?: SortOrder
   }
 
   export type ExportarResultadoAvgOrderByAggregateInput = {
-    record_count?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
   }
 
   export type ExportarResultadoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    format?: SortOrder
-    content?: SortOrder
-    status?: SortOrder
-    record_count?: SortOrder
-    error?: SortOrder
-    created_at?: SortOrder
-    expires_at?: SortOrder
+    id_exportar_resultado?: SortOrder
+    id_organizacao_exportar_resultado?: SortOrder
+    id_produto_exportar_resultado?: SortOrder
+    id_usuario_exportar_resultado?: SortOrder
+    formato_exportar_resultado?: SortOrder
+    conteudo_exportar_resultado?: SortOrder
+    status_exportar_resultado?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
+    erro_exportar_resultado?: SortOrder
+    data_criacao_exportar_resultado?: SortOrder
+    expira_em_exportar_resultado?: SortOrder
   }
 
   export type ExportarResultadoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    format?: SortOrder
-    content?: SortOrder
-    status?: SortOrder
-    record_count?: SortOrder
-    error?: SortOrder
-    created_at?: SortOrder
-    expires_at?: SortOrder
+    id_exportar_resultado?: SortOrder
+    id_organizacao_exportar_resultado?: SortOrder
+    id_produto_exportar_resultado?: SortOrder
+    id_usuario_exportar_resultado?: SortOrder
+    formato_exportar_resultado?: SortOrder
+    conteudo_exportar_resultado?: SortOrder
+    status_exportar_resultado?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
+    erro_exportar_resultado?: SortOrder
+    data_criacao_exportar_resultado?: SortOrder
+    expira_em_exportar_resultado?: SortOrder
   }
 
   export type ExportarResultadoSumOrderByAggregateInput = {
-    record_count?: SortOrder
+    contagem_registros_exportar_resultado?: SortOrder
   }
 
   export type SlotListRelationFilter = {
@@ -63649,30 +63900,30 @@ export namespace Prisma {
     set?: $Enums.EventoStatus
   }
 
-  export type AlertRuleCreaterecipients_emailInput = {
+  export type RegraAlertaCreatedestinatarios_email_regra_alertaInput = {
     set: string[]
   }
 
-  export type AlertRuleCreaterecipients_whatsappInput = {
+  export type RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput = {
     set: string[]
   }
 
-  export type AlertRuleCreaterecipients_user_idsInput = {
+  export type RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput = {
     set: string[]
   }
 
-  export type AlertEventCreateNestedManyWithoutRuleInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
+  export type EventoAlertaCreateNestedManyWithoutRegra_evento_alertaInput = {
+    create?: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput> | EventoAlertaCreateWithoutRegra_evento_alertaInput[] | EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput | EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput[]
+    createMany?: EventoAlertaCreateManyRegra_evento_alertaInputEnvelope
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
   }
 
-  export type AlertEventUncheckedCreateNestedManyWithoutRuleInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
+  export type EventoAlertaUncheckedCreateNestedManyWithoutRegra_evento_alertaInput = {
+    create?: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput> | EventoAlertaCreateWithoutRegra_evento_alertaInput[] | EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput | EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput[]
+    createMany?: EventoAlertaCreateManyRegra_evento_alertaInputEnvelope
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
   }
 
   export type NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput = {
@@ -63683,74 +63934,74 @@ export namespace Prisma {
     set?: $Enums.EventoStatus | null
   }
 
-  export type AlertRuleUpdaterecipients_emailInput = {
+  export type RegraAlertaUpdatedestinatarios_email_regra_alertaInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertRuleUpdaterecipients_whatsappInput = {
+  export type RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertRuleUpdaterecipients_user_idsInput = {
+  export type RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertEventUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    upsert?: AlertEventUpsertWithWhereUniqueWithoutRuleInput | AlertEventUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    set?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    disconnect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    delete?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    update?: AlertEventUpdateWithWhereUniqueWithoutRuleInput | AlertEventUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: AlertEventUpdateManyWithWhereWithoutRuleInput | AlertEventUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
+  export type EventoAlertaUpdateManyWithoutRegra_evento_alertaNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput> | EventoAlertaCreateWithoutRegra_evento_alertaInput[] | EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput | EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput[]
+    upsert?: EventoAlertaUpsertWithWhereUniqueWithoutRegra_evento_alertaInput | EventoAlertaUpsertWithWhereUniqueWithoutRegra_evento_alertaInput[]
+    createMany?: EventoAlertaCreateManyRegra_evento_alertaInputEnvelope
+    set?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    disconnect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    delete?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    update?: EventoAlertaUpdateWithWhereUniqueWithoutRegra_evento_alertaInput | EventoAlertaUpdateWithWhereUniqueWithoutRegra_evento_alertaInput[]
+    updateMany?: EventoAlertaUpdateManyWithWhereWithoutRegra_evento_alertaInput | EventoAlertaUpdateManyWithWhereWithoutRegra_evento_alertaInput[]
+    deleteMany?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventUncheckedUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    upsert?: AlertEventUpsertWithWhereUniqueWithoutRuleInput | AlertEventUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    set?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    disconnect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    delete?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    update?: AlertEventUpdateWithWhereUniqueWithoutRuleInput | AlertEventUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: AlertEventUpdateManyWithWhereWithoutRuleInput | AlertEventUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
+  export type EventoAlertaUncheckedUpdateManyWithoutRegra_evento_alertaNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput> | EventoAlertaCreateWithoutRegra_evento_alertaInput[] | EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput | EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput[]
+    upsert?: EventoAlertaUpsertWithWhereUniqueWithoutRegra_evento_alertaInput | EventoAlertaUpsertWithWhereUniqueWithoutRegra_evento_alertaInput[]
+    createMany?: EventoAlertaCreateManyRegra_evento_alertaInputEnvelope
+    set?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    disconnect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    delete?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    update?: EventoAlertaUpdateWithWhereUniqueWithoutRegra_evento_alertaInput | EventoAlertaUpdateWithWhereUniqueWithoutRegra_evento_alertaInput[]
+    updateMany?: EventoAlertaUpdateManyWithWhereWithoutRegra_evento_alertaInput | EventoAlertaUpdateManyWithWhereWithoutRegra_evento_alertaInput[]
+    deleteMany?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventCreateaudit_log_idsInput = {
+  export type EventoAlertaCreateids_logs_auditoria_evento_alertaInput = {
     set: string[]
   }
 
-  export type AlertRuleCreateNestedOneWithoutAlertsInput = {
-    create?: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: AlertRuleCreateOrConnectWithoutAlertsInput
-    connect?: AlertRuleWhereUniqueInput
+  export type RegraAlertaCreateNestedOneWithoutEventos_regra_alertaInput = {
+    create?: XOR<RegraAlertaCreateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedCreateWithoutEventos_regra_alertaInput>
+    connectOrCreate?: RegraAlertaCreateOrConnectWithoutEventos_regra_alertaInput
+    connect?: RegraAlertaWhereUniqueInput
   }
 
-  export type AlertNotificationLogCreateNestedManyWithoutAlert_eventInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
+  export type NotificacaoAlertaCreateNestedManyWithoutEvento_notificacao_alertaInput = {
+    create?: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput> | NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput[] | NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput[]
+    connectOrCreate?: NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput | NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput[]
+    createMany?: NotificacaoAlertaCreateManyEvento_notificacao_alertaInputEnvelope
+    connect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
   }
 
-  export type AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
+  export type NotificacaoAlertaUncheckedCreateNestedManyWithoutEvento_notificacao_alertaInput = {
+    create?: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput> | NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput[] | NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput[]
+    connectOrCreate?: NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput | NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput[]
+    createMany?: NotificacaoAlertaCreateManyEvento_notificacao_alertaInputEnvelope
+    connect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
   }
 
-  export type AlertEventUpdateaudit_log_idsInput = {
+  export type EventoAlertaUpdateids_logs_auditoria_evento_alertaInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -63759,54 +64010,54 @@ export namespace Prisma {
     set?: $Enums.AlertaStatus
   }
 
-  export type AlertRuleUpdateOneRequiredWithoutAlertsNestedInput = {
-    create?: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: AlertRuleCreateOrConnectWithoutAlertsInput
-    upsert?: AlertRuleUpsertWithoutAlertsInput
-    connect?: AlertRuleWhereUniqueInput
-    update?: XOR<XOR<AlertRuleUpdateToOneWithWhereWithoutAlertsInput, AlertRuleUpdateWithoutAlertsInput>, AlertRuleUncheckedUpdateWithoutAlertsInput>
+  export type RegraAlertaUpdateOneRequiredWithoutEventos_regra_alertaNestedInput = {
+    create?: XOR<RegraAlertaCreateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedCreateWithoutEventos_regra_alertaInput>
+    connectOrCreate?: RegraAlertaCreateOrConnectWithoutEventos_regra_alertaInput
+    upsert?: RegraAlertaUpsertWithoutEventos_regra_alertaInput
+    connect?: RegraAlertaWhereUniqueInput
+    update?: XOR<XOR<RegraAlertaUpdateToOneWithWhereWithoutEventos_regra_alertaInput, RegraAlertaUpdateWithoutEventos_regra_alertaInput>, RegraAlertaUncheckedUpdateWithoutEventos_regra_alertaInput>
   }
 
-  export type AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    upsert?: AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    set?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    disconnect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    delete?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    update?: AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput[]
-    updateMany?: AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput | AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput[]
-    deleteMany?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
+  export type NotificacaoAlertaUpdateManyWithoutEvento_notificacao_alertaNestedInput = {
+    create?: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput> | NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput[] | NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput[]
+    connectOrCreate?: NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput | NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput[]
+    upsert?: NotificacaoAlertaUpsertWithWhereUniqueWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpsertWithWhereUniqueWithoutEvento_notificacao_alertaInput[]
+    createMany?: NotificacaoAlertaCreateManyEvento_notificacao_alertaInputEnvelope
+    set?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    disconnect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    delete?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    connect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    update?: NotificacaoAlertaUpdateWithWhereUniqueWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpdateWithWhereUniqueWithoutEvento_notificacao_alertaInput[]
+    updateMany?: NotificacaoAlertaUpdateManyWithWhereWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpdateManyWithWhereWithoutEvento_notificacao_alertaInput[]
+    deleteMany?: NotificacaoAlertaScalarWhereInput | NotificacaoAlertaScalarWhereInput[]
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    upsert?: AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    set?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    disconnect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    delete?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    update?: AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput[]
-    updateMany?: AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput | AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput[]
-    deleteMany?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
+  export type NotificacaoAlertaUncheckedUpdateManyWithoutEvento_notificacao_alertaNestedInput = {
+    create?: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput> | NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput[] | NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput[]
+    connectOrCreate?: NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput | NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput[]
+    upsert?: NotificacaoAlertaUpsertWithWhereUniqueWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpsertWithWhereUniqueWithoutEvento_notificacao_alertaInput[]
+    createMany?: NotificacaoAlertaCreateManyEvento_notificacao_alertaInputEnvelope
+    set?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    disconnect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    delete?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    connect?: NotificacaoAlertaWhereUniqueInput | NotificacaoAlertaWhereUniqueInput[]
+    update?: NotificacaoAlertaUpdateWithWhereUniqueWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpdateWithWhereUniqueWithoutEvento_notificacao_alertaInput[]
+    updateMany?: NotificacaoAlertaUpdateManyWithWhereWithoutEvento_notificacao_alertaInput | NotificacaoAlertaUpdateManyWithWhereWithoutEvento_notificacao_alertaInput[]
+    deleteMany?: NotificacaoAlertaScalarWhereInput | NotificacaoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventCreateNestedOneWithoutNotificationsInput = {
-    create?: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    connectOrCreate?: AlertEventCreateOrConnectWithoutNotificationsInput
-    connect?: AlertEventWhereUniqueInput
+  export type EventoAlertaCreateNestedOneWithoutNotificacoes_evento_alertaInput = {
+    create?: XOR<EventoAlertaCreateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedCreateWithoutNotificacoes_evento_alertaInput>
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutNotificacoes_evento_alertaInput
+    connect?: EventoAlertaWhereUniqueInput
   }
 
-  export type AlertEventUpdateOneRequiredWithoutNotificationsNestedInput = {
-    create?: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    connectOrCreate?: AlertEventCreateOrConnectWithoutNotificationsInput
-    upsert?: AlertEventUpsertWithoutNotificationsInput
-    connect?: AlertEventWhereUniqueInput
-    update?: XOR<XOR<AlertEventUpdateToOneWithWhereWithoutNotificationsInput, AlertEventUpdateWithoutNotificationsInput>, AlertEventUncheckedUpdateWithoutNotificationsInput>
+  export type EventoAlertaUpdateOneRequiredWithoutNotificacoes_evento_alertaNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedCreateWithoutNotificacoes_evento_alertaInput>
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutNotificacoes_evento_alertaInput
+    upsert?: EventoAlertaUpsertWithoutNotificacoes_evento_alertaInput
+    connect?: EventoAlertaWhereUniqueInput
+    update?: XOR<XOR<EventoAlertaUpdateToOneWithWhereWithoutNotificacoes_evento_alertaInput, EventoAlertaUpdateWithoutNotificacoes_evento_alertaInput>, EventoAlertaUncheckedUpdateWithoutNotificacoes_evento_alertaInput>
   }
 
   export type SlotCreateNestedManyWithoutAgendaInput = {
@@ -65566,349 +65817,380 @@ export namespace Prisma {
     alertas_dashboard_configuracao?: DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasNestedInput
   }
 
-  export type AlertEventCreateWithoutRuleInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    notifications?: AlertNotificationLogCreateNestedManyWithoutAlert_eventInput
+  export type EventoAlertaCreateWithoutRegra_evento_alertaInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaCreateNestedManyWithoutEvento_notificacao_alertaInput
   }
 
-  export type AlertEventUncheckedCreateWithoutRuleInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    notifications?: AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput
+  export type EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaUncheckedCreateNestedManyWithoutEvento_notificacao_alertaInput
   }
 
-  export type AlertEventCreateOrConnectWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    create: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput>
+  export type EventoAlertaCreateOrConnectWithoutRegra_evento_alertaInput = {
+    where: EventoAlertaWhereUniqueInput
+    create: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput>
   }
 
-  export type AlertEventCreateManyRuleInputEnvelope = {
-    data: AlertEventCreateManyRuleInput | AlertEventCreateManyRuleInput[]
+  export type EventoAlertaCreateManyRegra_evento_alertaInputEnvelope = {
+    data: EventoAlertaCreateManyRegra_evento_alertaInput | EventoAlertaCreateManyRegra_evento_alertaInput[]
     skipDuplicates?: boolean
   }
 
-  export type AlertEventUpsertWithWhereUniqueWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    update: XOR<AlertEventUpdateWithoutRuleInput, AlertEventUncheckedUpdateWithoutRuleInput>
-    create: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput>
+  export type EventoAlertaUpsertWithWhereUniqueWithoutRegra_evento_alertaInput = {
+    where: EventoAlertaWhereUniqueInput
+    update: XOR<EventoAlertaUpdateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedUpdateWithoutRegra_evento_alertaInput>
+    create: XOR<EventoAlertaCreateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedCreateWithoutRegra_evento_alertaInput>
   }
 
-  export type AlertEventUpdateWithWhereUniqueWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    data: XOR<AlertEventUpdateWithoutRuleInput, AlertEventUncheckedUpdateWithoutRuleInput>
+  export type EventoAlertaUpdateWithWhereUniqueWithoutRegra_evento_alertaInput = {
+    where: EventoAlertaWhereUniqueInput
+    data: XOR<EventoAlertaUpdateWithoutRegra_evento_alertaInput, EventoAlertaUncheckedUpdateWithoutRegra_evento_alertaInput>
   }
 
-  export type AlertEventUpdateManyWithWhereWithoutRuleInput = {
-    where: AlertEventScalarWhereInput
-    data: XOR<AlertEventUpdateManyMutationInput, AlertEventUncheckedUpdateManyWithoutRuleInput>
+  export type EventoAlertaUpdateManyWithWhereWithoutRegra_evento_alertaInput = {
+    where: EventoAlertaScalarWhereInput
+    data: XOR<EventoAlertaUpdateManyMutationInput, EventoAlertaUncheckedUpdateManyWithoutRegra_evento_alertaInput>
   }
 
-  export type AlertEventScalarWhereInput = {
-    AND?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
-    OR?: AlertEventScalarWhereInput[]
-    NOT?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
-    id?: StringFilter<"AlertEvent"> | string
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
+  export type EventoAlertaScalarWhereInput = {
+    AND?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
+    OR?: EventoAlertaScalarWhereInput[]
+    NOT?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
+    id_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    id_organizacao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    id_produto_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_usuario_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    id_regra_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFilter<"EventoAlerta"> | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    nome_ator_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    modulo_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    acao_evento_alerta?: StringFilter<"EventoAlerta"> | string
+    contagem_eventos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    janela_segundos_evento_alerta?: IntFilter<"EventoAlerta"> | number
+    ids_logs_auditoria_evento_alerta?: StringNullableListFilter<"EventoAlerta">
+    status_evento_alerta?: EnumAlertaStatusFilter<"EventoAlerta"> | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    revisado_em_evento_alerta?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notas_evento_alerta?: StringNullableFilter<"EventoAlerta"> | string | null
+    data_criacao_evento_alerta?: DateTimeFilter<"EventoAlerta"> | Date | string
   }
 
-  export type AlertRuleCreateWithoutAlertsInput = {
-    id?: string
-    tenant_id?: string | null
-    name: string
-    description?: string | null
-    enabled?: boolean
-    actor_type?: $Enums.AcaoExecutadaPor | null
-    action?: string | null
-    module?: string | null
-    status_filter?: $Enums.EventoStatus | null
-    threshold_count?: number | null
-    threshold_window_seconds?: number | null
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type RegraAlertaCreateWithoutEventos_regra_alertaInput = {
+    id_regra_alerta?: string
+    id_organizacao_regra_alerta?: string | null
+    id_produto_regra_alerta?: string | null
+    id_usuario_regra_alerta?: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta?: string | null
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: string | null
+    modulo_regra_alerta?: string | null
+    filtro_status_regra_alerta?: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: number | null
+    limiar_janela_segundos_regra_alerta?: number | null
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: RegraAlertaCreatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: Date | string
+    data_atualizacao_regra_alerta?: Date | string
   }
 
-  export type AlertRuleUncheckedCreateWithoutAlertsInput = {
-    id?: string
-    tenant_id?: string | null
-    name: string
-    description?: string | null
-    enabled?: boolean
-    actor_type?: $Enums.AcaoExecutadaPor | null
-    action?: string | null
-    module?: string | null
-    status_filter?: $Enums.EventoStatus | null
-    threshold_count?: number | null
-    threshold_window_seconds?: number | null
-    channel_inapp?: boolean
-    channel_email?: boolean
-    channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type RegraAlertaUncheckedCreateWithoutEventos_regra_alertaInput = {
+    id_regra_alerta?: string
+    id_organizacao_regra_alerta?: string | null
+    id_produto_regra_alerta?: string | null
+    id_usuario_regra_alerta?: string | null
+    nome_regra_alerta: string
+    descricao_regra_alerta?: string | null
+    habilitada_regra_alerta?: boolean
+    tipo_ator_regra_alerta?: $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: string | null
+    modulo_regra_alerta?: string | null
+    filtro_status_regra_alerta?: $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: number | null
+    limiar_janela_segundos_regra_alerta?: number | null
+    canal_inapp_regra_alerta?: boolean
+    canal_email_regra_alerta?: boolean
+    canal_whatsapp_regra_alerta?: boolean
+    destinatarios_email_regra_alerta?: RegraAlertaCreatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaCreatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaCreatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: Date | string
+    data_atualizacao_regra_alerta?: Date | string
   }
 
-  export type AlertRuleCreateOrConnectWithoutAlertsInput = {
-    where: AlertRuleWhereUniqueInput
-    create: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
+  export type RegraAlertaCreateOrConnectWithoutEventos_regra_alertaInput = {
+    where: RegraAlertaWhereUniqueInput
+    create: XOR<RegraAlertaCreateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedCreateWithoutEventos_regra_alertaInput>
   }
 
-  export type AlertNotificationLogCreateWithoutAlert_eventInput = {
-    id?: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
+  export type NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
   }
 
-  export type AlertNotificationLogUncheckedCreateWithoutAlert_eventInput = {
-    id?: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
+  export type NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
   }
 
-  export type AlertNotificationLogCreateOrConnectWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    create: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput>
+  export type NotificacaoAlertaCreateOrConnectWithoutEvento_notificacao_alertaInput = {
+    where: NotificacaoAlertaWhereUniqueInput
+    create: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput>
   }
 
-  export type AlertNotificationLogCreateManyAlert_eventInputEnvelope = {
-    data: AlertNotificationLogCreateManyAlert_eventInput | AlertNotificationLogCreateManyAlert_eventInput[]
+  export type NotificacaoAlertaCreateManyEvento_notificacao_alertaInputEnvelope = {
+    data: NotificacaoAlertaCreateManyEvento_notificacao_alertaInput | NotificacaoAlertaCreateManyEvento_notificacao_alertaInput[]
     skipDuplicates?: boolean
   }
 
-  export type AlertRuleUpsertWithoutAlertsInput = {
-    update: XOR<AlertRuleUpdateWithoutAlertsInput, AlertRuleUncheckedUpdateWithoutAlertsInput>
-    create: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    where?: AlertRuleWhereInput
+  export type RegraAlertaUpsertWithoutEventos_regra_alertaInput = {
+    update: XOR<RegraAlertaUpdateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedUpdateWithoutEventos_regra_alertaInput>
+    create: XOR<RegraAlertaCreateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedCreateWithoutEventos_regra_alertaInput>
+    where?: RegraAlertaWhereInput
   }
 
-  export type AlertRuleUpdateToOneWithWhereWithoutAlertsInput = {
-    where?: AlertRuleWhereInput
-    data: XOR<AlertRuleUpdateWithoutAlertsInput, AlertRuleUncheckedUpdateWithoutAlertsInput>
+  export type RegraAlertaUpdateToOneWithWhereWithoutEventos_regra_alertaInput = {
+    where?: RegraAlertaWhereInput
+    data: XOR<RegraAlertaUpdateWithoutEventos_regra_alertaInput, RegraAlertaUncheckedUpdateWithoutEventos_regra_alertaInput>
   }
 
-  export type AlertRuleUpdateWithoutAlertsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type RegraAlertaUpdateWithoutEventos_regra_alertaInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleUncheckedUpdateWithoutAlertsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
-    action?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
-    threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
-    threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
-    channel_inapp?: BoolFieldUpdateOperationsInput | boolean
-    channel_email?: BoolFieldUpdateOperationsInput | boolean
-    channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type RegraAlertaUncheckedUpdateWithoutEventos_regra_alertaInput = {
+    id_regra_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_regra_alerta?: StringFieldUpdateOperationsInput | string
+    descricao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    habilitada_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    tipo_ator_regra_alerta?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
+    acao_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_regra_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    filtro_status_regra_alerta?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
+    limiar_contagem_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    limiar_janela_segundos_regra_alerta?: NullableIntFieldUpdateOperationsInput | number | null
+    canal_inapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_email_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    canal_whatsapp_regra_alerta?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios_email_regra_alerta?: RegraAlertaUpdatedestinatarios_email_regra_alertaInput | string[]
+    destinatarios_whatsapp_regra_alerta?: RegraAlertaUpdatedestinatarios_whatsapp_regra_alertaInput | string[]
+    destinatarios_usuarios_regra_alerta?: RegraAlertaUpdatedestinatarios_usuarios_regra_alertaInput | string[]
+    data_criacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_regra_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    update: XOR<AlertNotificationLogUpdateWithoutAlert_eventInput, AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput>
-    create: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput>
+  export type NotificacaoAlertaUpsertWithWhereUniqueWithoutEvento_notificacao_alertaInput = {
+    where: NotificacaoAlertaWhereUniqueInput
+    update: XOR<NotificacaoAlertaUpdateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedUpdateWithoutEvento_notificacao_alertaInput>
+    create: XOR<NotificacaoAlertaCreateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedCreateWithoutEvento_notificacao_alertaInput>
   }
 
-  export type AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    data: XOR<AlertNotificationLogUpdateWithoutAlert_eventInput, AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput>
+  export type NotificacaoAlertaUpdateWithWhereUniqueWithoutEvento_notificacao_alertaInput = {
+    where: NotificacaoAlertaWhereUniqueInput
+    data: XOR<NotificacaoAlertaUpdateWithoutEvento_notificacao_alertaInput, NotificacaoAlertaUncheckedUpdateWithoutEvento_notificacao_alertaInput>
   }
 
-  export type AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput = {
-    where: AlertNotificationLogScalarWhereInput
-    data: XOR<AlertNotificationLogUpdateManyMutationInput, AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventInput>
+  export type NotificacaoAlertaUpdateManyWithWhereWithoutEvento_notificacao_alertaInput = {
+    where: NotificacaoAlertaScalarWhereInput
+    data: XOR<NotificacaoAlertaUpdateManyMutationInput, NotificacaoAlertaUncheckedUpdateManyWithoutEvento_notificacao_alertaInput>
   }
 
-  export type AlertNotificationLogScalarWhereInput = {
-    AND?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
-    OR?: AlertNotificationLogScalarWhereInput[]
-    NOT?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
-    id?: StringFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
+  export type NotificacaoAlertaScalarWhereInput = {
+    AND?: NotificacaoAlertaScalarWhereInput | NotificacaoAlertaScalarWhereInput[]
+    OR?: NotificacaoAlertaScalarWhereInput[]
+    NOT?: NotificacaoAlertaScalarWhereInput | NotificacaoAlertaScalarWhereInput[]
+    id_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    id_organizacao_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    id_produto_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_usuario_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    id_evento_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    canal_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    destinatario_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    status_notificacao_alerta?: StringFilter<"NotificacaoAlerta"> | string
+    tentativas_notificacao_alerta?: IntFilter<"NotificacaoAlerta"> | number
+    mensagem_erro_notificacao_alerta?: StringNullableFilter<"NotificacaoAlerta"> | string | null
+    enviado_em_notificacao_alerta?: DateTimeNullableFilter<"NotificacaoAlerta"> | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFilter<"NotificacaoAlerta"> | Date | string
   }
 
-  export type AlertEventCreateWithoutNotificationsInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    rule: AlertRuleCreateNestedOneWithoutAlertsInput
+  export type EventoAlertaCreateWithoutNotificacoes_evento_alertaInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
+    regra_evento_alerta: RegraAlertaCreateNestedOneWithoutEventos_regra_alertaInput
   }
 
-  export type AlertEventUncheckedCreateWithoutNotificationsInput = {
-    id?: string
-    tenant_id: string
-    rule_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
+  export type EventoAlertaUncheckedCreateWithoutNotificacoes_evento_alertaInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    id_regra_evento_alerta: string
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
   }
 
-  export type AlertEventCreateOrConnectWithoutNotificationsInput = {
-    where: AlertEventWhereUniqueInput
-    create: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
+  export type EventoAlertaCreateOrConnectWithoutNotificacoes_evento_alertaInput = {
+    where: EventoAlertaWhereUniqueInput
+    create: XOR<EventoAlertaCreateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedCreateWithoutNotificacoes_evento_alertaInput>
   }
 
-  export type AlertEventUpsertWithoutNotificationsInput = {
-    update: XOR<AlertEventUpdateWithoutNotificationsInput, AlertEventUncheckedUpdateWithoutNotificationsInput>
-    create: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    where?: AlertEventWhereInput
+  export type EventoAlertaUpsertWithoutNotificacoes_evento_alertaInput = {
+    update: XOR<EventoAlertaUpdateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedUpdateWithoutNotificacoes_evento_alertaInput>
+    create: XOR<EventoAlertaCreateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedCreateWithoutNotificacoes_evento_alertaInput>
+    where?: EventoAlertaWhereInput
   }
 
-  export type AlertEventUpdateToOneWithWhereWithoutNotificationsInput = {
-    where?: AlertEventWhereInput
-    data: XOR<AlertEventUpdateWithoutNotificationsInput, AlertEventUncheckedUpdateWithoutNotificationsInput>
+  export type EventoAlertaUpdateToOneWithWhereWithoutNotificacoes_evento_alertaInput = {
+    where?: EventoAlertaWhereInput
+    data: XOR<EventoAlertaUpdateWithoutNotificacoes_evento_alertaInput, EventoAlertaUncheckedUpdateWithoutNotificacoes_evento_alertaInput>
   }
 
-  export type AlertEventUpdateWithoutNotificationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    rule?: AlertRuleUpdateOneRequiredWithoutAlertsNestedInput
+  export type EventoAlertaUpdateWithoutNotificacoes_evento_alertaInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    regra_evento_alerta?: RegraAlertaUpdateOneRequiredWithoutEventos_regra_alertaNestedInput
   }
 
-  export type AlertEventUncheckedUpdateWithoutNotificationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EventoAlertaUncheckedUpdateWithoutNotificacoes_evento_alertaInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_regra_evento_alerta?: StringFieldUpdateOperationsInput | string
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SlotCreateWithoutAgendaInput = {
@@ -66726,122 +67008,142 @@ export namespace Prisma {
     data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertEventCreateManyRuleInput = {
-    id?: string
-    tenant_id: string
-    actor_type: $Enums.AcaoExecutadaPor
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertaStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
+  export type EventoAlertaCreateManyRegra_evento_alertaInput = {
+    id_evento_alerta?: string
+    id_organizacao_evento_alerta: string
+    id_produto_evento_alerta?: string | null
+    id_usuario_evento_alerta?: string | null
+    tipo_ator_evento_alerta: $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta: string
+    nome_ator_evento_alerta: string
+    modulo_evento_alerta: string
+    acao_evento_alerta: string
+    contagem_eventos_evento_alerta: number
+    janela_segundos_evento_alerta: number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaCreateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: $Enums.AlertaStatus
+    revisado_por_evento_alerta?: string | null
+    revisado_em_evento_alerta?: Date | string | null
+    notas_evento_alerta?: string | null
+    data_criacao_evento_alerta?: Date | string
   }
 
-  export type AlertEventUpdateWithoutRuleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput
+  export type EventoAlertaUpdateWithoutRegra_evento_alertaInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaUpdateManyWithoutEvento_notificacao_alertaNestedInput
   }
 
-  export type AlertEventUncheckedUpdateWithoutRuleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput
+  export type EventoAlertaUncheckedUpdateWithoutRegra_evento_alertaInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
+    notificacoes_evento_alerta?: NotificacaoAlertaUncheckedUpdateManyWithoutEvento_notificacao_alertaNestedInput
   }
 
-  export type AlertEventUncheckedUpdateManyWithoutRuleInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EventoAlertaUncheckedUpdateManyWithoutRegra_evento_alertaInput = {
+    id_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_ator_evento_alerta?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
+    id_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    nome_ator_evento_alerta?: StringFieldUpdateOperationsInput | string
+    modulo_evento_alerta?: StringFieldUpdateOperationsInput | string
+    acao_evento_alerta?: StringFieldUpdateOperationsInput | string
+    contagem_eventos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    janela_segundos_evento_alerta?: IntFieldUpdateOperationsInput | number
+    ids_logs_auditoria_evento_alerta?: EventoAlertaUpdateids_logs_auditoria_evento_alertaInput | string[]
+    status_evento_alerta?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
+    revisado_por_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    revisado_em_evento_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notas_evento_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateManyAlert_eventInput = {
-    id?: string
-    channel: string
-    recipient: string
-    status?: string
-    attempts?: number
-    error_message?: string | null
-    sent_at?: Date | string | null
-    created_at?: Date | string
+  export type NotificacaoAlertaCreateManyEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: string
+    id_organizacao_notificacao_alerta: string
+    id_produto_notificacao_alerta?: string | null
+    id_usuario_notificacao_alerta?: string | null
+    canal_notificacao_alerta: string
+    destinatario_notificacao_alerta: string
+    status_notificacao_alerta?: string
+    tentativas_notificacao_alerta?: number
+    mensagem_erro_notificacao_alerta?: string | null
+    enviado_em_notificacao_alerta?: Date | string | null
+    data_criacao_notificacao_alerta?: Date | string
   }
 
-  export type AlertNotificationLogUpdateWithoutAlert_eventInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUpdateWithoutEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUncheckedUpdateWithoutEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotificacaoAlertaUncheckedUpdateManyWithoutEvento_notificacao_alertaInput = {
+    id_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    canal_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    destinatario_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    status_notificacao_alerta?: StringFieldUpdateOperationsInput | string
+    tentativas_notificacao_alerta?: IntFieldUpdateOperationsInput | number
+    mensagem_erro_notificacao_alerta?: NullableStringFieldUpdateOperationsInput | string | null
+    enviado_em_notificacao_alerta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SlotCreateManyAgendaInput = {
@@ -66996,13 +67298,13 @@ export namespace Prisma {
      */
     export type DashboardConfiguracaoCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardConfiguracaoCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertRuleCountOutputTypeDefaultArgs instead
+     * @deprecated Use RegraAlertaCountOutputTypeDefaultArgs instead
      */
-    export type AlertRuleCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
+    export type RegraAlertaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertEventCountOutputTypeDefaultArgs instead
+     * @deprecated Use EventoAlertaCountOutputTypeDefaultArgs instead
      */
-    export type AlertEventCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertEventCountOutputTypeDefaultArgs<ExtArgs>
+    export type EventoAlertaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use AgendaCountOutputTypeDefaultArgs instead
      */
@@ -67112,17 +67414,17 @@ export namespace Prisma {
      */
     export type HistoricoLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HistoricoLogDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertRuleDefaultArgs instead
+     * @deprecated Use RegraAlertaDefaultArgs instead
      */
-    export type AlertRuleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertRuleDefaultArgs<ExtArgs>
+    export type RegraAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegraAlertaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertEventDefaultArgs instead
+     * @deprecated Use EventoAlertaDefaultArgs instead
      */
-    export type AlertEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertEventDefaultArgs<ExtArgs>
+    export type EventoAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventoAlertaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertNotificationLogDefaultArgs instead
+     * @deprecated Use NotificacaoAlertaDefaultArgs instead
      */
-    export type AlertNotificationLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertNotificationLogDefaultArgs<ExtArgs>
+    export type NotificacaoAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificacaoAlertaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ExportarResultadoDefaultArgs instead
      */

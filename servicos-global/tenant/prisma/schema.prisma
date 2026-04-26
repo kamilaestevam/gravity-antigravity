@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T18:21:12.405Z
+// Gerado em: 2026-04-26T18:27:26.321Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -838,135 +838,11 @@ model ExportarJob {
 
 
 // --- Fragment: historico-global ---
-model HistoricoLog {
-  id             String      @id @default(cuid())
-  tenant_id      String
-
-  // Ator
-  actor_type     AcaoExecutadaPor
-  actor_id       String
-  actor_name     String
-  actor_ip       String?
-  actor_metadata Json?
-
-  // Recurso
-  module         String
-  resource_type  String
-  resource_id    String?
-
-  // Ação
-  action         String
-  action_detail  String
-
-  // Estado antes/depois
-  before         Json?
-  after          Json?
-
-  // Resultado
-  status         EventoStatus @default(SUCESSO)
-  error_message  String?
-
-  // Integridade
-  integrity_hash String
-
-  // Referências para queries e visibilidade por role
-  product_id     String?
-  user_id        String?
-
-  created_at     DateTime    @default(now()) @db.Timestamptz
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, module, created_at])
-  @@index([actor_id, created_at])
-  @@map("historico_log")
-}
-
-model AlertRule {
-  id                       String     @id @default(cuid())
-  tenant_id                String?
-
-  name                     String
-  description              String?
-  enabled                  Boolean    @default(true)
-
-  // Filtro da regra (null = qualquer valor)
-  actor_type               AcaoExecutadaPor?
-  action                   String?
-  module                   String?
-  status_filter            EventoStatus?
-
-  // Threshold
-  threshold_count          Int?
-  threshold_window_seconds Int?
-
-  // Canais ativos por regra
-  channel_inapp            Boolean    @default(true)
-  channel_email            Boolean    @default(false)
-  channel_whatsapp         Boolean    @default(false)
-
-  // Destinatários por canal
-  recipients_email         String[]
-  recipients_whatsapp      String[]
-  recipients_user_ids      String[]
-
-  created_at               DateTime   @default(now())
-  updated_at               DateTime   @updatedAt
-
-  alerts                   AlertEvent[]
-
-  @@index([tenant_id, enabled])
-  @@map("alerta_regra")
-}
-
-model AlertEvent {
-  id             String      @id @default(cuid())
-  tenant_id      String
-  rule_id        String
-  rule           AlertRule   @relation(fields: [rule_id], references: [id])
-
-  actor_type     AcaoExecutadaPor
-  actor_id       String
-  actor_name     String
-  module         String
-  action         String
-  event_count    Int
-  window_seconds Int
-  audit_log_ids  String[]
-
-  status         AlertaStatus @default(PENDENTE)
-  reviewed_by    String?
-  reviewed_at    DateTime?
-  notes          String?
-
-  created_at     DateTime    @default(now())
-
-  notifications  AlertNotificationLog[]
-
-  @@index([tenant_id, status])
-  @@index([tenant_id, created_at])
-  @@map("alerta_data")
-}
-
-model AlertNotificationLog {
-  id             String     @id @default(cuid())
-  alert_event_id String
-  alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
-
-  channel        String
-  recipient      String
-  status         String     @default("pending")
-  attempts       Int        @default(1)
-  error_message  String?
-  sent_at        DateTime?
-
-  created_at     DateTime   @default(now())
-
-  @@index([alert_event_id])
-  @@map("alerta_registro")
-}
+// servicos-global/tenant/historico-global/prisma/fragment.prisma
+// AGENTE HISTORICO-GLOBAL — ONDA 32 (DDD Servicos)
+//
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
 enum AcaoExecutadaPor {
   USUARIO
@@ -988,22 +864,182 @@ enum AlertaStatus {
   ESCALADO
 }
 
-/// Resultado de exportação em background (acima de 10k registros).
-/// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
-model ExportarResultado {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  format       String   // 'csv' | 'json'
-  content      String   @db.Text
-  status       String   @default("processing") // 'processing' | 'ready' | 'failed'
-  record_count Int      @default(0)
-  filters      Json?
-  error        String?
-  created_at   DateTime @default(now())
-  expires_at   DateTime // cleanup job remove após 24h
+// ---------------------------------------------------------------------------
+// HistoricoLog — registro imutável de auditoria
+// ---------------------------------------------------------------------------
 
-  @@index([tenant_id, status])
-  @@index([expires_at])
+model HistoricoLog {
+  id_historico_log             String  @id @default(cuid())
+  id_organizacao_historico_log String
+  id_produto_historico_log     String?
+  id_usuario_historico_log     String?
+
+  tipo_ator_historico_log      AcaoExecutadaPor
+  id_ator_historico_log        String
+  nome_ator_historico_log      String
+  ip_ator_historico_log        String?
+  metadata_ator_historico_log  Json?
+
+  modulo_historico_log         String
+  tipo_recurso_historico_log   String
+  id_recurso_historico_log     String?
+
+  acao_historico_log           String
+  detalhe_acao_historico_log   String
+
+  estado_anterior_historico_log Json?
+  estado_posterior_historico_log Json?
+
+  status_historico_log         EventoStatus @default(SUCESSO)
+  mensagem_erro_historico_log  String?
+
+  hash_integridade_historico_log String
+
+  data_criacao_historico_log   DateTime @default(now()) @db.Timestamptz
+
+  @@index([id_organizacao_historico_log], map: "hl_org_idx")
+  @@index([id_organizacao_historico_log, id_produto_historico_log], map: "hl_org_prd_idx")
+  @@index([id_organizacao_historico_log, id_usuario_historico_log], map: "hl_org_usr_idx")
+  @@index([id_organizacao_historico_log, data_criacao_historico_log], map: "hl_org_dt_idx")
+  @@index([id_organizacao_historico_log, modulo_historico_log, data_criacao_historico_log], map: "hl_org_mod_dt_idx")
+  @@index([id_ator_historico_log, data_criacao_historico_log], map: "hl_ator_dt_idx")
+  @@map("historico_log")
+}
+
+// ---------------------------------------------------------------------------
+// RegraAlerta — definição de regra que dispara alertas
+// ---------------------------------------------------------------------------
+
+model RegraAlerta {
+  id_regra_alerta             String   @id @default(cuid())
+  id_organizacao_regra_alerta String?
+  id_produto_regra_alerta     String?
+  id_usuario_regra_alerta     String?
+
+  nome_regra_alerta           String
+  descricao_regra_alerta      String?
+  habilitada_regra_alerta     Boolean  @default(true)
+
+  tipo_ator_regra_alerta      AcaoExecutadaPor?
+  acao_regra_alerta           String?
+  modulo_regra_alerta         String?
+  filtro_status_regra_alerta  EventoStatus?
+
+  limiar_contagem_regra_alerta        Int?
+  limiar_janela_segundos_regra_alerta Int?
+
+  canal_inapp_regra_alerta    Boolean  @default(true)
+  canal_email_regra_alerta    Boolean  @default(false)
+  canal_whatsapp_regra_alerta Boolean  @default(false)
+
+  destinatarios_email_regra_alerta    String[]
+  destinatarios_whatsapp_regra_alerta String[]
+  destinatarios_usuarios_regra_alerta String[]
+
+  data_criacao_regra_alerta     DateTime @default(now())
+  data_atualizacao_regra_alerta DateTime @updatedAt
+
+  eventos_regra_alerta          EventoAlerta[]
+
+  @@index([id_organizacao_regra_alerta], map: "ra_org_idx")
+  @@index([id_organizacao_regra_alerta, id_produto_regra_alerta], map: "ra_org_prd_idx")
+  @@index([id_organizacao_regra_alerta, id_usuario_regra_alerta], map: "ra_org_usr_idx")
+  @@index([id_organizacao_regra_alerta, habilitada_regra_alerta], map: "ra_org_hab_idx")
+  @@map("regra_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// EventoAlerta — disparos de regra
+// ---------------------------------------------------------------------------
+
+model EventoAlerta {
+  id_evento_alerta             String  @id @default(cuid())
+  id_organizacao_evento_alerta String
+  id_produto_evento_alerta     String?
+  id_usuario_evento_alerta     String?
+
+  id_regra_evento_alerta       String
+  regra_evento_alerta          RegraAlerta @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
+
+  tipo_ator_evento_alerta      AcaoExecutadaPor
+  id_ator_evento_alerta        String
+  nome_ator_evento_alerta      String
+  modulo_evento_alerta         String
+  acao_evento_alerta           String
+  contagem_eventos_evento_alerta Int
+  janela_segundos_evento_alerta  Int
+  ids_logs_auditoria_evento_alerta String[]
+
+  status_evento_alerta         AlertaStatus @default(PENDENTE)
+  revisado_por_evento_alerta   String?
+  revisado_em_evento_alerta    DateTime?
+  notas_evento_alerta          String?
+
+  data_criacao_evento_alerta   DateTime @default(now())
+
+  notificacoes_evento_alerta   NotificacaoAlerta[]
+
+  @@index([id_organizacao_evento_alerta], map: "ea_org_idx")
+  @@index([id_organizacao_evento_alerta, id_produto_evento_alerta], map: "ea_org_prd_idx")
+  @@index([id_organizacao_evento_alerta, id_usuario_evento_alerta], map: "ea_org_usr_idx")
+  @@index([id_organizacao_evento_alerta, status_evento_alerta], map: "ea_org_st_idx")
+  @@index([id_organizacao_evento_alerta, data_criacao_evento_alerta], map: "ea_org_dt_idx")
+  @@map("evento_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// NotificacaoAlerta — registro de envio por canal
+// ---------------------------------------------------------------------------
+
+model NotificacaoAlerta {
+  id_notificacao_alerta             String   @id @default(cuid())
+  id_organizacao_notificacao_alerta String
+  id_produto_notificacao_alerta     String?
+  id_usuario_notificacao_alerta     String?
+
+  id_evento_notificacao_alerta      String
+  evento_notificacao_alerta         EventoAlerta @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
+
+  canal_notificacao_alerta          String
+  destinatario_notificacao_alerta   String
+  status_notificacao_alerta         String   @default("pending")
+  tentativas_notificacao_alerta     Int      @default(1)
+  mensagem_erro_notificacao_alerta  String?
+  enviado_em_notificacao_alerta     DateTime?
+
+  data_criacao_notificacao_alerta   DateTime @default(now())
+
+  @@index([id_organizacao_notificacao_alerta], map: "na_org_idx")
+  @@index([id_organizacao_notificacao_alerta, id_produto_notificacao_alerta], map: "na_org_prd_idx")
+  @@index([id_organizacao_notificacao_alerta, id_usuario_notificacao_alerta], map: "na_org_usr_idx")
+  @@index([id_evento_notificacao_alerta], map: "na_evt_idx")
+  @@map("notificacao_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// ExportarResultado — resultado de exportação assíncrona (>10k registros)
+// ---------------------------------------------------------------------------
+
+model ExportarResultado {
+  id_exportar_resultado             String   @id @default(cuid())
+  id_organizacao_exportar_resultado String
+  id_produto_exportar_resultado     String?
+  id_usuario_exportar_resultado     String?
+
+  formato_exportar_resultado    String   // 'csv' | 'json'
+  conteudo_exportar_resultado   String   @db.Text
+  status_exportar_resultado     String   @default("processing") // 'processing' | 'ready' | 'failed'
+  contagem_registros_exportar_resultado Int @default(0)
+  filtros_exportar_resultado    Json?
+  erro_exportar_resultado       String?
+  data_criacao_exportar_resultado DateTime @default(now())
+  expira_em_exportar_resultado    DateTime // cleanup job remove após 24h
+
+  @@index([id_organizacao_exportar_resultado], map: "er_org_idx")
+  @@index([id_organizacao_exportar_resultado, id_produto_exportar_resultado], map: "er_org_prd_idx")
+  @@index([id_organizacao_exportar_resultado, id_usuario_exportar_resultado], map: "er_org_usr_idx")
+  @@index([id_organizacao_exportar_resultado, status_exportar_resultado], map: "er_org_st_idx")
+  @@index([expira_em_exportar_resultado], map: "er_exp_idx")
   @@map("exportar_resultado")
 }
 

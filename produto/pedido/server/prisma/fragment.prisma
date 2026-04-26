@@ -398,24 +398,24 @@ model PedidoStatus {
 }
 
 model PedidoColuna {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  company_id     String?
-  nome           String
-  rotulo         String
-  tipo           String
-  casas_decimais Int      @default(2)
-  opcoes         Json?
-  ordem          Int      @default(0)
-  filtravel      Boolean  @default(true)
-  exibida_padrao Boolean  @default(false)
-  index_criado   Boolean  @default(false)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  id_pedido_coluna             String   @id @default(cuid())
+  id_organizacao               String
+  id_workspace                 String?
+  nome_pedido_coluna           String
+  rotulo_pedido_coluna         String
+  tipo_pedido_coluna           String
+  casas_decimais_pedido_coluna Int      @default(2)
+  opcoes_pedido_coluna         Json?
+  ordem_pedido_coluna          Int      @default(0)
+  filtravel_pedido_coluna      Boolean  @default(true)
+  exibida_padrao               Boolean  @default(false)
+  index_criado                 Boolean  @default(false)
+  created_at                   DateTime @default(now())
+  updated_at                   DateTime @updatedAt
 
-  @@unique([tenant_id, nome])
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@unique([id_organizacao, nome_pedido_coluna])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
   @@map("pedido_colunas")
 }
 

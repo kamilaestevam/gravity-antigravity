@@ -585,9 +585,9 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
             )
         `,
 
-        // Labels de colunas criadas pelo usuário (PedidoColuna.rotulo no banco)
+        // Labels de colunas criadas pelo usuário (PedidoColuna.rotulo_pedido_coluna)
         db.pedidoColuna.count({
-          where: { tenant_id, rotulo: { contains: termo, mode: 'insensitive' } },
+          where: { id_organizacao: tenant_id, rotulo_pedido_coluna: { contains: termo, mode: 'insensitive' } },
         }),
 
         // Valores de colunas customizadas do usuário (campos_custom por vinculo)

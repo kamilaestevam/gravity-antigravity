@@ -125,6 +125,60 @@ function mapStatusPatch(patch: {
   return data
 }
 
+// ── ACL: PedidoColuna mappers (DDD ↔ contrato externo legacy) ─────────────────
+
+interface PedidoColunaDB {
+  id_pedido_coluna:             string
+  id_organizacao:               string
+  id_workspace:                 string | null
+  nome_pedido_coluna:           string
+  rotulo_pedido_coluna:         string
+  tipo_pedido_coluna:           string
+  casas_decimais_pedido_coluna: number
+  opcoes_pedido_coluna:         unknown
+  ordem_pedido_coluna:          number
+  filtravel_pedido_coluna:      boolean
+  exibida_padrao:               boolean
+  index_criado:                 boolean
+  created_at:                   Date | string
+  updated_at:                   Date | string
+}
+
+function mapColuna(c: PedidoColunaDB): Record<string, unknown> {
+  return {
+    id:             c.id_pedido_coluna,
+    tenant_id:      c.id_organizacao,
+    company_id:     c.id_workspace,
+    nome:           c.nome_pedido_coluna,
+    rotulo:         c.rotulo_pedido_coluna,
+    tipo:           c.tipo_pedido_coluna,
+    casas_decimais: c.casas_decimais_pedido_coluna,
+    opcoes:         c.opcoes_pedido_coluna,
+    ordem:          c.ordem_pedido_coluna,
+    filtravel:      c.filtravel_pedido_coluna,
+    exibida_padrao: c.exibida_padrao,
+    index_criado:   c.index_criado,
+    created_at:     c.created_at,
+    updated_at:     c.updated_at,
+  }
+}
+
+function mapColunaPatch(patch: {
+  rotulo?: string; tipo?: string; casas_decimais?: number;
+  opcoes?: Array<{ valor: string; rotulo: string }> | null;
+  ordem?: number; filtravel?: boolean; exibida_padrao?: boolean
+}): Record<string, unknown> {
+  const data: Record<string, unknown> = {}
+  if (patch.rotulo         !== undefined) data.rotulo_pedido_coluna         = patch.rotulo
+  if (patch.tipo           !== undefined) data.tipo_pedido_coluna           = patch.tipo
+  if (patch.casas_decimais !== undefined) data.casas_decimais_pedido_coluna = patch.casas_decimais
+  if (patch.opcoes         !== undefined) data.opcoes_pedido_coluna         = patch.opcoes ?? null
+  if (patch.ordem          !== undefined) data.ordem_pedido_coluna          = patch.ordem
+  if (patch.filtravel      !== undefined) data.filtravel_pedido_coluna      = patch.filtravel
+  if (patch.exibida_padrao !== undefined) data.exibida_padrao               = patch.exibida_padrao
+  return data
+}
+
 // ── STATUS ────────────────────────────────────────────────────────────────────
 
 /** Status padrão criados automaticamente para novos tenants */
@@ -430,15 +484,15 @@ pedidosConfigRouter.get('/colunas', async (req: Request, res: Response, next: Ne
       const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const company_id = getCompanyId(req)
 
-      const where: Record<string, unknown> = { tenant_id }
-      if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { id_organizacao: tenant_id }
+      if (company_id) where.id_workspace = company_id
 
       const colunas = await db.pedidoColuna.findMany({
         where,
-        orderBy: { ordem: 'asc' },
+        orderBy: { ordem_pedido_coluna: 'asc' },
       })
 
-      res.json({ data: colunas })
+      res.json({ data: (colunas as PedidoColunaDB[]).map(mapColuna) })
     })
   } catch (err) {
     next(err)
@@ -459,8 +513,8 @@ pedidosConfigRouter.post('/colunas', async (req: Request, res: Response, next: N
       const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const company_id = getCompanyId(req)
 
-      const where: Record<string, unknown> = { tenant_id }
-      if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { id_organizacao: tenant_id }
+      if (company_id) where.id_workspace = company_id
 
       const count = await db.pedidoColuna.count({ where })
       if (count >= 30) {
@@ -474,15 +528,21 @@ pedidosConfigRouter.post('/colunas', async (req: Request, res: Response, next: N
 
       const novaColuna = await db.pedidoColuna.create({
         data: {
-          tenant_id,
-          company_id: company_id ?? null,
-          ...result.data,
-          opcoes: result.data.opcoes ?? null,
-          index_criado: false,
+          id_organizacao:               tenant_id,
+          id_workspace:                 company_id ?? null,
+          nome_pedido_coluna:           result.data.nome,
+          rotulo_pedido_coluna:         result.data.rotulo,
+          tipo_pedido_coluna:           result.data.tipo,
+          casas_decimais_pedido_coluna: result.data.casas_decimais,
+          opcoes_pedido_coluna:         result.data.opcoes ?? null,
+          ordem_pedido_coluna:          result.data.ordem,
+          filtravel_pedido_coluna:      result.data.filtravel,
+          exibida_padrao:               result.data.exibida_padrao,
+          index_criado:                 false,
         },
       })
 
-      res.status(201).json(novaColuna)
+      res.status(201).json(mapColuna(novaColuna as PedidoColunaDB))
     })
   } catch (err) {
     next(err)
@@ -503,7 +563,7 @@ pedidosConfigRouter.put('/colunas/:id', async (req: Request, res: Response, next
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
       const existente = await db.pedidoColuna.findFirst({
-        where: { id: req.params.id, tenant_id },
+        where: { id_pedido_coluna: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!existente) {
@@ -511,22 +571,19 @@ pedidosConfigRouter.put('/colunas/:id', async (req: Request, res: Response, next
       }
 
       // Se mudando tipo para select, validar opcoes
-      const tipoFinal  = result.data.tipo ?? existente.tipo
-      const opcoesFinal = result.data.opcoes !== undefined ? result.data.opcoes : existente.opcoes
+      const tipoFinal   = result.data.tipo ?? existente.tipo_pedido_coluna
+      const opcoesFinal = result.data.opcoes !== undefined ? result.data.opcoes : existente.opcoes_pedido_coluna
       if (tipoFinal === 'select' && (!opcoesFinal || (Array.isArray(opcoesFinal) && opcoesFinal.length === 0))) {
         throw new AppError(400, 'Colunas do tipo "select" devem ter ao menos uma opcao')
       }
 
-      // Inclui tenant_id no where para garantir isolamento atômico
+      // Inclui id_organizacao no where para garantir isolamento atômico
       const updated = await db.pedidoColuna.update({
-        where: { id: req.params.id, tenant_id },
-        data: {
-          ...result.data,
-          opcoes: result.data.opcoes !== undefined ? (result.data.opcoes ?? null) : undefined,
-        },
+        where: { id_pedido_coluna: req.params.id, id_organizacao: tenant_id },
+        data:  mapColunaPatch(result.data),
       })
 
-      res.json(updated)
+      res.json(mapColuna(updated as PedidoColunaDB))
     })
   } catch (err) {
     next(err)
@@ -542,15 +599,15 @@ pedidosConfigRouter.delete('/colunas/:id', async (req: Request, res: Response, n
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
       const existente = await db.pedidoColuna.findFirst({
-        where: { id: req.params.id, tenant_id },
+        where: { id_pedido_coluna: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!existente) {
         throw new AppError(404, 'Coluna nao encontrada')
       }
 
-      // Inclui tenant_id no where para garantir isolamento atômico
-      await db.pedidoColuna.delete({ where: { id: req.params.id, tenant_id } })
+      // Inclui id_organizacao no where para garantir isolamento atômico
+      await db.pedidoColuna.delete({ where: { id_pedido_coluna: req.params.id, id_organizacao: tenant_id } })
       res.status(204).send()
     })
   } catch (err) {

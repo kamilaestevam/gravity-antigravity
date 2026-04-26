@@ -339,15 +339,15 @@ exports.Prisma.RequisicoesScalarFieldEnum = {
 };
 
 exports.Prisma.ServicosScalarFieldEnum = {
-  id: 'id',
-  service: 'service',
-  url: 'url',
-  status: 'status',
-  latency_ms: 'latency_ms',
-  last_error: 'last_error',
-  checked_at: 'checked_at',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_servicos: 'id_servicos',
+  servico_servicos: 'servico_servicos',
+  url_servicos: 'url_servicos',
+  status_servicos: 'status_servicos',
+  latencia_ms_servicos: 'latencia_ms_servicos',
+  ultimo_erro_servicos: 'ultimo_erro_servicos',
+  data_verificacao_servicos: 'data_verificacao_servicos',
+  data_criacao_servicos: 'data_criacao_servicos',
+  data_atualizacao_servicos: 'data_atualizacao_servicos'
 };
 
 exports.Prisma.CambioScalarFieldEnum = {

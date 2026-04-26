@@ -613,18 +613,18 @@ model Requisicoes {
 // ---------------------------------------------------------------------------
 
 model Servicos {
-  id         String   @id @default(cuid())
-  service    String   @unique // ex: "configurador", "bid-frete"
-  url        String // health check URL
-  status     String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
-  latency_ms Int?
-  last_error String?
-  checked_at DateTime @default(now())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id_servicos               String   @id @default(cuid())
+  servico_servicos          String   @unique(map: "srv_servico_unq") // ex: "configurador", "bid-frete"
+  url_servicos              String // health check URL
+  status_servicos           String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
+  latencia_ms_servicos      Int?
+  ultimo_erro_servicos      String?
+  data_verificacao_servicos DateTime @default(now())
+  data_criacao_servicos     DateTime @default(now())
+  data_atualizacao_servicos DateTime @updatedAt
 
-  @@index([status])
-  @@index([checked_at])
+  @@index([status_servicos], map: "srv_status_idx")
+  @@index([data_verificacao_servicos], map: "srv_verificacao_idx")
   @@map("servicos")
 }
 

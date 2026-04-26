@@ -111,20 +111,20 @@ async function fetchHealthSnapshot(): Promise<HealthCacheEntry['data']> {
   Promise.all(
     results.map((result) =>
       prisma.servicos.upsert({
-        where: { service: result.service },
+        where: { servico_servicos: result.service },
         create: {
-          service: result.service,
-          url: SERVICES.find((s) => s.name === result.service)?.url || '',
-          status: result.status,
-          latency_ms: result.latency_ms,
-          last_error: result.error || null,
-          checked_at: new Date(),
+          servico_servicos: result.service,
+          url_servicos: SERVICES.find((s) => s.name === result.service)?.url || '',
+          status_servicos: result.status,
+          latencia_ms_servicos: result.latency_ms,
+          ultimo_erro_servicos: result.error || null,
+          data_verificacao_servicos: new Date(),
         },
         update: {
-          status: result.status,
-          latency_ms: result.latency_ms,
-          last_error: result.error || null,
-          checked_at: new Date(),
+          status_servicos: result.status,
+          latencia_ms_servicos: result.latency_ms,
+          ultimo_erro_servicos: result.error || null,
+          data_verificacao_servicos: new Date(),
         },
       }),
     ),

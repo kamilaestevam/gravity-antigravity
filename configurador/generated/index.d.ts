@@ -19334,93 +19334,93 @@ export namespace Prisma {
   }
 
   export type ServicosAvgAggregateOutputType = {
-    latency_ms: number | null
+    latencia_ms_servicos: number | null
   }
 
   export type ServicosSumAggregateOutputType = {
-    latency_ms: number | null
+    latencia_ms_servicos: number | null
   }
 
   export type ServicosMinAggregateOutputType = {
-    id: string | null
-    service: string | null
-    url: string | null
-    status: string | null
-    latency_ms: number | null
-    last_error: string | null
-    checked_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_servicos: string | null
+    servico_servicos: string | null
+    url_servicos: string | null
+    status_servicos: string | null
+    latencia_ms_servicos: number | null
+    ultimo_erro_servicos: string | null
+    data_verificacao_servicos: Date | null
+    data_criacao_servicos: Date | null
+    data_atualizacao_servicos: Date | null
   }
 
   export type ServicosMaxAggregateOutputType = {
-    id: string | null
-    service: string | null
-    url: string | null
-    status: string | null
-    latency_ms: number | null
-    last_error: string | null
-    checked_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_servicos: string | null
+    servico_servicos: string | null
+    url_servicos: string | null
+    status_servicos: string | null
+    latencia_ms_servicos: number | null
+    ultimo_erro_servicos: string | null
+    data_verificacao_servicos: Date | null
+    data_criacao_servicos: Date | null
+    data_atualizacao_servicos: Date | null
   }
 
   export type ServicosCountAggregateOutputType = {
-    id: number
-    service: number
-    url: number
-    status: number
-    latency_ms: number
-    last_error: number
-    checked_at: number
-    created_at: number
-    updated_at: number
+    id_servicos: number
+    servico_servicos: number
+    url_servicos: number
+    status_servicos: number
+    latencia_ms_servicos: number
+    ultimo_erro_servicos: number
+    data_verificacao_servicos: number
+    data_criacao_servicos: number
+    data_atualizacao_servicos: number
     _all: number
   }
 
 
   export type ServicosAvgAggregateInputType = {
-    latency_ms?: true
+    latencia_ms_servicos?: true
   }
 
   export type ServicosSumAggregateInputType = {
-    latency_ms?: true
+    latencia_ms_servicos?: true
   }
 
   export type ServicosMinAggregateInputType = {
-    id?: true
-    service?: true
-    url?: true
-    status?: true
-    latency_ms?: true
-    last_error?: true
-    checked_at?: true
-    created_at?: true
-    updated_at?: true
+    id_servicos?: true
+    servico_servicos?: true
+    url_servicos?: true
+    status_servicos?: true
+    latencia_ms_servicos?: true
+    ultimo_erro_servicos?: true
+    data_verificacao_servicos?: true
+    data_criacao_servicos?: true
+    data_atualizacao_servicos?: true
   }
 
   export type ServicosMaxAggregateInputType = {
-    id?: true
-    service?: true
-    url?: true
-    status?: true
-    latency_ms?: true
-    last_error?: true
-    checked_at?: true
-    created_at?: true
-    updated_at?: true
+    id_servicos?: true
+    servico_servicos?: true
+    url_servicos?: true
+    status_servicos?: true
+    latencia_ms_servicos?: true
+    ultimo_erro_servicos?: true
+    data_verificacao_servicos?: true
+    data_criacao_servicos?: true
+    data_atualizacao_servicos?: true
   }
 
   export type ServicosCountAggregateInputType = {
-    id?: true
-    service?: true
-    url?: true
-    status?: true
-    latency_ms?: true
-    last_error?: true
-    checked_at?: true
-    created_at?: true
-    updated_at?: true
+    id_servicos?: true
+    servico_servicos?: true
+    url_servicos?: true
+    status_servicos?: true
+    latencia_ms_servicos?: true
+    ultimo_erro_servicos?: true
+    data_verificacao_servicos?: true
+    data_criacao_servicos?: true
+    data_atualizacao_servicos?: true
     _all?: true
   }
 
@@ -19511,15 +19511,15 @@ export namespace Prisma {
   }
 
   export type ServicosGroupByOutputType = {
-    id: string
-    service: string
-    url: string
-    status: string
-    latency_ms: number | null
-    last_error: string | null
-    checked_at: Date
-    created_at: Date
-    updated_at: Date
+    id_servicos: string
+    servico_servicos: string
+    url_servicos: string
+    status_servicos: string
+    latencia_ms_servicos: number | null
+    ultimo_erro_servicos: string | null
+    data_verificacao_servicos: Date
+    data_criacao_servicos: Date
+    data_atualizacao_servicos: Date
     _count: ServicosCountAggregateOutputType | null
     _avg: ServicosAvgAggregateOutputType | null
     _sum: ServicosSumAggregateOutputType | null
@@ -19542,39 +19542,39 @@ export namespace Prisma {
 
 
   export type ServicosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    service?: boolean
-    url?: boolean
-    status?: boolean
-    latency_ms?: boolean
-    last_error?: boolean
-    checked_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_servicos?: boolean
+    servico_servicos?: boolean
+    url_servicos?: boolean
+    status_servicos?: boolean
+    latencia_ms_servicos?: boolean
+    ultimo_erro_servicos?: boolean
+    data_verificacao_servicos?: boolean
+    data_criacao_servicos?: boolean
+    data_atualizacao_servicos?: boolean
   }, ExtArgs["result"]["servicos"]>
 
   export type ServicosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    service?: boolean
-    url?: boolean
-    status?: boolean
-    latency_ms?: boolean
-    last_error?: boolean
-    checked_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_servicos?: boolean
+    servico_servicos?: boolean
+    url_servicos?: boolean
+    status_servicos?: boolean
+    latencia_ms_servicos?: boolean
+    ultimo_erro_servicos?: boolean
+    data_verificacao_servicos?: boolean
+    data_criacao_servicos?: boolean
+    data_atualizacao_servicos?: boolean
   }, ExtArgs["result"]["servicos"]>
 
   export type ServicosSelectScalar = {
-    id?: boolean
-    service?: boolean
-    url?: boolean
-    status?: boolean
-    latency_ms?: boolean
-    last_error?: boolean
-    checked_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_servicos?: boolean
+    servico_servicos?: boolean
+    url_servicos?: boolean
+    status_servicos?: boolean
+    latencia_ms_servicos?: boolean
+    ultimo_erro_servicos?: boolean
+    data_verificacao_servicos?: boolean
+    data_criacao_servicos?: boolean
+    data_atualizacao_servicos?: boolean
   }
 
 
@@ -19582,15 +19582,15 @@ export namespace Prisma {
     name: "Servicos"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      service: string
-      url: string
-      status: string
-      latency_ms: number | null
-      last_error: string | null
-      checked_at: Date
-      created_at: Date
-      updated_at: Date
+      id_servicos: string
+      servico_servicos: string
+      url_servicos: string
+      status_servicos: string
+      latencia_ms_servicos: number | null
+      ultimo_erro_servicos: string | null
+      data_verificacao_servicos: Date
+      data_criacao_servicos: Date
+      data_atualizacao_servicos: Date
     }, ExtArgs["result"]["servicos"]>
     composites: {}
   }
@@ -19674,8 +19674,8 @@ export namespace Prisma {
      * // Get first 10 Servicos
      * const servicos = await prisma.servicos.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const servicosWithIdOnly = await prisma.servicos.findMany({ select: { id: true } })
+     * // Only select the `id_servicos`
+     * const servicosWithId_servicosOnly = await prisma.servicos.findMany({ select: { id_servicos: true } })
      * 
      */
     findMany<T extends ServicosFindManyArgs>(args?: SelectSubset<T, ServicosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findMany">>
@@ -19719,9 +19719,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Servicos and only return the `id`
-     * const servicosWithIdOnly = await prisma.servicos.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Servicos and only return the `id_servicos`
+     * const servicosWithId_servicosOnly = await prisma.servicos.createManyAndReturn({ 
+     *   select: { id_servicos: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -19984,15 +19984,15 @@ export namespace Prisma {
    * Fields of the Servicos model
    */ 
   interface ServicosFieldRefs {
-    readonly id: FieldRef<"Servicos", 'String'>
-    readonly service: FieldRef<"Servicos", 'String'>
-    readonly url: FieldRef<"Servicos", 'String'>
-    readonly status: FieldRef<"Servicos", 'String'>
-    readonly latency_ms: FieldRef<"Servicos", 'Int'>
-    readonly last_error: FieldRef<"Servicos", 'String'>
-    readonly checked_at: FieldRef<"Servicos", 'DateTime'>
-    readonly created_at: FieldRef<"Servicos", 'DateTime'>
-    readonly updated_at: FieldRef<"Servicos", 'DateTime'>
+    readonly id_servicos: FieldRef<"Servicos", 'String'>
+    readonly servico_servicos: FieldRef<"Servicos", 'String'>
+    readonly url_servicos: FieldRef<"Servicos", 'String'>
+    readonly status_servicos: FieldRef<"Servicos", 'String'>
+    readonly latencia_ms_servicos: FieldRef<"Servicos", 'Int'>
+    readonly ultimo_erro_servicos: FieldRef<"Servicos", 'String'>
+    readonly data_verificacao_servicos: FieldRef<"Servicos", 'DateTime'>
+    readonly data_criacao_servicos: FieldRef<"Servicos", 'DateTime'>
+    readonly data_atualizacao_servicos: FieldRef<"Servicos", 'DateTime'>
   }
     
 
@@ -26682,15 +26682,15 @@ export namespace Prisma {
 
 
   export const ServicosScalarFieldEnum: {
-    id: 'id',
-    service: 'service',
-    url: 'url',
-    status: 'status',
-    latency_ms: 'latency_ms',
-    last_error: 'last_error',
-    checked_at: 'checked_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_servicos: 'id_servicos',
+    servico_servicos: 'servico_servicos',
+    url_servicos: 'url_servicos',
+    status_servicos: 'status_servicos',
+    latencia_ms_servicos: 'latencia_ms_servicos',
+    ultimo_erro_servicos: 'ultimo_erro_servicos',
+    data_verificacao_servicos: 'data_verificacao_servicos',
+    data_criacao_servicos: 'data_criacao_servicos',
+    data_atualizacao_servicos: 'data_atualizacao_servicos'
   };
 
   export type ServicosScalarFieldEnum = (typeof ServicosScalarFieldEnum)[keyof typeof ServicosScalarFieldEnum]
@@ -28481,54 +28481,54 @@ export namespace Prisma {
     AND?: ServicosWhereInput | ServicosWhereInput[]
     OR?: ServicosWhereInput[]
     NOT?: ServicosWhereInput | ServicosWhereInput[]
-    id?: StringFilter<"Servicos"> | string
-    service?: StringFilter<"Servicos"> | string
-    url?: StringFilter<"Servicos"> | string
-    status?: StringFilter<"Servicos"> | string
-    latency_ms?: IntNullableFilter<"Servicos"> | number | null
-    last_error?: StringNullableFilter<"Servicos"> | string | null
-    checked_at?: DateTimeFilter<"Servicos"> | Date | string
-    created_at?: DateTimeFilter<"Servicos"> | Date | string
-    updated_at?: DateTimeFilter<"Servicos"> | Date | string
+    id_servicos?: StringFilter<"Servicos"> | string
+    servico_servicos?: StringFilter<"Servicos"> | string
+    url_servicos?: StringFilter<"Servicos"> | string
+    status_servicos?: StringFilter<"Servicos"> | string
+    latencia_ms_servicos?: IntNullableFilter<"Servicos"> | number | null
+    ultimo_erro_servicos?: StringNullableFilter<"Servicos"> | string | null
+    data_verificacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+    data_criacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+    data_atualizacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
   }
 
   export type ServicosOrderByWithRelationInput = {
-    id?: SortOrder
-    service?: SortOrder
-    url?: SortOrder
-    status?: SortOrder
-    latency_ms?: SortOrderInput | SortOrder
-    last_error?: SortOrderInput | SortOrder
-    checked_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_servicos?: SortOrder
+    servico_servicos?: SortOrder
+    url_servicos?: SortOrder
+    status_servicos?: SortOrder
+    latencia_ms_servicos?: SortOrderInput | SortOrder
+    ultimo_erro_servicos?: SortOrderInput | SortOrder
+    data_verificacao_servicos?: SortOrder
+    data_criacao_servicos?: SortOrder
+    data_atualizacao_servicos?: SortOrder
   }
 
   export type ServicosWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    service?: string
+    id_servicos?: string
+    servico_servicos?: string
     AND?: ServicosWhereInput | ServicosWhereInput[]
     OR?: ServicosWhereInput[]
     NOT?: ServicosWhereInput | ServicosWhereInput[]
-    url?: StringFilter<"Servicos"> | string
-    status?: StringFilter<"Servicos"> | string
-    latency_ms?: IntNullableFilter<"Servicos"> | number | null
-    last_error?: StringNullableFilter<"Servicos"> | string | null
-    checked_at?: DateTimeFilter<"Servicos"> | Date | string
-    created_at?: DateTimeFilter<"Servicos"> | Date | string
-    updated_at?: DateTimeFilter<"Servicos"> | Date | string
-  }, "id" | "service">
+    url_servicos?: StringFilter<"Servicos"> | string
+    status_servicos?: StringFilter<"Servicos"> | string
+    latencia_ms_servicos?: IntNullableFilter<"Servicos"> | number | null
+    ultimo_erro_servicos?: StringNullableFilter<"Servicos"> | string | null
+    data_verificacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+    data_criacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+    data_atualizacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+  }, "id_servicos" | "servico_servicos">
 
   export type ServicosOrderByWithAggregationInput = {
-    id?: SortOrder
-    service?: SortOrder
-    url?: SortOrder
-    status?: SortOrder
-    latency_ms?: SortOrderInput | SortOrder
-    last_error?: SortOrderInput | SortOrder
-    checked_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_servicos?: SortOrder
+    servico_servicos?: SortOrder
+    url_servicos?: SortOrder
+    status_servicos?: SortOrder
+    latencia_ms_servicos?: SortOrderInput | SortOrder
+    ultimo_erro_servicos?: SortOrderInput | SortOrder
+    data_verificacao_servicos?: SortOrder
+    data_criacao_servicos?: SortOrder
+    data_atualizacao_servicos?: SortOrder
     _count?: ServicosCountOrderByAggregateInput
     _avg?: ServicosAvgOrderByAggregateInput
     _max?: ServicosMaxOrderByAggregateInput
@@ -28540,15 +28540,15 @@ export namespace Prisma {
     AND?: ServicosScalarWhereWithAggregatesInput | ServicosScalarWhereWithAggregatesInput[]
     OR?: ServicosScalarWhereWithAggregatesInput[]
     NOT?: ServicosScalarWhereWithAggregatesInput | ServicosScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Servicos"> | string
-    service?: StringWithAggregatesFilter<"Servicos"> | string
-    url?: StringWithAggregatesFilter<"Servicos"> | string
-    status?: StringWithAggregatesFilter<"Servicos"> | string
-    latency_ms?: IntNullableWithAggregatesFilter<"Servicos"> | number | null
-    last_error?: StringNullableWithAggregatesFilter<"Servicos"> | string | null
-    checked_at?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
+    id_servicos?: StringWithAggregatesFilter<"Servicos"> | string
+    servico_servicos?: StringWithAggregatesFilter<"Servicos"> | string
+    url_servicos?: StringWithAggregatesFilter<"Servicos"> | string
+    status_servicos?: StringWithAggregatesFilter<"Servicos"> | string
+    latencia_ms_servicos?: IntNullableWithAggregatesFilter<"Servicos"> | number | null
+    ultimo_erro_servicos?: StringNullableWithAggregatesFilter<"Servicos"> | string | null
+    data_verificacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
+    data_criacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
+    data_atualizacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
   }
 
   export type CambioWhereInput = {
@@ -30706,87 +30706,87 @@ export namespace Prisma {
   }
 
   export type ServicosCreateInput = {
-    id?: string
-    service: string
-    url: string
-    status?: string
-    latency_ms?: number | null
-    last_error?: string | null
-    checked_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_servicos?: string
+    servico_servicos: string
+    url_servicos: string
+    status_servicos?: string
+    latencia_ms_servicos?: number | null
+    ultimo_erro_servicos?: string | null
+    data_verificacao_servicos?: Date | string
+    data_criacao_servicos?: Date | string
+    data_atualizacao_servicos?: Date | string
   }
 
   export type ServicosUncheckedCreateInput = {
-    id?: string
-    service: string
-    url: string
-    status?: string
-    latency_ms?: number | null
-    last_error?: string | null
-    checked_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_servicos?: string
+    servico_servicos: string
+    url_servicos: string
+    status_servicos?: string
+    latencia_ms_servicos?: number | null
+    ultimo_erro_servicos?: string | null
+    data_verificacao_servicos?: Date | string
+    data_criacao_servicos?: Date | string
+    data_atualizacao_servicos?: Date | string
   }
 
   export type ServicosUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    service?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    latency_ms?: NullableIntFieldUpdateOperationsInput | number | null
-    last_error?: NullableStringFieldUpdateOperationsInput | string | null
-    checked_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_servicos?: StringFieldUpdateOperationsInput | string
+    servico_servicos?: StringFieldUpdateOperationsInput | string
+    url_servicos?: StringFieldUpdateOperationsInput | string
+    status_servicos?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServicosUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    service?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    latency_ms?: NullableIntFieldUpdateOperationsInput | number | null
-    last_error?: NullableStringFieldUpdateOperationsInput | string | null
-    checked_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_servicos?: StringFieldUpdateOperationsInput | string
+    servico_servicos?: StringFieldUpdateOperationsInput | string
+    url_servicos?: StringFieldUpdateOperationsInput | string
+    status_servicos?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServicosCreateManyInput = {
-    id?: string
-    service: string
-    url: string
-    status?: string
-    latency_ms?: number | null
-    last_error?: string | null
-    checked_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_servicos?: string
+    servico_servicos: string
+    url_servicos: string
+    status_servicos?: string
+    latencia_ms_servicos?: number | null
+    ultimo_erro_servicos?: string | null
+    data_verificacao_servicos?: Date | string
+    data_criacao_servicos?: Date | string
+    data_atualizacao_servicos?: Date | string
   }
 
   export type ServicosUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    service?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    latency_ms?: NullableIntFieldUpdateOperationsInput | number | null
-    last_error?: NullableStringFieldUpdateOperationsInput | string | null
-    checked_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_servicos?: StringFieldUpdateOperationsInput | string
+    servico_servicos?: StringFieldUpdateOperationsInput | string
+    url_servicos?: StringFieldUpdateOperationsInput | string
+    status_servicos?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServicosUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    service?: StringFieldUpdateOperationsInput | string
-    url?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    latency_ms?: NullableIntFieldUpdateOperationsInput | number | null
-    last_error?: NullableStringFieldUpdateOperationsInput | string | null
-    checked_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_servicos?: StringFieldUpdateOperationsInput | string
+    servico_servicos?: StringFieldUpdateOperationsInput | string
+    url_servicos?: StringFieldUpdateOperationsInput | string
+    status_servicos?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CambioCreateInput = {
@@ -32877,47 +32877,47 @@ export namespace Prisma {
   }
 
   export type ServicosCountOrderByAggregateInput = {
-    id?: SortOrder
-    service?: SortOrder
-    url?: SortOrder
-    status?: SortOrder
-    latency_ms?: SortOrder
-    last_error?: SortOrder
-    checked_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_servicos?: SortOrder
+    servico_servicos?: SortOrder
+    url_servicos?: SortOrder
+    status_servicos?: SortOrder
+    latencia_ms_servicos?: SortOrder
+    ultimo_erro_servicos?: SortOrder
+    data_verificacao_servicos?: SortOrder
+    data_criacao_servicos?: SortOrder
+    data_atualizacao_servicos?: SortOrder
   }
 
   export type ServicosAvgOrderByAggregateInput = {
-    latency_ms?: SortOrder
+    latencia_ms_servicos?: SortOrder
   }
 
   export type ServicosMaxOrderByAggregateInput = {
-    id?: SortOrder
-    service?: SortOrder
-    url?: SortOrder
-    status?: SortOrder
-    latency_ms?: SortOrder
-    last_error?: SortOrder
-    checked_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_servicos?: SortOrder
+    servico_servicos?: SortOrder
+    url_servicos?: SortOrder
+    status_servicos?: SortOrder
+    latencia_ms_servicos?: SortOrder
+    ultimo_erro_servicos?: SortOrder
+    data_verificacao_servicos?: SortOrder
+    data_criacao_servicos?: SortOrder
+    data_atualizacao_servicos?: SortOrder
   }
 
   export type ServicosMinOrderByAggregateInput = {
-    id?: SortOrder
-    service?: SortOrder
-    url?: SortOrder
-    status?: SortOrder
-    latency_ms?: SortOrder
-    last_error?: SortOrder
-    checked_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_servicos?: SortOrder
+    servico_servicos?: SortOrder
+    url_servicos?: SortOrder
+    status_servicos?: SortOrder
+    latencia_ms_servicos?: SortOrder
+    ultimo_erro_servicos?: SortOrder
+    data_verificacao_servicos?: SortOrder
+    data_criacao_servicos?: SortOrder
+    data_atualizacao_servicos?: SortOrder
   }
 
   export type ServicosSumOrderByAggregateInput = {
-    latency_ms?: SortOrder
+    latencia_ms_servicos?: SortOrder
   }
 
   export type CambioMoedaData_cotacaoBoletimCompoundUniqueInput = {

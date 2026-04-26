@@ -646,19 +646,19 @@ model PedidoSaldoFormula {
 }
 
 /// Painéis do Dashboard por usuário.
-model DashboardPainel {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  user_id      String
-  nome         String
-  ordem        Int      @default(0)
-  is_visivel   Boolean  @default(true)
-  widgets_json String   @default("[]") @db.Text
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+model PedidoDashboardPainel {
+  id_dashboard_painel              String   @id @default(cuid())
+  id_organizacao                   String
+  id_usuario                       String
+  nome_dashboard_painel            String
+  ordem_dashboard_painel           Int      @default(0)
+  is_visivel_dashboard_painel      Boolean  @default(true)
+  widgets_json_dashboard_painel    String   @default("[]") @db.Text
+  data_criacao_dashboard_painel    DateTime @default(now())
+  data_atualizacao_dashboard_painel DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
   @@map("dashboard_painel")
 }
 

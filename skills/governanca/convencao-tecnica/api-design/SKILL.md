@@ -1,12 +1,12 @@
 ---
 name: antigravity-api-design
-description: "Use esta skill ao projetar ou modificar APIs REST. Define hierarquia de URLs DDD-aware, convenções de naming, versionamento, paginação, formato de resposta, erros, headers e boas práticas. Em conflito de naming, prevalece skills/governanca/ddd-nomenclatura/SKILL.md."
+description: "Use esta skill ao projetar ou modificar APIs REST. Define hierarquia de URLs DDD-aware, convenções de naming, versionamento, paginação, formato de resposta, erros, headers e boas práticas. Em conflito de naming, prevalece skills/governanca/lei/ddd-nomenclatura/SKILL.md."
 ---
 
 # Gravity — Design de Rotas REST API
 
 > **Esta skill define COMO desenhar a API.**
-> Os NOMES vêm de [`skills/governanca/ddd-nomenclatura/SKILL.md`](../../governanca/ddd-nomenclatura/SKILL.md).
+> Os NOMES vêm de [`skills/governanca/lei/ddd-nomenclatura/SKILL.md`](../../lei/ddd-nomenclatura/SKILL.md).
 > Em conflito de naming, `ddd-nomenclatura` prevalece. Em conflito de forma, esta skill prevalece.
 
 ---
@@ -491,8 +491,8 @@ DELETE /api/v1/<recursos>?ids=a,b,c                     → variante com query (
 
 ## Referências cruzadas
 
-- [`skills/governanca/ddd-nomenclatura/SKILL.md`](../../governanca/ddd-nomenclatura/SKILL.md) — naming canônico (esta skill prevalece em conflito de naming)
-- [`skills/seguranca/autenticacao-s2s/SKILL.md`](../../seguranca/autenticacao-s2s/SKILL.md) — `x-chave-interna`, propagação de organização, machine tokens
-- [`skills/arquitetura/contract-testing/SKILL.md`](../../arquitetura/contract-testing/SKILL.md) — Zod como contrato bilateral, CI bloqueando breaking changes
+- [`skills/governanca/lei/ddd-nomenclatura/SKILL.md`](../../lei/ddd-nomenclatura/SKILL.md) — naming canônico (esta skill prevalece em conflito de naming)
+- [`skills/seguranca/autenticacao-s2s/SKILL.md`](../../../seguranca/autenticacao-s2s/SKILL.md) — `x-chave-interna`, propagação de organização, machine tokens
+- [`skills/testes/contract-testing/SKILL.md`](../../../testes/contract-testing/SKILL.md) — Zod como contrato bilateral, CI bloqueando breaking changes
 - **9 Mandamentos** — REGRA 06 (Zod obrigatório), REGRA 07 (sincronia front+back), REGRA 09 (Zod bilateral)
 - **Planilha mestre** — `planilha_geral_gravity.xlsx`, abas `1.ddd_campos` (campos) e `2. ddd_api` (rotas)

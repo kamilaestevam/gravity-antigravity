@@ -17,9 +17,9 @@ jobs:
     env:
       NODE_ENV: test
       CONFIGURADOR_DATABASE_URL: postgresql://test:test@localhost:5432/configurador_test
-      TENANT_DATABASE_URL: postgresql://test:test@localhost:5432/tenant_test
+      ORGANIZACAO_DATABASE_URL: postgresql://test:test@localhost:5432/organizacao_test
       CLERK_SECRET_KEY: sk_test_placeholder
-      INTERNAL_SERVICE_KEY: ci-internal-key
+      CHAVE_SERVICO_INTERNO: ci-internal-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,13 +46,13 @@ jobs:
       - run: npm install
 
       - name: Compor schema do Tenant DB
-        run: npx ts-node scripts/ativamente/compose-tenant-schema.ts --strict
+        run: npx ts-node scripts/ativamente/compose-organizacao-schema.ts --strict
 
       - name: Validar schema do Configurador
         run: npx prisma validate --schema=configurador/prisma/schema.prisma
 
       - name: Validar schema do Tenant DB
-        run: npx prisma validate --schema=servicos-global/tenant/prisma/schema.prisma
+        run: npx prisma validate --schema=servicos-global/organizacao/prisma/schema.prisma
 
   # ─────────────────────────────────────────────
   # JOB 3 — Deploy em Staging (T26000001) + Migrations
@@ -64,14 +64,14 @@ jobs:
     environment: staging
     env:
       CONFIGURADOR_DATABASE_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
-      TENANT_DATABASE_URL: ${{ secrets.STAGING_TENANT_DATABASE_URL }}
+      ORGANIZACAO_DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
     steps:
       - name: Validar secrets obrigatórios (Staging)
         run: |
           missing=""
           if [ -z "${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}" ]; then missing="$missing STAGING_CONFIGURADOR_DATABASE_URL"; fi
-          if [ -z "${{ secrets.STAGING_TENANT_DATABASE_URL }}" ]; then missing="$missing STAGING_TENANT_DATABASE_URL"; fi
+          if [ -z "${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}" ]; then missing="$missing STAGING_ORGANIZACAO_DATABASE_URL"; fi
           if [ -z "${{ secrets.RAILWAY_TOKEN_STAGING }}" ]; then missing="$missing RAILWAY_TOKEN_STAGING"; fi
           if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then missing="$missing CLERK_SECRET_KEY"; fi
           if [ -n "$missing" ]; then echo "Missing required secrets:$missing"; exit 1; fi
@@ -91,20 +91,20 @@ jobs:
 
       - name: Aplicar migrations — Tenant DB (Staging)
         run: |
-          npx ts-node scripts/ativamente/compose-tenant-schema.ts
+          npx ts-node scripts/ativamente/compose-organizacao-schema.ts
           npx prisma migrate deploy \
-            --schema=servicos-global/tenant/prisma/schema.prisma
+            --schema=servicos-global/organizacao/prisma/schema.prisma
         env:
-          DATABASE_URL: ${{ secrets.STAGING_TENANT_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
 
       - name: Registrar versão de staging (T26000001)
         run: |
           STAGING_CONF=$(npx prisma migrate status \
             --schema=configurador/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
-          STAGING_TENANT=$(npx prisma migrate status \
-            --schema=servicos-global/tenant/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
+          STAGING_ORGANIZACAO=$(npx prisma migrate status \
+            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
           echo "STAGING_CONF_OK=$STAGING_CONF" >> $GITHUB_ENV
-          echo "STAGING_TENANT_OK=$STAGING_TENANT" >> $GITHUB_ENV
+          echo "STAGING_TENANT_OK=$STAGING_ORGANIZACAO" >> $GITHUB_ENV
 
       # Health check após deploy de staging
       - name: Health check — Configurador (Staging)
@@ -123,7 +123,7 @@ jobs:
     environment: production
     env:
       STAGING_CONFIGURADOR_URL: ${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}
-      STAGING_TENANT_URL: ${{ secrets.STAGING_TENANT_DATABASE_URL }}
+      STAGING_TENANT_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
       PROD_CONFIGURADOR_URL: ${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}
       PROD_TENANT_URL: ${{ secrets.PROD_TENANT_DATABASE_URL }}
     steps:
@@ -160,9 +160,9 @@ jobs:
         run: |
           echo "Verificando paridade de migrations no Tenant DB..."
           STAGING_STATUS=$(DATABASE_URL=$STAGING_TENANT_URL npx prisma migrate status \
-            --schema=servicos-global/tenant/prisma/schema.prisma 2>&1)
+            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1)
           PROD_STATUS=$(DATABASE_URL=$PROD_TENANT_URL npx prisma migrate status \
-            --schema=servicos-global/tenant/prisma/schema.prisma 2>&1)
+            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1)
 
           STAGING_MIGS=$(echo "$STAGING_STATUS" | grep -c "migration name" || echo "0")
           PROD_MIGS=$(echo "$PROD_STATUS" | grep -c "migration name" || echo "0")
@@ -213,7 +213,7 @@ jobs:
       - name: Aplicar migrations — Tenant DB (Produção)
         run: |
           npx prisma migrate deploy \
-            --schema=servicos-global/tenant/prisma/schema.prisma
+            --schema=servicos-global/organizacao/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.PROD_TENANT_DATABASE_URL }}
 

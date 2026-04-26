@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@nucleo/*": ["../../../nucleo-global/*"],
-      "@tenant/*": ["../../../servicos-global/tenant/*"],
+      "@organizacao/*": ["../../../servicos-global/organizacao/*"],
       "@produto/*": ["../../../servicos-global/produto/*"]
     }
   },

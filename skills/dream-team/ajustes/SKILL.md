@@ -52,23 +52,23 @@ conteúdo pode ter mudado desde a última sessão.
 **Duas skills são universais — ler em todo ajuste, sem exceção:**
 
 ```
-skills/governanca/agent-policy/SKILL.md
-skills/governanca/code-standards/SKILL.md
+skills/governanca/lei/agent-policy/SKILL.md
+skills/governanca/convencao-tecnica/code-standards/SKILL.md
 ```
 
 **Skills adicionais por tipo de mudança — ler as que se aplicam:**
 
 | Tipo de Mudança | Skills a Ler (paths exatos) |
 |:----------------|:----------------------------|
-| Rota de API backend | `skills/seguranca/sla-performance/SKILL.md` + `skills/arquitetura/isolamento-organizacao/SKILL.md` |
-| Query Prisma / campo de banco | `skills/arquitetura/isolamento-organizacao/SKILL.md` + `skills/infra-estrutura/database-operations/SKILL.md` |
-| Schema Zod exportado | `skills/arquitetura/contract-testing/SKILL.md` |
+| Rota de API backend | `skills/governanca/lei/sla-metas/SKILL.md` + `skills/governanca/lei/isolamento-organizacao/SKILL.md` |
+| Query Prisma / campo de banco | `skills/governanca/lei/isolamento-organizacao/SKILL.md` + `skills/governanca/convencao-tecnica/database-governance/SKILL.md` |
+| Schema Zod exportado | `skills/testes/contract-testing/SKILL.md` |
 | Componente React (`nucleo-global/`) | `skills/arquitetura/nucleo-global/SKILL.md` + `skills/ux/design-system/SKILL.md` |
 | Middleware de autenticação | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/seguranca/permissoes/SKILL.md` |
 | Chamada entre serviços (S2S) | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/arquitetura/resilience-patterns/SKILL.md` |
 | CSS compartilhado / design tokens | `skills/ux/design-system/SKILL.md` + `skills/ux/acessibilidade/SKILL.md` |
-| Migration Prisma | `skills/governanca/deploy/SKILL.md` + `skills/infra-estrutura/database-operations/SKILL.md` |
-| `shared/types.ts` | `skills/arquitetura/contract-testing/SKILL.md` |
+| Migration Prisma | `skills/processos/deploy/SKILL.md` + `skills/governanca/convencao-tecnica/database-governance/SKILL.md` |
+| `shared/types.ts` | `skills/testes/contract-testing/SKILL.md` |
 | Estado global (store/context) | `skills/arquitetura/state-management/SKILL.md` |
 
 > **Regra:** se uma skill existe e é ignorada durante o ajuste, o ajuste está
@@ -708,11 +708,11 @@ Esta skill ocupa uma posição específica no fluxo. Não substitui nenhuma outr
   Fase 6: Execução cirúrgica
   Fase 7: Verificação em camadas
         ↓
-[QA Skill — skills/agentes/qa/SKILL.md]
+[QA Skill — skills/papeis/qa/SKILL.md]
   Acionada obrigatoriamente para MEDIUM, HIGH e CRITICAL
   Opcional para LOW sem regressão detectada
         ↓
-[Deploy — skills/governanca/deploy/SKILL.md]
+[Deploy — skills/processos/deploy/SKILL.md]
 ```
 
 **Regra de acionamento do QA:**

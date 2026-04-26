@@ -276,7 +276,7 @@ Campo `valor_total_pedido = quantidade × valor_unitario` (calculado em runtime,
 
 ## Rotas e endpoints (REST)
 
-> **Para regras de design — verbos, paginação, status, erro, headers, hierarquia DDD-aware — ver [`skills/gestao/api-design/SKILL.md`](../../gestao/api-design/SKILL.md). Em conflito de naming, esta skill (`ddd-nomenclatura`) prevalece.**
+> **Para regras de design — verbos, paginação, status, erro, headers, hierarquia DDD-aware — ver [`skills/governanca/convencao-tecnica/api-design/SKILL.md`](../../convencao-tecnica/api-design/SKILL.md). Em conflito de naming, esta skill (`ddd-nomenclatura`) prevalece.**
 
 Sub-aplicação das regras pra URLs:
 
@@ -336,6 +336,6 @@ Em dúvida? → consulta glossário canônico
 - **Mandamento 03** — Dicionário oficial DDD
 - **Mandamento 07** — Sincronia front+back na mesma entrega
 - **Mandamento 09** — Zod schemas como contratos bilaterais
-- **`skills/agentes/coordenador/SKILL.md`** — Quem executa scripts de rename de schema
+- **`skills/papeis/coordenador/SKILL.md`** — Quem executa scripts de rename de schema
 - **`documentos-tecnicos/ddd/`** — Auditorias de execução por área
 - **Planilha mestre DDD** — `planilha_geral_gravity.xlsx`

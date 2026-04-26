@@ -1,0 +1,10 @@
+{
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-organizacao.json"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*", "server/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

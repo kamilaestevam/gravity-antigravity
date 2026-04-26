@@ -156,10 +156,10 @@ Artefatos:
 #### 4.2 Schemas Zod como Contrato
 - Schemas de request e response definidos?
 - Breaking changes não versionados?
-- Verificar conformidade com `skills/arquitetura/contract-testing/SKILL.md`
+- Verificar conformidade com `skills/testes/contract-testing/SKILL.md`
 
 #### 4.3 Paginação e Filtros
-- Paginação implementada conforme `skills/gestao/api-design/SKILL.md`?
+- Paginação implementada conforme `skills/governanca/convencao-tecnica/api-design/SKILL.md`?
 - Filtros validados antes do banco?
 - Ordenação segura (sem SQL injection via campo dinâmico)?
 
@@ -194,7 +194,7 @@ Artefatos:
 - Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver`?
 - Algum uso de `new PrismaClient()` direto (violação crítica)?
 - `id_organizacao` vem do JWT — nunca do body da requisição?
-- Verificar conformidade com `skills/arquitetura/isolamento-organizacao/SKILL.md`
+- Verificar conformidade com `skills/governanca/lei/isolamento-organizacao/SKILL.md`
 
 #### 5.3 Performance de Queries
 - Queries N+1 identificadas?
@@ -430,12 +430,12 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 | Situação | Skill a Acionar Após o Relatório |
 |----------|----------------------------------|
 | Achados CRÍTICO de segurança | `skills/seguranca/seguranca-5-camadas/SKILL.md` + notificar Líder |
-| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/arquitetura/isolamento-organizacao/SKILL.md` + Coordenador |
-| Achados de autorização via `publicMetadata` (anti-padrão) | `skills/governanca/9-mandamentos/SKILL.md` (Mandamento 01) + Coordenador |
+| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/governanca/lei/isolamento-organizacao/SKILL.md` + Coordenador |
+| Achados de autorização via `publicMetadata` (anti-padrão) | `skills/governanca/lei/9-mandamentos/SKILL.md` (Mandamento 01) + Coordenador |
 | Achados de schema/model | `skills/arquitetura/schema-composition/SKILL.md` + Coordenador |
-| Ajustes identificados | `skills/dream-team-ajustes/SKILL.md` (executor dos ajustes) |
-| Validação pós-ajuste | `skills/agentes/qa/SKILL.md` |
-| Teste visual pós-ajuste | `skills/arquitetura/teste-em-tela/SKILL.md` |
+| Ajustes identificados | `skills/dream-team/ajustes/SKILL.md` (executor dos ajustes) |
+| Validação pós-ajuste | `skills/papeis/qa/SKILL.md` |
+| Teste visual pós-ajuste | `skills/testes/teste-em-tela/SKILL.md` |
 
 ---
 

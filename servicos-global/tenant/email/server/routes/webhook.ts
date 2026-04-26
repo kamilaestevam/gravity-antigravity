@@ -5,7 +5,7 @@
 //  1) Valida assinatura HMAC com RESEND_WEBHOOK_SECRET
 //  2) Aplica deduplicação em 3 camadas (Resend ID, timestamp+conteúdo, hash)
 //  3) Extrai thread via Reply-To dinâmico (reply+{dedup_key}@dominio)
-//  4) Persiste EmailMensagem com direction: INBOUND
+//  4) Persiste EmailMensagem com direcao: RECEBIDO
 //  5) Emite evento email:received (para integração futura com Gabi)
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -105,17 +105,20 @@ webhookRouter.post(
         // from the Reply-To address, which links back to an outbound email we sent.
         // If no match is found, we reject the email (see below).
         const parents = await prisma.emailRegistroEnvio.findMany({
-          where: { dedup_key: key },
-          select: { tenant_id: true, id: true },
+          where: { chave_dedup_email_registro_envio: key },
+          select: {
+            id_organizacao_email_registro_envio: true,
+            id_email_registro_envio: true,
+          },
         })
         if (parents.length > 1) {
           console.warn(
             `[WEBHOOK] Multiple emailEnviado records match dedup_key=${key} — ` +
-            `tenant_ids: ${parents.map(p => p.tenant_id).join(', ')}. Using first match.`
+            `tenant_ids: ${parents.map(p => p.id_organizacao_email_registro_envio).join(', ')}. Using first match.`
           )
         }
         if (parents.length > 0) {
-          tenantId = parents[0].tenant_id
+          tenantId = parents[0].id_organizacao_email_registro_envio
         }
         break
       }
@@ -146,63 +149,66 @@ webhookRouter.post(
     if (parentDedupKey) {
       // Tentar encontrar thread via mensagem pai
       const parentMsg = await prisma.emailMensagem.findFirst({
-        where: { dedup_key: parentDedupKey, tenant_id: tenantId },
-        select: { thread_id: true },
+        where: {
+          chave_dedup_email_mensagem: parentDedupKey,
+          id_organizacao_email_mensagem: tenantId,
+        },
+        select: { id_thread_email_mensagem: true },
       })
       if (parentMsg) {
-        threadId = parentMsg.thread_id
+        threadId = parentMsg.id_thread_email_mensagem
       } else {
         // Criar nova thread
         const thread = await prisma.emailAssuntosParticipantes.create({
           data: {
-            tenant_id: tenantId,
-            subject: data.subject ?? '(sem assunto)',
+            id_organizacao_email_assuntos_participantes: tenantId,
+            assunto_email_assuntos_participantes: data.subject ?? '(sem assunto)',
           },
         })
-        threadId = thread.id
+        threadId = thread.id_email_assuntos_participantes
       }
     } else {
       // Criar nova thread
       const thread = await prisma.emailAssuntosParticipantes.create({
         data: {
-          tenant_id: tenantId,
-          subject: data.subject ?? '(sem assunto)',
+          id_organizacao_email_assuntos_participantes: tenantId,
+          assunto_email_assuntos_participantes: data.subject ?? '(sem assunto)',
         },
       })
-      threadId = thread.id
+      threadId = thread.id_email_assuntos_participantes
     }
 
     // ---- Persistir mensagem inbound ----------------------------------------
     const message = await prisma.emailMensagem.create({
       data: {
-        tenant_id: tenantId,
-        thread_id: threadId,
-        resend_id: resendId,
-        direction: 'INBOUND',
-        from,
-        to,
-        subject: data.subject,
-        body,
-        body_html: data.html ?? null,
-        parent_message_id: parentDedupKey ?? null,
-        gabi_action: 'none',
+        id_organizacao_email_mensagem: tenantId,
+        id_thread_email_mensagem: threadId,
+        id_resend_email_mensagem: resendId,
+        direcao_email_mensagem: 'RECEBIDO',
+        remetente_email_mensagem: from,
+        destinatario_email_mensagem: to,
+        assunto_email_mensagem: data.subject,
+        corpo_email_mensagem: body,
+        corpo_html_email_mensagem: data.html ?? null,
+        id_mensagem_pai_email_mensagem: parentDedupKey ?? null,
+        acao_gabi_email_mensagem: 'none',
       },
     })
 
     // ---- Atualizar thread --------------------------------------------------
     await prisma.emailAssuntosParticipantes.update({
-      where: { id: threadId },
+      where: { id_email_assuntos_participantes: threadId },
       data: {
-        mensagens_count: { increment: 1 },
-        ultimo_contato: new Date(),
+        contagem_mensagens_email_assuntos_participantes: { increment: 1 },
+        ultimo_contato_email_assuntos_participantes: new Date(),
       },
     })
 
     // ---- Emitir evento (extensível para Gabi) ------------------------------
     console.log(
-      `[WEBHOOK] email:received tenant:${tenantId} thread:${threadId} msg:${message.id}`
+      `[WEBHOOK] email:received tenant:${tenantId} thread:${threadId} msg:${message.id_email_mensagem}`
     )
 
-    res.json({ accepted: true, message_id: message.id, thread_id: threadId })
+    res.json({ accepted: true, message_id: message.id_email_mensagem, thread_id: threadId })
   }
 )

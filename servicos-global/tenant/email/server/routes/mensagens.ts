@@ -8,6 +8,7 @@ import { AppError } from '../lib/errors.js'
 import { prisma } from '../lib/prisma.js'
 import { sendEmail } from '../services/email.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { toMensagemDto } from '../lib/dto.js'
 
 export const mensagensRouter = Router()
 
@@ -21,8 +22,11 @@ mensagensRouter.get(
     const { tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
-      where: { id, tenant_id: tenantId },
-      select: { id: true },
+      where: {
+        id_email_assuntos_participantes: id,
+        id_organizacao_email_assuntos_participantes: tenantId,
+      },
+      select: { id_email_assuntos_participantes: true },
     })
 
     if (!thread) {
@@ -30,11 +34,14 @@ mensagensRouter.get(
     }
 
     const mensagens = await prisma.emailMensagem.findMany({
-      where: { thread_id: id, tenant_id: tenantId },
-      orderBy: { sent_at: 'asc' },
+      where: {
+        id_thread_email_mensagem: id,
+        id_organizacao_email_mensagem: tenantId,
+      },
+      orderBy: { data_envio_email_mensagem: 'asc' },
     })
 
-    res.json({ data: mensagens })
+    res.json({ data: mensagens.map(toMensagemDto) })
   }
 )
 
@@ -59,13 +66,16 @@ mensagensRouter.post(
 
     const { body, body_html } = parse.data
 
-    // Buscar thread e última mensagem de inbound para extrair destinatário
+    // Buscar thread e última mensagem inbound para extrair destinatário
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
-      where: { id, tenant_id: tenantId },
+      where: {
+        id_email_assuntos_participantes: id,
+        id_organizacao_email_assuntos_participantes: tenantId,
+      },
       include: {
-        mensagens: {
-          where: { direction: 'INBOUND' },
-          orderBy: { sent_at: 'desc' },
+        mensagens_email_assuntos_participantes: {
+          where: { direcao_email_mensagem: 'RECEBIDO' },
+          orderBy: { data_envio_email_mensagem: 'desc' },
           take: 1,
         },
       },
@@ -75,7 +85,7 @@ mensagensRouter.post(
       return next(new AppError('Thread não encontrada', 404, 'THREAD_NOT_FOUND'))
     }
 
-    const lastInbound = thread.mensagens[0]
+    const lastInbound = thread.mensagens_email_assuntos_participantes[0]
     if (!lastInbound) {
       return next(new AppError('Nenhuma mensagem inbound encontrada na thread', 400, 'NO_INBOUND_MESSAGE'))
     }
@@ -83,8 +93,8 @@ mensagensRouter.post(
     const result = await sendEmail({
       tenantId,
       userId,
-      to: lastInbound.from,
-      subject: `Re: ${thread.subject}`,
+      to: lastInbound.remetente_email_mensagem,
+      subject: `Re: ${thread.assunto_email_assuntos_participantes}`,
       html: body_html ?? `<p>${body.replace(/\n/g, '<br>')}</p>`,
       text: body,
     })
@@ -96,30 +106,30 @@ mensagensRouter.post(
     // Registrar mensagem outbound na thread
     const message = await prisma.emailMensagem.create({
       data: {
-        tenant_id: tenantId,
-        user_id: userId,
-        thread_id: id,
-        direction: 'OUTBOUND',
-        from: process.env.EMAIL_FROM ?? 'Gravity <no-reply@resend.dev>',
-        to: lastInbound.from,
-        subject: `Re: ${thread.subject}`,
-        body,
-        body_html: body_html ?? null,
-        dedup_key: result.dedupKey,
-        parent_message_id: lastInbound.id,
-        gabi_action: 'none',
+        id_organizacao_email_mensagem: tenantId,
+        id_usuario_email_mensagem: userId,
+        id_thread_email_mensagem: id,
+        direcao_email_mensagem: 'ENVIADO',
+        remetente_email_mensagem: process.env.EMAIL_FROM ?? 'Gravity <no-reply@resend.dev>',
+        destinatario_email_mensagem: lastInbound.remetente_email_mensagem,
+        assunto_email_mensagem: `Re: ${thread.assunto_email_assuntos_participantes}`,
+        corpo_email_mensagem: body,
+        corpo_html_email_mensagem: body_html ?? null,
+        chave_dedup_email_mensagem: result.dedupKey,
+        id_mensagem_pai_email_mensagem: lastInbound.id_email_mensagem,
+        acao_gabi_email_mensagem: 'none',
       },
     })
 
     // Atualizar contador e ultimo_contato da thread
     await prisma.emailAssuntosParticipantes.update({
-      where: { id },
+      where: { id_email_assuntos_participantes: id },
       data: {
-        mensagens_count: { increment: 1 },
-        ultimo_contato: new Date(),
+        contagem_mensagens_email_assuntos_participantes: { increment: 1 },
+        ultimo_contato_email_assuntos_participantes: new Date(),
       },
     })
 
-    res.status(201).json({ data: message })
+    res.status(201).json({ data: toMensagemDto(message) })
   }
 )

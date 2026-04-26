@@ -4854,11 +4854,11 @@ export namespace Prisma {
    */
 
   export type EmailAssuntosParticipantesCountOutputType = {
-    mensagens: number
+    mensagens_email_assuntos_participantes: number
   }
 
   export type EmailAssuntosParticipantesCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    mensagens?: boolean | EmailAssuntosParticipantesCountOutputTypeCountMensagensArgs
+    mensagens_email_assuntos_participantes?: boolean | EmailAssuntosParticipantesCountOutputTypeCountMensagens_email_assuntos_participantesArgs
   }
 
   // Custom InputTypes
@@ -4875,7 +4875,7 @@ export namespace Prisma {
   /**
    * EmailAssuntosParticipantesCountOutputType without action
    */
-  export type EmailAssuntosParticipantesCountOutputTypeCountMensagensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmailAssuntosParticipantesCountOutputTypeCountMensagens_email_assuntos_participantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EmailMensagemWhereInput
   }
 
@@ -11139,121 +11139,121 @@ export namespace Prisma {
   }
 
   export type EmailAssuntosParticipantesAvgAggregateOutputType = {
-    sentiment: number | null
-    mensagens_count: number | null
+    sentimento_email_assuntos_participantes: number | null
+    contagem_mensagens_email_assuntos_participantes: number | null
   }
 
   export type EmailAssuntosParticipantesSumAggregateOutputType = {
-    sentiment: number | null
-    mensagens_count: number | null
+    sentimento_email_assuntos_participantes: number | null
+    contagem_mensagens_email_assuntos_participantes: number | null
   }
 
   export type EmailAssuntosParticipantesMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    subject: string | null
-    status: $Enums.EmailThreadStatus | null
-    sentiment: number | null
-    sentiment_label: $Enums.EmailSentimento | null
-    mensagens_count: number | null
-    ultimo_contato: Date | null
-    deep_link: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_assuntos_participantes: string | null
+    id_organizacao_email_assuntos_participantes: string | null
+    id_produto_email_assuntos_participantes: string | null
+    id_usuario_email_assuntos_participantes: string | null
+    assunto_email_assuntos_participantes: string | null
+    status_email_assuntos_participantes: $Enums.EmailThreadStatus | null
+    sentimento_email_assuntos_participantes: number | null
+    rotulo_sentimento_email_assuntos_participantes: $Enums.EmailSentimento | null
+    contagem_mensagens_email_assuntos_participantes: number | null
+    ultimo_contato_email_assuntos_participantes: Date | null
+    deep_link_email_assuntos_participantes: string | null
+    data_criacao_email_assuntos_participantes: Date | null
+    data_atualizacao_email_assuntos_participantes: Date | null
   }
 
   export type EmailAssuntosParticipantesMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    subject: string | null
-    status: $Enums.EmailThreadStatus | null
-    sentiment: number | null
-    sentiment_label: $Enums.EmailSentimento | null
-    mensagens_count: number | null
-    ultimo_contato: Date | null
-    deep_link: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_assuntos_participantes: string | null
+    id_organizacao_email_assuntos_participantes: string | null
+    id_produto_email_assuntos_participantes: string | null
+    id_usuario_email_assuntos_participantes: string | null
+    assunto_email_assuntos_participantes: string | null
+    status_email_assuntos_participantes: $Enums.EmailThreadStatus | null
+    sentimento_email_assuntos_participantes: number | null
+    rotulo_sentimento_email_assuntos_participantes: $Enums.EmailSentimento | null
+    contagem_mensagens_email_assuntos_participantes: number | null
+    ultimo_contato_email_assuntos_participantes: Date | null
+    deep_link_email_assuntos_participantes: string | null
+    data_criacao_email_assuntos_participantes: Date | null
+    data_atualizacao_email_assuntos_participantes: Date | null
   }
 
   export type EmailAssuntosParticipantesCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    subject: number
-    status: number
-    sentiment: number
-    sentiment_label: number
-    mensagens_count: number
-    ultimo_contato: number
-    deep_link: number
-    created_at: number
-    updated_at: number
+    id_email_assuntos_participantes: number
+    id_organizacao_email_assuntos_participantes: number
+    id_produto_email_assuntos_participantes: number
+    id_usuario_email_assuntos_participantes: number
+    assunto_email_assuntos_participantes: number
+    status_email_assuntos_participantes: number
+    sentimento_email_assuntos_participantes: number
+    rotulo_sentimento_email_assuntos_participantes: number
+    contagem_mensagens_email_assuntos_participantes: number
+    ultimo_contato_email_assuntos_participantes: number
+    deep_link_email_assuntos_participantes: number
+    data_criacao_email_assuntos_participantes: number
+    data_atualizacao_email_assuntos_participantes: number
     _all: number
   }
 
 
   export type EmailAssuntosParticipantesAvgAggregateInputType = {
-    sentiment?: true
-    mensagens_count?: true
+    sentimento_email_assuntos_participantes?: true
+    contagem_mensagens_email_assuntos_participantes?: true
   }
 
   export type EmailAssuntosParticipantesSumAggregateInputType = {
-    sentiment?: true
-    mensagens_count?: true
+    sentimento_email_assuntos_participantes?: true
+    contagem_mensagens_email_assuntos_participantes?: true
   }
 
   export type EmailAssuntosParticipantesMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    subject?: true
-    status?: true
-    sentiment?: true
-    sentiment_label?: true
-    mensagens_count?: true
-    ultimo_contato?: true
-    deep_link?: true
-    created_at?: true
-    updated_at?: true
+    id_email_assuntos_participantes?: true
+    id_organizacao_email_assuntos_participantes?: true
+    id_produto_email_assuntos_participantes?: true
+    id_usuario_email_assuntos_participantes?: true
+    assunto_email_assuntos_participantes?: true
+    status_email_assuntos_participantes?: true
+    sentimento_email_assuntos_participantes?: true
+    rotulo_sentimento_email_assuntos_participantes?: true
+    contagem_mensagens_email_assuntos_participantes?: true
+    ultimo_contato_email_assuntos_participantes?: true
+    deep_link_email_assuntos_participantes?: true
+    data_criacao_email_assuntos_participantes?: true
+    data_atualizacao_email_assuntos_participantes?: true
   }
 
   export type EmailAssuntosParticipantesMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    subject?: true
-    status?: true
-    sentiment?: true
-    sentiment_label?: true
-    mensagens_count?: true
-    ultimo_contato?: true
-    deep_link?: true
-    created_at?: true
-    updated_at?: true
+    id_email_assuntos_participantes?: true
+    id_organizacao_email_assuntos_participantes?: true
+    id_produto_email_assuntos_participantes?: true
+    id_usuario_email_assuntos_participantes?: true
+    assunto_email_assuntos_participantes?: true
+    status_email_assuntos_participantes?: true
+    sentimento_email_assuntos_participantes?: true
+    rotulo_sentimento_email_assuntos_participantes?: true
+    contagem_mensagens_email_assuntos_participantes?: true
+    ultimo_contato_email_assuntos_participantes?: true
+    deep_link_email_assuntos_participantes?: true
+    data_criacao_email_assuntos_participantes?: true
+    data_atualizacao_email_assuntos_participantes?: true
   }
 
   export type EmailAssuntosParticipantesCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    subject?: true
-    status?: true
-    sentiment?: true
-    sentiment_label?: true
-    mensagens_count?: true
-    ultimo_contato?: true
-    deep_link?: true
-    created_at?: true
-    updated_at?: true
+    id_email_assuntos_participantes?: true
+    id_organizacao_email_assuntos_participantes?: true
+    id_produto_email_assuntos_participantes?: true
+    id_usuario_email_assuntos_participantes?: true
+    assunto_email_assuntos_participantes?: true
+    status_email_assuntos_participantes?: true
+    sentimento_email_assuntos_participantes?: true
+    rotulo_sentimento_email_assuntos_participantes?: true
+    contagem_mensagens_email_assuntos_participantes?: true
+    ultimo_contato_email_assuntos_participantes?: true
+    deep_link_email_assuntos_participantes?: true
+    data_criacao_email_assuntos_participantes?: true
+    data_atualizacao_email_assuntos_participantes?: true
     _all?: true
   }
 
@@ -11344,19 +11344,19 @@ export namespace Prisma {
   }
 
   export type EmailAssuntosParticipantesGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    subject: string
-    status: $Enums.EmailThreadStatus
-    sentiment: number
-    sentiment_label: $Enums.EmailSentimento
-    mensagens_count: number
-    ultimo_contato: Date | null
-    deep_link: string | null
-    created_at: Date
-    updated_at: Date
+    id_email_assuntos_participantes: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes: string | null
+    id_usuario_email_assuntos_participantes: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes: number
+    rotulo_sentimento_email_assuntos_participantes: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes: number
+    ultimo_contato_email_assuntos_participantes: Date | null
+    deep_link_email_assuntos_participantes: string | null
+    data_criacao_email_assuntos_participantes: Date
+    data_atualizacao_email_assuntos_participantes: Date
     _count: EmailAssuntosParticipantesCountAggregateOutputType | null
     _avg: EmailAssuntosParticipantesAvgAggregateOutputType | null
     _sum: EmailAssuntosParticipantesSumAggregateOutputType | null
@@ -11379,57 +11379,57 @@ export namespace Prisma {
 
 
   export type EmailAssuntosParticipantesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    subject?: boolean
-    status?: boolean
-    sentiment?: boolean
-    sentiment_label?: boolean
-    mensagens_count?: boolean
-    ultimo_contato?: boolean
-    deep_link?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    mensagens?: boolean | EmailAssuntosParticipantes$mensagensArgs<ExtArgs>
+    id_email_assuntos_participantes?: boolean
+    id_organizacao_email_assuntos_participantes?: boolean
+    id_produto_email_assuntos_participantes?: boolean
+    id_usuario_email_assuntos_participantes?: boolean
+    assunto_email_assuntos_participantes?: boolean
+    status_email_assuntos_participantes?: boolean
+    sentimento_email_assuntos_participantes?: boolean
+    rotulo_sentimento_email_assuntos_participantes?: boolean
+    contagem_mensagens_email_assuntos_participantes?: boolean
+    ultimo_contato_email_assuntos_participantes?: boolean
+    deep_link_email_assuntos_participantes?: boolean
+    data_criacao_email_assuntos_participantes?: boolean
+    data_atualizacao_email_assuntos_participantes?: boolean
+    mensagens_email_assuntos_participantes?: boolean | EmailAssuntosParticipantes$mensagens_email_assuntos_participantesArgs<ExtArgs>
     _count?: boolean | EmailAssuntosParticipantesCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["emailAssuntosParticipantes"]>
 
   export type EmailAssuntosParticipantesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    subject?: boolean
-    status?: boolean
-    sentiment?: boolean
-    sentiment_label?: boolean
-    mensagens_count?: boolean
-    ultimo_contato?: boolean
-    deep_link?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_assuntos_participantes?: boolean
+    id_organizacao_email_assuntos_participantes?: boolean
+    id_produto_email_assuntos_participantes?: boolean
+    id_usuario_email_assuntos_participantes?: boolean
+    assunto_email_assuntos_participantes?: boolean
+    status_email_assuntos_participantes?: boolean
+    sentimento_email_assuntos_participantes?: boolean
+    rotulo_sentimento_email_assuntos_participantes?: boolean
+    contagem_mensagens_email_assuntos_participantes?: boolean
+    ultimo_contato_email_assuntos_participantes?: boolean
+    deep_link_email_assuntos_participantes?: boolean
+    data_criacao_email_assuntos_participantes?: boolean
+    data_atualizacao_email_assuntos_participantes?: boolean
   }, ExtArgs["result"]["emailAssuntosParticipantes"]>
 
   export type EmailAssuntosParticipantesSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    subject?: boolean
-    status?: boolean
-    sentiment?: boolean
-    sentiment_label?: boolean
-    mensagens_count?: boolean
-    ultimo_contato?: boolean
-    deep_link?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_assuntos_participantes?: boolean
+    id_organizacao_email_assuntos_participantes?: boolean
+    id_produto_email_assuntos_participantes?: boolean
+    id_usuario_email_assuntos_participantes?: boolean
+    assunto_email_assuntos_participantes?: boolean
+    status_email_assuntos_participantes?: boolean
+    sentimento_email_assuntos_participantes?: boolean
+    rotulo_sentimento_email_assuntos_participantes?: boolean
+    contagem_mensagens_email_assuntos_participantes?: boolean
+    ultimo_contato_email_assuntos_participantes?: boolean
+    deep_link_email_assuntos_participantes?: boolean
+    data_criacao_email_assuntos_participantes?: boolean
+    data_atualizacao_email_assuntos_participantes?: boolean
   }
 
   export type EmailAssuntosParticipantesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    mensagens?: boolean | EmailAssuntosParticipantes$mensagensArgs<ExtArgs>
+    mensagens_email_assuntos_participantes?: boolean | EmailAssuntosParticipantes$mensagens_email_assuntos_participantesArgs<ExtArgs>
     _count?: boolean | EmailAssuntosParticipantesCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type EmailAssuntosParticipantesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -11437,22 +11437,22 @@ export namespace Prisma {
   export type $EmailAssuntosParticipantesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "EmailAssuntosParticipantes"
     objects: {
-      mensagens: Prisma.$EmailMensagemPayload<ExtArgs>[]
+      mensagens_email_assuntos_participantes: Prisma.$EmailMensagemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      subject: string
-      status: $Enums.EmailThreadStatus
-      sentiment: number
-      sentiment_label: $Enums.EmailSentimento
-      mensagens_count: number
-      ultimo_contato: Date | null
-      deep_link: string | null
-      created_at: Date
-      updated_at: Date
+      id_email_assuntos_participantes: string
+      id_organizacao_email_assuntos_participantes: string
+      id_produto_email_assuntos_participantes: string | null
+      id_usuario_email_assuntos_participantes: string | null
+      assunto_email_assuntos_participantes: string
+      status_email_assuntos_participantes: $Enums.EmailThreadStatus
+      sentimento_email_assuntos_participantes: number
+      rotulo_sentimento_email_assuntos_participantes: $Enums.EmailSentimento
+      contagem_mensagens_email_assuntos_participantes: number
+      ultimo_contato_email_assuntos_participantes: Date | null
+      deep_link_email_assuntos_participantes: string | null
+      data_criacao_email_assuntos_participantes: Date
+      data_atualizacao_email_assuntos_participantes: Date
     }, ExtArgs["result"]["emailAssuntosParticipantes"]>
     composites: {}
   }
@@ -11536,8 +11536,8 @@ export namespace Prisma {
      * // Get first 10 EmailAssuntosParticipantes
      * const emailAssuntosParticipantes = await prisma.emailAssuntosParticipantes.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const emailAssuntosParticipantesWithIdOnly = await prisma.emailAssuntosParticipantes.findMany({ select: { id: true } })
+     * // Only select the `id_email_assuntos_participantes`
+     * const emailAssuntosParticipantesWithId_email_assuntos_participantesOnly = await prisma.emailAssuntosParticipantes.findMany({ select: { id_email_assuntos_participantes: true } })
      * 
      */
     findMany<T extends EmailAssuntosParticipantesFindManyArgs>(args?: SelectSubset<T, EmailAssuntosParticipantesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailAssuntosParticipantesPayload<ExtArgs>, T, "findMany">>
@@ -11581,9 +11581,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many EmailAssuntosParticipantes and only return the `id`
-     * const emailAssuntosParticipantesWithIdOnly = await prisma.emailAssuntosParticipantes.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many EmailAssuntosParticipantes and only return the `id_email_assuntos_participantes`
+     * const emailAssuntosParticipantesWithId_email_assuntos_participantesOnly = await prisma.emailAssuntosParticipantes.createManyAndReturn({ 
+     *   select: { id_email_assuntos_participantes: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -11817,7 +11817,7 @@ export namespace Prisma {
    */
   export interface Prisma__EmailAssuntosParticipantesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    mensagens<T extends EmailAssuntosParticipantes$mensagensArgs<ExtArgs> = {}>(args?: Subset<T, EmailAssuntosParticipantes$mensagensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailMensagemPayload<ExtArgs>, T, "findMany"> | Null>
+    mensagens_email_assuntos_participantes<T extends EmailAssuntosParticipantes$mensagens_email_assuntos_participantesArgs<ExtArgs> = {}>(args?: Subset<T, EmailAssuntosParticipantes$mensagens_email_assuntos_participantesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailMensagemPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11847,19 +11847,19 @@ export namespace Prisma {
    * Fields of the EmailAssuntosParticipantes model
    */ 
   interface EmailAssuntosParticipantesFieldRefs {
-    readonly id: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly tenant_id: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly product_id: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly user_id: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly subject: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly status: FieldRef<"EmailAssuntosParticipantes", 'EmailThreadStatus'>
-    readonly sentiment: FieldRef<"EmailAssuntosParticipantes", 'Float'>
-    readonly sentiment_label: FieldRef<"EmailAssuntosParticipantes", 'EmailSentimento'>
-    readonly mensagens_count: FieldRef<"EmailAssuntosParticipantes", 'Int'>
-    readonly ultimo_contato: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
-    readonly deep_link: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly created_at: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
-    readonly updated_at: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
+    readonly id_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly id_organizacao_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly id_produto_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly id_usuario_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly assunto_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly status_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'EmailThreadStatus'>
+    readonly sentimento_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'Float'>
+    readonly rotulo_sentimento_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'EmailSentimento'>
+    readonly contagem_mensagens_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'Int'>
+    readonly ultimo_contato_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
+    readonly deep_link_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'String'>
+    readonly data_criacao_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
+    readonly data_atualizacao_email_assuntos_participantes: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
   }
     
 
@@ -12174,9 +12174,9 @@ export namespace Prisma {
   }
 
   /**
-   * EmailAssuntosParticipantes.mensagens
+   * EmailAssuntosParticipantes.mensagens_email_assuntos_participantes
    */
-  export type EmailAssuntosParticipantes$mensagensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmailAssuntosParticipantes$mensagens_email_assuntos_participantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the EmailMensagem
      */
@@ -12221,159 +12221,159 @@ export namespace Prisma {
   }
 
   export type EmailMensagemAvgAggregateOutputType = {
-    gabi_confidence: number | null
+    confianca_gabi_email_mensagem: number | null
   }
 
   export type EmailMensagemSumAggregateOutputType = {
-    gabi_confidence: number | null
+    confianca_gabi_email_mensagem: number | null
   }
 
   export type EmailMensagemMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    thread_id: string | null
-    resend_id: string | null
-    direction: $Enums.EmailDirecao | null
-    from: string | null
-    to: string | null
-    subject: string | null
-    body: string | null
-    body_html: string | null
-    dedup_key: string | null
-    parent_message_id: string | null
-    gabi_response: string | null
-    gabi_confidence: number | null
-    gabi_action: string | null
-    sent_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_mensagem: string | null
+    id_organizacao_email_mensagem: string | null
+    id_produto_email_mensagem: string | null
+    id_usuario_email_mensagem: string | null
+    id_thread_email_mensagem: string | null
+    id_resend_email_mensagem: string | null
+    direcao_email_mensagem: $Enums.EmailDirecao | null
+    remetente_email_mensagem: string | null
+    destinatario_email_mensagem: string | null
+    assunto_email_mensagem: string | null
+    corpo_email_mensagem: string | null
+    corpo_html_email_mensagem: string | null
+    chave_dedup_email_mensagem: string | null
+    id_mensagem_pai_email_mensagem: string | null
+    resposta_gabi_email_mensagem: string | null
+    confianca_gabi_email_mensagem: number | null
+    acao_gabi_email_mensagem: string | null
+    data_envio_email_mensagem: Date | null
+    data_criacao_email_mensagem: Date | null
+    data_atualizacao_email_mensagem: Date | null
   }
 
   export type EmailMensagemMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    thread_id: string | null
-    resend_id: string | null
-    direction: $Enums.EmailDirecao | null
-    from: string | null
-    to: string | null
-    subject: string | null
-    body: string | null
-    body_html: string | null
-    dedup_key: string | null
-    parent_message_id: string | null
-    gabi_response: string | null
-    gabi_confidence: number | null
-    gabi_action: string | null
-    sent_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_mensagem: string | null
+    id_organizacao_email_mensagem: string | null
+    id_produto_email_mensagem: string | null
+    id_usuario_email_mensagem: string | null
+    id_thread_email_mensagem: string | null
+    id_resend_email_mensagem: string | null
+    direcao_email_mensagem: $Enums.EmailDirecao | null
+    remetente_email_mensagem: string | null
+    destinatario_email_mensagem: string | null
+    assunto_email_mensagem: string | null
+    corpo_email_mensagem: string | null
+    corpo_html_email_mensagem: string | null
+    chave_dedup_email_mensagem: string | null
+    id_mensagem_pai_email_mensagem: string | null
+    resposta_gabi_email_mensagem: string | null
+    confianca_gabi_email_mensagem: number | null
+    acao_gabi_email_mensagem: string | null
+    data_envio_email_mensagem: Date | null
+    data_criacao_email_mensagem: Date | null
+    data_atualizacao_email_mensagem: Date | null
   }
 
   export type EmailMensagemCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    thread_id: number
-    resend_id: number
-    direction: number
-    from: number
-    to: number
-    subject: number
-    body: number
-    body_html: number
-    dedup_key: number
-    parent_message_id: number
-    gabi_response: number
-    gabi_confidence: number
-    gabi_action: number
-    sent_at: number
-    created_at: number
-    updated_at: number
+    id_email_mensagem: number
+    id_organizacao_email_mensagem: number
+    id_produto_email_mensagem: number
+    id_usuario_email_mensagem: number
+    id_thread_email_mensagem: number
+    id_resend_email_mensagem: number
+    direcao_email_mensagem: number
+    remetente_email_mensagem: number
+    destinatario_email_mensagem: number
+    assunto_email_mensagem: number
+    corpo_email_mensagem: number
+    corpo_html_email_mensagem: number
+    chave_dedup_email_mensagem: number
+    id_mensagem_pai_email_mensagem: number
+    resposta_gabi_email_mensagem: number
+    confianca_gabi_email_mensagem: number
+    acao_gabi_email_mensagem: number
+    data_envio_email_mensagem: number
+    data_criacao_email_mensagem: number
+    data_atualizacao_email_mensagem: number
     _all: number
   }
 
 
   export type EmailMensagemAvgAggregateInputType = {
-    gabi_confidence?: true
+    confianca_gabi_email_mensagem?: true
   }
 
   export type EmailMensagemSumAggregateInputType = {
-    gabi_confidence?: true
+    confianca_gabi_email_mensagem?: true
   }
 
   export type EmailMensagemMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    thread_id?: true
-    resend_id?: true
-    direction?: true
-    from?: true
-    to?: true
-    subject?: true
-    body?: true
-    body_html?: true
-    dedup_key?: true
-    parent_message_id?: true
-    gabi_response?: true
-    gabi_confidence?: true
-    gabi_action?: true
-    sent_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_mensagem?: true
+    id_organizacao_email_mensagem?: true
+    id_produto_email_mensagem?: true
+    id_usuario_email_mensagem?: true
+    id_thread_email_mensagem?: true
+    id_resend_email_mensagem?: true
+    direcao_email_mensagem?: true
+    remetente_email_mensagem?: true
+    destinatario_email_mensagem?: true
+    assunto_email_mensagem?: true
+    corpo_email_mensagem?: true
+    corpo_html_email_mensagem?: true
+    chave_dedup_email_mensagem?: true
+    id_mensagem_pai_email_mensagem?: true
+    resposta_gabi_email_mensagem?: true
+    confianca_gabi_email_mensagem?: true
+    acao_gabi_email_mensagem?: true
+    data_envio_email_mensagem?: true
+    data_criacao_email_mensagem?: true
+    data_atualizacao_email_mensagem?: true
   }
 
   export type EmailMensagemMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    thread_id?: true
-    resend_id?: true
-    direction?: true
-    from?: true
-    to?: true
-    subject?: true
-    body?: true
-    body_html?: true
-    dedup_key?: true
-    parent_message_id?: true
-    gabi_response?: true
-    gabi_confidence?: true
-    gabi_action?: true
-    sent_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_mensagem?: true
+    id_organizacao_email_mensagem?: true
+    id_produto_email_mensagem?: true
+    id_usuario_email_mensagem?: true
+    id_thread_email_mensagem?: true
+    id_resend_email_mensagem?: true
+    direcao_email_mensagem?: true
+    remetente_email_mensagem?: true
+    destinatario_email_mensagem?: true
+    assunto_email_mensagem?: true
+    corpo_email_mensagem?: true
+    corpo_html_email_mensagem?: true
+    chave_dedup_email_mensagem?: true
+    id_mensagem_pai_email_mensagem?: true
+    resposta_gabi_email_mensagem?: true
+    confianca_gabi_email_mensagem?: true
+    acao_gabi_email_mensagem?: true
+    data_envio_email_mensagem?: true
+    data_criacao_email_mensagem?: true
+    data_atualizacao_email_mensagem?: true
   }
 
   export type EmailMensagemCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    thread_id?: true
-    resend_id?: true
-    direction?: true
-    from?: true
-    to?: true
-    subject?: true
-    body?: true
-    body_html?: true
-    dedup_key?: true
-    parent_message_id?: true
-    gabi_response?: true
-    gabi_confidence?: true
-    gabi_action?: true
-    sent_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_mensagem?: true
+    id_organizacao_email_mensagem?: true
+    id_produto_email_mensagem?: true
+    id_usuario_email_mensagem?: true
+    id_thread_email_mensagem?: true
+    id_resend_email_mensagem?: true
+    direcao_email_mensagem?: true
+    remetente_email_mensagem?: true
+    destinatario_email_mensagem?: true
+    assunto_email_mensagem?: true
+    corpo_email_mensagem?: true
+    corpo_html_email_mensagem?: true
+    chave_dedup_email_mensagem?: true
+    id_mensagem_pai_email_mensagem?: true
+    resposta_gabi_email_mensagem?: true
+    confianca_gabi_email_mensagem?: true
+    acao_gabi_email_mensagem?: true
+    data_envio_email_mensagem?: true
+    data_criacao_email_mensagem?: true
+    data_atualizacao_email_mensagem?: true
     _all?: true
   }
 
@@ -12464,26 +12464,26 @@ export namespace Prisma {
   }
 
   export type EmailMensagemGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    thread_id: string
-    resend_id: string | null
-    direction: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject: string | null
-    body: string
-    body_html: string | null
-    dedup_key: string | null
-    parent_message_id: string | null
-    gabi_response: string | null
-    gabi_confidence: number | null
-    gabi_action: string | null
-    sent_at: Date
-    created_at: Date
-    updated_at: Date
+    id_email_mensagem: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem: string | null
+    id_usuario_email_mensagem: string | null
+    id_thread_email_mensagem: string
+    id_resend_email_mensagem: string | null
+    direcao_email_mensagem: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem: string | null
+    chave_dedup_email_mensagem: string | null
+    id_mensagem_pai_email_mensagem: string | null
+    resposta_gabi_email_mensagem: string | null
+    confianca_gabi_email_mensagem: number | null
+    acao_gabi_email_mensagem: string | null
+    data_envio_email_mensagem: Date
+    data_criacao_email_mensagem: Date
+    data_atualizacao_email_mensagem: Date
     _count: EmailMensagemCountAggregateOutputType | null
     _avg: EmailMensagemAvgAggregateOutputType | null
     _sum: EmailMensagemSumAggregateOutputType | null
@@ -12506,109 +12506,109 @@ export namespace Prisma {
 
 
   export type EmailMensagemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    thread_id?: boolean
-    resend_id?: boolean
-    direction?: boolean
-    from?: boolean
-    to?: boolean
-    subject?: boolean
-    body?: boolean
-    body_html?: boolean
-    dedup_key?: boolean
-    parent_message_id?: boolean
-    gabi_response?: boolean
-    gabi_confidence?: boolean
-    gabi_action?: boolean
-    sent_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    thread?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
+    id_email_mensagem?: boolean
+    id_organizacao_email_mensagem?: boolean
+    id_produto_email_mensagem?: boolean
+    id_usuario_email_mensagem?: boolean
+    id_thread_email_mensagem?: boolean
+    id_resend_email_mensagem?: boolean
+    direcao_email_mensagem?: boolean
+    remetente_email_mensagem?: boolean
+    destinatario_email_mensagem?: boolean
+    assunto_email_mensagem?: boolean
+    corpo_email_mensagem?: boolean
+    corpo_html_email_mensagem?: boolean
+    chave_dedup_email_mensagem?: boolean
+    id_mensagem_pai_email_mensagem?: boolean
+    resposta_gabi_email_mensagem?: boolean
+    confianca_gabi_email_mensagem?: boolean
+    acao_gabi_email_mensagem?: boolean
+    data_envio_email_mensagem?: boolean
+    data_criacao_email_mensagem?: boolean
+    data_atualizacao_email_mensagem?: boolean
+    thread_email_mensagem?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["emailMensagem"]>
 
   export type EmailMensagemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    thread_id?: boolean
-    resend_id?: boolean
-    direction?: boolean
-    from?: boolean
-    to?: boolean
-    subject?: boolean
-    body?: boolean
-    body_html?: boolean
-    dedup_key?: boolean
-    parent_message_id?: boolean
-    gabi_response?: boolean
-    gabi_confidence?: boolean
-    gabi_action?: boolean
-    sent_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    thread?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
+    id_email_mensagem?: boolean
+    id_organizacao_email_mensagem?: boolean
+    id_produto_email_mensagem?: boolean
+    id_usuario_email_mensagem?: boolean
+    id_thread_email_mensagem?: boolean
+    id_resend_email_mensagem?: boolean
+    direcao_email_mensagem?: boolean
+    remetente_email_mensagem?: boolean
+    destinatario_email_mensagem?: boolean
+    assunto_email_mensagem?: boolean
+    corpo_email_mensagem?: boolean
+    corpo_html_email_mensagem?: boolean
+    chave_dedup_email_mensagem?: boolean
+    id_mensagem_pai_email_mensagem?: boolean
+    resposta_gabi_email_mensagem?: boolean
+    confianca_gabi_email_mensagem?: boolean
+    acao_gabi_email_mensagem?: boolean
+    data_envio_email_mensagem?: boolean
+    data_criacao_email_mensagem?: boolean
+    data_atualizacao_email_mensagem?: boolean
+    thread_email_mensagem?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["emailMensagem"]>
 
   export type EmailMensagemSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    thread_id?: boolean
-    resend_id?: boolean
-    direction?: boolean
-    from?: boolean
-    to?: boolean
-    subject?: boolean
-    body?: boolean
-    body_html?: boolean
-    dedup_key?: boolean
-    parent_message_id?: boolean
-    gabi_response?: boolean
-    gabi_confidence?: boolean
-    gabi_action?: boolean
-    sent_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_mensagem?: boolean
+    id_organizacao_email_mensagem?: boolean
+    id_produto_email_mensagem?: boolean
+    id_usuario_email_mensagem?: boolean
+    id_thread_email_mensagem?: boolean
+    id_resend_email_mensagem?: boolean
+    direcao_email_mensagem?: boolean
+    remetente_email_mensagem?: boolean
+    destinatario_email_mensagem?: boolean
+    assunto_email_mensagem?: boolean
+    corpo_email_mensagem?: boolean
+    corpo_html_email_mensagem?: boolean
+    chave_dedup_email_mensagem?: boolean
+    id_mensagem_pai_email_mensagem?: boolean
+    resposta_gabi_email_mensagem?: boolean
+    confianca_gabi_email_mensagem?: boolean
+    acao_gabi_email_mensagem?: boolean
+    data_envio_email_mensagem?: boolean
+    data_criacao_email_mensagem?: boolean
+    data_atualizacao_email_mensagem?: boolean
   }
 
   export type EmailMensagemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    thread?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
+    thread_email_mensagem?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
   }
   export type EmailMensagemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    thread?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
+    thread_email_mensagem?: boolean | EmailAssuntosParticipantesDefaultArgs<ExtArgs>
   }
 
   export type $EmailMensagemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "EmailMensagem"
     objects: {
-      thread: Prisma.$EmailAssuntosParticipantesPayload<ExtArgs>
+      thread_email_mensagem: Prisma.$EmailAssuntosParticipantesPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      thread_id: string
-      resend_id: string | null
-      direction: $Enums.EmailDirecao
-      from: string
-      to: string
-      subject: string | null
-      body: string
-      body_html: string | null
-      dedup_key: string | null
-      parent_message_id: string | null
-      gabi_response: string | null
-      gabi_confidence: number | null
-      gabi_action: string | null
-      sent_at: Date
-      created_at: Date
-      updated_at: Date
+      id_email_mensagem: string
+      id_organizacao_email_mensagem: string
+      id_produto_email_mensagem: string | null
+      id_usuario_email_mensagem: string | null
+      id_thread_email_mensagem: string
+      id_resend_email_mensagem: string | null
+      direcao_email_mensagem: $Enums.EmailDirecao
+      remetente_email_mensagem: string
+      destinatario_email_mensagem: string
+      assunto_email_mensagem: string | null
+      corpo_email_mensagem: string
+      corpo_html_email_mensagem: string | null
+      chave_dedup_email_mensagem: string | null
+      id_mensagem_pai_email_mensagem: string | null
+      resposta_gabi_email_mensagem: string | null
+      confianca_gabi_email_mensagem: number | null
+      acao_gabi_email_mensagem: string | null
+      data_envio_email_mensagem: Date
+      data_criacao_email_mensagem: Date
+      data_atualizacao_email_mensagem: Date
     }, ExtArgs["result"]["emailMensagem"]>
     composites: {}
   }
@@ -12692,8 +12692,8 @@ export namespace Prisma {
      * // Get first 10 EmailMensagems
      * const emailMensagems = await prisma.emailMensagem.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const emailMensagemWithIdOnly = await prisma.emailMensagem.findMany({ select: { id: true } })
+     * // Only select the `id_email_mensagem`
+     * const emailMensagemWithId_email_mensagemOnly = await prisma.emailMensagem.findMany({ select: { id_email_mensagem: true } })
      * 
      */
     findMany<T extends EmailMensagemFindManyArgs>(args?: SelectSubset<T, EmailMensagemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailMensagemPayload<ExtArgs>, T, "findMany">>
@@ -12737,9 +12737,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many EmailMensagems and only return the `id`
-     * const emailMensagemWithIdOnly = await prisma.emailMensagem.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many EmailMensagems and only return the `id_email_mensagem`
+     * const emailMensagemWithId_email_mensagemOnly = await prisma.emailMensagem.createManyAndReturn({ 
+     *   select: { id_email_mensagem: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -12973,7 +12973,7 @@ export namespace Prisma {
    */
   export interface Prisma__EmailMensagemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    thread<T extends EmailAssuntosParticipantesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmailAssuntosParticipantesDefaultArgs<ExtArgs>>): Prisma__EmailAssuntosParticipantesClient<$Result.GetResult<Prisma.$EmailAssuntosParticipantesPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    thread_email_mensagem<T extends EmailAssuntosParticipantesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmailAssuntosParticipantesDefaultArgs<ExtArgs>>): Prisma__EmailAssuntosParticipantesClient<$Result.GetResult<Prisma.$EmailAssuntosParticipantesPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13003,26 +13003,26 @@ export namespace Prisma {
    * Fields of the EmailMensagem model
    */ 
   interface EmailMensagemFieldRefs {
-    readonly id: FieldRef<"EmailMensagem", 'String'>
-    readonly tenant_id: FieldRef<"EmailMensagem", 'String'>
-    readonly product_id: FieldRef<"EmailMensagem", 'String'>
-    readonly user_id: FieldRef<"EmailMensagem", 'String'>
-    readonly thread_id: FieldRef<"EmailMensagem", 'String'>
-    readonly resend_id: FieldRef<"EmailMensagem", 'String'>
-    readonly direction: FieldRef<"EmailMensagem", 'EmailDirecao'>
-    readonly from: FieldRef<"EmailMensagem", 'String'>
-    readonly to: FieldRef<"EmailMensagem", 'String'>
-    readonly subject: FieldRef<"EmailMensagem", 'String'>
-    readonly body: FieldRef<"EmailMensagem", 'String'>
-    readonly body_html: FieldRef<"EmailMensagem", 'String'>
-    readonly dedup_key: FieldRef<"EmailMensagem", 'String'>
-    readonly parent_message_id: FieldRef<"EmailMensagem", 'String'>
-    readonly gabi_response: FieldRef<"EmailMensagem", 'String'>
-    readonly gabi_confidence: FieldRef<"EmailMensagem", 'Float'>
-    readonly gabi_action: FieldRef<"EmailMensagem", 'String'>
-    readonly sent_at: FieldRef<"EmailMensagem", 'DateTime'>
-    readonly created_at: FieldRef<"EmailMensagem", 'DateTime'>
-    readonly updated_at: FieldRef<"EmailMensagem", 'DateTime'>
+    readonly id_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_organizacao_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_produto_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_usuario_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_thread_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_resend_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly direcao_email_mensagem: FieldRef<"EmailMensagem", 'EmailDirecao'>
+    readonly remetente_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly destinatario_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly assunto_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly corpo_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly corpo_html_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly chave_dedup_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly id_mensagem_pai_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly resposta_gabi_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly confianca_gabi_email_mensagem: FieldRef<"EmailMensagem", 'Float'>
+    readonly acao_gabi_email_mensagem: FieldRef<"EmailMensagem", 'String'>
+    readonly data_envio_email_mensagem: FieldRef<"EmailMensagem", 'DateTime'>
+    readonly data_criacao_email_mensagem: FieldRef<"EmailMensagem", 'DateTime'>
+    readonly data_atualizacao_email_mensagem: FieldRef<"EmailMensagem", 'DateTime'>
   }
     
 
@@ -13368,157 +13368,157 @@ export namespace Prisma {
   }
 
   export type EmailRegistroEnvioAvgAggregateOutputType = {
-    tentativas: number | null
-    max_tentativas: number | null
+    tentativas_email_registro_envio: number | null
+    max_tentativas_email_registro_envio: number | null
   }
 
   export type EmailRegistroEnvioSumAggregateOutputType = {
-    tentativas: number | null
-    max_tentativas: number | null
+    tentativas_email_registro_envio: number | null
+    max_tentativas_email_registro_envio: number | null
   }
 
   export type EmailRegistroEnvioMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    to: string | null
-    from: string | null
-    reply_to: string | null
-    subject: string | null
-    template_id: string | null
-    status: $Enums.EmailStatus | null
-    resend_id: string | null
-    dedup_key: string | null
-    tentativas: number | null
-    max_tentativas: number | null
-    next_retry_at: Date | null
-    error_message: string | null
-    enviado_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_registro_envio: string | null
+    id_organizacao_email_registro_envio: string | null
+    id_produto_email_registro_envio: string | null
+    id_usuario_email_registro_envio: string | null
+    destinatario_email_registro_envio: string | null
+    remetente_email_registro_envio: string | null
+    reply_to_email_registro_envio: string | null
+    assunto_email_registro_envio: string | null
+    id_template_email_registro_envio: string | null
+    status_email_registro_envio: $Enums.EmailStatus | null
+    id_resend_email_registro_envio: string | null
+    chave_dedup_email_registro_envio: string | null
+    tentativas_email_registro_envio: number | null
+    max_tentativas_email_registro_envio: number | null
+    proxima_tentativa_em_email_registro_envio: Date | null
+    mensagem_erro_email_registro_envio: string | null
+    data_envio_email_registro_envio: Date | null
+    data_criacao_email_registro_envio: Date | null
+    data_atualizacao_email_registro_envio: Date | null
   }
 
   export type EmailRegistroEnvioMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    to: string | null
-    from: string | null
-    reply_to: string | null
-    subject: string | null
-    template_id: string | null
-    status: $Enums.EmailStatus | null
-    resend_id: string | null
-    dedup_key: string | null
-    tentativas: number | null
-    max_tentativas: number | null
-    next_retry_at: Date | null
-    error_message: string | null
-    enviado_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_registro_envio: string | null
+    id_organizacao_email_registro_envio: string | null
+    id_produto_email_registro_envio: string | null
+    id_usuario_email_registro_envio: string | null
+    destinatario_email_registro_envio: string | null
+    remetente_email_registro_envio: string | null
+    reply_to_email_registro_envio: string | null
+    assunto_email_registro_envio: string | null
+    id_template_email_registro_envio: string | null
+    status_email_registro_envio: $Enums.EmailStatus | null
+    id_resend_email_registro_envio: string | null
+    chave_dedup_email_registro_envio: string | null
+    tentativas_email_registro_envio: number | null
+    max_tentativas_email_registro_envio: number | null
+    proxima_tentativa_em_email_registro_envio: Date | null
+    mensagem_erro_email_registro_envio: string | null
+    data_envio_email_registro_envio: Date | null
+    data_criacao_email_registro_envio: Date | null
+    data_atualizacao_email_registro_envio: Date | null
   }
 
   export type EmailRegistroEnvioCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    to: number
-    from: number
-    reply_to: number
-    subject: number
-    template_id: number
-    status: number
-    resend_id: number
-    dedup_key: number
-    tentativas: number
-    max_tentativas: number
-    next_retry_at: number
-    error_message: number
-    enviado_at: number
-    created_at: number
-    updated_at: number
+    id_email_registro_envio: number
+    id_organizacao_email_registro_envio: number
+    id_produto_email_registro_envio: number
+    id_usuario_email_registro_envio: number
+    destinatario_email_registro_envio: number
+    remetente_email_registro_envio: number
+    reply_to_email_registro_envio: number
+    assunto_email_registro_envio: number
+    id_template_email_registro_envio: number
+    status_email_registro_envio: number
+    id_resend_email_registro_envio: number
+    chave_dedup_email_registro_envio: number
+    tentativas_email_registro_envio: number
+    max_tentativas_email_registro_envio: number
+    proxima_tentativa_em_email_registro_envio: number
+    mensagem_erro_email_registro_envio: number
+    data_envio_email_registro_envio: number
+    data_criacao_email_registro_envio: number
+    data_atualizacao_email_registro_envio: number
     _all: number
   }
 
 
   export type EmailRegistroEnvioAvgAggregateInputType = {
-    tentativas?: true
-    max_tentativas?: true
+    tentativas_email_registro_envio?: true
+    max_tentativas_email_registro_envio?: true
   }
 
   export type EmailRegistroEnvioSumAggregateInputType = {
-    tentativas?: true
-    max_tentativas?: true
+    tentativas_email_registro_envio?: true
+    max_tentativas_email_registro_envio?: true
   }
 
   export type EmailRegistroEnvioMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    to?: true
-    from?: true
-    reply_to?: true
-    subject?: true
-    template_id?: true
-    status?: true
-    resend_id?: true
-    dedup_key?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    error_message?: true
-    enviado_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_registro_envio?: true
+    id_organizacao_email_registro_envio?: true
+    id_produto_email_registro_envio?: true
+    id_usuario_email_registro_envio?: true
+    destinatario_email_registro_envio?: true
+    remetente_email_registro_envio?: true
+    reply_to_email_registro_envio?: true
+    assunto_email_registro_envio?: true
+    id_template_email_registro_envio?: true
+    status_email_registro_envio?: true
+    id_resend_email_registro_envio?: true
+    chave_dedup_email_registro_envio?: true
+    tentativas_email_registro_envio?: true
+    max_tentativas_email_registro_envio?: true
+    proxima_tentativa_em_email_registro_envio?: true
+    mensagem_erro_email_registro_envio?: true
+    data_envio_email_registro_envio?: true
+    data_criacao_email_registro_envio?: true
+    data_atualizacao_email_registro_envio?: true
   }
 
   export type EmailRegistroEnvioMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    to?: true
-    from?: true
-    reply_to?: true
-    subject?: true
-    template_id?: true
-    status?: true
-    resend_id?: true
-    dedup_key?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    error_message?: true
-    enviado_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_registro_envio?: true
+    id_organizacao_email_registro_envio?: true
+    id_produto_email_registro_envio?: true
+    id_usuario_email_registro_envio?: true
+    destinatario_email_registro_envio?: true
+    remetente_email_registro_envio?: true
+    reply_to_email_registro_envio?: true
+    assunto_email_registro_envio?: true
+    id_template_email_registro_envio?: true
+    status_email_registro_envio?: true
+    id_resend_email_registro_envio?: true
+    chave_dedup_email_registro_envio?: true
+    tentativas_email_registro_envio?: true
+    max_tentativas_email_registro_envio?: true
+    proxima_tentativa_em_email_registro_envio?: true
+    mensagem_erro_email_registro_envio?: true
+    data_envio_email_registro_envio?: true
+    data_criacao_email_registro_envio?: true
+    data_atualizacao_email_registro_envio?: true
   }
 
   export type EmailRegistroEnvioCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    to?: true
-    from?: true
-    reply_to?: true
-    subject?: true
-    template_id?: true
-    status?: true
-    resend_id?: true
-    dedup_key?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    error_message?: true
-    enviado_at?: true
-    created_at?: true
-    updated_at?: true
+    id_email_registro_envio?: true
+    id_organizacao_email_registro_envio?: true
+    id_produto_email_registro_envio?: true
+    id_usuario_email_registro_envio?: true
+    destinatario_email_registro_envio?: true
+    remetente_email_registro_envio?: true
+    reply_to_email_registro_envio?: true
+    assunto_email_registro_envio?: true
+    id_template_email_registro_envio?: true
+    status_email_registro_envio?: true
+    id_resend_email_registro_envio?: true
+    chave_dedup_email_registro_envio?: true
+    tentativas_email_registro_envio?: true
+    max_tentativas_email_registro_envio?: true
+    proxima_tentativa_em_email_registro_envio?: true
+    mensagem_erro_email_registro_envio?: true
+    data_envio_email_registro_envio?: true
+    data_criacao_email_registro_envio?: true
+    data_atualizacao_email_registro_envio?: true
     _all?: true
   }
 
@@ -13609,25 +13609,25 @@ export namespace Prisma {
   }
 
   export type EmailRegistroEnvioGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    to: string
-    from: string
-    reply_to: string | null
-    subject: string
-    template_id: string | null
-    status: $Enums.EmailStatus
-    resend_id: string | null
-    dedup_key: string
-    tentativas: number
-    max_tentativas: number
-    next_retry_at: Date | null
-    error_message: string | null
-    enviado_at: Date | null
-    created_at: Date
-    updated_at: Date
+    id_email_registro_envio: string
+    id_organizacao_email_registro_envio: string
+    id_produto_email_registro_envio: string | null
+    id_usuario_email_registro_envio: string | null
+    destinatario_email_registro_envio: string
+    remetente_email_registro_envio: string
+    reply_to_email_registro_envio: string | null
+    assunto_email_registro_envio: string
+    id_template_email_registro_envio: string | null
+    status_email_registro_envio: $Enums.EmailStatus
+    id_resend_email_registro_envio: string | null
+    chave_dedup_email_registro_envio: string
+    tentativas_email_registro_envio: number
+    max_tentativas_email_registro_envio: number
+    proxima_tentativa_em_email_registro_envio: Date | null
+    mensagem_erro_email_registro_envio: string | null
+    data_envio_email_registro_envio: Date | null
+    data_criacao_email_registro_envio: Date
+    data_atualizacao_email_registro_envio: Date
     _count: EmailRegistroEnvioCountAggregateOutputType | null
     _avg: EmailRegistroEnvioAvgAggregateOutputType | null
     _sum: EmailRegistroEnvioSumAggregateOutputType | null
@@ -13650,69 +13650,69 @@ export namespace Prisma {
 
 
   export type EmailRegistroEnvioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    to?: boolean
-    from?: boolean
-    reply_to?: boolean
-    subject?: boolean
-    template_id?: boolean
-    status?: boolean
-    resend_id?: boolean
-    dedup_key?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    error_message?: boolean
-    enviado_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_registro_envio?: boolean
+    id_organizacao_email_registro_envio?: boolean
+    id_produto_email_registro_envio?: boolean
+    id_usuario_email_registro_envio?: boolean
+    destinatario_email_registro_envio?: boolean
+    remetente_email_registro_envio?: boolean
+    reply_to_email_registro_envio?: boolean
+    assunto_email_registro_envio?: boolean
+    id_template_email_registro_envio?: boolean
+    status_email_registro_envio?: boolean
+    id_resend_email_registro_envio?: boolean
+    chave_dedup_email_registro_envio?: boolean
+    tentativas_email_registro_envio?: boolean
+    max_tentativas_email_registro_envio?: boolean
+    proxima_tentativa_em_email_registro_envio?: boolean
+    mensagem_erro_email_registro_envio?: boolean
+    data_envio_email_registro_envio?: boolean
+    data_criacao_email_registro_envio?: boolean
+    data_atualizacao_email_registro_envio?: boolean
   }, ExtArgs["result"]["emailRegistroEnvio"]>
 
   export type EmailRegistroEnvioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    to?: boolean
-    from?: boolean
-    reply_to?: boolean
-    subject?: boolean
-    template_id?: boolean
-    status?: boolean
-    resend_id?: boolean
-    dedup_key?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    error_message?: boolean
-    enviado_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_registro_envio?: boolean
+    id_organizacao_email_registro_envio?: boolean
+    id_produto_email_registro_envio?: boolean
+    id_usuario_email_registro_envio?: boolean
+    destinatario_email_registro_envio?: boolean
+    remetente_email_registro_envio?: boolean
+    reply_to_email_registro_envio?: boolean
+    assunto_email_registro_envio?: boolean
+    id_template_email_registro_envio?: boolean
+    status_email_registro_envio?: boolean
+    id_resend_email_registro_envio?: boolean
+    chave_dedup_email_registro_envio?: boolean
+    tentativas_email_registro_envio?: boolean
+    max_tentativas_email_registro_envio?: boolean
+    proxima_tentativa_em_email_registro_envio?: boolean
+    mensagem_erro_email_registro_envio?: boolean
+    data_envio_email_registro_envio?: boolean
+    data_criacao_email_registro_envio?: boolean
+    data_atualizacao_email_registro_envio?: boolean
   }, ExtArgs["result"]["emailRegistroEnvio"]>
 
   export type EmailRegistroEnvioSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    to?: boolean
-    from?: boolean
-    reply_to?: boolean
-    subject?: boolean
-    template_id?: boolean
-    status?: boolean
-    resend_id?: boolean
-    dedup_key?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    error_message?: boolean
-    enviado_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_registro_envio?: boolean
+    id_organizacao_email_registro_envio?: boolean
+    id_produto_email_registro_envio?: boolean
+    id_usuario_email_registro_envio?: boolean
+    destinatario_email_registro_envio?: boolean
+    remetente_email_registro_envio?: boolean
+    reply_to_email_registro_envio?: boolean
+    assunto_email_registro_envio?: boolean
+    id_template_email_registro_envio?: boolean
+    status_email_registro_envio?: boolean
+    id_resend_email_registro_envio?: boolean
+    chave_dedup_email_registro_envio?: boolean
+    tentativas_email_registro_envio?: boolean
+    max_tentativas_email_registro_envio?: boolean
+    proxima_tentativa_em_email_registro_envio?: boolean
+    mensagem_erro_email_registro_envio?: boolean
+    data_envio_email_registro_envio?: boolean
+    data_criacao_email_registro_envio?: boolean
+    data_atualizacao_email_registro_envio?: boolean
   }
 
 
@@ -13720,25 +13720,25 @@ export namespace Prisma {
     name: "EmailRegistroEnvio"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      to: string
-      from: string
-      reply_to: string | null
-      subject: string
-      template_id: string | null
-      status: $Enums.EmailStatus
-      resend_id: string | null
-      dedup_key: string
-      tentativas: number
-      max_tentativas: number
-      next_retry_at: Date | null
-      error_message: string | null
-      enviado_at: Date | null
-      created_at: Date
-      updated_at: Date
+      id_email_registro_envio: string
+      id_organizacao_email_registro_envio: string
+      id_produto_email_registro_envio: string | null
+      id_usuario_email_registro_envio: string | null
+      destinatario_email_registro_envio: string
+      remetente_email_registro_envio: string
+      reply_to_email_registro_envio: string | null
+      assunto_email_registro_envio: string
+      id_template_email_registro_envio: string | null
+      status_email_registro_envio: $Enums.EmailStatus
+      id_resend_email_registro_envio: string | null
+      chave_dedup_email_registro_envio: string
+      tentativas_email_registro_envio: number
+      max_tentativas_email_registro_envio: number
+      proxima_tentativa_em_email_registro_envio: Date | null
+      mensagem_erro_email_registro_envio: string | null
+      data_envio_email_registro_envio: Date | null
+      data_criacao_email_registro_envio: Date
+      data_atualizacao_email_registro_envio: Date
     }, ExtArgs["result"]["emailRegistroEnvio"]>
     composites: {}
   }
@@ -13822,8 +13822,8 @@ export namespace Prisma {
      * // Get first 10 EmailRegistroEnvios
      * const emailRegistroEnvios = await prisma.emailRegistroEnvio.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const emailRegistroEnvioWithIdOnly = await prisma.emailRegistroEnvio.findMany({ select: { id: true } })
+     * // Only select the `id_email_registro_envio`
+     * const emailRegistroEnvioWithId_email_registro_envioOnly = await prisma.emailRegistroEnvio.findMany({ select: { id_email_registro_envio: true } })
      * 
      */
     findMany<T extends EmailRegistroEnvioFindManyArgs>(args?: SelectSubset<T, EmailRegistroEnvioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailRegistroEnvioPayload<ExtArgs>, T, "findMany">>
@@ -13867,9 +13867,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many EmailRegistroEnvios and only return the `id`
-     * const emailRegistroEnvioWithIdOnly = await prisma.emailRegistroEnvio.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many EmailRegistroEnvios and only return the `id_email_registro_envio`
+     * const emailRegistroEnvioWithId_email_registro_envioOnly = await prisma.emailRegistroEnvio.createManyAndReturn({ 
+     *   select: { id_email_registro_envio: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -14132,25 +14132,25 @@ export namespace Prisma {
    * Fields of the EmailRegistroEnvio model
    */ 
   interface EmailRegistroEnvioFieldRefs {
-    readonly id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly tenant_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly product_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly user_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly to: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly from: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly reply_to: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly subject: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly template_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly status: FieldRef<"EmailRegistroEnvio", 'EmailStatus'>
-    readonly resend_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly dedup_key: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly tentativas: FieldRef<"EmailRegistroEnvio", 'Int'>
-    readonly max_tentativas: FieldRef<"EmailRegistroEnvio", 'Int'>
-    readonly next_retry_at: FieldRef<"EmailRegistroEnvio", 'DateTime'>
-    readonly error_message: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly enviado_at: FieldRef<"EmailRegistroEnvio", 'DateTime'>
-    readonly created_at: FieldRef<"EmailRegistroEnvio", 'DateTime'>
-    readonly updated_at: FieldRef<"EmailRegistroEnvio", 'DateTime'>
+    readonly id_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly id_organizacao_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly id_produto_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly id_usuario_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly destinatario_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly remetente_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly reply_to_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly assunto_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly id_template_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly status_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'EmailStatus'>
+    readonly id_resend_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly chave_dedup_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly tentativas_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'Int'>
+    readonly max_tentativas_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'Int'>
+    readonly proxima_tentativa_em_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'DateTime'>
+    readonly mensagem_erro_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'String'>
+    readonly data_envio_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'DateTime'>
+    readonly data_criacao_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'DateTime'>
+    readonly data_atualizacao_email_registro_envio: FieldRef<"EmailRegistroEnvio", 'DateTime'>
   }
     
 
@@ -14450,103 +14450,103 @@ export namespace Prisma {
   }
 
   export type TemplateEmailMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    slug: string | null
-    assunto: string | null
-    corpo_html: string | null
-    corpo_texto: string | null
-    ativo: boolean | null
-    descricao: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_template_email: string | null
+    id_organizacao_template_email: string | null
+    id_produto_template_email: string | null
+    id_usuario_template_email: string | null
+    nome_template_email: string | null
+    slug_template_email: string | null
+    assunto_template_email: string | null
+    corpo_html_template_email: string | null
+    corpo_texto_template_email: string | null
+    ativo_template_email: boolean | null
+    descricao_template_email: string | null
+    data_criacao_template_email: Date | null
+    data_atualizacao_template_email: Date | null
   }
 
   export type TemplateEmailMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    slug: string | null
-    assunto: string | null
-    corpo_html: string | null
-    corpo_texto: string | null
-    ativo: boolean | null
-    descricao: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_template_email: string | null
+    id_organizacao_template_email: string | null
+    id_produto_template_email: string | null
+    id_usuario_template_email: string | null
+    nome_template_email: string | null
+    slug_template_email: string | null
+    assunto_template_email: string | null
+    corpo_html_template_email: string | null
+    corpo_texto_template_email: string | null
+    ativo_template_email: boolean | null
+    descricao_template_email: string | null
+    data_criacao_template_email: Date | null
+    data_atualizacao_template_email: Date | null
   }
 
   export type TemplateEmailCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    nome: number
-    slug: number
-    assunto: number
-    corpo_html: number
-    corpo_texto: number
-    variaveis: number
-    ativo: number
-    descricao: number
-    created_at: number
-    updated_at: number
+    id_template_email: number
+    id_organizacao_template_email: number
+    id_produto_template_email: number
+    id_usuario_template_email: number
+    nome_template_email: number
+    slug_template_email: number
+    assunto_template_email: number
+    corpo_html_template_email: number
+    corpo_texto_template_email: number
+    variaveis_template_email: number
+    ativo_template_email: number
+    descricao_template_email: number
+    data_criacao_template_email: number
+    data_atualizacao_template_email: number
     _all: number
   }
 
 
   export type TemplateEmailMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    slug?: true
-    assunto?: true
-    corpo_html?: true
-    corpo_texto?: true
-    ativo?: true
-    descricao?: true
-    created_at?: true
-    updated_at?: true
+    id_template_email?: true
+    id_organizacao_template_email?: true
+    id_produto_template_email?: true
+    id_usuario_template_email?: true
+    nome_template_email?: true
+    slug_template_email?: true
+    assunto_template_email?: true
+    corpo_html_template_email?: true
+    corpo_texto_template_email?: true
+    ativo_template_email?: true
+    descricao_template_email?: true
+    data_criacao_template_email?: true
+    data_atualizacao_template_email?: true
   }
 
   export type TemplateEmailMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    slug?: true
-    assunto?: true
-    corpo_html?: true
-    corpo_texto?: true
-    ativo?: true
-    descricao?: true
-    created_at?: true
-    updated_at?: true
+    id_template_email?: true
+    id_organizacao_template_email?: true
+    id_produto_template_email?: true
+    id_usuario_template_email?: true
+    nome_template_email?: true
+    slug_template_email?: true
+    assunto_template_email?: true
+    corpo_html_template_email?: true
+    corpo_texto_template_email?: true
+    ativo_template_email?: true
+    descricao_template_email?: true
+    data_criacao_template_email?: true
+    data_atualizacao_template_email?: true
   }
 
   export type TemplateEmailCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    slug?: true
-    assunto?: true
-    corpo_html?: true
-    corpo_texto?: true
-    variaveis?: true
-    ativo?: true
-    descricao?: true
-    created_at?: true
-    updated_at?: true
+    id_template_email?: true
+    id_organizacao_template_email?: true
+    id_produto_template_email?: true
+    id_usuario_template_email?: true
+    nome_template_email?: true
+    slug_template_email?: true
+    assunto_template_email?: true
+    corpo_html_template_email?: true
+    corpo_texto_template_email?: true
+    variaveis_template_email?: true
+    ativo_template_email?: true
+    descricao_template_email?: true
+    data_criacao_template_email?: true
+    data_atualizacao_template_email?: true
     _all?: true
   }
 
@@ -14623,20 +14623,20 @@ export namespace Prisma {
   }
 
   export type TemplateEmailGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    nome: string
-    slug: string
-    assunto: string
-    corpo_html: string
-    corpo_texto: string | null
-    variaveis: string[]
-    ativo: boolean
-    descricao: string | null
-    created_at: Date
-    updated_at: Date
+    id_template_email: string
+    id_organizacao_template_email: string
+    id_produto_template_email: string | null
+    id_usuario_template_email: string | null
+    nome_template_email: string
+    slug_template_email: string
+    assunto_template_email: string
+    corpo_html_template_email: string
+    corpo_texto_template_email: string | null
+    variaveis_template_email: string[]
+    ativo_template_email: boolean
+    descricao_template_email: string | null
+    data_criacao_template_email: Date
+    data_atualizacao_template_email: Date
     _count: TemplateEmailCountAggregateOutputType | null
     _min: TemplateEmailMinAggregateOutputType | null
     _max: TemplateEmailMaxAggregateOutputType | null
@@ -14657,54 +14657,54 @@ export namespace Prisma {
 
 
   export type TemplateEmailSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    slug?: boolean
-    assunto?: boolean
-    corpo_html?: boolean
-    corpo_texto?: boolean
-    variaveis?: boolean
-    ativo?: boolean
-    descricao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_template_email?: boolean
+    id_organizacao_template_email?: boolean
+    id_produto_template_email?: boolean
+    id_usuario_template_email?: boolean
+    nome_template_email?: boolean
+    slug_template_email?: boolean
+    assunto_template_email?: boolean
+    corpo_html_template_email?: boolean
+    corpo_texto_template_email?: boolean
+    variaveis_template_email?: boolean
+    ativo_template_email?: boolean
+    descricao_template_email?: boolean
+    data_criacao_template_email?: boolean
+    data_atualizacao_template_email?: boolean
   }, ExtArgs["result"]["templateEmail"]>
 
   export type TemplateEmailSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    slug?: boolean
-    assunto?: boolean
-    corpo_html?: boolean
-    corpo_texto?: boolean
-    variaveis?: boolean
-    ativo?: boolean
-    descricao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_template_email?: boolean
+    id_organizacao_template_email?: boolean
+    id_produto_template_email?: boolean
+    id_usuario_template_email?: boolean
+    nome_template_email?: boolean
+    slug_template_email?: boolean
+    assunto_template_email?: boolean
+    corpo_html_template_email?: boolean
+    corpo_texto_template_email?: boolean
+    variaveis_template_email?: boolean
+    ativo_template_email?: boolean
+    descricao_template_email?: boolean
+    data_criacao_template_email?: boolean
+    data_atualizacao_template_email?: boolean
   }, ExtArgs["result"]["templateEmail"]>
 
   export type TemplateEmailSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    slug?: boolean
-    assunto?: boolean
-    corpo_html?: boolean
-    corpo_texto?: boolean
-    variaveis?: boolean
-    ativo?: boolean
-    descricao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_template_email?: boolean
+    id_organizacao_template_email?: boolean
+    id_produto_template_email?: boolean
+    id_usuario_template_email?: boolean
+    nome_template_email?: boolean
+    slug_template_email?: boolean
+    assunto_template_email?: boolean
+    corpo_html_template_email?: boolean
+    corpo_texto_template_email?: boolean
+    variaveis_template_email?: boolean
+    ativo_template_email?: boolean
+    descricao_template_email?: boolean
+    data_criacao_template_email?: boolean
+    data_atualizacao_template_email?: boolean
   }
 
 
@@ -14712,20 +14712,20 @@ export namespace Prisma {
     name: "TemplateEmail"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      nome: string
-      slug: string
-      assunto: string
-      corpo_html: string
-      corpo_texto: string | null
-      variaveis: string[]
-      ativo: boolean
-      descricao: string | null
-      created_at: Date
-      updated_at: Date
+      id_template_email: string
+      id_organizacao_template_email: string
+      id_produto_template_email: string | null
+      id_usuario_template_email: string | null
+      nome_template_email: string
+      slug_template_email: string
+      assunto_template_email: string
+      corpo_html_template_email: string
+      corpo_texto_template_email: string | null
+      variaveis_template_email: string[]
+      ativo_template_email: boolean
+      descricao_template_email: string | null
+      data_criacao_template_email: Date
+      data_atualizacao_template_email: Date
     }, ExtArgs["result"]["templateEmail"]>
     composites: {}
   }
@@ -14809,8 +14809,8 @@ export namespace Prisma {
      * // Get first 10 TemplateEmails
      * const templateEmails = await prisma.templateEmail.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const templateEmailWithIdOnly = await prisma.templateEmail.findMany({ select: { id: true } })
+     * // Only select the `id_template_email`
+     * const templateEmailWithId_template_emailOnly = await prisma.templateEmail.findMany({ select: { id_template_email: true } })
      * 
      */
     findMany<T extends TemplateEmailFindManyArgs>(args?: SelectSubset<T, TemplateEmailFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplateEmailPayload<ExtArgs>, T, "findMany">>
@@ -14854,9 +14854,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many TemplateEmails and only return the `id`
-     * const templateEmailWithIdOnly = await prisma.templateEmail.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many TemplateEmails and only return the `id_template_email`
+     * const templateEmailWithId_template_emailOnly = await prisma.templateEmail.createManyAndReturn({ 
+     *   select: { id_template_email: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -15119,20 +15119,20 @@ export namespace Prisma {
    * Fields of the TemplateEmail model
    */ 
   interface TemplateEmailFieldRefs {
-    readonly id: FieldRef<"TemplateEmail", 'String'>
-    readonly tenant_id: FieldRef<"TemplateEmail", 'String'>
-    readonly product_id: FieldRef<"TemplateEmail", 'String'>
-    readonly user_id: FieldRef<"TemplateEmail", 'String'>
-    readonly nome: FieldRef<"TemplateEmail", 'String'>
-    readonly slug: FieldRef<"TemplateEmail", 'String'>
-    readonly assunto: FieldRef<"TemplateEmail", 'String'>
-    readonly corpo_html: FieldRef<"TemplateEmail", 'String'>
-    readonly corpo_texto: FieldRef<"TemplateEmail", 'String'>
-    readonly variaveis: FieldRef<"TemplateEmail", 'String[]'>
-    readonly ativo: FieldRef<"TemplateEmail", 'Boolean'>
-    readonly descricao: FieldRef<"TemplateEmail", 'String'>
-    readonly created_at: FieldRef<"TemplateEmail", 'DateTime'>
-    readonly updated_at: FieldRef<"TemplateEmail", 'DateTime'>
+    readonly id_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly id_organizacao_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly id_produto_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly id_usuario_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly nome_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly slug_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly assunto_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly corpo_html_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly corpo_texto_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly variaveis_template_email: FieldRef<"TemplateEmail", 'String[]'>
+    readonly ativo_template_email: FieldRef<"TemplateEmail", 'Boolean'>
+    readonly descricao_template_email: FieldRef<"TemplateEmail", 'String'>
+    readonly data_criacao_template_email: FieldRef<"TemplateEmail", 'DateTime'>
+    readonly data_atualizacao_template_email: FieldRef<"TemplateEmail", 'DateTime'>
   }
     
 
@@ -15434,139 +15434,139 @@ export namespace Prisma {
   }
 
   export type EmailFilaEnvioAvgAggregateOutputType = {
-    tentativas: number | null
-    max_tentativas: number | null
+    tentativas_email_fila_envio: number | null
+    max_tentativas_email_fila_envio: number | null
   }
 
   export type EmailFilaEnvioSumAggregateOutputType = {
-    tentativas: number | null
-    max_tentativas: number | null
+    tentativas_email_fila_envio: number | null
+    max_tentativas_email_fila_envio: number | null
   }
 
   export type EmailFilaEnvioMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    status: $Enums.EmailStatus | null
-    prioridade: $Enums.EmailFilaPrioridade | null
-    payload: string | null
-    template_id: string | null
-    email_enviado_id: string | null
-    tentativas: number | null
-    max_tentativas: number | null
-    next_retry_at: Date | null
-    processado_at: Date | null
-    erro: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_fila_envio: string | null
+    id_organizacao_email_fila_envio: string | null
+    id_produto_email_fila_envio: string | null
+    id_usuario_email_fila_envio: string | null
+    status_email_fila_envio: $Enums.EmailStatus | null
+    prioridade_email_fila_envio: $Enums.EmailFilaPrioridade | null
+    payload_email_fila_envio: string | null
+    id_template_email_fila_envio: string | null
+    id_email_enviado_email_fila_envio: string | null
+    tentativas_email_fila_envio: number | null
+    max_tentativas_email_fila_envio: number | null
+    proxima_tentativa_em_email_fila_envio: Date | null
+    processado_em_email_fila_envio: Date | null
+    erro_email_fila_envio: string | null
+    data_criacao_email_fila_envio: Date | null
+    data_atualizacao_email_fila_envio: Date | null
   }
 
   export type EmailFilaEnvioMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    status: $Enums.EmailStatus | null
-    prioridade: $Enums.EmailFilaPrioridade | null
-    payload: string | null
-    template_id: string | null
-    email_enviado_id: string | null
-    tentativas: number | null
-    max_tentativas: number | null
-    next_retry_at: Date | null
-    processado_at: Date | null
-    erro: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_email_fila_envio: string | null
+    id_organizacao_email_fila_envio: string | null
+    id_produto_email_fila_envio: string | null
+    id_usuario_email_fila_envio: string | null
+    status_email_fila_envio: $Enums.EmailStatus | null
+    prioridade_email_fila_envio: $Enums.EmailFilaPrioridade | null
+    payload_email_fila_envio: string | null
+    id_template_email_fila_envio: string | null
+    id_email_enviado_email_fila_envio: string | null
+    tentativas_email_fila_envio: number | null
+    max_tentativas_email_fila_envio: number | null
+    proxima_tentativa_em_email_fila_envio: Date | null
+    processado_em_email_fila_envio: Date | null
+    erro_email_fila_envio: string | null
+    data_criacao_email_fila_envio: Date | null
+    data_atualizacao_email_fila_envio: Date | null
   }
 
   export type EmailFilaEnvioCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    status: number
-    prioridade: number
-    payload: number
-    template_id: number
-    email_enviado_id: number
-    tentativas: number
-    max_tentativas: number
-    next_retry_at: number
-    processado_at: number
-    erro: number
-    created_at: number
-    updated_at: number
+    id_email_fila_envio: number
+    id_organizacao_email_fila_envio: number
+    id_produto_email_fila_envio: number
+    id_usuario_email_fila_envio: number
+    status_email_fila_envio: number
+    prioridade_email_fila_envio: number
+    payload_email_fila_envio: number
+    id_template_email_fila_envio: number
+    id_email_enviado_email_fila_envio: number
+    tentativas_email_fila_envio: number
+    max_tentativas_email_fila_envio: number
+    proxima_tentativa_em_email_fila_envio: number
+    processado_em_email_fila_envio: number
+    erro_email_fila_envio: number
+    data_criacao_email_fila_envio: number
+    data_atualizacao_email_fila_envio: number
     _all: number
   }
 
 
   export type EmailFilaEnvioAvgAggregateInputType = {
-    tentativas?: true
-    max_tentativas?: true
+    tentativas_email_fila_envio?: true
+    max_tentativas_email_fila_envio?: true
   }
 
   export type EmailFilaEnvioSumAggregateInputType = {
-    tentativas?: true
-    max_tentativas?: true
+    tentativas_email_fila_envio?: true
+    max_tentativas_email_fila_envio?: true
   }
 
   export type EmailFilaEnvioMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    status?: true
-    prioridade?: true
-    payload?: true
-    template_id?: true
-    email_enviado_id?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    processado_at?: true
-    erro?: true
-    created_at?: true
-    updated_at?: true
+    id_email_fila_envio?: true
+    id_organizacao_email_fila_envio?: true
+    id_produto_email_fila_envio?: true
+    id_usuario_email_fila_envio?: true
+    status_email_fila_envio?: true
+    prioridade_email_fila_envio?: true
+    payload_email_fila_envio?: true
+    id_template_email_fila_envio?: true
+    id_email_enviado_email_fila_envio?: true
+    tentativas_email_fila_envio?: true
+    max_tentativas_email_fila_envio?: true
+    proxima_tentativa_em_email_fila_envio?: true
+    processado_em_email_fila_envio?: true
+    erro_email_fila_envio?: true
+    data_criacao_email_fila_envio?: true
+    data_atualizacao_email_fila_envio?: true
   }
 
   export type EmailFilaEnvioMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    status?: true
-    prioridade?: true
-    payload?: true
-    template_id?: true
-    email_enviado_id?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    processado_at?: true
-    erro?: true
-    created_at?: true
-    updated_at?: true
+    id_email_fila_envio?: true
+    id_organizacao_email_fila_envio?: true
+    id_produto_email_fila_envio?: true
+    id_usuario_email_fila_envio?: true
+    status_email_fila_envio?: true
+    prioridade_email_fila_envio?: true
+    payload_email_fila_envio?: true
+    id_template_email_fila_envio?: true
+    id_email_enviado_email_fila_envio?: true
+    tentativas_email_fila_envio?: true
+    max_tentativas_email_fila_envio?: true
+    proxima_tentativa_em_email_fila_envio?: true
+    processado_em_email_fila_envio?: true
+    erro_email_fila_envio?: true
+    data_criacao_email_fila_envio?: true
+    data_atualizacao_email_fila_envio?: true
   }
 
   export type EmailFilaEnvioCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    status?: true
-    prioridade?: true
-    payload?: true
-    template_id?: true
-    email_enviado_id?: true
-    tentativas?: true
-    max_tentativas?: true
-    next_retry_at?: true
-    processado_at?: true
-    erro?: true
-    created_at?: true
-    updated_at?: true
+    id_email_fila_envio?: true
+    id_organizacao_email_fila_envio?: true
+    id_produto_email_fila_envio?: true
+    id_usuario_email_fila_envio?: true
+    status_email_fila_envio?: true
+    prioridade_email_fila_envio?: true
+    payload_email_fila_envio?: true
+    id_template_email_fila_envio?: true
+    id_email_enviado_email_fila_envio?: true
+    tentativas_email_fila_envio?: true
+    max_tentativas_email_fila_envio?: true
+    proxima_tentativa_em_email_fila_envio?: true
+    processado_em_email_fila_envio?: true
+    erro_email_fila_envio?: true
+    data_criacao_email_fila_envio?: true
+    data_atualizacao_email_fila_envio?: true
     _all?: true
   }
 
@@ -15657,22 +15657,22 @@ export namespace Prisma {
   }
 
   export type EmailFilaEnvioGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    status: $Enums.EmailStatus
-    prioridade: $Enums.EmailFilaPrioridade
-    payload: string
-    template_id: string | null
-    email_enviado_id: string | null
-    tentativas: number
-    max_tentativas: number
-    next_retry_at: Date | null
-    processado_at: Date | null
-    erro: string | null
-    created_at: Date
-    updated_at: Date
+    id_email_fila_envio: string
+    id_organizacao_email_fila_envio: string
+    id_produto_email_fila_envio: string | null
+    id_usuario_email_fila_envio: string | null
+    status_email_fila_envio: $Enums.EmailStatus
+    prioridade_email_fila_envio: $Enums.EmailFilaPrioridade
+    payload_email_fila_envio: string
+    id_template_email_fila_envio: string | null
+    id_email_enviado_email_fila_envio: string | null
+    tentativas_email_fila_envio: number
+    max_tentativas_email_fila_envio: number
+    proxima_tentativa_em_email_fila_envio: Date | null
+    processado_em_email_fila_envio: Date | null
+    erro_email_fila_envio: string | null
+    data_criacao_email_fila_envio: Date
+    data_atualizacao_email_fila_envio: Date
     _count: EmailFilaEnvioCountAggregateOutputType | null
     _avg: EmailFilaEnvioAvgAggregateOutputType | null
     _sum: EmailFilaEnvioSumAggregateOutputType | null
@@ -15695,60 +15695,60 @@ export namespace Prisma {
 
 
   export type EmailFilaEnvioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    status?: boolean
-    prioridade?: boolean
-    payload?: boolean
-    template_id?: boolean
-    email_enviado_id?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    processado_at?: boolean
-    erro?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_fila_envio?: boolean
+    id_organizacao_email_fila_envio?: boolean
+    id_produto_email_fila_envio?: boolean
+    id_usuario_email_fila_envio?: boolean
+    status_email_fila_envio?: boolean
+    prioridade_email_fila_envio?: boolean
+    payload_email_fila_envio?: boolean
+    id_template_email_fila_envio?: boolean
+    id_email_enviado_email_fila_envio?: boolean
+    tentativas_email_fila_envio?: boolean
+    max_tentativas_email_fila_envio?: boolean
+    proxima_tentativa_em_email_fila_envio?: boolean
+    processado_em_email_fila_envio?: boolean
+    erro_email_fila_envio?: boolean
+    data_criacao_email_fila_envio?: boolean
+    data_atualizacao_email_fila_envio?: boolean
   }, ExtArgs["result"]["emailFilaEnvio"]>
 
   export type EmailFilaEnvioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    status?: boolean
-    prioridade?: boolean
-    payload?: boolean
-    template_id?: boolean
-    email_enviado_id?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    processado_at?: boolean
-    erro?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_fila_envio?: boolean
+    id_organizacao_email_fila_envio?: boolean
+    id_produto_email_fila_envio?: boolean
+    id_usuario_email_fila_envio?: boolean
+    status_email_fila_envio?: boolean
+    prioridade_email_fila_envio?: boolean
+    payload_email_fila_envio?: boolean
+    id_template_email_fila_envio?: boolean
+    id_email_enviado_email_fila_envio?: boolean
+    tentativas_email_fila_envio?: boolean
+    max_tentativas_email_fila_envio?: boolean
+    proxima_tentativa_em_email_fila_envio?: boolean
+    processado_em_email_fila_envio?: boolean
+    erro_email_fila_envio?: boolean
+    data_criacao_email_fila_envio?: boolean
+    data_atualizacao_email_fila_envio?: boolean
   }, ExtArgs["result"]["emailFilaEnvio"]>
 
   export type EmailFilaEnvioSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    status?: boolean
-    prioridade?: boolean
-    payload?: boolean
-    template_id?: boolean
-    email_enviado_id?: boolean
-    tentativas?: boolean
-    max_tentativas?: boolean
-    next_retry_at?: boolean
-    processado_at?: boolean
-    erro?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_email_fila_envio?: boolean
+    id_organizacao_email_fila_envio?: boolean
+    id_produto_email_fila_envio?: boolean
+    id_usuario_email_fila_envio?: boolean
+    status_email_fila_envio?: boolean
+    prioridade_email_fila_envio?: boolean
+    payload_email_fila_envio?: boolean
+    id_template_email_fila_envio?: boolean
+    id_email_enviado_email_fila_envio?: boolean
+    tentativas_email_fila_envio?: boolean
+    max_tentativas_email_fila_envio?: boolean
+    proxima_tentativa_em_email_fila_envio?: boolean
+    processado_em_email_fila_envio?: boolean
+    erro_email_fila_envio?: boolean
+    data_criacao_email_fila_envio?: boolean
+    data_atualizacao_email_fila_envio?: boolean
   }
 
 
@@ -15756,22 +15756,22 @@ export namespace Prisma {
     name: "EmailFilaEnvio"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      status: $Enums.EmailStatus
-      prioridade: $Enums.EmailFilaPrioridade
-      payload: string
-      template_id: string | null
-      email_enviado_id: string | null
-      tentativas: number
-      max_tentativas: number
-      next_retry_at: Date | null
-      processado_at: Date | null
-      erro: string | null
-      created_at: Date
-      updated_at: Date
+      id_email_fila_envio: string
+      id_organizacao_email_fila_envio: string
+      id_produto_email_fila_envio: string | null
+      id_usuario_email_fila_envio: string | null
+      status_email_fila_envio: $Enums.EmailStatus
+      prioridade_email_fila_envio: $Enums.EmailFilaPrioridade
+      payload_email_fila_envio: string
+      id_template_email_fila_envio: string | null
+      id_email_enviado_email_fila_envio: string | null
+      tentativas_email_fila_envio: number
+      max_tentativas_email_fila_envio: number
+      proxima_tentativa_em_email_fila_envio: Date | null
+      processado_em_email_fila_envio: Date | null
+      erro_email_fila_envio: string | null
+      data_criacao_email_fila_envio: Date
+      data_atualizacao_email_fila_envio: Date
     }, ExtArgs["result"]["emailFilaEnvio"]>
     composites: {}
   }
@@ -15855,8 +15855,8 @@ export namespace Prisma {
      * // Get first 10 EmailFilaEnvios
      * const emailFilaEnvios = await prisma.emailFilaEnvio.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const emailFilaEnvioWithIdOnly = await prisma.emailFilaEnvio.findMany({ select: { id: true } })
+     * // Only select the `id_email_fila_envio`
+     * const emailFilaEnvioWithId_email_fila_envioOnly = await prisma.emailFilaEnvio.findMany({ select: { id_email_fila_envio: true } })
      * 
      */
     findMany<T extends EmailFilaEnvioFindManyArgs>(args?: SelectSubset<T, EmailFilaEnvioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailFilaEnvioPayload<ExtArgs>, T, "findMany">>
@@ -15900,9 +15900,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many EmailFilaEnvios and only return the `id`
-     * const emailFilaEnvioWithIdOnly = await prisma.emailFilaEnvio.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many EmailFilaEnvios and only return the `id_email_fila_envio`
+     * const emailFilaEnvioWithId_email_fila_envioOnly = await prisma.emailFilaEnvio.createManyAndReturn({ 
+     *   select: { id_email_fila_envio: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -16165,22 +16165,22 @@ export namespace Prisma {
    * Fields of the EmailFilaEnvio model
    */ 
   interface EmailFilaEnvioFieldRefs {
-    readonly id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly tenant_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly product_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly user_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly status: FieldRef<"EmailFilaEnvio", 'EmailStatus'>
-    readonly prioridade: FieldRef<"EmailFilaEnvio", 'EmailFilaPrioridade'>
-    readonly payload: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly template_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly email_enviado_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly tentativas: FieldRef<"EmailFilaEnvio", 'Int'>
-    readonly max_tentativas: FieldRef<"EmailFilaEnvio", 'Int'>
-    readonly next_retry_at: FieldRef<"EmailFilaEnvio", 'DateTime'>
-    readonly processado_at: FieldRef<"EmailFilaEnvio", 'DateTime'>
-    readonly erro: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly created_at: FieldRef<"EmailFilaEnvio", 'DateTime'>
-    readonly updated_at: FieldRef<"EmailFilaEnvio", 'DateTime'>
+    readonly id_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly id_organizacao_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly id_produto_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly id_usuario_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly status_email_fila_envio: FieldRef<"EmailFilaEnvio", 'EmailStatus'>
+    readonly prioridade_email_fila_envio: FieldRef<"EmailFilaEnvio", 'EmailFilaPrioridade'>
+    readonly payload_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly id_template_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly id_email_enviado_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly tentativas_email_fila_envio: FieldRef<"EmailFilaEnvio", 'Int'>
+    readonly max_tentativas_email_fila_envio: FieldRef<"EmailFilaEnvio", 'Int'>
+    readonly proxima_tentativa_em_email_fila_envio: FieldRef<"EmailFilaEnvio", 'DateTime'>
+    readonly processado_em_email_fila_envio: FieldRef<"EmailFilaEnvio", 'DateTime'>
+    readonly erro_email_fila_envio: FieldRef<"EmailFilaEnvio", 'String'>
+    readonly data_criacao_email_fila_envio: FieldRef<"EmailFilaEnvio", 'DateTime'>
+    readonly data_atualizacao_email_fila_envio: FieldRef<"EmailFilaEnvio", 'DateTime'>
   }
     
 
@@ -50381,112 +50381,112 @@ export namespace Prisma {
 
 
   export const EmailAssuntosParticipantesScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    subject: 'subject',
-    status: 'status',
-    sentiment: 'sentiment',
-    sentiment_label: 'sentiment_label',
-    mensagens_count: 'mensagens_count',
-    ultimo_contato: 'ultimo_contato',
-    deep_link: 'deep_link',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_email_assuntos_participantes: 'id_email_assuntos_participantes',
+    id_organizacao_email_assuntos_participantes: 'id_organizacao_email_assuntos_participantes',
+    id_produto_email_assuntos_participantes: 'id_produto_email_assuntos_participantes',
+    id_usuario_email_assuntos_participantes: 'id_usuario_email_assuntos_participantes',
+    assunto_email_assuntos_participantes: 'assunto_email_assuntos_participantes',
+    status_email_assuntos_participantes: 'status_email_assuntos_participantes',
+    sentimento_email_assuntos_participantes: 'sentimento_email_assuntos_participantes',
+    rotulo_sentimento_email_assuntos_participantes: 'rotulo_sentimento_email_assuntos_participantes',
+    contagem_mensagens_email_assuntos_participantes: 'contagem_mensagens_email_assuntos_participantes',
+    ultimo_contato_email_assuntos_participantes: 'ultimo_contato_email_assuntos_participantes',
+    deep_link_email_assuntos_participantes: 'deep_link_email_assuntos_participantes',
+    data_criacao_email_assuntos_participantes: 'data_criacao_email_assuntos_participantes',
+    data_atualizacao_email_assuntos_participantes: 'data_atualizacao_email_assuntos_participantes'
   };
 
   export type EmailAssuntosParticipantesScalarFieldEnum = (typeof EmailAssuntosParticipantesScalarFieldEnum)[keyof typeof EmailAssuntosParticipantesScalarFieldEnum]
 
 
   export const EmailMensagemScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    thread_id: 'thread_id',
-    resend_id: 'resend_id',
-    direction: 'direction',
-    from: 'from',
-    to: 'to',
-    subject: 'subject',
-    body: 'body',
-    body_html: 'body_html',
-    dedup_key: 'dedup_key',
-    parent_message_id: 'parent_message_id',
-    gabi_response: 'gabi_response',
-    gabi_confidence: 'gabi_confidence',
-    gabi_action: 'gabi_action',
-    sent_at: 'sent_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_email_mensagem: 'id_email_mensagem',
+    id_organizacao_email_mensagem: 'id_organizacao_email_mensagem',
+    id_produto_email_mensagem: 'id_produto_email_mensagem',
+    id_usuario_email_mensagem: 'id_usuario_email_mensagem',
+    id_thread_email_mensagem: 'id_thread_email_mensagem',
+    id_resend_email_mensagem: 'id_resend_email_mensagem',
+    direcao_email_mensagem: 'direcao_email_mensagem',
+    remetente_email_mensagem: 'remetente_email_mensagem',
+    destinatario_email_mensagem: 'destinatario_email_mensagem',
+    assunto_email_mensagem: 'assunto_email_mensagem',
+    corpo_email_mensagem: 'corpo_email_mensagem',
+    corpo_html_email_mensagem: 'corpo_html_email_mensagem',
+    chave_dedup_email_mensagem: 'chave_dedup_email_mensagem',
+    id_mensagem_pai_email_mensagem: 'id_mensagem_pai_email_mensagem',
+    resposta_gabi_email_mensagem: 'resposta_gabi_email_mensagem',
+    confianca_gabi_email_mensagem: 'confianca_gabi_email_mensagem',
+    acao_gabi_email_mensagem: 'acao_gabi_email_mensagem',
+    data_envio_email_mensagem: 'data_envio_email_mensagem',
+    data_criacao_email_mensagem: 'data_criacao_email_mensagem',
+    data_atualizacao_email_mensagem: 'data_atualizacao_email_mensagem'
   };
 
   export type EmailMensagemScalarFieldEnum = (typeof EmailMensagemScalarFieldEnum)[keyof typeof EmailMensagemScalarFieldEnum]
 
 
   export const EmailRegistroEnvioScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    to: 'to',
-    from: 'from',
-    reply_to: 'reply_to',
-    subject: 'subject',
-    template_id: 'template_id',
-    status: 'status',
-    resend_id: 'resend_id',
-    dedup_key: 'dedup_key',
-    tentativas: 'tentativas',
-    max_tentativas: 'max_tentativas',
-    next_retry_at: 'next_retry_at',
-    error_message: 'error_message',
-    enviado_at: 'enviado_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_email_registro_envio: 'id_email_registro_envio',
+    id_organizacao_email_registro_envio: 'id_organizacao_email_registro_envio',
+    id_produto_email_registro_envio: 'id_produto_email_registro_envio',
+    id_usuario_email_registro_envio: 'id_usuario_email_registro_envio',
+    destinatario_email_registro_envio: 'destinatario_email_registro_envio',
+    remetente_email_registro_envio: 'remetente_email_registro_envio',
+    reply_to_email_registro_envio: 'reply_to_email_registro_envio',
+    assunto_email_registro_envio: 'assunto_email_registro_envio',
+    id_template_email_registro_envio: 'id_template_email_registro_envio',
+    status_email_registro_envio: 'status_email_registro_envio',
+    id_resend_email_registro_envio: 'id_resend_email_registro_envio',
+    chave_dedup_email_registro_envio: 'chave_dedup_email_registro_envio',
+    tentativas_email_registro_envio: 'tentativas_email_registro_envio',
+    max_tentativas_email_registro_envio: 'max_tentativas_email_registro_envio',
+    proxima_tentativa_em_email_registro_envio: 'proxima_tentativa_em_email_registro_envio',
+    mensagem_erro_email_registro_envio: 'mensagem_erro_email_registro_envio',
+    data_envio_email_registro_envio: 'data_envio_email_registro_envio',
+    data_criacao_email_registro_envio: 'data_criacao_email_registro_envio',
+    data_atualizacao_email_registro_envio: 'data_atualizacao_email_registro_envio'
   };
 
   export type EmailRegistroEnvioScalarFieldEnum = (typeof EmailRegistroEnvioScalarFieldEnum)[keyof typeof EmailRegistroEnvioScalarFieldEnum]
 
 
   export const TemplateEmailScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    nome: 'nome',
-    slug: 'slug',
-    assunto: 'assunto',
-    corpo_html: 'corpo_html',
-    corpo_texto: 'corpo_texto',
-    variaveis: 'variaveis',
-    ativo: 'ativo',
-    descricao: 'descricao',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_template_email: 'id_template_email',
+    id_organizacao_template_email: 'id_organizacao_template_email',
+    id_produto_template_email: 'id_produto_template_email',
+    id_usuario_template_email: 'id_usuario_template_email',
+    nome_template_email: 'nome_template_email',
+    slug_template_email: 'slug_template_email',
+    assunto_template_email: 'assunto_template_email',
+    corpo_html_template_email: 'corpo_html_template_email',
+    corpo_texto_template_email: 'corpo_texto_template_email',
+    variaveis_template_email: 'variaveis_template_email',
+    ativo_template_email: 'ativo_template_email',
+    descricao_template_email: 'descricao_template_email',
+    data_criacao_template_email: 'data_criacao_template_email',
+    data_atualizacao_template_email: 'data_atualizacao_template_email'
   };
 
   export type TemplateEmailScalarFieldEnum = (typeof TemplateEmailScalarFieldEnum)[keyof typeof TemplateEmailScalarFieldEnum]
 
 
   export const EmailFilaEnvioScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    status: 'status',
-    prioridade: 'prioridade',
-    payload: 'payload',
-    template_id: 'template_id',
-    email_enviado_id: 'email_enviado_id',
-    tentativas: 'tentativas',
-    max_tentativas: 'max_tentativas',
-    next_retry_at: 'next_retry_at',
-    processado_at: 'processado_at',
-    erro: 'erro',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_email_fila_envio: 'id_email_fila_envio',
+    id_organizacao_email_fila_envio: 'id_organizacao_email_fila_envio',
+    id_produto_email_fila_envio: 'id_produto_email_fila_envio',
+    id_usuario_email_fila_envio: 'id_usuario_email_fila_envio',
+    status_email_fila_envio: 'status_email_fila_envio',
+    prioridade_email_fila_envio: 'prioridade_email_fila_envio',
+    payload_email_fila_envio: 'payload_email_fila_envio',
+    id_template_email_fila_envio: 'id_template_email_fila_envio',
+    id_email_enviado_email_fila_envio: 'id_email_enviado_email_fila_envio',
+    tentativas_email_fila_envio: 'tentativas_email_fila_envio',
+    max_tentativas_email_fila_envio: 'max_tentativas_email_fila_envio',
+    proxima_tentativa_em_email_fila_envio: 'proxima_tentativa_em_email_fila_envio',
+    processado_em_email_fila_envio: 'processado_em_email_fila_envio',
+    erro_email_fila_envio: 'erro_email_fila_envio',
+    data_criacao_email_fila_envio: 'data_criacao_email_fila_envio',
+    data_atualizacao_email_fila_envio: 'data_atualizacao_email_fila_envio'
   };
 
   export type EmailFilaEnvioScalarFieldEnum = (typeof EmailFilaEnvioScalarFieldEnum)[keyof typeof EmailFilaEnvioScalarFieldEnum]
@@ -51917,73 +51917,73 @@ export namespace Prisma {
     AND?: EmailAssuntosParticipantesWhereInput | EmailAssuntosParticipantesWhereInput[]
     OR?: EmailAssuntosParticipantesWhereInput[]
     NOT?: EmailAssuntosParticipantesWhereInput | EmailAssuntosParticipantesWhereInput[]
-    id?: StringFilter<"EmailAssuntosParticipantes"> | string
-    tenant_id?: StringFilter<"EmailAssuntosParticipantes"> | string
-    product_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    user_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    subject?: StringFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
-    sentiment?: FloatFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
-    mensagens_count?: IntFilter<"EmailAssuntosParticipantes"> | number
-    ultimo_contato?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
-    deep_link?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    created_at?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
-    updated_at?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
-    mensagens?: EmailMensagemListRelationFilter
+    id_email_assuntos_participantes?: StringFilter<"EmailAssuntosParticipantes"> | string
+    id_organizacao_email_assuntos_participantes?: StringFilter<"EmailAssuntosParticipantes"> | string
+    id_produto_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    id_usuario_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    assunto_email_assuntos_participantes?: StringFilter<"EmailAssuntosParticipantes"> | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFilter<"EmailAssuntosParticipantes"> | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFilter<"EmailAssuntosParticipantes"> | number
+    ultimo_contato_email_assuntos_participantes?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
+    deep_link_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemListRelationFilter
   }
 
   export type EmailAssuntosParticipantesOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    subject?: SortOrder
-    status?: SortOrder
-    sentiment?: SortOrder
-    sentiment_label?: SortOrder
-    mensagens_count?: SortOrder
-    ultimo_contato?: SortOrderInput | SortOrder
-    deep_link?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    mensagens?: EmailMensagemOrderByRelationAggregateInput
+    id_email_assuntos_participantes?: SortOrder
+    id_organizacao_email_assuntos_participantes?: SortOrder
+    id_produto_email_assuntos_participantes?: SortOrderInput | SortOrder
+    id_usuario_email_assuntos_participantes?: SortOrderInput | SortOrder
+    assunto_email_assuntos_participantes?: SortOrder
+    status_email_assuntos_participantes?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    rotulo_sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
+    ultimo_contato_email_assuntos_participantes?: SortOrderInput | SortOrder
+    deep_link_email_assuntos_participantes?: SortOrderInput | SortOrder
+    data_criacao_email_assuntos_participantes?: SortOrder
+    data_atualizacao_email_assuntos_participantes?: SortOrder
+    mensagens_email_assuntos_participantes?: EmailMensagemOrderByRelationAggregateInput
   }
 
   export type EmailAssuntosParticipantesWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_email_assuntos_participantes?: string
     AND?: EmailAssuntosParticipantesWhereInput | EmailAssuntosParticipantesWhereInput[]
     OR?: EmailAssuntosParticipantesWhereInput[]
     NOT?: EmailAssuntosParticipantesWhereInput | EmailAssuntosParticipantesWhereInput[]
-    tenant_id?: StringFilter<"EmailAssuntosParticipantes"> | string
-    product_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    user_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    subject?: StringFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
-    sentiment?: FloatFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
-    mensagens_count?: IntFilter<"EmailAssuntosParticipantes"> | number
-    ultimo_contato?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
-    deep_link?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
-    created_at?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
-    updated_at?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
-    mensagens?: EmailMensagemListRelationFilter
-  }, "id">
+    id_organizacao_email_assuntos_participantes?: StringFilter<"EmailAssuntosParticipantes"> | string
+    id_produto_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    id_usuario_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    assunto_email_assuntos_participantes?: StringFilter<"EmailAssuntosParticipantes"> | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFilter<"EmailAssuntosParticipantes"> | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFilter<"EmailAssuntosParticipantes"> | number
+    ultimo_contato_email_assuntos_participantes?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
+    deep_link_email_assuntos_participantes?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFilter<"EmailAssuntosParticipantes"> | Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemListRelationFilter
+  }, "id_email_assuntos_participantes">
 
   export type EmailAssuntosParticipantesOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    subject?: SortOrder
-    status?: SortOrder
-    sentiment?: SortOrder
-    sentiment_label?: SortOrder
-    mensagens_count?: SortOrder
-    ultimo_contato?: SortOrderInput | SortOrder
-    deep_link?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_assuntos_participantes?: SortOrder
+    id_organizacao_email_assuntos_participantes?: SortOrder
+    id_produto_email_assuntos_participantes?: SortOrderInput | SortOrder
+    id_usuario_email_assuntos_participantes?: SortOrderInput | SortOrder
+    assunto_email_assuntos_participantes?: SortOrder
+    status_email_assuntos_participantes?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    rotulo_sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
+    ultimo_contato_email_assuntos_participantes?: SortOrderInput | SortOrder
+    deep_link_email_assuntos_participantes?: SortOrderInput | SortOrder
+    data_criacao_email_assuntos_participantes?: SortOrder
+    data_atualizacao_email_assuntos_participantes?: SortOrder
     _count?: EmailAssuntosParticipantesCountOrderByAggregateInput
     _avg?: EmailAssuntosParticipantesAvgOrderByAggregateInput
     _max?: EmailAssuntosParticipantesMaxOrderByAggregateInput
@@ -51995,120 +51995,120 @@ export namespace Prisma {
     AND?: EmailAssuntosParticipantesScalarWhereWithAggregatesInput | EmailAssuntosParticipantesScalarWhereWithAggregatesInput[]
     OR?: EmailAssuntosParticipantesScalarWhereWithAggregatesInput[]
     NOT?: EmailAssuntosParticipantesScalarWhereWithAggregatesInput | EmailAssuntosParticipantesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
-    tenant_id?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
-    product_id?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
-    subject?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumEmailThreadStatusWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
-    sentiment?: FloatWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumEmailSentimentoWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
-    mensagens_count?: IntWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
-    ultimo_contato?: DateTimeNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string | null
-    deep_link?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string
+    id_email_assuntos_participantes?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
+    id_organizacao_email_assuntos_participantes?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
+    id_produto_email_assuntos_participantes?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
+    id_usuario_email_assuntos_participantes?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
+    assunto_email_assuntos_participantes?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
+    ultimo_contato_email_assuntos_participantes?: DateTimeNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string | null
+    deep_link_email_assuntos_participantes?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string
   }
 
   export type EmailMensagemWhereInput = {
     AND?: EmailMensagemWhereInput | EmailMensagemWhereInput[]
     OR?: EmailMensagemWhereInput[]
     NOT?: EmailMensagemWhereInput | EmailMensagemWhereInput[]
-    id?: StringFilter<"EmailMensagem"> | string
-    tenant_id?: StringFilter<"EmailMensagem"> | string
-    product_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    user_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    thread_id?: StringFilter<"EmailMensagem"> | string
-    resend_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
-    from?: StringFilter<"EmailMensagem"> | string
-    to?: StringFilter<"EmailMensagem"> | string
-    subject?: StringNullableFilter<"EmailMensagem"> | string | null
-    body?: StringFilter<"EmailMensagem"> | string
-    body_html?: StringNullableFilter<"EmailMensagem"> | string | null
-    dedup_key?: StringNullableFilter<"EmailMensagem"> | string | null
-    parent_message_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_response?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_confidence?: FloatNullableFilter<"EmailMensagem"> | number | null
-    gabi_action?: StringNullableFilter<"EmailMensagem"> | string | null
-    sent_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    created_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    updated_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    thread?: XOR<EmailAssuntosParticipantesRelationFilter, EmailAssuntosParticipantesWhereInput>
+    id_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_organizacao_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_produto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_usuario_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_thread_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_resend_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    destinatario_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    assunto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    corpo_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    corpo_html_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    chave_dedup_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_mensagem_pai_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    resposta_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    confianca_gabi_email_mensagem?: FloatNullableFilter<"EmailMensagem"> | number | null
+    acao_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    data_envio_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_criacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    thread_email_mensagem?: XOR<EmailAssuntosParticipantesRelationFilter, EmailAssuntosParticipantesWhereInput>
   }
 
   export type EmailMensagemOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    thread_id?: SortOrder
-    resend_id?: SortOrderInput | SortOrder
-    direction?: SortOrder
-    from?: SortOrder
-    to?: SortOrder
-    subject?: SortOrderInput | SortOrder
-    body?: SortOrder
-    body_html?: SortOrderInput | SortOrder
-    dedup_key?: SortOrderInput | SortOrder
-    parent_message_id?: SortOrderInput | SortOrder
-    gabi_response?: SortOrderInput | SortOrder
-    gabi_confidence?: SortOrderInput | SortOrder
-    gabi_action?: SortOrderInput | SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    thread?: EmailAssuntosParticipantesOrderByWithRelationInput
+    id_email_mensagem?: SortOrder
+    id_organizacao_email_mensagem?: SortOrder
+    id_produto_email_mensagem?: SortOrderInput | SortOrder
+    id_usuario_email_mensagem?: SortOrderInput | SortOrder
+    id_thread_email_mensagem?: SortOrder
+    id_resend_email_mensagem?: SortOrderInput | SortOrder
+    direcao_email_mensagem?: SortOrder
+    remetente_email_mensagem?: SortOrder
+    destinatario_email_mensagem?: SortOrder
+    assunto_email_mensagem?: SortOrderInput | SortOrder
+    corpo_email_mensagem?: SortOrder
+    corpo_html_email_mensagem?: SortOrderInput | SortOrder
+    chave_dedup_email_mensagem?: SortOrderInput | SortOrder
+    id_mensagem_pai_email_mensagem?: SortOrderInput | SortOrder
+    resposta_gabi_email_mensagem?: SortOrderInput | SortOrder
+    confianca_gabi_email_mensagem?: SortOrderInput | SortOrder
+    acao_gabi_email_mensagem?: SortOrderInput | SortOrder
+    data_envio_email_mensagem?: SortOrder
+    data_criacao_email_mensagem?: SortOrder
+    data_atualizacao_email_mensagem?: SortOrder
+    thread_email_mensagem?: EmailAssuntosParticipantesOrderByWithRelationInput
   }
 
   export type EmailMensagemWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    resend_id?: string
-    dedup_key?: string
+    id_email_mensagem?: string
+    id_resend_email_mensagem?: string
+    chave_dedup_email_mensagem?: string
     AND?: EmailMensagemWhereInput | EmailMensagemWhereInput[]
     OR?: EmailMensagemWhereInput[]
     NOT?: EmailMensagemWhereInput | EmailMensagemWhereInput[]
-    tenant_id?: StringFilter<"EmailMensagem"> | string
-    product_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    user_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    thread_id?: StringFilter<"EmailMensagem"> | string
-    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
-    from?: StringFilter<"EmailMensagem"> | string
-    to?: StringFilter<"EmailMensagem"> | string
-    subject?: StringNullableFilter<"EmailMensagem"> | string | null
-    body?: StringFilter<"EmailMensagem"> | string
-    body_html?: StringNullableFilter<"EmailMensagem"> | string | null
-    parent_message_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_response?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_confidence?: FloatNullableFilter<"EmailMensagem"> | number | null
-    gabi_action?: StringNullableFilter<"EmailMensagem"> | string | null
-    sent_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    created_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    updated_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    thread?: XOR<EmailAssuntosParticipantesRelationFilter, EmailAssuntosParticipantesWhereInput>
-  }, "id" | "resend_id" | "dedup_key">
+    id_organizacao_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_produto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_usuario_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_thread_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    direcao_email_mensagem?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    destinatario_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    assunto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    corpo_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    corpo_html_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_mensagem_pai_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    resposta_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    confianca_gabi_email_mensagem?: FloatNullableFilter<"EmailMensagem"> | number | null
+    acao_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    data_envio_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_criacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    thread_email_mensagem?: XOR<EmailAssuntosParticipantesRelationFilter, EmailAssuntosParticipantesWhereInput>
+  }, "id_email_mensagem" | "id_resend_email_mensagem" | "chave_dedup_email_mensagem">
 
   export type EmailMensagemOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    thread_id?: SortOrder
-    resend_id?: SortOrderInput | SortOrder
-    direction?: SortOrder
-    from?: SortOrder
-    to?: SortOrder
-    subject?: SortOrderInput | SortOrder
-    body?: SortOrder
-    body_html?: SortOrderInput | SortOrder
-    dedup_key?: SortOrderInput | SortOrder
-    parent_message_id?: SortOrderInput | SortOrder
-    gabi_response?: SortOrderInput | SortOrder
-    gabi_confidence?: SortOrderInput | SortOrder
-    gabi_action?: SortOrderInput | SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_mensagem?: SortOrder
+    id_organizacao_email_mensagem?: SortOrder
+    id_produto_email_mensagem?: SortOrderInput | SortOrder
+    id_usuario_email_mensagem?: SortOrderInput | SortOrder
+    id_thread_email_mensagem?: SortOrder
+    id_resend_email_mensagem?: SortOrderInput | SortOrder
+    direcao_email_mensagem?: SortOrder
+    remetente_email_mensagem?: SortOrder
+    destinatario_email_mensagem?: SortOrder
+    assunto_email_mensagem?: SortOrderInput | SortOrder
+    corpo_email_mensagem?: SortOrder
+    corpo_html_email_mensagem?: SortOrderInput | SortOrder
+    chave_dedup_email_mensagem?: SortOrderInput | SortOrder
+    id_mensagem_pai_email_mensagem?: SortOrderInput | SortOrder
+    resposta_gabi_email_mensagem?: SortOrderInput | SortOrder
+    confianca_gabi_email_mensagem?: SortOrderInput | SortOrder
+    acao_gabi_email_mensagem?: SortOrderInput | SortOrder
+    data_envio_email_mensagem?: SortOrder
+    data_criacao_email_mensagem?: SortOrder
+    data_atualizacao_email_mensagem?: SortOrder
     _count?: EmailMensagemCountOrderByAggregateInput
     _avg?: EmailMensagemAvgOrderByAggregateInput
     _max?: EmailMensagemMaxOrderByAggregateInput
@@ -52120,120 +52120,120 @@ export namespace Prisma {
     AND?: EmailMensagemScalarWhereWithAggregatesInput | EmailMensagemScalarWhereWithAggregatesInput[]
     OR?: EmailMensagemScalarWhereWithAggregatesInput[]
     NOT?: EmailMensagemScalarWhereWithAggregatesInput | EmailMensagemScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    tenant_id?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    product_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    thread_id?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    resend_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    direction?: EnumEmailDirecaoWithAggregatesFilter<"EmailMensagem"> | $Enums.EmailDirecao
-    from?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    to?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    subject?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    body?: StringWithAggregatesFilter<"EmailMensagem"> | string
-    body_html?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    dedup_key?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    parent_message_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    gabi_response?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    gabi_confidence?: FloatNullableWithAggregatesFilter<"EmailMensagem"> | number | null
-    gabi_action?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    sent_at?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
+    id_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    id_organizacao_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    id_produto_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    id_usuario_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    id_thread_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    id_resend_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoWithAggregatesFilter<"EmailMensagem"> | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    destinatario_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    assunto_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    corpo_email_mensagem?: StringWithAggregatesFilter<"EmailMensagem"> | string
+    corpo_html_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    chave_dedup_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    id_mensagem_pai_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    resposta_gabi_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    confianca_gabi_email_mensagem?: FloatNullableWithAggregatesFilter<"EmailMensagem"> | number | null
+    acao_gabi_email_mensagem?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
+    data_envio_email_mensagem?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
+    data_criacao_email_mensagem?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
+    data_atualizacao_email_mensagem?: DateTimeWithAggregatesFilter<"EmailMensagem"> | Date | string
   }
 
   export type EmailRegistroEnvioWhereInput = {
     AND?: EmailRegistroEnvioWhereInput | EmailRegistroEnvioWhereInput[]
     OR?: EmailRegistroEnvioWhereInput[]
     NOT?: EmailRegistroEnvioWhereInput | EmailRegistroEnvioWhereInput[]
-    id?: StringFilter<"EmailRegistroEnvio"> | string
-    tenant_id?: StringFilter<"EmailRegistroEnvio"> | string
-    product_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    user_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    to?: StringFilter<"EmailRegistroEnvio"> | string
-    from?: StringFilter<"EmailRegistroEnvio"> | string
-    reply_to?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    subject?: StringFilter<"EmailRegistroEnvio"> | string
-    template_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
-    resend_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    dedup_key?: StringFilter<"EmailRegistroEnvio"> | string
-    tentativas?: IntFilter<"EmailRegistroEnvio"> | number
-    max_tentativas?: IntFilter<"EmailRegistroEnvio"> | number
-    next_retry_at?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
-    error_message?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    enviado_at?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
-    created_at?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
-    updated_at?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
+    id_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    id_organizacao_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    id_produto_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    id_usuario_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    destinatario_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    remetente_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    reply_to_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    assunto_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    id_template_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    status_email_registro_envio?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
+    id_resend_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    chave_dedup_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    tentativas_email_registro_envio?: IntFilter<"EmailRegistroEnvio"> | number
+    max_tentativas_email_registro_envio?: IntFilter<"EmailRegistroEnvio"> | number
+    proxima_tentativa_em_email_registro_envio?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
+    mensagem_erro_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    data_envio_email_registro_envio?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
   }
 
   export type EmailRegistroEnvioOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    to?: SortOrder
-    from?: SortOrder
-    reply_to?: SortOrderInput | SortOrder
-    subject?: SortOrder
-    template_id?: SortOrderInput | SortOrder
-    status?: SortOrder
-    resend_id?: SortOrderInput | SortOrder
-    dedup_key?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrderInput | SortOrder
-    error_message?: SortOrderInput | SortOrder
-    enviado_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_registro_envio?: SortOrder
+    id_organizacao_email_registro_envio?: SortOrder
+    id_produto_email_registro_envio?: SortOrderInput | SortOrder
+    id_usuario_email_registro_envio?: SortOrderInput | SortOrder
+    destinatario_email_registro_envio?: SortOrder
+    remetente_email_registro_envio?: SortOrder
+    reply_to_email_registro_envio?: SortOrderInput | SortOrder
+    assunto_email_registro_envio?: SortOrder
+    id_template_email_registro_envio?: SortOrderInput | SortOrder
+    status_email_registro_envio?: SortOrder
+    id_resend_email_registro_envio?: SortOrderInput | SortOrder
+    chave_dedup_email_registro_envio?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
+    proxima_tentativa_em_email_registro_envio?: SortOrderInput | SortOrder
+    mensagem_erro_email_registro_envio?: SortOrderInput | SortOrder
+    data_envio_email_registro_envio?: SortOrderInput | SortOrder
+    data_criacao_email_registro_envio?: SortOrder
+    data_atualizacao_email_registro_envio?: SortOrder
   }
 
   export type EmailRegistroEnvioWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    resend_id?: string
-    dedup_key?: string
+    id_email_registro_envio?: string
+    id_resend_email_registro_envio?: string
+    chave_dedup_email_registro_envio?: string
     AND?: EmailRegistroEnvioWhereInput | EmailRegistroEnvioWhereInput[]
     OR?: EmailRegistroEnvioWhereInput[]
     NOT?: EmailRegistroEnvioWhereInput | EmailRegistroEnvioWhereInput[]
-    tenant_id?: StringFilter<"EmailRegistroEnvio"> | string
-    product_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    user_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    to?: StringFilter<"EmailRegistroEnvio"> | string
-    from?: StringFilter<"EmailRegistroEnvio"> | string
-    reply_to?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    subject?: StringFilter<"EmailRegistroEnvio"> | string
-    template_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
-    tentativas?: IntFilter<"EmailRegistroEnvio"> | number
-    max_tentativas?: IntFilter<"EmailRegistroEnvio"> | number
-    next_retry_at?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
-    error_message?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    enviado_at?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
-    created_at?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
-    updated_at?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
-  }, "id" | "resend_id" | "dedup_key">
+    id_organizacao_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    id_produto_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    id_usuario_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    destinatario_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    remetente_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    reply_to_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    assunto_email_registro_envio?: StringFilter<"EmailRegistroEnvio"> | string
+    id_template_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    status_email_registro_envio?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
+    tentativas_email_registro_envio?: IntFilter<"EmailRegistroEnvio"> | number
+    max_tentativas_email_registro_envio?: IntFilter<"EmailRegistroEnvio"> | number
+    proxima_tentativa_em_email_registro_envio?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
+    mensagem_erro_email_registro_envio?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
+    data_envio_email_registro_envio?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFilter<"EmailRegistroEnvio"> | Date | string
+  }, "id_email_registro_envio" | "id_resend_email_registro_envio" | "chave_dedup_email_registro_envio">
 
   export type EmailRegistroEnvioOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    to?: SortOrder
-    from?: SortOrder
-    reply_to?: SortOrderInput | SortOrder
-    subject?: SortOrder
-    template_id?: SortOrderInput | SortOrder
-    status?: SortOrder
-    resend_id?: SortOrderInput | SortOrder
-    dedup_key?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrderInput | SortOrder
-    error_message?: SortOrderInput | SortOrder
-    enviado_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_registro_envio?: SortOrder
+    id_organizacao_email_registro_envio?: SortOrder
+    id_produto_email_registro_envio?: SortOrderInput | SortOrder
+    id_usuario_email_registro_envio?: SortOrderInput | SortOrder
+    destinatario_email_registro_envio?: SortOrder
+    remetente_email_registro_envio?: SortOrder
+    reply_to_email_registro_envio?: SortOrderInput | SortOrder
+    assunto_email_registro_envio?: SortOrder
+    id_template_email_registro_envio?: SortOrderInput | SortOrder
+    status_email_registro_envio?: SortOrder
+    id_resend_email_registro_envio?: SortOrderInput | SortOrder
+    chave_dedup_email_registro_envio?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
+    proxima_tentativa_em_email_registro_envio?: SortOrderInput | SortOrder
+    mensagem_erro_email_registro_envio?: SortOrderInput | SortOrder
+    data_envio_email_registro_envio?: SortOrderInput | SortOrder
+    data_criacao_email_registro_envio?: SortOrder
+    data_atualizacao_email_registro_envio?: SortOrder
     _count?: EmailRegistroEnvioCountOrderByAggregateInput
     _avg?: EmailRegistroEnvioAvgOrderByAggregateInput
     _max?: EmailRegistroEnvioMaxOrderByAggregateInput
@@ -52245,100 +52245,100 @@ export namespace Prisma {
     AND?: EmailRegistroEnvioScalarWhereWithAggregatesInput | EmailRegistroEnvioScalarWhereWithAggregatesInput[]
     OR?: EmailRegistroEnvioScalarWhereWithAggregatesInput[]
     NOT?: EmailRegistroEnvioScalarWhereWithAggregatesInput | EmailRegistroEnvioScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    tenant_id?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    product_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    to?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    from?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    reply_to?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    subject?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    template_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumEmailStatusWithAggregatesFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
-    resend_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    dedup_key?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
-    tentativas?: IntWithAggregatesFilter<"EmailRegistroEnvio"> | number
-    max_tentativas?: IntWithAggregatesFilter<"EmailRegistroEnvio"> | number
-    next_retry_at?: DateTimeNullableWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string | null
-    error_message?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    enviado_at?: DateTimeNullableWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string
+    id_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    id_organizacao_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    id_produto_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    id_usuario_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    destinatario_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    remetente_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    reply_to_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    assunto_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    id_template_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    status_email_registro_envio?: EnumEmailStatusWithAggregatesFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
+    id_resend_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    chave_dedup_email_registro_envio?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
+    tentativas_email_registro_envio?: IntWithAggregatesFilter<"EmailRegistroEnvio"> | number
+    max_tentativas_email_registro_envio?: IntWithAggregatesFilter<"EmailRegistroEnvio"> | number
+    proxima_tentativa_em_email_registro_envio?: DateTimeNullableWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string | null
+    mensagem_erro_email_registro_envio?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
+    data_envio_email_registro_envio?: DateTimeNullableWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeWithAggregatesFilter<"EmailRegistroEnvio"> | Date | string
   }
 
   export type TemplateEmailWhereInput = {
     AND?: TemplateEmailWhereInput | TemplateEmailWhereInput[]
     OR?: TemplateEmailWhereInput[]
     NOT?: TemplateEmailWhereInput | TemplateEmailWhereInput[]
-    id?: StringFilter<"TemplateEmail"> | string
-    tenant_id?: StringFilter<"TemplateEmail"> | string
-    product_id?: StringNullableFilter<"TemplateEmail"> | string | null
-    user_id?: StringNullableFilter<"TemplateEmail"> | string | null
-    nome?: StringFilter<"TemplateEmail"> | string
-    slug?: StringFilter<"TemplateEmail"> | string
-    assunto?: StringFilter<"TemplateEmail"> | string
-    corpo_html?: StringFilter<"TemplateEmail"> | string
-    corpo_texto?: StringNullableFilter<"TemplateEmail"> | string | null
-    variaveis?: StringNullableListFilter<"TemplateEmail">
-    ativo?: BoolFilter<"TemplateEmail"> | boolean
-    descricao?: StringNullableFilter<"TemplateEmail"> | string | null
-    created_at?: DateTimeFilter<"TemplateEmail"> | Date | string
-    updated_at?: DateTimeFilter<"TemplateEmail"> | Date | string
+    id_template_email?: StringFilter<"TemplateEmail"> | string
+    id_organizacao_template_email?: StringFilter<"TemplateEmail"> | string
+    id_produto_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    id_usuario_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    nome_template_email?: StringFilter<"TemplateEmail"> | string
+    slug_template_email?: StringFilter<"TemplateEmail"> | string
+    assunto_template_email?: StringFilter<"TemplateEmail"> | string
+    corpo_html_template_email?: StringFilter<"TemplateEmail"> | string
+    corpo_texto_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    variaveis_template_email?: StringNullableListFilter<"TemplateEmail">
+    ativo_template_email?: BoolFilter<"TemplateEmail"> | boolean
+    descricao_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    data_criacao_template_email?: DateTimeFilter<"TemplateEmail"> | Date | string
+    data_atualizacao_template_email?: DateTimeFilter<"TemplateEmail"> | Date | string
   }
 
   export type TemplateEmailOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    slug?: SortOrder
-    assunto?: SortOrder
-    corpo_html?: SortOrder
-    corpo_texto?: SortOrderInput | SortOrder
-    variaveis?: SortOrder
-    ativo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_template_email?: SortOrder
+    id_organizacao_template_email?: SortOrder
+    id_produto_template_email?: SortOrderInput | SortOrder
+    id_usuario_template_email?: SortOrderInput | SortOrder
+    nome_template_email?: SortOrder
+    slug_template_email?: SortOrder
+    assunto_template_email?: SortOrder
+    corpo_html_template_email?: SortOrder
+    corpo_texto_template_email?: SortOrderInput | SortOrder
+    variaveis_template_email?: SortOrder
+    ativo_template_email?: SortOrder
+    descricao_template_email?: SortOrderInput | SortOrder
+    data_criacao_template_email?: SortOrder
+    data_atualizacao_template_email?: SortOrder
   }
 
   export type TemplateEmailWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_slug?: TemplateEmailTenant_idSlugCompoundUniqueInput
+    id_template_email?: string
+    id_organizacao_template_email_slug_template_email?: TemplateEmailId_organizacao_template_emailSlug_template_emailCompoundUniqueInput
     AND?: TemplateEmailWhereInput | TemplateEmailWhereInput[]
     OR?: TemplateEmailWhereInput[]
     NOT?: TemplateEmailWhereInput | TemplateEmailWhereInput[]
-    tenant_id?: StringFilter<"TemplateEmail"> | string
-    product_id?: StringNullableFilter<"TemplateEmail"> | string | null
-    user_id?: StringNullableFilter<"TemplateEmail"> | string | null
-    nome?: StringFilter<"TemplateEmail"> | string
-    slug?: StringFilter<"TemplateEmail"> | string
-    assunto?: StringFilter<"TemplateEmail"> | string
-    corpo_html?: StringFilter<"TemplateEmail"> | string
-    corpo_texto?: StringNullableFilter<"TemplateEmail"> | string | null
-    variaveis?: StringNullableListFilter<"TemplateEmail">
-    ativo?: BoolFilter<"TemplateEmail"> | boolean
-    descricao?: StringNullableFilter<"TemplateEmail"> | string | null
-    created_at?: DateTimeFilter<"TemplateEmail"> | Date | string
-    updated_at?: DateTimeFilter<"TemplateEmail"> | Date | string
-  }, "id" | "tenant_id_slug">
+    id_organizacao_template_email?: StringFilter<"TemplateEmail"> | string
+    id_produto_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    id_usuario_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    nome_template_email?: StringFilter<"TemplateEmail"> | string
+    slug_template_email?: StringFilter<"TemplateEmail"> | string
+    assunto_template_email?: StringFilter<"TemplateEmail"> | string
+    corpo_html_template_email?: StringFilter<"TemplateEmail"> | string
+    corpo_texto_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    variaveis_template_email?: StringNullableListFilter<"TemplateEmail">
+    ativo_template_email?: BoolFilter<"TemplateEmail"> | boolean
+    descricao_template_email?: StringNullableFilter<"TemplateEmail"> | string | null
+    data_criacao_template_email?: DateTimeFilter<"TemplateEmail"> | Date | string
+    data_atualizacao_template_email?: DateTimeFilter<"TemplateEmail"> | Date | string
+  }, "id_template_email" | "id_organizacao_template_email_slug_template_email">
 
   export type TemplateEmailOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    slug?: SortOrder
-    assunto?: SortOrder
-    corpo_html?: SortOrder
-    corpo_texto?: SortOrderInput | SortOrder
-    variaveis?: SortOrder
-    ativo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_template_email?: SortOrder
+    id_organizacao_template_email?: SortOrder
+    id_produto_template_email?: SortOrderInput | SortOrder
+    id_usuario_template_email?: SortOrderInput | SortOrder
+    nome_template_email?: SortOrder
+    slug_template_email?: SortOrder
+    assunto_template_email?: SortOrder
+    corpo_html_template_email?: SortOrder
+    corpo_texto_template_email?: SortOrderInput | SortOrder
+    variaveis_template_email?: SortOrder
+    ativo_template_email?: SortOrder
+    descricao_template_email?: SortOrderInput | SortOrder
+    data_criacao_template_email?: SortOrder
+    data_atualizacao_template_email?: SortOrder
     _count?: TemplateEmailCountOrderByAggregateInput
     _max?: TemplateEmailMaxOrderByAggregateInput
     _min?: TemplateEmailMinOrderByAggregateInput
@@ -52348,102 +52348,102 @@ export namespace Prisma {
     AND?: TemplateEmailScalarWhereWithAggregatesInput | TemplateEmailScalarWhereWithAggregatesInput[]
     OR?: TemplateEmailScalarWhereWithAggregatesInput[]
     NOT?: TemplateEmailScalarWhereWithAggregatesInput | TemplateEmailScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    tenant_id?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    product_id?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
-    nome?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    slug?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    assunto?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    corpo_html?: StringWithAggregatesFilter<"TemplateEmail"> | string
-    corpo_texto?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
-    variaveis?: StringNullableListFilter<"TemplateEmail">
-    ativo?: BoolWithAggregatesFilter<"TemplateEmail"> | boolean
-    descricao?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"TemplateEmail"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"TemplateEmail"> | Date | string
+    id_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    id_organizacao_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    id_produto_template_email?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
+    id_usuario_template_email?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
+    nome_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    slug_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    assunto_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    corpo_html_template_email?: StringWithAggregatesFilter<"TemplateEmail"> | string
+    corpo_texto_template_email?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
+    variaveis_template_email?: StringNullableListFilter<"TemplateEmail">
+    ativo_template_email?: BoolWithAggregatesFilter<"TemplateEmail"> | boolean
+    descricao_template_email?: StringNullableWithAggregatesFilter<"TemplateEmail"> | string | null
+    data_criacao_template_email?: DateTimeWithAggregatesFilter<"TemplateEmail"> | Date | string
+    data_atualizacao_template_email?: DateTimeWithAggregatesFilter<"TemplateEmail"> | Date | string
   }
 
   export type EmailFilaEnvioWhereInput = {
     AND?: EmailFilaEnvioWhereInput | EmailFilaEnvioWhereInput[]
     OR?: EmailFilaEnvioWhereInput[]
     NOT?: EmailFilaEnvioWhereInput | EmailFilaEnvioWhereInput[]
-    id?: StringFilter<"EmailFilaEnvio"> | string
-    tenant_id?: StringFilter<"EmailFilaEnvio"> | string
-    product_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    user_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
-    payload?: StringFilter<"EmailFilaEnvio"> | string
-    template_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    email_enviado_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    tentativas?: IntFilter<"EmailFilaEnvio"> | number
-    max_tentativas?: IntFilter<"EmailFilaEnvio"> | number
-    next_retry_at?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
-    processado_at?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
-    erro?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    created_at?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
-    updated_at?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
+    id_email_fila_envio?: StringFilter<"EmailFilaEnvio"> | string
+    id_organizacao_email_fila_envio?: StringFilter<"EmailFilaEnvio"> | string
+    id_produto_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    id_usuario_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    status_email_fila_envio?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFilter<"EmailFilaEnvio"> | string
+    id_template_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    id_email_enviado_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    tentativas_email_fila_envio?: IntFilter<"EmailFilaEnvio"> | number
+    max_tentativas_email_fila_envio?: IntFilter<"EmailFilaEnvio"> | number
+    proxima_tentativa_em_email_fila_envio?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
+    processado_em_email_fila_envio?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
+    erro_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    data_criacao_email_fila_envio?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
   }
 
   export type EmailFilaEnvioOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    payload?: SortOrder
-    template_id?: SortOrderInput | SortOrder
-    email_enviado_id?: SortOrderInput | SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrderInput | SortOrder
-    processado_at?: SortOrderInput | SortOrder
-    erro?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_fila_envio?: SortOrder
+    id_organizacao_email_fila_envio?: SortOrder
+    id_produto_email_fila_envio?: SortOrderInput | SortOrder
+    id_usuario_email_fila_envio?: SortOrderInput | SortOrder
+    status_email_fila_envio?: SortOrder
+    prioridade_email_fila_envio?: SortOrder
+    payload_email_fila_envio?: SortOrder
+    id_template_email_fila_envio?: SortOrderInput | SortOrder
+    id_email_enviado_email_fila_envio?: SortOrderInput | SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
+    proxima_tentativa_em_email_fila_envio?: SortOrderInput | SortOrder
+    processado_em_email_fila_envio?: SortOrderInput | SortOrder
+    erro_email_fila_envio?: SortOrderInput | SortOrder
+    data_criacao_email_fila_envio?: SortOrder
+    data_atualizacao_email_fila_envio?: SortOrder
   }
 
   export type EmailFilaEnvioWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_email_fila_envio?: string
     AND?: EmailFilaEnvioWhereInput | EmailFilaEnvioWhereInput[]
     OR?: EmailFilaEnvioWhereInput[]
     NOT?: EmailFilaEnvioWhereInput | EmailFilaEnvioWhereInput[]
-    tenant_id?: StringFilter<"EmailFilaEnvio"> | string
-    product_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    user_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
-    payload?: StringFilter<"EmailFilaEnvio"> | string
-    template_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    email_enviado_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    tentativas?: IntFilter<"EmailFilaEnvio"> | number
-    max_tentativas?: IntFilter<"EmailFilaEnvio"> | number
-    next_retry_at?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
-    processado_at?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
-    erro?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    created_at?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
-    updated_at?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
-  }, "id">
+    id_organizacao_email_fila_envio?: StringFilter<"EmailFilaEnvio"> | string
+    id_produto_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    id_usuario_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    status_email_fila_envio?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFilter<"EmailFilaEnvio"> | string
+    id_template_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    id_email_enviado_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    tentativas_email_fila_envio?: IntFilter<"EmailFilaEnvio"> | number
+    max_tentativas_email_fila_envio?: IntFilter<"EmailFilaEnvio"> | number
+    proxima_tentativa_em_email_fila_envio?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
+    processado_em_email_fila_envio?: DateTimeNullableFilter<"EmailFilaEnvio"> | Date | string | null
+    erro_email_fila_envio?: StringNullableFilter<"EmailFilaEnvio"> | string | null
+    data_criacao_email_fila_envio?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFilter<"EmailFilaEnvio"> | Date | string
+  }, "id_email_fila_envio">
 
   export type EmailFilaEnvioOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    payload?: SortOrder
-    template_id?: SortOrderInput | SortOrder
-    email_enviado_id?: SortOrderInput | SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrderInput | SortOrder
-    processado_at?: SortOrderInput | SortOrder
-    erro?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_fila_envio?: SortOrder
+    id_organizacao_email_fila_envio?: SortOrder
+    id_produto_email_fila_envio?: SortOrderInput | SortOrder
+    id_usuario_email_fila_envio?: SortOrderInput | SortOrder
+    status_email_fila_envio?: SortOrder
+    prioridade_email_fila_envio?: SortOrder
+    payload_email_fila_envio?: SortOrder
+    id_template_email_fila_envio?: SortOrderInput | SortOrder
+    id_email_enviado_email_fila_envio?: SortOrderInput | SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
+    proxima_tentativa_em_email_fila_envio?: SortOrderInput | SortOrder
+    processado_em_email_fila_envio?: SortOrderInput | SortOrder
+    erro_email_fila_envio?: SortOrderInput | SortOrder
+    data_criacao_email_fila_envio?: SortOrder
+    data_atualizacao_email_fila_envio?: SortOrder
     _count?: EmailFilaEnvioCountOrderByAggregateInput
     _avg?: EmailFilaEnvioAvgOrderByAggregateInput
     _max?: EmailFilaEnvioMaxOrderByAggregateInput
@@ -52455,22 +52455,22 @@ export namespace Prisma {
     AND?: EmailFilaEnvioScalarWhereWithAggregatesInput | EmailFilaEnvioScalarWhereWithAggregatesInput[]
     OR?: EmailFilaEnvioScalarWhereWithAggregatesInput[]
     NOT?: EmailFilaEnvioScalarWhereWithAggregatesInput | EmailFilaEnvioScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
-    tenant_id?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
-    product_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumEmailStatusWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
-    payload?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
-    template_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    email_enviado_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    tentativas?: IntWithAggregatesFilter<"EmailFilaEnvio"> | number
-    max_tentativas?: IntWithAggregatesFilter<"EmailFilaEnvio"> | number
-    next_retry_at?: DateTimeNullableWithAggregatesFilter<"EmailFilaEnvio"> | Date | string | null
-    processado_at?: DateTimeNullableWithAggregatesFilter<"EmailFilaEnvio"> | Date | string | null
-    erro?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"EmailFilaEnvio"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"EmailFilaEnvio"> | Date | string
+    id_email_fila_envio?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
+    id_organizacao_email_fila_envio?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
+    id_produto_email_fila_envio?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
+    id_usuario_email_fila_envio?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
+    status_email_fila_envio?: EnumEmailStatusWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
+    id_template_email_fila_envio?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
+    id_email_enviado_email_fila_envio?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
+    tentativas_email_fila_envio?: IntWithAggregatesFilter<"EmailFilaEnvio"> | number
+    max_tentativas_email_fila_envio?: IntWithAggregatesFilter<"EmailFilaEnvio"> | number
+    proxima_tentativa_em_email_fila_envio?: DateTimeNullableWithAggregatesFilter<"EmailFilaEnvio"> | Date | string | null
+    processado_em_email_fila_envio?: DateTimeNullableWithAggregatesFilter<"EmailFilaEnvio"> | Date | string | null
+    erro_email_fila_envio?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
+    data_criacao_email_fila_envio?: DateTimeWithAggregatesFilter<"EmailFilaEnvio"> | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeWithAggregatesFilter<"EmailFilaEnvio"> | Date | string
   }
 
   export type WhatsappConversaWhereInput = {
@@ -56021,685 +56021,685 @@ export namespace Prisma {
   }
 
   export type EmailAssuntosParticipantesCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    subject: string
-    status?: $Enums.EmailThreadStatus
-    sentiment?: number
-    sentiment_label?: $Enums.EmailSentimento
-    mensagens_count?: number
-    ultimo_contato?: Date | string | null
-    deep_link?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    mensagens?: EmailMensagemCreateNestedManyWithoutThreadInput
+    id_email_assuntos_participantes?: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes?: string | null
+    id_usuario_email_assuntos_participantes?: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes?: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: number
+    rotulo_sentimento_email_assuntos_participantes?: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: number
+    ultimo_contato_email_assuntos_participantes?: Date | string | null
+    deep_link_email_assuntos_participantes?: string | null
+    data_criacao_email_assuntos_participantes?: Date | string
+    data_atualizacao_email_assuntos_participantes?: Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemCreateNestedManyWithoutThread_email_mensagemInput
   }
 
   export type EmailAssuntosParticipantesUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    subject: string
-    status?: $Enums.EmailThreadStatus
-    sentiment?: number
-    sentiment_label?: $Enums.EmailSentimento
-    mensagens_count?: number
-    ultimo_contato?: Date | string | null
-    deep_link?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    mensagens?: EmailMensagemUncheckedCreateNestedManyWithoutThreadInput
+    id_email_assuntos_participantes?: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes?: string | null
+    id_usuario_email_assuntos_participantes?: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes?: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: number
+    rotulo_sentimento_email_assuntos_participantes?: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: number
+    ultimo_contato_email_assuntos_participantes?: Date | string | null
+    deep_link_email_assuntos_participantes?: string | null
+    data_criacao_email_assuntos_participantes?: Date | string
+    data_atualizacao_email_assuntos_participantes?: Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemUncheckedCreateNestedManyWithoutThread_email_mensagemInput
   }
 
   export type EmailAssuntosParticipantesUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    mensagens?: EmailMensagemUpdateManyWithoutThreadNestedInput
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemUpdateManyWithoutThread_email_mensagemNestedInput
   }
 
   export type EmailAssuntosParticipantesUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    mensagens?: EmailMensagemUncheckedUpdateManyWithoutThreadNestedInput
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    mensagens_email_assuntos_participantes?: EmailMensagemUncheckedUpdateManyWithoutThread_email_mensagemNestedInput
   }
 
   export type EmailAssuntosParticipantesCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    subject: string
-    status?: $Enums.EmailThreadStatus
-    sentiment?: number
-    sentiment_label?: $Enums.EmailSentimento
-    mensagens_count?: number
-    ultimo_contato?: Date | string | null
-    deep_link?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_assuntos_participantes?: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes?: string | null
+    id_usuario_email_assuntos_participantes?: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes?: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: number
+    rotulo_sentimento_email_assuntos_participantes?: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: number
+    ultimo_contato_email_assuntos_participantes?: Date | string | null
+    deep_link_email_assuntos_participantes?: string | null
+    data_criacao_email_assuntos_participantes?: Date | string
+    data_atualizacao_email_assuntos_participantes?: Date | string
   }
 
   export type EmailAssuntosParticipantesUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailAssuntosParticipantesUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailMensagemCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
-    thread: EmailAssuntosParticipantesCreateNestedOneWithoutMensagensInput
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
+    thread_email_mensagem: EmailAssuntosParticipantesCreateNestedOneWithoutMensagens_email_assuntos_participantesInput
   }
 
   export type EmailMensagemUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    thread_id: string
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_thread_email_mensagem: string
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
   }
 
   export type EmailMensagemUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    thread?: EmailAssuntosParticipantesUpdateOneRequiredWithoutMensagensNestedInput
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    thread_email_mensagem?: EmailAssuntosParticipantesUpdateOneRequiredWithoutMensagens_email_assuntos_participantesNestedInput
   }
 
   export type EmailMensagemUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    thread_id?: StringFieldUpdateOperationsInput | string
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_thread_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailMensagemCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    thread_id: string
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_thread_email_mensagem: string
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
   }
 
   export type EmailMensagemUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailMensagemUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    thread_id?: StringFieldUpdateOperationsInput | string
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_thread_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailRegistroEnvioCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    to: string
-    from: string
-    reply_to?: string | null
-    subject: string
-    template_id?: string | null
-    status?: $Enums.EmailStatus
-    resend_id?: string | null
-    dedup_key: string
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    error_message?: string | null
-    enviado_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_registro_envio?: string
+    id_organizacao_email_registro_envio: string
+    id_produto_email_registro_envio?: string | null
+    id_usuario_email_registro_envio?: string | null
+    destinatario_email_registro_envio: string
+    remetente_email_registro_envio: string
+    reply_to_email_registro_envio?: string | null
+    assunto_email_registro_envio: string
+    id_template_email_registro_envio?: string | null
+    status_email_registro_envio?: $Enums.EmailStatus
+    id_resend_email_registro_envio?: string | null
+    chave_dedup_email_registro_envio: string
+    tentativas_email_registro_envio?: number
+    max_tentativas_email_registro_envio?: number
+    proxima_tentativa_em_email_registro_envio?: Date | string | null
+    mensagem_erro_email_registro_envio?: string | null
+    data_envio_email_registro_envio?: Date | string | null
+    data_criacao_email_registro_envio?: Date | string
+    data_atualizacao_email_registro_envio?: Date | string
   }
 
   export type EmailRegistroEnvioUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    to: string
-    from: string
-    reply_to?: string | null
-    subject: string
-    template_id?: string | null
-    status?: $Enums.EmailStatus
-    resend_id?: string | null
-    dedup_key: string
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    error_message?: string | null
-    enviado_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_registro_envio?: string
+    id_organizacao_email_registro_envio: string
+    id_produto_email_registro_envio?: string | null
+    id_usuario_email_registro_envio?: string | null
+    destinatario_email_registro_envio: string
+    remetente_email_registro_envio: string
+    reply_to_email_registro_envio?: string | null
+    assunto_email_registro_envio: string
+    id_template_email_registro_envio?: string | null
+    status_email_registro_envio?: $Enums.EmailStatus
+    id_resend_email_registro_envio?: string | null
+    chave_dedup_email_registro_envio: string
+    tentativas_email_registro_envio?: number
+    max_tentativas_email_registro_envio?: number
+    proxima_tentativa_em_email_registro_envio?: Date | string | null
+    mensagem_erro_email_registro_envio?: string | null
+    data_envio_email_registro_envio?: Date | string | null
+    data_criacao_email_registro_envio?: Date | string
+    data_atualizacao_email_registro_envio?: Date | string
   }
 
   export type EmailRegistroEnvioUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    to?: StringFieldUpdateOperationsInput | string
-    from?: StringFieldUpdateOperationsInput | string
-    reply_to?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: StringFieldUpdateOperationsInput | string
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    enviado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    destinatario_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    remetente_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    reply_to_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_registro_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    id_resend_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mensagem_erro_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailRegistroEnvioUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    to?: StringFieldUpdateOperationsInput | string
-    from?: StringFieldUpdateOperationsInput | string
-    reply_to?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: StringFieldUpdateOperationsInput | string
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    enviado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    destinatario_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    remetente_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    reply_to_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_registro_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    id_resend_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mensagem_erro_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailRegistroEnvioCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    to: string
-    from: string
-    reply_to?: string | null
-    subject: string
-    template_id?: string | null
-    status?: $Enums.EmailStatus
-    resend_id?: string | null
-    dedup_key: string
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    error_message?: string | null
-    enviado_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_registro_envio?: string
+    id_organizacao_email_registro_envio: string
+    id_produto_email_registro_envio?: string | null
+    id_usuario_email_registro_envio?: string | null
+    destinatario_email_registro_envio: string
+    remetente_email_registro_envio: string
+    reply_to_email_registro_envio?: string | null
+    assunto_email_registro_envio: string
+    id_template_email_registro_envio?: string | null
+    status_email_registro_envio?: $Enums.EmailStatus
+    id_resend_email_registro_envio?: string | null
+    chave_dedup_email_registro_envio: string
+    tentativas_email_registro_envio?: number
+    max_tentativas_email_registro_envio?: number
+    proxima_tentativa_em_email_registro_envio?: Date | string | null
+    mensagem_erro_email_registro_envio?: string | null
+    data_envio_email_registro_envio?: Date | string | null
+    data_criacao_email_registro_envio?: Date | string
+    data_atualizacao_email_registro_envio?: Date | string
   }
 
   export type EmailRegistroEnvioUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    to?: StringFieldUpdateOperationsInput | string
-    from?: StringFieldUpdateOperationsInput | string
-    reply_to?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: StringFieldUpdateOperationsInput | string
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    enviado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    destinatario_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    remetente_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    reply_to_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_registro_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    id_resend_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mensagem_erro_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailRegistroEnvioUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    to?: StringFieldUpdateOperationsInput | string
-    from?: StringFieldUpdateOperationsInput | string
-    reply_to?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: StringFieldUpdateOperationsInput | string
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    error_message?: NullableStringFieldUpdateOperationsInput | string | null
-    enviado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    destinatario_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    remetente_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    reply_to_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_registro_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    id_resend_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_registro_envio?: StringFieldUpdateOperationsInput | string
+    tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_registro_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mensagem_erro_email_registro_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_registro_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_registro_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TemplateEmailCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    slug: string
-    assunto: string
-    corpo_html: string
-    corpo_texto?: string | null
-    variaveis?: TemplateEmailCreatevariaveisInput | string[]
-    ativo?: boolean
-    descricao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_template_email?: string
+    id_organizacao_template_email: string
+    id_produto_template_email?: string | null
+    id_usuario_template_email?: string | null
+    nome_template_email: string
+    slug_template_email: string
+    assunto_template_email: string
+    corpo_html_template_email: string
+    corpo_texto_template_email?: string | null
+    variaveis_template_email?: TemplateEmailCreatevariaveis_template_emailInput | string[]
+    ativo_template_email?: boolean
+    descricao_template_email?: string | null
+    data_criacao_template_email?: Date | string
+    data_atualizacao_template_email?: Date | string
   }
 
   export type TemplateEmailUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    slug: string
-    assunto: string
-    corpo_html: string
-    corpo_texto?: string | null
-    variaveis?: TemplateEmailCreatevariaveisInput | string[]
-    ativo?: boolean
-    descricao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_template_email?: string
+    id_organizacao_template_email: string
+    id_produto_template_email?: string | null
+    id_usuario_template_email?: string | null
+    nome_template_email: string
+    slug_template_email: string
+    assunto_template_email: string
+    corpo_html_template_email: string
+    corpo_texto_template_email?: string | null
+    variaveis_template_email?: TemplateEmailCreatevariaveis_template_emailInput | string[]
+    ativo_template_email?: boolean
+    descricao_template_email?: string | null
+    data_criacao_template_email?: Date | string
+    data_atualizacao_template_email?: Date | string
   }
 
   export type TemplateEmailUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    assunto?: StringFieldUpdateOperationsInput | string
-    corpo_html?: StringFieldUpdateOperationsInput | string
-    corpo_texto?: NullableStringFieldUpdateOperationsInput | string | null
-    variaveis?: TemplateEmailUpdatevariaveisInput | string[]
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_template_email?: StringFieldUpdateOperationsInput | string
+    id_organizacao_template_email?: StringFieldUpdateOperationsInput | string
+    id_produto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_template_email?: StringFieldUpdateOperationsInput | string
+    slug_template_email?: StringFieldUpdateOperationsInput | string
+    assunto_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_html_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_texto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    variaveis_template_email?: TemplateEmailUpdatevariaveis_template_emailInput | string[]
+    ativo_template_email?: BoolFieldUpdateOperationsInput | boolean
+    descricao_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TemplateEmailUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    assunto?: StringFieldUpdateOperationsInput | string
-    corpo_html?: StringFieldUpdateOperationsInput | string
-    corpo_texto?: NullableStringFieldUpdateOperationsInput | string | null
-    variaveis?: TemplateEmailUpdatevariaveisInput | string[]
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_template_email?: StringFieldUpdateOperationsInput | string
+    id_organizacao_template_email?: StringFieldUpdateOperationsInput | string
+    id_produto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_template_email?: StringFieldUpdateOperationsInput | string
+    slug_template_email?: StringFieldUpdateOperationsInput | string
+    assunto_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_html_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_texto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    variaveis_template_email?: TemplateEmailUpdatevariaveis_template_emailInput | string[]
+    ativo_template_email?: BoolFieldUpdateOperationsInput | boolean
+    descricao_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TemplateEmailCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    slug: string
-    assunto: string
-    corpo_html: string
-    corpo_texto?: string | null
-    variaveis?: TemplateEmailCreatevariaveisInput | string[]
-    ativo?: boolean
-    descricao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_template_email?: string
+    id_organizacao_template_email: string
+    id_produto_template_email?: string | null
+    id_usuario_template_email?: string | null
+    nome_template_email: string
+    slug_template_email: string
+    assunto_template_email: string
+    corpo_html_template_email: string
+    corpo_texto_template_email?: string | null
+    variaveis_template_email?: TemplateEmailCreatevariaveis_template_emailInput | string[]
+    ativo_template_email?: boolean
+    descricao_template_email?: string | null
+    data_criacao_template_email?: Date | string
+    data_atualizacao_template_email?: Date | string
   }
 
   export type TemplateEmailUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    assunto?: StringFieldUpdateOperationsInput | string
-    corpo_html?: StringFieldUpdateOperationsInput | string
-    corpo_texto?: NullableStringFieldUpdateOperationsInput | string | null
-    variaveis?: TemplateEmailUpdatevariaveisInput | string[]
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_template_email?: StringFieldUpdateOperationsInput | string
+    id_organizacao_template_email?: StringFieldUpdateOperationsInput | string
+    id_produto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_template_email?: StringFieldUpdateOperationsInput | string
+    slug_template_email?: StringFieldUpdateOperationsInput | string
+    assunto_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_html_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_texto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    variaveis_template_email?: TemplateEmailUpdatevariaveis_template_emailInput | string[]
+    ativo_template_email?: BoolFieldUpdateOperationsInput | boolean
+    descricao_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TemplateEmailUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    assunto?: StringFieldUpdateOperationsInput | string
-    corpo_html?: StringFieldUpdateOperationsInput | string
-    corpo_texto?: NullableStringFieldUpdateOperationsInput | string | null
-    variaveis?: TemplateEmailUpdatevariaveisInput | string[]
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_template_email?: StringFieldUpdateOperationsInput | string
+    id_organizacao_template_email?: StringFieldUpdateOperationsInput | string
+    id_produto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_template_email?: StringFieldUpdateOperationsInput | string
+    slug_template_email?: StringFieldUpdateOperationsInput | string
+    assunto_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_html_template_email?: StringFieldUpdateOperationsInput | string
+    corpo_texto_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    variaveis_template_email?: TemplateEmailUpdatevariaveis_template_emailInput | string[]
+    ativo_template_email?: BoolFieldUpdateOperationsInput | boolean
+    descricao_template_email?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_template_email?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailFilaEnvioCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    status?: $Enums.EmailStatus
-    prioridade?: $Enums.EmailFilaPrioridade
-    payload: string
-    template_id?: string | null
-    email_enviado_id?: string | null
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    processado_at?: Date | string | null
-    erro?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_fila_envio?: string
+    id_organizacao_email_fila_envio: string
+    id_produto_email_fila_envio?: string | null
+    id_usuario_email_fila_envio?: string | null
+    status_email_fila_envio?: $Enums.EmailStatus
+    prioridade_email_fila_envio?: $Enums.EmailFilaPrioridade
+    payload_email_fila_envio: string
+    id_template_email_fila_envio?: string | null
+    id_email_enviado_email_fila_envio?: string | null
+    tentativas_email_fila_envio?: number
+    max_tentativas_email_fila_envio?: number
+    proxima_tentativa_em_email_fila_envio?: Date | string | null
+    processado_em_email_fila_envio?: Date | string | null
+    erro_email_fila_envio?: string | null
+    data_criacao_email_fila_envio?: Date | string
+    data_atualizacao_email_fila_envio?: Date | string
   }
 
   export type EmailFilaEnvioUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    status?: $Enums.EmailStatus
-    prioridade?: $Enums.EmailFilaPrioridade
-    payload: string
-    template_id?: string | null
-    email_enviado_id?: string | null
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    processado_at?: Date | string | null
-    erro?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_fila_envio?: string
+    id_organizacao_email_fila_envio: string
+    id_produto_email_fila_envio?: string | null
+    id_usuario_email_fila_envio?: string | null
+    status_email_fila_envio?: $Enums.EmailStatus
+    prioridade_email_fila_envio?: $Enums.EmailFilaPrioridade
+    payload_email_fila_envio: string
+    id_template_email_fila_envio?: string | null
+    id_email_enviado_email_fila_envio?: string | null
+    tentativas_email_fila_envio?: number
+    max_tentativas_email_fila_envio?: number
+    proxima_tentativa_em_email_fila_envio?: Date | string | null
+    processado_em_email_fila_envio?: Date | string | null
+    erro_email_fila_envio?: string | null
+    data_criacao_email_fila_envio?: Date | string
+    data_atualizacao_email_fila_envio?: Date | string
   }
 
   export type EmailFilaEnvioUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
-    payload?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    processado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_fila_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_email_enviado_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processado_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    erro_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailFilaEnvioUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
-    payload?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    processado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_fila_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_email_enviado_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processado_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    erro_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailFilaEnvioCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    status?: $Enums.EmailStatus
-    prioridade?: $Enums.EmailFilaPrioridade
-    payload: string
-    template_id?: string | null
-    email_enviado_id?: string | null
-    tentativas?: number
-    max_tentativas?: number
-    next_retry_at?: Date | string | null
-    processado_at?: Date | string | null
-    erro?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_email_fila_envio?: string
+    id_organizacao_email_fila_envio: string
+    id_produto_email_fila_envio?: string | null
+    id_usuario_email_fila_envio?: string | null
+    status_email_fila_envio?: $Enums.EmailStatus
+    prioridade_email_fila_envio?: $Enums.EmailFilaPrioridade
+    payload_email_fila_envio: string
+    id_template_email_fila_envio?: string | null
+    id_email_enviado_email_fila_envio?: string | null
+    tentativas_email_fila_envio?: number
+    max_tentativas_email_fila_envio?: number
+    proxima_tentativa_em_email_fila_envio?: Date | string | null
+    processado_em_email_fila_envio?: Date | string | null
+    erro_email_fila_envio?: string | null
+    data_criacao_email_fila_envio?: Date | string
+    data_atualizacao_email_fila_envio?: Date | string
   }
 
   export type EmailFilaEnvioUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
-    payload?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    processado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_fila_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_email_enviado_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processado_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    erro_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailFilaEnvioUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
-    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
-    payload?: StringFieldUpdateOperationsInput | string
-    template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
-    tentativas?: IntFieldUpdateOperationsInput | number
-    max_tentativas?: IntFieldUpdateOperationsInput | number
-    next_retry_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    processado_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_produto_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    status_email_fila_envio?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade_email_fila_envio?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
+    payload_email_fila_envio?: StringFieldUpdateOperationsInput | string
+    id_template_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_email_enviado_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    max_tentativas_email_fila_envio?: IntFieldUpdateOperationsInput | number
+    proxima_tentativa_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processado_em_email_fila_envio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    erro_email_fila_envio?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_fila_envio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappConversaCreateInput = {
@@ -60745,61 +60745,61 @@ export namespace Prisma {
   }
 
   export type EmailAssuntosParticipantesCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    subject?: SortOrder
-    status?: SortOrder
-    sentiment?: SortOrder
-    sentiment_label?: SortOrder
-    mensagens_count?: SortOrder
-    ultimo_contato?: SortOrder
-    deep_link?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_assuntos_participantes?: SortOrder
+    id_organizacao_email_assuntos_participantes?: SortOrder
+    id_produto_email_assuntos_participantes?: SortOrder
+    id_usuario_email_assuntos_participantes?: SortOrder
+    assunto_email_assuntos_participantes?: SortOrder
+    status_email_assuntos_participantes?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    rotulo_sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
+    ultimo_contato_email_assuntos_participantes?: SortOrder
+    deep_link_email_assuntos_participantes?: SortOrder
+    data_criacao_email_assuntos_participantes?: SortOrder
+    data_atualizacao_email_assuntos_participantes?: SortOrder
   }
 
   export type EmailAssuntosParticipantesAvgOrderByAggregateInput = {
-    sentiment?: SortOrder
-    mensagens_count?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
   }
 
   export type EmailAssuntosParticipantesMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    subject?: SortOrder
-    status?: SortOrder
-    sentiment?: SortOrder
-    sentiment_label?: SortOrder
-    mensagens_count?: SortOrder
-    ultimo_contato?: SortOrder
-    deep_link?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_assuntos_participantes?: SortOrder
+    id_organizacao_email_assuntos_participantes?: SortOrder
+    id_produto_email_assuntos_participantes?: SortOrder
+    id_usuario_email_assuntos_participantes?: SortOrder
+    assunto_email_assuntos_participantes?: SortOrder
+    status_email_assuntos_participantes?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    rotulo_sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
+    ultimo_contato_email_assuntos_participantes?: SortOrder
+    deep_link_email_assuntos_participantes?: SortOrder
+    data_criacao_email_assuntos_participantes?: SortOrder
+    data_atualizacao_email_assuntos_participantes?: SortOrder
   }
 
   export type EmailAssuntosParticipantesMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    subject?: SortOrder
-    status?: SortOrder
-    sentiment?: SortOrder
-    sentiment_label?: SortOrder
-    mensagens_count?: SortOrder
-    ultimo_contato?: SortOrder
-    deep_link?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_assuntos_participantes?: SortOrder
+    id_organizacao_email_assuntos_participantes?: SortOrder
+    id_produto_email_assuntos_participantes?: SortOrder
+    id_usuario_email_assuntos_participantes?: SortOrder
+    assunto_email_assuntos_participantes?: SortOrder
+    status_email_assuntos_participantes?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    rotulo_sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
+    ultimo_contato_email_assuntos_participantes?: SortOrder
+    deep_link_email_assuntos_participantes?: SortOrder
+    data_criacao_email_assuntos_participantes?: SortOrder
+    data_atualizacao_email_assuntos_participantes?: SortOrder
   }
 
   export type EmailAssuntosParticipantesSumOrderByAggregateInput = {
-    sentiment?: SortOrder
-    mensagens_count?: SortOrder
+    sentimento_email_assuntos_participantes?: SortOrder
+    contagem_mensagens_email_assuntos_participantes?: SortOrder
   }
 
   export type EnumEmailThreadStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -60862,80 +60862,80 @@ export namespace Prisma {
   }
 
   export type EmailMensagemCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    thread_id?: SortOrder
-    resend_id?: SortOrder
-    direction?: SortOrder
-    from?: SortOrder
-    to?: SortOrder
-    subject?: SortOrder
-    body?: SortOrder
-    body_html?: SortOrder
-    dedup_key?: SortOrder
-    parent_message_id?: SortOrder
-    gabi_response?: SortOrder
-    gabi_confidence?: SortOrder
-    gabi_action?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_mensagem?: SortOrder
+    id_organizacao_email_mensagem?: SortOrder
+    id_produto_email_mensagem?: SortOrder
+    id_usuario_email_mensagem?: SortOrder
+    id_thread_email_mensagem?: SortOrder
+    id_resend_email_mensagem?: SortOrder
+    direcao_email_mensagem?: SortOrder
+    remetente_email_mensagem?: SortOrder
+    destinatario_email_mensagem?: SortOrder
+    assunto_email_mensagem?: SortOrder
+    corpo_email_mensagem?: SortOrder
+    corpo_html_email_mensagem?: SortOrder
+    chave_dedup_email_mensagem?: SortOrder
+    id_mensagem_pai_email_mensagem?: SortOrder
+    resposta_gabi_email_mensagem?: SortOrder
+    confianca_gabi_email_mensagem?: SortOrder
+    acao_gabi_email_mensagem?: SortOrder
+    data_envio_email_mensagem?: SortOrder
+    data_criacao_email_mensagem?: SortOrder
+    data_atualizacao_email_mensagem?: SortOrder
   }
 
   export type EmailMensagemAvgOrderByAggregateInput = {
-    gabi_confidence?: SortOrder
+    confianca_gabi_email_mensagem?: SortOrder
   }
 
   export type EmailMensagemMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    thread_id?: SortOrder
-    resend_id?: SortOrder
-    direction?: SortOrder
-    from?: SortOrder
-    to?: SortOrder
-    subject?: SortOrder
-    body?: SortOrder
-    body_html?: SortOrder
-    dedup_key?: SortOrder
-    parent_message_id?: SortOrder
-    gabi_response?: SortOrder
-    gabi_confidence?: SortOrder
-    gabi_action?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_mensagem?: SortOrder
+    id_organizacao_email_mensagem?: SortOrder
+    id_produto_email_mensagem?: SortOrder
+    id_usuario_email_mensagem?: SortOrder
+    id_thread_email_mensagem?: SortOrder
+    id_resend_email_mensagem?: SortOrder
+    direcao_email_mensagem?: SortOrder
+    remetente_email_mensagem?: SortOrder
+    destinatario_email_mensagem?: SortOrder
+    assunto_email_mensagem?: SortOrder
+    corpo_email_mensagem?: SortOrder
+    corpo_html_email_mensagem?: SortOrder
+    chave_dedup_email_mensagem?: SortOrder
+    id_mensagem_pai_email_mensagem?: SortOrder
+    resposta_gabi_email_mensagem?: SortOrder
+    confianca_gabi_email_mensagem?: SortOrder
+    acao_gabi_email_mensagem?: SortOrder
+    data_envio_email_mensagem?: SortOrder
+    data_criacao_email_mensagem?: SortOrder
+    data_atualizacao_email_mensagem?: SortOrder
   }
 
   export type EmailMensagemMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    thread_id?: SortOrder
-    resend_id?: SortOrder
-    direction?: SortOrder
-    from?: SortOrder
-    to?: SortOrder
-    subject?: SortOrder
-    body?: SortOrder
-    body_html?: SortOrder
-    dedup_key?: SortOrder
-    parent_message_id?: SortOrder
-    gabi_response?: SortOrder
-    gabi_confidence?: SortOrder
-    gabi_action?: SortOrder
-    sent_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_mensagem?: SortOrder
+    id_organizacao_email_mensagem?: SortOrder
+    id_produto_email_mensagem?: SortOrder
+    id_usuario_email_mensagem?: SortOrder
+    id_thread_email_mensagem?: SortOrder
+    id_resend_email_mensagem?: SortOrder
+    direcao_email_mensagem?: SortOrder
+    remetente_email_mensagem?: SortOrder
+    destinatario_email_mensagem?: SortOrder
+    assunto_email_mensagem?: SortOrder
+    corpo_email_mensagem?: SortOrder
+    corpo_html_email_mensagem?: SortOrder
+    chave_dedup_email_mensagem?: SortOrder
+    id_mensagem_pai_email_mensagem?: SortOrder
+    resposta_gabi_email_mensagem?: SortOrder
+    confianca_gabi_email_mensagem?: SortOrder
+    acao_gabi_email_mensagem?: SortOrder
+    data_envio_email_mensagem?: SortOrder
+    data_criacao_email_mensagem?: SortOrder
+    data_atualizacao_email_mensagem?: SortOrder
   }
 
   export type EmailMensagemSumOrderByAggregateInput = {
-    gabi_confidence?: SortOrder
+    confianca_gabi_email_mensagem?: SortOrder
   }
 
   export type EnumEmailDirecaoWithAggregatesFilter<$PrismaModel = never> = {
@@ -60972,79 +60972,79 @@ export namespace Prisma {
   }
 
   export type EmailRegistroEnvioCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    to?: SortOrder
-    from?: SortOrder
-    reply_to?: SortOrder
-    subject?: SortOrder
-    template_id?: SortOrder
-    status?: SortOrder
-    resend_id?: SortOrder
-    dedup_key?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    error_message?: SortOrder
-    enviado_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_registro_envio?: SortOrder
+    id_organizacao_email_registro_envio?: SortOrder
+    id_produto_email_registro_envio?: SortOrder
+    id_usuario_email_registro_envio?: SortOrder
+    destinatario_email_registro_envio?: SortOrder
+    remetente_email_registro_envio?: SortOrder
+    reply_to_email_registro_envio?: SortOrder
+    assunto_email_registro_envio?: SortOrder
+    id_template_email_registro_envio?: SortOrder
+    status_email_registro_envio?: SortOrder
+    id_resend_email_registro_envio?: SortOrder
+    chave_dedup_email_registro_envio?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
+    proxima_tentativa_em_email_registro_envio?: SortOrder
+    mensagem_erro_email_registro_envio?: SortOrder
+    data_envio_email_registro_envio?: SortOrder
+    data_criacao_email_registro_envio?: SortOrder
+    data_atualizacao_email_registro_envio?: SortOrder
   }
 
   export type EmailRegistroEnvioAvgOrderByAggregateInput = {
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
   }
 
   export type EmailRegistroEnvioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    to?: SortOrder
-    from?: SortOrder
-    reply_to?: SortOrder
-    subject?: SortOrder
-    template_id?: SortOrder
-    status?: SortOrder
-    resend_id?: SortOrder
-    dedup_key?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    error_message?: SortOrder
-    enviado_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_registro_envio?: SortOrder
+    id_organizacao_email_registro_envio?: SortOrder
+    id_produto_email_registro_envio?: SortOrder
+    id_usuario_email_registro_envio?: SortOrder
+    destinatario_email_registro_envio?: SortOrder
+    remetente_email_registro_envio?: SortOrder
+    reply_to_email_registro_envio?: SortOrder
+    assunto_email_registro_envio?: SortOrder
+    id_template_email_registro_envio?: SortOrder
+    status_email_registro_envio?: SortOrder
+    id_resend_email_registro_envio?: SortOrder
+    chave_dedup_email_registro_envio?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
+    proxima_tentativa_em_email_registro_envio?: SortOrder
+    mensagem_erro_email_registro_envio?: SortOrder
+    data_envio_email_registro_envio?: SortOrder
+    data_criacao_email_registro_envio?: SortOrder
+    data_atualizacao_email_registro_envio?: SortOrder
   }
 
   export type EmailRegistroEnvioMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    to?: SortOrder
-    from?: SortOrder
-    reply_to?: SortOrder
-    subject?: SortOrder
-    template_id?: SortOrder
-    status?: SortOrder
-    resend_id?: SortOrder
-    dedup_key?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    error_message?: SortOrder
-    enviado_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_registro_envio?: SortOrder
+    id_organizacao_email_registro_envio?: SortOrder
+    id_produto_email_registro_envio?: SortOrder
+    id_usuario_email_registro_envio?: SortOrder
+    destinatario_email_registro_envio?: SortOrder
+    remetente_email_registro_envio?: SortOrder
+    reply_to_email_registro_envio?: SortOrder
+    assunto_email_registro_envio?: SortOrder
+    id_template_email_registro_envio?: SortOrder
+    status_email_registro_envio?: SortOrder
+    id_resend_email_registro_envio?: SortOrder
+    chave_dedup_email_registro_envio?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
+    proxima_tentativa_em_email_registro_envio?: SortOrder
+    mensagem_erro_email_registro_envio?: SortOrder
+    data_envio_email_registro_envio?: SortOrder
+    data_criacao_email_registro_envio?: SortOrder
+    data_atualizacao_email_registro_envio?: SortOrder
   }
 
   export type EmailRegistroEnvioSumOrderByAggregateInput = {
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
+    tentativas_email_registro_envio?: SortOrder
+    max_tentativas_email_registro_envio?: SortOrder
   }
 
   export type EnumEmailStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -61065,58 +61065,58 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type TemplateEmailTenant_idSlugCompoundUniqueInput = {
-    tenant_id: string
-    slug: string
+  export type TemplateEmailId_organizacao_template_emailSlug_template_emailCompoundUniqueInput = {
+    id_organizacao_template_email: string
+    slug_template_email: string
   }
 
   export type TemplateEmailCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    slug?: SortOrder
-    assunto?: SortOrder
-    corpo_html?: SortOrder
-    corpo_texto?: SortOrder
-    variaveis?: SortOrder
-    ativo?: SortOrder
-    descricao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_template_email?: SortOrder
+    id_organizacao_template_email?: SortOrder
+    id_produto_template_email?: SortOrder
+    id_usuario_template_email?: SortOrder
+    nome_template_email?: SortOrder
+    slug_template_email?: SortOrder
+    assunto_template_email?: SortOrder
+    corpo_html_template_email?: SortOrder
+    corpo_texto_template_email?: SortOrder
+    variaveis_template_email?: SortOrder
+    ativo_template_email?: SortOrder
+    descricao_template_email?: SortOrder
+    data_criacao_template_email?: SortOrder
+    data_atualizacao_template_email?: SortOrder
   }
 
   export type TemplateEmailMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    slug?: SortOrder
-    assunto?: SortOrder
-    corpo_html?: SortOrder
-    corpo_texto?: SortOrder
-    ativo?: SortOrder
-    descricao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_template_email?: SortOrder
+    id_organizacao_template_email?: SortOrder
+    id_produto_template_email?: SortOrder
+    id_usuario_template_email?: SortOrder
+    nome_template_email?: SortOrder
+    slug_template_email?: SortOrder
+    assunto_template_email?: SortOrder
+    corpo_html_template_email?: SortOrder
+    corpo_texto_template_email?: SortOrder
+    ativo_template_email?: SortOrder
+    descricao_template_email?: SortOrder
+    data_criacao_template_email?: SortOrder
+    data_atualizacao_template_email?: SortOrder
   }
 
   export type TemplateEmailMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    slug?: SortOrder
-    assunto?: SortOrder
-    corpo_html?: SortOrder
-    corpo_texto?: SortOrder
-    ativo?: SortOrder
-    descricao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_template_email?: SortOrder
+    id_organizacao_template_email?: SortOrder
+    id_produto_template_email?: SortOrder
+    id_usuario_template_email?: SortOrder
+    nome_template_email?: SortOrder
+    slug_template_email?: SortOrder
+    assunto_template_email?: SortOrder
+    corpo_html_template_email?: SortOrder
+    corpo_texto_template_email?: SortOrder
+    ativo_template_email?: SortOrder
+    descricao_template_email?: SortOrder
+    data_criacao_template_email?: SortOrder
+    data_atualizacao_template_email?: SortOrder
   }
 
   export type EnumEmailFilaPrioridadeFilter<$PrismaModel = never> = {
@@ -61127,70 +61127,70 @@ export namespace Prisma {
   }
 
   export type EmailFilaEnvioCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    payload?: SortOrder
-    template_id?: SortOrder
-    email_enviado_id?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    processado_at?: SortOrder
-    erro?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_fila_envio?: SortOrder
+    id_organizacao_email_fila_envio?: SortOrder
+    id_produto_email_fila_envio?: SortOrder
+    id_usuario_email_fila_envio?: SortOrder
+    status_email_fila_envio?: SortOrder
+    prioridade_email_fila_envio?: SortOrder
+    payload_email_fila_envio?: SortOrder
+    id_template_email_fila_envio?: SortOrder
+    id_email_enviado_email_fila_envio?: SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
+    proxima_tentativa_em_email_fila_envio?: SortOrder
+    processado_em_email_fila_envio?: SortOrder
+    erro_email_fila_envio?: SortOrder
+    data_criacao_email_fila_envio?: SortOrder
+    data_atualizacao_email_fila_envio?: SortOrder
   }
 
   export type EmailFilaEnvioAvgOrderByAggregateInput = {
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
   }
 
   export type EmailFilaEnvioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    payload?: SortOrder
-    template_id?: SortOrder
-    email_enviado_id?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    processado_at?: SortOrder
-    erro?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_fila_envio?: SortOrder
+    id_organizacao_email_fila_envio?: SortOrder
+    id_produto_email_fila_envio?: SortOrder
+    id_usuario_email_fila_envio?: SortOrder
+    status_email_fila_envio?: SortOrder
+    prioridade_email_fila_envio?: SortOrder
+    payload_email_fila_envio?: SortOrder
+    id_template_email_fila_envio?: SortOrder
+    id_email_enviado_email_fila_envio?: SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
+    proxima_tentativa_em_email_fila_envio?: SortOrder
+    processado_em_email_fila_envio?: SortOrder
+    erro_email_fila_envio?: SortOrder
+    data_criacao_email_fila_envio?: SortOrder
+    data_atualizacao_email_fila_envio?: SortOrder
   }
 
   export type EmailFilaEnvioMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    payload?: SortOrder
-    template_id?: SortOrder
-    email_enviado_id?: SortOrder
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
-    next_retry_at?: SortOrder
-    processado_at?: SortOrder
-    erro?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_email_fila_envio?: SortOrder
+    id_organizacao_email_fila_envio?: SortOrder
+    id_produto_email_fila_envio?: SortOrder
+    id_usuario_email_fila_envio?: SortOrder
+    status_email_fila_envio?: SortOrder
+    prioridade_email_fila_envio?: SortOrder
+    payload_email_fila_envio?: SortOrder
+    id_template_email_fila_envio?: SortOrder
+    id_email_enviado_email_fila_envio?: SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
+    proxima_tentativa_em_email_fila_envio?: SortOrder
+    processado_em_email_fila_envio?: SortOrder
+    erro_email_fila_envio?: SortOrder
+    data_criacao_email_fila_envio?: SortOrder
+    data_atualizacao_email_fila_envio?: SortOrder
   }
 
   export type EmailFilaEnvioSumOrderByAggregateInput = {
-    tentativas?: SortOrder
-    max_tentativas?: SortOrder
+    tentativas_email_fila_envio?: SortOrder
+    max_tentativas_email_fila_envio?: SortOrder
   }
 
   export type EnumEmailFilaPrioridadeWithAggregatesFilter<$PrismaModel = never> = {
@@ -63343,17 +63343,17 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type EmailMensagemCreateNestedManyWithoutThreadInput = {
-    create?: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput> | EmailMensagemCreateWithoutThreadInput[] | EmailMensagemUncheckedCreateWithoutThreadInput[]
-    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThreadInput | EmailMensagemCreateOrConnectWithoutThreadInput[]
-    createMany?: EmailMensagemCreateManyThreadInputEnvelope
+  export type EmailMensagemCreateNestedManyWithoutThread_email_mensagemInput = {
+    create?: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput> | EmailMensagemCreateWithoutThread_email_mensagemInput[] | EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput[]
+    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput | EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput[]
+    createMany?: EmailMensagemCreateManyThread_email_mensagemInputEnvelope
     connect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
   }
 
-  export type EmailMensagemUncheckedCreateNestedManyWithoutThreadInput = {
-    create?: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput> | EmailMensagemCreateWithoutThreadInput[] | EmailMensagemUncheckedCreateWithoutThreadInput[]
-    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThreadInput | EmailMensagemCreateOrConnectWithoutThreadInput[]
-    createMany?: EmailMensagemCreateManyThreadInputEnvelope
+  export type EmailMensagemUncheckedCreateNestedManyWithoutThread_email_mensagemInput = {
+    create?: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput> | EmailMensagemCreateWithoutThread_email_mensagemInput[] | EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput[]
+    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput | EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput[]
+    createMany?: EmailMensagemCreateManyThread_email_mensagemInputEnvelope
     connect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
   }
 
@@ -63373,37 +63373,37 @@ export namespace Prisma {
     set?: $Enums.EmailSentimento
   }
 
-  export type EmailMensagemUpdateManyWithoutThreadNestedInput = {
-    create?: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput> | EmailMensagemCreateWithoutThreadInput[] | EmailMensagemUncheckedCreateWithoutThreadInput[]
-    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThreadInput | EmailMensagemCreateOrConnectWithoutThreadInput[]
-    upsert?: EmailMensagemUpsertWithWhereUniqueWithoutThreadInput | EmailMensagemUpsertWithWhereUniqueWithoutThreadInput[]
-    createMany?: EmailMensagemCreateManyThreadInputEnvelope
+  export type EmailMensagemUpdateManyWithoutThread_email_mensagemNestedInput = {
+    create?: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput> | EmailMensagemCreateWithoutThread_email_mensagemInput[] | EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput[]
+    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput | EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput[]
+    upsert?: EmailMensagemUpsertWithWhereUniqueWithoutThread_email_mensagemInput | EmailMensagemUpsertWithWhereUniqueWithoutThread_email_mensagemInput[]
+    createMany?: EmailMensagemCreateManyThread_email_mensagemInputEnvelope
     set?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     disconnect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     delete?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     connect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
-    update?: EmailMensagemUpdateWithWhereUniqueWithoutThreadInput | EmailMensagemUpdateWithWhereUniqueWithoutThreadInput[]
-    updateMany?: EmailMensagemUpdateManyWithWhereWithoutThreadInput | EmailMensagemUpdateManyWithWhereWithoutThreadInput[]
+    update?: EmailMensagemUpdateWithWhereUniqueWithoutThread_email_mensagemInput | EmailMensagemUpdateWithWhereUniqueWithoutThread_email_mensagemInput[]
+    updateMany?: EmailMensagemUpdateManyWithWhereWithoutThread_email_mensagemInput | EmailMensagemUpdateManyWithWhereWithoutThread_email_mensagemInput[]
     deleteMany?: EmailMensagemScalarWhereInput | EmailMensagemScalarWhereInput[]
   }
 
-  export type EmailMensagemUncheckedUpdateManyWithoutThreadNestedInput = {
-    create?: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput> | EmailMensagemCreateWithoutThreadInput[] | EmailMensagemUncheckedCreateWithoutThreadInput[]
-    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThreadInput | EmailMensagemCreateOrConnectWithoutThreadInput[]
-    upsert?: EmailMensagemUpsertWithWhereUniqueWithoutThreadInput | EmailMensagemUpsertWithWhereUniqueWithoutThreadInput[]
-    createMany?: EmailMensagemCreateManyThreadInputEnvelope
+  export type EmailMensagemUncheckedUpdateManyWithoutThread_email_mensagemNestedInput = {
+    create?: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput> | EmailMensagemCreateWithoutThread_email_mensagemInput[] | EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput[]
+    connectOrCreate?: EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput | EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput[]
+    upsert?: EmailMensagemUpsertWithWhereUniqueWithoutThread_email_mensagemInput | EmailMensagemUpsertWithWhereUniqueWithoutThread_email_mensagemInput[]
+    createMany?: EmailMensagemCreateManyThread_email_mensagemInputEnvelope
     set?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     disconnect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     delete?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
     connect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
-    update?: EmailMensagemUpdateWithWhereUniqueWithoutThreadInput | EmailMensagemUpdateWithWhereUniqueWithoutThreadInput[]
-    updateMany?: EmailMensagemUpdateManyWithWhereWithoutThreadInput | EmailMensagemUpdateManyWithWhereWithoutThreadInput[]
+    update?: EmailMensagemUpdateWithWhereUniqueWithoutThread_email_mensagemInput | EmailMensagemUpdateWithWhereUniqueWithoutThread_email_mensagemInput[]
+    updateMany?: EmailMensagemUpdateManyWithWhereWithoutThread_email_mensagemInput | EmailMensagemUpdateManyWithWhereWithoutThread_email_mensagemInput[]
     deleteMany?: EmailMensagemScalarWhereInput | EmailMensagemScalarWhereInput[]
   }
 
-  export type EmailAssuntosParticipantesCreateNestedOneWithoutMensagensInput = {
-    create?: XOR<EmailAssuntosParticipantesCreateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagensInput>
-    connectOrCreate?: EmailAssuntosParticipantesCreateOrConnectWithoutMensagensInput
+  export type EmailAssuntosParticipantesCreateNestedOneWithoutMensagens_email_assuntos_participantesInput = {
+    create?: XOR<EmailAssuntosParticipantesCreateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagens_email_assuntos_participantesInput>
+    connectOrCreate?: EmailAssuntosParticipantesCreateOrConnectWithoutMensagens_email_assuntos_participantesInput
     connect?: EmailAssuntosParticipantesWhereUniqueInput
   }
 
@@ -63419,23 +63419,23 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type EmailAssuntosParticipantesUpdateOneRequiredWithoutMensagensNestedInput = {
-    create?: XOR<EmailAssuntosParticipantesCreateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagensInput>
-    connectOrCreate?: EmailAssuntosParticipantesCreateOrConnectWithoutMensagensInput
-    upsert?: EmailAssuntosParticipantesUpsertWithoutMensagensInput
+  export type EmailAssuntosParticipantesUpdateOneRequiredWithoutMensagens_email_assuntos_participantesNestedInput = {
+    create?: XOR<EmailAssuntosParticipantesCreateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagens_email_assuntos_participantesInput>
+    connectOrCreate?: EmailAssuntosParticipantesCreateOrConnectWithoutMensagens_email_assuntos_participantesInput
+    upsert?: EmailAssuntosParticipantesUpsertWithoutMensagens_email_assuntos_participantesInput
     connect?: EmailAssuntosParticipantesWhereUniqueInput
-    update?: XOR<XOR<EmailAssuntosParticipantesUpdateToOneWithWhereWithoutMensagensInput, EmailAssuntosParticipantesUpdateWithoutMensagensInput>, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagensInput>
+    update?: XOR<XOR<EmailAssuntosParticipantesUpdateToOneWithWhereWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUpdateWithoutMensagens_email_assuntos_participantesInput>, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagens_email_assuntos_participantesInput>
   }
 
   export type EnumEmailStatusFieldUpdateOperationsInput = {
     set?: $Enums.EmailStatus
   }
 
-  export type TemplateEmailCreatevariaveisInput = {
+  export type TemplateEmailCreatevariaveis_template_emailInput = {
     set: string[]
   }
 
-  export type TemplateEmailUpdatevariaveisInput = {
+  export type TemplateEmailUpdatevariaveis_template_emailInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -64922,180 +64922,180 @@ export namespace Prisma {
     participantes_atividades_dados?: AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesNestedInput
   }
 
-  export type EmailMensagemCreateWithoutThreadInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type EmailMensagemCreateWithoutThread_email_mensagemInput = {
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
   }
 
-  export type EmailMensagemUncheckedCreateWithoutThreadInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput = {
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
   }
 
-  export type EmailMensagemCreateOrConnectWithoutThreadInput = {
+  export type EmailMensagemCreateOrConnectWithoutThread_email_mensagemInput = {
     where: EmailMensagemWhereUniqueInput
-    create: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput>
+    create: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput>
   }
 
-  export type EmailMensagemCreateManyThreadInputEnvelope = {
-    data: EmailMensagemCreateManyThreadInput | EmailMensagemCreateManyThreadInput[]
+  export type EmailMensagemCreateManyThread_email_mensagemInputEnvelope = {
+    data: EmailMensagemCreateManyThread_email_mensagemInput | EmailMensagemCreateManyThread_email_mensagemInput[]
     skipDuplicates?: boolean
   }
 
-  export type EmailMensagemUpsertWithWhereUniqueWithoutThreadInput = {
+  export type EmailMensagemUpsertWithWhereUniqueWithoutThread_email_mensagemInput = {
     where: EmailMensagemWhereUniqueInput
-    update: XOR<EmailMensagemUpdateWithoutThreadInput, EmailMensagemUncheckedUpdateWithoutThreadInput>
-    create: XOR<EmailMensagemCreateWithoutThreadInput, EmailMensagemUncheckedCreateWithoutThreadInput>
+    update: XOR<EmailMensagemUpdateWithoutThread_email_mensagemInput, EmailMensagemUncheckedUpdateWithoutThread_email_mensagemInput>
+    create: XOR<EmailMensagemCreateWithoutThread_email_mensagemInput, EmailMensagemUncheckedCreateWithoutThread_email_mensagemInput>
   }
 
-  export type EmailMensagemUpdateWithWhereUniqueWithoutThreadInput = {
+  export type EmailMensagemUpdateWithWhereUniqueWithoutThread_email_mensagemInput = {
     where: EmailMensagemWhereUniqueInput
-    data: XOR<EmailMensagemUpdateWithoutThreadInput, EmailMensagemUncheckedUpdateWithoutThreadInput>
+    data: XOR<EmailMensagemUpdateWithoutThread_email_mensagemInput, EmailMensagemUncheckedUpdateWithoutThread_email_mensagemInput>
   }
 
-  export type EmailMensagemUpdateManyWithWhereWithoutThreadInput = {
+  export type EmailMensagemUpdateManyWithWhereWithoutThread_email_mensagemInput = {
     where: EmailMensagemScalarWhereInput
-    data: XOR<EmailMensagemUpdateManyMutationInput, EmailMensagemUncheckedUpdateManyWithoutThreadInput>
+    data: XOR<EmailMensagemUpdateManyMutationInput, EmailMensagemUncheckedUpdateManyWithoutThread_email_mensagemInput>
   }
 
   export type EmailMensagemScalarWhereInput = {
     AND?: EmailMensagemScalarWhereInput | EmailMensagemScalarWhereInput[]
     OR?: EmailMensagemScalarWhereInput[]
     NOT?: EmailMensagemScalarWhereInput | EmailMensagemScalarWhereInput[]
-    id?: StringFilter<"EmailMensagem"> | string
-    tenant_id?: StringFilter<"EmailMensagem"> | string
-    product_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    user_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    thread_id?: StringFilter<"EmailMensagem"> | string
-    resend_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
-    from?: StringFilter<"EmailMensagem"> | string
-    to?: StringFilter<"EmailMensagem"> | string
-    subject?: StringNullableFilter<"EmailMensagem"> | string | null
-    body?: StringFilter<"EmailMensagem"> | string
-    body_html?: StringNullableFilter<"EmailMensagem"> | string | null
-    dedup_key?: StringNullableFilter<"EmailMensagem"> | string | null
-    parent_message_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_response?: StringNullableFilter<"EmailMensagem"> | string | null
-    gabi_confidence?: FloatNullableFilter<"EmailMensagem"> | number | null
-    gabi_action?: StringNullableFilter<"EmailMensagem"> | string | null
-    sent_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    created_at?: DateTimeFilter<"EmailMensagem"> | Date | string
-    updated_at?: DateTimeFilter<"EmailMensagem"> | Date | string
+    id_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_organizacao_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_produto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_usuario_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_thread_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    id_resend_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    destinatario_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    assunto_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    corpo_email_mensagem?: StringFilter<"EmailMensagem"> | string
+    corpo_html_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    chave_dedup_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    id_mensagem_pai_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    resposta_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    confianca_gabi_email_mensagem?: FloatNullableFilter<"EmailMensagem"> | number | null
+    acao_gabi_email_mensagem?: StringNullableFilter<"EmailMensagem"> | string | null
+    data_envio_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_criacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFilter<"EmailMensagem"> | Date | string
   }
 
-  export type EmailAssuntosParticipantesCreateWithoutMensagensInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    subject: string
-    status?: $Enums.EmailThreadStatus
-    sentiment?: number
-    sentiment_label?: $Enums.EmailSentimento
-    mensagens_count?: number
-    ultimo_contato?: Date | string | null
-    deep_link?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type EmailAssuntosParticipantesCreateWithoutMensagens_email_assuntos_participantesInput = {
+    id_email_assuntos_participantes?: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes?: string | null
+    id_usuario_email_assuntos_participantes?: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes?: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: number
+    rotulo_sentimento_email_assuntos_participantes?: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: number
+    ultimo_contato_email_assuntos_participantes?: Date | string | null
+    deep_link_email_assuntos_participantes?: string | null
+    data_criacao_email_assuntos_participantes?: Date | string
+    data_atualizacao_email_assuntos_participantes?: Date | string
   }
 
-  export type EmailAssuntosParticipantesUncheckedCreateWithoutMensagensInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    subject: string
-    status?: $Enums.EmailThreadStatus
-    sentiment?: number
-    sentiment_label?: $Enums.EmailSentimento
-    mensagens_count?: number
-    ultimo_contato?: Date | string | null
-    deep_link?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type EmailAssuntosParticipantesUncheckedCreateWithoutMensagens_email_assuntos_participantesInput = {
+    id_email_assuntos_participantes?: string
+    id_organizacao_email_assuntos_participantes: string
+    id_produto_email_assuntos_participantes?: string | null
+    id_usuario_email_assuntos_participantes?: string | null
+    assunto_email_assuntos_participantes: string
+    status_email_assuntos_participantes?: $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: number
+    rotulo_sentimento_email_assuntos_participantes?: $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: number
+    ultimo_contato_email_assuntos_participantes?: Date | string | null
+    deep_link_email_assuntos_participantes?: string | null
+    data_criacao_email_assuntos_participantes?: Date | string
+    data_atualizacao_email_assuntos_participantes?: Date | string
   }
 
-  export type EmailAssuntosParticipantesCreateOrConnectWithoutMensagensInput = {
+  export type EmailAssuntosParticipantesCreateOrConnectWithoutMensagens_email_assuntos_participantesInput = {
     where: EmailAssuntosParticipantesWhereUniqueInput
-    create: XOR<EmailAssuntosParticipantesCreateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagensInput>
+    create: XOR<EmailAssuntosParticipantesCreateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagens_email_assuntos_participantesInput>
   }
 
-  export type EmailAssuntosParticipantesUpsertWithoutMensagensInput = {
-    update: XOR<EmailAssuntosParticipantesUpdateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagensInput>
-    create: XOR<EmailAssuntosParticipantesCreateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagensInput>
+  export type EmailAssuntosParticipantesUpsertWithoutMensagens_email_assuntos_participantesInput = {
+    update: XOR<EmailAssuntosParticipantesUpdateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagens_email_assuntos_participantesInput>
+    create: XOR<EmailAssuntosParticipantesCreateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedCreateWithoutMensagens_email_assuntos_participantesInput>
     where?: EmailAssuntosParticipantesWhereInput
   }
 
-  export type EmailAssuntosParticipantesUpdateToOneWithWhereWithoutMensagensInput = {
+  export type EmailAssuntosParticipantesUpdateToOneWithWhereWithoutMensagens_email_assuntos_participantesInput = {
     where?: EmailAssuntosParticipantesWhereInput
-    data: XOR<EmailAssuntosParticipantesUpdateWithoutMensagensInput, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagensInput>
+    data: XOR<EmailAssuntosParticipantesUpdateWithoutMensagens_email_assuntos_participantesInput, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagens_email_assuntos_participantesInput>
   }
 
-  export type EmailAssuntosParticipantesUpdateWithoutMensagensInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EmailAssuntosParticipantesUpdateWithoutMensagens_email_assuntos_participantesInput = {
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmailAssuntosParticipantesUncheckedUpdateWithoutMensagensInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
-    sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
-    mensagens_count?: IntFieldUpdateOperationsInput | number
-    ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deep_link?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EmailAssuntosParticipantesUncheckedUpdateWithoutMensagens_email_assuntos_participantesInput = {
+    id_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    id_produto_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    assunto_email_assuntos_participantes?: StringFieldUpdateOperationsInput | string
+    status_email_assuntos_participantes?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
+    sentimento_email_assuntos_participantes?: FloatFieldUpdateOperationsInput | number
+    rotulo_sentimento_email_assuntos_participantes?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
+    contagem_mensagens_email_assuntos_participantes?: IntFieldUpdateOperationsInput | number
+    ultimo_contato_email_assuntos_participantes?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deep_link_email_assuntos_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCriarCreateWithoutDashboardInput = {
@@ -66454,92 +66454,92 @@ export namespace Prisma {
     assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type EmailMensagemCreateManyThreadInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    resend_id?: string | null
-    direction?: $Enums.EmailDirecao
-    from: string
-    to: string
-    subject?: string | null
-    body: string
-    body_html?: string | null
-    dedup_key?: string | null
-    parent_message_id?: string | null
-    gabi_response?: string | null
-    gabi_confidence?: number | null
-    gabi_action?: string | null
-    sent_at?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type EmailMensagemCreateManyThread_email_mensagemInput = {
+    id_email_mensagem?: string
+    id_organizacao_email_mensagem: string
+    id_produto_email_mensagem?: string | null
+    id_usuario_email_mensagem?: string | null
+    id_resend_email_mensagem?: string | null
+    direcao_email_mensagem?: $Enums.EmailDirecao
+    remetente_email_mensagem: string
+    destinatario_email_mensagem: string
+    assunto_email_mensagem?: string | null
+    corpo_email_mensagem: string
+    corpo_html_email_mensagem?: string | null
+    chave_dedup_email_mensagem?: string | null
+    id_mensagem_pai_email_mensagem?: string | null
+    resposta_gabi_email_mensagem?: string | null
+    confianca_gabi_email_mensagem?: number | null
+    acao_gabi_email_mensagem?: string | null
+    data_envio_email_mensagem?: Date | string
+    data_criacao_email_mensagem?: Date | string
+    data_atualizacao_email_mensagem?: Date | string
   }
 
-  export type EmailMensagemUpdateWithoutThreadInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EmailMensagemUpdateWithoutThread_email_mensagemInput = {
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmailMensagemUncheckedUpdateWithoutThreadInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EmailMensagemUncheckedUpdateWithoutThread_email_mensagemInput = {
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmailMensagemUncheckedUpdateManyWithoutThreadInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
-    from?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    body?: StringFieldUpdateOperationsInput | string
-    body_html?: NullableStringFieldUpdateOperationsInput | string | null
-    dedup_key?: NullableStringFieldUpdateOperationsInput | string | null
-    parent_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_response?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    gabi_action?: NullableStringFieldUpdateOperationsInput | string | null
-    sent_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type EmailMensagemUncheckedUpdateManyWithoutThread_email_mensagemInput = {
+    id_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_email_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_resend_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_email_mensagem?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
+    remetente_email_mensagem?: StringFieldUpdateOperationsInput | string
+    destinatario_email_mensagem?: StringFieldUpdateOperationsInput | string
+    assunto_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    corpo_email_mensagem?: StringFieldUpdateOperationsInput | string
+    corpo_html_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_dedup_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_mensagem_pai_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    resposta_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    confianca_gabi_email_mensagem?: NullableFloatFieldUpdateOperationsInput | number | null
+    acao_gabi_email_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    data_envio_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCriarCreateManyDashboardInput = {

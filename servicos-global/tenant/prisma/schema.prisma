@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T17:55:12.371Z
+// Gerado em: 2026-04-26T18:04:14.889Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -240,7 +240,7 @@ model TempoCriacaoRelatorio {
 
 // --- Fragment: email ---
 // servicos-global/tenant/email/prisma/fragment.prisma
-// AGENTE EMAIL — ONDA 3 | 3/13
+// AGENTE EMAIL — ONDA 28 (DDD Servicos)
 //
 // Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
 // Não editar o schema.prisma final — apenas este fragment.
@@ -289,27 +289,27 @@ enum EmailFilaPrioridade {
 // ---------------------------------------------------------------------------
 
 model EmailAssuntosParticipantes {
-  id         String @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_email_assuntos_participantes              String  @id @default(cuid())
+  id_organizacao_email_assuntos_participantes  String
+  id_produto_email_assuntos_participantes      String?
+  id_usuario_email_assuntos_participantes      String?
 
-  subject        String
-  status         EmailThreadStatus   @default(ABERTA)
-  sentiment      Float               @default(0)           // -1 a 1
-  sentiment_label EmailSentimento @default(NEUTRO)
-  mensagens_count Int                 @default(0)
-  ultimo_contato  DateTime?
-  deep_link       String?                                   // ex: /email/thread/{id}
+  assunto_email_assuntos_participantes              String
+  status_email_assuntos_participantes               EmailThreadStatus @default(ABERTA)
+  sentimento_email_assuntos_participantes           Float             @default(0) // -1 a 1
+  rotulo_sentimento_email_assuntos_participantes    EmailSentimento   @default(NEUTRO)
+  contagem_mensagens_email_assuntos_participantes   Int               @default(0)
+  ultimo_contato_email_assuntos_participantes       DateTime?
+  deep_link_email_assuntos_participantes            String?           // ex: /email/thread/{id}
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_email_assuntos_participantes     DateTime @default(now())
+  data_atualizacao_email_assuntos_participantes DateTime @updatedAt
 
-  mensagens EmailMensagem[]
+  mensagens_email_assuntos_participantes EmailMensagem[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao_email_assuntos_participantes], map: "eap_org_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_produto_email_assuntos_participantes], map: "eap_org_prd_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_usuario_email_assuntos_participantes], map: "eap_org_usr_idx")
   @@map("email_assuntos_participantes")
 }
 
@@ -318,38 +318,38 @@ model EmailAssuntosParticipantes {
 // ---------------------------------------------------------------------------
 
 model EmailMensagem {
-  id         String @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_email_mensagem               String  @id @default(cuid())
+  id_organizacao_email_mensagem   String
+  id_produto_email_mensagem       String?
+  id_usuario_email_mensagem       String?
 
-  thread_id        String
-  thread           EmailAssuntosParticipantes  @relation(fields: [thread_id], references: [id])
+  id_thread_email_mensagem        String
+  thread_email_mensagem           EmailAssuntosParticipantes @relation(fields: [id_thread_email_mensagem], references: [id_email_assuntos_participantes])
 
-  resend_id        String?      @unique                    // ID retornado pelo Resend
-  direction        EmailDirecao @default(ENVIADO)
-  from             String
-  to               String
-  subject          String?
-  body             String       @db.Text
-  body_html        String?      @db.Text
-  dedup_key        String?      @unique                    // UUID para Reply-To dinâmico
-  parent_message_id String?                                // UUID do email pai (threading)
+  id_resend_email_mensagem        String?       @unique(map: "em_resend_unq")
+  direcao_email_mensagem          EmailDirecao  @default(ENVIADO)
+  remetente_email_mensagem        String
+  destinatario_email_mensagem     String
+  assunto_email_mensagem          String?
+  corpo_email_mensagem            String        @db.Text
+  corpo_html_email_mensagem       String?       @db.Text
+  chave_dedup_email_mensagem      String?       @unique(map: "em_dedup_unq")
+  id_mensagem_pai_email_mensagem  String?
 
   // Análise Gabi
-  gabi_response    String?      @db.Text
-  gabi_confidence  Float?
-  gabi_action      String?                                 // auto_replied | escalated_to_human | none
+  resposta_gabi_email_mensagem    String? @db.Text
+  confianca_gabi_email_mensagem   Float?
+  acao_gabi_email_mensagem        String? // auto_replied | escalated_to_human | none
 
-  sent_at          DateTime     @default(now())
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
+  data_envio_email_mensagem       DateTime @default(now())
+  data_criacao_email_mensagem     DateTime @default(now())
+  data_atualizacao_email_mensagem DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([thread_id])
-  @@index([dedup_key])
+  @@index([id_organizacao_email_mensagem], map: "em_org_idx")
+  @@index([id_organizacao_email_mensagem, id_produto_email_mensagem], map: "em_org_prd_idx")
+  @@index([id_organizacao_email_mensagem, id_usuario_email_mensagem], map: "em_org_usr_idx")
+  @@index([id_thread_email_mensagem], map: "em_thread_idx")
+  @@index([chave_dedup_email_mensagem], map: "em_dedup_idx")
   @@map("email_mensagem")
 }
 
@@ -358,34 +358,34 @@ model EmailMensagem {
 // ---------------------------------------------------------------------------
 
 model EmailRegistroEnvio {
-  id         String @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_email_registro_envio              String  @id @default(cuid())
+  id_organizacao_email_registro_envio  String
+  id_produto_email_registro_envio      String?
+  id_usuario_email_registro_envio      String?
 
-  to            String
-  from          String
-  reply_to      String?
-  subject       String
-  template_id   String?
-  status        EmailStatus  @default(PENDENTE)
-  resend_id     String?      @unique
-  dedup_key     String       @unique                       // UUID do Reply-To dinâmico
+  destinatario_email_registro_envio       String
+  remetente_email_registro_envio          String
+  reply_to_email_registro_envio           String?
+  assunto_email_registro_envio            String
+  id_template_email_registro_envio        String?
+  status_email_registro_envio             EmailStatus @default(PENDENTE)
+  id_resend_email_registro_envio          String?     @unique(map: "ere_resend_unq")
+  chave_dedup_email_registro_envio        String      @unique(map: "ere_dedup_unq")
 
-  tentativas    Int          @default(0)
-  max_tentativas Int         @default(5)
-  next_retry_at DateTime?
-  error_message String?      @db.Text
-  enviado_at    DateTime?
+  tentativas_email_registro_envio         Int       @default(0)
+  max_tentativas_email_registro_envio     Int       @default(5)
+  proxima_tentativa_em_email_registro_envio DateTime?
+  mensagem_erro_email_registro_envio      String?   @db.Text
+  data_envio_email_registro_envio         DateTime?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_email_registro_envio       DateTime @default(now())
+  data_atualizacao_email_registro_envio   DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([status])
-  @@index([dedup_key])
+  @@index([id_organizacao_email_registro_envio], map: "ere_org_idx")
+  @@index([id_organizacao_email_registro_envio, id_produto_email_registro_envio], map: "ere_org_prd_idx")
+  @@index([id_organizacao_email_registro_envio, id_usuario_email_registro_envio], map: "ere_org_usr_idx")
+  @@index([status_email_registro_envio], map: "ere_status_idx")
+  @@index([chave_dedup_email_registro_envio], map: "ere_dedup_idx")
   @@map("email_registro_envio")
 }
 
@@ -394,27 +394,27 @@ model EmailRegistroEnvio {
 // ---------------------------------------------------------------------------
 
 model TemplateEmail {
-  id         String @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_template_email              String  @id @default(cuid())
+  id_organizacao_template_email  String
+  id_produto_template_email      String?
+  id_usuario_template_email      String?
 
-  nome        String
-  slug        String                                        // ex: boas-vindas, recuperacao-senha
-  assunto     String
-  corpo_html  String    @db.Text
-  corpo_texto String?   @db.Text
-  variaveis   String[]                                      // ex: ["nome", "plano", "url"]
-  ativo       Boolean   @default(true)
-  descricao   String?
+  nome_template_email        String
+  slug_template_email        String   // ex: boas-vindas, recuperacao-senha
+  assunto_template_email     String
+  corpo_html_template_email  String   @db.Text
+  corpo_texto_template_email String?  @db.Text
+  variaveis_template_email   String[] // ex: ["nome", "plano", "url"]
+  ativo_template_email       Boolean  @default(true)
+  descricao_template_email   String?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_template_email     DateTime @default(now())
+  data_atualizacao_template_email DateTime @updatedAt
 
-  @@unique([tenant_id, slug])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@unique([id_organizacao_template_email, slug_template_email], map: "te_org_slug_unq")
+  @@index([id_organizacao_template_email], map: "te_org_idx")
+  @@index([id_organizacao_template_email, id_produto_template_email], map: "te_org_prd_idx")
+  @@index([id_organizacao_template_email, id_usuario_template_email], map: "te_org_usr_idx")
   @@map("template_email")
 }
 
@@ -423,31 +423,31 @@ model TemplateEmail {
 // ---------------------------------------------------------------------------
 
 model EmailFilaEnvio {
-  id         String @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_email_fila_envio              String  @id @default(cuid())
+  id_organizacao_email_fila_envio  String
+  id_produto_email_fila_envio      String?
+  id_usuario_email_fila_envio      String?
 
-  status        EmailStatus         @default(PENDENTE)
-  prioridade    EmailFilaPrioridade @default(NORMAL)
-  payload       String              @db.Text                // JSON: { to, subject, body, ... }
-  template_id   String?
-  email_enviado_id String?
+  status_email_fila_envio       EmailStatus         @default(PENDENTE)
+  prioridade_email_fila_envio   EmailFilaPrioridade @default(NORMAL)
+  payload_email_fila_envio      String              @db.Text // JSON: { to, subject, body, ... }
+  id_template_email_fila_envio  String?
+  id_email_enviado_email_fila_envio String?
 
-  tentativas     Int       @default(0)
-  max_tentativas Int       @default(5)
-  next_retry_at  DateTime?
-  processado_at  DateTime?
-  erro           String?   @db.Text
+  tentativas_email_fila_envio          Int       @default(0)
+  max_tentativas_email_fila_envio      Int       @default(5)
+  proxima_tentativa_em_email_fila_envio DateTime?
+  processado_em_email_fila_envio       DateTime?
+  erro_email_fila_envio                String?   @db.Text
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_email_fila_envio     DateTime @default(now())
+  data_atualizacao_email_fila_envio DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([status, next_retry_at])
-  @@index([tenant_id, status])
+  @@index([id_organizacao_email_fila_envio], map: "efe_org_idx")
+  @@index([id_organizacao_email_fila_envio, id_produto_email_fila_envio], map: "efe_org_prd_idx")
+  @@index([id_organizacao_email_fila_envio, id_usuario_email_fila_envio], map: "efe_org_usr_idx")
+  @@index([status_email_fila_envio, proxima_tentativa_em_email_fila_envio], map: "efe_status_retry_idx")
+  @@index([id_organizacao_email_fila_envio, status_email_fila_envio], map: "efe_org_status_idx")
   @@map("email_fila_envio")
 }
 

@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { AppError } from '../lib/errors.js'
 import { prisma } from '../lib/prisma.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { toThreadDto, toMensagemDto } from '../lib/dto.js'
 
 export const threadsRouter = Router()
 
@@ -33,34 +34,23 @@ threadsRouter.get(
     const skip = (page - 1) * limit
 
     const where = {
-      tenant_id: tenantId,
-      ...(status && { status }),
-      ...(sentiment && { sentiment_label: sentiment }),
+      id_organizacao_email_assuntos_participantes: tenantId,
+      ...(status && { status_email_assuntos_participantes: status }),
+      ...(sentiment && { rotulo_sentimento_email_assuntos_participantes: sentiment }),
     }
 
     const [threads, total] = await Promise.all([
       prisma.emailAssuntosParticipantes.findMany({
         where,
-        orderBy: { updated_at: 'desc' },
+        orderBy: { data_atualizacao_email_assuntos_participantes: 'desc' },
         skip,
         take: limit,
-        select: {
-          id: true,
-          subject: true,
-          status: true,
-          sentiment: true,
-          sentiment_label: true,
-          mensagens_count: true,
-          ultimo_contato: true,
-          created_at: true,
-          updated_at: true,
-        },
       }),
       prisma.emailAssuntosParticipantes.count({ where }),
     ])
 
     res.json({
-      data: threads,
+      data: threads.map(toThreadDto),
       meta: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   }
@@ -76,23 +66,13 @@ threadsRouter.get(
     const { tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
-      where: { id, tenant_id: tenantId },
+      where: {
+        id_email_assuntos_participantes: id,
+        id_organizacao_email_assuntos_participantes: tenantId,
+      },
       include: {
-        mensagens: {
-          orderBy: { sent_at: 'asc' },
-          select: {
-            id: true,
-            direction: true,
-            from: true,
-            to: true,
-            subject: true,
-            body: true,
-            body_html: true,
-            gabi_response: true,
-            gabi_confidence: true,
-            gabi_action: true,
-            sent_at: true,
-          },
+        mensagens_email_assuntos_participantes: {
+          orderBy: { data_envio_email_mensagem: 'asc' },
         },
       },
     })
@@ -101,7 +81,12 @@ threadsRouter.get(
       return next(new AppError('Thread não encontrada', 404, 'THREAD_NOT_FOUND'))
     }
 
-    res.json({ data: thread })
+    res.json({
+      data: {
+        ...toThreadDto(thread),
+        mensagens: thread.mensagens_email_assuntos_participantes.map(toMensagemDto),
+      },
+    })
   }
 )
 
@@ -124,7 +109,10 @@ threadsRouter.patch(
     }
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
-      where: { id, tenant_id: tenantId },
+      where: {
+        id_email_assuntos_participantes: id,
+        id_organizacao_email_assuntos_participantes: tenantId,
+      },
     })
 
     if (!thread) {
@@ -132,10 +120,10 @@ threadsRouter.patch(
     }
 
     const updated = await prisma.emailAssuntosParticipantes.update({
-      where: { id },
-      data: { status: parse.data.status },
+      where: { id_email_assuntos_participantes: id },
+      data: { status_email_assuntos_participantes: parse.data.status },
     })
 
-    res.json({ data: updated })
+    res.json({ data: toThreadDto(updated) })
   }
 )

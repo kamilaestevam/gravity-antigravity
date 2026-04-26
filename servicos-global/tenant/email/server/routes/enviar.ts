@@ -42,14 +42,20 @@ enviarRouter.post(
     // Carregar e interpolar template se fornecido
     if (template_id) {
       const tmpl = await prisma.templateEmail.findFirst({
-        where: { id: template_id, tenant_id: tenantId, ativo: true },
+        where: {
+          id_template_email: template_id,
+          id_organizacao_template_email: tenantId,
+          ativo_template_email: true,
+        },
       })
       if (!tmpl) {
         return next(new AppError('Template não encontrado ou inativo', 404, 'TEMPLATE_NOT_FOUND'))
       }
-      finalSubject = finalSubject || interpolateTemplate(tmpl.assunto, variables)
-      finalHtml = interpolateTemplate(tmpl.corpo_html, variables)
-      finalText = tmpl.corpo_texto ? interpolateTemplate(tmpl.corpo_texto, variables) : undefined
+      finalSubject = finalSubject || interpolateTemplate(tmpl.assunto_template_email, variables)
+      finalHtml = interpolateTemplate(tmpl.corpo_html_template_email, variables)
+      finalText = tmpl.corpo_texto_template_email
+        ? interpolateTemplate(tmpl.corpo_texto_template_email, variables)
+        : undefined
     }
 
     const result = await sendEmail({

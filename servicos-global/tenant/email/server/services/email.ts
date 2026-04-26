@@ -76,31 +76,31 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
     const [log, fila] = await Promise.all([
       prisma.emailRegistroEnvio.create({
         data: {
-          tenant_id: tenantId,
-          product_id: productId,
-          user_id: userId,
-          to: Array.isArray(to) ? to.join(', ') : to,
-          from,
-          reply_to: replyTo,
-          subject,
-          template_id: templateId,
-          dedup_key: dedupKey,
-          status: 'PENDENTE',
+          id_organizacao_email_registro_envio: tenantId,
+          id_produto_email_registro_envio: productId,
+          id_usuario_email_registro_envio: userId,
+          destinatario_email_registro_envio: Array.isArray(to) ? to.join(', ') : to,
+          remetente_email_registro_envio: from,
+          reply_to_email_registro_envio: replyTo,
+          assunto_email_registro_envio: subject,
+          id_template_email_registro_envio: templateId,
+          chave_dedup_email_registro_envio: dedupKey,
+          status_email_registro_envio: 'PENDENTE',
         },
       }),
       prisma.emailFilaEnvio.create({
         data: {
-          tenant_id: tenantId,
-          product_id: productId,
-          user_id: userId,
-          template_id: templateId,
-          payload: JSON.stringify({ to, subject, html, text, from, replyTo }),
-          status: 'PENDENTE',
+          id_organizacao_email_fila_envio: tenantId,
+          id_produto_email_fila_envio: productId,
+          id_usuario_email_fila_envio: userId,
+          id_template_email_fila_envio: templateId,
+          payload_email_fila_envio: JSON.stringify({ to, subject, html, text, from, replyTo }),
+          status_email_fila_envio: 'PENDENTE',
         },
       }),
     ])
-    logId = log.id
-    filaId = fila.id
+    logId = log.id_email_registro_envio
+    filaId = fila.id_email_fila_envio
   }
 
   // Tentar envio com retry exponencial
@@ -110,14 +110,20 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
       // Atualizar status para PROCESSANDO
       if (logId) {
         await prisma.emailRegistroEnvio.update({
-          where: { id: logId },
-          data: { status: 'PROCESSANDO', tentativas: tentativa },
+          where: { id_email_registro_envio: logId },
+          data: {
+            status_email_registro_envio: 'PROCESSANDO',
+            tentativas_email_registro_envio: tentativa,
+          },
         })
       }
       if (filaId) {
         await prisma.emailFilaEnvio.update({
-          where: { id: filaId },
-          data: { status: 'PROCESSANDO', tentativas: tentativa },
+          where: { id_email_fila_envio: filaId },
+          data: {
+            status_email_fila_envio: 'PROCESSANDO',
+            tentativas_email_fila_envio: tentativa,
+          },
         })
       }
 
@@ -142,21 +148,21 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
       const now = new Date()
       if (logId) {
         await prisma.emailRegistroEnvio.update({
-          where: { id: logId },
+          where: { id_email_registro_envio: logId },
           data: {
-            status: 'ENVIADO',
-            resend_id: data.id,
-            enviado_at: now,
+            status_email_registro_envio: 'ENVIADO',
+            id_resend_email_registro_envio: data.id,
+            data_envio_email_registro_envio: now,
           },
         })
       }
       if (filaId) {
         await prisma.emailFilaEnvio.update({
-          where: { id: filaId },
+          where: { id_email_fila_envio: filaId },
           data: {
-            status: 'ENVIADO',
-            processado_at: now,
-            email_enviado_id: logId,
+            status_email_fila_envio: 'ENVIADO',
+            processado_em_email_fila_envio: now,
+            id_email_enviado_email_fila_envio: logId,
           },
         })
       }
@@ -172,22 +178,22 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
         const nextRetryAt = new Date(Date.now() + calcBackoffMs(tentativa))
         if (logId) {
           await prisma.emailRegistroEnvio.update({
-            where: { id: logId },
+            where: { id_email_registro_envio: logId },
             data: {
-              tentativas: tentativa,
-              next_retry_at: nextRetryAt,
-              error_message: lastError,
+              tentativas_email_registro_envio: tentativa,
+              proxima_tentativa_em_email_registro_envio: nextRetryAt,
+              mensagem_erro_email_registro_envio: lastError,
             },
           })
         }
         if (filaId) {
           await prisma.emailFilaEnvio.update({
-            where: { id: filaId },
+            where: { id_email_fila_envio: filaId },
             data: {
-              tentativas: tentativa,
-              next_retry_at: nextRetryAt,
-              erro: lastError,
-              status: 'PENDENTE', // volta para pendente para retry
+              tentativas_email_fila_envio: tentativa,
+              proxima_tentativa_em_email_fila_envio: nextRetryAt,
+              erro_email_fila_envio: lastError,
+              status_email_fila_envio: 'PENDENTE', // volta para pendente para retry
             },
           })
         }
@@ -200,14 +206,20 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
   // Esgotou tentativas — marcar como FALHOU
   if (logId) {
     await prisma.emailRegistroEnvio.update({
-      where: { id: logId },
-      data: { status: 'FALHOU', error_message: lastError },
+      where: { id_email_registro_envio: logId },
+      data: {
+        status_email_registro_envio: 'FALHOU',
+        mensagem_erro_email_registro_envio: lastError,
+      },
     })
   }
   if (filaId) {
     await prisma.emailFilaEnvio.update({
-      where: { id: filaId },
-      data: { status: 'FALHOU', erro: lastError },
+      where: { id_email_fila_envio: filaId },
+      data: {
+        status_email_fila_envio: 'FALHOU',
+        erro_email_fila_envio: lastError,
+      },
     })
   }
 

@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { AppError } from '../lib/errors.js'
 import { prisma } from '../lib/prisma.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { toFilaItemDto } from '../lib/dto.js'
 
 export const filaRouter = Router()
 
@@ -35,40 +36,38 @@ filaRouter.get(
     const skip = (page - 1) * limit
 
     const where = {
-      tenant_id: tenantId,
-      ...(status && { status }),
+      id_organizacao_email_fila_envio: tenantId,
+      ...(status && { status_email_fila_envio: status }),
     }
 
     const [items, total] = await Promise.all([
       prisma.emailFilaEnvio.findMany({
         where,
-        orderBy: [{ prioridade: 'desc' }, { created_at: 'asc' }],
+        orderBy: [
+          { prioridade_email_fila_envio: 'desc' },
+          { data_criacao_email_fila_envio: 'asc' },
+        ],
         skip,
         take: limit,
-        select: {
-          id: true,
-          status: true,
-          prioridade: true,
-          tentativas: true,
-          max_tentativas: true,
-          next_retry_at: true,
-          erro: true,
-          created_at: true,
-          processado_at: true,
-        },
       }),
       prisma.emailFilaEnvio.count({ where }),
     ])
 
     // Stats rápidas para o monitor
     const [pendente, processando, falhou] = await Promise.all([
-      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'PENDENTE' } }),
-      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'PROCESSANDO' } }),
-      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'FALHOU' } }),
+      prisma.emailFilaEnvio.count({
+        where: { id_organizacao_email_fila_envio: tenantId, status_email_fila_envio: 'PENDENTE' },
+      }),
+      prisma.emailFilaEnvio.count({
+        where: { id_organizacao_email_fila_envio: tenantId, status_email_fila_envio: 'PROCESSANDO' },
+      }),
+      prisma.emailFilaEnvio.count({
+        where: { id_organizacao_email_fila_envio: tenantId, status_email_fila_envio: 'FALHOU' },
+      }),
     ])
 
     res.json({
-      data: items,
+      data: items.map(toFilaItemDto),
       meta: { page, limit, total, pages: Math.ceil(total / limit) },
       stats: { pendente, processando, falhou },
     })
@@ -85,28 +84,38 @@ filaRouter.post(
     const { tenantId } = req.auth
 
     const item = await prisma.emailFilaEnvio.findFirst({
-      where: { id, tenant_id: tenantId },
+      where: {
+        id_email_fila_envio: id,
+        id_organizacao_email_fila_envio: tenantId,
+      },
     })
 
     if (!item) {
       return next(new AppError('Item da fila não encontrado', 404, 'FILA_ITEM_NOT_FOUND'))
     }
 
-    if (item.status === 'ENVIADO' || item.status === 'CANCELADO') {
-      return next(new AppError(`Não é possível cancelar item com status ${item.status}`, 409, 'INVALID_STATUS'))
+    if (
+      item.status_email_fila_envio === 'ENVIADO' ||
+      item.status_email_fila_envio === 'CANCELADO'
+    ) {
+      return next(new AppError(
+        `Não é possível cancelar item com status ${item.status_email_fila_envio}`,
+        409,
+        'INVALID_STATUS',
+      ))
     }
 
     const updated = await prisma.emailFilaEnvio.update({
-      where: { id },
-      data: { status: 'CANCELADO' },
+      where: { id_email_fila_envio: id },
+      data: { status_email_fila_envio: 'CANCELADO' },
     })
 
-    res.json({ data: updated })
+    res.json({ data: toFilaItemDto(updated) })
   }
 )
 
 // ---- Pausar fila (marca todos os itens PENDENTE como aguardando) ------------
-// Implementação: seta next_retry_at para data distante como sinal de pausa.
+// Implementação: seta proxima_tentativa_em para data distante como sinal de pausa.
 
 filaRouter.post(
   '/api/v1/email/fila/pausar',
@@ -116,8 +125,11 @@ filaRouter.post(
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
     const result = await prisma.emailFilaEnvio.updateMany({
-      where: { tenant_id: tenantId, status: 'PENDENTE' },
-      data: { next_retry_at: distantFuture },
+      where: {
+        id_organizacao_email_fila_envio: tenantId,
+        status_email_fila_envio: 'PENDENTE',
+      },
+      data: { proxima_tentativa_em_email_fila_envio: distantFuture },
     })
 
     res.json({ message: `Fila pausada. ${result.count} item(s) afetado(s).` })
@@ -134,8 +146,12 @@ filaRouter.post(
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
     const result = await prisma.emailFilaEnvio.updateMany({
-      where: { tenant_id: tenantId, status: 'PENDENTE', next_retry_at: distantFuture },
-      data: { next_retry_at: null },
+      where: {
+        id_organizacao_email_fila_envio: tenantId,
+        status_email_fila_envio: 'PENDENTE',
+        proxima_tentativa_em_email_fila_envio: distantFuture,
+      },
+      data: { proxima_tentativa_em_email_fila_envio: null },
     })
 
     res.json({ message: `Fila retomada. ${result.count} item(s) liberado(s).` })

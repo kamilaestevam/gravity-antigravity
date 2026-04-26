@@ -15,8 +15,8 @@ const DEDUP_WINDOW_MS = 5_000 // 5 segundos
  */
 export async function isDuplicateResendId(resendId: string): Promise<boolean> {
   const existing = await prisma.emailMensagem.findUnique({
-    where: { resend_id: resendId },
-    select: { id: true },
+    where: { id_resend_email_mensagem: resendId },
+    select: { id_email_mensagem: true },
   })
   return existing !== null
 }
@@ -36,18 +36,18 @@ export async function isDuplicateContent(
   // Camada 2 — mesmo remetente em janela de 5s
   const recentSameFrom = await prisma.emailMensagem.findFirst({
     where: {
-      tenant_id: tenantId,
-      from,
-      direction: 'INBOUND',
-      sent_at: { gte: windowStart },
+      id_organizacao_email_mensagem: tenantId,
+      remetente_email_mensagem: from,
+      direcao_email_mensagem: 'RECEBIDO',
+      data_envio_email_mensagem: { gte: windowStart },
     },
-    select: { id: true, body: true },
+    select: { id_email_mensagem: true, corpo_email_mensagem: true },
   })
 
   if (!recentSameFrom) return false
 
   // Camada 3 — hash de conteúdo idêntico
-  const existingHash = hashContent(from, recentSameFrom.body)
+  const existingHash = hashContent(from, recentSameFrom.corpo_email_mensagem)
   return existingHash === contentHash
 }
 

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:56:41.305Z
+// Gerado em: 2026-04-26T00:58:54.299Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -543,13 +543,13 @@ model TrackingItemsTransferidos {
   destinos_items_transferidos          String
   revertido_tracking_items_transferidos    Boolean   @default(false)
   revertido_em_tracking_items_transferidos DateTime?
-  revertido_por               String?
-  created_at                  DateTime  @default(now())
-  created_by                  String
+  revertido_por_tracking_items_transferidos String?
+  data_criacao_tracking_items_transferidos  DateTime  @default(now())
+  criado_por_tracking_items_transferidos    String
   pedido_origem               Pedido    @relation(fields: [id_pedido_origem], references: [id_pedido])
 
   // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
-  data_transferencia_qtd      DateTime?
+  data_transferencia_quantidade_tracking_items_transferidos DateTime?
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])

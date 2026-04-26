@@ -44,11 +44,7 @@ Menu: `[ 📄 Documentação] [ 🔑 Tokens] [ 🧪 Playground] [ 🪝 Webhooks]
 - **Expiração:** Nunca | 30 dias | 90 dias | Personalizado
 - **Rate limit:** N req/min (padrão: 60)
 
-**Regras de segurança:**
-- Token exibido **apenas uma vez** após a criação
-- Armazenado como hash SHA-256 — **nunca em plain text**
-- Prefixo: `gv_live_sk_` (produção) ou `gv_test_sk_` (sandbox)
-- Revogação imediata disponível a qualquer momento
+> ⚠️ **REGRA ABSOLUTA:** Ver [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md) para hash SHA-256, prefixos `gv_live_sk_`/`gv_test_sk_`, exibição única e revogação imediata.
 
 ### Tela 2 — Documentação (Swagger/Redoc)
 
@@ -88,10 +84,7 @@ Eventos:
 ✅ cotacao.aprovada
 ```
 
-**Segurança dos webhooks:**
-- Secret gerado automaticamente (HMAC-SHA256)
-- Cada disparo inclui `X-Gravity-Signature` no header
-- Retry automático com backoff exponencial em caso de falha
+> ⚠️ **REGRA ABSOLUTA:** Ver [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md) para HMAC-SHA256, header `X-Gravity-Signature` e retry exponencial.
 
 **Histórico de disparos:**
 
@@ -125,10 +118,9 @@ Para produtos que precisam se conectar ao sistema do cliente (SAP, ERP, WMS, etc
 | **REST genérico** | ERPs com API REST própria |
 | **JDBC/ODBC** | Sistemas legados com banco relacional |
 
-**Segurança das credenciais:**
+> ⚠️ **REGRA ABSOLUTA:** Ver [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md) para AES-256-GCM, `ENCRYPTION_KEY` em env e descriptografia apenas no momento da query.
 
 ```typescript
-// Credenciais NUNCA em plain text no banco — AES-256-GCM
 async function saveCredentials(idOrganizacao: string, creds: ErpCredentials) {
   const encrypted = await encrypt(JSON.stringify(creds), process.env.ENCRYPTION_KEY!)
   await prisma.erpConnection.upsert({
@@ -138,7 +130,6 @@ async function saveCredentials(idOrganizacao: string, creds: ErpCredentials) {
   })
 }
 
-// Descriptografado apenas no momento da query — nunca exposto
 async function executeErpQuery(idOrganizacao: string, query: string) {
   const conn = await prisma.erpConnection.findUnique({ where: { id_organizacao: idOrganizacao } })
   const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.ENCRYPTION_KEY!))
@@ -190,11 +181,8 @@ GET    /api/v1/erp/query/logs              ← histórico de queries
 
 - [ ] API Cockpit acessível dentro de cada produto?
 - [ ] Central de APIs consolidada no Configurador (workspace)?
-- [ ] Token exibido uma única vez — hash SHA-256 no banco?
-- [ ] Prefixo `gv_live_sk_` (produção) e `gv_test_sk_` (sandbox)?
+- [ ] Tokens, webhooks e credenciais ERP conforme [Criptografia](../../governanca/convencao-tecnica/criptografia/SKILL.md)?
 - [ ] Documentação gerada automaticamente a partir dos schemas Zod?
 - [ ] Playground com execução ao vivo e exportar como cURL/código?
-- [ ] Webhooks com secret HMAC-SHA256 e retry automático?
-- [ ] Credenciais ERP criptografadas com AES-256-GCM?
 - [ ] Fluxo Gabi → query OData → resultado em linguagem natural?
 - [ ] Middleware de observabilidade em todas as rotas públicas?

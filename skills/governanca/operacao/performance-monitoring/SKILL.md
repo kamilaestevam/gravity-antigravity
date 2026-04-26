@@ -3,7 +3,12 @@ name: antigravity-performance-monitoring
 description: "Use esta skill para configurar APM, dashboards, alertas, profiling e monitoramento de performance. Define ferramentas, métricas obrigatórias e limiares de alerta. Consultada pelo DevOps/SRE ao configurar monitoramento de qualquer serviço."
 ---
 
-# Gravity — Performance & Monitoring
+# Gravity — Performance & Monitoring (Operação)
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [SLA Metas](../../lei/sla-metas/SKILL.md) para metas (200ms p95, 50k req/s, 99,9% uptime) e budget de latência por camada.
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../convencao-tecnica/observabilidade-minima/SKILL.md) para métricas obrigatórias por serviço e ferramentas obrigatórias.
+>
+> Esta skill cobre apenas **configuração e implementação** (Sentry, UptimeRobot, Grafana, alertas, profiling).
 
 ## Stack de Monitoramento
 
@@ -13,21 +18,6 @@ description: "Use esta skill para configurar APM, dashboards, alertas, profiling
 | **UptimeRobot** | Health checks externos | Free tier |
 | **Railway Metrics** | CPU, memória, rede | Incluso |
 | **Grafana Cloud** | Dashboards customizados (Fase 2) | Free tier |
-
----
-
-## Métricas Obrigatórias por Serviço
-
-| Métrica | Como medir | Alerta quando |
-|:---|:---|:---|
-| Latência p50 | Sentry Performance | > 100ms |
-| Latência p95 | Sentry Performance | > 200ms |
-| Latência p99 | Sentry Performance | > 500ms |
-| Error rate | Sentry | > 1% |
-| Health check | UptimeRobot | 2 falhas consecutivas |
-| CPU | Railway Metrics | > 80% por 5 min |
-| Memória | Railway Metrics | > 85% |
-| Conexões DB | Railway/PgBouncer | > 80% do pool |
 
 ---
 
@@ -54,25 +44,6 @@ Sentry.init({
   ],
 })
 ```
-
----
-
-## Budget de Latência por Camada
-
-Para atingir **≤ 200ms** end-to-end:
-
-| Camada | Budget | Justificativa |
-|:---|:---|:---|
-| Rede (Railway internal) | 5ms | Rede interna, latência mínima |
-| Express middleware | 10ms | Parse, auth, correlation |
-| Validação Zod | 5ms | Validação de schema |
-| Query Prisma | 80ms | Operação principal de banco |
-| Lógica de negócio | 50ms | Cálculos, transformações |
-| Serialização response | 5ms | JSON.stringify |
-| Overhead/buffer | 45ms | Margem de segurança |
-| **Total** | **200ms** | |
-
-> Se uma camada excede o budget → investigar e otimizar.
 
 ---
 
@@ -122,7 +93,7 @@ node --prof-process isolate-*.log > profile.txt
 
 - [ ] Sentry inicializado com performance tracking?
 - [ ] UptimeRobot monitor criado para `/health`?
-- [ ] Métricas de latência p95 visíveis?
+- [ ] Métricas conforme [Observabilidade Mínima](../../convencao-tecnica/observabilidade-minima/SKILL.md) expostas?
 - [ ] Alertas configurados para thresholds definidos?
-- [ ] Budget de latência validado para fluxos críticos?
+- [ ] Budget de latência validado conforme [SLA Metas](../../lei/sla-metas/SKILL.md)?
 - [ ] Railway Metrics acessível para CPU/memória?

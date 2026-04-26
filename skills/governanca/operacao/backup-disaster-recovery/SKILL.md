@@ -3,7 +3,9 @@ name: antigravity-backup-disaster-recovery
 description: "Use esta skill para estratégia de backup e recuperação de desastres. Define os 4 tipos de backup (diário, manual, semanal, teste mensal), RPO/RTO, procedimentos de restore e plano de contingência. Consultada pelo DevOps/SRE e Estrutura de Dados antes de qualquer operação destrutiva."
 ---
 
-# Gravity — Backup & Disaster Recovery
+# Gravity — Backup & Disaster Recovery (Operação)
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Backup Policy](../../lei/backup-policy/SKILL.md) para RPO de 24h, RTO de 1h, obrigatoriedade de backup pré-migration destrutiva e teste de restauração mensal. Esta skill cobre apenas **scripts e procedimentos**.
 
 ## 4 Tipos de Backup
 
@@ -13,17 +15,6 @@ description: "Use esta skill para estratégia de backup e recuperação de desas
 | Manual pré-migration | Antes de migration destrutiva | Dev/SRE | Até validação |
 | Semanal externo | Semanal | SRE (script) | 30 dias |
 | Teste de restauração | Mensal | SRE | N/A |
-
----
-
-## RPO e RTO
-
-| Métrica | Meta | Significado |
-|:---|:---|:---|
-| **RPO** (Recovery Point Objective) | 24 horas | Perda máxima de dados aceitável |
-| **RTO** (Recovery Time Objective) | 1 hora | Tempo máximo para restaurar serviço |
-
-> Com backup diário, o RPO é 24h. Com backup semanal externo, temos redundância contra falha do Railway.
 
 ---
 
@@ -38,10 +29,7 @@ description: "Use esta skill para estratégia de backup e recuperação de desas
 
 ## Backup Manual Pré-Migration
 
-**OBRIGATÓRIO antes de:**
-- Qualquer migration destrutiva (remover coluna, renomear, mudar tipo)
-- Alteração de schema em produção
-- Operações de limpeza de dados
+> ⚠️ **REGRA ABSOLUTA:** Ver [Backup Policy](../../lei/backup-policy/SKILL.md) para os casos em que backup manual é obrigatório.
 
 ```bash
 # Backup manual via Railway CLI
@@ -84,7 +72,9 @@ echo "Backup semanal concluído: ${TIMESTAMP}" | \
 
 ## Teste de Restauração (Mensal)
 
-**Um backup só tem valor se funciona.** Todo mês:
+> ⚠️ **REGRA ABSOLUTA:** Ver [Backup Policy](../../lei/backup-policy/SKILL.md) — teste mensal é obrigatório, não opcional.
+
+Procedimento padrão:
 
 1. Escolher um banco aleatório
 2. Restaurar o último backup em ambiente de teste
@@ -144,9 +134,7 @@ dropdb gravity_restore_test
 ## Checklist — Backup & DR
 
 - [ ] Backup automático Railway ativo?
-- [ ] Backup manual feito antes de migration destrutiva?
+- [ ] Backup manual e teste de restauração conforme [Backup Policy](../../lei/backup-policy/SKILL.md)?
 - [ ] Backup semanal externo configurado?
-- [ ] Teste de restauração realizado este mês?
-- [ ] RPO/RTO documentados e comunicados ao time?
 - [ ] Plano de DR revisado trimestralmente?
 - [ ] Credenciais de storage externo atualizadas?

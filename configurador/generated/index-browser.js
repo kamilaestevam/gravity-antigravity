@@ -351,15 +351,15 @@ exports.Prisma.ServicosScalarFieldEnum = {
 };
 
 exports.Prisma.CambioScalarFieldEnum = {
-  id: 'id',
-  moeda: 'moeda',
-  compra: 'compra',
-  venda: 'venda',
-  data_cotacao: 'data_cotacao',
-  hora_cotacao: 'hora_cotacao',
-  boletim: 'boletim',
-  fonte: 'fonte',
-  criado_em: 'criado_em'
+  id_cambio: 'id_cambio',
+  moeda_cambio: 'moeda_cambio',
+  compra_cambio: 'compra_cambio',
+  venda_cambio: 'venda_cambio',
+  data_cotacao_cambio: 'data_cotacao_cambio',
+  hora_cotacao_cambio: 'hora_cotacao_cambio',
+  boletim_cambio: 'boletim_cambio',
+  fonte_cambio: 'fonte_cambio',
+  data_criacao_cambio: 'data_criacao_cambio'
 };
 
 exports.Prisma.TestesScalarFieldEnum = {

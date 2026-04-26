@@ -3,13 +3,9 @@ name: antigravity-auto-scaling
 description: "Use esta skill para configurar auto-scaling e controle de custos no Railway. Define regras de scaling, limites de orçamento, alertas de custo e scale-to-zero. Consultada pelo DevOps/SRE e Estrutura de Sistemas ao configurar infraestrutura."
 ---
 
-# Gravity — Auto-Scaling & Cost Control
+# Gravity — Auto-Scaling (Operação)
 
-## Regra Fundamental
-
-A plataforma escala automaticamente em picos, mas com orçamento controlado. Nunca escalar sem limite. Nunca gastar mais do que o aprovado.
-
----
+> ⚠️ **REGRA ABSOLUTA:** Ver [Cost Budget](../../lei/cost-budget/SKILL.md) para limites mensais, thresholds (70/80/90/95%) e a regra de bloqueio de scaling automático em 95% do budget. Esta skill cobre apenas a **implementação Railway**.
 
 ## Railway — Configuração de Scaling
 
@@ -29,25 +25,6 @@ Serviços que podem ir a zero instâncias quando sem tráfego:
 
 - **marketplace** — site estático, cold start aceitável
 - **Nenhum** serviço com banco ativo pode ir a zero (risco de connection drop)
-
----
-
-## Limites de Orçamento
-
-| Ambiente | Budget mensal | Alerta em |
-|:---|:---|:---|
-| Staging | $50 | 80% ($40) |
-| Production | $200 | 70% ($140) e 90% ($180) |
-| Total | $250 | 80% ($200) |
-
-### Alertas de custo
-
-```
-70% do budget → Alerta informativo (email)
-80% do budget → Alerta de atenção (email + Slack)
-90% do budget → Alerta crítico (email + Slack + notificação ao Daniel)
-95% do budget → Scaling automático BLOQUEADO (só vertical, não horizontal)
-```
 
 ---
 
@@ -108,7 +85,6 @@ Dashboard mensal com:
 
 - [ ] Min/max instâncias definidos por serviço?
 - [ ] CPU/RAM triggers configurados?
-- [ ] Budget mensal definido com alertas?
-- [ ] Scale-to-zero apenas para serviços sem banco?
+- [ ] Limites de budget e thresholds conforme [Cost Budget](../../lei/cost-budget/SKILL.md)?
 - [ ] Monitoramento de custos ativo?
 - [ ] Projeção de custo revisada mensalmente?

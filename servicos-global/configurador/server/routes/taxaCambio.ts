@@ -48,18 +48,56 @@ export async function persistirCotacao(
   fonte: string = 'BCB/PTAX',
 ) {
   const existing = await prisma.cambio.findFirst({
-    where: { moeda, data_cotacao: dataCotacao, boletim },
+    where: { moeda_cambio: moeda, data_cotacao_cambio: dataCotacao, boletim_cambio: boletim },
   })
 
   if (existing) {
     await prisma.cambio.update({
-      where: { id: existing.id },
-      data: { compra, venda, hora_cotacao: horaCotacao, fonte },
+      where: { id_cambio: existing.id_cambio },
+      data: {
+        compra_cambio: compra,
+        venda_cambio: venda,
+        hora_cotacao_cambio: horaCotacao,
+        fonte_cambio: fonte,
+      },
     })
   } else {
     await prisma.cambio.create({
-      data: { moeda, compra, venda, data_cotacao: dataCotacao, hora_cotacao: horaCotacao, boletim, fonte },
+      data: {
+        moeda_cambio: moeda,
+        compra_cambio: compra,
+        venda_cambio: venda,
+        data_cotacao_cambio: dataCotacao,
+        hora_cotacao_cambio: horaCotacao,
+        boletim_cambio: boletim,
+        fonte_cambio: fonte,
+      },
     })
+  }
+}
+
+// DTO: Cambio Prisma rename → contrato legado da UI/API
+function toCambioDto(row: {
+  id_cambio: string
+  moeda_cambio: string
+  compra_cambio: unknown
+  venda_cambio: unknown
+  data_cotacao_cambio: Date
+  hora_cotacao_cambio: string | null
+  boletim_cambio: string
+  fonte_cambio: string
+  data_criacao_cambio: Date
+}) {
+  return {
+    id: row.id_cambio,
+    moeda: row.moeda_cambio,
+    compra: row.compra_cambio,
+    venda: row.venda_cambio,
+    data_cotacao: row.data_cotacao_cambio,
+    hora_cotacao: row.hora_cotacao_cambio,
+    boletim: row.boletim_cambio,
+    fonte: row.fonte_cambio,
+    criado_em: row.data_criacao_cambio,
   }
 }
 
@@ -74,13 +112,16 @@ taxaCambioRouter.get('/', async (_req: Request, res: Response, next: NextFunctio
     hoje.setUTCHours(0, 0, 0, 0)
 
     const taxas = await prisma.cambio.findMany({
-      where: { data_cotacao: { gte: hoje } },
-      orderBy: [{ moeda: 'asc' }, { criado_em: 'asc' }],
+      where: { data_cotacao_cambio: { gte: hoje } },
+      orderBy: [{ moeda_cambio: 'asc' }, { data_criacao_cambio: 'asc' }],
     })
 
+    // DTO: rename Prisma → contrato legado
+    const taxasDto = taxas.map(toCambioDto)
+
     // Agrupar por moeda
-    const porMoeda: Record<string, typeof taxas> = {}
-    for (const t of taxas) {
+    const porMoeda: Record<string, ReturnType<typeof toCambioDto>[]> = {}
+    for (const t of taxasDto) {
       if (!porMoeda[t.moeda]) porMoeda[t.moeda] = []
       porMoeda[t.moeda].push(t)
     }
@@ -111,12 +152,25 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
 
   try {
     const registros = await prisma.cambio.findMany({
-      where: { moeda, data_cotacao: { gte: desde } },
-      orderBy: [{ data_cotacao: 'desc' }, { boletim: 'asc' }],
-      select: { id: true, moeda: true, compra: true, venda: true, data_cotacao: true, hora_cotacao: true, boletim: true, fonte: true, criado_em: true },
+      where: { moeda_cambio: moeda, data_cotacao_cambio: { gte: desde } },
+      orderBy: [{ data_cotacao_cambio: 'desc' }, { boletim_cambio: 'asc' }],
+      select: {
+        id_cambio: true,
+        moeda_cambio: true,
+        compra_cambio: true,
+        venda_cambio: true,
+        data_cotacao_cambio: true,
+        hora_cotacao_cambio: true,
+        boletim_cambio: true,
+        fonte_cambio: true,
+        data_criacao_cambio: true,
+      },
     })
 
-    res.json({ moeda, periodo_dias: dias, total: registros.length, historico: registros })
+    // DTO: rename Prisma → contrato legado
+    const historico = registros.map(toCambioDto)
+
+    res.json({ moeda, periodo_dias: dias, total: historico.length, historico })
   } catch (err) {
     next(err)
   }

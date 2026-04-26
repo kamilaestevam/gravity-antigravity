@@ -20294,97 +20294,97 @@ export namespace Prisma {
   }
 
   export type CambioAvgAggregateOutputType = {
-    compra: Decimal | null
-    venda: Decimal | null
+    compra_cambio: Decimal | null
+    venda_cambio: Decimal | null
   }
 
   export type CambioSumAggregateOutputType = {
-    compra: Decimal | null
-    venda: Decimal | null
+    compra_cambio: Decimal | null
+    venda_cambio: Decimal | null
   }
 
   export type CambioMinAggregateOutputType = {
-    id: string | null
-    moeda: string | null
-    compra: Decimal | null
-    venda: Decimal | null
-    data_cotacao: Date | null
-    hora_cotacao: string | null
-    boletim: string | null
-    fonte: string | null
-    criado_em: Date | null
+    id_cambio: string | null
+    moeda_cambio: string | null
+    compra_cambio: Decimal | null
+    venda_cambio: Decimal | null
+    data_cotacao_cambio: Date | null
+    hora_cotacao_cambio: string | null
+    boletim_cambio: string | null
+    fonte_cambio: string | null
+    data_criacao_cambio: Date | null
   }
 
   export type CambioMaxAggregateOutputType = {
-    id: string | null
-    moeda: string | null
-    compra: Decimal | null
-    venda: Decimal | null
-    data_cotacao: Date | null
-    hora_cotacao: string | null
-    boletim: string | null
-    fonte: string | null
-    criado_em: Date | null
+    id_cambio: string | null
+    moeda_cambio: string | null
+    compra_cambio: Decimal | null
+    venda_cambio: Decimal | null
+    data_cotacao_cambio: Date | null
+    hora_cotacao_cambio: string | null
+    boletim_cambio: string | null
+    fonte_cambio: string | null
+    data_criacao_cambio: Date | null
   }
 
   export type CambioCountAggregateOutputType = {
-    id: number
-    moeda: number
-    compra: number
-    venda: number
-    data_cotacao: number
-    hora_cotacao: number
-    boletim: number
-    fonte: number
-    criado_em: number
+    id_cambio: number
+    moeda_cambio: number
+    compra_cambio: number
+    venda_cambio: number
+    data_cotacao_cambio: number
+    hora_cotacao_cambio: number
+    boletim_cambio: number
+    fonte_cambio: number
+    data_criacao_cambio: number
     _all: number
   }
 
 
   export type CambioAvgAggregateInputType = {
-    compra?: true
-    venda?: true
+    compra_cambio?: true
+    venda_cambio?: true
   }
 
   export type CambioSumAggregateInputType = {
-    compra?: true
-    venda?: true
+    compra_cambio?: true
+    venda_cambio?: true
   }
 
   export type CambioMinAggregateInputType = {
-    id?: true
-    moeda?: true
-    compra?: true
-    venda?: true
-    data_cotacao?: true
-    hora_cotacao?: true
-    boletim?: true
-    fonte?: true
-    criado_em?: true
+    id_cambio?: true
+    moeda_cambio?: true
+    compra_cambio?: true
+    venda_cambio?: true
+    data_cotacao_cambio?: true
+    hora_cotacao_cambio?: true
+    boletim_cambio?: true
+    fonte_cambio?: true
+    data_criacao_cambio?: true
   }
 
   export type CambioMaxAggregateInputType = {
-    id?: true
-    moeda?: true
-    compra?: true
-    venda?: true
-    data_cotacao?: true
-    hora_cotacao?: true
-    boletim?: true
-    fonte?: true
-    criado_em?: true
+    id_cambio?: true
+    moeda_cambio?: true
+    compra_cambio?: true
+    venda_cambio?: true
+    data_cotacao_cambio?: true
+    hora_cotacao_cambio?: true
+    boletim_cambio?: true
+    fonte_cambio?: true
+    data_criacao_cambio?: true
   }
 
   export type CambioCountAggregateInputType = {
-    id?: true
-    moeda?: true
-    compra?: true
-    venda?: true
-    data_cotacao?: true
-    hora_cotacao?: true
-    boletim?: true
-    fonte?: true
-    criado_em?: true
+    id_cambio?: true
+    moeda_cambio?: true
+    compra_cambio?: true
+    venda_cambio?: true
+    data_cotacao_cambio?: true
+    hora_cotacao_cambio?: true
+    boletim_cambio?: true
+    fonte_cambio?: true
+    data_criacao_cambio?: true
     _all?: true
   }
 
@@ -20475,15 +20475,15 @@ export namespace Prisma {
   }
 
   export type CambioGroupByOutputType = {
-    id: string
-    moeda: string
-    compra: Decimal
-    venda: Decimal
-    data_cotacao: Date
-    hora_cotacao: string | null
-    boletim: string
-    fonte: string
-    criado_em: Date
+    id_cambio: string
+    moeda_cambio: string
+    compra_cambio: Decimal
+    venda_cambio: Decimal
+    data_cotacao_cambio: Date
+    hora_cotacao_cambio: string | null
+    boletim_cambio: string
+    fonte_cambio: string
+    data_criacao_cambio: Date
     _count: CambioCountAggregateOutputType | null
     _avg: CambioAvgAggregateOutputType | null
     _sum: CambioSumAggregateOutputType | null
@@ -20506,39 +20506,39 @@ export namespace Prisma {
 
 
   export type CambioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    moeda?: boolean
-    compra?: boolean
-    venda?: boolean
-    data_cotacao?: boolean
-    hora_cotacao?: boolean
-    boletim?: boolean
-    fonte?: boolean
-    criado_em?: boolean
+    id_cambio?: boolean
+    moeda_cambio?: boolean
+    compra_cambio?: boolean
+    venda_cambio?: boolean
+    data_cotacao_cambio?: boolean
+    hora_cotacao_cambio?: boolean
+    boletim_cambio?: boolean
+    fonte_cambio?: boolean
+    data_criacao_cambio?: boolean
   }, ExtArgs["result"]["cambio"]>
 
   export type CambioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    moeda?: boolean
-    compra?: boolean
-    venda?: boolean
-    data_cotacao?: boolean
-    hora_cotacao?: boolean
-    boletim?: boolean
-    fonte?: boolean
-    criado_em?: boolean
+    id_cambio?: boolean
+    moeda_cambio?: boolean
+    compra_cambio?: boolean
+    venda_cambio?: boolean
+    data_cotacao_cambio?: boolean
+    hora_cotacao_cambio?: boolean
+    boletim_cambio?: boolean
+    fonte_cambio?: boolean
+    data_criacao_cambio?: boolean
   }, ExtArgs["result"]["cambio"]>
 
   export type CambioSelectScalar = {
-    id?: boolean
-    moeda?: boolean
-    compra?: boolean
-    venda?: boolean
-    data_cotacao?: boolean
-    hora_cotacao?: boolean
-    boletim?: boolean
-    fonte?: boolean
-    criado_em?: boolean
+    id_cambio?: boolean
+    moeda_cambio?: boolean
+    compra_cambio?: boolean
+    venda_cambio?: boolean
+    data_cotacao_cambio?: boolean
+    hora_cotacao_cambio?: boolean
+    boletim_cambio?: boolean
+    fonte_cambio?: boolean
+    data_criacao_cambio?: boolean
   }
 
 
@@ -20546,15 +20546,15 @@ export namespace Prisma {
     name: "Cambio"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      moeda: string
-      compra: Prisma.Decimal
-      venda: Prisma.Decimal
-      data_cotacao: Date
-      hora_cotacao: string | null
-      boletim: string
-      fonte: string
-      criado_em: Date
+      id_cambio: string
+      moeda_cambio: string
+      compra_cambio: Prisma.Decimal
+      venda_cambio: Prisma.Decimal
+      data_cotacao_cambio: Date
+      hora_cotacao_cambio: string | null
+      boletim_cambio: string
+      fonte_cambio: string
+      data_criacao_cambio: Date
     }, ExtArgs["result"]["cambio"]>
     composites: {}
   }
@@ -20638,8 +20638,8 @@ export namespace Prisma {
      * // Get first 10 Cambios
      * const cambios = await prisma.cambio.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const cambioWithIdOnly = await prisma.cambio.findMany({ select: { id: true } })
+     * // Only select the `id_cambio`
+     * const cambioWithId_cambioOnly = await prisma.cambio.findMany({ select: { id_cambio: true } })
      * 
      */
     findMany<T extends CambioFindManyArgs>(args?: SelectSubset<T, CambioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CambioPayload<ExtArgs>, T, "findMany">>
@@ -20683,9 +20683,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Cambios and only return the `id`
-     * const cambioWithIdOnly = await prisma.cambio.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Cambios and only return the `id_cambio`
+     * const cambioWithId_cambioOnly = await prisma.cambio.createManyAndReturn({ 
+     *   select: { id_cambio: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -20948,15 +20948,15 @@ export namespace Prisma {
    * Fields of the Cambio model
    */ 
   interface CambioFieldRefs {
-    readonly id: FieldRef<"Cambio", 'String'>
-    readonly moeda: FieldRef<"Cambio", 'String'>
-    readonly compra: FieldRef<"Cambio", 'Decimal'>
-    readonly venda: FieldRef<"Cambio", 'Decimal'>
-    readonly data_cotacao: FieldRef<"Cambio", 'DateTime'>
-    readonly hora_cotacao: FieldRef<"Cambio", 'String'>
-    readonly boletim: FieldRef<"Cambio", 'String'>
-    readonly fonte: FieldRef<"Cambio", 'String'>
-    readonly criado_em: FieldRef<"Cambio", 'DateTime'>
+    readonly id_cambio: FieldRef<"Cambio", 'String'>
+    readonly moeda_cambio: FieldRef<"Cambio", 'String'>
+    readonly compra_cambio: FieldRef<"Cambio", 'Decimal'>
+    readonly venda_cambio: FieldRef<"Cambio", 'Decimal'>
+    readonly data_cotacao_cambio: FieldRef<"Cambio", 'DateTime'>
+    readonly hora_cotacao_cambio: FieldRef<"Cambio", 'String'>
+    readonly boletim_cambio: FieldRef<"Cambio", 'String'>
+    readonly fonte_cambio: FieldRef<"Cambio", 'String'>
+    readonly data_criacao_cambio: FieldRef<"Cambio", 'DateTime'>
   }
     
 
@@ -26697,15 +26697,15 @@ export namespace Prisma {
 
 
   export const CambioScalarFieldEnum: {
-    id: 'id',
-    moeda: 'moeda',
-    compra: 'compra',
-    venda: 'venda',
-    data_cotacao: 'data_cotacao',
-    hora_cotacao: 'hora_cotacao',
-    boletim: 'boletim',
-    fonte: 'fonte',
-    criado_em: 'criado_em'
+    id_cambio: 'id_cambio',
+    moeda_cambio: 'moeda_cambio',
+    compra_cambio: 'compra_cambio',
+    venda_cambio: 'venda_cambio',
+    data_cotacao_cambio: 'data_cotacao_cambio',
+    hora_cotacao_cambio: 'hora_cotacao_cambio',
+    boletim_cambio: 'boletim_cambio',
+    fonte_cambio: 'fonte_cambio',
+    data_criacao_cambio: 'data_criacao_cambio'
   };
 
   export type CambioScalarFieldEnum = (typeof CambioScalarFieldEnum)[keyof typeof CambioScalarFieldEnum]
@@ -28555,55 +28555,55 @@ export namespace Prisma {
     AND?: CambioWhereInput | CambioWhereInput[]
     OR?: CambioWhereInput[]
     NOT?: CambioWhereInput | CambioWhereInput[]
-    id?: StringFilter<"Cambio"> | string
-    moeda?: StringFilter<"Cambio"> | string
-    compra?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFilter<"Cambio"> | Date | string
-    hora_cotacao?: StringNullableFilter<"Cambio"> | string | null
-    boletim?: StringFilter<"Cambio"> | string
-    fonte?: StringFilter<"Cambio"> | string
-    criado_em?: DateTimeFilter<"Cambio"> | Date | string
+    id_cambio?: StringFilter<"Cambio"> | string
+    moeda_cambio?: StringFilter<"Cambio"> | string
+    compra_cambio?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFilter<"Cambio"> | Date | string
+    hora_cotacao_cambio?: StringNullableFilter<"Cambio"> | string | null
+    boletim_cambio?: StringFilter<"Cambio"> | string
+    fonte_cambio?: StringFilter<"Cambio"> | string
+    data_criacao_cambio?: DateTimeFilter<"Cambio"> | Date | string
   }
 
   export type CambioOrderByWithRelationInput = {
-    id?: SortOrder
-    moeda?: SortOrder
-    compra?: SortOrder
-    venda?: SortOrder
-    data_cotacao?: SortOrder
-    hora_cotacao?: SortOrderInput | SortOrder
-    boletim?: SortOrder
-    fonte?: SortOrder
-    criado_em?: SortOrder
+    id_cambio?: SortOrder
+    moeda_cambio?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
+    data_cotacao_cambio?: SortOrder
+    hora_cotacao_cambio?: SortOrderInput | SortOrder
+    boletim_cambio?: SortOrder
+    fonte_cambio?: SortOrder
+    data_criacao_cambio?: SortOrder
   }
 
   export type CambioWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    moeda_data_cotacao_boletim?: CambioMoedaData_cotacaoBoletimCompoundUniqueInput
+    id_cambio?: string
+    moeda_cambio_data_cotacao_cambio_boletim_cambio?: CambioMoeda_cambioData_cotacao_cambioBoletim_cambioCompoundUniqueInput
     AND?: CambioWhereInput | CambioWhereInput[]
     OR?: CambioWhereInput[]
     NOT?: CambioWhereInput | CambioWhereInput[]
-    moeda?: StringFilter<"Cambio"> | string
-    compra?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFilter<"Cambio"> | Date | string
-    hora_cotacao?: StringNullableFilter<"Cambio"> | string | null
-    boletim?: StringFilter<"Cambio"> | string
-    fonte?: StringFilter<"Cambio"> | string
-    criado_em?: DateTimeFilter<"Cambio"> | Date | string
-  }, "id" | "moeda_data_cotacao_boletim">
+    moeda_cambio?: StringFilter<"Cambio"> | string
+    compra_cambio?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFilter<"Cambio"> | Date | string
+    hora_cotacao_cambio?: StringNullableFilter<"Cambio"> | string | null
+    boletim_cambio?: StringFilter<"Cambio"> | string
+    fonte_cambio?: StringFilter<"Cambio"> | string
+    data_criacao_cambio?: DateTimeFilter<"Cambio"> | Date | string
+  }, "id_cambio" | "moeda_cambio_data_cotacao_cambio_boletim_cambio">
 
   export type CambioOrderByWithAggregationInput = {
-    id?: SortOrder
-    moeda?: SortOrder
-    compra?: SortOrder
-    venda?: SortOrder
-    data_cotacao?: SortOrder
-    hora_cotacao?: SortOrderInput | SortOrder
-    boletim?: SortOrder
-    fonte?: SortOrder
-    criado_em?: SortOrder
+    id_cambio?: SortOrder
+    moeda_cambio?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
+    data_cotacao_cambio?: SortOrder
+    hora_cotacao_cambio?: SortOrderInput | SortOrder
+    boletim_cambio?: SortOrder
+    fonte_cambio?: SortOrder
+    data_criacao_cambio?: SortOrder
     _count?: CambioCountOrderByAggregateInput
     _avg?: CambioAvgOrderByAggregateInput
     _max?: CambioMaxOrderByAggregateInput
@@ -28615,15 +28615,15 @@ export namespace Prisma {
     AND?: CambioScalarWhereWithAggregatesInput | CambioScalarWhereWithAggregatesInput[]
     OR?: CambioScalarWhereWithAggregatesInput[]
     NOT?: CambioScalarWhereWithAggregatesInput | CambioScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Cambio"> | string
-    moeda?: StringWithAggregatesFilter<"Cambio"> | string
-    compra?: DecimalWithAggregatesFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    venda?: DecimalWithAggregatesFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
-    hora_cotacao?: StringNullableWithAggregatesFilter<"Cambio"> | string | null
-    boletim?: StringWithAggregatesFilter<"Cambio"> | string
-    fonte?: StringWithAggregatesFilter<"Cambio"> | string
-    criado_em?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
+    id_cambio?: StringWithAggregatesFilter<"Cambio"> | string
+    moeda_cambio?: StringWithAggregatesFilter<"Cambio"> | string
+    compra_cambio?: DecimalWithAggregatesFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalWithAggregatesFilter<"Cambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
+    hora_cotacao_cambio?: StringNullableWithAggregatesFilter<"Cambio"> | string | null
+    boletim_cambio?: StringWithAggregatesFilter<"Cambio"> | string
+    fonte_cambio?: StringWithAggregatesFilter<"Cambio"> | string
+    data_criacao_cambio?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
   }
 
   export type TestesWhereInput = {
@@ -30790,87 +30790,87 @@ export namespace Prisma {
   }
 
   export type CambioCreateInput = {
-    id?: string
-    moeda: string
-    compra: Decimal | DecimalJsLike | number | string
-    venda: Decimal | DecimalJsLike | number | string
-    data_cotacao: Date | string
-    hora_cotacao?: string | null
-    boletim?: string
-    fonte?: string
-    criado_em?: Date | string
+    id_cambio?: string
+    moeda_cambio: string
+    compra_cambio: Decimal | DecimalJsLike | number | string
+    venda_cambio: Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio: Date | string
+    hora_cotacao_cambio?: string | null
+    boletim_cambio?: string
+    fonte_cambio?: string
+    data_criacao_cambio?: Date | string
   }
 
   export type CambioUncheckedCreateInput = {
-    id?: string
-    moeda: string
-    compra: Decimal | DecimalJsLike | number | string
-    venda: Decimal | DecimalJsLike | number | string
-    data_cotacao: Date | string
-    hora_cotacao?: string | null
-    boletim?: string
-    fonte?: string
-    criado_em?: Date | string
+    id_cambio?: string
+    moeda_cambio: string
+    compra_cambio: Decimal | DecimalJsLike | number | string
+    venda_cambio: Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio: Date | string
+    hora_cotacao_cambio?: string | null
+    boletim_cambio?: string
+    fonte_cambio?: string
+    data_criacao_cambio?: Date | string
   }
 
   export type CambioUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    moeda?: StringFieldUpdateOperationsInput | string
-    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
-    boletim?: StringFieldUpdateOperationsInput | string
-    fonte?: StringFieldUpdateOperationsInput | string
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_cambio?: StringFieldUpdateOperationsInput | string
+    moeda_cambio?: StringFieldUpdateOperationsInput | string
+    compra_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao_cambio?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim_cambio?: StringFieldUpdateOperationsInput | string
+    fonte_cambio?: StringFieldUpdateOperationsInput | string
+    data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CambioUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    moeda?: StringFieldUpdateOperationsInput | string
-    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
-    boletim?: StringFieldUpdateOperationsInput | string
-    fonte?: StringFieldUpdateOperationsInput | string
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_cambio?: StringFieldUpdateOperationsInput | string
+    moeda_cambio?: StringFieldUpdateOperationsInput | string
+    compra_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao_cambio?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim_cambio?: StringFieldUpdateOperationsInput | string
+    fonte_cambio?: StringFieldUpdateOperationsInput | string
+    data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CambioCreateManyInput = {
-    id?: string
-    moeda: string
-    compra: Decimal | DecimalJsLike | number | string
-    venda: Decimal | DecimalJsLike | number | string
-    data_cotacao: Date | string
-    hora_cotacao?: string | null
-    boletim?: string
-    fonte?: string
-    criado_em?: Date | string
+    id_cambio?: string
+    moeda_cambio: string
+    compra_cambio: Decimal | DecimalJsLike | number | string
+    venda_cambio: Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio: Date | string
+    hora_cotacao_cambio?: string | null
+    boletim_cambio?: string
+    fonte_cambio?: string
+    data_criacao_cambio?: Date | string
   }
 
   export type CambioUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    moeda?: StringFieldUpdateOperationsInput | string
-    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
-    boletim?: StringFieldUpdateOperationsInput | string
-    fonte?: StringFieldUpdateOperationsInput | string
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_cambio?: StringFieldUpdateOperationsInput | string
+    moeda_cambio?: StringFieldUpdateOperationsInput | string
+    compra_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao_cambio?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim_cambio?: StringFieldUpdateOperationsInput | string
+    fonte_cambio?: StringFieldUpdateOperationsInput | string
+    data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CambioUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    moeda?: StringFieldUpdateOperationsInput | string
-    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
-    boletim?: StringFieldUpdateOperationsInput | string
-    fonte?: StringFieldUpdateOperationsInput | string
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_cambio?: StringFieldUpdateOperationsInput | string
+    moeda_cambio?: StringFieldUpdateOperationsInput | string
+    compra_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda_cambio?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao_cambio?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim_cambio?: StringFieldUpdateOperationsInput | string
+    fonte_cambio?: StringFieldUpdateOperationsInput | string
+    data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestesCreateInput = {
@@ -32920,56 +32920,56 @@ export namespace Prisma {
     latencia_ms_servicos?: SortOrder
   }
 
-  export type CambioMoedaData_cotacaoBoletimCompoundUniqueInput = {
-    moeda: string
-    data_cotacao: Date | string
-    boletim: string
+  export type CambioMoeda_cambioData_cotacao_cambioBoletim_cambioCompoundUniqueInput = {
+    moeda_cambio: string
+    data_cotacao_cambio: Date | string
+    boletim_cambio: string
   }
 
   export type CambioCountOrderByAggregateInput = {
-    id?: SortOrder
-    moeda?: SortOrder
-    compra?: SortOrder
-    venda?: SortOrder
-    data_cotacao?: SortOrder
-    hora_cotacao?: SortOrder
-    boletim?: SortOrder
-    fonte?: SortOrder
-    criado_em?: SortOrder
+    id_cambio?: SortOrder
+    moeda_cambio?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
+    data_cotacao_cambio?: SortOrder
+    hora_cotacao_cambio?: SortOrder
+    boletim_cambio?: SortOrder
+    fonte_cambio?: SortOrder
+    data_criacao_cambio?: SortOrder
   }
 
   export type CambioAvgOrderByAggregateInput = {
-    compra?: SortOrder
-    venda?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
   }
 
   export type CambioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    moeda?: SortOrder
-    compra?: SortOrder
-    venda?: SortOrder
-    data_cotacao?: SortOrder
-    hora_cotacao?: SortOrder
-    boletim?: SortOrder
-    fonte?: SortOrder
-    criado_em?: SortOrder
+    id_cambio?: SortOrder
+    moeda_cambio?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
+    data_cotacao_cambio?: SortOrder
+    hora_cotacao_cambio?: SortOrder
+    boletim_cambio?: SortOrder
+    fonte_cambio?: SortOrder
+    data_criacao_cambio?: SortOrder
   }
 
   export type CambioMinOrderByAggregateInput = {
-    id?: SortOrder
-    moeda?: SortOrder
-    compra?: SortOrder
-    venda?: SortOrder
-    data_cotacao?: SortOrder
-    hora_cotacao?: SortOrder
-    boletim?: SortOrder
-    fonte?: SortOrder
-    criado_em?: SortOrder
+    id_cambio?: SortOrder
+    moeda_cambio?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
+    data_cotacao_cambio?: SortOrder
+    hora_cotacao_cambio?: SortOrder
+    boletim_cambio?: SortOrder
+    fonte_cambio?: SortOrder
+    data_criacao_cambio?: SortOrder
   }
 
   export type CambioSumOrderByAggregateInput = {
-    compra?: SortOrder
-    venda?: SortOrder
+    compra_cambio?: SortOrder
+    venda_cambio?: SortOrder
   }
 
   export type TestesCountOrderByAggregateInput = {

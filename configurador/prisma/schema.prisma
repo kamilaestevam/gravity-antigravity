@@ -636,22 +636,22 @@ model Servicos {
 // ---------------------------------------------------------------------------
 
 model Cambio {
-  id           String   @id @default(cuid())
-  moeda        String // USD, EUR, GBP, CHF, CNY, JPY
-  compra       Decimal  @db.Decimal(15, 6)
-  venda        Decimal  @db.Decimal(15, 6)
-  data_cotacao DateTime // data da cotação (dia, meia-noite UTC)
-  hora_cotacao String? // ex: "13:02"
-  boletim      String   @default("Fechamento") // "1º Boletim" | "2º Boletim" | "3º Boletim" | "Fechamento"
-  fonte        String   @default("BCB/PTAX")
-  criado_em    DateTime @default(now())
+  id_cambio           String   @id @default(cuid())
+  moeda_cambio        String // USD, EUR, GBP, CHF, CNY, JPY
+  compra_cambio       Decimal  @db.Decimal(15, 6)
+  venda_cambio        Decimal  @db.Decimal(15, 6)
+  data_cotacao_cambio DateTime // data da cotação (dia, meia-noite UTC)
+  hora_cotacao_cambio String? // ex: "13:02"
+  boletim_cambio      String   @default("Fechamento") // "1º Boletim" | "2º Boletim" | "3º Boletim" | "Fechamento"
+  fonte_cambio        String   @default("BCB/PTAX")
+  data_criacao_cambio DateTime @default(now())
 
   // Garante 1 registro por moeda × dia × boletim (upsert idempotente)
-  @@unique([moeda, data_cotacao, boletim])
-  @@index([moeda])
-  @@index([moeda, data_cotacao])
-  @@index([data_cotacao])
-  @@index([criado_em])
+  @@unique([moeda_cambio, data_cotacao_cambio, boletim_cambio], map: "cmb_moeda_data_boletim_unq")
+  @@index([moeda_cambio], map: "cmb_moeda_idx")
+  @@index([moeda_cambio, data_cotacao_cambio], map: "cmb_moeda_data_idx")
+  @@index([data_cotacao_cambio], map: "cmb_data_idx")
+  @@index([data_criacao_cambio], map: "cmb_criacao_idx")
   @@map("cambio")
 }
 

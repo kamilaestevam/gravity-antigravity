@@ -737,19 +737,19 @@ model PedidoSnapshotOpe {
   cnpj_raiz_empresa_pedido_snapshot_ope String?
 
   // Endereço da OPE
-  pais_ope_pedido_snapshot_ope String?
-  estado_ope            String?
-  cidade_ope            String?
-  endereco_ope          String?
-  zip_ope               String?
-  tin_ope               String?
-  email_ope             String?
+  pais_ope_pedido_snapshot_ope     String?
+  estado_ope_pedido_snapshot_ope   String?
+  cidade_ope_pedido_snapshot_ope   String?
+  endereco_ope_pedido_snapshot_ope String?
+  zip_ope_pedido_snapshot_ope      String?
+  tin_ope_pedido_snapshot_ope      String?
+  email_ope_pedido_snapshot_ope    String?
 
   // Metadados
-  congelado_em          DateTime @default(now())
-  motivo_congelamento   String
+  congelado_em_pedido_snapshot_ope        DateTime @default(now())
+  motivo_congelamento_pedido_snapshot_ope String
 
-  pedido                Pedido   @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
+  acesso_pedido_snapshot_ope Pedido @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao_pedido_snapshot_ope])
   @@index([id_organizacao_pedido_snapshot_ope, id_pedido_pedido_snapshot_ope])

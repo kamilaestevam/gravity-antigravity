@@ -380,58 +380,58 @@ enum ProdutoGravityLimiteUsuario {
 }
 
 model ProdutoGravity {
-  id          String               @id @default(cuid())
-  name        String
-  slug        String               @unique
-  description String
-  status      StatusProdutoGravity @default(ATIVO)
-  launch_date DateTime?
+  id_produto_gravity              String               @id @default(cuid())
+  nome_produto_gravity            String
+  slug_produto_gravity            String               @unique(map: "pg_slug_unq")
+  descricao_produto_gravity       String
+  status_produto_gravity          StatusProdutoGravity @default(ATIVO)
+  data_lancamento_produto_gravity DateTime?
 
   // Setup
-  has_setup      Boolean  @default(false)
-  setup_price    Decimal? @db.Decimal(15, 2)
-  setup_currency String   @default("BRL")
+  possui_setup_produto_gravity Boolean  @default(false)
+  preco_setup_produto_gravity  Decimal? @db.Decimal(15, 2)
+  moeda_setup_produto_gravity  String   @default("BRL")
 
   // Billing
-  billing_type     TipoCobrancaGravity @default(MENSAL)
-  unit_price       Decimal             @db.Decimal(15, 2)
-  unit_currency    String              @default("BRL")
-  minimum_price    Decimal             @default(0) @db.Decimal(15, 2)
-  minimum_currency String              @default("BRL")
-  total_price      Decimal?            @db.Decimal(15, 2)
-  total_currency   String              @default("BRL")
+  tipo_cobranca_produto_gravity  TipoCobrancaGravity @default(MENSAL)
+  preco_unitario_produto_gravity Decimal             @db.Decimal(15, 2)
+  moeda_unitario_produto_gravity String              @default("BRL")
+  preco_minimo_produto_gravity   Decimal             @default(0) @db.Decimal(15, 2)
+  moeda_minimo_produto_gravity   String              @default("BRL")
+  preco_total_produto_gravity    Decimal?            @db.Decimal(15, 2)
+  moeda_total_produto_gravity    String              @default("BRL")
 
   // Users
-  user_limit_type     ProdutoGravityLimiteUsuario @default(ILIMITADO)
-  base_users_qty      Int?
-  extra_user_price    Decimal?                    @db.Decimal(15, 2)
-  extra_user_currency String                      @default("BRL")
+  tipo_limite_usuario_produto_gravity ProdutoGravityLimiteUsuario @default(ILIMITADO)
+  qtd_usuarios_base_produto_gravity   Int?
+  preco_usuario_extra_produto_gravity Decimal?                    @db.Decimal(15, 2)
+  moeda_usuario_extra_produto_gravity String                      @default("BRL")
 
   // Support
-  helpdesk_hours      Int      @default(0)
-  extra_hour_price    Decimal? @db.Decimal(15, 2)
-  extra_hour_currency String   @default("BRL")
+  horas_helpdesk_produto_gravity   Int      @default(0)
+  preco_hora_extra_produto_gravity Decimal? @db.Decimal(15, 2)
+  moeda_hora_extra_produto_gravity String   @default("BRL")
 
   // GABI On-Demand — quota padrão de tokens por tenant/mês
-  gabi_quota_mensal Int @default(0)
+  quota_gabi_mensal_produto_gravity Int @default(0)
 
   // Metadata
-  backend_module  String? // ex: "simula-custo", "bid-frete"
-  target_audience String?
+  modulo_backend_produto_gravity String? // ex: "simula-custo", "bid-frete"
+  publico_alvo_produto_gravity   String?
 
   // Timestamps
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime? // soft-delete — preserva negociações especiais
+  data_criacao_produto_gravity     DateTime  @default(now())
+  data_atualizacao_produto_gravity DateTime  @updatedAt
+  data_remocao_produto_gravity     DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
-  price_tiers  FaixaPreco[]
-  negotiations NegociacaoEspecial[]
+  faixas_preco_produto_gravity FaixaPreco[]
+  negociacoes_produto_gravity  NegociacaoEspecial[]
 
-  @@index([status])
-  @@index([slug])
-  @@index([deleted_at])
-  @@map("produtos_gravity")
+  @@index([status_produto_gravity], map: "pg_status_idx")
+  @@index([slug_produto_gravity], map: "pg_slug_idx")
+  @@index([data_remocao_produto_gravity], map: "pg_remocao_idx")
+  @@map("produto_gravity")
 }
 
 // ---------------------------------------------------------------------------
@@ -440,21 +440,21 @@ model ProdutoGravity {
 // ---------------------------------------------------------------------------
 
 model FaixaPreco {
-  id         String  @id @default(cuid())
-  product_id String
-  range_from Int
-  range_to   Int?
-  price      Decimal @db.Decimal(15, 2)
-  currency   String  @default("BRL")
+  id_faixa_preco                 String  @id @default(cuid())
+  id_produto_gravity_faixa_preco String
+  faixa_de_faixa_preco           Int
+  faixa_ate_faixa_preco          Int?
+  preco_faixa_preco              Decimal @db.Decimal(15, 2)
+  moeda_faixa_preco              String  @default("BRL")
 
   // Timestamps
-  created_at DateTime @default(now())
+  data_criacao_faixa_preco DateTime @default(now())
 
   // Relations
-  product ProdutoGravity @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity_faixa_preco], references: [id_produto_gravity], onDelete: Cascade)
 
-  @@index([product_id])
-  @@index([product_id, range_from])
+  @@index([id_produto_gravity_faixa_preco], map: "fp_produto_idx")
+  @@index([id_produto_gravity_faixa_preco, faixa_de_faixa_preco], map: "fp_produto_faixa_idx")
   @@map("faixa_preco_produto_gravity")
 }
 
@@ -464,25 +464,25 @@ model FaixaPreco {
 // ---------------------------------------------------------------------------
 
 model NegociacaoEspecial {
-  id           String    @id @default(cuid())
-  product_id   String
-  tenant_id    String
-  tenant_name  String
-  agreement    String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
-  starts_at    DateTime?
-  ends_at      DateTime?
-  is_unlimited Boolean   @default(false)
+  id_negociacao_especial                 String    @id @default(cuid())
+  id_produto_gravity_negociacao_especial String
+  id_organizacao_negociacao_especial     String
+  nome_organizacao_negociacao_especial   String
+  acordo_negociacao_especial             String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
+  data_inicio_negociacao_especial        DateTime?
+  data_fim_negociacao_especial           DateTime?
+  ilimitado_negociacao_especial          Boolean   @default(false)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_negociacao_especial     DateTime @default(now())
+  data_atualizacao_negociacao_especial DateTime @updatedAt
 
   // Relations
-  product ProdutoGravity @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity_negociacao_especial], references: [id_produto_gravity], onDelete: Cascade)
 
-  @@index([product_id])
-  @@index([tenant_id])
-  @@index([product_id, tenant_id])
+  @@index([id_produto_gravity_negociacao_especial], map: "ne_produto_idx")
+  @@index([id_organizacao_negociacao_especial], map: "ne_org_idx")
+  @@index([id_produto_gravity_negociacao_especial, id_organizacao_negociacao_especial], map: "ne_produto_org_idx")
   @@map("negociacao_especial_produto_gravity")
 }
 

@@ -38,9 +38,17 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // Enriquece com dados do catálogo
     const slugs = configs.map(c => c.chave_produto_config_produto_gravity)
-    const catalog = await prisma.produtoGravity.findMany({
-      where: { slug: { in: slugs } },
+    const catalogRows = await prisma.produtoGravity.findMany({
+      where: { slug_produto_gravity: { in: slugs } },
     })
+    // DTO: ProdutoGravity rename → contrato legado (apenas chaves usadas pelo consumer)
+    const catalog = catalogRows.map(p => ({
+      id: p.id_produto_gravity,
+      name: p.nome_produto_gravity,
+      slug: p.slug_produto_gravity,
+      description: p.descricao_produto_gravity,
+      status: p.status_produto_gravity,
+    }))
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
     // DTO: ConfiguracaoProduto rename → contrato legado
@@ -74,7 +82,12 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProdutoGravity.ATIVO] } } }).catch(() => null)
+      await prisma.produtoGravity.findFirst({
+        where: {
+          slug_produto_gravity: product_key,
+          status_produto_gravity: { in: [StatusProdutoGravity.ATIVO] },
+        },
+      }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')

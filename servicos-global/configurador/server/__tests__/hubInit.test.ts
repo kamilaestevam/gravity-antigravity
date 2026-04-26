@@ -127,8 +127,8 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('retorna catalog com produtos', async () => {
     const mockCatalog = [
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ATIVO' },
-      { id: 'p2', name: 'SimulaCusto', slug: 'simula-custo', description: 'Simulação', status: 'ATIVO' },
+      { id_produto_gravity: 'p1', nome_produto_gravity: 'BID Câmbio', slug_produto_gravity: 'bid-cambio', descricao_produto_gravity: 'Câmbio', status_produto_gravity: 'ATIVO' },
+      { id_produto_gravity: 'p2', nome_produto_gravity: 'SimulaCusto', slug_produto_gravity: 'simula-custo', descricao_produto_gravity: 'Simulação', status_produto_gravity: 'ATIVO' },
     ]
     prismaMock.produtoGravity.findMany.mockResolvedValue(mockCatalog)
 
@@ -147,8 +147,14 @@ describe('GET /api/v1/hub/catalog', () => {
   it('chama prisma.produtoGravity.findMany com select correto', async () => {
     await request.get('/api/v1/hub/catalog')
     expect(prismaMock.produtoGravity.findMany).toHaveBeenCalledWith({
-      select: { id: true, name: true, slug: true, description: true, status: true },
-      orderBy: { created_at: 'desc' },
+      select: {
+        id_produto_gravity: true,
+        nome_produto_gravity: true,
+        slug_produto_gravity: true,
+        descricao_produto_gravity: true,
+        status_produto_gravity: true,
+      },
+      orderBy: { data_criacao_produto_gravity: 'desc' },
     })
   })
 
@@ -224,7 +230,7 @@ describe('GET /api/v1/hub/init', () => {
       },
     ])
     prismaMock.produtoGravity.findMany.mockResolvedValue([
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ATIVO' },
+      { id_produto_gravity: 'p1', nome_produto_gravity: 'BID Câmbio', slug_produto_gravity: 'bid-cambio', descricao_produto_gravity: 'Câmbio', status_produto_gravity: 'ATIVO' },
     ])
 
     const res = await request.get('/api/v1/hub/init')
@@ -283,7 +289,7 @@ describe('GET /api/v1/hub/init', () => {
 
     // Fire-and-forget — prisma.usuario.update foi chamado
     expect(prismaMock.usuario.update).toHaveBeenCalledWith({
-      where: { id: 'user-001' },
+      where: { id_usuario: 'user-001' },
       data: { preferred_company_id: null },
     })
   })

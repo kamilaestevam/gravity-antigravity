@@ -13,20 +13,35 @@ export const productsRouter = Router()
  */
 productsRouter.get('/', async (_req, res) => {
   try {
-    const products = await prisma.produtoGravity.findMany({
-      where: { status: { in: ['ATIVO', 'EM_BREVE'] as any[] } },
+    const rows = await prisma.produtoGravity.findMany({
+      where: { status_produto_gravity: { in: ['ATIVO', 'EM_BREVE'] as any[] } },
       select: {
-        id: true, name: true, slug: true, description: true, status: true,
-        unit_price: true, unit_currency: true, backend_module: true,
-        billing_type: true,
+        id_produto_gravity: true,
+        nome_produto_gravity: true,
+        slug_produto_gravity: true,
+        descricao_produto_gravity: true,
+        status_produto_gravity: true,
+        preco_unitario_produto_gravity: true,
+        moeda_unitario_produto_gravity: true,
+        modulo_backend_produto_gravity: true,
+        tipo_cobranca_produto_gravity: true,
       },
-      orderBy: { name: 'asc' }
+      orderBy: { nome_produto_gravity: 'asc' }
     })
+    // DTO: ProdutoGravity rename → contrato legado público
     res.json({
-      products: products.map(p => ({
-        ...p,
-        type_billing: p.billing_type ?? null,
-        currency: p.unit_currency ?? 'BRL',
+      products: rows.map(p => ({
+        id: p.id_produto_gravity,
+        name: p.nome_produto_gravity,
+        slug: p.slug_produto_gravity,
+        description: p.descricao_produto_gravity,
+        status: p.status_produto_gravity,
+        unit_price: p.preco_unitario_produto_gravity,
+        unit_currency: p.moeda_unitario_produto_gravity,
+        backend_module: p.modulo_backend_produto_gravity,
+        billing_type: p.tipo_cobranca_produto_gravity,
+        type_billing: p.tipo_cobranca_produto_gravity ?? null,
+        currency: p.moeda_unitario_produto_gravity ?? 'BRL',
       }))
     })
   } catch {

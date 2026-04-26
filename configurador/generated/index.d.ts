@@ -3064,13 +3064,13 @@ export namespace Prisma {
    */
 
   export type ProdutoGravityCountOutputType = {
-    price_tiers: number
-    negotiations: number
+    faixas_preco_produto_gravity: number
+    negociacoes_produto_gravity: number
   }
 
   export type ProdutoGravityCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    price_tiers?: boolean | ProdutoGravityCountOutputTypeCountPrice_tiersArgs
-    negotiations?: boolean | ProdutoGravityCountOutputTypeCountNegotiationsArgs
+    faixas_preco_produto_gravity?: boolean | ProdutoGravityCountOutputTypeCountFaixas_preco_produto_gravityArgs
+    negociacoes_produto_gravity?: boolean | ProdutoGravityCountOutputTypeCountNegociacoes_produto_gravityArgs
   }
 
   // Custom InputTypes
@@ -3087,14 +3087,14 @@ export namespace Prisma {
   /**
    * ProdutoGravityCountOutputType without action
    */
-  export type ProdutoGravityCountOutputTypeCountPrice_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityCountOutputTypeCountFaixas_preco_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FaixaPrecoWhereInput
   }
 
   /**
    * ProdutoGravityCountOutputType without action
    */
-  export type ProdutoGravityCountOutputTypeCountNegotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityCountOutputTypeCountNegociacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NegociacaoEspecialWhereInput
   }
 
@@ -12172,245 +12172,245 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityAvgAggregateOutputType = {
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    minimum_price: Decimal | null
-    total_price: Decimal | null
-    base_users_qty: number | null
-    extra_user_price: Decimal | null
-    helpdesk_hours: number | null
-    extra_hour_price: Decimal | null
-    gabi_quota_mensal: number | null
+    preco_setup_produto_gravity: Decimal | null
+    preco_unitario_produto_gravity: Decimal | null
+    preco_minimo_produto_gravity: Decimal | null
+    preco_total_produto_gravity: Decimal | null
+    qtd_usuarios_base_produto_gravity: number | null
+    preco_usuario_extra_produto_gravity: Decimal | null
+    horas_helpdesk_produto_gravity: number | null
+    preco_hora_extra_produto_gravity: Decimal | null
+    quota_gabi_mensal_produto_gravity: number | null
   }
 
   export type ProdutoGravitySumAggregateOutputType = {
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    minimum_price: Decimal | null
-    total_price: Decimal | null
-    base_users_qty: number | null
-    extra_user_price: Decimal | null
-    helpdesk_hours: number | null
-    extra_hour_price: Decimal | null
-    gabi_quota_mensal: number | null
+    preco_setup_produto_gravity: Decimal | null
+    preco_unitario_produto_gravity: Decimal | null
+    preco_minimo_produto_gravity: Decimal | null
+    preco_total_produto_gravity: Decimal | null
+    qtd_usuarios_base_produto_gravity: number | null
+    preco_usuario_extra_produto_gravity: Decimal | null
+    horas_helpdesk_produto_gravity: number | null
+    preco_hora_extra_produto_gravity: Decimal | null
+    quota_gabi_mensal_produto_gravity: number | null
   }
 
   export type ProdutoGravityMinAggregateOutputType = {
-    id: string | null
-    name: string | null
-    slug: string | null
-    description: string | null
-    status: $Enums.StatusProdutoGravity | null
-    launch_date: Date | null
-    has_setup: boolean | null
-    setup_price: Decimal | null
-    setup_currency: string | null
-    billing_type: $Enums.TipoCobrancaGravity | null
-    unit_price: Decimal | null
-    unit_currency: string | null
-    minimum_price: Decimal | null
-    minimum_currency: string | null
-    total_price: Decimal | null
-    total_currency: string | null
-    user_limit_type: $Enums.ProdutoGravityLimiteUsuario | null
-    base_users_qty: number | null
-    extra_user_price: Decimal | null
-    extra_user_currency: string | null
-    helpdesk_hours: number | null
-    extra_hour_price: Decimal | null
-    extra_hour_currency: string | null
-    gabi_quota_mensal: number | null
-    backend_module: string | null
-    target_audience: string | null
-    created_at: Date | null
-    updated_at: Date | null
-    deleted_at: Date | null
+    id_produto_gravity: string | null
+    nome_produto_gravity: string | null
+    slug_produto_gravity: string | null
+    descricao_produto_gravity: string | null
+    status_produto_gravity: $Enums.StatusProdutoGravity | null
+    data_lancamento_produto_gravity: Date | null
+    possui_setup_produto_gravity: boolean | null
+    preco_setup_produto_gravity: Decimal | null
+    moeda_setup_produto_gravity: string | null
+    tipo_cobranca_produto_gravity: $Enums.TipoCobrancaGravity | null
+    preco_unitario_produto_gravity: Decimal | null
+    moeda_unitario_produto_gravity: string | null
+    preco_minimo_produto_gravity: Decimal | null
+    moeda_minimo_produto_gravity: string | null
+    preco_total_produto_gravity: Decimal | null
+    moeda_total_produto_gravity: string | null
+    tipo_limite_usuario_produto_gravity: $Enums.ProdutoGravityLimiteUsuario | null
+    qtd_usuarios_base_produto_gravity: number | null
+    preco_usuario_extra_produto_gravity: Decimal | null
+    moeda_usuario_extra_produto_gravity: string | null
+    horas_helpdesk_produto_gravity: number | null
+    preco_hora_extra_produto_gravity: Decimal | null
+    moeda_hora_extra_produto_gravity: string | null
+    quota_gabi_mensal_produto_gravity: number | null
+    modulo_backend_produto_gravity: string | null
+    publico_alvo_produto_gravity: string | null
+    data_criacao_produto_gravity: Date | null
+    data_atualizacao_produto_gravity: Date | null
+    data_remocao_produto_gravity: Date | null
   }
 
   export type ProdutoGravityMaxAggregateOutputType = {
-    id: string | null
-    name: string | null
-    slug: string | null
-    description: string | null
-    status: $Enums.StatusProdutoGravity | null
-    launch_date: Date | null
-    has_setup: boolean | null
-    setup_price: Decimal | null
-    setup_currency: string | null
-    billing_type: $Enums.TipoCobrancaGravity | null
-    unit_price: Decimal | null
-    unit_currency: string | null
-    minimum_price: Decimal | null
-    minimum_currency: string | null
-    total_price: Decimal | null
-    total_currency: string | null
-    user_limit_type: $Enums.ProdutoGravityLimiteUsuario | null
-    base_users_qty: number | null
-    extra_user_price: Decimal | null
-    extra_user_currency: string | null
-    helpdesk_hours: number | null
-    extra_hour_price: Decimal | null
-    extra_hour_currency: string | null
-    gabi_quota_mensal: number | null
-    backend_module: string | null
-    target_audience: string | null
-    created_at: Date | null
-    updated_at: Date | null
-    deleted_at: Date | null
+    id_produto_gravity: string | null
+    nome_produto_gravity: string | null
+    slug_produto_gravity: string | null
+    descricao_produto_gravity: string | null
+    status_produto_gravity: $Enums.StatusProdutoGravity | null
+    data_lancamento_produto_gravity: Date | null
+    possui_setup_produto_gravity: boolean | null
+    preco_setup_produto_gravity: Decimal | null
+    moeda_setup_produto_gravity: string | null
+    tipo_cobranca_produto_gravity: $Enums.TipoCobrancaGravity | null
+    preco_unitario_produto_gravity: Decimal | null
+    moeda_unitario_produto_gravity: string | null
+    preco_minimo_produto_gravity: Decimal | null
+    moeda_minimo_produto_gravity: string | null
+    preco_total_produto_gravity: Decimal | null
+    moeda_total_produto_gravity: string | null
+    tipo_limite_usuario_produto_gravity: $Enums.ProdutoGravityLimiteUsuario | null
+    qtd_usuarios_base_produto_gravity: number | null
+    preco_usuario_extra_produto_gravity: Decimal | null
+    moeda_usuario_extra_produto_gravity: string | null
+    horas_helpdesk_produto_gravity: number | null
+    preco_hora_extra_produto_gravity: Decimal | null
+    moeda_hora_extra_produto_gravity: string | null
+    quota_gabi_mensal_produto_gravity: number | null
+    modulo_backend_produto_gravity: string | null
+    publico_alvo_produto_gravity: string | null
+    data_criacao_produto_gravity: Date | null
+    data_atualizacao_produto_gravity: Date | null
+    data_remocao_produto_gravity: Date | null
   }
 
   export type ProdutoGravityCountAggregateOutputType = {
-    id: number
-    name: number
-    slug: number
-    description: number
-    status: number
-    launch_date: number
-    has_setup: number
-    setup_price: number
-    setup_currency: number
-    billing_type: number
-    unit_price: number
-    unit_currency: number
-    minimum_price: number
-    minimum_currency: number
-    total_price: number
-    total_currency: number
-    user_limit_type: number
-    base_users_qty: number
-    extra_user_price: number
-    extra_user_currency: number
-    helpdesk_hours: number
-    extra_hour_price: number
-    extra_hour_currency: number
-    gabi_quota_mensal: number
-    backend_module: number
-    target_audience: number
-    created_at: number
-    updated_at: number
-    deleted_at: number
+    id_produto_gravity: number
+    nome_produto_gravity: number
+    slug_produto_gravity: number
+    descricao_produto_gravity: number
+    status_produto_gravity: number
+    data_lancamento_produto_gravity: number
+    possui_setup_produto_gravity: number
+    preco_setup_produto_gravity: number
+    moeda_setup_produto_gravity: number
+    tipo_cobranca_produto_gravity: number
+    preco_unitario_produto_gravity: number
+    moeda_unitario_produto_gravity: number
+    preco_minimo_produto_gravity: number
+    moeda_minimo_produto_gravity: number
+    preco_total_produto_gravity: number
+    moeda_total_produto_gravity: number
+    tipo_limite_usuario_produto_gravity: number
+    qtd_usuarios_base_produto_gravity: number
+    preco_usuario_extra_produto_gravity: number
+    moeda_usuario_extra_produto_gravity: number
+    horas_helpdesk_produto_gravity: number
+    preco_hora_extra_produto_gravity: number
+    moeda_hora_extra_produto_gravity: number
+    quota_gabi_mensal_produto_gravity: number
+    modulo_backend_produto_gravity: number
+    publico_alvo_produto_gravity: number
+    data_criacao_produto_gravity: number
+    data_atualizacao_produto_gravity: number
+    data_remocao_produto_gravity: number
     _all: number
   }
 
 
   export type ProdutoGravityAvgAggregateInputType = {
-    setup_price?: true
-    unit_price?: true
-    minimum_price?: true
-    total_price?: true
-    base_users_qty?: true
-    extra_user_price?: true
-    helpdesk_hours?: true
-    extra_hour_price?: true
-    gabi_quota_mensal?: true
+    preco_setup_produto_gravity?: true
+    preco_unitario_produto_gravity?: true
+    preco_minimo_produto_gravity?: true
+    preco_total_produto_gravity?: true
+    qtd_usuarios_base_produto_gravity?: true
+    preco_usuario_extra_produto_gravity?: true
+    horas_helpdesk_produto_gravity?: true
+    preco_hora_extra_produto_gravity?: true
+    quota_gabi_mensal_produto_gravity?: true
   }
 
   export type ProdutoGravitySumAggregateInputType = {
-    setup_price?: true
-    unit_price?: true
-    minimum_price?: true
-    total_price?: true
-    base_users_qty?: true
-    extra_user_price?: true
-    helpdesk_hours?: true
-    extra_hour_price?: true
-    gabi_quota_mensal?: true
+    preco_setup_produto_gravity?: true
+    preco_unitario_produto_gravity?: true
+    preco_minimo_produto_gravity?: true
+    preco_total_produto_gravity?: true
+    qtd_usuarios_base_produto_gravity?: true
+    preco_usuario_extra_produto_gravity?: true
+    horas_helpdesk_produto_gravity?: true
+    preco_hora_extra_produto_gravity?: true
+    quota_gabi_mensal_produto_gravity?: true
   }
 
   export type ProdutoGravityMinAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    launch_date?: true
-    has_setup?: true
-    setup_price?: true
-    setup_currency?: true
-    billing_type?: true
-    unit_price?: true
-    unit_currency?: true
-    minimum_price?: true
-    minimum_currency?: true
-    total_price?: true
-    total_currency?: true
-    user_limit_type?: true
-    base_users_qty?: true
-    extra_user_price?: true
-    extra_user_currency?: true
-    helpdesk_hours?: true
-    extra_hour_price?: true
-    extra_hour_currency?: true
-    gabi_quota_mensal?: true
-    backend_module?: true
-    target_audience?: true
-    created_at?: true
-    updated_at?: true
-    deleted_at?: true
+    id_produto_gravity?: true
+    nome_produto_gravity?: true
+    slug_produto_gravity?: true
+    descricao_produto_gravity?: true
+    status_produto_gravity?: true
+    data_lancamento_produto_gravity?: true
+    possui_setup_produto_gravity?: true
+    preco_setup_produto_gravity?: true
+    moeda_setup_produto_gravity?: true
+    tipo_cobranca_produto_gravity?: true
+    preco_unitario_produto_gravity?: true
+    moeda_unitario_produto_gravity?: true
+    preco_minimo_produto_gravity?: true
+    moeda_minimo_produto_gravity?: true
+    preco_total_produto_gravity?: true
+    moeda_total_produto_gravity?: true
+    tipo_limite_usuario_produto_gravity?: true
+    qtd_usuarios_base_produto_gravity?: true
+    preco_usuario_extra_produto_gravity?: true
+    moeda_usuario_extra_produto_gravity?: true
+    horas_helpdesk_produto_gravity?: true
+    preco_hora_extra_produto_gravity?: true
+    moeda_hora_extra_produto_gravity?: true
+    quota_gabi_mensal_produto_gravity?: true
+    modulo_backend_produto_gravity?: true
+    publico_alvo_produto_gravity?: true
+    data_criacao_produto_gravity?: true
+    data_atualizacao_produto_gravity?: true
+    data_remocao_produto_gravity?: true
   }
 
   export type ProdutoGravityMaxAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    launch_date?: true
-    has_setup?: true
-    setup_price?: true
-    setup_currency?: true
-    billing_type?: true
-    unit_price?: true
-    unit_currency?: true
-    minimum_price?: true
-    minimum_currency?: true
-    total_price?: true
-    total_currency?: true
-    user_limit_type?: true
-    base_users_qty?: true
-    extra_user_price?: true
-    extra_user_currency?: true
-    helpdesk_hours?: true
-    extra_hour_price?: true
-    extra_hour_currency?: true
-    gabi_quota_mensal?: true
-    backend_module?: true
-    target_audience?: true
-    created_at?: true
-    updated_at?: true
-    deleted_at?: true
+    id_produto_gravity?: true
+    nome_produto_gravity?: true
+    slug_produto_gravity?: true
+    descricao_produto_gravity?: true
+    status_produto_gravity?: true
+    data_lancamento_produto_gravity?: true
+    possui_setup_produto_gravity?: true
+    preco_setup_produto_gravity?: true
+    moeda_setup_produto_gravity?: true
+    tipo_cobranca_produto_gravity?: true
+    preco_unitario_produto_gravity?: true
+    moeda_unitario_produto_gravity?: true
+    preco_minimo_produto_gravity?: true
+    moeda_minimo_produto_gravity?: true
+    preco_total_produto_gravity?: true
+    moeda_total_produto_gravity?: true
+    tipo_limite_usuario_produto_gravity?: true
+    qtd_usuarios_base_produto_gravity?: true
+    preco_usuario_extra_produto_gravity?: true
+    moeda_usuario_extra_produto_gravity?: true
+    horas_helpdesk_produto_gravity?: true
+    preco_hora_extra_produto_gravity?: true
+    moeda_hora_extra_produto_gravity?: true
+    quota_gabi_mensal_produto_gravity?: true
+    modulo_backend_produto_gravity?: true
+    publico_alvo_produto_gravity?: true
+    data_criacao_produto_gravity?: true
+    data_atualizacao_produto_gravity?: true
+    data_remocao_produto_gravity?: true
   }
 
   export type ProdutoGravityCountAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    launch_date?: true
-    has_setup?: true
-    setup_price?: true
-    setup_currency?: true
-    billing_type?: true
-    unit_price?: true
-    unit_currency?: true
-    minimum_price?: true
-    minimum_currency?: true
-    total_price?: true
-    total_currency?: true
-    user_limit_type?: true
-    base_users_qty?: true
-    extra_user_price?: true
-    extra_user_currency?: true
-    helpdesk_hours?: true
-    extra_hour_price?: true
-    extra_hour_currency?: true
-    gabi_quota_mensal?: true
-    backend_module?: true
-    target_audience?: true
-    created_at?: true
-    updated_at?: true
-    deleted_at?: true
+    id_produto_gravity?: true
+    nome_produto_gravity?: true
+    slug_produto_gravity?: true
+    descricao_produto_gravity?: true
+    status_produto_gravity?: true
+    data_lancamento_produto_gravity?: true
+    possui_setup_produto_gravity?: true
+    preco_setup_produto_gravity?: true
+    moeda_setup_produto_gravity?: true
+    tipo_cobranca_produto_gravity?: true
+    preco_unitario_produto_gravity?: true
+    moeda_unitario_produto_gravity?: true
+    preco_minimo_produto_gravity?: true
+    moeda_minimo_produto_gravity?: true
+    preco_total_produto_gravity?: true
+    moeda_total_produto_gravity?: true
+    tipo_limite_usuario_produto_gravity?: true
+    qtd_usuarios_base_produto_gravity?: true
+    preco_usuario_extra_produto_gravity?: true
+    moeda_usuario_extra_produto_gravity?: true
+    horas_helpdesk_produto_gravity?: true
+    preco_hora_extra_produto_gravity?: true
+    moeda_hora_extra_produto_gravity?: true
+    quota_gabi_mensal_produto_gravity?: true
+    modulo_backend_produto_gravity?: true
+    publico_alvo_produto_gravity?: true
+    data_criacao_produto_gravity?: true
+    data_atualizacao_produto_gravity?: true
+    data_remocao_produto_gravity?: true
     _all?: true
   }
 
@@ -12501,35 +12501,35 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityGroupByOutputType = {
-    id: string
-    name: string
-    slug: string
-    description: string
-    status: $Enums.StatusProdutoGravity
-    launch_date: Date | null
-    has_setup: boolean
-    setup_price: Decimal | null
-    setup_currency: string
-    billing_type: $Enums.TipoCobrancaGravity
-    unit_price: Decimal
-    unit_currency: string
-    minimum_price: Decimal
-    minimum_currency: string
-    total_price: Decimal | null
-    total_currency: string
-    user_limit_type: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty: number | null
-    extra_user_price: Decimal | null
-    extra_user_currency: string
-    helpdesk_hours: number
-    extra_hour_price: Decimal | null
-    extra_hour_currency: string
-    gabi_quota_mensal: number
-    backend_module: string | null
-    target_audience: string | null
-    created_at: Date
-    updated_at: Date
-    deleted_at: Date | null
+    id_produto_gravity: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity: Date | null
+    possui_setup_produto_gravity: boolean
+    preco_setup_produto_gravity: Decimal | null
+    moeda_setup_produto_gravity: string
+    tipo_cobranca_produto_gravity: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal
+    moeda_unitario_produto_gravity: string
+    preco_minimo_produto_gravity: Decimal
+    moeda_minimo_produto_gravity: string
+    preco_total_produto_gravity: Decimal | null
+    moeda_total_produto_gravity: string
+    tipo_limite_usuario_produto_gravity: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity: number | null
+    preco_usuario_extra_produto_gravity: Decimal | null
+    moeda_usuario_extra_produto_gravity: string
+    horas_helpdesk_produto_gravity: number
+    preco_hora_extra_produto_gravity: Decimal | null
+    moeda_hora_extra_produto_gravity: string
+    quota_gabi_mensal_produto_gravity: number
+    modulo_backend_produto_gravity: string | null
+    publico_alvo_produto_gravity: string | null
+    data_criacao_produto_gravity: Date
+    data_atualizacao_produto_gravity: Date
+    data_remocao_produto_gravity: Date | null
     _count: ProdutoGravityCountAggregateOutputType | null
     _avg: ProdutoGravityAvgAggregateOutputType | null
     _sum: ProdutoGravitySumAggregateOutputType | null
@@ -12552,107 +12552,107 @@ export namespace Prisma {
 
 
   export type ProdutoGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    launch_date?: boolean
-    has_setup?: boolean
-    setup_price?: boolean
-    setup_currency?: boolean
-    billing_type?: boolean
-    unit_price?: boolean
-    unit_currency?: boolean
-    minimum_price?: boolean
-    minimum_currency?: boolean
-    total_price?: boolean
-    total_currency?: boolean
-    user_limit_type?: boolean
-    base_users_qty?: boolean
-    extra_user_price?: boolean
-    extra_user_currency?: boolean
-    helpdesk_hours?: boolean
-    extra_hour_price?: boolean
-    extra_hour_currency?: boolean
-    gabi_quota_mensal?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    deleted_at?: boolean
-    price_tiers?: boolean | ProdutoGravity$price_tiersArgs<ExtArgs>
-    negotiations?: boolean | ProdutoGravity$negotiationsArgs<ExtArgs>
+    id_produto_gravity?: boolean
+    nome_produto_gravity?: boolean
+    slug_produto_gravity?: boolean
+    descricao_produto_gravity?: boolean
+    status_produto_gravity?: boolean
+    data_lancamento_produto_gravity?: boolean
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: boolean
+    moeda_setup_produto_gravity?: boolean
+    tipo_cobranca_produto_gravity?: boolean
+    preco_unitario_produto_gravity?: boolean
+    moeda_unitario_produto_gravity?: boolean
+    preco_minimo_produto_gravity?: boolean
+    moeda_minimo_produto_gravity?: boolean
+    preco_total_produto_gravity?: boolean
+    moeda_total_produto_gravity?: boolean
+    tipo_limite_usuario_produto_gravity?: boolean
+    qtd_usuarios_base_produto_gravity?: boolean
+    preco_usuario_extra_produto_gravity?: boolean
+    moeda_usuario_extra_produto_gravity?: boolean
+    horas_helpdesk_produto_gravity?: boolean
+    preco_hora_extra_produto_gravity?: boolean
+    moeda_hora_extra_produto_gravity?: boolean
+    quota_gabi_mensal_produto_gravity?: boolean
+    modulo_backend_produto_gravity?: boolean
+    publico_alvo_produto_gravity?: boolean
+    data_criacao_produto_gravity?: boolean
+    data_atualizacao_produto_gravity?: boolean
+    data_remocao_produto_gravity?: boolean
+    faixas_preco_produto_gravity?: boolean | ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>
+    negociacoes_produto_gravity?: boolean | ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>
     _count?: boolean | ProdutoGravityCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravity"]>
 
   export type ProdutoGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    launch_date?: boolean
-    has_setup?: boolean
-    setup_price?: boolean
-    setup_currency?: boolean
-    billing_type?: boolean
-    unit_price?: boolean
-    unit_currency?: boolean
-    minimum_price?: boolean
-    minimum_currency?: boolean
-    total_price?: boolean
-    total_currency?: boolean
-    user_limit_type?: boolean
-    base_users_qty?: boolean
-    extra_user_price?: boolean
-    extra_user_currency?: boolean
-    helpdesk_hours?: boolean
-    extra_hour_price?: boolean
-    extra_hour_currency?: boolean
-    gabi_quota_mensal?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    deleted_at?: boolean
+    id_produto_gravity?: boolean
+    nome_produto_gravity?: boolean
+    slug_produto_gravity?: boolean
+    descricao_produto_gravity?: boolean
+    status_produto_gravity?: boolean
+    data_lancamento_produto_gravity?: boolean
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: boolean
+    moeda_setup_produto_gravity?: boolean
+    tipo_cobranca_produto_gravity?: boolean
+    preco_unitario_produto_gravity?: boolean
+    moeda_unitario_produto_gravity?: boolean
+    preco_minimo_produto_gravity?: boolean
+    moeda_minimo_produto_gravity?: boolean
+    preco_total_produto_gravity?: boolean
+    moeda_total_produto_gravity?: boolean
+    tipo_limite_usuario_produto_gravity?: boolean
+    qtd_usuarios_base_produto_gravity?: boolean
+    preco_usuario_extra_produto_gravity?: boolean
+    moeda_usuario_extra_produto_gravity?: boolean
+    horas_helpdesk_produto_gravity?: boolean
+    preco_hora_extra_produto_gravity?: boolean
+    moeda_hora_extra_produto_gravity?: boolean
+    quota_gabi_mensal_produto_gravity?: boolean
+    modulo_backend_produto_gravity?: boolean
+    publico_alvo_produto_gravity?: boolean
+    data_criacao_produto_gravity?: boolean
+    data_atualizacao_produto_gravity?: boolean
+    data_remocao_produto_gravity?: boolean
   }, ExtArgs["result"]["produtoGravity"]>
 
   export type ProdutoGravitySelectScalar = {
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    launch_date?: boolean
-    has_setup?: boolean
-    setup_price?: boolean
-    setup_currency?: boolean
-    billing_type?: boolean
-    unit_price?: boolean
-    unit_currency?: boolean
-    minimum_price?: boolean
-    minimum_currency?: boolean
-    total_price?: boolean
-    total_currency?: boolean
-    user_limit_type?: boolean
-    base_users_qty?: boolean
-    extra_user_price?: boolean
-    extra_user_currency?: boolean
-    helpdesk_hours?: boolean
-    extra_hour_price?: boolean
-    extra_hour_currency?: boolean
-    gabi_quota_mensal?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    deleted_at?: boolean
+    id_produto_gravity?: boolean
+    nome_produto_gravity?: boolean
+    slug_produto_gravity?: boolean
+    descricao_produto_gravity?: boolean
+    status_produto_gravity?: boolean
+    data_lancamento_produto_gravity?: boolean
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: boolean
+    moeda_setup_produto_gravity?: boolean
+    tipo_cobranca_produto_gravity?: boolean
+    preco_unitario_produto_gravity?: boolean
+    moeda_unitario_produto_gravity?: boolean
+    preco_minimo_produto_gravity?: boolean
+    moeda_minimo_produto_gravity?: boolean
+    preco_total_produto_gravity?: boolean
+    moeda_total_produto_gravity?: boolean
+    tipo_limite_usuario_produto_gravity?: boolean
+    qtd_usuarios_base_produto_gravity?: boolean
+    preco_usuario_extra_produto_gravity?: boolean
+    moeda_usuario_extra_produto_gravity?: boolean
+    horas_helpdesk_produto_gravity?: boolean
+    preco_hora_extra_produto_gravity?: boolean
+    moeda_hora_extra_produto_gravity?: boolean
+    quota_gabi_mensal_produto_gravity?: boolean
+    modulo_backend_produto_gravity?: boolean
+    publico_alvo_produto_gravity?: boolean
+    data_criacao_produto_gravity?: boolean
+    data_atualizacao_produto_gravity?: boolean
+    data_remocao_produto_gravity?: boolean
   }
 
   export type ProdutoGravityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    price_tiers?: boolean | ProdutoGravity$price_tiersArgs<ExtArgs>
-    negotiations?: boolean | ProdutoGravity$negotiationsArgs<ExtArgs>
+    faixas_preco_produto_gravity?: boolean | ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>
+    negociacoes_produto_gravity?: boolean | ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>
     _count?: boolean | ProdutoGravityCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProdutoGravityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12660,39 +12660,39 @@ export namespace Prisma {
   export type $ProdutoGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProdutoGravity"
     objects: {
-      price_tiers: Prisma.$FaixaPrecoPayload<ExtArgs>[]
-      negotiations: Prisma.$NegociacaoEspecialPayload<ExtArgs>[]
+      faixas_preco_produto_gravity: Prisma.$FaixaPrecoPayload<ExtArgs>[]
+      negociacoes_produto_gravity: Prisma.$NegociacaoEspecialPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      name: string
-      slug: string
-      description: string
-      status: $Enums.StatusProdutoGravity
-      launch_date: Date | null
-      has_setup: boolean
-      setup_price: Prisma.Decimal | null
-      setup_currency: string
-      billing_type: $Enums.TipoCobrancaGravity
-      unit_price: Prisma.Decimal
-      unit_currency: string
-      minimum_price: Prisma.Decimal
-      minimum_currency: string
-      total_price: Prisma.Decimal | null
-      total_currency: string
-      user_limit_type: $Enums.ProdutoGravityLimiteUsuario
-      base_users_qty: number | null
-      extra_user_price: Prisma.Decimal | null
-      extra_user_currency: string
-      helpdesk_hours: number
-      extra_hour_price: Prisma.Decimal | null
-      extra_hour_currency: string
-      gabi_quota_mensal: number
-      backend_module: string | null
-      target_audience: string | null
-      created_at: Date
-      updated_at: Date
-      deleted_at: Date | null
+      id_produto_gravity: string
+      nome_produto_gravity: string
+      slug_produto_gravity: string
+      descricao_produto_gravity: string
+      status_produto_gravity: $Enums.StatusProdutoGravity
+      data_lancamento_produto_gravity: Date | null
+      possui_setup_produto_gravity: boolean
+      preco_setup_produto_gravity: Prisma.Decimal | null
+      moeda_setup_produto_gravity: string
+      tipo_cobranca_produto_gravity: $Enums.TipoCobrancaGravity
+      preco_unitario_produto_gravity: Prisma.Decimal
+      moeda_unitario_produto_gravity: string
+      preco_minimo_produto_gravity: Prisma.Decimal
+      moeda_minimo_produto_gravity: string
+      preco_total_produto_gravity: Prisma.Decimal | null
+      moeda_total_produto_gravity: string
+      tipo_limite_usuario_produto_gravity: $Enums.ProdutoGravityLimiteUsuario
+      qtd_usuarios_base_produto_gravity: number | null
+      preco_usuario_extra_produto_gravity: Prisma.Decimal | null
+      moeda_usuario_extra_produto_gravity: string
+      horas_helpdesk_produto_gravity: number
+      preco_hora_extra_produto_gravity: Prisma.Decimal | null
+      moeda_hora_extra_produto_gravity: string
+      quota_gabi_mensal_produto_gravity: number
+      modulo_backend_produto_gravity: string | null
+      publico_alvo_produto_gravity: string | null
+      data_criacao_produto_gravity: Date
+      data_atualizacao_produto_gravity: Date
+      data_remocao_produto_gravity: Date | null
     }, ExtArgs["result"]["produtoGravity"]>
     composites: {}
   }
@@ -12776,8 +12776,8 @@ export namespace Prisma {
      * // Get first 10 ProdutoGravities
      * const produtoGravities = await prisma.produtoGravity.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const produtoGravityWithIdOnly = await prisma.produtoGravity.findMany({ select: { id: true } })
+     * // Only select the `id_produto_gravity`
+     * const produtoGravityWithId_produto_gravityOnly = await prisma.produtoGravity.findMany({ select: { id_produto_gravity: true } })
      * 
      */
     findMany<T extends ProdutoGravityFindManyArgs>(args?: SelectSubset<T, ProdutoGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findMany">>
@@ -12821,9 +12821,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ProdutoGravities and only return the `id`
-     * const produtoGravityWithIdOnly = await prisma.produtoGravity.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ProdutoGravities and only return the `id_produto_gravity`
+     * const produtoGravityWithId_produto_gravityOnly = await prisma.produtoGravity.createManyAndReturn({ 
+     *   select: { id_produto_gravity: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -13057,8 +13057,8 @@ export namespace Prisma {
    */
   export interface Prisma__ProdutoGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    price_tiers<T extends ProdutoGravity$price_tiersArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$price_tiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
-    negotiations<T extends ProdutoGravity$negotiationsArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negotiationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
+    faixas_preco_produto_gravity<T extends ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
+    negociacoes_produto_gravity<T extends ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13088,35 +13088,35 @@ export namespace Prisma {
    * Fields of the ProdutoGravity model
    */ 
   interface ProdutoGravityFieldRefs {
-    readonly id: FieldRef<"ProdutoGravity", 'String'>
-    readonly name: FieldRef<"ProdutoGravity", 'String'>
-    readonly slug: FieldRef<"ProdutoGravity", 'String'>
-    readonly description: FieldRef<"ProdutoGravity", 'String'>
-    readonly status: FieldRef<"ProdutoGravity", 'StatusProdutoGravity'>
-    readonly launch_date: FieldRef<"ProdutoGravity", 'DateTime'>
-    readonly has_setup: FieldRef<"ProdutoGravity", 'Boolean'>
-    readonly setup_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly setup_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly billing_type: FieldRef<"ProdutoGravity", 'TipoCobrancaGravity'>
-    readonly unit_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly unit_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly minimum_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly minimum_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly total_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly total_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly user_limit_type: FieldRef<"ProdutoGravity", 'ProdutoGravityLimiteUsuario'>
-    readonly base_users_qty: FieldRef<"ProdutoGravity", 'Int'>
-    readonly extra_user_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly extra_user_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly helpdesk_hours: FieldRef<"ProdutoGravity", 'Int'>
-    readonly extra_hour_price: FieldRef<"ProdutoGravity", 'Decimal'>
-    readonly extra_hour_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly gabi_quota_mensal: FieldRef<"ProdutoGravity", 'Int'>
-    readonly backend_module: FieldRef<"ProdutoGravity", 'String'>
-    readonly target_audience: FieldRef<"ProdutoGravity", 'String'>
-    readonly created_at: FieldRef<"ProdutoGravity", 'DateTime'>
-    readonly updated_at: FieldRef<"ProdutoGravity", 'DateTime'>
-    readonly deleted_at: FieldRef<"ProdutoGravity", 'DateTime'>
+    readonly id_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly nome_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly slug_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly descricao_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly status_produto_gravity: FieldRef<"ProdutoGravity", 'StatusProdutoGravity'>
+    readonly data_lancamento_produto_gravity: FieldRef<"ProdutoGravity", 'DateTime'>
+    readonly possui_setup_produto_gravity: FieldRef<"ProdutoGravity", 'Boolean'>
+    readonly preco_setup_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_setup_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly tipo_cobranca_produto_gravity: FieldRef<"ProdutoGravity", 'TipoCobrancaGravity'>
+    readonly preco_unitario_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_unitario_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly preco_minimo_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_minimo_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly preco_total_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_total_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly tipo_limite_usuario_produto_gravity: FieldRef<"ProdutoGravity", 'ProdutoGravityLimiteUsuario'>
+    readonly qtd_usuarios_base_produto_gravity: FieldRef<"ProdutoGravity", 'Int'>
+    readonly preco_usuario_extra_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_usuario_extra_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly horas_helpdesk_produto_gravity: FieldRef<"ProdutoGravity", 'Int'>
+    readonly preco_hora_extra_produto_gravity: FieldRef<"ProdutoGravity", 'Decimal'>
+    readonly moeda_hora_extra_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly quota_gabi_mensal_produto_gravity: FieldRef<"ProdutoGravity", 'Int'>
+    readonly modulo_backend_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly publico_alvo_produto_gravity: FieldRef<"ProdutoGravity", 'String'>
+    readonly data_criacao_produto_gravity: FieldRef<"ProdutoGravity", 'DateTime'>
+    readonly data_atualizacao_produto_gravity: FieldRef<"ProdutoGravity", 'DateTime'>
+    readonly data_remocao_produto_gravity: FieldRef<"ProdutoGravity", 'DateTime'>
   }
     
 
@@ -13431,9 +13431,9 @@ export namespace Prisma {
   }
 
   /**
-   * ProdutoGravity.price_tiers
+   * ProdutoGravity.faixas_preco_produto_gravity
    */
-  export type ProdutoGravity$price_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the FaixaPreco
      */
@@ -13451,9 +13451,9 @@ export namespace Prisma {
   }
 
   /**
-   * ProdutoGravity.negotiations
+   * ProdutoGravity.negociacoes_produto_gravity
    */
-  export type ProdutoGravity$negotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the NegociacaoEspecial
      */
@@ -13498,89 +13498,89 @@ export namespace Prisma {
   }
 
   export type FaixaPrecoAvgAggregateOutputType = {
-    range_from: number | null
-    range_to: number | null
-    price: Decimal | null
+    faixa_de_faixa_preco: number | null
+    faixa_ate_faixa_preco: number | null
+    preco_faixa_preco: Decimal | null
   }
 
   export type FaixaPrecoSumAggregateOutputType = {
-    range_from: number | null
-    range_to: number | null
-    price: Decimal | null
+    faixa_de_faixa_preco: number | null
+    faixa_ate_faixa_preco: number | null
+    preco_faixa_preco: Decimal | null
   }
 
   export type FaixaPrecoMinAggregateOutputType = {
-    id: string | null
-    product_id: string | null
-    range_from: number | null
-    range_to: number | null
-    price: Decimal | null
-    currency: string | null
-    created_at: Date | null
+    id_faixa_preco: string | null
+    id_produto_gravity_faixa_preco: string | null
+    faixa_de_faixa_preco: number | null
+    faixa_ate_faixa_preco: number | null
+    preco_faixa_preco: Decimal | null
+    moeda_faixa_preco: string | null
+    data_criacao_faixa_preco: Date | null
   }
 
   export type FaixaPrecoMaxAggregateOutputType = {
-    id: string | null
-    product_id: string | null
-    range_from: number | null
-    range_to: number | null
-    price: Decimal | null
-    currency: string | null
-    created_at: Date | null
+    id_faixa_preco: string | null
+    id_produto_gravity_faixa_preco: string | null
+    faixa_de_faixa_preco: number | null
+    faixa_ate_faixa_preco: number | null
+    preco_faixa_preco: Decimal | null
+    moeda_faixa_preco: string | null
+    data_criacao_faixa_preco: Date | null
   }
 
   export type FaixaPrecoCountAggregateOutputType = {
-    id: number
-    product_id: number
-    range_from: number
-    range_to: number
-    price: number
-    currency: number
-    created_at: number
+    id_faixa_preco: number
+    id_produto_gravity_faixa_preco: number
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco: number
+    preco_faixa_preco: number
+    moeda_faixa_preco: number
+    data_criacao_faixa_preco: number
     _all: number
   }
 
 
   export type FaixaPrecoAvgAggregateInputType = {
-    range_from?: true
-    range_to?: true
-    price?: true
+    faixa_de_faixa_preco?: true
+    faixa_ate_faixa_preco?: true
+    preco_faixa_preco?: true
   }
 
   export type FaixaPrecoSumAggregateInputType = {
-    range_from?: true
-    range_to?: true
-    price?: true
+    faixa_de_faixa_preco?: true
+    faixa_ate_faixa_preco?: true
+    preco_faixa_preco?: true
   }
 
   export type FaixaPrecoMinAggregateInputType = {
-    id?: true
-    product_id?: true
-    range_from?: true
-    range_to?: true
-    price?: true
-    currency?: true
-    created_at?: true
+    id_faixa_preco?: true
+    id_produto_gravity_faixa_preco?: true
+    faixa_de_faixa_preco?: true
+    faixa_ate_faixa_preco?: true
+    preco_faixa_preco?: true
+    moeda_faixa_preco?: true
+    data_criacao_faixa_preco?: true
   }
 
   export type FaixaPrecoMaxAggregateInputType = {
-    id?: true
-    product_id?: true
-    range_from?: true
-    range_to?: true
-    price?: true
-    currency?: true
-    created_at?: true
+    id_faixa_preco?: true
+    id_produto_gravity_faixa_preco?: true
+    faixa_de_faixa_preco?: true
+    faixa_ate_faixa_preco?: true
+    preco_faixa_preco?: true
+    moeda_faixa_preco?: true
+    data_criacao_faixa_preco?: true
   }
 
   export type FaixaPrecoCountAggregateInputType = {
-    id?: true
-    product_id?: true
-    range_from?: true
-    range_to?: true
-    price?: true
-    currency?: true
-    created_at?: true
+    id_faixa_preco?: true
+    id_produto_gravity_faixa_preco?: true
+    faixa_de_faixa_preco?: true
+    faixa_ate_faixa_preco?: true
+    preco_faixa_preco?: true
+    moeda_faixa_preco?: true
+    data_criacao_faixa_preco?: true
     _all?: true
   }
 
@@ -13671,13 +13671,13 @@ export namespace Prisma {
   }
 
   export type FaixaPrecoGroupByOutputType = {
-    id: string
-    product_id: string
-    range_from: number
-    range_to: number | null
-    price: Decimal
-    currency: string
-    created_at: Date
+    id_faixa_preco: string
+    id_produto_gravity_faixa_preco: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco: number | null
+    preco_faixa_preco: Decimal
+    moeda_faixa_preco: string
+    data_criacao_faixa_preco: Date
     _count: FaixaPrecoCountAggregateOutputType | null
     _avg: FaixaPrecoAvgAggregateOutputType | null
     _sum: FaixaPrecoSumAggregateOutputType | null
@@ -13700,57 +13700,57 @@ export namespace Prisma {
 
 
   export type FaixaPrecoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    product_id?: boolean
-    range_from?: boolean
-    range_to?: boolean
-    price?: boolean
-    currency?: boolean
-    created_at?: boolean
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    id_faixa_preco?: boolean
+    id_produto_gravity_faixa_preco?: boolean
+    faixa_de_faixa_preco?: boolean
+    faixa_ate_faixa_preco?: boolean
+    preco_faixa_preco?: boolean
+    moeda_faixa_preco?: boolean
+    data_criacao_faixa_preco?: boolean
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["faixaPreco"]>
 
   export type FaixaPrecoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    product_id?: boolean
-    range_from?: boolean
-    range_to?: boolean
-    price?: boolean
-    currency?: boolean
-    created_at?: boolean
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    id_faixa_preco?: boolean
+    id_produto_gravity_faixa_preco?: boolean
+    faixa_de_faixa_preco?: boolean
+    faixa_ate_faixa_preco?: boolean
+    preco_faixa_preco?: boolean
+    moeda_faixa_preco?: boolean
+    data_criacao_faixa_preco?: boolean
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["faixaPreco"]>
 
   export type FaixaPrecoSelectScalar = {
-    id?: boolean
-    product_id?: boolean
-    range_from?: boolean
-    range_to?: boolean
-    price?: boolean
-    currency?: boolean
-    created_at?: boolean
+    id_faixa_preco?: boolean
+    id_produto_gravity_faixa_preco?: boolean
+    faixa_de_faixa_preco?: boolean
+    faixa_ate_faixa_preco?: boolean
+    preco_faixa_preco?: boolean
+    moeda_faixa_preco?: boolean
+    data_criacao_faixa_preco?: boolean
   }
 
   export type FaixaPrecoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
   export type FaixaPrecoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
   export type $FaixaPrecoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FaixaPreco"
     objects: {
-      product: Prisma.$ProdutoGravityPayload<ExtArgs>
+      produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      product_id: string
-      range_from: number
-      range_to: number | null
-      price: Prisma.Decimal
-      currency: string
-      created_at: Date
+      id_faixa_preco: string
+      id_produto_gravity_faixa_preco: string
+      faixa_de_faixa_preco: number
+      faixa_ate_faixa_preco: number | null
+      preco_faixa_preco: Prisma.Decimal
+      moeda_faixa_preco: string
+      data_criacao_faixa_preco: Date
     }, ExtArgs["result"]["faixaPreco"]>
     composites: {}
   }
@@ -13834,8 +13834,8 @@ export namespace Prisma {
      * // Get first 10 FaixaPrecos
      * const faixaPrecos = await prisma.faixaPreco.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const faixaPrecoWithIdOnly = await prisma.faixaPreco.findMany({ select: { id: true } })
+     * // Only select the `id_faixa_preco`
+     * const faixaPrecoWithId_faixa_precoOnly = await prisma.faixaPreco.findMany({ select: { id_faixa_preco: true } })
      * 
      */
     findMany<T extends FaixaPrecoFindManyArgs>(args?: SelectSubset<T, FaixaPrecoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany">>
@@ -13879,9 +13879,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many FaixaPrecos and only return the `id`
-     * const faixaPrecoWithIdOnly = await prisma.faixaPreco.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many FaixaPrecos and only return the `id_faixa_preco`
+     * const faixaPrecoWithId_faixa_precoOnly = await prisma.faixaPreco.createManyAndReturn({ 
+     *   select: { id_faixa_preco: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -14115,7 +14115,7 @@ export namespace Prisma {
    */
   export interface Prisma__FaixaPrecoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    product<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    produto<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14145,13 +14145,13 @@ export namespace Prisma {
    * Fields of the FaixaPreco model
    */ 
   interface FaixaPrecoFieldRefs {
-    readonly id: FieldRef<"FaixaPreco", 'String'>
-    readonly product_id: FieldRef<"FaixaPreco", 'String'>
-    readonly range_from: FieldRef<"FaixaPreco", 'Int'>
-    readonly range_to: FieldRef<"FaixaPreco", 'Int'>
-    readonly price: FieldRef<"FaixaPreco", 'Decimal'>
-    readonly currency: FieldRef<"FaixaPreco", 'String'>
-    readonly created_at: FieldRef<"FaixaPreco", 'DateTime'>
+    readonly id_faixa_preco: FieldRef<"FaixaPreco", 'String'>
+    readonly id_produto_gravity_faixa_preco: FieldRef<"FaixaPreco", 'String'>
+    readonly faixa_de_faixa_preco: FieldRef<"FaixaPreco", 'Int'>
+    readonly faixa_ate_faixa_preco: FieldRef<"FaixaPreco", 'Int'>
+    readonly preco_faixa_preco: FieldRef<"FaixaPreco", 'Decimal'>
+    readonly moeda_faixa_preco: FieldRef<"FaixaPreco", 'String'>
+    readonly data_criacao_faixa_preco: FieldRef<"FaixaPreco", 'DateTime'>
   }
     
 
@@ -14495,83 +14495,83 @@ export namespace Prisma {
   }
 
   export type NegociacaoEspecialMinAggregateOutputType = {
-    id: string | null
-    product_id: string | null
-    tenant_id: string | null
-    tenant_name: string | null
-    agreement: string | null
-    starts_at: Date | null
-    ends_at: Date | null
-    is_unlimited: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_negociacao_especial: string | null
+    id_produto_gravity_negociacao_especial: string | null
+    id_organizacao_negociacao_especial: string | null
+    nome_organizacao_negociacao_especial: string | null
+    acordo_negociacao_especial: string | null
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_negociacao_especial: boolean | null
+    data_criacao_negociacao_especial: Date | null
+    data_atualizacao_negociacao_especial: Date | null
   }
 
   export type NegociacaoEspecialMaxAggregateOutputType = {
-    id: string | null
-    product_id: string | null
-    tenant_id: string | null
-    tenant_name: string | null
-    agreement: string | null
-    starts_at: Date | null
-    ends_at: Date | null
-    is_unlimited: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_negociacao_especial: string | null
+    id_produto_gravity_negociacao_especial: string | null
+    id_organizacao_negociacao_especial: string | null
+    nome_organizacao_negociacao_especial: string | null
+    acordo_negociacao_especial: string | null
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_negociacao_especial: boolean | null
+    data_criacao_negociacao_especial: Date | null
+    data_atualizacao_negociacao_especial: Date | null
   }
 
   export type NegociacaoEspecialCountAggregateOutputType = {
-    id: number
-    product_id: number
-    tenant_id: number
-    tenant_name: number
-    agreement: number
-    starts_at: number
-    ends_at: number
-    is_unlimited: number
-    created_at: number
-    updated_at: number
+    id_negociacao_especial: number
+    id_produto_gravity_negociacao_especial: number
+    id_organizacao_negociacao_especial: number
+    nome_organizacao_negociacao_especial: number
+    acordo_negociacao_especial: number
+    data_inicio_negociacao_especial: number
+    data_fim_negociacao_especial: number
+    ilimitado_negociacao_especial: number
+    data_criacao_negociacao_especial: number
+    data_atualizacao_negociacao_especial: number
     _all: number
   }
 
 
   export type NegociacaoEspecialMinAggregateInputType = {
-    id?: true
-    product_id?: true
-    tenant_id?: true
-    tenant_name?: true
-    agreement?: true
-    starts_at?: true
-    ends_at?: true
-    is_unlimited?: true
-    created_at?: true
-    updated_at?: true
+    id_negociacao_especial?: true
+    id_produto_gravity_negociacao_especial?: true
+    id_organizacao_negociacao_especial?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
   }
 
   export type NegociacaoEspecialMaxAggregateInputType = {
-    id?: true
-    product_id?: true
-    tenant_id?: true
-    tenant_name?: true
-    agreement?: true
-    starts_at?: true
-    ends_at?: true
-    is_unlimited?: true
-    created_at?: true
-    updated_at?: true
+    id_negociacao_especial?: true
+    id_produto_gravity_negociacao_especial?: true
+    id_organizacao_negociacao_especial?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
   }
 
   export type NegociacaoEspecialCountAggregateInputType = {
-    id?: true
-    product_id?: true
-    tenant_id?: true
-    tenant_name?: true
-    agreement?: true
-    starts_at?: true
-    ends_at?: true
-    is_unlimited?: true
-    created_at?: true
-    updated_at?: true
+    id_negociacao_especial?: true
+    id_produto_gravity_negociacao_especial?: true
+    id_organizacao_negociacao_especial?: true
+    nome_organizacao_negociacao_especial?: true
+    acordo_negociacao_especial?: true
+    data_inicio_negociacao_especial?: true
+    data_fim_negociacao_especial?: true
+    ilimitado_negociacao_especial?: true
+    data_criacao_negociacao_especial?: true
+    data_atualizacao_negociacao_especial?: true
     _all?: true
   }
 
@@ -14648,16 +14648,16 @@ export namespace Prisma {
   }
 
   export type NegociacaoEspecialGroupByOutputType = {
-    id: string
-    product_id: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at: Date | null
-    ends_at: Date | null
-    is_unlimited: boolean
-    created_at: Date
-    updated_at: Date
+    id_negociacao_especial: string
+    id_produto_gravity_negociacao_especial: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial: Date | null
+    data_fim_negociacao_especial: Date | null
+    ilimitado_negociacao_especial: boolean
+    data_criacao_negociacao_especial: Date
+    data_atualizacao_negociacao_especial: Date
     _count: NegociacaoEspecialCountAggregateOutputType | null
     _min: NegociacaoEspecialMinAggregateOutputType | null
     _max: NegociacaoEspecialMaxAggregateOutputType | null
@@ -14678,69 +14678,69 @@ export namespace Prisma {
 
 
   export type NegociacaoEspecialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    product_id?: boolean
-    tenant_id?: boolean
-    tenant_name?: boolean
-    agreement?: boolean
-    starts_at?: boolean
-    ends_at?: boolean
-    is_unlimited?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    id_negociacao_especial?: boolean
+    id_produto_gravity_negociacao_especial?: boolean
+    id_organizacao_negociacao_especial?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["negociacaoEspecial"]>
 
   export type NegociacaoEspecialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    product_id?: boolean
-    tenant_id?: boolean
-    tenant_name?: boolean
-    agreement?: boolean
-    starts_at?: boolean
-    ends_at?: boolean
-    is_unlimited?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    id_negociacao_especial?: boolean
+    id_produto_gravity_negociacao_especial?: boolean
+    id_organizacao_negociacao_especial?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["negociacaoEspecial"]>
 
   export type NegociacaoEspecialSelectScalar = {
-    id?: boolean
-    product_id?: boolean
-    tenant_id?: boolean
-    tenant_name?: boolean
-    agreement?: boolean
-    starts_at?: boolean
-    ends_at?: boolean
-    is_unlimited?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_negociacao_especial?: boolean
+    id_produto_gravity_negociacao_especial?: boolean
+    id_organizacao_negociacao_especial?: boolean
+    nome_organizacao_negociacao_especial?: boolean
+    acordo_negociacao_especial?: boolean
+    data_inicio_negociacao_especial?: boolean
+    data_fim_negociacao_especial?: boolean
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: boolean
+    data_atualizacao_negociacao_especial?: boolean
   }
 
   export type NegociacaoEspecialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
   export type NegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
   export type $NegociacaoEspecialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "NegociacaoEspecial"
     objects: {
-      product: Prisma.$ProdutoGravityPayload<ExtArgs>
+      produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      product_id: string
-      tenant_id: string
-      tenant_name: string
-      agreement: string
-      starts_at: Date | null
-      ends_at: Date | null
-      is_unlimited: boolean
-      created_at: Date
-      updated_at: Date
+      id_negociacao_especial: string
+      id_produto_gravity_negociacao_especial: string
+      id_organizacao_negociacao_especial: string
+      nome_organizacao_negociacao_especial: string
+      acordo_negociacao_especial: string
+      data_inicio_negociacao_especial: Date | null
+      data_fim_negociacao_especial: Date | null
+      ilimitado_negociacao_especial: boolean
+      data_criacao_negociacao_especial: Date
+      data_atualizacao_negociacao_especial: Date
     }, ExtArgs["result"]["negociacaoEspecial"]>
     composites: {}
   }
@@ -14824,8 +14824,8 @@ export namespace Prisma {
      * // Get first 10 NegociacaoEspecials
      * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const negociacaoEspecialWithIdOnly = await prisma.negociacaoEspecial.findMany({ select: { id: true } })
+     * // Only select the `id_negociacao_especial`
+     * const negociacaoEspecialWithId_negociacao_especialOnly = await prisma.negociacaoEspecial.findMany({ select: { id_negociacao_especial: true } })
      * 
      */
     findMany<T extends NegociacaoEspecialFindManyArgs>(args?: SelectSubset<T, NegociacaoEspecialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany">>
@@ -14869,9 +14869,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many NegociacaoEspecials and only return the `id`
-     * const negociacaoEspecialWithIdOnly = await prisma.negociacaoEspecial.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NegociacaoEspecials and only return the `id_negociacao_especial`
+     * const negociacaoEspecialWithId_negociacao_especialOnly = await prisma.negociacaoEspecial.createManyAndReturn({ 
+     *   select: { id_negociacao_especial: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -15105,7 +15105,7 @@ export namespace Prisma {
    */
   export interface Prisma__NegociacaoEspecialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    product<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    produto<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15135,16 +15135,16 @@ export namespace Prisma {
    * Fields of the NegociacaoEspecial model
    */ 
   interface NegociacaoEspecialFieldRefs {
-    readonly id: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly product_id: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly tenant_id: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly tenant_name: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly agreement: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly starts_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly ends_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly is_unlimited: FieldRef<"NegociacaoEspecial", 'Boolean'>
-    readonly created_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly updated_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly id_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly id_produto_gravity_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly id_organizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly nome_organizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly acordo_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly data_inicio_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly data_fim_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly ilimitado_negociacao_especial: FieldRef<"NegociacaoEspecial", 'Boolean'>
+    readonly data_criacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly data_atualizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
   }
     
 
@@ -26552,64 +26552,64 @@ export namespace Prisma {
 
 
   export const ProdutoGravityScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    slug: 'slug',
-    description: 'description',
-    status: 'status',
-    launch_date: 'launch_date',
-    has_setup: 'has_setup',
-    setup_price: 'setup_price',
-    setup_currency: 'setup_currency',
-    billing_type: 'billing_type',
-    unit_price: 'unit_price',
-    unit_currency: 'unit_currency',
-    minimum_price: 'minimum_price',
-    minimum_currency: 'minimum_currency',
-    total_price: 'total_price',
-    total_currency: 'total_currency',
-    user_limit_type: 'user_limit_type',
-    base_users_qty: 'base_users_qty',
-    extra_user_price: 'extra_user_price',
-    extra_user_currency: 'extra_user_currency',
-    helpdesk_hours: 'helpdesk_hours',
-    extra_hour_price: 'extra_hour_price',
-    extra_hour_currency: 'extra_hour_currency',
-    gabi_quota_mensal: 'gabi_quota_mensal',
-    backend_module: 'backend_module',
-    target_audience: 'target_audience',
-    created_at: 'created_at',
-    updated_at: 'updated_at',
-    deleted_at: 'deleted_at'
+    id_produto_gravity: 'id_produto_gravity',
+    nome_produto_gravity: 'nome_produto_gravity',
+    slug_produto_gravity: 'slug_produto_gravity',
+    descricao_produto_gravity: 'descricao_produto_gravity',
+    status_produto_gravity: 'status_produto_gravity',
+    data_lancamento_produto_gravity: 'data_lancamento_produto_gravity',
+    possui_setup_produto_gravity: 'possui_setup_produto_gravity',
+    preco_setup_produto_gravity: 'preco_setup_produto_gravity',
+    moeda_setup_produto_gravity: 'moeda_setup_produto_gravity',
+    tipo_cobranca_produto_gravity: 'tipo_cobranca_produto_gravity',
+    preco_unitario_produto_gravity: 'preco_unitario_produto_gravity',
+    moeda_unitario_produto_gravity: 'moeda_unitario_produto_gravity',
+    preco_minimo_produto_gravity: 'preco_minimo_produto_gravity',
+    moeda_minimo_produto_gravity: 'moeda_minimo_produto_gravity',
+    preco_total_produto_gravity: 'preco_total_produto_gravity',
+    moeda_total_produto_gravity: 'moeda_total_produto_gravity',
+    tipo_limite_usuario_produto_gravity: 'tipo_limite_usuario_produto_gravity',
+    qtd_usuarios_base_produto_gravity: 'qtd_usuarios_base_produto_gravity',
+    preco_usuario_extra_produto_gravity: 'preco_usuario_extra_produto_gravity',
+    moeda_usuario_extra_produto_gravity: 'moeda_usuario_extra_produto_gravity',
+    horas_helpdesk_produto_gravity: 'horas_helpdesk_produto_gravity',
+    preco_hora_extra_produto_gravity: 'preco_hora_extra_produto_gravity',
+    moeda_hora_extra_produto_gravity: 'moeda_hora_extra_produto_gravity',
+    quota_gabi_mensal_produto_gravity: 'quota_gabi_mensal_produto_gravity',
+    modulo_backend_produto_gravity: 'modulo_backend_produto_gravity',
+    publico_alvo_produto_gravity: 'publico_alvo_produto_gravity',
+    data_criacao_produto_gravity: 'data_criacao_produto_gravity',
+    data_atualizacao_produto_gravity: 'data_atualizacao_produto_gravity',
+    data_remocao_produto_gravity: 'data_remocao_produto_gravity'
   };
 
   export type ProdutoGravityScalarFieldEnum = (typeof ProdutoGravityScalarFieldEnum)[keyof typeof ProdutoGravityScalarFieldEnum]
 
 
   export const FaixaPrecoScalarFieldEnum: {
-    id: 'id',
-    product_id: 'product_id',
-    range_from: 'range_from',
-    range_to: 'range_to',
-    price: 'price',
-    currency: 'currency',
-    created_at: 'created_at'
+    id_faixa_preco: 'id_faixa_preco',
+    id_produto_gravity_faixa_preco: 'id_produto_gravity_faixa_preco',
+    faixa_de_faixa_preco: 'faixa_de_faixa_preco',
+    faixa_ate_faixa_preco: 'faixa_ate_faixa_preco',
+    preco_faixa_preco: 'preco_faixa_preco',
+    moeda_faixa_preco: 'moeda_faixa_preco',
+    data_criacao_faixa_preco: 'data_criacao_faixa_preco'
   };
 
   export type FaixaPrecoScalarFieldEnum = (typeof FaixaPrecoScalarFieldEnum)[keyof typeof FaixaPrecoScalarFieldEnum]
 
 
   export const NegociacaoEspecialScalarFieldEnum: {
-    id: 'id',
-    product_id: 'product_id',
-    tenant_id: 'tenant_id',
-    tenant_name: 'tenant_name',
-    agreement: 'agreement',
-    starts_at: 'starts_at',
-    ends_at: 'ends_at',
-    is_unlimited: 'is_unlimited',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_negociacao_especial: 'id_negociacao_especial',
+    id_produto_gravity_negociacao_especial: 'id_produto_gravity_negociacao_especial',
+    id_organizacao_negociacao_especial: 'id_organizacao_negociacao_especial',
+    nome_organizacao_negociacao_especial: 'nome_organizacao_negociacao_especial',
+    acordo_negociacao_especial: 'acordo_negociacao_especial',
+    data_inicio_negociacao_especial: 'data_inicio_negociacao_especial',
+    data_fim_negociacao_especial: 'data_fim_negociacao_especial',
+    ilimitado_negociacao_especial: 'ilimitado_negociacao_especial',
+    data_criacao_negociacao_especial: 'data_criacao_negociacao_especial',
+    data_atualizacao_negociacao_especial: 'data_atualizacao_negociacao_especial'
   };
 
   export type NegociacaoEspecialScalarFieldEnum = (typeof NegociacaoEspecialScalarFieldEnum)[keyof typeof NegociacaoEspecialScalarFieldEnum]
@@ -27831,140 +27831,140 @@ export namespace Prisma {
     AND?: ProdutoGravityWhereInput | ProdutoGravityWhereInput[]
     OR?: ProdutoGravityWhereInput[]
     NOT?: ProdutoGravityWhereInput | ProdutoGravityWhereInput[]
-    id?: StringFilter<"ProdutoGravity"> | string
-    name?: StringFilter<"ProdutoGravity"> | string
-    slug?: StringFilter<"ProdutoGravity"> | string
-    description?: StringFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
-    launch_date?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    has_setup?: BoolFilter<"ProdutoGravity"> | boolean
-    setup_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFilter<"ProdutoGravity"> | string
-    minimum_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFilter<"ProdutoGravity"> | string
-    total_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: IntNullableFilter<"ProdutoGravity"> | number | null
-    extra_user_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFilter<"ProdutoGravity"> | string
-    helpdesk_hours?: IntFilter<"ProdutoGravity"> | number
-    extra_hour_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFilter<"ProdutoGravity"> | string
-    gabi_quota_mensal?: IntFilter<"ProdutoGravity"> | number
-    backend_module?: StringNullableFilter<"ProdutoGravity"> | string | null
-    target_audience?: StringNullableFilter<"ProdutoGravity"> | string | null
-    created_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
-    updated_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
-    deleted_at?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    price_tiers?: FaixaPrecoListRelationFilter
-    negotiations?: NegociacaoEspecialListRelationFilter
+    id_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    nome_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    slug_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    descricao_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    status_produto_gravity?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
+    possui_setup_produto_gravity?: BoolFilter<"ProdutoGravity"> | boolean
+    preco_setup_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    preco_minimo_produto_gravity?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    preco_total_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: IntNullableFilter<"ProdutoGravity"> | number | null
+    preco_usuario_extra_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    horas_helpdesk_produto_gravity?: IntFilter<"ProdutoGravity"> | number
+    preco_hora_extra_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    quota_gabi_mensal_produto_gravity?: IntFilter<"ProdutoGravity"> | number
+    modulo_backend_produto_gravity?: StringNullableFilter<"ProdutoGravity"> | string | null
+    publico_alvo_produto_gravity?: StringNullableFilter<"ProdutoGravity"> | string | null
+    data_criacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
+    data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoListRelationFilter
+    negociacoes_produto_gravity?: NegociacaoEspecialListRelationFilter
   }
 
   export type ProdutoGravityOrderByWithRelationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    launch_date?: SortOrderInput | SortOrder
-    has_setup?: SortOrder
-    setup_price?: SortOrderInput | SortOrder
-    setup_currency?: SortOrder
-    billing_type?: SortOrder
-    unit_price?: SortOrder
-    unit_currency?: SortOrder
-    minimum_price?: SortOrder
-    minimum_currency?: SortOrder
-    total_price?: SortOrderInput | SortOrder
-    total_currency?: SortOrder
-    user_limit_type?: SortOrder
-    base_users_qty?: SortOrderInput | SortOrder
-    extra_user_price?: SortOrderInput | SortOrder
-    extra_user_currency?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrderInput | SortOrder
-    extra_hour_currency?: SortOrder
-    gabi_quota_mensal?: SortOrder
-    backend_module?: SortOrderInput | SortOrder
-    target_audience?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    deleted_at?: SortOrderInput | SortOrder
-    price_tiers?: FaixaPrecoOrderByRelationAggregateInput
-    negotiations?: NegociacaoEspecialOrderByRelationAggregateInput
+    id_produto_gravity?: SortOrder
+    nome_produto_gravity?: SortOrder
+    slug_produto_gravity?: SortOrder
+    descricao_produto_gravity?: SortOrder
+    status_produto_gravity?: SortOrder
+    data_lancamento_produto_gravity?: SortOrderInput | SortOrder
+    possui_setup_produto_gravity?: SortOrder
+    preco_setup_produto_gravity?: SortOrderInput | SortOrder
+    moeda_setup_produto_gravity?: SortOrder
+    tipo_cobranca_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    moeda_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    moeda_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrderInput | SortOrder
+    moeda_total_produto_gravity?: SortOrder
+    tipo_limite_usuario_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrderInput | SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrderInput | SortOrder
+    moeda_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrderInput | SortOrder
+    moeda_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
+    modulo_backend_produto_gravity?: SortOrderInput | SortOrder
+    publico_alvo_produto_gravity?: SortOrderInput | SortOrder
+    data_criacao_produto_gravity?: SortOrder
+    data_atualizacao_produto_gravity?: SortOrder
+    data_remocao_produto_gravity?: SortOrderInput | SortOrder
+    faixas_preco_produto_gravity?: FaixaPrecoOrderByRelationAggregateInput
+    negociacoes_produto_gravity?: NegociacaoEspecialOrderByRelationAggregateInput
   }
 
   export type ProdutoGravityWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    slug?: string
+    id_produto_gravity?: string
+    slug_produto_gravity?: string
     AND?: ProdutoGravityWhereInput | ProdutoGravityWhereInput[]
     OR?: ProdutoGravityWhereInput[]
     NOT?: ProdutoGravityWhereInput | ProdutoGravityWhereInput[]
-    name?: StringFilter<"ProdutoGravity"> | string
-    description?: StringFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
-    launch_date?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    has_setup?: BoolFilter<"ProdutoGravity"> | boolean
-    setup_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFilter<"ProdutoGravity"> | string
-    minimum_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFilter<"ProdutoGravity"> | string
-    total_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: IntNullableFilter<"ProdutoGravity"> | number | null
-    extra_user_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFilter<"ProdutoGravity"> | string
-    helpdesk_hours?: IntFilter<"ProdutoGravity"> | number
-    extra_hour_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFilter<"ProdutoGravity"> | string
-    gabi_quota_mensal?: IntFilter<"ProdutoGravity"> | number
-    backend_module?: StringNullableFilter<"ProdutoGravity"> | string | null
-    target_audience?: StringNullableFilter<"ProdutoGravity"> | string | null
-    created_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
-    updated_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
-    deleted_at?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    price_tiers?: FaixaPrecoListRelationFilter
-    negotiations?: NegociacaoEspecialListRelationFilter
-  }, "id" | "slug">
+    nome_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    descricao_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    status_produto_gravity?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
+    possui_setup_produto_gravity?: BoolFilter<"ProdutoGravity"> | boolean
+    preco_setup_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    preco_minimo_produto_gravity?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    preco_total_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: IntNullableFilter<"ProdutoGravity"> | number | null
+    preco_usuario_extra_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    horas_helpdesk_produto_gravity?: IntFilter<"ProdutoGravity"> | number
+    preco_hora_extra_produto_gravity?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFilter<"ProdutoGravity"> | string
+    quota_gabi_mensal_produto_gravity?: IntFilter<"ProdutoGravity"> | number
+    modulo_backend_produto_gravity?: StringNullableFilter<"ProdutoGravity"> | string | null
+    publico_alvo_produto_gravity?: StringNullableFilter<"ProdutoGravity"> | string | null
+    data_criacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
+    data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoListRelationFilter
+    negociacoes_produto_gravity?: NegociacaoEspecialListRelationFilter
+  }, "id_produto_gravity" | "slug_produto_gravity">
 
   export type ProdutoGravityOrderByWithAggregationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    launch_date?: SortOrderInput | SortOrder
-    has_setup?: SortOrder
-    setup_price?: SortOrderInput | SortOrder
-    setup_currency?: SortOrder
-    billing_type?: SortOrder
-    unit_price?: SortOrder
-    unit_currency?: SortOrder
-    minimum_price?: SortOrder
-    minimum_currency?: SortOrder
-    total_price?: SortOrderInput | SortOrder
-    total_currency?: SortOrder
-    user_limit_type?: SortOrder
-    base_users_qty?: SortOrderInput | SortOrder
-    extra_user_price?: SortOrderInput | SortOrder
-    extra_user_currency?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrderInput | SortOrder
-    extra_hour_currency?: SortOrder
-    gabi_quota_mensal?: SortOrder
-    backend_module?: SortOrderInput | SortOrder
-    target_audience?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    deleted_at?: SortOrderInput | SortOrder
+    id_produto_gravity?: SortOrder
+    nome_produto_gravity?: SortOrder
+    slug_produto_gravity?: SortOrder
+    descricao_produto_gravity?: SortOrder
+    status_produto_gravity?: SortOrder
+    data_lancamento_produto_gravity?: SortOrderInput | SortOrder
+    possui_setup_produto_gravity?: SortOrder
+    preco_setup_produto_gravity?: SortOrderInput | SortOrder
+    moeda_setup_produto_gravity?: SortOrder
+    tipo_cobranca_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    moeda_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    moeda_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrderInput | SortOrder
+    moeda_total_produto_gravity?: SortOrder
+    tipo_limite_usuario_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrderInput | SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrderInput | SortOrder
+    moeda_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrderInput | SortOrder
+    moeda_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
+    modulo_backend_produto_gravity?: SortOrderInput | SortOrder
+    publico_alvo_produto_gravity?: SortOrderInput | SortOrder
+    data_criacao_produto_gravity?: SortOrder
+    data_atualizacao_produto_gravity?: SortOrder
+    data_remocao_produto_gravity?: SortOrderInput | SortOrder
     _count?: ProdutoGravityCountOrderByAggregateInput
     _avg?: ProdutoGravityAvgOrderByAggregateInput
     _max?: ProdutoGravityMaxOrderByAggregateInput
@@ -27976,84 +27976,84 @@ export namespace Prisma {
     AND?: ProdutoGravityScalarWhereWithAggregatesInput | ProdutoGravityScalarWhereWithAggregatesInput[]
     OR?: ProdutoGravityScalarWhereWithAggregatesInput[]
     NOT?: ProdutoGravityScalarWhereWithAggregatesInput | ProdutoGravityScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    name?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    slug?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    description?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
-    launch_date?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
-    has_setup?: BoolWithAggregatesFilter<"ProdutoGravity"> | boolean
-    setup_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    minimum_price?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    total_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioWithAggregatesFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: IntNullableWithAggregatesFilter<"ProdutoGravity"> | number | null
-    extra_user_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    helpdesk_hours?: IntWithAggregatesFilter<"ProdutoGravity"> | number
-    extra_hour_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    gabi_quota_mensal?: IntWithAggregatesFilter<"ProdutoGravity"> | number
-    backend_module?: StringNullableWithAggregatesFilter<"ProdutoGravity"> | string | null
-    target_audience?: StringNullableWithAggregatesFilter<"ProdutoGravity"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ProdutoGravity"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ProdutoGravity"> | Date | string
-    deleted_at?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
+    id_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    nome_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    slug_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    descricao_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    status_produto_gravity?: EnumStatusProdutoGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
+    possui_setup_produto_gravity?: BoolWithAggregatesFilter<"ProdutoGravity"> | boolean
+    preco_setup_produto_gravity?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    preco_minimo_produto_gravity?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    preco_total_produto_gravity?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioWithAggregatesFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: IntNullableWithAggregatesFilter<"ProdutoGravity"> | number | null
+    preco_usuario_extra_produto_gravity?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    horas_helpdesk_produto_gravity?: IntWithAggregatesFilter<"ProdutoGravity"> | number
+    preco_hora_extra_produto_gravity?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravity"> | string
+    quota_gabi_mensal_produto_gravity?: IntWithAggregatesFilter<"ProdutoGravity"> | number
+    modulo_backend_produto_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravity"> | string | null
+    publico_alvo_produto_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravity"> | string | null
+    data_criacao_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravity"> | Date | string
+    data_atualizacao_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravity"> | Date | string
+    data_remocao_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
   }
 
   export type FaixaPrecoWhereInput = {
     AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
     OR?: FaixaPrecoWhereInput[]
     NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    id?: StringFilter<"FaixaPreco"> | string
-    product_id?: StringFilter<"FaixaPreco"> | string
-    range_from?: IntFilter<"FaixaPreco"> | number
-    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
-    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"FaixaPreco"> | string
-    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
-    product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
+    id_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
   export type FaixaPrecoOrderByWithRelationInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    range_from?: SortOrder
-    range_to?: SortOrderInput | SortOrder
-    price?: SortOrder
-    currency?: SortOrder
-    created_at?: SortOrder
-    product?: ProdutoGravityOrderByWithRelationInput
+    id_faixa_preco?: SortOrder
+    id_produto_gravity_faixa_preco?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrderInput | SortOrder
+    preco_faixa_preco?: SortOrder
+    moeda_faixa_preco?: SortOrder
+    data_criacao_faixa_preco?: SortOrder
+    produto?: ProdutoGravityOrderByWithRelationInput
   }
 
   export type FaixaPrecoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_faixa_preco?: string
     AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
     OR?: FaixaPrecoWhereInput[]
     NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    product_id?: StringFilter<"FaixaPreco"> | string
-    range_from?: IntFilter<"FaixaPreco"> | number
-    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
-    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"FaixaPreco"> | string
-    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
-    product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
-  }, "id">
+    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
+  }, "id_faixa_preco">
 
   export type FaixaPrecoOrderByWithAggregationInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    range_from?: SortOrder
-    range_to?: SortOrderInput | SortOrder
-    price?: SortOrder
-    currency?: SortOrder
-    created_at?: SortOrder
+    id_faixa_preco?: SortOrder
+    id_produto_gravity_faixa_preco?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrderInput | SortOrder
+    preco_faixa_preco?: SortOrder
+    moeda_faixa_preco?: SortOrder
+    data_criacao_faixa_preco?: SortOrder
     _count?: FaixaPrecoCountOrderByAggregateInput
     _avg?: FaixaPrecoAvgOrderByAggregateInput
     _max?: FaixaPrecoMaxOrderByAggregateInput
@@ -28065,74 +28065,74 @@ export namespace Prisma {
     AND?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
     OR?: FaixaPrecoScalarWhereWithAggregatesInput[]
     NOT?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    product_id?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    range_from?: IntWithAggregatesFilter<"FaixaPreco"> | number
-    range_to?: IntNullableWithAggregatesFilter<"FaixaPreco"> | number | null
-    price?: DecimalWithAggregatesFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    currency?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    created_at?: DateTimeWithAggregatesFilter<"FaixaPreco"> | Date | string
+    id_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    faixa_de_faixa_preco?: IntWithAggregatesFilter<"FaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableWithAggregatesFilter<"FaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalWithAggregatesFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeWithAggregatesFilter<"FaixaPreco"> | Date | string
   }
 
   export type NegociacaoEspecialWhereInput = {
     AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
     OR?: NegociacaoEspecialWhereInput[]
     NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    id?: StringFilter<"NegociacaoEspecial"> | string
-    product_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
-    agreement?: StringFilter<"NegociacaoEspecial"> | string
-    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
-    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
+    id_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
   export type NegociacaoEspecialOrderByWithRelationInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    tenant_id?: SortOrder
-    tenant_name?: SortOrder
-    agreement?: SortOrder
-    starts_at?: SortOrderInput | SortOrder
-    ends_at?: SortOrderInput | SortOrder
-    is_unlimited?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    product?: ProdutoGravityOrderByWithRelationInput
+    id_negociacao_especial?: SortOrder
+    id_produto_gravity_negociacao_especial?: SortOrder
+    id_organizacao_negociacao_especial?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrderInput | SortOrder
+    data_fim_negociacao_especial?: SortOrderInput | SortOrder
+    ilimitado_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
+    produto?: ProdutoGravityOrderByWithRelationInput
   }
 
   export type NegociacaoEspecialWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_negociacao_especial?: string
     AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
     OR?: NegociacaoEspecialWhereInput[]
     NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    product_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
-    agreement?: StringFilter<"NegociacaoEspecial"> | string
-    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
-    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
-  }, "id">
+    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
+  }, "id_negociacao_especial">
 
   export type NegociacaoEspecialOrderByWithAggregationInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    tenant_id?: SortOrder
-    tenant_name?: SortOrder
-    agreement?: SortOrder
-    starts_at?: SortOrderInput | SortOrder
-    ends_at?: SortOrderInput | SortOrder
-    is_unlimited?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_negociacao_especial?: SortOrder
+    id_produto_gravity_negociacao_especial?: SortOrder
+    id_organizacao_negociacao_especial?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrderInput | SortOrder
+    data_fim_negociacao_especial?: SortOrderInput | SortOrder
+    ilimitado_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
     _count?: NegociacaoEspecialCountOrderByAggregateInput
     _max?: NegociacaoEspecialMaxOrderByAggregateInput
     _min?: NegociacaoEspecialMinOrderByAggregateInput
@@ -28142,16 +28142,16 @@ export namespace Prisma {
     AND?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
     OR?: NegociacaoEspecialScalarWhereWithAggregatesInput[]
     NOT?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    product_id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    tenant_id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    tenant_name?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    agreement?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    starts_at?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
-    ends_at?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
-    is_unlimited?: BoolWithAggregatesFilter<"NegociacaoEspecial"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
+    id_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolWithAggregatesFilter<"NegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
   }
 
   export type DeployWhereInput = {
@@ -29937,394 +29937,394 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityCreateInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    price_tiers?: FaixaPrecoCreateNestedManyWithoutProductInput
-    negotiations?: NegociacaoEspecialCreateNestedManyWithoutProductInput
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: NegociacaoEspecialCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    price_tiers?: FaixaPrecoUncheckedCreateNestedManyWithoutProductInput
-    negotiations?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: FaixaPrecoUpdateManyWithoutProductNestedInput
-    negotiations?: NegociacaoEspecialUpdateManyWithoutProductNestedInput
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: NegociacaoEspecialUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput
-    negotiations?: NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityCreateManyInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
   }
 
   export type ProdutoGravityUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ProdutoGravityUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type FaixaPrecoCreateInput = {
-    id?: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
-    product: ProdutoGravityCreateNestedOneWithoutPrice_tiersInput
+    id_faixa_preco?: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
+    produto: ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput
   }
 
   export type FaixaPrecoUncheckedCreateInput = {
-    id?: string
-    product_id: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
+    id_faixa_preco?: string
+    id_produto_gravity_faixa_preco: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
   }
 
   export type FaixaPrecoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    product?: ProdutoGravityUpdateOneRequiredWithoutPrice_tiersNestedInput
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    produto?: ProdutoGravityUpdateOneRequiredWithoutFaixas_preco_produto_gravityNestedInput
   }
 
   export type FaixaPrecoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaixaPrecoCreateManyInput = {
-    id?: string
-    product_id: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
+    id_faixa_preco?: string
+    id_produto_gravity_faixa_preco: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
   }
 
   export type FaixaPrecoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaixaPrecoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NegociacaoEspecialCreateInput = {
-    id?: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    product: ProdutoGravityCreateNestedOneWithoutNegotiationsInput
+    id_negociacao_especial?: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
+    produto: ProdutoGravityCreateNestedOneWithoutNegociacoes_produto_gravityInput
   }
 
   export type NegociacaoEspecialUncheckedCreateInput = {
-    id?: string
-    product_id: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_negociacao_especial?: string
+    id_produto_gravity_negociacao_especial: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type NegociacaoEspecialUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    product?: ProdutoGravityUpdateOneRequiredWithoutNegotiationsNestedInput
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    produto?: ProdutoGravityUpdateOneRequiredWithoutNegociacoes_produto_gravityNestedInput
   }
 
   export type NegociacaoEspecialUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NegociacaoEspecialCreateManyInput = {
-    id?: string
-    product_id: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_negociacao_especial?: string
+    id_produto_gravity_negociacao_especial: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
   export type NegociacaoEspecialUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NegociacaoEspecialUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeployCreateInput = {
@@ -32313,123 +32313,123 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityCountOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    launch_date?: SortOrder
-    has_setup?: SortOrder
-    setup_price?: SortOrder
-    setup_currency?: SortOrder
-    billing_type?: SortOrder
-    unit_price?: SortOrder
-    unit_currency?: SortOrder
-    minimum_price?: SortOrder
-    minimum_currency?: SortOrder
-    total_price?: SortOrder
-    total_currency?: SortOrder
-    user_limit_type?: SortOrder
-    base_users_qty?: SortOrder
-    extra_user_price?: SortOrder
-    extra_user_currency?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrder
-    extra_hour_currency?: SortOrder
-    gabi_quota_mensal?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    deleted_at?: SortOrder
+    id_produto_gravity?: SortOrder
+    nome_produto_gravity?: SortOrder
+    slug_produto_gravity?: SortOrder
+    descricao_produto_gravity?: SortOrder
+    status_produto_gravity?: SortOrder
+    data_lancamento_produto_gravity?: SortOrder
+    possui_setup_produto_gravity?: SortOrder
+    preco_setup_produto_gravity?: SortOrder
+    moeda_setup_produto_gravity?: SortOrder
+    tipo_cobranca_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    moeda_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    moeda_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrder
+    moeda_total_produto_gravity?: SortOrder
+    tipo_limite_usuario_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrder
+    moeda_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrder
+    moeda_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
+    modulo_backend_produto_gravity?: SortOrder
+    publico_alvo_produto_gravity?: SortOrder
+    data_criacao_produto_gravity?: SortOrder
+    data_atualizacao_produto_gravity?: SortOrder
+    data_remocao_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityAvgOrderByAggregateInput = {
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    minimum_price?: SortOrder
-    total_price?: SortOrder
-    base_users_qty?: SortOrder
-    extra_user_price?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrder
-    gabi_quota_mensal?: SortOrder
+    preco_setup_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityMaxOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    launch_date?: SortOrder
-    has_setup?: SortOrder
-    setup_price?: SortOrder
-    setup_currency?: SortOrder
-    billing_type?: SortOrder
-    unit_price?: SortOrder
-    unit_currency?: SortOrder
-    minimum_price?: SortOrder
-    minimum_currency?: SortOrder
-    total_price?: SortOrder
-    total_currency?: SortOrder
-    user_limit_type?: SortOrder
-    base_users_qty?: SortOrder
-    extra_user_price?: SortOrder
-    extra_user_currency?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrder
-    extra_hour_currency?: SortOrder
-    gabi_quota_mensal?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    deleted_at?: SortOrder
+    id_produto_gravity?: SortOrder
+    nome_produto_gravity?: SortOrder
+    slug_produto_gravity?: SortOrder
+    descricao_produto_gravity?: SortOrder
+    status_produto_gravity?: SortOrder
+    data_lancamento_produto_gravity?: SortOrder
+    possui_setup_produto_gravity?: SortOrder
+    preco_setup_produto_gravity?: SortOrder
+    moeda_setup_produto_gravity?: SortOrder
+    tipo_cobranca_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    moeda_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    moeda_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrder
+    moeda_total_produto_gravity?: SortOrder
+    tipo_limite_usuario_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrder
+    moeda_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrder
+    moeda_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
+    modulo_backend_produto_gravity?: SortOrder
+    publico_alvo_produto_gravity?: SortOrder
+    data_criacao_produto_gravity?: SortOrder
+    data_atualizacao_produto_gravity?: SortOrder
+    data_remocao_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityMinOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    launch_date?: SortOrder
-    has_setup?: SortOrder
-    setup_price?: SortOrder
-    setup_currency?: SortOrder
-    billing_type?: SortOrder
-    unit_price?: SortOrder
-    unit_currency?: SortOrder
-    minimum_price?: SortOrder
-    minimum_currency?: SortOrder
-    total_price?: SortOrder
-    total_currency?: SortOrder
-    user_limit_type?: SortOrder
-    base_users_qty?: SortOrder
-    extra_user_price?: SortOrder
-    extra_user_currency?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrder
-    extra_hour_currency?: SortOrder
-    gabi_quota_mensal?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    deleted_at?: SortOrder
+    id_produto_gravity?: SortOrder
+    nome_produto_gravity?: SortOrder
+    slug_produto_gravity?: SortOrder
+    descricao_produto_gravity?: SortOrder
+    status_produto_gravity?: SortOrder
+    data_lancamento_produto_gravity?: SortOrder
+    possui_setup_produto_gravity?: SortOrder
+    preco_setup_produto_gravity?: SortOrder
+    moeda_setup_produto_gravity?: SortOrder
+    tipo_cobranca_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    moeda_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    moeda_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrder
+    moeda_total_produto_gravity?: SortOrder
+    tipo_limite_usuario_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrder
+    moeda_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrder
+    moeda_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
+    modulo_backend_produto_gravity?: SortOrder
+    publico_alvo_produto_gravity?: SortOrder
+    data_criacao_produto_gravity?: SortOrder
+    data_atualizacao_produto_gravity?: SortOrder
+    data_remocao_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravitySumOrderByAggregateInput = {
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    minimum_price?: SortOrder
-    total_price?: SortOrder
-    base_users_qty?: SortOrder
-    extra_user_price?: SortOrder
-    helpdesk_hours?: SortOrder
-    extra_hour_price?: SortOrder
-    gabi_quota_mensal?: SortOrder
+    preco_setup_produto_gravity?: SortOrder
+    preco_unitario_produto_gravity?: SortOrder
+    preco_minimo_produto_gravity?: SortOrder
+    preco_total_produto_gravity?: SortOrder
+    qtd_usuarios_base_produto_gravity?: SortOrder
+    preco_usuario_extra_produto_gravity?: SortOrder
+    horas_helpdesk_produto_gravity?: SortOrder
+    preco_hora_extra_produto_gravity?: SortOrder
+    quota_gabi_mensal_produto_gravity?: SortOrder
   }
 
   export type EnumStatusProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
@@ -32532,84 +32532,84 @@ export namespace Prisma {
   }
 
   export type FaixaPrecoCountOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    range_from?: SortOrder
-    range_to?: SortOrder
-    price?: SortOrder
-    currency?: SortOrder
-    created_at?: SortOrder
+    id_faixa_preco?: SortOrder
+    id_produto_gravity_faixa_preco?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrder
+    preco_faixa_preco?: SortOrder
+    moeda_faixa_preco?: SortOrder
+    data_criacao_faixa_preco?: SortOrder
   }
 
   export type FaixaPrecoAvgOrderByAggregateInput = {
-    range_from?: SortOrder
-    range_to?: SortOrder
-    price?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrder
+    preco_faixa_preco?: SortOrder
   }
 
   export type FaixaPrecoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    range_from?: SortOrder
-    range_to?: SortOrder
-    price?: SortOrder
-    currency?: SortOrder
-    created_at?: SortOrder
+    id_faixa_preco?: SortOrder
+    id_produto_gravity_faixa_preco?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrder
+    preco_faixa_preco?: SortOrder
+    moeda_faixa_preco?: SortOrder
+    data_criacao_faixa_preco?: SortOrder
   }
 
   export type FaixaPrecoMinOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    range_from?: SortOrder
-    range_to?: SortOrder
-    price?: SortOrder
-    currency?: SortOrder
-    created_at?: SortOrder
+    id_faixa_preco?: SortOrder
+    id_produto_gravity_faixa_preco?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrder
+    preco_faixa_preco?: SortOrder
+    moeda_faixa_preco?: SortOrder
+    data_criacao_faixa_preco?: SortOrder
   }
 
   export type FaixaPrecoSumOrderByAggregateInput = {
-    range_from?: SortOrder
-    range_to?: SortOrder
-    price?: SortOrder
+    faixa_de_faixa_preco?: SortOrder
+    faixa_ate_faixa_preco?: SortOrder
+    preco_faixa_preco?: SortOrder
   }
 
   export type NegociacaoEspecialCountOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    tenant_id?: SortOrder
-    tenant_name?: SortOrder
-    agreement?: SortOrder
-    starts_at?: SortOrder
-    ends_at?: SortOrder
-    is_unlimited?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_negociacao_especial?: SortOrder
+    id_produto_gravity_negociacao_especial?: SortOrder
+    id_organizacao_negociacao_especial?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
   }
 
   export type NegociacaoEspecialMaxOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    tenant_id?: SortOrder
-    tenant_name?: SortOrder
-    agreement?: SortOrder
-    starts_at?: SortOrder
-    ends_at?: SortOrder
-    is_unlimited?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_negociacao_especial?: SortOrder
+    id_produto_gravity_negociacao_especial?: SortOrder
+    id_organizacao_negociacao_especial?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
   }
 
   export type NegociacaoEspecialMinOrderByAggregateInput = {
-    id?: SortOrder
-    product_id?: SortOrder
-    tenant_id?: SortOrder
-    tenant_name?: SortOrder
-    agreement?: SortOrder
-    starts_at?: SortOrder
-    ends_at?: SortOrder
-    is_unlimited?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_negociacao_especial?: SortOrder
+    id_produto_gravity_negociacao_especial?: SortOrder
+    id_organizacao_negociacao_especial?: SortOrder
+    nome_organizacao_negociacao_especial?: SortOrder
+    acordo_negociacao_especial?: SortOrder
+    data_inicio_negociacao_especial?: SortOrder
+    data_fim_negociacao_especial?: SortOrder
+    ilimitado_negociacao_especial?: SortOrder
+    data_criacao_negociacao_especial?: SortOrder
+    data_atualizacao_negociacao_especial?: SortOrder
   }
 
   export type EnumDeployAmbienteFilter<$PrismaModel = never> = {
@@ -33967,31 +33967,31 @@ export namespace Prisma {
     update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutCompany_productsInput, EmpresaUpdateWithoutCompany_productsInput>, EmpresaUncheckedUpdateWithoutCompany_productsInput>
   }
 
-  export type FaixaPrecoCreateNestedManyWithoutProductInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
-    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+  export type FaixaPrecoCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
     connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
   }
 
-  export type NegociacaoEspecialCreateNestedManyWithoutProductInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
-    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+  export type NegociacaoEspecialCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
     connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
   }
 
-  export type FaixaPrecoUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
-    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+  export type FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
     connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
   }
 
-  export type NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
-    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+  export type NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
     connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
   }
 
@@ -34039,88 +34039,88 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type FaixaPrecoUpdateManyWithoutProductNestedInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
-    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProductInput | FaixaPrecoUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+  export type FaixaPrecoUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
     set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProductInput | FaixaPrecoUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProductInput | FaixaPrecoUpdateManyWithWhereWithoutProductInput[]
+    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProdutoInput | FaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
     deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
   }
 
-  export type NegociacaoEspecialUpdateManyWithoutProductNestedInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
-    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+  export type NegociacaoEspecialUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
     set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProductInput | NegociacaoEspecialUpdateManyWithWhereWithoutProductInput[]
+    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
     deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
   }
 
-  export type FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
-    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProductInput | FaixaPrecoUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+  export type FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
     set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
     connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProductInput | FaixaPrecoUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProductInput | FaixaPrecoUpdateManyWithWhereWithoutProductInput[]
+    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProdutoInput | FaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
     deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
   }
 
-  export type NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
-    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+  export type NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
     set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
     connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProductInput | NegociacaoEspecialUpdateManyWithWhereWithoutProductInput[]
+    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
     deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
   }
 
-  export type ProdutoGravityCreateNestedOneWithoutPrice_tiersInput = {
-    create?: XOR<ProdutoGravityCreateWithoutPrice_tiersInput, ProdutoGravityUncheckedCreateWithoutPrice_tiersInput>
-    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutPrice_tiersInput
+  export type ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput = {
+    create?: XOR<ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutFaixas_preco_produto_gravityInput
     connect?: ProdutoGravityWhereUniqueInput
   }
 
-  export type ProdutoGravityUpdateOneRequiredWithoutPrice_tiersNestedInput = {
-    create?: XOR<ProdutoGravityCreateWithoutPrice_tiersInput, ProdutoGravityUncheckedCreateWithoutPrice_tiersInput>
-    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutPrice_tiersInput
-    upsert?: ProdutoGravityUpsertWithoutPrice_tiersInput
+  export type ProdutoGravityUpdateOneRequiredWithoutFaixas_preco_produto_gravityNestedInput = {
+    create?: XOR<ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutFaixas_preco_produto_gravityInput
+    upsert?: ProdutoGravityUpsertWithoutFaixas_preco_produto_gravityInput
     connect?: ProdutoGravityWhereUniqueInput
-    update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutPrice_tiersInput, ProdutoGravityUpdateWithoutPrice_tiersInput>, ProdutoGravityUncheckedUpdateWithoutPrice_tiersInput>
+    update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUpdateWithoutFaixas_preco_produto_gravityInput>, ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput>
   }
 
-  export type ProdutoGravityCreateNestedOneWithoutNegotiationsInput = {
-    create?: XOR<ProdutoGravityCreateWithoutNegotiationsInput, ProdutoGravityUncheckedCreateWithoutNegotiationsInput>
-    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutNegotiationsInput
+  export type ProdutoGravityCreateNestedOneWithoutNegociacoes_produto_gravityInput = {
+    create?: XOR<ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutNegociacoes_produto_gravityInput
     connect?: ProdutoGravityWhereUniqueInput
   }
 
-  export type ProdutoGravityUpdateOneRequiredWithoutNegotiationsNestedInput = {
-    create?: XOR<ProdutoGravityCreateWithoutNegotiationsInput, ProdutoGravityUncheckedCreateWithoutNegotiationsInput>
-    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutNegotiationsInput
-    upsert?: ProdutoGravityUpsertWithoutNegotiationsInput
+  export type ProdutoGravityUpdateOneRequiredWithoutNegociacoes_produto_gravityNestedInput = {
+    create?: XOR<ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutNegociacoes_produto_gravityInput
+    upsert?: ProdutoGravityUpsertWithoutNegociacoes_produto_gravityInput
     connect?: ProdutoGravityWhereUniqueInput
-    update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutNegotiationsInput, ProdutoGravityUpdateWithoutNegotiationsInput>, ProdutoGravityUncheckedUpdateWithoutNegotiationsInput>
+    update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutNegociacoes_produto_gravityInput, ProdutoGravityUpdateWithoutNegociacoes_produto_gravityInput>, ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput>
   }
 
   export type EnumDeployAmbienteFieldUpdateOperationsInput = {
@@ -36241,423 +36241,423 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type FaixaPrecoCreateWithoutProductInput = {
-    id?: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
+  export type FaixaPrecoCreateWithoutProdutoInput = {
+    id_faixa_preco?: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoUncheckedCreateWithoutProductInput = {
-    id?: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
+  export type FaixaPrecoUncheckedCreateWithoutProdutoInput = {
+    id_faixa_preco?: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoCreateOrConnectWithoutProductInput = {
+  export type FaixaPrecoCreateOrConnectWithoutProdutoInput = {
     where: FaixaPrecoWhereUniqueInput
-    create: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput>
+    create: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoCreateManyProductInputEnvelope = {
-    data: FaixaPrecoCreateManyProductInput | FaixaPrecoCreateManyProductInput[]
+  export type FaixaPrecoCreateManyProdutoInputEnvelope = {
+    data: FaixaPrecoCreateManyProdutoInput | FaixaPrecoCreateManyProdutoInput[]
     skipDuplicates?: boolean
   }
 
-  export type NegociacaoEspecialCreateWithoutProductInput = {
-    id?: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NegociacaoEspecialCreateWithoutProdutoInput = {
+    id_negociacao_especial?: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialUncheckedCreateWithoutProductInput = {
-    id?: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NegociacaoEspecialUncheckedCreateWithoutProdutoInput = {
+    id_negociacao_especial?: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialCreateOrConnectWithoutProductInput = {
+  export type NegociacaoEspecialCreateOrConnectWithoutProdutoInput = {
     where: NegociacaoEspecialWhereUniqueInput
-    create: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput>
+    create: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialCreateManyProductInputEnvelope = {
-    data: NegociacaoEspecialCreateManyProductInput | NegociacaoEspecialCreateManyProductInput[]
+  export type NegociacaoEspecialCreateManyProdutoInputEnvelope = {
+    data: NegociacaoEspecialCreateManyProdutoInput | NegociacaoEspecialCreateManyProdutoInput[]
     skipDuplicates?: boolean
   }
 
-  export type FaixaPrecoUpsertWithWhereUniqueWithoutProductInput = {
+  export type FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput = {
     where: FaixaPrecoWhereUniqueInput
-    update: XOR<FaixaPrecoUpdateWithoutProductInput, FaixaPrecoUncheckedUpdateWithoutProductInput>
-    create: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput>
+    update: XOR<FaixaPrecoUpdateWithoutProdutoInput, FaixaPrecoUncheckedUpdateWithoutProdutoInput>
+    create: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoUpdateWithWhereUniqueWithoutProductInput = {
+  export type FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput = {
     where: FaixaPrecoWhereUniqueInput
-    data: XOR<FaixaPrecoUpdateWithoutProductInput, FaixaPrecoUncheckedUpdateWithoutProductInput>
+    data: XOR<FaixaPrecoUpdateWithoutProdutoInput, FaixaPrecoUncheckedUpdateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoUpdateManyWithWhereWithoutProductInput = {
+  export type FaixaPrecoUpdateManyWithWhereWithoutProdutoInput = {
     where: FaixaPrecoScalarWhereInput
-    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyWithoutProductInput>
+    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyWithoutProdutoInput>
   }
 
   export type FaixaPrecoScalarWhereInput = {
     AND?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
     OR?: FaixaPrecoScalarWhereInput[]
     NOT?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
-    id?: StringFilter<"FaixaPreco"> | string
-    product_id?: StringFilter<"FaixaPreco"> | string
-    range_from?: IntFilter<"FaixaPreco"> | number
-    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
-    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"FaixaPreco"> | string
-    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
+    id_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
   }
 
-  export type NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput = {
+  export type NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput = {
     where: NegociacaoEspecialWhereUniqueInput
-    update: XOR<NegociacaoEspecialUpdateWithoutProductInput, NegociacaoEspecialUncheckedUpdateWithoutProductInput>
-    create: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput>
+    update: XOR<NegociacaoEspecialUpdateWithoutProdutoInput, NegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
+    create: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput = {
+  export type NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput = {
     where: NegociacaoEspecialWhereUniqueInput
-    data: XOR<NegociacaoEspecialUpdateWithoutProductInput, NegociacaoEspecialUncheckedUpdateWithoutProductInput>
+    data: XOR<NegociacaoEspecialUpdateWithoutProdutoInput, NegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialUpdateManyWithWhereWithoutProductInput = {
+  export type NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput = {
     where: NegociacaoEspecialScalarWhereInput
-    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyWithoutProductInput>
+    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput>
   }
 
   export type NegociacaoEspecialScalarWhereInput = {
     AND?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
     OR?: NegociacaoEspecialScalarWhereInput[]
     NOT?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
-    id?: StringFilter<"NegociacaoEspecial"> | string
-    product_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
-    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
-    agreement?: StringFilter<"NegociacaoEspecial"> | string
-    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
-    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    id_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
   }
 
-  export type ProdutoGravityCreateWithoutPrice_tiersInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    negotiations?: NegociacaoEspecialCreateNestedManyWithoutProductInput
+  export type ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    negociacoes_produto_gravity?: NegociacaoEspecialCreateNestedManyWithoutProdutoInput
   }
 
-  export type ProdutoGravityUncheckedCreateWithoutPrice_tiersInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    negotiations?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput
+  export type ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
   }
 
-  export type ProdutoGravityCreateOrConnectWithoutPrice_tiersInput = {
+  export type ProdutoGravityCreateOrConnectWithoutFaixas_preco_produto_gravityInput = {
     where: ProdutoGravityWhereUniqueInput
-    create: XOR<ProdutoGravityCreateWithoutPrice_tiersInput, ProdutoGravityUncheckedCreateWithoutPrice_tiersInput>
+    create: XOR<ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput>
   }
 
-  export type ProdutoGravityUpsertWithoutPrice_tiersInput = {
-    update: XOR<ProdutoGravityUpdateWithoutPrice_tiersInput, ProdutoGravityUncheckedUpdateWithoutPrice_tiersInput>
-    create: XOR<ProdutoGravityCreateWithoutPrice_tiersInput, ProdutoGravityUncheckedCreateWithoutPrice_tiersInput>
+  export type ProdutoGravityUpsertWithoutFaixas_preco_produto_gravityInput = {
+    update: XOR<ProdutoGravityUpdateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput>
+    create: XOR<ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput>
     where?: ProdutoGravityWhereInput
   }
 
-  export type ProdutoGravityUpdateToOneWithWhereWithoutPrice_tiersInput = {
+  export type ProdutoGravityUpdateToOneWithWhereWithoutFaixas_preco_produto_gravityInput = {
     where?: ProdutoGravityWhereInput
-    data: XOR<ProdutoGravityUpdateWithoutPrice_tiersInput, ProdutoGravityUncheckedUpdateWithoutPrice_tiersInput>
+    data: XOR<ProdutoGravityUpdateWithoutFaixas_preco_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput>
   }
 
-  export type ProdutoGravityUpdateWithoutPrice_tiersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negotiations?: NegociacaoEspecialUpdateManyWithoutProductNestedInput
+  export type ProdutoGravityUpdateWithoutFaixas_preco_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    negociacoes_produto_gravity?: NegociacaoEspecialUpdateManyWithoutProdutoNestedInput
   }
 
-  export type ProdutoGravityUncheckedUpdateWithoutPrice_tiersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negotiations?: NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput
+  export type ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
-  export type ProdutoGravityCreateWithoutNegotiationsInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    price_tiers?: FaixaPrecoCreateNestedManyWithoutProductInput
+  export type ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoCreateNestedManyWithoutProdutoInput
   }
 
-  export type ProdutoGravityUncheckedCreateWithoutNegotiationsInput = {
-    id?: string
-    name: string
-    slug: string
-    description: string
-    status?: $Enums.StatusProdutoGravity
-    launch_date?: Date | string | null
-    has_setup?: boolean
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    setup_currency?: string
-    billing_type?: $Enums.TipoCobrancaGravity
-    unit_price: Decimal | DecimalJsLike | number | string
-    unit_currency?: string
-    minimum_price?: Decimal | DecimalJsLike | number | string
-    minimum_currency?: string
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    total_currency?: string
-    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: number | null
-    extra_user_price?: Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: string
-    helpdesk_hours?: number
-    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: string
-    gabi_quota_mensal?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    deleted_at?: Date | string | null
-    price_tiers?: FaixaPrecoUncheckedCreateNestedManyWithoutProductInput
+  export type ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
   }
 
-  export type ProdutoGravityCreateOrConnectWithoutNegotiationsInput = {
+  export type ProdutoGravityCreateOrConnectWithoutNegociacoes_produto_gravityInput = {
     where: ProdutoGravityWhereUniqueInput
-    create: XOR<ProdutoGravityCreateWithoutNegotiationsInput, ProdutoGravityUncheckedCreateWithoutNegotiationsInput>
+    create: XOR<ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput>
   }
 
-  export type ProdutoGravityUpsertWithoutNegotiationsInput = {
-    update: XOR<ProdutoGravityUpdateWithoutNegotiationsInput, ProdutoGravityUncheckedUpdateWithoutNegotiationsInput>
-    create: XOR<ProdutoGravityCreateWithoutNegotiationsInput, ProdutoGravityUncheckedCreateWithoutNegotiationsInput>
+  export type ProdutoGravityUpsertWithoutNegociacoes_produto_gravityInput = {
+    update: XOR<ProdutoGravityUpdateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput>
+    create: XOR<ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput>
     where?: ProdutoGravityWhereInput
   }
 
-  export type ProdutoGravityUpdateToOneWithWhereWithoutNegotiationsInput = {
+  export type ProdutoGravityUpdateToOneWithWhereWithoutNegociacoes_produto_gravityInput = {
     where?: ProdutoGravityWhereInput
-    data: XOR<ProdutoGravityUpdateWithoutNegotiationsInput, ProdutoGravityUncheckedUpdateWithoutNegotiationsInput>
+    data: XOR<ProdutoGravityUpdateWithoutNegociacoes_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput>
   }
 
-  export type ProdutoGravityUpdateWithoutNegotiationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: FaixaPrecoUpdateManyWithoutProductNestedInput
+  export type ProdutoGravityUpdateWithoutNegociacoes_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUpdateManyWithoutProdutoNestedInput
   }
 
-  export type ProdutoGravityUncheckedUpdateWithoutNegotiationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
-    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    has_setup?: BoolFieldUpdateOperationsInput | boolean
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
-    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    unit_currency?: StringFieldUpdateOperationsInput | string
-    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    minimum_currency?: StringFieldUpdateOperationsInput | string
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
-    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
-    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_user_currency?: StringFieldUpdateOperationsInput | string
-    helpdesk_hours?: IntFieldUpdateOperationsInput | number
-    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    extra_hour_currency?: StringFieldUpdateOperationsInput | string
-    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput
+  export type ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -37130,88 +37130,88 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoCreateManyProductInput = {
-    id?: string
-    range_from: number
-    range_to?: number | null
-    price: Decimal | DecimalJsLike | number | string
-    currency?: string
-    created_at?: Date | string
+  export type FaixaPrecoCreateManyProdutoInput = {
+    id_faixa_preco?: string
+    faixa_de_faixa_preco: number
+    faixa_ate_faixa_preco?: number | null
+    preco_faixa_preco: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: string
+    data_criacao_faixa_preco?: Date | string
   }
 
-  export type NegociacaoEspecialCreateManyProductInput = {
-    id?: string
-    tenant_id: string
-    tenant_name: string
-    agreement: string
-    starts_at?: Date | string | null
-    ends_at?: Date | string | null
-    is_unlimited?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NegociacaoEspecialCreateManyProdutoInput = {
+    id_negociacao_especial?: string
+    id_organizacao_negociacao_especial: string
+    nome_organizacao_negociacao_especial: string
+    acordo_negociacao_especial: string
+    data_inicio_negociacao_especial?: Date | string | null
+    data_fim_negociacao_especial?: Date | string | null
+    ilimitado_negociacao_especial?: boolean
+    data_criacao_negociacao_especial?: Date | string
+    data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type FaixaPrecoUpdateWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FaixaPrecoUpdateWithoutProdutoInput = {
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoUncheckedUpdateWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FaixaPrecoUncheckedUpdateWithoutProdutoInput = {
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoUncheckedUpdateManyWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    range_from?: IntFieldUpdateOperationsInput | number
-    range_to?: NullableIntFieldUpdateOperationsInput | number | null
-    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    currency?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type FaixaPrecoUncheckedUpdateManyWithoutProdutoInput = {
+    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUpdateWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NegociacaoEspecialUpdateWithoutProdutoInput = {
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUncheckedUpdateWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NegociacaoEspecialUncheckedUpdateWithoutProdutoInput = {
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUncheckedUpdateManyWithoutProductInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tenant_name?: StringFieldUpdateOperationsInput | string
-    agreement?: StringFieldUpdateOperationsInput | string
-    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput = {
+    id_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    acordo_negociacao_especial?: StringFieldUpdateOperationsInput | string
+    data_inicio_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_negociacao_especial?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ilimitado_negociacao_especial?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

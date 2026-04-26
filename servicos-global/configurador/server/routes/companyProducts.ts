@@ -63,9 +63,17 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     ]
 
     // Enriquece com dados do catálogo
-    const catalog = await prisma.produtoGravity.findMany({
-      where: { slug: { in: allKeys } },
+    const catalogRows = await prisma.produtoGravity.findMany({
+      where: { slug_produto_gravity: { in: allKeys } },
     })
+    // DTO: ProdutoGravity rename → contrato legado
+    const catalog = catalogRows.map(p => ({
+      id: p.id_produto_gravity,
+      name: p.nome_produto_gravity,
+      slug: p.slug_produto_gravity,
+      description: p.descricao_produto_gravity,
+      status: p.status_produto_gravity,
+    }))
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
     // DTO: ProdutoGravityWorkspace + ConfiguracaoProduto rename → contrato legado

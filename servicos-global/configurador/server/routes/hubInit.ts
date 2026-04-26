@@ -19,10 +19,24 @@ export const hubRouter = Router()
  */
 hubRouter.get('/catalog', async (_req, res, next) => {
   try {
-    const catalog = await prisma.produtoGravity.findMany({
-      select: { id: true, name: true, slug: true, description: true, status: true },
-      orderBy: { created_at: 'desc' },
+    const rows = await prisma.produtoGravity.findMany({
+      select: {
+        id_produto_gravity: true,
+        nome_produto_gravity: true,
+        slug_produto_gravity: true,
+        descricao_produto_gravity: true,
+        status_produto_gravity: true,
+      },
+      orderBy: { data_criacao_produto_gravity: 'desc' },
     })
+    // DTO: ProdutoGravity rename → contrato legado público
+    const catalog = rows.map(p => ({
+      id: p.id_produto_gravity,
+      name: p.nome_produto_gravity,
+      slug: p.slug_produto_gravity,
+      description: p.descricao_produto_gravity,
+      status: p.status_produto_gravity,
+    }))
     res.json({ catalog })
   } catch (err) {
     next(err)
@@ -49,9 +63,21 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         orderBy: { data_criacao_config_produto_gravity: 'desc' },
       }).catch(() => []),
       prisma.produtoGravity.findMany({
-        select: { id: true, name: true, slug: true, description: true, status: true },
-        orderBy: { created_at: 'desc' },
-      }).catch(() => []),
+        select: {
+          id_produto_gravity: true,
+          nome_produto_gravity: true,
+          slug_produto_gravity: true,
+          descricao_produto_gravity: true,
+          status_produto_gravity: true,
+        },
+        orderBy: { data_criacao_produto_gravity: 'desc' },
+      }).then(rows => rows.map(p => ({
+        id: p.id_produto_gravity,
+        name: p.nome_produto_gravity,
+        slug: p.slug_produto_gravity,
+        description: p.descricao_produto_gravity,
+        status: p.status_produto_gravity,
+      }))).catch(() => [] as Array<{ id: string; name: string; slug: string; description: string; status: string }>),
       // Fornecedor nunca tem preferido — evita round-trip desnecessário
       role === 'FORNECEDOR'
         ? Promise.resolve(null)

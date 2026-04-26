@@ -128,20 +128,20 @@ function mapStatusPatch(patch: {
 // ── ACL: PedidoColuna mappers (DDD ↔ contrato externo legacy) ─────────────────
 
 interface PedidoColunaDB {
-  id_pedido_coluna:             string
-  id_organizacao:               string
-  id_workspace:                 string | null
-  nome_pedido_coluna:           string
-  rotulo_pedido_coluna:         string
-  tipo_pedido_coluna:           string
-  casas_decimais_pedido_coluna: number
-  opcoes_pedido_coluna:         unknown
-  ordem_pedido_coluna:          number
-  filtravel_pedido_coluna:      boolean
-  exibida_padrao:               boolean
-  index_criado:                 boolean
-  created_at:                   Date | string
-  updated_at:                   Date | string
+  id_pedido_coluna:               string
+  id_organizacao:                 string
+  id_workspace:                   string | null
+  nome_pedido_coluna:             string
+  rotulo_pedido_coluna:           string
+  tipo_pedido_coluna:             string
+  casas_decimais_pedido_coluna:   number
+  opcoes_pedido_coluna:           unknown
+  ordem_pedido_coluna:            number
+  filtravel_pedido_coluna:        boolean
+  exibida_padrao_pedido_coluna:   boolean
+  index_criado_pedido_coluna:     boolean
+  data_criacao_pedido_coluna:     Date | string
+  data_atualizacao_pedido_coluna: Date | string
 }
 
 function mapColuna(c: PedidoColunaDB): Record<string, unknown> {
@@ -156,10 +156,10 @@ function mapColuna(c: PedidoColunaDB): Record<string, unknown> {
     opcoes:         c.opcoes_pedido_coluna,
     ordem:          c.ordem_pedido_coluna,
     filtravel:      c.filtravel_pedido_coluna,
-    exibida_padrao: c.exibida_padrao,
-    index_criado:   c.index_criado,
-    created_at:     c.created_at,
-    updated_at:     c.updated_at,
+    exibida_padrao: c.exibida_padrao_pedido_coluna,
+    index_criado:   c.index_criado_pedido_coluna,
+    created_at:     c.data_criacao_pedido_coluna,
+    updated_at:     c.data_atualizacao_pedido_coluna,
   }
 }
 
@@ -175,7 +175,7 @@ function mapColunaPatch(patch: {
   if (patch.opcoes         !== undefined) data.opcoes_pedido_coluna         = patch.opcoes ?? null
   if (patch.ordem          !== undefined) data.ordem_pedido_coluna          = patch.ordem
   if (patch.filtravel      !== undefined) data.filtravel_pedido_coluna      = patch.filtravel
-  if (patch.exibida_padrao !== undefined) data.exibida_padrao               = patch.exibida_padrao
+  if (patch.exibida_padrao !== undefined) data.exibida_padrao_pedido_coluna = patch.exibida_padrao
   return data
 }
 
@@ -537,8 +537,8 @@ pedidosConfigRouter.post('/colunas', async (req: Request, res: Response, next: N
           opcoes_pedido_coluna:         result.data.opcoes ?? null,
           ordem_pedido_coluna:          result.data.ordem,
           filtravel_pedido_coluna:      result.data.filtravel,
-          exibida_padrao:               result.data.exibida_padrao,
-          index_criado:                 false,
+          exibida_padrao_pedido_coluna: result.data.exibida_padrao,
+          index_criado_pedido_coluna:   false,
         },
       })
 

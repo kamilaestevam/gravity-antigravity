@@ -408,10 +408,10 @@ model PedidoColuna {
   opcoes_pedido_coluna         Json?
   ordem_pedido_coluna          Int      @default(0)
   filtravel_pedido_coluna      Boolean  @default(true)
-  exibida_padrao               Boolean  @default(false)
-  index_criado                 Boolean  @default(false)
-  created_at                   DateTime @default(now())
-  updated_at                   DateTime @updatedAt
+  exibida_padrao_pedido_coluna Boolean  @default(false)
+  index_criado_pedido_coluna   Boolean  @default(false)
+  data_criacao_pedido_coluna   DateTime @default(now())
+  data_atualizacao_pedido_coluna DateTime @updatedAt
 
   @@unique([id_organizacao, nome_pedido_coluna])
   @@index([id_organizacao])

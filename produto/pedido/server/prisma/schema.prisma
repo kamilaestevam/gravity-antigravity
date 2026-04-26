@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T01:24:12.061Z
+// Gerado em: 2026-04-26T01:49:19.675Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -476,20 +476,20 @@ model PedidoPreferenciaPadrao {
 }
 
 model AprendizadoImportacaoDados {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  product_id   String?
-  user_id      String?
-  hash_colunas String
-  mapeamento   String
-  uso_count    Int      @default(1)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id_aprendizado_importacao_dados           String   @id @default(cuid())
+  id_organizacao                            String
+  id_produto_gravity                        String?
+  id_usuario                                String?
+  hash_colunas_aprendizado_importacao_dados String
+  mapeamento_aprendizado_importacao_dados   String
+  contagem_uso_aprendizado_importacao_dados Int      @default(1)
+  data_criacao_aprendizado_importacao_dados DateTime @default(now())
+  data_atualizacao_aprendizado_importacao_dados DateTime @updatedAt
 
-  @@unique([tenant_id, hash_colunas])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@unique([id_organizacao, hash_colunas_aprendizado_importacao_dados])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_usuario])
   @@map("aprendizado_importacao_dados")
 }
 

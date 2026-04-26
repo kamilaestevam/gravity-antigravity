@@ -15498,45 +15498,45 @@ export namespace Prisma {
   }
 
   export type DeployMinAggregateOutputType = {
-    id: string | null
+    id_deploy: string | null
     deploy_number: number | null
-    area: string | null
-    version: string | null
-    description: string | null
-    environment: $Enums.DeployAmbiente | null
-    status: $Enums.DeployStatus | null
-    deployed_by: string | null
-    deployed_by_user_id: string | null
-    deployed_at: Date | null
-    created_at: Date | null
+    area_deploy: string | null
+    versao_deploy: string | null
+    descricao_deploy: string | null
+    ambiente_deploy: $Enums.DeployAmbiente | null
+    status_deploy: $Enums.DeployStatus | null
+    quem_deploy: string | null
+    id_usuario_deploy: string | null
+    data_execucao_deploy: Date | null
+    data_criacao_deploy: Date | null
   }
 
   export type DeployMaxAggregateOutputType = {
-    id: string | null
+    id_deploy: string | null
     deploy_number: number | null
-    area: string | null
-    version: string | null
-    description: string | null
-    environment: $Enums.DeployAmbiente | null
-    status: $Enums.DeployStatus | null
-    deployed_by: string | null
-    deployed_by_user_id: string | null
-    deployed_at: Date | null
-    created_at: Date | null
+    area_deploy: string | null
+    versao_deploy: string | null
+    descricao_deploy: string | null
+    ambiente_deploy: $Enums.DeployAmbiente | null
+    status_deploy: $Enums.DeployStatus | null
+    quem_deploy: string | null
+    id_usuario_deploy: string | null
+    data_execucao_deploy: Date | null
+    data_criacao_deploy: Date | null
   }
 
   export type DeployCountAggregateOutputType = {
-    id: number
+    id_deploy: number
     deploy_number: number
-    area: number
-    version: number
-    description: number
-    environment: number
-    status: number
-    deployed_by: number
-    deployed_by_user_id: number
-    deployed_at: number
-    created_at: number
+    area_deploy: number
+    versao_deploy: number
+    descricao_deploy: number
+    ambiente_deploy: number
+    status_deploy: number
+    quem_deploy: number
+    id_usuario_deploy: number
+    data_execucao_deploy: number
+    data_criacao_deploy: number
     _all: number
   }
 
@@ -15550,45 +15550,45 @@ export namespace Prisma {
   }
 
   export type DeployMinAggregateInputType = {
-    id?: true
+    id_deploy?: true
     deploy_number?: true
-    area?: true
-    version?: true
-    description?: true
-    environment?: true
-    status?: true
-    deployed_by?: true
-    deployed_by_user_id?: true
-    deployed_at?: true
-    created_at?: true
+    area_deploy?: true
+    versao_deploy?: true
+    descricao_deploy?: true
+    ambiente_deploy?: true
+    status_deploy?: true
+    quem_deploy?: true
+    id_usuario_deploy?: true
+    data_execucao_deploy?: true
+    data_criacao_deploy?: true
   }
 
   export type DeployMaxAggregateInputType = {
-    id?: true
+    id_deploy?: true
     deploy_number?: true
-    area?: true
-    version?: true
-    description?: true
-    environment?: true
-    status?: true
-    deployed_by?: true
-    deployed_by_user_id?: true
-    deployed_at?: true
-    created_at?: true
+    area_deploy?: true
+    versao_deploy?: true
+    descricao_deploy?: true
+    ambiente_deploy?: true
+    status_deploy?: true
+    quem_deploy?: true
+    id_usuario_deploy?: true
+    data_execucao_deploy?: true
+    data_criacao_deploy?: true
   }
 
   export type DeployCountAggregateInputType = {
-    id?: true
+    id_deploy?: true
     deploy_number?: true
-    area?: true
-    version?: true
-    description?: true
-    environment?: true
-    status?: true
-    deployed_by?: true
-    deployed_by_user_id?: true
-    deployed_at?: true
-    created_at?: true
+    area_deploy?: true
+    versao_deploy?: true
+    descricao_deploy?: true
+    ambiente_deploy?: true
+    status_deploy?: true
+    quem_deploy?: true
+    id_usuario_deploy?: true
+    data_execucao_deploy?: true
+    data_criacao_deploy?: true
     _all?: true
   }
 
@@ -15679,17 +15679,17 @@ export namespace Prisma {
   }
 
   export type DeployGroupByOutputType = {
-    id: string
+    id_deploy: string
     deploy_number: number
-    area: string
-    version: string
-    description: string
-    environment: $Enums.DeployAmbiente
-    status: $Enums.DeployStatus
-    deployed_by: string
-    deployed_by_user_id: string | null
-    deployed_at: Date
-    created_at: Date
+    area_deploy: string
+    versao_deploy: string
+    descricao_deploy: string
+    ambiente_deploy: $Enums.DeployAmbiente
+    status_deploy: $Enums.DeployStatus
+    quem_deploy: string
+    id_usuario_deploy: string | null
+    data_execucao_deploy: Date
+    data_criacao_deploy: Date
     _count: DeployCountAggregateOutputType | null
     _avg: DeployAvgAggregateOutputType | null
     _sum: DeploySumAggregateOutputType | null
@@ -15712,45 +15712,45 @@ export namespace Prisma {
 
 
   export type DeploySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
+    id_deploy?: boolean
     deploy_number?: boolean
-    area?: boolean
-    version?: boolean
-    description?: boolean
-    environment?: boolean
-    status?: boolean
-    deployed_by?: boolean
-    deployed_by_user_id?: boolean
-    deployed_at?: boolean
-    created_at?: boolean
+    area_deploy?: boolean
+    versao_deploy?: boolean
+    descricao_deploy?: boolean
+    ambiente_deploy?: boolean
+    status_deploy?: boolean
+    quem_deploy?: boolean
+    id_usuario_deploy?: boolean
+    data_execucao_deploy?: boolean
+    data_criacao_deploy?: boolean
   }, ExtArgs["result"]["deploy"]>
 
   export type DeploySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
+    id_deploy?: boolean
     deploy_number?: boolean
-    area?: boolean
-    version?: boolean
-    description?: boolean
-    environment?: boolean
-    status?: boolean
-    deployed_by?: boolean
-    deployed_by_user_id?: boolean
-    deployed_at?: boolean
-    created_at?: boolean
+    area_deploy?: boolean
+    versao_deploy?: boolean
+    descricao_deploy?: boolean
+    ambiente_deploy?: boolean
+    status_deploy?: boolean
+    quem_deploy?: boolean
+    id_usuario_deploy?: boolean
+    data_execucao_deploy?: boolean
+    data_criacao_deploy?: boolean
   }, ExtArgs["result"]["deploy"]>
 
   export type DeploySelectScalar = {
-    id?: boolean
+    id_deploy?: boolean
     deploy_number?: boolean
-    area?: boolean
-    version?: boolean
-    description?: boolean
-    environment?: boolean
-    status?: boolean
-    deployed_by?: boolean
-    deployed_by_user_id?: boolean
-    deployed_at?: boolean
-    created_at?: boolean
+    area_deploy?: boolean
+    versao_deploy?: boolean
+    descricao_deploy?: boolean
+    ambiente_deploy?: boolean
+    status_deploy?: boolean
+    quem_deploy?: boolean
+    id_usuario_deploy?: boolean
+    data_execucao_deploy?: boolean
+    data_criacao_deploy?: boolean
   }
 
 
@@ -15758,17 +15758,17 @@ export namespace Prisma {
     name: "Deploy"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
+      id_deploy: string
       deploy_number: number
-      area: string
-      version: string
-      description: string
-      environment: $Enums.DeployAmbiente
-      status: $Enums.DeployStatus
-      deployed_by: string
-      deployed_by_user_id: string | null
-      deployed_at: Date
-      created_at: Date
+      area_deploy: string
+      versao_deploy: string
+      descricao_deploy: string
+      ambiente_deploy: $Enums.DeployAmbiente
+      status_deploy: $Enums.DeployStatus
+      quem_deploy: string
+      id_usuario_deploy: string | null
+      data_execucao_deploy: Date
+      data_criacao_deploy: Date
     }, ExtArgs["result"]["deploy"]>
     composites: {}
   }
@@ -15852,8 +15852,8 @@ export namespace Prisma {
      * // Get first 10 Deploys
      * const deploys = await prisma.deploy.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const deployWithIdOnly = await prisma.deploy.findMany({ select: { id: true } })
+     * // Only select the `id_deploy`
+     * const deployWithId_deployOnly = await prisma.deploy.findMany({ select: { id_deploy: true } })
      * 
      */
     findMany<T extends DeployFindManyArgs>(args?: SelectSubset<T, DeployFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeployPayload<ExtArgs>, T, "findMany">>
@@ -15897,9 +15897,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Deploys and only return the `id`
-     * const deployWithIdOnly = await prisma.deploy.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Deploys and only return the `id_deploy`
+     * const deployWithId_deployOnly = await prisma.deploy.createManyAndReturn({ 
+     *   select: { id_deploy: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -16162,17 +16162,17 @@ export namespace Prisma {
    * Fields of the Deploy model
    */ 
   interface DeployFieldRefs {
-    readonly id: FieldRef<"Deploy", 'String'>
+    readonly id_deploy: FieldRef<"Deploy", 'String'>
     readonly deploy_number: FieldRef<"Deploy", 'Int'>
-    readonly area: FieldRef<"Deploy", 'String'>
-    readonly version: FieldRef<"Deploy", 'String'>
-    readonly description: FieldRef<"Deploy", 'String'>
-    readonly environment: FieldRef<"Deploy", 'DeployAmbiente'>
-    readonly status: FieldRef<"Deploy", 'DeployStatus'>
-    readonly deployed_by: FieldRef<"Deploy", 'String'>
-    readonly deployed_by_user_id: FieldRef<"Deploy", 'String'>
-    readonly deployed_at: FieldRef<"Deploy", 'DateTime'>
-    readonly created_at: FieldRef<"Deploy", 'DateTime'>
+    readonly area_deploy: FieldRef<"Deploy", 'String'>
+    readonly versao_deploy: FieldRef<"Deploy", 'String'>
+    readonly descricao_deploy: FieldRef<"Deploy", 'String'>
+    readonly ambiente_deploy: FieldRef<"Deploy", 'DeployAmbiente'>
+    readonly status_deploy: FieldRef<"Deploy", 'DeployStatus'>
+    readonly quem_deploy: FieldRef<"Deploy", 'String'>
+    readonly id_usuario_deploy: FieldRef<"Deploy", 'String'>
+    readonly data_execucao_deploy: FieldRef<"Deploy", 'DateTime'>
+    readonly data_criacao_deploy: FieldRef<"Deploy", 'DateTime'>
   }
     
 
@@ -26616,17 +26616,17 @@ export namespace Prisma {
 
 
   export const DeployScalarFieldEnum: {
-    id: 'id',
+    id_deploy: 'id_deploy',
     deploy_number: 'deploy_number',
-    area: 'area',
-    version: 'version',
-    description: 'description',
-    environment: 'environment',
-    status: 'status',
-    deployed_by: 'deployed_by',
-    deployed_by_user_id: 'deployed_by_user_id',
-    deployed_at: 'deployed_at',
-    created_at: 'created_at'
+    area_deploy: 'area_deploy',
+    versao_deploy: 'versao_deploy',
+    descricao_deploy: 'descricao_deploy',
+    ambiente_deploy: 'ambiente_deploy',
+    status_deploy: 'status_deploy',
+    quem_deploy: 'quem_deploy',
+    id_usuario_deploy: 'id_usuario_deploy',
+    data_execucao_deploy: 'data_execucao_deploy',
+    data_criacao_deploy: 'data_criacao_deploy'
   };
 
   export type DeployScalarFieldEnum = (typeof DeployScalarFieldEnum)[keyof typeof DeployScalarFieldEnum]
@@ -28158,62 +28158,62 @@ export namespace Prisma {
     AND?: DeployWhereInput | DeployWhereInput[]
     OR?: DeployWhereInput[]
     NOT?: DeployWhereInput | DeployWhereInput[]
-    id?: StringFilter<"Deploy"> | string
+    id_deploy?: StringFilter<"Deploy"> | string
     deploy_number?: IntFilter<"Deploy"> | number
-    area?: StringFilter<"Deploy"> | string
-    version?: StringFilter<"Deploy"> | string
-    description?: StringFilter<"Deploy"> | string
-    environment?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
-    deployed_by?: StringFilter<"Deploy"> | string
-    deployed_by_user_id?: StringNullableFilter<"Deploy"> | string | null
-    deployed_at?: DateTimeFilter<"Deploy"> | Date | string
-    created_at?: DateTimeFilter<"Deploy"> | Date | string
+    area_deploy?: StringFilter<"Deploy"> | string
+    versao_deploy?: StringFilter<"Deploy"> | string
+    descricao_deploy?: StringFilter<"Deploy"> | string
+    ambiente_deploy?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
+    quem_deploy?: StringFilter<"Deploy"> | string
+    id_usuario_deploy?: StringNullableFilter<"Deploy"> | string | null
+    data_execucao_deploy?: DateTimeFilter<"Deploy"> | Date | string
+    data_criacao_deploy?: DateTimeFilter<"Deploy"> | Date | string
   }
 
   export type DeployOrderByWithRelationInput = {
-    id?: SortOrder
+    id_deploy?: SortOrder
     deploy_number?: SortOrder
-    area?: SortOrder
-    version?: SortOrder
-    description?: SortOrder
-    environment?: SortOrder
-    status?: SortOrder
-    deployed_by?: SortOrder
-    deployed_by_user_id?: SortOrderInput | SortOrder
-    deployed_at?: SortOrder
-    created_at?: SortOrder
+    area_deploy?: SortOrder
+    versao_deploy?: SortOrder
+    descricao_deploy?: SortOrder
+    ambiente_deploy?: SortOrder
+    status_deploy?: SortOrder
+    quem_deploy?: SortOrder
+    id_usuario_deploy?: SortOrderInput | SortOrder
+    data_execucao_deploy?: SortOrder
+    data_criacao_deploy?: SortOrder
   }
 
   export type DeployWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_deploy?: string
     AND?: DeployWhereInput | DeployWhereInput[]
     OR?: DeployWhereInput[]
     NOT?: DeployWhereInput | DeployWhereInput[]
     deploy_number?: IntFilter<"Deploy"> | number
-    area?: StringFilter<"Deploy"> | string
-    version?: StringFilter<"Deploy"> | string
-    description?: StringFilter<"Deploy"> | string
-    environment?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
-    deployed_by?: StringFilter<"Deploy"> | string
-    deployed_by_user_id?: StringNullableFilter<"Deploy"> | string | null
-    deployed_at?: DateTimeFilter<"Deploy"> | Date | string
-    created_at?: DateTimeFilter<"Deploy"> | Date | string
-  }, "id">
+    area_deploy?: StringFilter<"Deploy"> | string
+    versao_deploy?: StringFilter<"Deploy"> | string
+    descricao_deploy?: StringFilter<"Deploy"> | string
+    ambiente_deploy?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
+    quem_deploy?: StringFilter<"Deploy"> | string
+    id_usuario_deploy?: StringNullableFilter<"Deploy"> | string | null
+    data_execucao_deploy?: DateTimeFilter<"Deploy"> | Date | string
+    data_criacao_deploy?: DateTimeFilter<"Deploy"> | Date | string
+  }, "id_deploy">
 
   export type DeployOrderByWithAggregationInput = {
-    id?: SortOrder
+    id_deploy?: SortOrder
     deploy_number?: SortOrder
-    area?: SortOrder
-    version?: SortOrder
-    description?: SortOrder
-    environment?: SortOrder
-    status?: SortOrder
-    deployed_by?: SortOrder
-    deployed_by_user_id?: SortOrderInput | SortOrder
-    deployed_at?: SortOrder
-    created_at?: SortOrder
+    area_deploy?: SortOrder
+    versao_deploy?: SortOrder
+    descricao_deploy?: SortOrder
+    ambiente_deploy?: SortOrder
+    status_deploy?: SortOrder
+    quem_deploy?: SortOrder
+    id_usuario_deploy?: SortOrderInput | SortOrder
+    data_execucao_deploy?: SortOrder
+    data_criacao_deploy?: SortOrder
     _count?: DeployCountOrderByAggregateInput
     _avg?: DeployAvgOrderByAggregateInput
     _max?: DeployMaxOrderByAggregateInput
@@ -28225,17 +28225,17 @@ export namespace Prisma {
     AND?: DeployScalarWhereWithAggregatesInput | DeployScalarWhereWithAggregatesInput[]
     OR?: DeployScalarWhereWithAggregatesInput[]
     NOT?: DeployScalarWhereWithAggregatesInput | DeployScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Deploy"> | string
+    id_deploy?: StringWithAggregatesFilter<"Deploy"> | string
     deploy_number?: IntWithAggregatesFilter<"Deploy"> | number
-    area?: StringWithAggregatesFilter<"Deploy"> | string
-    version?: StringWithAggregatesFilter<"Deploy"> | string
-    description?: StringWithAggregatesFilter<"Deploy"> | string
-    environment?: EnumDeployAmbienteWithAggregatesFilter<"Deploy"> | $Enums.DeployAmbiente
-    status?: EnumDeployStatusWithAggregatesFilter<"Deploy"> | $Enums.DeployStatus
-    deployed_by?: StringWithAggregatesFilter<"Deploy"> | string
-    deployed_by_user_id?: StringNullableWithAggregatesFilter<"Deploy"> | string | null
-    deployed_at?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
+    area_deploy?: StringWithAggregatesFilter<"Deploy"> | string
+    versao_deploy?: StringWithAggregatesFilter<"Deploy"> | string
+    descricao_deploy?: StringWithAggregatesFilter<"Deploy"> | string
+    ambiente_deploy?: EnumDeployAmbienteWithAggregatesFilter<"Deploy"> | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusWithAggregatesFilter<"Deploy"> | $Enums.DeployStatus
+    quem_deploy?: StringWithAggregatesFilter<"Deploy"> | string
+    id_usuario_deploy?: StringNullableWithAggregatesFilter<"Deploy"> | string | null
+    data_execucao_deploy?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
+    data_criacao_deploy?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
   }
 
   export type FornecedorOrganizacaoWhereInput = {
@@ -30328,101 +30328,101 @@ export namespace Prisma {
   }
 
   export type DeployCreateInput = {
-    id?: string
+    id_deploy?: string
     deploy_number?: number
-    area: string
-    version: string
-    description: string
-    environment?: $Enums.DeployAmbiente
-    status?: $Enums.DeployStatus
-    deployed_by: string
-    deployed_by_user_id?: string | null
-    deployed_at?: Date | string
-    created_at?: Date | string
+    area_deploy: string
+    versao_deploy: string
+    descricao_deploy: string
+    ambiente_deploy?: $Enums.DeployAmbiente
+    status_deploy?: $Enums.DeployStatus
+    quem_deploy: string
+    id_usuario_deploy?: string | null
+    data_execucao_deploy?: Date | string
+    data_criacao_deploy?: Date | string
   }
 
   export type DeployUncheckedCreateInput = {
-    id?: string
+    id_deploy?: string
     deploy_number?: number
-    area: string
-    version: string
-    description: string
-    environment?: $Enums.DeployAmbiente
-    status?: $Enums.DeployStatus
-    deployed_by: string
-    deployed_by_user_id?: string | null
-    deployed_at?: Date | string
-    created_at?: Date | string
+    area_deploy: string
+    versao_deploy: string
+    descricao_deploy: string
+    ambiente_deploy?: $Enums.DeployAmbiente
+    status_deploy?: $Enums.DeployStatus
+    quem_deploy: string
+    id_usuario_deploy?: string | null
+    data_execucao_deploy?: Date | string
+    data_criacao_deploy?: Date | string
   }
 
   export type DeployUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_deploy?: StringFieldUpdateOperationsInput | string
     deploy_number?: IntFieldUpdateOperationsInput | number
-    area?: StringFieldUpdateOperationsInput | string
-    version?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
-    deployed_by?: StringFieldUpdateOperationsInput | string
-    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    area_deploy?: StringFieldUpdateOperationsInput | string
+    versao_deploy?: StringFieldUpdateOperationsInput | string
+    descricao_deploy?: StringFieldUpdateOperationsInput | string
+    ambiente_deploy?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    quem_deploy?: StringFieldUpdateOperationsInput | string
+    id_usuario_deploy?: NullableStringFieldUpdateOperationsInput | string | null
+    data_execucao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeployUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_deploy?: StringFieldUpdateOperationsInput | string
     deploy_number?: IntFieldUpdateOperationsInput | number
-    area?: StringFieldUpdateOperationsInput | string
-    version?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
-    deployed_by?: StringFieldUpdateOperationsInput | string
-    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    area_deploy?: StringFieldUpdateOperationsInput | string
+    versao_deploy?: StringFieldUpdateOperationsInput | string
+    descricao_deploy?: StringFieldUpdateOperationsInput | string
+    ambiente_deploy?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    quem_deploy?: StringFieldUpdateOperationsInput | string
+    id_usuario_deploy?: NullableStringFieldUpdateOperationsInput | string | null
+    data_execucao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeployCreateManyInput = {
-    id?: string
+    id_deploy?: string
     deploy_number?: number
-    area: string
-    version: string
-    description: string
-    environment?: $Enums.DeployAmbiente
-    status?: $Enums.DeployStatus
-    deployed_by: string
-    deployed_by_user_id?: string | null
-    deployed_at?: Date | string
-    created_at?: Date | string
+    area_deploy: string
+    versao_deploy: string
+    descricao_deploy: string
+    ambiente_deploy?: $Enums.DeployAmbiente
+    status_deploy?: $Enums.DeployStatus
+    quem_deploy: string
+    id_usuario_deploy?: string | null
+    data_execucao_deploy?: Date | string
+    data_criacao_deploy?: Date | string
   }
 
   export type DeployUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_deploy?: StringFieldUpdateOperationsInput | string
     deploy_number?: IntFieldUpdateOperationsInput | number
-    area?: StringFieldUpdateOperationsInput | string
-    version?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
-    deployed_by?: StringFieldUpdateOperationsInput | string
-    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    area_deploy?: StringFieldUpdateOperationsInput | string
+    versao_deploy?: StringFieldUpdateOperationsInput | string
+    descricao_deploy?: StringFieldUpdateOperationsInput | string
+    ambiente_deploy?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    quem_deploy?: StringFieldUpdateOperationsInput | string
+    id_usuario_deploy?: NullableStringFieldUpdateOperationsInput | string | null
+    data_execucao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeployUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_deploy?: StringFieldUpdateOperationsInput | string
     deploy_number?: IntFieldUpdateOperationsInput | number
-    area?: StringFieldUpdateOperationsInput | string
-    version?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
-    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
-    deployed_by?: StringFieldUpdateOperationsInput | string
-    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    area_deploy?: StringFieldUpdateOperationsInput | string
+    versao_deploy?: StringFieldUpdateOperationsInput | string
+    descricao_deploy?: StringFieldUpdateOperationsInput | string
+    ambiente_deploy?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status_deploy?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    quem_deploy?: StringFieldUpdateOperationsInput | string
+    id_usuario_deploy?: NullableStringFieldUpdateOperationsInput | string | null
+    data_execucao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorOrganizacaoCreateInput = {
@@ -32627,17 +32627,17 @@ export namespace Prisma {
   }
 
   export type DeployCountOrderByAggregateInput = {
-    id?: SortOrder
+    id_deploy?: SortOrder
     deploy_number?: SortOrder
-    area?: SortOrder
-    version?: SortOrder
-    description?: SortOrder
-    environment?: SortOrder
-    status?: SortOrder
-    deployed_by?: SortOrder
-    deployed_by_user_id?: SortOrder
-    deployed_at?: SortOrder
-    created_at?: SortOrder
+    area_deploy?: SortOrder
+    versao_deploy?: SortOrder
+    descricao_deploy?: SortOrder
+    ambiente_deploy?: SortOrder
+    status_deploy?: SortOrder
+    quem_deploy?: SortOrder
+    id_usuario_deploy?: SortOrder
+    data_execucao_deploy?: SortOrder
+    data_criacao_deploy?: SortOrder
   }
 
   export type DeployAvgOrderByAggregateInput = {
@@ -32645,31 +32645,31 @@ export namespace Prisma {
   }
 
   export type DeployMaxOrderByAggregateInput = {
-    id?: SortOrder
+    id_deploy?: SortOrder
     deploy_number?: SortOrder
-    area?: SortOrder
-    version?: SortOrder
-    description?: SortOrder
-    environment?: SortOrder
-    status?: SortOrder
-    deployed_by?: SortOrder
-    deployed_by_user_id?: SortOrder
-    deployed_at?: SortOrder
-    created_at?: SortOrder
+    area_deploy?: SortOrder
+    versao_deploy?: SortOrder
+    descricao_deploy?: SortOrder
+    ambiente_deploy?: SortOrder
+    status_deploy?: SortOrder
+    quem_deploy?: SortOrder
+    id_usuario_deploy?: SortOrder
+    data_execucao_deploy?: SortOrder
+    data_criacao_deploy?: SortOrder
   }
 
   export type DeployMinOrderByAggregateInput = {
-    id?: SortOrder
+    id_deploy?: SortOrder
     deploy_number?: SortOrder
-    area?: SortOrder
-    version?: SortOrder
-    description?: SortOrder
-    environment?: SortOrder
-    status?: SortOrder
-    deployed_by?: SortOrder
-    deployed_by_user_id?: SortOrder
-    deployed_at?: SortOrder
-    created_at?: SortOrder
+    area_deploy?: SortOrder
+    versao_deploy?: SortOrder
+    descricao_deploy?: SortOrder
+    ambiente_deploy?: SortOrder
+    status_deploy?: SortOrder
+    quem_deploy?: SortOrder
+    id_usuario_deploy?: SortOrder
+    data_execucao_deploy?: SortOrder
+    data_criacao_deploy?: SortOrder
   }
 
   export type DeploySumOrderByAggregateInput = {

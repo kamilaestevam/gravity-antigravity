@@ -507,24 +507,24 @@ enum DeployStatus {
 }
 
 model Deploy {
-  id                  String         @id @default(cuid()) @map("id_deploy")
-  deploy_number       Int            @default(autoincrement())
-  area                String         @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
-  version             String         @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
-  description         String         @map("descricao_deploy") // resumo das alterações (changelog curto)
-  environment         DeployAmbiente @default(PRODUCAO) @map("ambiente_deploy")
-  status              DeployStatus   @default(SUCESSO) @map("status_deploy")
-  deployed_by         String         @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
-  deployed_by_user_id String?        @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
-  deployed_at         DateTime       @default(now()) @map("data_execucao_deploy")
+  id_deploy            String         @id @default(cuid())
+  deploy_number        Int            @default(autoincrement())
+  area_deploy          String // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
+  versao_deploy        String // semver (v1.2.3) ou git sha (8f3a1c2)
+  descricao_deploy     String // resumo das alterações (changelog curto)
+  ambiente_deploy      DeployAmbiente @default(PRODUCAO)
+  status_deploy        DeployStatus   @default(SUCESSO)
+  quem_deploy          String // nome legível do responsável (snapshot no momento do deploy)
+  id_usuario_deploy    String? // FK opcional para Usuario (pode ser null se deploy veio de CI)
+  data_execucao_deploy DateTime       @default(now())
 
-  created_at DateTime @default(now()) @map("data_criacao_deploy")
+  data_criacao_deploy DateTime @default(now())
 
-  @@index([deployed_at])
-  @@index([area])
-  @@index([environment])
-  @@index([status])
-  @@index([area, deployed_at])
+  @@index([data_execucao_deploy])
+  @@index([area_deploy])
+  @@index([ambiente_deploy])
+  @@index([status_deploy])
+  @@index([area_deploy, data_execucao_deploy])
   @@map("deploy")
 }
 

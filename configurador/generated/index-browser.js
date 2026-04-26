@@ -285,17 +285,17 @@ exports.Prisma.NegociacaoEspecialScalarFieldEnum = {
 };
 
 exports.Prisma.DeployScalarFieldEnum = {
-  id: 'id',
+  id_deploy: 'id_deploy',
   deploy_number: 'deploy_number',
-  area: 'area',
-  version: 'version',
-  description: 'description',
-  environment: 'environment',
-  status: 'status',
-  deployed_by: 'deployed_by',
-  deployed_by_user_id: 'deployed_by_user_id',
-  deployed_at: 'deployed_at',
-  created_at: 'created_at'
+  area_deploy: 'area_deploy',
+  versao_deploy: 'versao_deploy',
+  descricao_deploy: 'descricao_deploy',
+  ambiente_deploy: 'ambiente_deploy',
+  status_deploy: 'status_deploy',
+  quem_deploy: 'quem_deploy',
+  id_usuario_deploy: 'id_usuario_deploy',
+  data_execucao_deploy: 'data_execucao_deploy',
+  data_criacao_deploy: 'data_criacao_deploy'
 };
 
 exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {

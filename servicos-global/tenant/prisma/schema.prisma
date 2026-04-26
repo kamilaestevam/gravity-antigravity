@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T18:27:26.321Z
+// Gerado em: 2026-04-26T18:40:41.745Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -1045,74 +1045,117 @@ model ExportarResultado {
 
 
 // --- Fragment: agendamento ---
-model Agenda {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  nome        String
-  descricao   String?
-  tipo        String   // e.g., reuniao, consulta
-  criadoEm    DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+// servicos-global/tenant/agendamento/prisma/fragment.prisma
+// AGENTE AGENDAMENTO — ONDA 33 (DDD Servicos)
 
-  slots       Slot[]
-  config      DisponibilidadeConfig?
+// ---------------------------------------------------------------------------
+// AgendaUsuario — agenda do usuário (calendário pessoal/empresa)
+// ---------------------------------------------------------------------------
 
-  @@index([tenant_id])
+model AgendaUsuario {
+  id_agenda_usuario             String  @id @default(cuid())
+  id_organizacao_agenda_usuario String
+  id_produto_agenda_usuario     String?
+  id_usuario_agenda_usuario     String?
+
+  nome_agenda_usuario       String
+  descricao_agenda_usuario  String?
+  tipo_agenda_usuario       String   // reuniao | consulta | etc
+
+  data_criacao_agenda_usuario     DateTime @default(now())
+  data_atualizacao_agenda_usuario DateTime @updatedAt
+
+  horarios_agenda_usuario   HorarioDisponivel[]
+  config_agenda_usuario     ConfigDisponibilidadeAgenda?
+
+  @@index([id_organizacao_agenda_usuario], map: "au_org_idx")
+  @@index([id_organizacao_agenda_usuario, id_produto_agenda_usuario], map: "au_org_prd_idx")
+  @@index([id_organizacao_agenda_usuario, id_usuario_agenda_usuario], map: "au_org_usr_idx")
   @@map("agenda_usuario")
 }
 
-model Slot {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  agenda_id   String
-  inicio      DateTime
-  fim         DateTime
-  capacidade  Int      @default(1)
-  criadoEm    DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// HorarioDisponivel — slot de tempo disponível em uma agenda
+// ---------------------------------------------------------------------------
 
-  agenda      Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
-  reservas    Reserva[]
+model HorarioDisponivel {
+  id_horario_disponivel             String  @id @default(cuid())
+  id_organizacao_horario_disponivel String
+  id_produto_horario_disponivel     String?
+  id_usuario_horario_disponivel     String?
 
-  @@index([tenant_id])
-  @@index([agenda_id])
+  id_agenda_horario_disponivel      String
+  inicio_horario_disponivel         DateTime
+  fim_horario_disponivel            DateTime
+  capacidade_horario_disponivel     Int      @default(1)
+
+  data_criacao_horario_disponivel     DateTime @default(now())
+  data_atualizacao_horario_disponivel DateTime @updatedAt
+
+  agenda_horario_disponivel   AgendaUsuario @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
+  reservas_horario_disponivel ReservaAgenda[]
+
+  @@index([id_organizacao_horario_disponivel], map: "hd_org_idx")
+  @@index([id_organizacao_horario_disponivel, id_produto_horario_disponivel], map: "hd_org_prd_idx")
+  @@index([id_organizacao_horario_disponivel, id_usuario_horario_disponivel], map: "hd_org_usr_idx")
+  @@index([id_agenda_horario_disponivel], map: "hd_agd_idx")
   @@map("horario_disponivel")
 }
 
-model Reserva {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  slot_id     String
-  usuario_id  String   // ID do usuário ou contato
-  nome        String?  // Nome se não tiver usuário cadastrado no sistema
-  email       String?  // Email para notificação
-  status      String   @default("confirmado") // confirmado, cancelado, pendente
-  criadoEm    DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// ReservaAgenda — reserva de um horário
+// ---------------------------------------------------------------------------
 
-  slot        Slot     @relation(fields: [slot_id], references: [id], onDelete: Cascade)
+model ReservaAgenda {
+  id_reserva_agenda             String  @id @default(cuid())
+  id_organizacao_reserva_agenda String
+  id_produto_reserva_agenda     String?
+  id_usuario_reserva_agenda     String?
 
-  @@index([tenant_id])
-  @@index([slot_id])
-  @@index([usuario_id])
+  id_horario_reserva_agenda     String
+  id_reservante_reserva_agenda  String   // ID do usuário/contato que reservou
+  nome_reservante_reserva_agenda  String?
+  email_reservante_reserva_agenda String?
+  status_reserva_agenda         String   @default("confirmado") // confirmado | cancelado | pendente
+
+  data_criacao_reserva_agenda     DateTime @default(now())
+  data_atualizacao_reserva_agenda DateTime @updatedAt
+
+  horario_reserva_agenda  HorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
+
+  @@index([id_organizacao_reserva_agenda], map: "rea_org_idx")
+  @@index([id_organizacao_reserva_agenda, id_produto_reserva_agenda], map: "rea_org_prd_idx")
+  @@index([id_organizacao_reserva_agenda, id_usuario_reserva_agenda], map: "rea_org_usr_idx")
+  @@index([id_horario_reserva_agenda], map: "rea_hor_idx")
+  @@index([id_reservante_reserva_agenda], map: "rea_rsv_idx")
   @@map("reserva_agenda")
 }
 
-model DisponibilidadeConfig {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  agenda_id      String   @unique
-  horarioInicio  String   // Formato "HH:mm" (e.g., "09:00")
-  horarioFim     String   // Formato "HH:mm" (e.g., "18:00")
-  duracaoSlot    Int      // em minutos
-  intervalo      Int      @default(0) // tempo entre slots em minutos
-  diasSemana     Int[]    // [1,2,3,4,5] (1=Segunda, 5=Sexta)
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// ConfigDisponibilidadeAgenda — configuração de disponibilidade de uma agenda
+// ---------------------------------------------------------------------------
 
-  agenda         Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+model ConfigDisponibilidadeAgenda {
+  id_config_disponibilidade_agenda             String  @id @default(cuid())
+  id_organizacao_config_disponibilidade_agenda String
+  id_produto_config_disponibilidade_agenda     String?
+  id_usuario_config_disponibilidade_agenda     String?
 
-  @@index([tenant_id])
+  id_agenda_config_disponibilidade_agenda      String  @unique
+  horario_inicio_config_disponibilidade_agenda String  // "HH:mm"
+  horario_fim_config_disponibilidade_agenda    String  // "HH:mm"
+  duracao_slot_config_disponibilidade_agenda   Int     // minutos
+  intervalo_config_disponibilidade_agenda      Int     @default(0) // tempo entre slots em minutos
+  dias_semana_config_disponibilidade_agenda    Int[]   // [1,2,3,4,5]
+
+  data_criacao_config_disponibilidade_agenda     DateTime @default(now())
+  data_atualizacao_config_disponibilidade_agenda DateTime @updatedAt
+
+  agenda_config_disponibilidade_agenda  AgendaUsuario @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
+
+  @@index([id_organizacao_config_disponibilidade_agenda], map: "cda_org_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_produto_config_disponibilidade_agenda], map: "cda_org_prd_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_usuario_config_disponibilidade_agenda], map: "cda_org_usr_idx")
   @@map("config_disponibilidade_agenda")
 }
 

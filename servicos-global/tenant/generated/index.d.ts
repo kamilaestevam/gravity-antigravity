@@ -154,25 +154,25 @@ export type NotificacaoAlerta = $Result.DefaultSelection<Prisma.$NotificacaoAler
  */
 export type ExportarResultado = $Result.DefaultSelection<Prisma.$ExportarResultadoPayload>
 /**
- * Model Agenda
+ * Model AgendaUsuario
  * 
  */
-export type Agenda = $Result.DefaultSelection<Prisma.$AgendaPayload>
+export type AgendaUsuario = $Result.DefaultSelection<Prisma.$AgendaUsuarioPayload>
 /**
- * Model Slot
+ * Model HorarioDisponivel
  * 
  */
-export type Slot = $Result.DefaultSelection<Prisma.$SlotPayload>
+export type HorarioDisponivel = $Result.DefaultSelection<Prisma.$HorarioDisponivelPayload>
 /**
- * Model Reserva
+ * Model ReservaAgenda
  * 
  */
-export type Reserva = $Result.DefaultSelection<Prisma.$ReservaPayload>
+export type ReservaAgenda = $Result.DefaultSelection<Prisma.$ReservaAgendaPayload>
 /**
- * Model DisponibilidadeConfig
+ * Model ConfigDisponibilidadeAgenda
  * 
  */
-export type DisponibilidadeConfig = $Result.DefaultSelection<Prisma.$DisponibilidadeConfigPayload>
+export type ConfigDisponibilidadeAgenda = $Result.DefaultSelection<Prisma.$ConfigDisponibilidadeAgendaPayload>
 /**
  * Model ConversaCompletaGabi
  * 
@@ -829,44 +829,44 @@ export class PrismaClient<
   get exportarResultado(): Prisma.ExportarResultadoDelegate<ExtArgs>;
 
   /**
-   * `prisma.agenda`: Exposes CRUD operations for the **Agenda** model.
+   * `prisma.agendaUsuario`: Exposes CRUD operations for the **AgendaUsuario** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Agenda
-    * const agenda = await prisma.agenda.findMany()
+    * // Fetch zero or more AgendaUsuarios
+    * const agendaUsuarios = await prisma.agendaUsuario.findMany()
     * ```
     */
-  get agenda(): Prisma.AgendaDelegate<ExtArgs>;
+  get agendaUsuario(): Prisma.AgendaUsuarioDelegate<ExtArgs>;
 
   /**
-   * `prisma.slot`: Exposes CRUD operations for the **Slot** model.
+   * `prisma.horarioDisponivel`: Exposes CRUD operations for the **HorarioDisponivel** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Slots
-    * const slots = await prisma.slot.findMany()
+    * // Fetch zero or more HorarioDisponivels
+    * const horarioDisponivels = await prisma.horarioDisponivel.findMany()
     * ```
     */
-  get slot(): Prisma.SlotDelegate<ExtArgs>;
+  get horarioDisponivel(): Prisma.HorarioDisponivelDelegate<ExtArgs>;
 
   /**
-   * `prisma.reserva`: Exposes CRUD operations for the **Reserva** model.
+   * `prisma.reservaAgenda`: Exposes CRUD operations for the **ReservaAgenda** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Reservas
-    * const reservas = await prisma.reserva.findMany()
+    * // Fetch zero or more ReservaAgenda
+    * const reservaAgenda = await prisma.reservaAgenda.findMany()
     * ```
     */
-  get reserva(): Prisma.ReservaDelegate<ExtArgs>;
+  get reservaAgenda(): Prisma.ReservaAgendaDelegate<ExtArgs>;
 
   /**
-   * `prisma.disponibilidadeConfig`: Exposes CRUD operations for the **DisponibilidadeConfig** model.
+   * `prisma.configDisponibilidadeAgenda`: Exposes CRUD operations for the **ConfigDisponibilidadeAgenda** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more DisponibilidadeConfigs
-    * const disponibilidadeConfigs = await prisma.disponibilidadeConfig.findMany()
+    * // Fetch zero or more ConfigDisponibilidadeAgenda
+    * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findMany()
     * ```
     */
-  get disponibilidadeConfig(): Prisma.DisponibilidadeConfigDelegate<ExtArgs>;
+  get configDisponibilidadeAgenda(): Prisma.ConfigDisponibilidadeAgendaDelegate<ExtArgs>;
 
   /**
    * `prisma.conversaCompletaGabi`: Exposes CRUD operations for the **ConversaCompletaGabi** model.
@@ -1466,10 +1466,10 @@ export namespace Prisma {
     EventoAlerta: 'EventoAlerta',
     NotificacaoAlerta: 'NotificacaoAlerta',
     ExportarResultado: 'ExportarResultado',
-    Agenda: 'Agenda',
-    Slot: 'Slot',
-    Reserva: 'Reserva',
-    DisponibilidadeConfig: 'DisponibilidadeConfig',
+    AgendaUsuario: 'AgendaUsuario',
+    HorarioDisponivel: 'HorarioDisponivel',
+    ReservaAgenda: 'ReservaAgenda',
+    ConfigDisponibilidadeAgenda: 'ConfigDisponibilidadeAgenda',
     ConversaCompletaGabi: 'ConversaCompletaGabi',
     MensagemIndividualGabiai: 'MensagemIndividualGabiai',
     GabiaLogUso: 'GabiaLogUso',
@@ -1498,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3462,283 +3462,283 @@ export namespace Prisma {
           }
         }
       }
-      Agenda: {
-        payload: Prisma.$AgendaPayload<ExtArgs>
-        fields: Prisma.AgendaFieldRefs
+      AgendaUsuario: {
+        payload: Prisma.$AgendaUsuarioPayload<ExtArgs>
+        fields: Prisma.AgendaUsuarioFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AgendaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload> | null
+            args: Prisma.AgendaUsuarioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AgendaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           findFirst: {
-            args: Prisma.AgendaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload> | null
+            args: Prisma.AgendaUsuarioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AgendaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           findMany: {
-            args: Prisma.AgendaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>[]
+            args: Prisma.AgendaUsuarioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>[]
           }
           create: {
-            args: Prisma.AgendaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           createMany: {
-            args: Prisma.AgendaCreateManyArgs<ExtArgs>
+            args: Prisma.AgendaUsuarioCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AgendaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>[]
+            args: Prisma.AgendaUsuarioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>[]
           }
           delete: {
-            args: Prisma.AgendaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           update: {
-            args: Prisma.AgendaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           deleteMany: {
-            args: Prisma.AgendaDeleteManyArgs<ExtArgs>
+            args: Prisma.AgendaUsuarioDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AgendaUpdateManyArgs<ExtArgs>
+            args: Prisma.AgendaUsuarioUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AgendaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendaPayload>
+            args: Prisma.AgendaUsuarioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendaUsuarioPayload>
           }
           aggregate: {
-            args: Prisma.AgendaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAgenda>
+            args: Prisma.AgendaUsuarioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgendaUsuario>
           }
           groupBy: {
-            args: Prisma.AgendaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AgendaGroupByOutputType>[]
+            args: Prisma.AgendaUsuarioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgendaUsuarioGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AgendaCountArgs<ExtArgs>
-            result: $Utils.Optional<AgendaCountAggregateOutputType> | number
+            args: Prisma.AgendaUsuarioCountArgs<ExtArgs>
+            result: $Utils.Optional<AgendaUsuarioCountAggregateOutputType> | number
           }
         }
       }
-      Slot: {
-        payload: Prisma.$SlotPayload<ExtArgs>
-        fields: Prisma.SlotFieldRefs
+      HorarioDisponivel: {
+        payload: Prisma.$HorarioDisponivelPayload<ExtArgs>
+        fields: Prisma.HorarioDisponivelFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.SlotFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload> | null
+            args: Prisma.HorarioDisponivelFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.SlotFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           findFirst: {
-            args: Prisma.SlotFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload> | null
+            args: Prisma.HorarioDisponivelFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.SlotFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           findMany: {
-            args: Prisma.SlotFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>[]
+            args: Prisma.HorarioDisponivelFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>[]
           }
           create: {
-            args: Prisma.SlotCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           createMany: {
-            args: Prisma.SlotCreateManyArgs<ExtArgs>
+            args: Prisma.HorarioDisponivelCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.SlotCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>[]
+            args: Prisma.HorarioDisponivelCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>[]
           }
           delete: {
-            args: Prisma.SlotDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           update: {
-            args: Prisma.SlotUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           deleteMany: {
-            args: Prisma.SlotDeleteManyArgs<ExtArgs>
+            args: Prisma.HorarioDisponivelDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.SlotUpdateManyArgs<ExtArgs>
+            args: Prisma.HorarioDisponivelUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.SlotUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SlotPayload>
+            args: Prisma.HorarioDisponivelUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioDisponivelPayload>
           }
           aggregate: {
-            args: Prisma.SlotAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSlot>
+            args: Prisma.HorarioDisponivelAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHorarioDisponivel>
           }
           groupBy: {
-            args: Prisma.SlotGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SlotGroupByOutputType>[]
+            args: Prisma.HorarioDisponivelGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HorarioDisponivelGroupByOutputType>[]
           }
           count: {
-            args: Prisma.SlotCountArgs<ExtArgs>
-            result: $Utils.Optional<SlotCountAggregateOutputType> | number
+            args: Prisma.HorarioDisponivelCountArgs<ExtArgs>
+            result: $Utils.Optional<HorarioDisponivelCountAggregateOutputType> | number
           }
         }
       }
-      Reserva: {
-        payload: Prisma.$ReservaPayload<ExtArgs>
-        fields: Prisma.ReservaFieldRefs
+      ReservaAgenda: {
+        payload: Prisma.$ReservaAgendaPayload<ExtArgs>
+        fields: Prisma.ReservaAgendaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ReservaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload> | null
+            args: Prisma.ReservaAgendaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ReservaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           findFirst: {
-            args: Prisma.ReservaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload> | null
+            args: Prisma.ReservaAgendaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ReservaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           findMany: {
-            args: Prisma.ReservaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>[]
+            args: Prisma.ReservaAgendaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>[]
           }
           create: {
-            args: Prisma.ReservaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           createMany: {
-            args: Prisma.ReservaCreateManyArgs<ExtArgs>
+            args: Prisma.ReservaAgendaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ReservaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>[]
+            args: Prisma.ReservaAgendaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>[]
           }
           delete: {
-            args: Prisma.ReservaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           update: {
-            args: Prisma.ReservaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           deleteMany: {
-            args: Prisma.ReservaDeleteManyArgs<ExtArgs>
+            args: Prisma.ReservaAgendaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ReservaUpdateManyArgs<ExtArgs>
+            args: Prisma.ReservaAgendaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ReservaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ReservaPayload>
+            args: Prisma.ReservaAgendaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservaAgendaPayload>
           }
           aggregate: {
-            args: Prisma.ReservaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateReserva>
+            args: Prisma.ReservaAgendaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReservaAgenda>
           }
           groupBy: {
-            args: Prisma.ReservaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ReservaGroupByOutputType>[]
+            args: Prisma.ReservaAgendaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReservaAgendaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ReservaCountArgs<ExtArgs>
-            result: $Utils.Optional<ReservaCountAggregateOutputType> | number
+            args: Prisma.ReservaAgendaCountArgs<ExtArgs>
+            result: $Utils.Optional<ReservaAgendaCountAggregateOutputType> | number
           }
         }
       }
-      DisponibilidadeConfig: {
-        payload: Prisma.$DisponibilidadeConfigPayload<ExtArgs>
-        fields: Prisma.DisponibilidadeConfigFieldRefs
+      ConfigDisponibilidadeAgenda: {
+        payload: Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>
+        fields: Prisma.ConfigDisponibilidadeAgendaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.DisponibilidadeConfigFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload> | null
+            args: Prisma.ConfigDisponibilidadeAgendaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.DisponibilidadeConfigFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           findFirst: {
-            args: Prisma.DisponibilidadeConfigFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload> | null
+            args: Prisma.ConfigDisponibilidadeAgendaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.DisponibilidadeConfigFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           findMany: {
-            args: Prisma.DisponibilidadeConfigFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>[]
+            args: Prisma.ConfigDisponibilidadeAgendaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>[]
           }
           create: {
-            args: Prisma.DisponibilidadeConfigCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           createMany: {
-            args: Prisma.DisponibilidadeConfigCreateManyArgs<ExtArgs>
+            args: Prisma.ConfigDisponibilidadeAgendaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.DisponibilidadeConfigCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>[]
+            args: Prisma.ConfigDisponibilidadeAgendaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>[]
           }
           delete: {
-            args: Prisma.DisponibilidadeConfigDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           update: {
-            args: Prisma.DisponibilidadeConfigUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           deleteMany: {
-            args: Prisma.DisponibilidadeConfigDeleteManyArgs<ExtArgs>
+            args: Prisma.ConfigDisponibilidadeAgendaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.DisponibilidadeConfigUpdateManyArgs<ExtArgs>
+            args: Prisma.ConfigDisponibilidadeAgendaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.DisponibilidadeConfigUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DisponibilidadeConfigPayload>
+            args: Prisma.ConfigDisponibilidadeAgendaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfigDisponibilidadeAgendaPayload>
           }
           aggregate: {
-            args: Prisma.DisponibilidadeConfigAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateDisponibilidadeConfig>
+            args: Prisma.ConfigDisponibilidadeAgendaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConfigDisponibilidadeAgenda>
           }
           groupBy: {
-            args: Prisma.DisponibilidadeConfigGroupByArgs<ExtArgs>
-            result: $Utils.Optional<DisponibilidadeConfigGroupByOutputType>[]
+            args: Prisma.ConfigDisponibilidadeAgendaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConfigDisponibilidadeAgendaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.DisponibilidadeConfigCountArgs<ExtArgs>
-            result: $Utils.Optional<DisponibilidadeConfigCountAggregateOutputType> | number
+            args: Prisma.ConfigDisponibilidadeAgendaCountArgs<ExtArgs>
+            result: $Utils.Optional<ConfigDisponibilidadeAgendaCountAggregateOutputType> | number
           }
         }
       }
@@ -4991,64 +4991,64 @@ export namespace Prisma {
 
 
   /**
-   * Count Type AgendaCountOutputType
+   * Count Type AgendaUsuarioCountOutputType
    */
 
-  export type AgendaCountOutputType = {
-    slots: number
+  export type AgendaUsuarioCountOutputType = {
+    horarios_agenda_usuario: number
   }
 
-  export type AgendaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    slots?: boolean | AgendaCountOutputTypeCountSlotsArgs
+  export type AgendaUsuarioCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    horarios_agenda_usuario?: boolean | AgendaUsuarioCountOutputTypeCountHorarios_agenda_usuarioArgs
   }
 
   // Custom InputTypes
   /**
-   * AgendaCountOutputType without action
+   * AgendaUsuarioCountOutputType without action
    */
-  export type AgendaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendaCountOutputType
+     * Select specific fields to fetch from the AgendaUsuarioCountOutputType
      */
-    select?: AgendaCountOutputTypeSelect<ExtArgs> | null
+    select?: AgendaUsuarioCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AgendaCountOutputType without action
+   * AgendaUsuarioCountOutputType without action
    */
-  export type AgendaCountOutputTypeCountSlotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SlotWhereInput
+  export type AgendaUsuarioCountOutputTypeCountHorarios_agenda_usuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioDisponivelWhereInput
   }
 
 
   /**
-   * Count Type SlotCountOutputType
+   * Count Type HorarioDisponivelCountOutputType
    */
 
-  export type SlotCountOutputType = {
-    reservas: number
+  export type HorarioDisponivelCountOutputType = {
+    reservas_horario_disponivel: number
   }
 
-  export type SlotCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    reservas?: boolean | SlotCountOutputTypeCountReservasArgs
+  export type HorarioDisponivelCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reservas_horario_disponivel?: boolean | HorarioDisponivelCountOutputTypeCountReservas_horario_disponivelArgs
   }
 
   // Custom InputTypes
   /**
-   * SlotCountOutputType without action
+   * HorarioDisponivelCountOutputType without action
    */
-  export type SlotCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SlotCountOutputType
+     * Select specific fields to fetch from the HorarioDisponivelCountOutputType
      */
-    select?: SlotCountOutputTypeSelect<ExtArgs> | null
+    select?: HorarioDisponivelCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * SlotCountOutputType without action
+   * HorarioDisponivelCountOutputType without action
    */
-  export type SlotCountOutputTypeCountReservasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReservaWhereInput
+  export type HorarioDisponivelCountOutputTypeCountReservas_horario_disponivelArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservaAgendaWhereInput
   }
 
 
@@ -33824,362 +33824,384 @@ export namespace Prisma {
 
 
   /**
-   * Model Agenda
+   * Model AgendaUsuario
    */
 
-  export type AggregateAgenda = {
-    _count: AgendaCountAggregateOutputType | null
-    _min: AgendaMinAggregateOutputType | null
-    _max: AgendaMaxAggregateOutputType | null
+  export type AggregateAgendaUsuario = {
+    _count: AgendaUsuarioCountAggregateOutputType | null
+    _min: AgendaUsuarioMinAggregateOutputType | null
+    _max: AgendaUsuarioMaxAggregateOutputType | null
   }
 
-  export type AgendaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    nome: string | null
-    descricao: string | null
-    tipo: string | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type AgendaUsuarioMinAggregateOutputType = {
+    id_agenda_usuario: string | null
+    id_organizacao_agenda_usuario: string | null
+    id_produto_agenda_usuario: string | null
+    id_usuario_agenda_usuario: string | null
+    nome_agenda_usuario: string | null
+    descricao_agenda_usuario: string | null
+    tipo_agenda_usuario: string | null
+    data_criacao_agenda_usuario: Date | null
+    data_atualizacao_agenda_usuario: Date | null
   }
 
-  export type AgendaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    nome: string | null
-    descricao: string | null
-    tipo: string | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type AgendaUsuarioMaxAggregateOutputType = {
+    id_agenda_usuario: string | null
+    id_organizacao_agenda_usuario: string | null
+    id_produto_agenda_usuario: string | null
+    id_usuario_agenda_usuario: string | null
+    nome_agenda_usuario: string | null
+    descricao_agenda_usuario: string | null
+    tipo_agenda_usuario: string | null
+    data_criacao_agenda_usuario: Date | null
+    data_atualizacao_agenda_usuario: Date | null
   }
 
-  export type AgendaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    nome: number
-    descricao: number
-    tipo: number
-    criadoEm: number
-    atualizadoEm: number
+  export type AgendaUsuarioCountAggregateOutputType = {
+    id_agenda_usuario: number
+    id_organizacao_agenda_usuario: number
+    id_produto_agenda_usuario: number
+    id_usuario_agenda_usuario: number
+    nome_agenda_usuario: number
+    descricao_agenda_usuario: number
+    tipo_agenda_usuario: number
+    data_criacao_agenda_usuario: number
+    data_atualizacao_agenda_usuario: number
     _all: number
   }
 
 
-  export type AgendaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    nome?: true
-    descricao?: true
-    tipo?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type AgendaUsuarioMinAggregateInputType = {
+    id_agenda_usuario?: true
+    id_organizacao_agenda_usuario?: true
+    id_produto_agenda_usuario?: true
+    id_usuario_agenda_usuario?: true
+    nome_agenda_usuario?: true
+    descricao_agenda_usuario?: true
+    tipo_agenda_usuario?: true
+    data_criacao_agenda_usuario?: true
+    data_atualizacao_agenda_usuario?: true
   }
 
-  export type AgendaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    nome?: true
-    descricao?: true
-    tipo?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type AgendaUsuarioMaxAggregateInputType = {
+    id_agenda_usuario?: true
+    id_organizacao_agenda_usuario?: true
+    id_produto_agenda_usuario?: true
+    id_usuario_agenda_usuario?: true
+    nome_agenda_usuario?: true
+    descricao_agenda_usuario?: true
+    tipo_agenda_usuario?: true
+    data_criacao_agenda_usuario?: true
+    data_atualizacao_agenda_usuario?: true
   }
 
-  export type AgendaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    nome?: true
-    descricao?: true
-    tipo?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type AgendaUsuarioCountAggregateInputType = {
+    id_agenda_usuario?: true
+    id_organizacao_agenda_usuario?: true
+    id_produto_agenda_usuario?: true
+    id_usuario_agenda_usuario?: true
+    nome_agenda_usuario?: true
+    descricao_agenda_usuario?: true
+    tipo_agenda_usuario?: true
+    data_criacao_agenda_usuario?: true
+    data_atualizacao_agenda_usuario?: true
     _all?: true
   }
 
-  export type AgendaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Agenda to aggregate.
+     * Filter which AgendaUsuario to aggregate.
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Agenda to fetch.
+     * Determine the order of AgendaUsuarios to fetch.
      */
-    orderBy?: AgendaOrderByWithRelationInput | AgendaOrderByWithRelationInput[]
+    orderBy?: AgendaUsuarioOrderByWithRelationInput | AgendaUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AgendaWhereUniqueInput
+    cursor?: AgendaUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Agenda from the position of the cursor.
+     * Take `±n` AgendaUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Agenda.
+     * Skip the first `n` AgendaUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Agenda
+     * Count returned AgendaUsuarios
     **/
-    _count?: true | AgendaCountAggregateInputType
+    _count?: true | AgendaUsuarioCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AgendaMinAggregateInputType
+    _min?: AgendaUsuarioMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AgendaMaxAggregateInputType
+    _max?: AgendaUsuarioMaxAggregateInputType
   }
 
-  export type GetAgendaAggregateType<T extends AgendaAggregateArgs> = {
-        [P in keyof T & keyof AggregateAgenda]: P extends '_count' | 'count'
+  export type GetAgendaUsuarioAggregateType<T extends AgendaUsuarioAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgendaUsuario]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAgenda[P]>
-      : GetScalarType<T[P], AggregateAgenda[P]>
+        : GetScalarType<T[P], AggregateAgendaUsuario[P]>
+      : GetScalarType<T[P], AggregateAgendaUsuario[P]>
   }
 
 
 
 
-  export type AgendaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AgendaWhereInput
-    orderBy?: AgendaOrderByWithAggregationInput | AgendaOrderByWithAggregationInput[]
-    by: AgendaScalarFieldEnum[] | AgendaScalarFieldEnum
-    having?: AgendaScalarWhereWithAggregatesInput
+  export type AgendaUsuarioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgendaUsuarioWhereInput
+    orderBy?: AgendaUsuarioOrderByWithAggregationInput | AgendaUsuarioOrderByWithAggregationInput[]
+    by: AgendaUsuarioScalarFieldEnum[] | AgendaUsuarioScalarFieldEnum
+    having?: AgendaUsuarioScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AgendaCountAggregateInputType | true
-    _min?: AgendaMinAggregateInputType
-    _max?: AgendaMaxAggregateInputType
+    _count?: AgendaUsuarioCountAggregateInputType | true
+    _min?: AgendaUsuarioMinAggregateInputType
+    _max?: AgendaUsuarioMaxAggregateInputType
   }
 
-  export type AgendaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    nome: string
-    descricao: string | null
-    tipo: string
-    criadoEm: Date
-    atualizadoEm: Date
-    _count: AgendaCountAggregateOutputType | null
-    _min: AgendaMinAggregateOutputType | null
-    _max: AgendaMaxAggregateOutputType | null
+  export type AgendaUsuarioGroupByOutputType = {
+    id_agenda_usuario: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario: string | null
+    id_usuario_agenda_usuario: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario: Date
+    data_atualizacao_agenda_usuario: Date
+    _count: AgendaUsuarioCountAggregateOutputType | null
+    _min: AgendaUsuarioMinAggregateOutputType | null
+    _max: AgendaUsuarioMaxAggregateOutputType | null
   }
 
-  type GetAgendaGroupByPayload<T extends AgendaGroupByArgs> = Prisma.PrismaPromise<
+  type GetAgendaUsuarioGroupByPayload<T extends AgendaUsuarioGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AgendaGroupByOutputType, T['by']> &
+      PickEnumerable<AgendaUsuarioGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AgendaGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AgendaUsuarioGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AgendaGroupByOutputType[P]>
-            : GetScalarType<T[P], AgendaGroupByOutputType[P]>
+              : GetScalarType<T[P], AgendaUsuarioGroupByOutputType[P]>
+            : GetScalarType<T[P], AgendaUsuarioGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AgendaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    nome?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    slots?: boolean | Agenda$slotsArgs<ExtArgs>
-    config?: boolean | Agenda$configArgs<ExtArgs>
-    _count?: boolean | AgendaCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["agenda"]>
+  export type AgendaUsuarioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_agenda_usuario?: boolean
+    id_organizacao_agenda_usuario?: boolean
+    id_produto_agenda_usuario?: boolean
+    id_usuario_agenda_usuario?: boolean
+    nome_agenda_usuario?: boolean
+    descricao_agenda_usuario?: boolean
+    tipo_agenda_usuario?: boolean
+    data_criacao_agenda_usuario?: boolean
+    data_atualizacao_agenda_usuario?: boolean
+    horarios_agenda_usuario?: boolean | AgendaUsuario$horarios_agenda_usuarioArgs<ExtArgs>
+    config_agenda_usuario?: boolean | AgendaUsuario$config_agenda_usuarioArgs<ExtArgs>
+    _count?: boolean | AgendaUsuarioCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["agendaUsuario"]>
 
-  export type AgendaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    nome?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-  }, ExtArgs["result"]["agenda"]>
+  export type AgendaUsuarioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_agenda_usuario?: boolean
+    id_organizacao_agenda_usuario?: boolean
+    id_produto_agenda_usuario?: boolean
+    id_usuario_agenda_usuario?: boolean
+    nome_agenda_usuario?: boolean
+    descricao_agenda_usuario?: boolean
+    tipo_agenda_usuario?: boolean
+    data_criacao_agenda_usuario?: boolean
+    data_atualizacao_agenda_usuario?: boolean
+  }, ExtArgs["result"]["agendaUsuario"]>
 
-  export type AgendaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    nome?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
+  export type AgendaUsuarioSelectScalar = {
+    id_agenda_usuario?: boolean
+    id_organizacao_agenda_usuario?: boolean
+    id_produto_agenda_usuario?: boolean
+    id_usuario_agenda_usuario?: boolean
+    nome_agenda_usuario?: boolean
+    descricao_agenda_usuario?: boolean
+    tipo_agenda_usuario?: boolean
+    data_criacao_agenda_usuario?: boolean
+    data_atualizacao_agenda_usuario?: boolean
   }
 
-  export type AgendaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    slots?: boolean | Agenda$slotsArgs<ExtArgs>
-    config?: boolean | Agenda$configArgs<ExtArgs>
-    _count?: boolean | AgendaCountOutputTypeDefaultArgs<ExtArgs>
+  export type AgendaUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    horarios_agenda_usuario?: boolean | AgendaUsuario$horarios_agenda_usuarioArgs<ExtArgs>
+    config_agenda_usuario?: boolean | AgendaUsuario$config_agenda_usuarioArgs<ExtArgs>
+    _count?: boolean | AgendaUsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AgendaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AgendaUsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $AgendaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Agenda"
+  export type $AgendaUsuarioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgendaUsuario"
     objects: {
-      slots: Prisma.$SlotPayload<ExtArgs>[]
-      config: Prisma.$DisponibilidadeConfigPayload<ExtArgs> | null
+      horarios_agenda_usuario: Prisma.$HorarioDisponivelPayload<ExtArgs>[]
+      config_agenda_usuario: Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      nome: string
-      descricao: string | null
-      tipo: string
-      criadoEm: Date
-      atualizadoEm: Date
-    }, ExtArgs["result"]["agenda"]>
+      id_agenda_usuario: string
+      id_organizacao_agenda_usuario: string
+      id_produto_agenda_usuario: string | null
+      id_usuario_agenda_usuario: string | null
+      nome_agenda_usuario: string
+      descricao_agenda_usuario: string | null
+      tipo_agenda_usuario: string
+      data_criacao_agenda_usuario: Date
+      data_atualizacao_agenda_usuario: Date
+    }, ExtArgs["result"]["agendaUsuario"]>
     composites: {}
   }
 
-  type AgendaGetPayload<S extends boolean | null | undefined | AgendaDefaultArgs> = $Result.GetResult<Prisma.$AgendaPayload, S>
+  type AgendaUsuarioGetPayload<S extends boolean | null | undefined | AgendaUsuarioDefaultArgs> = $Result.GetResult<Prisma.$AgendaUsuarioPayload, S>
 
-  type AgendaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AgendaFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AgendaCountAggregateInputType | true
+  type AgendaUsuarioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AgendaUsuarioFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AgendaUsuarioCountAggregateInputType | true
     }
 
-  export interface AgendaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Agenda'], meta: { name: 'Agenda' } }
+  export interface AgendaUsuarioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgendaUsuario'], meta: { name: 'AgendaUsuario' } }
     /**
-     * Find zero or one Agenda that matches the filter.
-     * @param {AgendaFindUniqueArgs} args - Arguments to find a Agenda
+     * Find zero or one AgendaUsuario that matches the filter.
+     * @param {AgendaUsuarioFindUniqueArgs} args - Arguments to find a AgendaUsuario
      * @example
-     * // Get one Agenda
-     * const agenda = await prisma.agenda.findUnique({
+     * // Get one AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AgendaFindUniqueArgs>(args: SelectSubset<T, AgendaFindUniqueArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends AgendaUsuarioFindUniqueArgs>(args: SelectSubset<T, AgendaUsuarioFindUniqueArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Agenda that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one AgendaUsuario that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AgendaFindUniqueOrThrowArgs} args - Arguments to find a Agenda
+     * @param {AgendaUsuarioFindUniqueOrThrowArgs} args - Arguments to find a AgendaUsuario
      * @example
-     * // Get one Agenda
-     * const agenda = await prisma.agenda.findUniqueOrThrow({
+     * // Get one AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AgendaFindUniqueOrThrowArgs>(args: SelectSubset<T, AgendaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends AgendaUsuarioFindUniqueOrThrowArgs>(args: SelectSubset<T, AgendaUsuarioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Agenda that matches the filter.
+     * Find the first AgendaUsuario that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaFindFirstArgs} args - Arguments to find a Agenda
+     * @param {AgendaUsuarioFindFirstArgs} args - Arguments to find a AgendaUsuario
      * @example
-     * // Get one Agenda
-     * const agenda = await prisma.agenda.findFirst({
+     * // Get one AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AgendaFindFirstArgs>(args?: SelectSubset<T, AgendaFindFirstArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends AgendaUsuarioFindFirstArgs>(args?: SelectSubset<T, AgendaUsuarioFindFirstArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Agenda that matches the filter or
+     * Find the first AgendaUsuario that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaFindFirstOrThrowArgs} args - Arguments to find a Agenda
+     * @param {AgendaUsuarioFindFirstOrThrowArgs} args - Arguments to find a AgendaUsuario
      * @example
-     * // Get one Agenda
-     * const agenda = await prisma.agenda.findFirstOrThrow({
+     * // Get one AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AgendaFindFirstOrThrowArgs>(args?: SelectSubset<T, AgendaFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends AgendaUsuarioFindFirstOrThrowArgs>(args?: SelectSubset<T, AgendaUsuarioFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Agenda that matches the filter.
+     * Find zero or more AgendaUsuarios that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {AgendaUsuarioFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Agenda
-     * const agenda = await prisma.agenda.findMany()
+     * // Get all AgendaUsuarios
+     * const agendaUsuarios = await prisma.agendaUsuario.findMany()
      * 
-     * // Get first 10 Agenda
-     * const agenda = await prisma.agenda.findMany({ take: 10 })
+     * // Get first 10 AgendaUsuarios
+     * const agendaUsuarios = await prisma.agendaUsuario.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const agendaWithIdOnly = await prisma.agenda.findMany({ select: { id: true } })
+     * // Only select the `id_agenda_usuario`
+     * const agendaUsuarioWithId_agenda_usuarioOnly = await prisma.agendaUsuario.findMany({ select: { id_agenda_usuario: true } })
      * 
      */
-    findMany<T extends AgendaFindManyArgs>(args?: SelectSubset<T, AgendaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends AgendaUsuarioFindManyArgs>(args?: SelectSubset<T, AgendaUsuarioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Agenda.
-     * @param {AgendaCreateArgs} args - Arguments to create a Agenda.
+     * Create a AgendaUsuario.
+     * @param {AgendaUsuarioCreateArgs} args - Arguments to create a AgendaUsuario.
      * @example
-     * // Create one Agenda
-     * const Agenda = await prisma.agenda.create({
+     * // Create one AgendaUsuario
+     * const AgendaUsuario = await prisma.agendaUsuario.create({
      *   data: {
-     *     // ... data to create a Agenda
+     *     // ... data to create a AgendaUsuario
      *   }
      * })
      * 
      */
-    create<T extends AgendaCreateArgs>(args: SelectSubset<T, AgendaCreateArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends AgendaUsuarioCreateArgs>(args: SelectSubset<T, AgendaUsuarioCreateArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Agenda.
-     * @param {AgendaCreateManyArgs} args - Arguments to create many Agenda.
+     * Create many AgendaUsuarios.
+     * @param {AgendaUsuarioCreateManyArgs} args - Arguments to create many AgendaUsuarios.
      * @example
-     * // Create many Agenda
-     * const agenda = await prisma.agenda.createMany({
+     * // Create many AgendaUsuarios
+     * const agendaUsuario = await prisma.agendaUsuario.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AgendaCreateManyArgs>(args?: SelectSubset<T, AgendaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends AgendaUsuarioCreateManyArgs>(args?: SelectSubset<T, AgendaUsuarioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Agenda and returns the data saved in the database.
-     * @param {AgendaCreateManyAndReturnArgs} args - Arguments to create many Agenda.
+     * Create many AgendaUsuarios and returns the data saved in the database.
+     * @param {AgendaUsuarioCreateManyAndReturnArgs} args - Arguments to create many AgendaUsuarios.
      * @example
-     * // Create many Agenda
-     * const agenda = await prisma.agenda.createManyAndReturn({
+     * // Create many AgendaUsuarios
+     * const agendaUsuario = await prisma.agendaUsuario.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Agenda and only return the `id`
-     * const agendaWithIdOnly = await prisma.agenda.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AgendaUsuarios and only return the `id_agenda_usuario`
+     * const agendaUsuarioWithId_agenda_usuarioOnly = await prisma.agendaUsuario.createManyAndReturn({ 
+     *   select: { id_agenda_usuario: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -34188,28 +34210,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AgendaCreateManyAndReturnArgs>(args?: SelectSubset<T, AgendaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends AgendaUsuarioCreateManyAndReturnArgs>(args?: SelectSubset<T, AgendaUsuarioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Agenda.
-     * @param {AgendaDeleteArgs} args - Arguments to delete one Agenda.
+     * Delete a AgendaUsuario.
+     * @param {AgendaUsuarioDeleteArgs} args - Arguments to delete one AgendaUsuario.
      * @example
-     * // Delete one Agenda
-     * const Agenda = await prisma.agenda.delete({
+     * // Delete one AgendaUsuario
+     * const AgendaUsuario = await prisma.agendaUsuario.delete({
      *   where: {
-     *     // ... filter to delete one Agenda
+     *     // ... filter to delete one AgendaUsuario
      *   }
      * })
      * 
      */
-    delete<T extends AgendaDeleteArgs>(args: SelectSubset<T, AgendaDeleteArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends AgendaUsuarioDeleteArgs>(args: SelectSubset<T, AgendaUsuarioDeleteArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Agenda.
-     * @param {AgendaUpdateArgs} args - Arguments to update one Agenda.
+     * Update one AgendaUsuario.
+     * @param {AgendaUsuarioUpdateArgs} args - Arguments to update one AgendaUsuario.
      * @example
-     * // Update one Agenda
-     * const agenda = await prisma.agenda.update({
+     * // Update one AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -34219,30 +34241,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AgendaUpdateArgs>(args: SelectSubset<T, AgendaUpdateArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends AgendaUsuarioUpdateArgs>(args: SelectSubset<T, AgendaUsuarioUpdateArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Agenda.
-     * @param {AgendaDeleteManyArgs} args - Arguments to filter Agenda to delete.
+     * Delete zero or more AgendaUsuarios.
+     * @param {AgendaUsuarioDeleteManyArgs} args - Arguments to filter AgendaUsuarios to delete.
      * @example
-     * // Delete a few Agenda
-     * const { count } = await prisma.agenda.deleteMany({
+     * // Delete a few AgendaUsuarios
+     * const { count } = await prisma.agendaUsuario.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AgendaDeleteManyArgs>(args?: SelectSubset<T, AgendaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends AgendaUsuarioDeleteManyArgs>(args?: SelectSubset<T, AgendaUsuarioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Agenda.
+     * Update zero or more AgendaUsuarios.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AgendaUsuarioUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Agenda
-     * const agenda = await prisma.agenda.updateMany({
+     * // Update many AgendaUsuarios
+     * const agendaUsuario = await prisma.agendaUsuario.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -34252,56 +34274,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AgendaUpdateManyArgs>(args: SelectSubset<T, AgendaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends AgendaUsuarioUpdateManyArgs>(args: SelectSubset<T, AgendaUsuarioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Agenda.
-     * @param {AgendaUpsertArgs} args - Arguments to update or create a Agenda.
+     * Create or update one AgendaUsuario.
+     * @param {AgendaUsuarioUpsertArgs} args - Arguments to update or create a AgendaUsuario.
      * @example
-     * // Update or create a Agenda
-     * const agenda = await prisma.agenda.upsert({
+     * // Update or create a AgendaUsuario
+     * const agendaUsuario = await prisma.agendaUsuario.upsert({
      *   create: {
-     *     // ... data to create a Agenda
+     *     // ... data to create a AgendaUsuario
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Agenda we want to update
+     *     // ... the filter for the AgendaUsuario we want to update
      *   }
      * })
      */
-    upsert<T extends AgendaUpsertArgs>(args: SelectSubset<T, AgendaUpsertArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends AgendaUsuarioUpsertArgs>(args: SelectSubset<T, AgendaUsuarioUpsertArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Agenda.
+     * Count the number of AgendaUsuarios.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaCountArgs} args - Arguments to filter Agenda to count.
+     * @param {AgendaUsuarioCountArgs} args - Arguments to filter AgendaUsuarios to count.
      * @example
-     * // Count the number of Agenda
-     * const count = await prisma.agenda.count({
+     * // Count the number of AgendaUsuarios
+     * const count = await prisma.agendaUsuario.count({
      *   where: {
-     *     // ... the filter for the Agenda we want to count
+     *     // ... the filter for the AgendaUsuarios we want to count
      *   }
      * })
     **/
-    count<T extends AgendaCountArgs>(
-      args?: Subset<T, AgendaCountArgs>,
+    count<T extends AgendaUsuarioCountArgs>(
+      args?: Subset<T, AgendaUsuarioCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AgendaCountAggregateOutputType>
+          : GetScalarType<T['select'], AgendaUsuarioCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Agenda.
+     * Allows you to perform aggregations operations on a AgendaUsuario.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AgendaUsuarioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -34321,13 +34343,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AgendaAggregateArgs>(args: Subset<T, AgendaAggregateArgs>): Prisma.PrismaPromise<GetAgendaAggregateType<T>>
+    aggregate<T extends AgendaUsuarioAggregateArgs>(args: Subset<T, AgendaUsuarioAggregateArgs>): Prisma.PrismaPromise<GetAgendaUsuarioAggregateType<T>>
 
     /**
-     * Group by Agenda.
+     * Group by AgendaUsuario.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendaGroupByArgs} args - Group by arguments.
+     * @param {AgendaUsuarioGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -34342,14 +34364,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AgendaGroupByArgs,
+      T extends AgendaUsuarioGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AgendaGroupByArgs['orderBy'] }
-        : { orderBy?: AgendaGroupByArgs['orderBy'] },
+        ? { orderBy: AgendaUsuarioGroupByArgs['orderBy'] }
+        : { orderBy?: AgendaUsuarioGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -34398,23 +34420,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AgendaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgendaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AgendaUsuarioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgendaUsuarioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Agenda model
+   * Fields of the AgendaUsuario model
    */
-  readonly fields: AgendaFieldRefs;
+  readonly fields: AgendaUsuarioFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Agenda.
+   * The delegate class that acts as a "Promise-like" for AgendaUsuario.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AgendaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AgendaUsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    slots<T extends Agenda$slotsArgs<ExtArgs> = {}>(args?: Subset<T, Agenda$slotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findMany"> | Null>
-    config<T extends Agenda$configArgs<ExtArgs> = {}>(args?: Subset<T, Agenda$configArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    horarios_agenda_usuario<T extends AgendaUsuario$horarios_agenda_usuarioArgs<ExtArgs> = {}>(args?: Subset<T, AgendaUsuario$horarios_agenda_usuarioArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findMany"> | Null>
+    config_agenda_usuario<T extends AgendaUsuario$config_agenda_usuarioArgs<ExtArgs> = {}>(args?: Subset<T, AgendaUsuario$config_agenda_usuarioArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -34441,784 +34463,808 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Agenda model
+   * Fields of the AgendaUsuario model
    */ 
-  interface AgendaFieldRefs {
-    readonly id: FieldRef<"Agenda", 'String'>
-    readonly tenant_id: FieldRef<"Agenda", 'String'>
-    readonly nome: FieldRef<"Agenda", 'String'>
-    readonly descricao: FieldRef<"Agenda", 'String'>
-    readonly tipo: FieldRef<"Agenda", 'String'>
-    readonly criadoEm: FieldRef<"Agenda", 'DateTime'>
-    readonly atualizadoEm: FieldRef<"Agenda", 'DateTime'>
+  interface AgendaUsuarioFieldRefs {
+    readonly id_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly id_organizacao_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly id_produto_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly id_usuario_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly nome_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly descricao_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly tipo_agenda_usuario: FieldRef<"AgendaUsuario", 'String'>
+    readonly data_criacao_agenda_usuario: FieldRef<"AgendaUsuario", 'DateTime'>
+    readonly data_atualizacao_agenda_usuario: FieldRef<"AgendaUsuario", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Agenda findUnique
+   * AgendaUsuario findUnique
    */
-  export type AgendaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter, which Agenda to fetch.
+     * Filter, which AgendaUsuario to fetch.
      */
-    where: AgendaWhereUniqueInput
+    where: AgendaUsuarioWhereUniqueInput
   }
 
   /**
-   * Agenda findUniqueOrThrow
+   * AgendaUsuario findUniqueOrThrow
    */
-  export type AgendaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter, which Agenda to fetch.
+     * Filter, which AgendaUsuario to fetch.
      */
-    where: AgendaWhereUniqueInput
+    where: AgendaUsuarioWhereUniqueInput
   }
 
   /**
-   * Agenda findFirst
+   * AgendaUsuario findFirst
    */
-  export type AgendaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter, which Agenda to fetch.
+     * Filter, which AgendaUsuario to fetch.
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Agenda to fetch.
+     * Determine the order of AgendaUsuarios to fetch.
      */
-    orderBy?: AgendaOrderByWithRelationInput | AgendaOrderByWithRelationInput[]
+    orderBy?: AgendaUsuarioOrderByWithRelationInput | AgendaUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Agenda.
+     * Sets the position for searching for AgendaUsuarios.
      */
-    cursor?: AgendaWhereUniqueInput
+    cursor?: AgendaUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Agenda from the position of the cursor.
+     * Take `±n` AgendaUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Agenda.
+     * Skip the first `n` AgendaUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Agenda.
+     * Filter by unique combinations of AgendaUsuarios.
      */
-    distinct?: AgendaScalarFieldEnum | AgendaScalarFieldEnum[]
+    distinct?: AgendaUsuarioScalarFieldEnum | AgendaUsuarioScalarFieldEnum[]
   }
 
   /**
-   * Agenda findFirstOrThrow
+   * AgendaUsuario findFirstOrThrow
    */
-  export type AgendaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter, which Agenda to fetch.
+     * Filter, which AgendaUsuario to fetch.
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Agenda to fetch.
+     * Determine the order of AgendaUsuarios to fetch.
      */
-    orderBy?: AgendaOrderByWithRelationInput | AgendaOrderByWithRelationInput[]
+    orderBy?: AgendaUsuarioOrderByWithRelationInput | AgendaUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Agenda.
+     * Sets the position for searching for AgendaUsuarios.
      */
-    cursor?: AgendaWhereUniqueInput
+    cursor?: AgendaUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Agenda from the position of the cursor.
+     * Take `±n` AgendaUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Agenda.
+     * Skip the first `n` AgendaUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Agenda.
+     * Filter by unique combinations of AgendaUsuarios.
      */
-    distinct?: AgendaScalarFieldEnum | AgendaScalarFieldEnum[]
+    distinct?: AgendaUsuarioScalarFieldEnum | AgendaUsuarioScalarFieldEnum[]
   }
 
   /**
-   * Agenda findMany
+   * AgendaUsuario findMany
    */
-  export type AgendaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter, which Agenda to fetch.
+     * Filter, which AgendaUsuarios to fetch.
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Agenda to fetch.
+     * Determine the order of AgendaUsuarios to fetch.
      */
-    orderBy?: AgendaOrderByWithRelationInput | AgendaOrderByWithRelationInput[]
+    orderBy?: AgendaUsuarioOrderByWithRelationInput | AgendaUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Agenda.
+     * Sets the position for listing AgendaUsuarios.
      */
-    cursor?: AgendaWhereUniqueInput
+    cursor?: AgendaUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Agenda from the position of the cursor.
+     * Take `±n` AgendaUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Agenda.
+     * Skip the first `n` AgendaUsuarios.
      */
     skip?: number
-    distinct?: AgendaScalarFieldEnum | AgendaScalarFieldEnum[]
+    distinct?: AgendaUsuarioScalarFieldEnum | AgendaUsuarioScalarFieldEnum[]
   }
 
   /**
-   * Agenda create
+   * AgendaUsuario create
    */
-  export type AgendaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * The data needed to create a Agenda.
+     * The data needed to create a AgendaUsuario.
      */
-    data: XOR<AgendaCreateInput, AgendaUncheckedCreateInput>
+    data: XOR<AgendaUsuarioCreateInput, AgendaUsuarioUncheckedCreateInput>
   }
 
   /**
-   * Agenda createMany
+   * AgendaUsuario createMany
    */
-  export type AgendaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Agenda.
+     * The data used to create many AgendaUsuarios.
      */
-    data: AgendaCreateManyInput | AgendaCreateManyInput[]
+    data: AgendaUsuarioCreateManyInput | AgendaUsuarioCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Agenda createManyAndReturn
+   * AgendaUsuario createManyAndReturn
    */
-  export type AgendaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelectCreateManyAndReturn<ExtArgs> | null
+    select?: AgendaUsuarioSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Agenda.
+     * The data used to create many AgendaUsuarios.
      */
-    data: AgendaCreateManyInput | AgendaCreateManyInput[]
+    data: AgendaUsuarioCreateManyInput | AgendaUsuarioCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Agenda update
+   * AgendaUsuario update
    */
-  export type AgendaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * The data needed to update a Agenda.
+     * The data needed to update a AgendaUsuario.
      */
-    data: XOR<AgendaUpdateInput, AgendaUncheckedUpdateInput>
+    data: XOR<AgendaUsuarioUpdateInput, AgendaUsuarioUncheckedUpdateInput>
     /**
-     * Choose, which Agenda to update.
+     * Choose, which AgendaUsuario to update.
      */
-    where: AgendaWhereUniqueInput
+    where: AgendaUsuarioWhereUniqueInput
   }
 
   /**
-   * Agenda updateMany
+   * AgendaUsuario updateMany
    */
-  export type AgendaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Agenda.
+     * The data used to update AgendaUsuarios.
      */
-    data: XOR<AgendaUpdateManyMutationInput, AgendaUncheckedUpdateManyInput>
+    data: XOR<AgendaUsuarioUpdateManyMutationInput, AgendaUsuarioUncheckedUpdateManyInput>
     /**
-     * Filter which Agenda to update
+     * Filter which AgendaUsuarios to update
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
   }
 
   /**
-   * Agenda upsert
+   * AgendaUsuario upsert
    */
-  export type AgendaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * The filter to search for the Agenda to update in case it exists.
+     * The filter to search for the AgendaUsuario to update in case it exists.
      */
-    where: AgendaWhereUniqueInput
+    where: AgendaUsuarioWhereUniqueInput
     /**
-     * In case the Agenda found by the `where` argument doesn't exist, create a new Agenda with this data.
+     * In case the AgendaUsuario found by the `where` argument doesn't exist, create a new AgendaUsuario with this data.
      */
-    create: XOR<AgendaCreateInput, AgendaUncheckedCreateInput>
+    create: XOR<AgendaUsuarioCreateInput, AgendaUsuarioUncheckedCreateInput>
     /**
-     * In case the Agenda was found with the provided `where` argument, update it with this data.
+     * In case the AgendaUsuario was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AgendaUpdateInput, AgendaUncheckedUpdateInput>
+    update: XOR<AgendaUsuarioUpdateInput, AgendaUsuarioUncheckedUpdateInput>
   }
 
   /**
-   * Agenda delete
+   * AgendaUsuario delete
    */
-  export type AgendaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
     /**
-     * Filter which Agenda to delete.
+     * Filter which AgendaUsuario to delete.
      */
-    where: AgendaWhereUniqueInput
+    where: AgendaUsuarioWhereUniqueInput
   }
 
   /**
-   * Agenda deleteMany
+   * AgendaUsuario deleteMany
    */
-  export type AgendaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Agenda to delete
+     * Filter which AgendaUsuarios to delete
      */
-    where?: AgendaWhereInput
+    where?: AgendaUsuarioWhereInput
   }
 
   /**
-   * Agenda.slots
+   * AgendaUsuario.horarios_agenda_usuario
    */
-  export type Agenda$slotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuario$horarios_agenda_usuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
-    where?: SlotWhereInput
-    orderBy?: SlotOrderByWithRelationInput | SlotOrderByWithRelationInput[]
-    cursor?: SlotWhereUniqueInput
+    include?: HorarioDisponivelInclude<ExtArgs> | null
+    where?: HorarioDisponivelWhereInput
+    orderBy?: HorarioDisponivelOrderByWithRelationInput | HorarioDisponivelOrderByWithRelationInput[]
+    cursor?: HorarioDisponivelWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: SlotScalarFieldEnum | SlotScalarFieldEnum[]
+    distinct?: HorarioDisponivelScalarFieldEnum | HorarioDisponivelScalarFieldEnum[]
   }
 
   /**
-   * Agenda.config
+   * AgendaUsuario.config_agenda_usuario
    */
-  export type Agenda$configArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuario$config_agenda_usuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
-    where?: DisponibilidadeConfigWhereInput
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
+    where?: ConfigDisponibilidadeAgendaWhereInput
   }
 
   /**
-   * Agenda without action
+   * AgendaUsuario without action
    */
-  export type AgendaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendaUsuarioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Agenda
+     * Select specific fields to fetch from the AgendaUsuario
      */
-    select?: AgendaSelect<ExtArgs> | null
+    select?: AgendaUsuarioSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AgendaInclude<ExtArgs> | null
+    include?: AgendaUsuarioInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model Slot
+   * Model HorarioDisponivel
    */
 
-  export type AggregateSlot = {
-    _count: SlotCountAggregateOutputType | null
-    _avg: SlotAvgAggregateOutputType | null
-    _sum: SlotSumAggregateOutputType | null
-    _min: SlotMinAggregateOutputType | null
-    _max: SlotMaxAggregateOutputType | null
+  export type AggregateHorarioDisponivel = {
+    _count: HorarioDisponivelCountAggregateOutputType | null
+    _avg: HorarioDisponivelAvgAggregateOutputType | null
+    _sum: HorarioDisponivelSumAggregateOutputType | null
+    _min: HorarioDisponivelMinAggregateOutputType | null
+    _max: HorarioDisponivelMaxAggregateOutputType | null
   }
 
-  export type SlotAvgAggregateOutputType = {
-    capacidade: number | null
+  export type HorarioDisponivelAvgAggregateOutputType = {
+    capacidade_horario_disponivel: number | null
   }
 
-  export type SlotSumAggregateOutputType = {
-    capacidade: number | null
+  export type HorarioDisponivelSumAggregateOutputType = {
+    capacidade_horario_disponivel: number | null
   }
 
-  export type SlotMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    agenda_id: string | null
-    inicio: Date | null
-    fim: Date | null
-    capacidade: number | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type HorarioDisponivelMinAggregateOutputType = {
+    id_horario_disponivel: string | null
+    id_organizacao_horario_disponivel: string | null
+    id_produto_horario_disponivel: string | null
+    id_usuario_horario_disponivel: string | null
+    id_agenda_horario_disponivel: string | null
+    inicio_horario_disponivel: Date | null
+    fim_horario_disponivel: Date | null
+    capacidade_horario_disponivel: number | null
+    data_criacao_horario_disponivel: Date | null
+    data_atualizacao_horario_disponivel: Date | null
   }
 
-  export type SlotMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    agenda_id: string | null
-    inicio: Date | null
-    fim: Date | null
-    capacidade: number | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type HorarioDisponivelMaxAggregateOutputType = {
+    id_horario_disponivel: string | null
+    id_organizacao_horario_disponivel: string | null
+    id_produto_horario_disponivel: string | null
+    id_usuario_horario_disponivel: string | null
+    id_agenda_horario_disponivel: string | null
+    inicio_horario_disponivel: Date | null
+    fim_horario_disponivel: Date | null
+    capacidade_horario_disponivel: number | null
+    data_criacao_horario_disponivel: Date | null
+    data_atualizacao_horario_disponivel: Date | null
   }
 
-  export type SlotCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    agenda_id: number
-    inicio: number
-    fim: number
-    capacidade: number
-    criadoEm: number
-    atualizadoEm: number
+  export type HorarioDisponivelCountAggregateOutputType = {
+    id_horario_disponivel: number
+    id_organizacao_horario_disponivel: number
+    id_produto_horario_disponivel: number
+    id_usuario_horario_disponivel: number
+    id_agenda_horario_disponivel: number
+    inicio_horario_disponivel: number
+    fim_horario_disponivel: number
+    capacidade_horario_disponivel: number
+    data_criacao_horario_disponivel: number
+    data_atualizacao_horario_disponivel: number
     _all: number
   }
 
 
-  export type SlotAvgAggregateInputType = {
-    capacidade?: true
+  export type HorarioDisponivelAvgAggregateInputType = {
+    capacidade_horario_disponivel?: true
   }
 
-  export type SlotSumAggregateInputType = {
-    capacidade?: true
+  export type HorarioDisponivelSumAggregateInputType = {
+    capacidade_horario_disponivel?: true
   }
 
-  export type SlotMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    inicio?: true
-    fim?: true
-    capacidade?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type HorarioDisponivelMinAggregateInputType = {
+    id_horario_disponivel?: true
+    id_organizacao_horario_disponivel?: true
+    id_produto_horario_disponivel?: true
+    id_usuario_horario_disponivel?: true
+    id_agenda_horario_disponivel?: true
+    inicio_horario_disponivel?: true
+    fim_horario_disponivel?: true
+    capacidade_horario_disponivel?: true
+    data_criacao_horario_disponivel?: true
+    data_atualizacao_horario_disponivel?: true
   }
 
-  export type SlotMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    inicio?: true
-    fim?: true
-    capacidade?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type HorarioDisponivelMaxAggregateInputType = {
+    id_horario_disponivel?: true
+    id_organizacao_horario_disponivel?: true
+    id_produto_horario_disponivel?: true
+    id_usuario_horario_disponivel?: true
+    id_agenda_horario_disponivel?: true
+    inicio_horario_disponivel?: true
+    fim_horario_disponivel?: true
+    capacidade_horario_disponivel?: true
+    data_criacao_horario_disponivel?: true
+    data_atualizacao_horario_disponivel?: true
   }
 
-  export type SlotCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    inicio?: true
-    fim?: true
-    capacidade?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type HorarioDisponivelCountAggregateInputType = {
+    id_horario_disponivel?: true
+    id_organizacao_horario_disponivel?: true
+    id_produto_horario_disponivel?: true
+    id_usuario_horario_disponivel?: true
+    id_agenda_horario_disponivel?: true
+    inicio_horario_disponivel?: true
+    fim_horario_disponivel?: true
+    capacidade_horario_disponivel?: true
+    data_criacao_horario_disponivel?: true
+    data_atualizacao_horario_disponivel?: true
     _all?: true
   }
 
-  export type SlotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Slot to aggregate.
+     * Filter which HorarioDisponivel to aggregate.
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Slots to fetch.
+     * Determine the order of HorarioDisponivels to fetch.
      */
-    orderBy?: SlotOrderByWithRelationInput | SlotOrderByWithRelationInput[]
+    orderBy?: HorarioDisponivelOrderByWithRelationInput | HorarioDisponivelOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: SlotWhereUniqueInput
+    cursor?: HorarioDisponivelWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Slots from the position of the cursor.
+     * Take `±n` HorarioDisponivels from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Slots.
+     * Skip the first `n` HorarioDisponivels.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Slots
+     * Count returned HorarioDisponivels
     **/
-    _count?: true | SlotCountAggregateInputType
+    _count?: true | HorarioDisponivelCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: SlotAvgAggregateInputType
+    _avg?: HorarioDisponivelAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: SlotSumAggregateInputType
+    _sum?: HorarioDisponivelSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: SlotMinAggregateInputType
+    _min?: HorarioDisponivelMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: SlotMaxAggregateInputType
+    _max?: HorarioDisponivelMaxAggregateInputType
   }
 
-  export type GetSlotAggregateType<T extends SlotAggregateArgs> = {
-        [P in keyof T & keyof AggregateSlot]: P extends '_count' | 'count'
+  export type GetHorarioDisponivelAggregateType<T extends HorarioDisponivelAggregateArgs> = {
+        [P in keyof T & keyof AggregateHorarioDisponivel]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateSlot[P]>
-      : GetScalarType<T[P], AggregateSlot[P]>
+        : GetScalarType<T[P], AggregateHorarioDisponivel[P]>
+      : GetScalarType<T[P], AggregateHorarioDisponivel[P]>
   }
 
 
 
 
-  export type SlotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SlotWhereInput
-    orderBy?: SlotOrderByWithAggregationInput | SlotOrderByWithAggregationInput[]
-    by: SlotScalarFieldEnum[] | SlotScalarFieldEnum
-    having?: SlotScalarWhereWithAggregatesInput
+  export type HorarioDisponivelGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioDisponivelWhereInput
+    orderBy?: HorarioDisponivelOrderByWithAggregationInput | HorarioDisponivelOrderByWithAggregationInput[]
+    by: HorarioDisponivelScalarFieldEnum[] | HorarioDisponivelScalarFieldEnum
+    having?: HorarioDisponivelScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: SlotCountAggregateInputType | true
-    _avg?: SlotAvgAggregateInputType
-    _sum?: SlotSumAggregateInputType
-    _min?: SlotMinAggregateInputType
-    _max?: SlotMaxAggregateInputType
+    _count?: HorarioDisponivelCountAggregateInputType | true
+    _avg?: HorarioDisponivelAvgAggregateInputType
+    _sum?: HorarioDisponivelSumAggregateInputType
+    _min?: HorarioDisponivelMinAggregateInputType
+    _max?: HorarioDisponivelMaxAggregateInputType
   }
 
-  export type SlotGroupByOutputType = {
-    id: string
-    tenant_id: string
-    agenda_id: string
-    inicio: Date
-    fim: Date
-    capacidade: number
-    criadoEm: Date
-    atualizadoEm: Date
-    _count: SlotCountAggregateOutputType | null
-    _avg: SlotAvgAggregateOutputType | null
-    _sum: SlotSumAggregateOutputType | null
-    _min: SlotMinAggregateOutputType | null
-    _max: SlotMaxAggregateOutputType | null
+  export type HorarioDisponivelGroupByOutputType = {
+    id_horario_disponivel: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel: string | null
+    id_usuario_horario_disponivel: string | null
+    id_agenda_horario_disponivel: string
+    inicio_horario_disponivel: Date
+    fim_horario_disponivel: Date
+    capacidade_horario_disponivel: number
+    data_criacao_horario_disponivel: Date
+    data_atualizacao_horario_disponivel: Date
+    _count: HorarioDisponivelCountAggregateOutputType | null
+    _avg: HorarioDisponivelAvgAggregateOutputType | null
+    _sum: HorarioDisponivelSumAggregateOutputType | null
+    _min: HorarioDisponivelMinAggregateOutputType | null
+    _max: HorarioDisponivelMaxAggregateOutputType | null
   }
 
-  type GetSlotGroupByPayload<T extends SlotGroupByArgs> = Prisma.PrismaPromise<
+  type GetHorarioDisponivelGroupByPayload<T extends HorarioDisponivelGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<SlotGroupByOutputType, T['by']> &
+      PickEnumerable<HorarioDisponivelGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof SlotGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof HorarioDisponivelGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], SlotGroupByOutputType[P]>
-            : GetScalarType<T[P], SlotGroupByOutputType[P]>
+              : GetScalarType<T[P], HorarioDisponivelGroupByOutputType[P]>
+            : GetScalarType<T[P], HorarioDisponivelGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type SlotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    inicio?: boolean
-    fim?: boolean
-    capacidade?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
-    reservas?: boolean | Slot$reservasArgs<ExtArgs>
-    _count?: boolean | SlotCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["slot"]>
+  export type HorarioDisponivelSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_horario_disponivel?: boolean
+    id_organizacao_horario_disponivel?: boolean
+    id_produto_horario_disponivel?: boolean
+    id_usuario_horario_disponivel?: boolean
+    id_agenda_horario_disponivel?: boolean
+    inicio_horario_disponivel?: boolean
+    fim_horario_disponivel?: boolean
+    capacidade_horario_disponivel?: boolean
+    data_criacao_horario_disponivel?: boolean
+    data_atualizacao_horario_disponivel?: boolean
+    agenda_horario_disponivel?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
+    reservas_horario_disponivel?: boolean | HorarioDisponivel$reservas_horario_disponivelArgs<ExtArgs>
+    _count?: boolean | HorarioDisponivelCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioDisponivel"]>
 
-  export type SlotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    inicio?: boolean
-    fim?: boolean
-    capacidade?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["slot"]>
+  export type HorarioDisponivelSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_horario_disponivel?: boolean
+    id_organizacao_horario_disponivel?: boolean
+    id_produto_horario_disponivel?: boolean
+    id_usuario_horario_disponivel?: boolean
+    id_agenda_horario_disponivel?: boolean
+    inicio_horario_disponivel?: boolean
+    fim_horario_disponivel?: boolean
+    capacidade_horario_disponivel?: boolean
+    data_criacao_horario_disponivel?: boolean
+    data_atualizacao_horario_disponivel?: boolean
+    agenda_horario_disponivel?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioDisponivel"]>
 
-  export type SlotSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    inicio?: boolean
-    fim?: boolean
-    capacidade?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
+  export type HorarioDisponivelSelectScalar = {
+    id_horario_disponivel?: boolean
+    id_organizacao_horario_disponivel?: boolean
+    id_produto_horario_disponivel?: boolean
+    id_usuario_horario_disponivel?: boolean
+    id_agenda_horario_disponivel?: boolean
+    inicio_horario_disponivel?: boolean
+    fim_horario_disponivel?: boolean
+    capacidade_horario_disponivel?: boolean
+    data_criacao_horario_disponivel?: boolean
+    data_atualizacao_horario_disponivel?: boolean
   }
 
-  export type SlotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
-    reservas?: boolean | Slot$reservasArgs<ExtArgs>
-    _count?: boolean | SlotCountOutputTypeDefaultArgs<ExtArgs>
+  export type HorarioDisponivelInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agenda_horario_disponivel?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
+    reservas_horario_disponivel?: boolean | HorarioDisponivel$reservas_horario_disponivelArgs<ExtArgs>
+    _count?: boolean | HorarioDisponivelCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type SlotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
+  export type HorarioDisponivelIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agenda_horario_disponivel?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
   }
 
-  export type $SlotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Slot"
+  export type $HorarioDisponivelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HorarioDisponivel"
     objects: {
-      agenda: Prisma.$AgendaPayload<ExtArgs>
-      reservas: Prisma.$ReservaPayload<ExtArgs>[]
+      agenda_horario_disponivel: Prisma.$AgendaUsuarioPayload<ExtArgs>
+      reservas_horario_disponivel: Prisma.$ReservaAgendaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      agenda_id: string
-      inicio: Date
-      fim: Date
-      capacidade: number
-      criadoEm: Date
-      atualizadoEm: Date
-    }, ExtArgs["result"]["slot"]>
+      id_horario_disponivel: string
+      id_organizacao_horario_disponivel: string
+      id_produto_horario_disponivel: string | null
+      id_usuario_horario_disponivel: string | null
+      id_agenda_horario_disponivel: string
+      inicio_horario_disponivel: Date
+      fim_horario_disponivel: Date
+      capacidade_horario_disponivel: number
+      data_criacao_horario_disponivel: Date
+      data_atualizacao_horario_disponivel: Date
+    }, ExtArgs["result"]["horarioDisponivel"]>
     composites: {}
   }
 
-  type SlotGetPayload<S extends boolean | null | undefined | SlotDefaultArgs> = $Result.GetResult<Prisma.$SlotPayload, S>
+  type HorarioDisponivelGetPayload<S extends boolean | null | undefined | HorarioDisponivelDefaultArgs> = $Result.GetResult<Prisma.$HorarioDisponivelPayload, S>
 
-  type SlotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<SlotFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: SlotCountAggregateInputType | true
+  type HorarioDisponivelCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<HorarioDisponivelFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: HorarioDisponivelCountAggregateInputType | true
     }
 
-  export interface SlotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Slot'], meta: { name: 'Slot' } }
+  export interface HorarioDisponivelDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HorarioDisponivel'], meta: { name: 'HorarioDisponivel' } }
     /**
-     * Find zero or one Slot that matches the filter.
-     * @param {SlotFindUniqueArgs} args - Arguments to find a Slot
+     * Find zero or one HorarioDisponivel that matches the filter.
+     * @param {HorarioDisponivelFindUniqueArgs} args - Arguments to find a HorarioDisponivel
      * @example
-     * // Get one Slot
-     * const slot = await prisma.slot.findUnique({
+     * // Get one HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends SlotFindUniqueArgs>(args: SelectSubset<T, SlotFindUniqueArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends HorarioDisponivelFindUniqueArgs>(args: SelectSubset<T, HorarioDisponivelFindUniqueArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Slot that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one HorarioDisponivel that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {SlotFindUniqueOrThrowArgs} args - Arguments to find a Slot
+     * @param {HorarioDisponivelFindUniqueOrThrowArgs} args - Arguments to find a HorarioDisponivel
      * @example
-     * // Get one Slot
-     * const slot = await prisma.slot.findUniqueOrThrow({
+     * // Get one HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SlotFindUniqueOrThrowArgs>(args: SelectSubset<T, SlotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends HorarioDisponivelFindUniqueOrThrowArgs>(args: SelectSubset<T, HorarioDisponivelFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Slot that matches the filter.
+     * Find the first HorarioDisponivel that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotFindFirstArgs} args - Arguments to find a Slot
+     * @param {HorarioDisponivelFindFirstArgs} args - Arguments to find a HorarioDisponivel
      * @example
-     * // Get one Slot
-     * const slot = await prisma.slot.findFirst({
+     * // Get one HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends SlotFindFirstArgs>(args?: SelectSubset<T, SlotFindFirstArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends HorarioDisponivelFindFirstArgs>(args?: SelectSubset<T, HorarioDisponivelFindFirstArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Slot that matches the filter or
+     * Find the first HorarioDisponivel that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotFindFirstOrThrowArgs} args - Arguments to find a Slot
+     * @param {HorarioDisponivelFindFirstOrThrowArgs} args - Arguments to find a HorarioDisponivel
      * @example
-     * // Get one Slot
-     * const slot = await prisma.slot.findFirstOrThrow({
+     * // Get one HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends SlotFindFirstOrThrowArgs>(args?: SelectSubset<T, SlotFindFirstOrThrowArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends HorarioDisponivelFindFirstOrThrowArgs>(args?: SelectSubset<T, HorarioDisponivelFindFirstOrThrowArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Slots that matches the filter.
+     * Find zero or more HorarioDisponivels that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {HorarioDisponivelFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Slots
-     * const slots = await prisma.slot.findMany()
+     * // Get all HorarioDisponivels
+     * const horarioDisponivels = await prisma.horarioDisponivel.findMany()
      * 
-     * // Get first 10 Slots
-     * const slots = await prisma.slot.findMany({ take: 10 })
+     * // Get first 10 HorarioDisponivels
+     * const horarioDisponivels = await prisma.horarioDisponivel.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const slotWithIdOnly = await prisma.slot.findMany({ select: { id: true } })
+     * // Only select the `id_horario_disponivel`
+     * const horarioDisponivelWithId_horario_disponivelOnly = await prisma.horarioDisponivel.findMany({ select: { id_horario_disponivel: true } })
      * 
      */
-    findMany<T extends SlotFindManyArgs>(args?: SelectSubset<T, SlotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends HorarioDisponivelFindManyArgs>(args?: SelectSubset<T, HorarioDisponivelFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Slot.
-     * @param {SlotCreateArgs} args - Arguments to create a Slot.
+     * Create a HorarioDisponivel.
+     * @param {HorarioDisponivelCreateArgs} args - Arguments to create a HorarioDisponivel.
      * @example
-     * // Create one Slot
-     * const Slot = await prisma.slot.create({
+     * // Create one HorarioDisponivel
+     * const HorarioDisponivel = await prisma.horarioDisponivel.create({
      *   data: {
-     *     // ... data to create a Slot
+     *     // ... data to create a HorarioDisponivel
      *   }
      * })
      * 
      */
-    create<T extends SlotCreateArgs>(args: SelectSubset<T, SlotCreateArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends HorarioDisponivelCreateArgs>(args: SelectSubset<T, HorarioDisponivelCreateArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Slots.
-     * @param {SlotCreateManyArgs} args - Arguments to create many Slots.
+     * Create many HorarioDisponivels.
+     * @param {HorarioDisponivelCreateManyArgs} args - Arguments to create many HorarioDisponivels.
      * @example
-     * // Create many Slots
-     * const slot = await prisma.slot.createMany({
+     * // Create many HorarioDisponivels
+     * const horarioDisponivel = await prisma.horarioDisponivel.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends SlotCreateManyArgs>(args?: SelectSubset<T, SlotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends HorarioDisponivelCreateManyArgs>(args?: SelectSubset<T, HorarioDisponivelCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Slots and returns the data saved in the database.
-     * @param {SlotCreateManyAndReturnArgs} args - Arguments to create many Slots.
+     * Create many HorarioDisponivels and returns the data saved in the database.
+     * @param {HorarioDisponivelCreateManyAndReturnArgs} args - Arguments to create many HorarioDisponivels.
      * @example
-     * // Create many Slots
-     * const slot = await prisma.slot.createManyAndReturn({
+     * // Create many HorarioDisponivels
+     * const horarioDisponivel = await prisma.horarioDisponivel.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Slots and only return the `id`
-     * const slotWithIdOnly = await prisma.slot.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many HorarioDisponivels and only return the `id_horario_disponivel`
+     * const horarioDisponivelWithId_horario_disponivelOnly = await prisma.horarioDisponivel.createManyAndReturn({ 
+     *   select: { id_horario_disponivel: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -35227,28 +35273,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends SlotCreateManyAndReturnArgs>(args?: SelectSubset<T, SlotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends HorarioDisponivelCreateManyAndReturnArgs>(args?: SelectSubset<T, HorarioDisponivelCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Slot.
-     * @param {SlotDeleteArgs} args - Arguments to delete one Slot.
+     * Delete a HorarioDisponivel.
+     * @param {HorarioDisponivelDeleteArgs} args - Arguments to delete one HorarioDisponivel.
      * @example
-     * // Delete one Slot
-     * const Slot = await prisma.slot.delete({
+     * // Delete one HorarioDisponivel
+     * const HorarioDisponivel = await prisma.horarioDisponivel.delete({
      *   where: {
-     *     // ... filter to delete one Slot
+     *     // ... filter to delete one HorarioDisponivel
      *   }
      * })
      * 
      */
-    delete<T extends SlotDeleteArgs>(args: SelectSubset<T, SlotDeleteArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends HorarioDisponivelDeleteArgs>(args: SelectSubset<T, HorarioDisponivelDeleteArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Slot.
-     * @param {SlotUpdateArgs} args - Arguments to update one Slot.
+     * Update one HorarioDisponivel.
+     * @param {HorarioDisponivelUpdateArgs} args - Arguments to update one HorarioDisponivel.
      * @example
-     * // Update one Slot
-     * const slot = await prisma.slot.update({
+     * // Update one HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35258,30 +35304,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SlotUpdateArgs>(args: SelectSubset<T, SlotUpdateArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends HorarioDisponivelUpdateArgs>(args: SelectSubset<T, HorarioDisponivelUpdateArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Slots.
-     * @param {SlotDeleteManyArgs} args - Arguments to filter Slots to delete.
+     * Delete zero or more HorarioDisponivels.
+     * @param {HorarioDisponivelDeleteManyArgs} args - Arguments to filter HorarioDisponivels to delete.
      * @example
-     * // Delete a few Slots
-     * const { count } = await prisma.slot.deleteMany({
+     * // Delete a few HorarioDisponivels
+     * const { count } = await prisma.horarioDisponivel.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends SlotDeleteManyArgs>(args?: SelectSubset<T, SlotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends HorarioDisponivelDeleteManyArgs>(args?: SelectSubset<T, HorarioDisponivelDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Slots.
+     * Update zero or more HorarioDisponivels.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {HorarioDisponivelUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Slots
-     * const slot = await prisma.slot.updateMany({
+     * // Update many HorarioDisponivels
+     * const horarioDisponivel = await prisma.horarioDisponivel.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35291,56 +35337,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends SlotUpdateManyArgs>(args: SelectSubset<T, SlotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends HorarioDisponivelUpdateManyArgs>(args: SelectSubset<T, HorarioDisponivelUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Slot.
-     * @param {SlotUpsertArgs} args - Arguments to update or create a Slot.
+     * Create or update one HorarioDisponivel.
+     * @param {HorarioDisponivelUpsertArgs} args - Arguments to update or create a HorarioDisponivel.
      * @example
-     * // Update or create a Slot
-     * const slot = await prisma.slot.upsert({
+     * // Update or create a HorarioDisponivel
+     * const horarioDisponivel = await prisma.horarioDisponivel.upsert({
      *   create: {
-     *     // ... data to create a Slot
+     *     // ... data to create a HorarioDisponivel
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Slot we want to update
+     *     // ... the filter for the HorarioDisponivel we want to update
      *   }
      * })
      */
-    upsert<T extends SlotUpsertArgs>(args: SelectSubset<T, SlotUpsertArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends HorarioDisponivelUpsertArgs>(args: SelectSubset<T, HorarioDisponivelUpsertArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Slots.
+     * Count the number of HorarioDisponivels.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotCountArgs} args - Arguments to filter Slots to count.
+     * @param {HorarioDisponivelCountArgs} args - Arguments to filter HorarioDisponivels to count.
      * @example
-     * // Count the number of Slots
-     * const count = await prisma.slot.count({
+     * // Count the number of HorarioDisponivels
+     * const count = await prisma.horarioDisponivel.count({
      *   where: {
-     *     // ... the filter for the Slots we want to count
+     *     // ... the filter for the HorarioDisponivels we want to count
      *   }
      * })
     **/
-    count<T extends SlotCountArgs>(
-      args?: Subset<T, SlotCountArgs>,
+    count<T extends HorarioDisponivelCountArgs>(
+      args?: Subset<T, HorarioDisponivelCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], SlotCountAggregateOutputType>
+          : GetScalarType<T['select'], HorarioDisponivelCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Slot.
+     * Allows you to perform aggregations operations on a HorarioDisponivel.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {HorarioDisponivelAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -35360,13 +35406,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends SlotAggregateArgs>(args: Subset<T, SlotAggregateArgs>): Prisma.PrismaPromise<GetSlotAggregateType<T>>
+    aggregate<T extends HorarioDisponivelAggregateArgs>(args: Subset<T, HorarioDisponivelAggregateArgs>): Prisma.PrismaPromise<GetHorarioDisponivelAggregateType<T>>
 
     /**
-     * Group by Slot.
+     * Group by HorarioDisponivel.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SlotGroupByArgs} args - Group by arguments.
+     * @param {HorarioDisponivelGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -35381,14 +35427,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends SlotGroupByArgs,
+      T extends HorarioDisponivelGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SlotGroupByArgs['orderBy'] }
-        : { orderBy?: SlotGroupByArgs['orderBy'] },
+        ? { orderBy: HorarioDisponivelGroupByArgs['orderBy'] }
+        : { orderBy?: HorarioDisponivelGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -35437,23 +35483,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, SlotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSlotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, HorarioDisponivelGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHorarioDisponivelGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Slot model
+   * Fields of the HorarioDisponivel model
    */
-  readonly fields: SlotFieldRefs;
+  readonly fields: HorarioDisponivelFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Slot.
+   * The delegate class that acts as a "Promise-like" for HorarioDisponivel.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SlotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__HorarioDisponivelClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    agenda<T extends AgendaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgendaDefaultArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    reservas<T extends Slot$reservasArgs<ExtArgs> = {}>(args?: Subset<T, Slot$reservasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findMany"> | Null>
+    agenda_horario_disponivel<T extends AgendaUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgendaUsuarioDefaultArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    reservas_horario_disponivel<T extends HorarioDisponivel$reservas_horario_disponivelArgs<ExtArgs> = {}>(args?: Subset<T, HorarioDisponivel$reservas_horario_disponivelArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -35480,746 +35526,770 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Slot model
+   * Fields of the HorarioDisponivel model
    */ 
-  interface SlotFieldRefs {
-    readonly id: FieldRef<"Slot", 'String'>
-    readonly tenant_id: FieldRef<"Slot", 'String'>
-    readonly agenda_id: FieldRef<"Slot", 'String'>
-    readonly inicio: FieldRef<"Slot", 'DateTime'>
-    readonly fim: FieldRef<"Slot", 'DateTime'>
-    readonly capacidade: FieldRef<"Slot", 'Int'>
-    readonly criadoEm: FieldRef<"Slot", 'DateTime'>
-    readonly atualizadoEm: FieldRef<"Slot", 'DateTime'>
+  interface HorarioDisponivelFieldRefs {
+    readonly id_horario_disponivel: FieldRef<"HorarioDisponivel", 'String'>
+    readonly id_organizacao_horario_disponivel: FieldRef<"HorarioDisponivel", 'String'>
+    readonly id_produto_horario_disponivel: FieldRef<"HorarioDisponivel", 'String'>
+    readonly id_usuario_horario_disponivel: FieldRef<"HorarioDisponivel", 'String'>
+    readonly id_agenda_horario_disponivel: FieldRef<"HorarioDisponivel", 'String'>
+    readonly inicio_horario_disponivel: FieldRef<"HorarioDisponivel", 'DateTime'>
+    readonly fim_horario_disponivel: FieldRef<"HorarioDisponivel", 'DateTime'>
+    readonly capacidade_horario_disponivel: FieldRef<"HorarioDisponivel", 'Int'>
+    readonly data_criacao_horario_disponivel: FieldRef<"HorarioDisponivel", 'DateTime'>
+    readonly data_atualizacao_horario_disponivel: FieldRef<"HorarioDisponivel", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Slot findUnique
+   * HorarioDisponivel findUnique
    */
-  export type SlotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter, which Slot to fetch.
+     * Filter, which HorarioDisponivel to fetch.
      */
-    where: SlotWhereUniqueInput
+    where: HorarioDisponivelWhereUniqueInput
   }
 
   /**
-   * Slot findUniqueOrThrow
+   * HorarioDisponivel findUniqueOrThrow
    */
-  export type SlotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter, which Slot to fetch.
+     * Filter, which HorarioDisponivel to fetch.
      */
-    where: SlotWhereUniqueInput
+    where: HorarioDisponivelWhereUniqueInput
   }
 
   /**
-   * Slot findFirst
+   * HorarioDisponivel findFirst
    */
-  export type SlotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter, which Slot to fetch.
+     * Filter, which HorarioDisponivel to fetch.
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Slots to fetch.
+     * Determine the order of HorarioDisponivels to fetch.
      */
-    orderBy?: SlotOrderByWithRelationInput | SlotOrderByWithRelationInput[]
+    orderBy?: HorarioDisponivelOrderByWithRelationInput | HorarioDisponivelOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Slots.
+     * Sets the position for searching for HorarioDisponivels.
      */
-    cursor?: SlotWhereUniqueInput
+    cursor?: HorarioDisponivelWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Slots from the position of the cursor.
+     * Take `±n` HorarioDisponivels from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Slots.
+     * Skip the first `n` HorarioDisponivels.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Slots.
+     * Filter by unique combinations of HorarioDisponivels.
      */
-    distinct?: SlotScalarFieldEnum | SlotScalarFieldEnum[]
+    distinct?: HorarioDisponivelScalarFieldEnum | HorarioDisponivelScalarFieldEnum[]
   }
 
   /**
-   * Slot findFirstOrThrow
+   * HorarioDisponivel findFirstOrThrow
    */
-  export type SlotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter, which Slot to fetch.
+     * Filter, which HorarioDisponivel to fetch.
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Slots to fetch.
+     * Determine the order of HorarioDisponivels to fetch.
      */
-    orderBy?: SlotOrderByWithRelationInput | SlotOrderByWithRelationInput[]
+    orderBy?: HorarioDisponivelOrderByWithRelationInput | HorarioDisponivelOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Slots.
+     * Sets the position for searching for HorarioDisponivels.
      */
-    cursor?: SlotWhereUniqueInput
+    cursor?: HorarioDisponivelWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Slots from the position of the cursor.
+     * Take `±n` HorarioDisponivels from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Slots.
+     * Skip the first `n` HorarioDisponivels.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Slots.
+     * Filter by unique combinations of HorarioDisponivels.
      */
-    distinct?: SlotScalarFieldEnum | SlotScalarFieldEnum[]
+    distinct?: HorarioDisponivelScalarFieldEnum | HorarioDisponivelScalarFieldEnum[]
   }
 
   /**
-   * Slot findMany
+   * HorarioDisponivel findMany
    */
-  export type SlotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter, which Slots to fetch.
+     * Filter, which HorarioDisponivels to fetch.
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Slots to fetch.
+     * Determine the order of HorarioDisponivels to fetch.
      */
-    orderBy?: SlotOrderByWithRelationInput | SlotOrderByWithRelationInput[]
+    orderBy?: HorarioDisponivelOrderByWithRelationInput | HorarioDisponivelOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Slots.
+     * Sets the position for listing HorarioDisponivels.
      */
-    cursor?: SlotWhereUniqueInput
+    cursor?: HorarioDisponivelWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Slots from the position of the cursor.
+     * Take `±n` HorarioDisponivels from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Slots.
+     * Skip the first `n` HorarioDisponivels.
      */
     skip?: number
-    distinct?: SlotScalarFieldEnum | SlotScalarFieldEnum[]
+    distinct?: HorarioDisponivelScalarFieldEnum | HorarioDisponivelScalarFieldEnum[]
   }
 
   /**
-   * Slot create
+   * HorarioDisponivel create
    */
-  export type SlotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * The data needed to create a Slot.
+     * The data needed to create a HorarioDisponivel.
      */
-    data: XOR<SlotCreateInput, SlotUncheckedCreateInput>
+    data: XOR<HorarioDisponivelCreateInput, HorarioDisponivelUncheckedCreateInput>
   }
 
   /**
-   * Slot createMany
+   * HorarioDisponivel createMany
    */
-  export type SlotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Slots.
+     * The data used to create many HorarioDisponivels.
      */
-    data: SlotCreateManyInput | SlotCreateManyInput[]
+    data: HorarioDisponivelCreateManyInput | HorarioDisponivelCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Slot createManyAndReturn
+   * HorarioDisponivel createManyAndReturn
    */
-  export type SlotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelectCreateManyAndReturn<ExtArgs> | null
+    select?: HorarioDisponivelSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Slots.
+     * The data used to create many HorarioDisponivels.
      */
-    data: SlotCreateManyInput | SlotCreateManyInput[]
+    data: HorarioDisponivelCreateManyInput | HorarioDisponivelCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: HorarioDisponivelIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Slot update
+   * HorarioDisponivel update
    */
-  export type SlotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * The data needed to update a Slot.
+     * The data needed to update a HorarioDisponivel.
      */
-    data: XOR<SlotUpdateInput, SlotUncheckedUpdateInput>
+    data: XOR<HorarioDisponivelUpdateInput, HorarioDisponivelUncheckedUpdateInput>
     /**
-     * Choose, which Slot to update.
+     * Choose, which HorarioDisponivel to update.
      */
-    where: SlotWhereUniqueInput
+    where: HorarioDisponivelWhereUniqueInput
   }
 
   /**
-   * Slot updateMany
+   * HorarioDisponivel updateMany
    */
-  export type SlotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Slots.
+     * The data used to update HorarioDisponivels.
      */
-    data: XOR<SlotUpdateManyMutationInput, SlotUncheckedUpdateManyInput>
+    data: XOR<HorarioDisponivelUpdateManyMutationInput, HorarioDisponivelUncheckedUpdateManyInput>
     /**
-     * Filter which Slots to update
+     * Filter which HorarioDisponivels to update
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
   }
 
   /**
-   * Slot upsert
+   * HorarioDisponivel upsert
    */
-  export type SlotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * The filter to search for the Slot to update in case it exists.
+     * The filter to search for the HorarioDisponivel to update in case it exists.
      */
-    where: SlotWhereUniqueInput
+    where: HorarioDisponivelWhereUniqueInput
     /**
-     * In case the Slot found by the `where` argument doesn't exist, create a new Slot with this data.
+     * In case the HorarioDisponivel found by the `where` argument doesn't exist, create a new HorarioDisponivel with this data.
      */
-    create: XOR<SlotCreateInput, SlotUncheckedCreateInput>
+    create: XOR<HorarioDisponivelCreateInput, HorarioDisponivelUncheckedCreateInput>
     /**
-     * In case the Slot was found with the provided `where` argument, update it with this data.
+     * In case the HorarioDisponivel was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<SlotUpdateInput, SlotUncheckedUpdateInput>
+    update: XOR<HorarioDisponivelUpdateInput, HorarioDisponivelUncheckedUpdateInput>
   }
 
   /**
-   * Slot delete
+   * HorarioDisponivel delete
    */
-  export type SlotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
     /**
-     * Filter which Slot to delete.
+     * Filter which HorarioDisponivel to delete.
      */
-    where: SlotWhereUniqueInput
+    where: HorarioDisponivelWhereUniqueInput
   }
 
   /**
-   * Slot deleteMany
+   * HorarioDisponivel deleteMany
    */
-  export type SlotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Slots to delete
+     * Filter which HorarioDisponivels to delete
      */
-    where?: SlotWhereInput
+    where?: HorarioDisponivelWhereInput
   }
 
   /**
-   * Slot.reservas
+   * HorarioDisponivel.reservas_horario_disponivel
    */
-  export type Slot$reservasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivel$reservas_horario_disponivelArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
-    where?: ReservaWhereInput
-    orderBy?: ReservaOrderByWithRelationInput | ReservaOrderByWithRelationInput[]
-    cursor?: ReservaWhereUniqueInput
+    include?: ReservaAgendaInclude<ExtArgs> | null
+    where?: ReservaAgendaWhereInput
+    orderBy?: ReservaAgendaOrderByWithRelationInput | ReservaAgendaOrderByWithRelationInput[]
+    cursor?: ReservaAgendaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: ReservaScalarFieldEnum | ReservaScalarFieldEnum[]
+    distinct?: ReservaAgendaScalarFieldEnum | ReservaAgendaScalarFieldEnum[]
   }
 
   /**
-   * Slot without action
+   * HorarioDisponivel without action
    */
-  export type SlotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type HorarioDisponivelDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Slot
+     * Select specific fields to fetch from the HorarioDisponivel
      */
-    select?: SlotSelect<ExtArgs> | null
+    select?: HorarioDisponivelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SlotInclude<ExtArgs> | null
+    include?: HorarioDisponivelInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model Reserva
+   * Model ReservaAgenda
    */
 
-  export type AggregateReserva = {
-    _count: ReservaCountAggregateOutputType | null
-    _min: ReservaMinAggregateOutputType | null
-    _max: ReservaMaxAggregateOutputType | null
+  export type AggregateReservaAgenda = {
+    _count: ReservaAgendaCountAggregateOutputType | null
+    _min: ReservaAgendaMinAggregateOutputType | null
+    _max: ReservaAgendaMaxAggregateOutputType | null
   }
 
-  export type ReservaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    slot_id: string | null
-    usuario_id: string | null
-    nome: string | null
-    email: string | null
-    status: string | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type ReservaAgendaMinAggregateOutputType = {
+    id_reserva_agenda: string | null
+    id_organizacao_reserva_agenda: string | null
+    id_produto_reserva_agenda: string | null
+    id_usuario_reserva_agenda: string | null
+    id_horario_reserva_agenda: string | null
+    id_reservante_reserva_agenda: string | null
+    nome_reservante_reserva_agenda: string | null
+    email_reservante_reserva_agenda: string | null
+    status_reserva_agenda: string | null
+    data_criacao_reserva_agenda: Date | null
+    data_atualizacao_reserva_agenda: Date | null
   }
 
-  export type ReservaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    slot_id: string | null
-    usuario_id: string | null
-    nome: string | null
-    email: string | null
-    status: string | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type ReservaAgendaMaxAggregateOutputType = {
+    id_reserva_agenda: string | null
+    id_organizacao_reserva_agenda: string | null
+    id_produto_reserva_agenda: string | null
+    id_usuario_reserva_agenda: string | null
+    id_horario_reserva_agenda: string | null
+    id_reservante_reserva_agenda: string | null
+    nome_reservante_reserva_agenda: string | null
+    email_reservante_reserva_agenda: string | null
+    status_reserva_agenda: string | null
+    data_criacao_reserva_agenda: Date | null
+    data_atualizacao_reserva_agenda: Date | null
   }
 
-  export type ReservaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    slot_id: number
-    usuario_id: number
-    nome: number
-    email: number
-    status: number
-    criadoEm: number
-    atualizadoEm: number
+  export type ReservaAgendaCountAggregateOutputType = {
+    id_reserva_agenda: number
+    id_organizacao_reserva_agenda: number
+    id_produto_reserva_agenda: number
+    id_usuario_reserva_agenda: number
+    id_horario_reserva_agenda: number
+    id_reservante_reserva_agenda: number
+    nome_reservante_reserva_agenda: number
+    email_reservante_reserva_agenda: number
+    status_reserva_agenda: number
+    data_criacao_reserva_agenda: number
+    data_atualizacao_reserva_agenda: number
     _all: number
   }
 
 
-  export type ReservaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    slot_id?: true
-    usuario_id?: true
-    nome?: true
-    email?: true
-    status?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ReservaAgendaMinAggregateInputType = {
+    id_reserva_agenda?: true
+    id_organizacao_reserva_agenda?: true
+    id_produto_reserva_agenda?: true
+    id_usuario_reserva_agenda?: true
+    id_horario_reserva_agenda?: true
+    id_reservante_reserva_agenda?: true
+    nome_reservante_reserva_agenda?: true
+    email_reservante_reserva_agenda?: true
+    status_reserva_agenda?: true
+    data_criacao_reserva_agenda?: true
+    data_atualizacao_reserva_agenda?: true
   }
 
-  export type ReservaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    slot_id?: true
-    usuario_id?: true
-    nome?: true
-    email?: true
-    status?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ReservaAgendaMaxAggregateInputType = {
+    id_reserva_agenda?: true
+    id_organizacao_reserva_agenda?: true
+    id_produto_reserva_agenda?: true
+    id_usuario_reserva_agenda?: true
+    id_horario_reserva_agenda?: true
+    id_reservante_reserva_agenda?: true
+    nome_reservante_reserva_agenda?: true
+    email_reservante_reserva_agenda?: true
+    status_reserva_agenda?: true
+    data_criacao_reserva_agenda?: true
+    data_atualizacao_reserva_agenda?: true
   }
 
-  export type ReservaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    slot_id?: true
-    usuario_id?: true
-    nome?: true
-    email?: true
-    status?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ReservaAgendaCountAggregateInputType = {
+    id_reserva_agenda?: true
+    id_organizacao_reserva_agenda?: true
+    id_produto_reserva_agenda?: true
+    id_usuario_reserva_agenda?: true
+    id_horario_reserva_agenda?: true
+    id_reservante_reserva_agenda?: true
+    nome_reservante_reserva_agenda?: true
+    email_reservante_reserva_agenda?: true
+    status_reserva_agenda?: true
+    data_criacao_reserva_agenda?: true
+    data_atualizacao_reserva_agenda?: true
     _all?: true
   }
 
-  export type ReservaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Reserva to aggregate.
+     * Filter which ReservaAgenda to aggregate.
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Reservas to fetch.
+     * Determine the order of ReservaAgenda to fetch.
      */
-    orderBy?: ReservaOrderByWithRelationInput | ReservaOrderByWithRelationInput[]
+    orderBy?: ReservaAgendaOrderByWithRelationInput | ReservaAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ReservaWhereUniqueInput
+    cursor?: ReservaAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Reservas from the position of the cursor.
+     * Take `±n` ReservaAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Reservas.
+     * Skip the first `n` ReservaAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Reservas
+     * Count returned ReservaAgenda
     **/
-    _count?: true | ReservaCountAggregateInputType
+    _count?: true | ReservaAgendaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ReservaMinAggregateInputType
+    _min?: ReservaAgendaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ReservaMaxAggregateInputType
+    _max?: ReservaAgendaMaxAggregateInputType
   }
 
-  export type GetReservaAggregateType<T extends ReservaAggregateArgs> = {
-        [P in keyof T & keyof AggregateReserva]: P extends '_count' | 'count'
+  export type GetReservaAgendaAggregateType<T extends ReservaAgendaAggregateArgs> = {
+        [P in keyof T & keyof AggregateReservaAgenda]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateReserva[P]>
-      : GetScalarType<T[P], AggregateReserva[P]>
+        : GetScalarType<T[P], AggregateReservaAgenda[P]>
+      : GetScalarType<T[P], AggregateReservaAgenda[P]>
   }
 
 
 
 
-  export type ReservaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ReservaWhereInput
-    orderBy?: ReservaOrderByWithAggregationInput | ReservaOrderByWithAggregationInput[]
-    by: ReservaScalarFieldEnum[] | ReservaScalarFieldEnum
-    having?: ReservaScalarWhereWithAggregatesInput
+  export type ReservaAgendaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservaAgendaWhereInput
+    orderBy?: ReservaAgendaOrderByWithAggregationInput | ReservaAgendaOrderByWithAggregationInput[]
+    by: ReservaAgendaScalarFieldEnum[] | ReservaAgendaScalarFieldEnum
+    having?: ReservaAgendaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ReservaCountAggregateInputType | true
-    _min?: ReservaMinAggregateInputType
-    _max?: ReservaMaxAggregateInputType
+    _count?: ReservaAgendaCountAggregateInputType | true
+    _min?: ReservaAgendaMinAggregateInputType
+    _max?: ReservaAgendaMaxAggregateInputType
   }
 
-  export type ReservaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    slot_id: string
-    usuario_id: string
-    nome: string | null
-    email: string | null
-    status: string
-    criadoEm: Date
-    atualizadoEm: Date
-    _count: ReservaCountAggregateOutputType | null
-    _min: ReservaMinAggregateOutputType | null
-    _max: ReservaMaxAggregateOutputType | null
+  export type ReservaAgendaGroupByOutputType = {
+    id_reserva_agenda: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda: string | null
+    id_usuario_reserva_agenda: string | null
+    id_horario_reserva_agenda: string
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda: string | null
+    email_reservante_reserva_agenda: string | null
+    status_reserva_agenda: string
+    data_criacao_reserva_agenda: Date
+    data_atualizacao_reserva_agenda: Date
+    _count: ReservaAgendaCountAggregateOutputType | null
+    _min: ReservaAgendaMinAggregateOutputType | null
+    _max: ReservaAgendaMaxAggregateOutputType | null
   }
 
-  type GetReservaGroupByPayload<T extends ReservaGroupByArgs> = Prisma.PrismaPromise<
+  type GetReservaAgendaGroupByPayload<T extends ReservaAgendaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ReservaGroupByOutputType, T['by']> &
+      PickEnumerable<ReservaAgendaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ReservaGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ReservaAgendaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ReservaGroupByOutputType[P]>
-            : GetScalarType<T[P], ReservaGroupByOutputType[P]>
+              : GetScalarType<T[P], ReservaAgendaGroupByOutputType[P]>
+            : GetScalarType<T[P], ReservaAgendaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ReservaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    slot_id?: boolean
-    usuario_id?: boolean
-    nome?: boolean
-    email?: boolean
-    status?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    slot?: boolean | SlotDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["reserva"]>
+  export type ReservaAgendaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_reserva_agenda?: boolean
+    id_organizacao_reserva_agenda?: boolean
+    id_produto_reserva_agenda?: boolean
+    id_usuario_reserva_agenda?: boolean
+    id_horario_reserva_agenda?: boolean
+    id_reservante_reserva_agenda?: boolean
+    nome_reservante_reserva_agenda?: boolean
+    email_reservante_reserva_agenda?: boolean
+    status_reserva_agenda?: boolean
+    data_criacao_reserva_agenda?: boolean
+    data_atualizacao_reserva_agenda?: boolean
+    horario_reserva_agenda?: boolean | HorarioDisponivelDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reservaAgenda"]>
 
-  export type ReservaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    slot_id?: boolean
-    usuario_id?: boolean
-    nome?: boolean
-    email?: boolean
-    status?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    slot?: boolean | SlotDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["reserva"]>
+  export type ReservaAgendaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_reserva_agenda?: boolean
+    id_organizacao_reserva_agenda?: boolean
+    id_produto_reserva_agenda?: boolean
+    id_usuario_reserva_agenda?: boolean
+    id_horario_reserva_agenda?: boolean
+    id_reservante_reserva_agenda?: boolean
+    nome_reservante_reserva_agenda?: boolean
+    email_reservante_reserva_agenda?: boolean
+    status_reserva_agenda?: boolean
+    data_criacao_reserva_agenda?: boolean
+    data_atualizacao_reserva_agenda?: boolean
+    horario_reserva_agenda?: boolean | HorarioDisponivelDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reservaAgenda"]>
 
-  export type ReservaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    slot_id?: boolean
-    usuario_id?: boolean
-    nome?: boolean
-    email?: boolean
-    status?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
+  export type ReservaAgendaSelectScalar = {
+    id_reserva_agenda?: boolean
+    id_organizacao_reserva_agenda?: boolean
+    id_produto_reserva_agenda?: boolean
+    id_usuario_reserva_agenda?: boolean
+    id_horario_reserva_agenda?: boolean
+    id_reservante_reserva_agenda?: boolean
+    nome_reservante_reserva_agenda?: boolean
+    email_reservante_reserva_agenda?: boolean
+    status_reserva_agenda?: boolean
+    data_criacao_reserva_agenda?: boolean
+    data_atualizacao_reserva_agenda?: boolean
   }
 
-  export type ReservaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    slot?: boolean | SlotDefaultArgs<ExtArgs>
+  export type ReservaAgendaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    horario_reserva_agenda?: boolean | HorarioDisponivelDefaultArgs<ExtArgs>
   }
-  export type ReservaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    slot?: boolean | SlotDefaultArgs<ExtArgs>
+  export type ReservaAgendaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    horario_reserva_agenda?: boolean | HorarioDisponivelDefaultArgs<ExtArgs>
   }
 
-  export type $ReservaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Reserva"
+  export type $ReservaAgendaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ReservaAgenda"
     objects: {
-      slot: Prisma.$SlotPayload<ExtArgs>
+      horario_reserva_agenda: Prisma.$HorarioDisponivelPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      slot_id: string
-      usuario_id: string
-      nome: string | null
-      email: string | null
-      status: string
-      criadoEm: Date
-      atualizadoEm: Date
-    }, ExtArgs["result"]["reserva"]>
+      id_reserva_agenda: string
+      id_organizacao_reserva_agenda: string
+      id_produto_reserva_agenda: string | null
+      id_usuario_reserva_agenda: string | null
+      id_horario_reserva_agenda: string
+      id_reservante_reserva_agenda: string
+      nome_reservante_reserva_agenda: string | null
+      email_reservante_reserva_agenda: string | null
+      status_reserva_agenda: string
+      data_criacao_reserva_agenda: Date
+      data_atualizacao_reserva_agenda: Date
+    }, ExtArgs["result"]["reservaAgenda"]>
     composites: {}
   }
 
-  type ReservaGetPayload<S extends boolean | null | undefined | ReservaDefaultArgs> = $Result.GetResult<Prisma.$ReservaPayload, S>
+  type ReservaAgendaGetPayload<S extends boolean | null | undefined | ReservaAgendaDefaultArgs> = $Result.GetResult<Prisma.$ReservaAgendaPayload, S>
 
-  type ReservaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ReservaFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ReservaCountAggregateInputType | true
+  type ReservaAgendaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ReservaAgendaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ReservaAgendaCountAggregateInputType | true
     }
 
-  export interface ReservaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Reserva'], meta: { name: 'Reserva' } }
+  export interface ReservaAgendaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReservaAgenda'], meta: { name: 'ReservaAgenda' } }
     /**
-     * Find zero or one Reserva that matches the filter.
-     * @param {ReservaFindUniqueArgs} args - Arguments to find a Reserva
+     * Find zero or one ReservaAgenda that matches the filter.
+     * @param {ReservaAgendaFindUniqueArgs} args - Arguments to find a ReservaAgenda
      * @example
-     * // Get one Reserva
-     * const reserva = await prisma.reserva.findUnique({
+     * // Get one ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ReservaFindUniqueArgs>(args: SelectSubset<T, ReservaFindUniqueArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ReservaAgendaFindUniqueArgs>(args: SelectSubset<T, ReservaAgendaFindUniqueArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Reserva that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ReservaAgenda that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ReservaFindUniqueOrThrowArgs} args - Arguments to find a Reserva
+     * @param {ReservaAgendaFindUniqueOrThrowArgs} args - Arguments to find a ReservaAgenda
      * @example
-     * // Get one Reserva
-     * const reserva = await prisma.reserva.findUniqueOrThrow({
+     * // Get one ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ReservaFindUniqueOrThrowArgs>(args: SelectSubset<T, ReservaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ReservaAgendaFindUniqueOrThrowArgs>(args: SelectSubset<T, ReservaAgendaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Reserva that matches the filter.
+     * Find the first ReservaAgenda that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaFindFirstArgs} args - Arguments to find a Reserva
+     * @param {ReservaAgendaFindFirstArgs} args - Arguments to find a ReservaAgenda
      * @example
-     * // Get one Reserva
-     * const reserva = await prisma.reserva.findFirst({
+     * // Get one ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ReservaFindFirstArgs>(args?: SelectSubset<T, ReservaFindFirstArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ReservaAgendaFindFirstArgs>(args?: SelectSubset<T, ReservaAgendaFindFirstArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Reserva that matches the filter or
+     * Find the first ReservaAgenda that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaFindFirstOrThrowArgs} args - Arguments to find a Reserva
+     * @param {ReservaAgendaFindFirstOrThrowArgs} args - Arguments to find a ReservaAgenda
      * @example
-     * // Get one Reserva
-     * const reserva = await prisma.reserva.findFirstOrThrow({
+     * // Get one ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ReservaFindFirstOrThrowArgs>(args?: SelectSubset<T, ReservaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ReservaAgendaFindFirstOrThrowArgs>(args?: SelectSubset<T, ReservaAgendaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Reservas that matches the filter.
+     * Find zero or more ReservaAgenda that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ReservaAgendaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Reservas
-     * const reservas = await prisma.reserva.findMany()
+     * // Get all ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findMany()
      * 
-     * // Get first 10 Reservas
-     * const reservas = await prisma.reserva.findMany({ take: 10 })
+     * // Get first 10 ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const reservaWithIdOnly = await prisma.reserva.findMany({ select: { id: true } })
+     * // Only select the `id_reserva_agenda`
+     * const reservaAgendaWithId_reserva_agendaOnly = await prisma.reservaAgenda.findMany({ select: { id_reserva_agenda: true } })
      * 
      */
-    findMany<T extends ReservaFindManyArgs>(args?: SelectSubset<T, ReservaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ReservaAgendaFindManyArgs>(args?: SelectSubset<T, ReservaAgendaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Reserva.
-     * @param {ReservaCreateArgs} args - Arguments to create a Reserva.
+     * Create a ReservaAgenda.
+     * @param {ReservaAgendaCreateArgs} args - Arguments to create a ReservaAgenda.
      * @example
-     * // Create one Reserva
-     * const Reserva = await prisma.reserva.create({
+     * // Create one ReservaAgenda
+     * const ReservaAgenda = await prisma.reservaAgenda.create({
      *   data: {
-     *     // ... data to create a Reserva
+     *     // ... data to create a ReservaAgenda
      *   }
      * })
      * 
      */
-    create<T extends ReservaCreateArgs>(args: SelectSubset<T, ReservaCreateArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ReservaAgendaCreateArgs>(args: SelectSubset<T, ReservaAgendaCreateArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Reservas.
-     * @param {ReservaCreateManyArgs} args - Arguments to create many Reservas.
+     * Create many ReservaAgenda.
+     * @param {ReservaAgendaCreateManyArgs} args - Arguments to create many ReservaAgenda.
      * @example
-     * // Create many Reservas
-     * const reserva = await prisma.reserva.createMany({
+     * // Create many ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ReservaCreateManyArgs>(args?: SelectSubset<T, ReservaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ReservaAgendaCreateManyArgs>(args?: SelectSubset<T, ReservaAgendaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Reservas and returns the data saved in the database.
-     * @param {ReservaCreateManyAndReturnArgs} args - Arguments to create many Reservas.
+     * Create many ReservaAgenda and returns the data saved in the database.
+     * @param {ReservaAgendaCreateManyAndReturnArgs} args - Arguments to create many ReservaAgenda.
      * @example
-     * // Create many Reservas
-     * const reserva = await prisma.reserva.createManyAndReturn({
+     * // Create many ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Reservas and only return the `id`
-     * const reservaWithIdOnly = await prisma.reserva.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ReservaAgenda and only return the `id_reserva_agenda`
+     * const reservaAgendaWithId_reserva_agendaOnly = await prisma.reservaAgenda.createManyAndReturn({ 
+     *   select: { id_reserva_agenda: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -36228,28 +36298,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ReservaCreateManyAndReturnArgs>(args?: SelectSubset<T, ReservaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ReservaAgendaCreateManyAndReturnArgs>(args?: SelectSubset<T, ReservaAgendaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Reserva.
-     * @param {ReservaDeleteArgs} args - Arguments to delete one Reserva.
+     * Delete a ReservaAgenda.
+     * @param {ReservaAgendaDeleteArgs} args - Arguments to delete one ReservaAgenda.
      * @example
-     * // Delete one Reserva
-     * const Reserva = await prisma.reserva.delete({
+     * // Delete one ReservaAgenda
+     * const ReservaAgenda = await prisma.reservaAgenda.delete({
      *   where: {
-     *     // ... filter to delete one Reserva
+     *     // ... filter to delete one ReservaAgenda
      *   }
      * })
      * 
      */
-    delete<T extends ReservaDeleteArgs>(args: SelectSubset<T, ReservaDeleteArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ReservaAgendaDeleteArgs>(args: SelectSubset<T, ReservaAgendaDeleteArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Reserva.
-     * @param {ReservaUpdateArgs} args - Arguments to update one Reserva.
+     * Update one ReservaAgenda.
+     * @param {ReservaAgendaUpdateArgs} args - Arguments to update one ReservaAgenda.
      * @example
-     * // Update one Reserva
-     * const reserva = await prisma.reserva.update({
+     * // Update one ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -36259,30 +36329,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ReservaUpdateArgs>(args: SelectSubset<T, ReservaUpdateArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ReservaAgendaUpdateArgs>(args: SelectSubset<T, ReservaAgendaUpdateArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Reservas.
-     * @param {ReservaDeleteManyArgs} args - Arguments to filter Reservas to delete.
+     * Delete zero or more ReservaAgenda.
+     * @param {ReservaAgendaDeleteManyArgs} args - Arguments to filter ReservaAgenda to delete.
      * @example
-     * // Delete a few Reservas
-     * const { count } = await prisma.reserva.deleteMany({
+     * // Delete a few ReservaAgenda
+     * const { count } = await prisma.reservaAgenda.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ReservaDeleteManyArgs>(args?: SelectSubset<T, ReservaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ReservaAgendaDeleteManyArgs>(args?: SelectSubset<T, ReservaAgendaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Reservas.
+     * Update zero or more ReservaAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ReservaAgendaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Reservas
-     * const reserva = await prisma.reserva.updateMany({
+     * // Update many ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -36292,56 +36362,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ReservaUpdateManyArgs>(args: SelectSubset<T, ReservaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ReservaAgendaUpdateManyArgs>(args: SelectSubset<T, ReservaAgendaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Reserva.
-     * @param {ReservaUpsertArgs} args - Arguments to update or create a Reserva.
+     * Create or update one ReservaAgenda.
+     * @param {ReservaAgendaUpsertArgs} args - Arguments to update or create a ReservaAgenda.
      * @example
-     * // Update or create a Reserva
-     * const reserva = await prisma.reserva.upsert({
+     * // Update or create a ReservaAgenda
+     * const reservaAgenda = await prisma.reservaAgenda.upsert({
      *   create: {
-     *     // ... data to create a Reserva
+     *     // ... data to create a ReservaAgenda
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Reserva we want to update
+     *     // ... the filter for the ReservaAgenda we want to update
      *   }
      * })
      */
-    upsert<T extends ReservaUpsertArgs>(args: SelectSubset<T, ReservaUpsertArgs<ExtArgs>>): Prisma__ReservaClient<$Result.GetResult<Prisma.$ReservaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ReservaAgendaUpsertArgs>(args: SelectSubset<T, ReservaAgendaUpsertArgs<ExtArgs>>): Prisma__ReservaAgendaClient<$Result.GetResult<Prisma.$ReservaAgendaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Reservas.
+     * Count the number of ReservaAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaCountArgs} args - Arguments to filter Reservas to count.
+     * @param {ReservaAgendaCountArgs} args - Arguments to filter ReservaAgenda to count.
      * @example
-     * // Count the number of Reservas
-     * const count = await prisma.reserva.count({
+     * // Count the number of ReservaAgenda
+     * const count = await prisma.reservaAgenda.count({
      *   where: {
-     *     // ... the filter for the Reservas we want to count
+     *     // ... the filter for the ReservaAgenda we want to count
      *   }
      * })
     **/
-    count<T extends ReservaCountArgs>(
-      args?: Subset<T, ReservaCountArgs>,
+    count<T extends ReservaAgendaCountArgs>(
+      args?: Subset<T, ReservaAgendaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ReservaCountAggregateOutputType>
+          : GetScalarType<T['select'], ReservaAgendaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Reserva.
+     * Allows you to perform aggregations operations on a ReservaAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ReservaAgendaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -36361,13 +36431,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ReservaAggregateArgs>(args: Subset<T, ReservaAggregateArgs>): Prisma.PrismaPromise<GetReservaAggregateType<T>>
+    aggregate<T extends ReservaAgendaAggregateArgs>(args: Subset<T, ReservaAgendaAggregateArgs>): Prisma.PrismaPromise<GetReservaAgendaAggregateType<T>>
 
     /**
-     * Group by Reserva.
+     * Group by ReservaAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ReservaGroupByArgs} args - Group by arguments.
+     * @param {ReservaAgendaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -36382,14 +36452,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ReservaGroupByArgs,
+      T extends ReservaAgendaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ReservaGroupByArgs['orderBy'] }
-        : { orderBy?: ReservaGroupByArgs['orderBy'] },
+        ? { orderBy: ReservaAgendaGroupByArgs['orderBy'] }
+        : { orderBy?: ReservaAgendaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -36438,22 +36508,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ReservaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReservaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ReservaAgendaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReservaAgendaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Reserva model
+   * Fields of the ReservaAgenda model
    */
-  readonly fields: ReservaFieldRefs;
+  readonly fields: ReservaAgendaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Reserva.
+   * The delegate class that acts as a "Promise-like" for ReservaAgenda.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ReservaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ReservaAgendaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    slot<T extends SlotDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SlotDefaultArgs<ExtArgs>>): Prisma__SlotClient<$Result.GetResult<Prisma.$SlotPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    horario_reserva_agenda<T extends HorarioDisponivelDefaultArgs<ExtArgs> = {}>(args?: Subset<T, HorarioDisponivelDefaultArgs<ExtArgs>>): Prisma__HorarioDisponivelClient<$Result.GetResult<Prisma.$HorarioDisponivelPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -36480,776 +36550,800 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Reserva model
+   * Fields of the ReservaAgenda model
    */ 
-  interface ReservaFieldRefs {
-    readonly id: FieldRef<"Reserva", 'String'>
-    readonly tenant_id: FieldRef<"Reserva", 'String'>
-    readonly slot_id: FieldRef<"Reserva", 'String'>
-    readonly usuario_id: FieldRef<"Reserva", 'String'>
-    readonly nome: FieldRef<"Reserva", 'String'>
-    readonly email: FieldRef<"Reserva", 'String'>
-    readonly status: FieldRef<"Reserva", 'String'>
-    readonly criadoEm: FieldRef<"Reserva", 'DateTime'>
-    readonly atualizadoEm: FieldRef<"Reserva", 'DateTime'>
+  interface ReservaAgendaFieldRefs {
+    readonly id_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly id_organizacao_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly id_produto_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly id_usuario_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly id_horario_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly id_reservante_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly nome_reservante_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly email_reservante_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly status_reserva_agenda: FieldRef<"ReservaAgenda", 'String'>
+    readonly data_criacao_reserva_agenda: FieldRef<"ReservaAgenda", 'DateTime'>
+    readonly data_atualizacao_reserva_agenda: FieldRef<"ReservaAgenda", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Reserva findUnique
+   * ReservaAgenda findUnique
    */
-  export type ReservaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which Reserva to fetch.
+     * Filter, which ReservaAgenda to fetch.
      */
-    where: ReservaWhereUniqueInput
+    where: ReservaAgendaWhereUniqueInput
   }
 
   /**
-   * Reserva findUniqueOrThrow
+   * ReservaAgenda findUniqueOrThrow
    */
-  export type ReservaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which Reserva to fetch.
+     * Filter, which ReservaAgenda to fetch.
      */
-    where: ReservaWhereUniqueInput
+    where: ReservaAgendaWhereUniqueInput
   }
 
   /**
-   * Reserva findFirst
+   * ReservaAgenda findFirst
    */
-  export type ReservaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which Reserva to fetch.
+     * Filter, which ReservaAgenda to fetch.
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Reservas to fetch.
+     * Determine the order of ReservaAgenda to fetch.
      */
-    orderBy?: ReservaOrderByWithRelationInput | ReservaOrderByWithRelationInput[]
+    orderBy?: ReservaAgendaOrderByWithRelationInput | ReservaAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Reservas.
+     * Sets the position for searching for ReservaAgenda.
      */
-    cursor?: ReservaWhereUniqueInput
+    cursor?: ReservaAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Reservas from the position of the cursor.
+     * Take `±n` ReservaAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Reservas.
+     * Skip the first `n` ReservaAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Reservas.
+     * Filter by unique combinations of ReservaAgenda.
      */
-    distinct?: ReservaScalarFieldEnum | ReservaScalarFieldEnum[]
+    distinct?: ReservaAgendaScalarFieldEnum | ReservaAgendaScalarFieldEnum[]
   }
 
   /**
-   * Reserva findFirstOrThrow
+   * ReservaAgenda findFirstOrThrow
    */
-  export type ReservaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which Reserva to fetch.
+     * Filter, which ReservaAgenda to fetch.
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Reservas to fetch.
+     * Determine the order of ReservaAgenda to fetch.
      */
-    orderBy?: ReservaOrderByWithRelationInput | ReservaOrderByWithRelationInput[]
+    orderBy?: ReservaAgendaOrderByWithRelationInput | ReservaAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Reservas.
+     * Sets the position for searching for ReservaAgenda.
      */
-    cursor?: ReservaWhereUniqueInput
+    cursor?: ReservaAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Reservas from the position of the cursor.
+     * Take `±n` ReservaAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Reservas.
+     * Skip the first `n` ReservaAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Reservas.
+     * Filter by unique combinations of ReservaAgenda.
      */
-    distinct?: ReservaScalarFieldEnum | ReservaScalarFieldEnum[]
+    distinct?: ReservaAgendaScalarFieldEnum | ReservaAgendaScalarFieldEnum[]
   }
 
   /**
-   * Reserva findMany
+   * ReservaAgenda findMany
    */
-  export type ReservaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which Reservas to fetch.
+     * Filter, which ReservaAgenda to fetch.
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Reservas to fetch.
+     * Determine the order of ReservaAgenda to fetch.
      */
-    orderBy?: ReservaOrderByWithRelationInput | ReservaOrderByWithRelationInput[]
+    orderBy?: ReservaAgendaOrderByWithRelationInput | ReservaAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Reservas.
+     * Sets the position for listing ReservaAgenda.
      */
-    cursor?: ReservaWhereUniqueInput
+    cursor?: ReservaAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Reservas from the position of the cursor.
+     * Take `±n` ReservaAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Reservas.
+     * Skip the first `n` ReservaAgenda.
      */
     skip?: number
-    distinct?: ReservaScalarFieldEnum | ReservaScalarFieldEnum[]
+    distinct?: ReservaAgendaScalarFieldEnum | ReservaAgendaScalarFieldEnum[]
   }
 
   /**
-   * Reserva create
+   * ReservaAgenda create
    */
-  export type ReservaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * The data needed to create a Reserva.
+     * The data needed to create a ReservaAgenda.
      */
-    data: XOR<ReservaCreateInput, ReservaUncheckedCreateInput>
+    data: XOR<ReservaAgendaCreateInput, ReservaAgendaUncheckedCreateInput>
   }
 
   /**
-   * Reserva createMany
+   * ReservaAgenda createMany
    */
-  export type ReservaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Reservas.
+     * The data used to create many ReservaAgenda.
      */
-    data: ReservaCreateManyInput | ReservaCreateManyInput[]
+    data: ReservaAgendaCreateManyInput | ReservaAgendaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Reserva createManyAndReturn
+   * ReservaAgenda createManyAndReturn
    */
-  export type ReservaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ReservaAgendaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Reservas.
+     * The data used to create many ReservaAgenda.
      */
-    data: ReservaCreateManyInput | ReservaCreateManyInput[]
+    data: ReservaAgendaCreateManyInput | ReservaAgendaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ReservaAgendaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Reserva update
+   * ReservaAgenda update
    */
-  export type ReservaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * The data needed to update a Reserva.
+     * The data needed to update a ReservaAgenda.
      */
-    data: XOR<ReservaUpdateInput, ReservaUncheckedUpdateInput>
+    data: XOR<ReservaAgendaUpdateInput, ReservaAgendaUncheckedUpdateInput>
     /**
-     * Choose, which Reserva to update.
+     * Choose, which ReservaAgenda to update.
      */
-    where: ReservaWhereUniqueInput
+    where: ReservaAgendaWhereUniqueInput
   }
 
   /**
-   * Reserva updateMany
+   * ReservaAgenda updateMany
    */
-  export type ReservaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Reservas.
+     * The data used to update ReservaAgenda.
      */
-    data: XOR<ReservaUpdateManyMutationInput, ReservaUncheckedUpdateManyInput>
+    data: XOR<ReservaAgendaUpdateManyMutationInput, ReservaAgendaUncheckedUpdateManyInput>
     /**
-     * Filter which Reservas to update
+     * Filter which ReservaAgenda to update
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
   }
 
   /**
-   * Reserva upsert
+   * ReservaAgenda upsert
    */
-  export type ReservaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * The filter to search for the Reserva to update in case it exists.
+     * The filter to search for the ReservaAgenda to update in case it exists.
      */
-    where: ReservaWhereUniqueInput
+    where: ReservaAgendaWhereUniqueInput
     /**
-     * In case the Reserva found by the `where` argument doesn't exist, create a new Reserva with this data.
+     * In case the ReservaAgenda found by the `where` argument doesn't exist, create a new ReservaAgenda with this data.
      */
-    create: XOR<ReservaCreateInput, ReservaUncheckedCreateInput>
+    create: XOR<ReservaAgendaCreateInput, ReservaAgendaUncheckedCreateInput>
     /**
-     * In case the Reserva was found with the provided `where` argument, update it with this data.
+     * In case the ReservaAgenda was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ReservaUpdateInput, ReservaUncheckedUpdateInput>
+    update: XOR<ReservaAgendaUpdateInput, ReservaAgendaUncheckedUpdateInput>
   }
 
   /**
-   * Reserva delete
+   * ReservaAgenda delete
    */
-  export type ReservaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
     /**
-     * Filter which Reserva to delete.
+     * Filter which ReservaAgenda to delete.
      */
-    where: ReservaWhereUniqueInput
+    where: ReservaAgendaWhereUniqueInput
   }
 
   /**
-   * Reserva deleteMany
+   * ReservaAgenda deleteMany
    */
-  export type ReservaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Reservas to delete
+     * Filter which ReservaAgenda to delete
      */
-    where?: ReservaWhereInput
+    where?: ReservaAgendaWhereInput
   }
 
   /**
-   * Reserva without action
+   * ReservaAgenda without action
    */
-  export type ReservaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ReservaAgendaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Reserva
+     * Select specific fields to fetch from the ReservaAgenda
      */
-    select?: ReservaSelect<ExtArgs> | null
+    select?: ReservaAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ReservaInclude<ExtArgs> | null
+    include?: ReservaAgendaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model DisponibilidadeConfig
+   * Model ConfigDisponibilidadeAgenda
    */
 
-  export type AggregateDisponibilidadeConfig = {
-    _count: DisponibilidadeConfigCountAggregateOutputType | null
-    _avg: DisponibilidadeConfigAvgAggregateOutputType | null
-    _sum: DisponibilidadeConfigSumAggregateOutputType | null
-    _min: DisponibilidadeConfigMinAggregateOutputType | null
-    _max: DisponibilidadeConfigMaxAggregateOutputType | null
+  export type AggregateConfigDisponibilidadeAgenda = {
+    _count: ConfigDisponibilidadeAgendaCountAggregateOutputType | null
+    _avg: ConfigDisponibilidadeAgendaAvgAggregateOutputType | null
+    _sum: ConfigDisponibilidadeAgendaSumAggregateOutputType | null
+    _min: ConfigDisponibilidadeAgendaMinAggregateOutputType | null
+    _max: ConfigDisponibilidadeAgendaMaxAggregateOutputType | null
   }
 
-  export type DisponibilidadeConfigAvgAggregateOutputType = {
-    duracaoSlot: number | null
-    intervalo: number | null
-    diasSemana: number | null
+  export type ConfigDisponibilidadeAgendaAvgAggregateOutputType = {
+    duracao_slot_config_disponibilidade_agenda: number | null
+    intervalo_config_disponibilidade_agenda: number | null
+    dias_semana_config_disponibilidade_agenda: number | null
   }
 
-  export type DisponibilidadeConfigSumAggregateOutputType = {
-    duracaoSlot: number | null
-    intervalo: number | null
-    diasSemana: number[]
+  export type ConfigDisponibilidadeAgendaSumAggregateOutputType = {
+    duracao_slot_config_disponibilidade_agenda: number | null
+    intervalo_config_disponibilidade_agenda: number | null
+    dias_semana_config_disponibilidade_agenda: number[]
   }
 
-  export type DisponibilidadeConfigMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    agenda_id: string | null
-    horarioInicio: string | null
-    horarioFim: string | null
-    duracaoSlot: number | null
-    intervalo: number | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type ConfigDisponibilidadeAgendaMinAggregateOutputType = {
+    id_config_disponibilidade_agenda: string | null
+    id_organizacao_config_disponibilidade_agenda: string | null
+    id_produto_config_disponibilidade_agenda: string | null
+    id_usuario_config_disponibilidade_agenda: string | null
+    id_agenda_config_disponibilidade_agenda: string | null
+    horario_inicio_config_disponibilidade_agenda: string | null
+    horario_fim_config_disponibilidade_agenda: string | null
+    duracao_slot_config_disponibilidade_agenda: number | null
+    intervalo_config_disponibilidade_agenda: number | null
+    data_criacao_config_disponibilidade_agenda: Date | null
+    data_atualizacao_config_disponibilidade_agenda: Date | null
   }
 
-  export type DisponibilidadeConfigMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    agenda_id: string | null
-    horarioInicio: string | null
-    horarioFim: string | null
-    duracaoSlot: number | null
-    intervalo: number | null
-    criadoEm: Date | null
-    atualizadoEm: Date | null
+  export type ConfigDisponibilidadeAgendaMaxAggregateOutputType = {
+    id_config_disponibilidade_agenda: string | null
+    id_organizacao_config_disponibilidade_agenda: string | null
+    id_produto_config_disponibilidade_agenda: string | null
+    id_usuario_config_disponibilidade_agenda: string | null
+    id_agenda_config_disponibilidade_agenda: string | null
+    horario_inicio_config_disponibilidade_agenda: string | null
+    horario_fim_config_disponibilidade_agenda: string | null
+    duracao_slot_config_disponibilidade_agenda: number | null
+    intervalo_config_disponibilidade_agenda: number | null
+    data_criacao_config_disponibilidade_agenda: Date | null
+    data_atualizacao_config_disponibilidade_agenda: Date | null
   }
 
-  export type DisponibilidadeConfigCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    agenda_id: number
-    horarioInicio: number
-    horarioFim: number
-    duracaoSlot: number
-    intervalo: number
-    diasSemana: number
-    criadoEm: number
-    atualizadoEm: number
+  export type ConfigDisponibilidadeAgendaCountAggregateOutputType = {
+    id_config_disponibilidade_agenda: number
+    id_organizacao_config_disponibilidade_agenda: number
+    id_produto_config_disponibilidade_agenda: number
+    id_usuario_config_disponibilidade_agenda: number
+    id_agenda_config_disponibilidade_agenda: number
+    horario_inicio_config_disponibilidade_agenda: number
+    horario_fim_config_disponibilidade_agenda: number
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda: number
+    dias_semana_config_disponibilidade_agenda: number
+    data_criacao_config_disponibilidade_agenda: number
+    data_atualizacao_config_disponibilidade_agenda: number
     _all: number
   }
 
 
-  export type DisponibilidadeConfigAvgAggregateInputType = {
-    duracaoSlot?: true
-    intervalo?: true
-    diasSemana?: true
+  export type ConfigDisponibilidadeAgendaAvgAggregateInputType = {
+    duracao_slot_config_disponibilidade_agenda?: true
+    intervalo_config_disponibilidade_agenda?: true
+    dias_semana_config_disponibilidade_agenda?: true
   }
 
-  export type DisponibilidadeConfigSumAggregateInputType = {
-    duracaoSlot?: true
-    intervalo?: true
-    diasSemana?: true
+  export type ConfigDisponibilidadeAgendaSumAggregateInputType = {
+    duracao_slot_config_disponibilidade_agenda?: true
+    intervalo_config_disponibilidade_agenda?: true
+    dias_semana_config_disponibilidade_agenda?: true
   }
 
-  export type DisponibilidadeConfigMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    horarioInicio?: true
-    horarioFim?: true
-    duracaoSlot?: true
-    intervalo?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ConfigDisponibilidadeAgendaMinAggregateInputType = {
+    id_config_disponibilidade_agenda?: true
+    id_organizacao_config_disponibilidade_agenda?: true
+    id_produto_config_disponibilidade_agenda?: true
+    id_usuario_config_disponibilidade_agenda?: true
+    id_agenda_config_disponibilidade_agenda?: true
+    horario_inicio_config_disponibilidade_agenda?: true
+    horario_fim_config_disponibilidade_agenda?: true
+    duracao_slot_config_disponibilidade_agenda?: true
+    intervalo_config_disponibilidade_agenda?: true
+    data_criacao_config_disponibilidade_agenda?: true
+    data_atualizacao_config_disponibilidade_agenda?: true
   }
 
-  export type DisponibilidadeConfigMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    horarioInicio?: true
-    horarioFim?: true
-    duracaoSlot?: true
-    intervalo?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ConfigDisponibilidadeAgendaMaxAggregateInputType = {
+    id_config_disponibilidade_agenda?: true
+    id_organizacao_config_disponibilidade_agenda?: true
+    id_produto_config_disponibilidade_agenda?: true
+    id_usuario_config_disponibilidade_agenda?: true
+    id_agenda_config_disponibilidade_agenda?: true
+    horario_inicio_config_disponibilidade_agenda?: true
+    horario_fim_config_disponibilidade_agenda?: true
+    duracao_slot_config_disponibilidade_agenda?: true
+    intervalo_config_disponibilidade_agenda?: true
+    data_criacao_config_disponibilidade_agenda?: true
+    data_atualizacao_config_disponibilidade_agenda?: true
   }
 
-  export type DisponibilidadeConfigCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    agenda_id?: true
-    horarioInicio?: true
-    horarioFim?: true
-    duracaoSlot?: true
-    intervalo?: true
-    diasSemana?: true
-    criadoEm?: true
-    atualizadoEm?: true
+  export type ConfigDisponibilidadeAgendaCountAggregateInputType = {
+    id_config_disponibilidade_agenda?: true
+    id_organizacao_config_disponibilidade_agenda?: true
+    id_produto_config_disponibilidade_agenda?: true
+    id_usuario_config_disponibilidade_agenda?: true
+    id_agenda_config_disponibilidade_agenda?: true
+    horario_inicio_config_disponibilidade_agenda?: true
+    horario_fim_config_disponibilidade_agenda?: true
+    duracao_slot_config_disponibilidade_agenda?: true
+    intervalo_config_disponibilidade_agenda?: true
+    dias_semana_config_disponibilidade_agenda?: true
+    data_criacao_config_disponibilidade_agenda?: true
+    data_atualizacao_config_disponibilidade_agenda?: true
     _all?: true
   }
 
-  export type DisponibilidadeConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which DisponibilidadeConfig to aggregate.
+     * Filter which ConfigDisponibilidadeAgenda to aggregate.
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DisponibilidadeConfigs to fetch.
+     * Determine the order of ConfigDisponibilidadeAgenda to fetch.
      */
-    orderBy?: DisponibilidadeConfigOrderByWithRelationInput | DisponibilidadeConfigOrderByWithRelationInput[]
+    orderBy?: ConfigDisponibilidadeAgendaOrderByWithRelationInput | ConfigDisponibilidadeAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: DisponibilidadeConfigWhereUniqueInput
+    cursor?: ConfigDisponibilidadeAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DisponibilidadeConfigs from the position of the cursor.
+     * Take `±n` ConfigDisponibilidadeAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DisponibilidadeConfigs.
+     * Skip the first `n` ConfigDisponibilidadeAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned DisponibilidadeConfigs
+     * Count returned ConfigDisponibilidadeAgenda
     **/
-    _count?: true | DisponibilidadeConfigCountAggregateInputType
+    _count?: true | ConfigDisponibilidadeAgendaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: DisponibilidadeConfigAvgAggregateInputType
+    _avg?: ConfigDisponibilidadeAgendaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: DisponibilidadeConfigSumAggregateInputType
+    _sum?: ConfigDisponibilidadeAgendaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: DisponibilidadeConfigMinAggregateInputType
+    _min?: ConfigDisponibilidadeAgendaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: DisponibilidadeConfigMaxAggregateInputType
+    _max?: ConfigDisponibilidadeAgendaMaxAggregateInputType
   }
 
-  export type GetDisponibilidadeConfigAggregateType<T extends DisponibilidadeConfigAggregateArgs> = {
-        [P in keyof T & keyof AggregateDisponibilidadeConfig]: P extends '_count' | 'count'
+  export type GetConfigDisponibilidadeAgendaAggregateType<T extends ConfigDisponibilidadeAgendaAggregateArgs> = {
+        [P in keyof T & keyof AggregateConfigDisponibilidadeAgenda]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateDisponibilidadeConfig[P]>
-      : GetScalarType<T[P], AggregateDisponibilidadeConfig[P]>
+        : GetScalarType<T[P], AggregateConfigDisponibilidadeAgenda[P]>
+      : GetScalarType<T[P], AggregateConfigDisponibilidadeAgenda[P]>
   }
 
 
 
 
-  export type DisponibilidadeConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DisponibilidadeConfigWhereInput
-    orderBy?: DisponibilidadeConfigOrderByWithAggregationInput | DisponibilidadeConfigOrderByWithAggregationInput[]
-    by: DisponibilidadeConfigScalarFieldEnum[] | DisponibilidadeConfigScalarFieldEnum
-    having?: DisponibilidadeConfigScalarWhereWithAggregatesInput
+  export type ConfigDisponibilidadeAgendaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConfigDisponibilidadeAgendaWhereInput
+    orderBy?: ConfigDisponibilidadeAgendaOrderByWithAggregationInput | ConfigDisponibilidadeAgendaOrderByWithAggregationInput[]
+    by: ConfigDisponibilidadeAgendaScalarFieldEnum[] | ConfigDisponibilidadeAgendaScalarFieldEnum
+    having?: ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: DisponibilidadeConfigCountAggregateInputType | true
-    _avg?: DisponibilidadeConfigAvgAggregateInputType
-    _sum?: DisponibilidadeConfigSumAggregateInputType
-    _min?: DisponibilidadeConfigMinAggregateInputType
-    _max?: DisponibilidadeConfigMaxAggregateInputType
+    _count?: ConfigDisponibilidadeAgendaCountAggregateInputType | true
+    _avg?: ConfigDisponibilidadeAgendaAvgAggregateInputType
+    _sum?: ConfigDisponibilidadeAgendaSumAggregateInputType
+    _min?: ConfigDisponibilidadeAgendaMinAggregateInputType
+    _max?: ConfigDisponibilidadeAgendaMaxAggregateInputType
   }
 
-  export type DisponibilidadeConfigGroupByOutputType = {
-    id: string
-    tenant_id: string
-    agenda_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo: number
-    diasSemana: number[]
-    criadoEm: Date
-    atualizadoEm: Date
-    _count: DisponibilidadeConfigCountAggregateOutputType | null
-    _avg: DisponibilidadeConfigAvgAggregateOutputType | null
-    _sum: DisponibilidadeConfigSumAggregateOutputType | null
-    _min: DisponibilidadeConfigMinAggregateOutputType | null
-    _max: DisponibilidadeConfigMaxAggregateOutputType | null
+  export type ConfigDisponibilidadeAgendaGroupByOutputType = {
+    id_config_disponibilidade_agenda: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda: string | null
+    id_usuario_config_disponibilidade_agenda: string | null
+    id_agenda_config_disponibilidade_agenda: string
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda: number
+    dias_semana_config_disponibilidade_agenda: number[]
+    data_criacao_config_disponibilidade_agenda: Date
+    data_atualizacao_config_disponibilidade_agenda: Date
+    _count: ConfigDisponibilidadeAgendaCountAggregateOutputType | null
+    _avg: ConfigDisponibilidadeAgendaAvgAggregateOutputType | null
+    _sum: ConfigDisponibilidadeAgendaSumAggregateOutputType | null
+    _min: ConfigDisponibilidadeAgendaMinAggregateOutputType | null
+    _max: ConfigDisponibilidadeAgendaMaxAggregateOutputType | null
   }
 
-  type GetDisponibilidadeConfigGroupByPayload<T extends DisponibilidadeConfigGroupByArgs> = Prisma.PrismaPromise<
+  type GetConfigDisponibilidadeAgendaGroupByPayload<T extends ConfigDisponibilidadeAgendaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<DisponibilidadeConfigGroupByOutputType, T['by']> &
+      PickEnumerable<ConfigDisponibilidadeAgendaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof DisponibilidadeConfigGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ConfigDisponibilidadeAgendaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], DisponibilidadeConfigGroupByOutputType[P]>
-            : GetScalarType<T[P], DisponibilidadeConfigGroupByOutputType[P]>
+              : GetScalarType<T[P], ConfigDisponibilidadeAgendaGroupByOutputType[P]>
+            : GetScalarType<T[P], ConfigDisponibilidadeAgendaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type DisponibilidadeConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    horarioInicio?: boolean
-    horarioFim?: boolean
-    duracaoSlot?: boolean
-    intervalo?: boolean
-    diasSemana?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["disponibilidadeConfig"]>
+  export type ConfigDisponibilidadeAgendaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_config_disponibilidade_agenda?: boolean
+    id_organizacao_config_disponibilidade_agenda?: boolean
+    id_produto_config_disponibilidade_agenda?: boolean
+    id_usuario_config_disponibilidade_agenda?: boolean
+    id_agenda_config_disponibilidade_agenda?: boolean
+    horario_inicio_config_disponibilidade_agenda?: boolean
+    horario_fim_config_disponibilidade_agenda?: boolean
+    duracao_slot_config_disponibilidade_agenda?: boolean
+    intervalo_config_disponibilidade_agenda?: boolean
+    dias_semana_config_disponibilidade_agenda?: boolean
+    data_criacao_config_disponibilidade_agenda?: boolean
+    data_atualizacao_config_disponibilidade_agenda?: boolean
+    agenda_config_disponibilidade_agenda?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["configDisponibilidadeAgenda"]>
 
-  export type DisponibilidadeConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    horarioInicio?: boolean
-    horarioFim?: boolean
-    duracaoSlot?: boolean
-    intervalo?: boolean
-    diasSemana?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["disponibilidadeConfig"]>
+  export type ConfigDisponibilidadeAgendaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_config_disponibilidade_agenda?: boolean
+    id_organizacao_config_disponibilidade_agenda?: boolean
+    id_produto_config_disponibilidade_agenda?: boolean
+    id_usuario_config_disponibilidade_agenda?: boolean
+    id_agenda_config_disponibilidade_agenda?: boolean
+    horario_inicio_config_disponibilidade_agenda?: boolean
+    horario_fim_config_disponibilidade_agenda?: boolean
+    duracao_slot_config_disponibilidade_agenda?: boolean
+    intervalo_config_disponibilidade_agenda?: boolean
+    dias_semana_config_disponibilidade_agenda?: boolean
+    data_criacao_config_disponibilidade_agenda?: boolean
+    data_atualizacao_config_disponibilidade_agenda?: boolean
+    agenda_config_disponibilidade_agenda?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["configDisponibilidadeAgenda"]>
 
-  export type DisponibilidadeConfigSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    agenda_id?: boolean
-    horarioInicio?: boolean
-    horarioFim?: boolean
-    duracaoSlot?: boolean
-    intervalo?: boolean
-    diasSemana?: boolean
-    criadoEm?: boolean
-    atualizadoEm?: boolean
+  export type ConfigDisponibilidadeAgendaSelectScalar = {
+    id_config_disponibilidade_agenda?: boolean
+    id_organizacao_config_disponibilidade_agenda?: boolean
+    id_produto_config_disponibilidade_agenda?: boolean
+    id_usuario_config_disponibilidade_agenda?: boolean
+    id_agenda_config_disponibilidade_agenda?: boolean
+    horario_inicio_config_disponibilidade_agenda?: boolean
+    horario_fim_config_disponibilidade_agenda?: boolean
+    duracao_slot_config_disponibilidade_agenda?: boolean
+    intervalo_config_disponibilidade_agenda?: boolean
+    dias_semana_config_disponibilidade_agenda?: boolean
+    data_criacao_config_disponibilidade_agenda?: boolean
+    data_atualizacao_config_disponibilidade_agenda?: boolean
   }
 
-  export type DisponibilidadeConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
+  export type ConfigDisponibilidadeAgendaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agenda_config_disponibilidade_agenda?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
   }
-  export type DisponibilidadeConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    agenda?: boolean | AgendaDefaultArgs<ExtArgs>
+  export type ConfigDisponibilidadeAgendaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agenda_config_disponibilidade_agenda?: boolean | AgendaUsuarioDefaultArgs<ExtArgs>
   }
 
-  export type $DisponibilidadeConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "DisponibilidadeConfig"
+  export type $ConfigDisponibilidadeAgendaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConfigDisponibilidadeAgenda"
     objects: {
-      agenda: Prisma.$AgendaPayload<ExtArgs>
+      agenda_config_disponibilidade_agenda: Prisma.$AgendaUsuarioPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      agenda_id: string
-      horarioInicio: string
-      horarioFim: string
-      duracaoSlot: number
-      intervalo: number
-      diasSemana: number[]
-      criadoEm: Date
-      atualizadoEm: Date
-    }, ExtArgs["result"]["disponibilidadeConfig"]>
+      id_config_disponibilidade_agenda: string
+      id_organizacao_config_disponibilidade_agenda: string
+      id_produto_config_disponibilidade_agenda: string | null
+      id_usuario_config_disponibilidade_agenda: string | null
+      id_agenda_config_disponibilidade_agenda: string
+      horario_inicio_config_disponibilidade_agenda: string
+      horario_fim_config_disponibilidade_agenda: string
+      duracao_slot_config_disponibilidade_agenda: number
+      intervalo_config_disponibilidade_agenda: number
+      dias_semana_config_disponibilidade_agenda: number[]
+      data_criacao_config_disponibilidade_agenda: Date
+      data_atualizacao_config_disponibilidade_agenda: Date
+    }, ExtArgs["result"]["configDisponibilidadeAgenda"]>
     composites: {}
   }
 
-  type DisponibilidadeConfigGetPayload<S extends boolean | null | undefined | DisponibilidadeConfigDefaultArgs> = $Result.GetResult<Prisma.$DisponibilidadeConfigPayload, S>
+  type ConfigDisponibilidadeAgendaGetPayload<S extends boolean | null | undefined | ConfigDisponibilidadeAgendaDefaultArgs> = $Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload, S>
 
-  type DisponibilidadeConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<DisponibilidadeConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: DisponibilidadeConfigCountAggregateInputType | true
+  type ConfigDisponibilidadeAgendaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ConfigDisponibilidadeAgendaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ConfigDisponibilidadeAgendaCountAggregateInputType | true
     }
 
-  export interface DisponibilidadeConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DisponibilidadeConfig'], meta: { name: 'DisponibilidadeConfig' } }
+  export interface ConfigDisponibilidadeAgendaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfigDisponibilidadeAgenda'], meta: { name: 'ConfigDisponibilidadeAgenda' } }
     /**
-     * Find zero or one DisponibilidadeConfig that matches the filter.
-     * @param {DisponibilidadeConfigFindUniqueArgs} args - Arguments to find a DisponibilidadeConfig
+     * Find zero or one ConfigDisponibilidadeAgenda that matches the filter.
+     * @param {ConfigDisponibilidadeAgendaFindUniqueArgs} args - Arguments to find a ConfigDisponibilidadeAgenda
      * @example
-     * // Get one DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.findUnique({
+     * // Get one ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends DisponibilidadeConfigFindUniqueArgs>(args: SelectSubset<T, DisponibilidadeConfigFindUniqueArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ConfigDisponibilidadeAgendaFindUniqueArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaFindUniqueArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one DisponibilidadeConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ConfigDisponibilidadeAgenda that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {DisponibilidadeConfigFindUniqueOrThrowArgs} args - Arguments to find a DisponibilidadeConfig
+     * @param {ConfigDisponibilidadeAgendaFindUniqueOrThrowArgs} args - Arguments to find a ConfigDisponibilidadeAgenda
      * @example
-     * // Get one DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.findUniqueOrThrow({
+     * // Get one ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends DisponibilidadeConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, DisponibilidadeConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ConfigDisponibilidadeAgendaFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first DisponibilidadeConfig that matches the filter.
+     * Find the first ConfigDisponibilidadeAgenda that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigFindFirstArgs} args - Arguments to find a DisponibilidadeConfig
+     * @param {ConfigDisponibilidadeAgendaFindFirstArgs} args - Arguments to find a ConfigDisponibilidadeAgenda
      * @example
-     * // Get one DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.findFirst({
+     * // Get one ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends DisponibilidadeConfigFindFirstArgs>(args?: SelectSubset<T, DisponibilidadeConfigFindFirstArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ConfigDisponibilidadeAgendaFindFirstArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaFindFirstArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first DisponibilidadeConfig that matches the filter or
+     * Find the first ConfigDisponibilidadeAgenda that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigFindFirstOrThrowArgs} args - Arguments to find a DisponibilidadeConfig
+     * @param {ConfigDisponibilidadeAgendaFindFirstOrThrowArgs} args - Arguments to find a ConfigDisponibilidadeAgenda
      * @example
-     * // Get one DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.findFirstOrThrow({
+     * // Get one ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends DisponibilidadeConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, DisponibilidadeConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ConfigDisponibilidadeAgendaFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more DisponibilidadeConfigs that matches the filter.
+     * Find zero or more ConfigDisponibilidadeAgenda that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ConfigDisponibilidadeAgendaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all DisponibilidadeConfigs
-     * const disponibilidadeConfigs = await prisma.disponibilidadeConfig.findMany()
+     * // Get all ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findMany()
      * 
-     * // Get first 10 DisponibilidadeConfigs
-     * const disponibilidadeConfigs = await prisma.disponibilidadeConfig.findMany({ take: 10 })
+     * // Get first 10 ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const disponibilidadeConfigWithIdOnly = await prisma.disponibilidadeConfig.findMany({ select: { id: true } })
+     * // Only select the `id_config_disponibilidade_agenda`
+     * const configDisponibilidadeAgendaWithId_config_disponibilidade_agendaOnly = await prisma.configDisponibilidadeAgenda.findMany({ select: { id_config_disponibilidade_agenda: true } })
      * 
      */
-    findMany<T extends DisponibilidadeConfigFindManyArgs>(args?: SelectSubset<T, DisponibilidadeConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ConfigDisponibilidadeAgendaFindManyArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a DisponibilidadeConfig.
-     * @param {DisponibilidadeConfigCreateArgs} args - Arguments to create a DisponibilidadeConfig.
+     * Create a ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaCreateArgs} args - Arguments to create a ConfigDisponibilidadeAgenda.
      * @example
-     * // Create one DisponibilidadeConfig
-     * const DisponibilidadeConfig = await prisma.disponibilidadeConfig.create({
+     * // Create one ConfigDisponibilidadeAgenda
+     * const ConfigDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.create({
      *   data: {
-     *     // ... data to create a DisponibilidadeConfig
+     *     // ... data to create a ConfigDisponibilidadeAgenda
      *   }
      * })
      * 
      */
-    create<T extends DisponibilidadeConfigCreateArgs>(args: SelectSubset<T, DisponibilidadeConfigCreateArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ConfigDisponibilidadeAgendaCreateArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaCreateArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many DisponibilidadeConfigs.
-     * @param {DisponibilidadeConfigCreateManyArgs} args - Arguments to create many DisponibilidadeConfigs.
+     * Create many ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaCreateManyArgs} args - Arguments to create many ConfigDisponibilidadeAgenda.
      * @example
-     * // Create many DisponibilidadeConfigs
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.createMany({
+     * // Create many ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends DisponibilidadeConfigCreateManyArgs>(args?: SelectSubset<T, DisponibilidadeConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ConfigDisponibilidadeAgendaCreateManyArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many DisponibilidadeConfigs and returns the data saved in the database.
-     * @param {DisponibilidadeConfigCreateManyAndReturnArgs} args - Arguments to create many DisponibilidadeConfigs.
+     * Create many ConfigDisponibilidadeAgenda and returns the data saved in the database.
+     * @param {ConfigDisponibilidadeAgendaCreateManyAndReturnArgs} args - Arguments to create many ConfigDisponibilidadeAgenda.
      * @example
-     * // Create many DisponibilidadeConfigs
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.createManyAndReturn({
+     * // Create many ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many DisponibilidadeConfigs and only return the `id`
-     * const disponibilidadeConfigWithIdOnly = await prisma.disponibilidadeConfig.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ConfigDisponibilidadeAgenda and only return the `id_config_disponibilidade_agenda`
+     * const configDisponibilidadeAgendaWithId_config_disponibilidade_agendaOnly = await prisma.configDisponibilidadeAgenda.createManyAndReturn({ 
+     *   select: { id_config_disponibilidade_agenda: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -37258,28 +37352,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends DisponibilidadeConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, DisponibilidadeConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ConfigDisponibilidadeAgendaCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a DisponibilidadeConfig.
-     * @param {DisponibilidadeConfigDeleteArgs} args - Arguments to delete one DisponibilidadeConfig.
+     * Delete a ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaDeleteArgs} args - Arguments to delete one ConfigDisponibilidadeAgenda.
      * @example
-     * // Delete one DisponibilidadeConfig
-     * const DisponibilidadeConfig = await prisma.disponibilidadeConfig.delete({
+     * // Delete one ConfigDisponibilidadeAgenda
+     * const ConfigDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.delete({
      *   where: {
-     *     // ... filter to delete one DisponibilidadeConfig
+     *     // ... filter to delete one ConfigDisponibilidadeAgenda
      *   }
      * })
      * 
      */
-    delete<T extends DisponibilidadeConfigDeleteArgs>(args: SelectSubset<T, DisponibilidadeConfigDeleteArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ConfigDisponibilidadeAgendaDeleteArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaDeleteArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one DisponibilidadeConfig.
-     * @param {DisponibilidadeConfigUpdateArgs} args - Arguments to update one DisponibilidadeConfig.
+     * Update one ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaUpdateArgs} args - Arguments to update one ConfigDisponibilidadeAgenda.
      * @example
-     * // Update one DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.update({
+     * // Update one ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -37289,30 +37383,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends DisponibilidadeConfigUpdateArgs>(args: SelectSubset<T, DisponibilidadeConfigUpdateArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ConfigDisponibilidadeAgendaUpdateArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaUpdateArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more DisponibilidadeConfigs.
-     * @param {DisponibilidadeConfigDeleteManyArgs} args - Arguments to filter DisponibilidadeConfigs to delete.
+     * Delete zero or more ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaDeleteManyArgs} args - Arguments to filter ConfigDisponibilidadeAgenda to delete.
      * @example
-     * // Delete a few DisponibilidadeConfigs
-     * const { count } = await prisma.disponibilidadeConfig.deleteMany({
+     * // Delete a few ConfigDisponibilidadeAgenda
+     * const { count } = await prisma.configDisponibilidadeAgenda.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends DisponibilidadeConfigDeleteManyArgs>(args?: SelectSubset<T, DisponibilidadeConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ConfigDisponibilidadeAgendaDeleteManyArgs>(args?: SelectSubset<T, ConfigDisponibilidadeAgendaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more DisponibilidadeConfigs.
+     * Update zero or more ConfigDisponibilidadeAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ConfigDisponibilidadeAgendaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many DisponibilidadeConfigs
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.updateMany({
+     * // Update many ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -37322,56 +37416,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends DisponibilidadeConfigUpdateManyArgs>(args: SelectSubset<T, DisponibilidadeConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ConfigDisponibilidadeAgendaUpdateManyArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one DisponibilidadeConfig.
-     * @param {DisponibilidadeConfigUpsertArgs} args - Arguments to update or create a DisponibilidadeConfig.
+     * Create or update one ConfigDisponibilidadeAgenda.
+     * @param {ConfigDisponibilidadeAgendaUpsertArgs} args - Arguments to update or create a ConfigDisponibilidadeAgenda.
      * @example
-     * // Update or create a DisponibilidadeConfig
-     * const disponibilidadeConfig = await prisma.disponibilidadeConfig.upsert({
+     * // Update or create a ConfigDisponibilidadeAgenda
+     * const configDisponibilidadeAgenda = await prisma.configDisponibilidadeAgenda.upsert({
      *   create: {
-     *     // ... data to create a DisponibilidadeConfig
+     *     // ... data to create a ConfigDisponibilidadeAgenda
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the DisponibilidadeConfig we want to update
+     *     // ... the filter for the ConfigDisponibilidadeAgenda we want to update
      *   }
      * })
      */
-    upsert<T extends DisponibilidadeConfigUpsertArgs>(args: SelectSubset<T, DisponibilidadeConfigUpsertArgs<ExtArgs>>): Prisma__DisponibilidadeConfigClient<$Result.GetResult<Prisma.$DisponibilidadeConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ConfigDisponibilidadeAgendaUpsertArgs>(args: SelectSubset<T, ConfigDisponibilidadeAgendaUpsertArgs<ExtArgs>>): Prisma__ConfigDisponibilidadeAgendaClient<$Result.GetResult<Prisma.$ConfigDisponibilidadeAgendaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of DisponibilidadeConfigs.
+     * Count the number of ConfigDisponibilidadeAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigCountArgs} args - Arguments to filter DisponibilidadeConfigs to count.
+     * @param {ConfigDisponibilidadeAgendaCountArgs} args - Arguments to filter ConfigDisponibilidadeAgenda to count.
      * @example
-     * // Count the number of DisponibilidadeConfigs
-     * const count = await prisma.disponibilidadeConfig.count({
+     * // Count the number of ConfigDisponibilidadeAgenda
+     * const count = await prisma.configDisponibilidadeAgenda.count({
      *   where: {
-     *     // ... the filter for the DisponibilidadeConfigs we want to count
+     *     // ... the filter for the ConfigDisponibilidadeAgenda we want to count
      *   }
      * })
     **/
-    count<T extends DisponibilidadeConfigCountArgs>(
-      args?: Subset<T, DisponibilidadeConfigCountArgs>,
+    count<T extends ConfigDisponibilidadeAgendaCountArgs>(
+      args?: Subset<T, ConfigDisponibilidadeAgendaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], DisponibilidadeConfigCountAggregateOutputType>
+          : GetScalarType<T['select'], ConfigDisponibilidadeAgendaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a DisponibilidadeConfig.
+     * Allows you to perform aggregations operations on a ConfigDisponibilidadeAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ConfigDisponibilidadeAgendaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -37391,13 +37485,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends DisponibilidadeConfigAggregateArgs>(args: Subset<T, DisponibilidadeConfigAggregateArgs>): Prisma.PrismaPromise<GetDisponibilidadeConfigAggregateType<T>>
+    aggregate<T extends ConfigDisponibilidadeAgendaAggregateArgs>(args: Subset<T, ConfigDisponibilidadeAgendaAggregateArgs>): Prisma.PrismaPromise<GetConfigDisponibilidadeAgendaAggregateType<T>>
 
     /**
-     * Group by DisponibilidadeConfig.
+     * Group by ConfigDisponibilidadeAgenda.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DisponibilidadeConfigGroupByArgs} args - Group by arguments.
+     * @param {ConfigDisponibilidadeAgendaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -37412,14 +37506,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends DisponibilidadeConfigGroupByArgs,
+      T extends ConfigDisponibilidadeAgendaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: DisponibilidadeConfigGroupByArgs['orderBy'] }
-        : { orderBy?: DisponibilidadeConfigGroupByArgs['orderBy'] },
+        ? { orderBy: ConfigDisponibilidadeAgendaGroupByArgs['orderBy'] }
+        : { orderBy?: ConfigDisponibilidadeAgendaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -37468,22 +37562,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, DisponibilidadeConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDisponibilidadeConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ConfigDisponibilidadeAgendaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfigDisponibilidadeAgendaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the DisponibilidadeConfig model
+   * Fields of the ConfigDisponibilidadeAgenda model
    */
-  readonly fields: DisponibilidadeConfigFieldRefs;
+  readonly fields: ConfigDisponibilidadeAgendaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for DisponibilidadeConfig.
+   * The delegate class that acts as a "Promise-like" for ConfigDisponibilidadeAgenda.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__DisponibilidadeConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ConfigDisponibilidadeAgendaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    agenda<T extends AgendaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgendaDefaultArgs<ExtArgs>>): Prisma__AgendaClient<$Result.GetResult<Prisma.$AgendaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    agenda_config_disponibilidade_agenda<T extends AgendaUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AgendaUsuarioDefaultArgs<ExtArgs>>): Prisma__AgendaUsuarioClient<$Result.GetResult<Prisma.$AgendaUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -37510,348 +37604,350 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the DisponibilidadeConfig model
+   * Fields of the ConfigDisponibilidadeAgenda model
    */ 
-  interface DisponibilidadeConfigFieldRefs {
-    readonly id: FieldRef<"DisponibilidadeConfig", 'String'>
-    readonly tenant_id: FieldRef<"DisponibilidadeConfig", 'String'>
-    readonly agenda_id: FieldRef<"DisponibilidadeConfig", 'String'>
-    readonly horarioInicio: FieldRef<"DisponibilidadeConfig", 'String'>
-    readonly horarioFim: FieldRef<"DisponibilidadeConfig", 'String'>
-    readonly duracaoSlot: FieldRef<"DisponibilidadeConfig", 'Int'>
-    readonly intervalo: FieldRef<"DisponibilidadeConfig", 'Int'>
-    readonly diasSemana: FieldRef<"DisponibilidadeConfig", 'Int[]'>
-    readonly criadoEm: FieldRef<"DisponibilidadeConfig", 'DateTime'>
-    readonly atualizadoEm: FieldRef<"DisponibilidadeConfig", 'DateTime'>
+  interface ConfigDisponibilidadeAgendaFieldRefs {
+    readonly id_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly id_organizacao_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly id_produto_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly id_usuario_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly id_agenda_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly horario_inicio_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly horario_fim_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'String'>
+    readonly duracao_slot_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'Int'>
+    readonly intervalo_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'Int'>
+    readonly dias_semana_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'Int[]'>
+    readonly data_criacao_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'DateTime'>
+    readonly data_atualizacao_config_disponibilidade_agenda: FieldRef<"ConfigDisponibilidadeAgenda", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * DisponibilidadeConfig findUnique
+   * ConfigDisponibilidadeAgenda findUnique
    */
-  export type DisponibilidadeConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which DisponibilidadeConfig to fetch.
+     * Filter, which ConfigDisponibilidadeAgenda to fetch.
      */
-    where: DisponibilidadeConfigWhereUniqueInput
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
   /**
-   * DisponibilidadeConfig findUniqueOrThrow
+   * ConfigDisponibilidadeAgenda findUniqueOrThrow
    */
-  export type DisponibilidadeConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which DisponibilidadeConfig to fetch.
+     * Filter, which ConfigDisponibilidadeAgenda to fetch.
      */
-    where: DisponibilidadeConfigWhereUniqueInput
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
   /**
-   * DisponibilidadeConfig findFirst
+   * ConfigDisponibilidadeAgenda findFirst
    */
-  export type DisponibilidadeConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which DisponibilidadeConfig to fetch.
+     * Filter, which ConfigDisponibilidadeAgenda to fetch.
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DisponibilidadeConfigs to fetch.
+     * Determine the order of ConfigDisponibilidadeAgenda to fetch.
      */
-    orderBy?: DisponibilidadeConfigOrderByWithRelationInput | DisponibilidadeConfigOrderByWithRelationInput[]
+    orderBy?: ConfigDisponibilidadeAgendaOrderByWithRelationInput | ConfigDisponibilidadeAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for DisponibilidadeConfigs.
+     * Sets the position for searching for ConfigDisponibilidadeAgenda.
      */
-    cursor?: DisponibilidadeConfigWhereUniqueInput
+    cursor?: ConfigDisponibilidadeAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DisponibilidadeConfigs from the position of the cursor.
+     * Take `±n` ConfigDisponibilidadeAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DisponibilidadeConfigs.
+     * Skip the first `n` ConfigDisponibilidadeAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of DisponibilidadeConfigs.
+     * Filter by unique combinations of ConfigDisponibilidadeAgenda.
      */
-    distinct?: DisponibilidadeConfigScalarFieldEnum | DisponibilidadeConfigScalarFieldEnum[]
+    distinct?: ConfigDisponibilidadeAgendaScalarFieldEnum | ConfigDisponibilidadeAgendaScalarFieldEnum[]
   }
 
   /**
-   * DisponibilidadeConfig findFirstOrThrow
+   * ConfigDisponibilidadeAgenda findFirstOrThrow
    */
-  export type DisponibilidadeConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which DisponibilidadeConfig to fetch.
+     * Filter, which ConfigDisponibilidadeAgenda to fetch.
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DisponibilidadeConfigs to fetch.
+     * Determine the order of ConfigDisponibilidadeAgenda to fetch.
      */
-    orderBy?: DisponibilidadeConfigOrderByWithRelationInput | DisponibilidadeConfigOrderByWithRelationInput[]
+    orderBy?: ConfigDisponibilidadeAgendaOrderByWithRelationInput | ConfigDisponibilidadeAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for DisponibilidadeConfigs.
+     * Sets the position for searching for ConfigDisponibilidadeAgenda.
      */
-    cursor?: DisponibilidadeConfigWhereUniqueInput
+    cursor?: ConfigDisponibilidadeAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DisponibilidadeConfigs from the position of the cursor.
+     * Take `±n` ConfigDisponibilidadeAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DisponibilidadeConfigs.
+     * Skip the first `n` ConfigDisponibilidadeAgenda.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of DisponibilidadeConfigs.
+     * Filter by unique combinations of ConfigDisponibilidadeAgenda.
      */
-    distinct?: DisponibilidadeConfigScalarFieldEnum | DisponibilidadeConfigScalarFieldEnum[]
+    distinct?: ConfigDisponibilidadeAgendaScalarFieldEnum | ConfigDisponibilidadeAgendaScalarFieldEnum[]
   }
 
   /**
-   * DisponibilidadeConfig findMany
+   * ConfigDisponibilidadeAgenda findMany
    */
-  export type DisponibilidadeConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter, which DisponibilidadeConfigs to fetch.
+     * Filter, which ConfigDisponibilidadeAgenda to fetch.
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DisponibilidadeConfigs to fetch.
+     * Determine the order of ConfigDisponibilidadeAgenda to fetch.
      */
-    orderBy?: DisponibilidadeConfigOrderByWithRelationInput | DisponibilidadeConfigOrderByWithRelationInput[]
+    orderBy?: ConfigDisponibilidadeAgendaOrderByWithRelationInput | ConfigDisponibilidadeAgendaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing DisponibilidadeConfigs.
+     * Sets the position for listing ConfigDisponibilidadeAgenda.
      */
-    cursor?: DisponibilidadeConfigWhereUniqueInput
+    cursor?: ConfigDisponibilidadeAgendaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DisponibilidadeConfigs from the position of the cursor.
+     * Take `±n` ConfigDisponibilidadeAgenda from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DisponibilidadeConfigs.
+     * Skip the first `n` ConfigDisponibilidadeAgenda.
      */
     skip?: number
-    distinct?: DisponibilidadeConfigScalarFieldEnum | DisponibilidadeConfigScalarFieldEnum[]
+    distinct?: ConfigDisponibilidadeAgendaScalarFieldEnum | ConfigDisponibilidadeAgendaScalarFieldEnum[]
   }
 
   /**
-   * DisponibilidadeConfig create
+   * ConfigDisponibilidadeAgenda create
    */
-  export type DisponibilidadeConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * The data needed to create a DisponibilidadeConfig.
+     * The data needed to create a ConfigDisponibilidadeAgenda.
      */
-    data: XOR<DisponibilidadeConfigCreateInput, DisponibilidadeConfigUncheckedCreateInput>
+    data: XOR<ConfigDisponibilidadeAgendaCreateInput, ConfigDisponibilidadeAgendaUncheckedCreateInput>
   }
 
   /**
-   * DisponibilidadeConfig createMany
+   * ConfigDisponibilidadeAgenda createMany
    */
-  export type DisponibilidadeConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many DisponibilidadeConfigs.
+     * The data used to create many ConfigDisponibilidadeAgenda.
      */
-    data: DisponibilidadeConfigCreateManyInput | DisponibilidadeConfigCreateManyInput[]
+    data: ConfigDisponibilidadeAgendaCreateManyInput | ConfigDisponibilidadeAgendaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * DisponibilidadeConfig createManyAndReturn
+   * ConfigDisponibilidadeAgenda createManyAndReturn
    */
-  export type DisponibilidadeConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many DisponibilidadeConfigs.
+     * The data used to create many ConfigDisponibilidadeAgenda.
      */
-    data: DisponibilidadeConfigCreateManyInput | DisponibilidadeConfigCreateManyInput[]
+    data: ConfigDisponibilidadeAgendaCreateManyInput | ConfigDisponibilidadeAgendaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * DisponibilidadeConfig update
+   * ConfigDisponibilidadeAgenda update
    */
-  export type DisponibilidadeConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * The data needed to update a DisponibilidadeConfig.
+     * The data needed to update a ConfigDisponibilidadeAgenda.
      */
-    data: XOR<DisponibilidadeConfigUpdateInput, DisponibilidadeConfigUncheckedUpdateInput>
+    data: XOR<ConfigDisponibilidadeAgendaUpdateInput, ConfigDisponibilidadeAgendaUncheckedUpdateInput>
     /**
-     * Choose, which DisponibilidadeConfig to update.
+     * Choose, which ConfigDisponibilidadeAgenda to update.
      */
-    where: DisponibilidadeConfigWhereUniqueInput
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
   /**
-   * DisponibilidadeConfig updateMany
+   * ConfigDisponibilidadeAgenda updateMany
    */
-  export type DisponibilidadeConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update DisponibilidadeConfigs.
+     * The data used to update ConfigDisponibilidadeAgenda.
      */
-    data: XOR<DisponibilidadeConfigUpdateManyMutationInput, DisponibilidadeConfigUncheckedUpdateManyInput>
+    data: XOR<ConfigDisponibilidadeAgendaUpdateManyMutationInput, ConfigDisponibilidadeAgendaUncheckedUpdateManyInput>
     /**
-     * Filter which DisponibilidadeConfigs to update
+     * Filter which ConfigDisponibilidadeAgenda to update
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
   }
 
   /**
-   * DisponibilidadeConfig upsert
+   * ConfigDisponibilidadeAgenda upsert
    */
-  export type DisponibilidadeConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * The filter to search for the DisponibilidadeConfig to update in case it exists.
+     * The filter to search for the ConfigDisponibilidadeAgenda to update in case it exists.
      */
-    where: DisponibilidadeConfigWhereUniqueInput
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
     /**
-     * In case the DisponibilidadeConfig found by the `where` argument doesn't exist, create a new DisponibilidadeConfig with this data.
+     * In case the ConfigDisponibilidadeAgenda found by the `where` argument doesn't exist, create a new ConfigDisponibilidadeAgenda with this data.
      */
-    create: XOR<DisponibilidadeConfigCreateInput, DisponibilidadeConfigUncheckedCreateInput>
+    create: XOR<ConfigDisponibilidadeAgendaCreateInput, ConfigDisponibilidadeAgendaUncheckedCreateInput>
     /**
-     * In case the DisponibilidadeConfig was found with the provided `where` argument, update it with this data.
+     * In case the ConfigDisponibilidadeAgenda was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<DisponibilidadeConfigUpdateInput, DisponibilidadeConfigUncheckedUpdateInput>
+    update: XOR<ConfigDisponibilidadeAgendaUpdateInput, ConfigDisponibilidadeAgendaUncheckedUpdateInput>
   }
 
   /**
-   * DisponibilidadeConfig delete
+   * ConfigDisponibilidadeAgenda delete
    */
-  export type DisponibilidadeConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
     /**
-     * Filter which DisponibilidadeConfig to delete.
+     * Filter which ConfigDisponibilidadeAgenda to delete.
      */
-    where: DisponibilidadeConfigWhereUniqueInput
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
   /**
-   * DisponibilidadeConfig deleteMany
+   * ConfigDisponibilidadeAgenda deleteMany
    */
-  export type DisponibilidadeConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which DisponibilidadeConfigs to delete
+     * Filter which ConfigDisponibilidadeAgenda to delete
      */
-    where?: DisponibilidadeConfigWhereInput
+    where?: ConfigDisponibilidadeAgendaWhereInput
   }
 
   /**
-   * DisponibilidadeConfig without action
+   * ConfigDisponibilidadeAgenda without action
    */
-  export type DisponibilidadeConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfigDisponibilidadeAgendaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DisponibilidadeConfig
+     * Select specific fields to fetch from the ConfigDisponibilidadeAgenda
      */
-    select?: DisponibilidadeConfigSelect<ExtArgs> | null
+    select?: ConfigDisponibilidadeAgendaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DisponibilidadeConfigInclude<ExtArgs> | null
+    include?: ConfigDisponibilidadeAgendaInclude<ExtArgs> | null
   }
 
 
@@ -50938,62 +51034,70 @@ export namespace Prisma {
   export type ExportarResultadoScalarFieldEnum = (typeof ExportarResultadoScalarFieldEnum)[keyof typeof ExportarResultadoScalarFieldEnum]
 
 
-  export const AgendaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    nome: 'nome',
-    descricao: 'descricao',
-    tipo: 'tipo',
-    criadoEm: 'criadoEm',
-    atualizadoEm: 'atualizadoEm'
+  export const AgendaUsuarioScalarFieldEnum: {
+    id_agenda_usuario: 'id_agenda_usuario',
+    id_organizacao_agenda_usuario: 'id_organizacao_agenda_usuario',
+    id_produto_agenda_usuario: 'id_produto_agenda_usuario',
+    id_usuario_agenda_usuario: 'id_usuario_agenda_usuario',
+    nome_agenda_usuario: 'nome_agenda_usuario',
+    descricao_agenda_usuario: 'descricao_agenda_usuario',
+    tipo_agenda_usuario: 'tipo_agenda_usuario',
+    data_criacao_agenda_usuario: 'data_criacao_agenda_usuario',
+    data_atualizacao_agenda_usuario: 'data_atualizacao_agenda_usuario'
   };
 
-  export type AgendaScalarFieldEnum = (typeof AgendaScalarFieldEnum)[keyof typeof AgendaScalarFieldEnum]
+  export type AgendaUsuarioScalarFieldEnum = (typeof AgendaUsuarioScalarFieldEnum)[keyof typeof AgendaUsuarioScalarFieldEnum]
 
 
-  export const SlotScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    agenda_id: 'agenda_id',
-    inicio: 'inicio',
-    fim: 'fim',
-    capacidade: 'capacidade',
-    criadoEm: 'criadoEm',
-    atualizadoEm: 'atualizadoEm'
+  export const HorarioDisponivelScalarFieldEnum: {
+    id_horario_disponivel: 'id_horario_disponivel',
+    id_organizacao_horario_disponivel: 'id_organizacao_horario_disponivel',
+    id_produto_horario_disponivel: 'id_produto_horario_disponivel',
+    id_usuario_horario_disponivel: 'id_usuario_horario_disponivel',
+    id_agenda_horario_disponivel: 'id_agenda_horario_disponivel',
+    inicio_horario_disponivel: 'inicio_horario_disponivel',
+    fim_horario_disponivel: 'fim_horario_disponivel',
+    capacidade_horario_disponivel: 'capacidade_horario_disponivel',
+    data_criacao_horario_disponivel: 'data_criacao_horario_disponivel',
+    data_atualizacao_horario_disponivel: 'data_atualizacao_horario_disponivel'
   };
 
-  export type SlotScalarFieldEnum = (typeof SlotScalarFieldEnum)[keyof typeof SlotScalarFieldEnum]
+  export type HorarioDisponivelScalarFieldEnum = (typeof HorarioDisponivelScalarFieldEnum)[keyof typeof HorarioDisponivelScalarFieldEnum]
 
 
-  export const ReservaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    slot_id: 'slot_id',
-    usuario_id: 'usuario_id',
-    nome: 'nome',
-    email: 'email',
-    status: 'status',
-    criadoEm: 'criadoEm',
-    atualizadoEm: 'atualizadoEm'
+  export const ReservaAgendaScalarFieldEnum: {
+    id_reserva_agenda: 'id_reserva_agenda',
+    id_organizacao_reserva_agenda: 'id_organizacao_reserva_agenda',
+    id_produto_reserva_agenda: 'id_produto_reserva_agenda',
+    id_usuario_reserva_agenda: 'id_usuario_reserva_agenda',
+    id_horario_reserva_agenda: 'id_horario_reserva_agenda',
+    id_reservante_reserva_agenda: 'id_reservante_reserva_agenda',
+    nome_reservante_reserva_agenda: 'nome_reservante_reserva_agenda',
+    email_reservante_reserva_agenda: 'email_reservante_reserva_agenda',
+    status_reserva_agenda: 'status_reserva_agenda',
+    data_criacao_reserva_agenda: 'data_criacao_reserva_agenda',
+    data_atualizacao_reserva_agenda: 'data_atualizacao_reserva_agenda'
   };
 
-  export type ReservaScalarFieldEnum = (typeof ReservaScalarFieldEnum)[keyof typeof ReservaScalarFieldEnum]
+  export type ReservaAgendaScalarFieldEnum = (typeof ReservaAgendaScalarFieldEnum)[keyof typeof ReservaAgendaScalarFieldEnum]
 
 
-  export const DisponibilidadeConfigScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    agenda_id: 'agenda_id',
-    horarioInicio: 'horarioInicio',
-    horarioFim: 'horarioFim',
-    duracaoSlot: 'duracaoSlot',
-    intervalo: 'intervalo',
-    diasSemana: 'diasSemana',
-    criadoEm: 'criadoEm',
-    atualizadoEm: 'atualizadoEm'
+  export const ConfigDisponibilidadeAgendaScalarFieldEnum: {
+    id_config_disponibilidade_agenda: 'id_config_disponibilidade_agenda',
+    id_organizacao_config_disponibilidade_agenda: 'id_organizacao_config_disponibilidade_agenda',
+    id_produto_config_disponibilidade_agenda: 'id_produto_config_disponibilidade_agenda',
+    id_usuario_config_disponibilidade_agenda: 'id_usuario_config_disponibilidade_agenda',
+    id_agenda_config_disponibilidade_agenda: 'id_agenda_config_disponibilidade_agenda',
+    horario_inicio_config_disponibilidade_agenda: 'horario_inicio_config_disponibilidade_agenda',
+    horario_fim_config_disponibilidade_agenda: 'horario_fim_config_disponibilidade_agenda',
+    duracao_slot_config_disponibilidade_agenda: 'duracao_slot_config_disponibilidade_agenda',
+    intervalo_config_disponibilidade_agenda: 'intervalo_config_disponibilidade_agenda',
+    dias_semana_config_disponibilidade_agenda: 'dias_semana_config_disponibilidade_agenda',
+    data_criacao_config_disponibilidade_agenda: 'data_criacao_config_disponibilidade_agenda',
+    data_atualizacao_config_disponibilidade_agenda: 'data_atualizacao_config_disponibilidade_agenda'
   };
 
-  export type DisponibilidadeConfigScalarFieldEnum = (typeof DisponibilidadeConfigScalarFieldEnum)[keyof typeof DisponibilidadeConfigScalarFieldEnum]
+  export type ConfigDisponibilidadeAgendaScalarFieldEnum = (typeof ConfigDisponibilidadeAgendaScalarFieldEnum)[keyof typeof ConfigDisponibilidadeAgendaScalarFieldEnum]
 
 
   export const ConversaCompletaGabiScalarFieldEnum: {
@@ -54276,304 +54380,344 @@ export namespace Prisma {
     expira_em_exportar_resultado?: DateTimeWithAggregatesFilter<"ExportarResultado"> | Date | string
   }
 
-  export type AgendaWhereInput = {
-    AND?: AgendaWhereInput | AgendaWhereInput[]
-    OR?: AgendaWhereInput[]
-    NOT?: AgendaWhereInput | AgendaWhereInput[]
-    id?: StringFilter<"Agenda"> | string
-    tenant_id?: StringFilter<"Agenda"> | string
-    nome?: StringFilter<"Agenda"> | string
-    descricao?: StringNullableFilter<"Agenda"> | string | null
-    tipo?: StringFilter<"Agenda"> | string
-    criadoEm?: DateTimeFilter<"Agenda"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Agenda"> | Date | string
-    slots?: SlotListRelationFilter
-    config?: XOR<DisponibilidadeConfigNullableRelationFilter, DisponibilidadeConfigWhereInput> | null
+  export type AgendaUsuarioWhereInput = {
+    AND?: AgendaUsuarioWhereInput | AgendaUsuarioWhereInput[]
+    OR?: AgendaUsuarioWhereInput[]
+    NOT?: AgendaUsuarioWhereInput | AgendaUsuarioWhereInput[]
+    id_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    id_organizacao_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    id_produto_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    id_usuario_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    nome_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    descricao_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    tipo_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    data_criacao_agenda_usuario?: DateTimeFilter<"AgendaUsuario"> | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFilter<"AgendaUsuario"> | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelListRelationFilter
+    config_agenda_usuario?: XOR<ConfigDisponibilidadeAgendaNullableRelationFilter, ConfigDisponibilidadeAgendaWhereInput> | null
   }
 
-  export type AgendaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    nome?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    tipo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    slots?: SlotOrderByRelationAggregateInput
-    config?: DisponibilidadeConfigOrderByWithRelationInput
+  export type AgendaUsuarioOrderByWithRelationInput = {
+    id_agenda_usuario?: SortOrder
+    id_organizacao_agenda_usuario?: SortOrder
+    id_produto_agenda_usuario?: SortOrderInput | SortOrder
+    id_usuario_agenda_usuario?: SortOrderInput | SortOrder
+    nome_agenda_usuario?: SortOrder
+    descricao_agenda_usuario?: SortOrderInput | SortOrder
+    tipo_agenda_usuario?: SortOrder
+    data_criacao_agenda_usuario?: SortOrder
+    data_atualizacao_agenda_usuario?: SortOrder
+    horarios_agenda_usuario?: HorarioDisponivelOrderByRelationAggregateInput
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaOrderByWithRelationInput
   }
 
-  export type AgendaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: AgendaWhereInput | AgendaWhereInput[]
-    OR?: AgendaWhereInput[]
-    NOT?: AgendaWhereInput | AgendaWhereInput[]
-    tenant_id?: StringFilter<"Agenda"> | string
-    nome?: StringFilter<"Agenda"> | string
-    descricao?: StringNullableFilter<"Agenda"> | string | null
-    tipo?: StringFilter<"Agenda"> | string
-    criadoEm?: DateTimeFilter<"Agenda"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Agenda"> | Date | string
-    slots?: SlotListRelationFilter
-    config?: XOR<DisponibilidadeConfigNullableRelationFilter, DisponibilidadeConfigWhereInput> | null
-  }, "id">
+  export type AgendaUsuarioWhereUniqueInput = Prisma.AtLeast<{
+    id_agenda_usuario?: string
+    AND?: AgendaUsuarioWhereInput | AgendaUsuarioWhereInput[]
+    OR?: AgendaUsuarioWhereInput[]
+    NOT?: AgendaUsuarioWhereInput | AgendaUsuarioWhereInput[]
+    id_organizacao_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    id_produto_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    id_usuario_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    nome_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    descricao_agenda_usuario?: StringNullableFilter<"AgendaUsuario"> | string | null
+    tipo_agenda_usuario?: StringFilter<"AgendaUsuario"> | string
+    data_criacao_agenda_usuario?: DateTimeFilter<"AgendaUsuario"> | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFilter<"AgendaUsuario"> | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelListRelationFilter
+    config_agenda_usuario?: XOR<ConfigDisponibilidadeAgendaNullableRelationFilter, ConfigDisponibilidadeAgendaWhereInput> | null
+  }, "id_agenda_usuario">
 
-  export type AgendaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    nome?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    tipo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    _count?: AgendaCountOrderByAggregateInput
-    _max?: AgendaMaxOrderByAggregateInput
-    _min?: AgendaMinOrderByAggregateInput
+  export type AgendaUsuarioOrderByWithAggregationInput = {
+    id_agenda_usuario?: SortOrder
+    id_organizacao_agenda_usuario?: SortOrder
+    id_produto_agenda_usuario?: SortOrderInput | SortOrder
+    id_usuario_agenda_usuario?: SortOrderInput | SortOrder
+    nome_agenda_usuario?: SortOrder
+    descricao_agenda_usuario?: SortOrderInput | SortOrder
+    tipo_agenda_usuario?: SortOrder
+    data_criacao_agenda_usuario?: SortOrder
+    data_atualizacao_agenda_usuario?: SortOrder
+    _count?: AgendaUsuarioCountOrderByAggregateInput
+    _max?: AgendaUsuarioMaxOrderByAggregateInput
+    _min?: AgendaUsuarioMinOrderByAggregateInput
   }
 
-  export type AgendaScalarWhereWithAggregatesInput = {
-    AND?: AgendaScalarWhereWithAggregatesInput | AgendaScalarWhereWithAggregatesInput[]
-    OR?: AgendaScalarWhereWithAggregatesInput[]
-    NOT?: AgendaScalarWhereWithAggregatesInput | AgendaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Agenda"> | string
-    tenant_id?: StringWithAggregatesFilter<"Agenda"> | string
-    nome?: StringWithAggregatesFilter<"Agenda"> | string
-    descricao?: StringNullableWithAggregatesFilter<"Agenda"> | string | null
-    tipo?: StringWithAggregatesFilter<"Agenda"> | string
-    criadoEm?: DateTimeWithAggregatesFilter<"Agenda"> | Date | string
-    atualizadoEm?: DateTimeWithAggregatesFilter<"Agenda"> | Date | string
+  export type AgendaUsuarioScalarWhereWithAggregatesInput = {
+    AND?: AgendaUsuarioScalarWhereWithAggregatesInput | AgendaUsuarioScalarWhereWithAggregatesInput[]
+    OR?: AgendaUsuarioScalarWhereWithAggregatesInput[]
+    NOT?: AgendaUsuarioScalarWhereWithAggregatesInput | AgendaUsuarioScalarWhereWithAggregatesInput[]
+    id_agenda_usuario?: StringWithAggregatesFilter<"AgendaUsuario"> | string
+    id_organizacao_agenda_usuario?: StringWithAggregatesFilter<"AgendaUsuario"> | string
+    id_produto_agenda_usuario?: StringNullableWithAggregatesFilter<"AgendaUsuario"> | string | null
+    id_usuario_agenda_usuario?: StringNullableWithAggregatesFilter<"AgendaUsuario"> | string | null
+    nome_agenda_usuario?: StringWithAggregatesFilter<"AgendaUsuario"> | string
+    descricao_agenda_usuario?: StringNullableWithAggregatesFilter<"AgendaUsuario"> | string | null
+    tipo_agenda_usuario?: StringWithAggregatesFilter<"AgendaUsuario"> | string
+    data_criacao_agenda_usuario?: DateTimeWithAggregatesFilter<"AgendaUsuario"> | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeWithAggregatesFilter<"AgendaUsuario"> | Date | string
   }
 
-  export type SlotWhereInput = {
-    AND?: SlotWhereInput | SlotWhereInput[]
-    OR?: SlotWhereInput[]
-    NOT?: SlotWhereInput | SlotWhereInput[]
-    id?: StringFilter<"Slot"> | string
-    tenant_id?: StringFilter<"Slot"> | string
-    agenda_id?: StringFilter<"Slot"> | string
-    inicio?: DateTimeFilter<"Slot"> | Date | string
-    fim?: DateTimeFilter<"Slot"> | Date | string
-    capacidade?: IntFilter<"Slot"> | number
-    criadoEm?: DateTimeFilter<"Slot"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Slot"> | Date | string
-    agenda?: XOR<AgendaRelationFilter, AgendaWhereInput>
-    reservas?: ReservaListRelationFilter
+  export type HorarioDisponivelWhereInput = {
+    AND?: HorarioDisponivelWhereInput | HorarioDisponivelWhereInput[]
+    OR?: HorarioDisponivelWhereInput[]
+    NOT?: HorarioDisponivelWhereInput | HorarioDisponivelWhereInput[]
+    id_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    id_organizacao_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    id_produto_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_usuario_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_agenda_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    inicio_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    fim_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    capacidade_horario_disponivel?: IntFilter<"HorarioDisponivel"> | number
+    data_criacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    agenda_horario_disponivel?: XOR<AgendaUsuarioRelationFilter, AgendaUsuarioWhereInput>
+    reservas_horario_disponivel?: ReservaAgendaListRelationFilter
   }
 
-  export type SlotOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    inicio?: SortOrder
-    fim?: SortOrder
-    capacidade?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    agenda?: AgendaOrderByWithRelationInput
-    reservas?: ReservaOrderByRelationAggregateInput
+  export type HorarioDisponivelOrderByWithRelationInput = {
+    id_horario_disponivel?: SortOrder
+    id_organizacao_horario_disponivel?: SortOrder
+    id_produto_horario_disponivel?: SortOrderInput | SortOrder
+    id_usuario_horario_disponivel?: SortOrderInput | SortOrder
+    id_agenda_horario_disponivel?: SortOrder
+    inicio_horario_disponivel?: SortOrder
+    fim_horario_disponivel?: SortOrder
+    capacidade_horario_disponivel?: SortOrder
+    data_criacao_horario_disponivel?: SortOrder
+    data_atualizacao_horario_disponivel?: SortOrder
+    agenda_horario_disponivel?: AgendaUsuarioOrderByWithRelationInput
+    reservas_horario_disponivel?: ReservaAgendaOrderByRelationAggregateInput
   }
 
-  export type SlotWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: SlotWhereInput | SlotWhereInput[]
-    OR?: SlotWhereInput[]
-    NOT?: SlotWhereInput | SlotWhereInput[]
-    tenant_id?: StringFilter<"Slot"> | string
-    agenda_id?: StringFilter<"Slot"> | string
-    inicio?: DateTimeFilter<"Slot"> | Date | string
-    fim?: DateTimeFilter<"Slot"> | Date | string
-    capacidade?: IntFilter<"Slot"> | number
-    criadoEm?: DateTimeFilter<"Slot"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Slot"> | Date | string
-    agenda?: XOR<AgendaRelationFilter, AgendaWhereInput>
-    reservas?: ReservaListRelationFilter
-  }, "id">
+  export type HorarioDisponivelWhereUniqueInput = Prisma.AtLeast<{
+    id_horario_disponivel?: string
+    AND?: HorarioDisponivelWhereInput | HorarioDisponivelWhereInput[]
+    OR?: HorarioDisponivelWhereInput[]
+    NOT?: HorarioDisponivelWhereInput | HorarioDisponivelWhereInput[]
+    id_organizacao_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    id_produto_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_usuario_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_agenda_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    inicio_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    fim_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    capacidade_horario_disponivel?: IntFilter<"HorarioDisponivel"> | number
+    data_criacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    agenda_horario_disponivel?: XOR<AgendaUsuarioRelationFilter, AgendaUsuarioWhereInput>
+    reservas_horario_disponivel?: ReservaAgendaListRelationFilter
+  }, "id_horario_disponivel">
 
-  export type SlotOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    inicio?: SortOrder
-    fim?: SortOrder
-    capacidade?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    _count?: SlotCountOrderByAggregateInput
-    _avg?: SlotAvgOrderByAggregateInput
-    _max?: SlotMaxOrderByAggregateInput
-    _min?: SlotMinOrderByAggregateInput
-    _sum?: SlotSumOrderByAggregateInput
+  export type HorarioDisponivelOrderByWithAggregationInput = {
+    id_horario_disponivel?: SortOrder
+    id_organizacao_horario_disponivel?: SortOrder
+    id_produto_horario_disponivel?: SortOrderInput | SortOrder
+    id_usuario_horario_disponivel?: SortOrderInput | SortOrder
+    id_agenda_horario_disponivel?: SortOrder
+    inicio_horario_disponivel?: SortOrder
+    fim_horario_disponivel?: SortOrder
+    capacidade_horario_disponivel?: SortOrder
+    data_criacao_horario_disponivel?: SortOrder
+    data_atualizacao_horario_disponivel?: SortOrder
+    _count?: HorarioDisponivelCountOrderByAggregateInput
+    _avg?: HorarioDisponivelAvgOrderByAggregateInput
+    _max?: HorarioDisponivelMaxOrderByAggregateInput
+    _min?: HorarioDisponivelMinOrderByAggregateInput
+    _sum?: HorarioDisponivelSumOrderByAggregateInput
   }
 
-  export type SlotScalarWhereWithAggregatesInput = {
-    AND?: SlotScalarWhereWithAggregatesInput | SlotScalarWhereWithAggregatesInput[]
-    OR?: SlotScalarWhereWithAggregatesInput[]
-    NOT?: SlotScalarWhereWithAggregatesInput | SlotScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Slot"> | string
-    tenant_id?: StringWithAggregatesFilter<"Slot"> | string
-    agenda_id?: StringWithAggregatesFilter<"Slot"> | string
-    inicio?: DateTimeWithAggregatesFilter<"Slot"> | Date | string
-    fim?: DateTimeWithAggregatesFilter<"Slot"> | Date | string
-    capacidade?: IntWithAggregatesFilter<"Slot"> | number
-    criadoEm?: DateTimeWithAggregatesFilter<"Slot"> | Date | string
-    atualizadoEm?: DateTimeWithAggregatesFilter<"Slot"> | Date | string
+  export type HorarioDisponivelScalarWhereWithAggregatesInput = {
+    AND?: HorarioDisponivelScalarWhereWithAggregatesInput | HorarioDisponivelScalarWhereWithAggregatesInput[]
+    OR?: HorarioDisponivelScalarWhereWithAggregatesInput[]
+    NOT?: HorarioDisponivelScalarWhereWithAggregatesInput | HorarioDisponivelScalarWhereWithAggregatesInput[]
+    id_horario_disponivel?: StringWithAggregatesFilter<"HorarioDisponivel"> | string
+    id_organizacao_horario_disponivel?: StringWithAggregatesFilter<"HorarioDisponivel"> | string
+    id_produto_horario_disponivel?: StringNullableWithAggregatesFilter<"HorarioDisponivel"> | string | null
+    id_usuario_horario_disponivel?: StringNullableWithAggregatesFilter<"HorarioDisponivel"> | string | null
+    id_agenda_horario_disponivel?: StringWithAggregatesFilter<"HorarioDisponivel"> | string
+    inicio_horario_disponivel?: DateTimeWithAggregatesFilter<"HorarioDisponivel"> | Date | string
+    fim_horario_disponivel?: DateTimeWithAggregatesFilter<"HorarioDisponivel"> | Date | string
+    capacidade_horario_disponivel?: IntWithAggregatesFilter<"HorarioDisponivel"> | number
+    data_criacao_horario_disponivel?: DateTimeWithAggregatesFilter<"HorarioDisponivel"> | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeWithAggregatesFilter<"HorarioDisponivel"> | Date | string
   }
 
-  export type ReservaWhereInput = {
-    AND?: ReservaWhereInput | ReservaWhereInput[]
-    OR?: ReservaWhereInput[]
-    NOT?: ReservaWhereInput | ReservaWhereInput[]
-    id?: StringFilter<"Reserva"> | string
-    tenant_id?: StringFilter<"Reserva"> | string
-    slot_id?: StringFilter<"Reserva"> | string
-    usuario_id?: StringFilter<"Reserva"> | string
-    nome?: StringNullableFilter<"Reserva"> | string | null
-    email?: StringNullableFilter<"Reserva"> | string | null
-    status?: StringFilter<"Reserva"> | string
-    criadoEm?: DateTimeFilter<"Reserva"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Reserva"> | Date | string
-    slot?: XOR<SlotRelationFilter, SlotWhereInput>
+  export type ReservaAgendaWhereInput = {
+    AND?: ReservaAgendaWhereInput | ReservaAgendaWhereInput[]
+    OR?: ReservaAgendaWhereInput[]
+    NOT?: ReservaAgendaWhereInput | ReservaAgendaWhereInput[]
+    id_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_organizacao_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_produto_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_usuario_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_horario_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_reservante_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    nome_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    email_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    status_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    data_criacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
+    horario_reserva_agenda?: XOR<HorarioDisponivelRelationFilter, HorarioDisponivelWhereInput>
   }
 
-  export type ReservaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    slot_id?: SortOrder
-    usuario_id?: SortOrder
-    nome?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    status?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    slot?: SlotOrderByWithRelationInput
+  export type ReservaAgendaOrderByWithRelationInput = {
+    id_reserva_agenda?: SortOrder
+    id_organizacao_reserva_agenda?: SortOrder
+    id_produto_reserva_agenda?: SortOrderInput | SortOrder
+    id_usuario_reserva_agenda?: SortOrderInput | SortOrder
+    id_horario_reserva_agenda?: SortOrder
+    id_reservante_reserva_agenda?: SortOrder
+    nome_reservante_reserva_agenda?: SortOrderInput | SortOrder
+    email_reservante_reserva_agenda?: SortOrderInput | SortOrder
+    status_reserva_agenda?: SortOrder
+    data_criacao_reserva_agenda?: SortOrder
+    data_atualizacao_reserva_agenda?: SortOrder
+    horario_reserva_agenda?: HorarioDisponivelOrderByWithRelationInput
   }
 
-  export type ReservaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ReservaWhereInput | ReservaWhereInput[]
-    OR?: ReservaWhereInput[]
-    NOT?: ReservaWhereInput | ReservaWhereInput[]
-    tenant_id?: StringFilter<"Reserva"> | string
-    slot_id?: StringFilter<"Reserva"> | string
-    usuario_id?: StringFilter<"Reserva"> | string
-    nome?: StringNullableFilter<"Reserva"> | string | null
-    email?: StringNullableFilter<"Reserva"> | string | null
-    status?: StringFilter<"Reserva"> | string
-    criadoEm?: DateTimeFilter<"Reserva"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Reserva"> | Date | string
-    slot?: XOR<SlotRelationFilter, SlotWhereInput>
-  }, "id">
+  export type ReservaAgendaWhereUniqueInput = Prisma.AtLeast<{
+    id_reserva_agenda?: string
+    AND?: ReservaAgendaWhereInput | ReservaAgendaWhereInput[]
+    OR?: ReservaAgendaWhereInput[]
+    NOT?: ReservaAgendaWhereInput | ReservaAgendaWhereInput[]
+    id_organizacao_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_produto_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_usuario_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_horario_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_reservante_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    nome_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    email_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    status_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    data_criacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
+    horario_reserva_agenda?: XOR<HorarioDisponivelRelationFilter, HorarioDisponivelWhereInput>
+  }, "id_reserva_agenda">
 
-  export type ReservaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    slot_id?: SortOrder
-    usuario_id?: SortOrder
-    nome?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    status?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    _count?: ReservaCountOrderByAggregateInput
-    _max?: ReservaMaxOrderByAggregateInput
-    _min?: ReservaMinOrderByAggregateInput
+  export type ReservaAgendaOrderByWithAggregationInput = {
+    id_reserva_agenda?: SortOrder
+    id_organizacao_reserva_agenda?: SortOrder
+    id_produto_reserva_agenda?: SortOrderInput | SortOrder
+    id_usuario_reserva_agenda?: SortOrderInput | SortOrder
+    id_horario_reserva_agenda?: SortOrder
+    id_reservante_reserva_agenda?: SortOrder
+    nome_reservante_reserva_agenda?: SortOrderInput | SortOrder
+    email_reservante_reserva_agenda?: SortOrderInput | SortOrder
+    status_reserva_agenda?: SortOrder
+    data_criacao_reserva_agenda?: SortOrder
+    data_atualizacao_reserva_agenda?: SortOrder
+    _count?: ReservaAgendaCountOrderByAggregateInput
+    _max?: ReservaAgendaMaxOrderByAggregateInput
+    _min?: ReservaAgendaMinOrderByAggregateInput
   }
 
-  export type ReservaScalarWhereWithAggregatesInput = {
-    AND?: ReservaScalarWhereWithAggregatesInput | ReservaScalarWhereWithAggregatesInput[]
-    OR?: ReservaScalarWhereWithAggregatesInput[]
-    NOT?: ReservaScalarWhereWithAggregatesInput | ReservaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Reserva"> | string
-    tenant_id?: StringWithAggregatesFilter<"Reserva"> | string
-    slot_id?: StringWithAggregatesFilter<"Reserva"> | string
-    usuario_id?: StringWithAggregatesFilter<"Reserva"> | string
-    nome?: StringNullableWithAggregatesFilter<"Reserva"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Reserva"> | string | null
-    status?: StringWithAggregatesFilter<"Reserva"> | string
-    criadoEm?: DateTimeWithAggregatesFilter<"Reserva"> | Date | string
-    atualizadoEm?: DateTimeWithAggregatesFilter<"Reserva"> | Date | string
+  export type ReservaAgendaScalarWhereWithAggregatesInput = {
+    AND?: ReservaAgendaScalarWhereWithAggregatesInput | ReservaAgendaScalarWhereWithAggregatesInput[]
+    OR?: ReservaAgendaScalarWhereWithAggregatesInput[]
+    NOT?: ReservaAgendaScalarWhereWithAggregatesInput | ReservaAgendaScalarWhereWithAggregatesInput[]
+    id_reserva_agenda?: StringWithAggregatesFilter<"ReservaAgenda"> | string
+    id_organizacao_reserva_agenda?: StringWithAggregatesFilter<"ReservaAgenda"> | string
+    id_produto_reserva_agenda?: StringNullableWithAggregatesFilter<"ReservaAgenda"> | string | null
+    id_usuario_reserva_agenda?: StringNullableWithAggregatesFilter<"ReservaAgenda"> | string | null
+    id_horario_reserva_agenda?: StringWithAggregatesFilter<"ReservaAgenda"> | string
+    id_reservante_reserva_agenda?: StringWithAggregatesFilter<"ReservaAgenda"> | string
+    nome_reservante_reserva_agenda?: StringNullableWithAggregatesFilter<"ReservaAgenda"> | string | null
+    email_reservante_reserva_agenda?: StringNullableWithAggregatesFilter<"ReservaAgenda"> | string | null
+    status_reserva_agenda?: StringWithAggregatesFilter<"ReservaAgenda"> | string
+    data_criacao_reserva_agenda?: DateTimeWithAggregatesFilter<"ReservaAgenda"> | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeWithAggregatesFilter<"ReservaAgenda"> | Date | string
   }
 
-  export type DisponibilidadeConfigWhereInput = {
-    AND?: DisponibilidadeConfigWhereInput | DisponibilidadeConfigWhereInput[]
-    OR?: DisponibilidadeConfigWhereInput[]
-    NOT?: DisponibilidadeConfigWhereInput | DisponibilidadeConfigWhereInput[]
-    id?: StringFilter<"DisponibilidadeConfig"> | string
-    tenant_id?: StringFilter<"DisponibilidadeConfig"> | string
-    agenda_id?: StringFilter<"DisponibilidadeConfig"> | string
-    horarioInicio?: StringFilter<"DisponibilidadeConfig"> | string
-    horarioFim?: StringFilter<"DisponibilidadeConfig"> | string
-    duracaoSlot?: IntFilter<"DisponibilidadeConfig"> | number
-    intervalo?: IntFilter<"DisponibilidadeConfig"> | number
-    diasSemana?: IntNullableListFilter<"DisponibilidadeConfig">
-    criadoEm?: DateTimeFilter<"DisponibilidadeConfig"> | Date | string
-    atualizadoEm?: DateTimeFilter<"DisponibilidadeConfig"> | Date | string
-    agenda?: XOR<AgendaRelationFilter, AgendaWhereInput>
+  export type ConfigDisponibilidadeAgendaWhereInput = {
+    AND?: ConfigDisponibilidadeAgendaWhereInput | ConfigDisponibilidadeAgendaWhereInput[]
+    OR?: ConfigDisponibilidadeAgendaWhereInput[]
+    NOT?: ConfigDisponibilidadeAgendaWhereInput | ConfigDisponibilidadeAgendaWhereInput[]
+    id_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    id_organizacao_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    id_produto_config_disponibilidade_agenda?: StringNullableFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    id_usuario_config_disponibilidade_agenda?: StringNullableFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    id_agenda_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    horario_inicio_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    horario_fim_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    duracao_slot_config_disponibilidade_agenda?: IntFilter<"ConfigDisponibilidadeAgenda"> | number
+    intervalo_config_disponibilidade_agenda?: IntFilter<"ConfigDisponibilidadeAgenda"> | number
+    dias_semana_config_disponibilidade_agenda?: IntNullableListFilter<"ConfigDisponibilidadeAgenda">
+    data_criacao_config_disponibilidade_agenda?: DateTimeFilter<"ConfigDisponibilidadeAgenda"> | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFilter<"ConfigDisponibilidadeAgenda"> | Date | string
+    agenda_config_disponibilidade_agenda?: XOR<AgendaUsuarioRelationFilter, AgendaUsuarioWhereInput>
   }
 
-  export type DisponibilidadeConfigOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    horarioInicio?: SortOrder
-    horarioFim?: SortOrder
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    diasSemana?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    agenda?: AgendaOrderByWithRelationInput
+  export type ConfigDisponibilidadeAgendaOrderByWithRelationInput = {
+    id_config_disponibilidade_agenda?: SortOrder
+    id_organizacao_config_disponibilidade_agenda?: SortOrder
+    id_produto_config_disponibilidade_agenda?: SortOrderInput | SortOrder
+    id_usuario_config_disponibilidade_agenda?: SortOrderInput | SortOrder
+    id_agenda_config_disponibilidade_agenda?: SortOrder
+    horario_inicio_config_disponibilidade_agenda?: SortOrder
+    horario_fim_config_disponibilidade_agenda?: SortOrder
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    dias_semana_config_disponibilidade_agenda?: SortOrder
+    data_criacao_config_disponibilidade_agenda?: SortOrder
+    data_atualizacao_config_disponibilidade_agenda?: SortOrder
+    agenda_config_disponibilidade_agenda?: AgendaUsuarioOrderByWithRelationInput
   }
 
-  export type DisponibilidadeConfigWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    agenda_id?: string
-    AND?: DisponibilidadeConfigWhereInput | DisponibilidadeConfigWhereInput[]
-    OR?: DisponibilidadeConfigWhereInput[]
-    NOT?: DisponibilidadeConfigWhereInput | DisponibilidadeConfigWhereInput[]
-    tenant_id?: StringFilter<"DisponibilidadeConfig"> | string
-    horarioInicio?: StringFilter<"DisponibilidadeConfig"> | string
-    horarioFim?: StringFilter<"DisponibilidadeConfig"> | string
-    duracaoSlot?: IntFilter<"DisponibilidadeConfig"> | number
-    intervalo?: IntFilter<"DisponibilidadeConfig"> | number
-    diasSemana?: IntNullableListFilter<"DisponibilidadeConfig">
-    criadoEm?: DateTimeFilter<"DisponibilidadeConfig"> | Date | string
-    atualizadoEm?: DateTimeFilter<"DisponibilidadeConfig"> | Date | string
-    agenda?: XOR<AgendaRelationFilter, AgendaWhereInput>
-  }, "id" | "agenda_id">
+  export type ConfigDisponibilidadeAgendaWhereUniqueInput = Prisma.AtLeast<{
+    id_config_disponibilidade_agenda?: string
+    id_agenda_config_disponibilidade_agenda?: string
+    AND?: ConfigDisponibilidadeAgendaWhereInput | ConfigDisponibilidadeAgendaWhereInput[]
+    OR?: ConfigDisponibilidadeAgendaWhereInput[]
+    NOT?: ConfigDisponibilidadeAgendaWhereInput | ConfigDisponibilidadeAgendaWhereInput[]
+    id_organizacao_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    id_produto_config_disponibilidade_agenda?: StringNullableFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    id_usuario_config_disponibilidade_agenda?: StringNullableFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    horario_inicio_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    horario_fim_config_disponibilidade_agenda?: StringFilter<"ConfigDisponibilidadeAgenda"> | string
+    duracao_slot_config_disponibilidade_agenda?: IntFilter<"ConfigDisponibilidadeAgenda"> | number
+    intervalo_config_disponibilidade_agenda?: IntFilter<"ConfigDisponibilidadeAgenda"> | number
+    dias_semana_config_disponibilidade_agenda?: IntNullableListFilter<"ConfigDisponibilidadeAgenda">
+    data_criacao_config_disponibilidade_agenda?: DateTimeFilter<"ConfigDisponibilidadeAgenda"> | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFilter<"ConfigDisponibilidadeAgenda"> | Date | string
+    agenda_config_disponibilidade_agenda?: XOR<AgendaUsuarioRelationFilter, AgendaUsuarioWhereInput>
+  }, "id_config_disponibilidade_agenda" | "id_agenda_config_disponibilidade_agenda">
 
-  export type DisponibilidadeConfigOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    horarioInicio?: SortOrder
-    horarioFim?: SortOrder
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    diasSemana?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
-    _count?: DisponibilidadeConfigCountOrderByAggregateInput
-    _avg?: DisponibilidadeConfigAvgOrderByAggregateInput
-    _max?: DisponibilidadeConfigMaxOrderByAggregateInput
-    _min?: DisponibilidadeConfigMinOrderByAggregateInput
-    _sum?: DisponibilidadeConfigSumOrderByAggregateInput
+  export type ConfigDisponibilidadeAgendaOrderByWithAggregationInput = {
+    id_config_disponibilidade_agenda?: SortOrder
+    id_organizacao_config_disponibilidade_agenda?: SortOrder
+    id_produto_config_disponibilidade_agenda?: SortOrderInput | SortOrder
+    id_usuario_config_disponibilidade_agenda?: SortOrderInput | SortOrder
+    id_agenda_config_disponibilidade_agenda?: SortOrder
+    horario_inicio_config_disponibilidade_agenda?: SortOrder
+    horario_fim_config_disponibilidade_agenda?: SortOrder
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    dias_semana_config_disponibilidade_agenda?: SortOrder
+    data_criacao_config_disponibilidade_agenda?: SortOrder
+    data_atualizacao_config_disponibilidade_agenda?: SortOrder
+    _count?: ConfigDisponibilidadeAgendaCountOrderByAggregateInput
+    _avg?: ConfigDisponibilidadeAgendaAvgOrderByAggregateInput
+    _max?: ConfigDisponibilidadeAgendaMaxOrderByAggregateInput
+    _min?: ConfigDisponibilidadeAgendaMinOrderByAggregateInput
+    _sum?: ConfigDisponibilidadeAgendaSumOrderByAggregateInput
   }
 
-  export type DisponibilidadeConfigScalarWhereWithAggregatesInput = {
-    AND?: DisponibilidadeConfigScalarWhereWithAggregatesInput | DisponibilidadeConfigScalarWhereWithAggregatesInput[]
-    OR?: DisponibilidadeConfigScalarWhereWithAggregatesInput[]
-    NOT?: DisponibilidadeConfigScalarWhereWithAggregatesInput | DisponibilidadeConfigScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DisponibilidadeConfig"> | string
-    tenant_id?: StringWithAggregatesFilter<"DisponibilidadeConfig"> | string
-    agenda_id?: StringWithAggregatesFilter<"DisponibilidadeConfig"> | string
-    horarioInicio?: StringWithAggregatesFilter<"DisponibilidadeConfig"> | string
-    horarioFim?: StringWithAggregatesFilter<"DisponibilidadeConfig"> | string
-    duracaoSlot?: IntWithAggregatesFilter<"DisponibilidadeConfig"> | number
-    intervalo?: IntWithAggregatesFilter<"DisponibilidadeConfig"> | number
-    diasSemana?: IntNullableListFilter<"DisponibilidadeConfig">
-    criadoEm?: DateTimeWithAggregatesFilter<"DisponibilidadeConfig"> | Date | string
-    atualizadoEm?: DateTimeWithAggregatesFilter<"DisponibilidadeConfig"> | Date | string
+  export type ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput = {
+    AND?: ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput | ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput[]
+    OR?: ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput[]
+    NOT?: ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput | ConfigDisponibilidadeAgendaScalarWhereWithAggregatesInput[]
+    id_config_disponibilidade_agenda?: StringWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string
+    id_organizacao_config_disponibilidade_agenda?: StringWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string
+    id_produto_config_disponibilidade_agenda?: StringNullableWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    id_usuario_config_disponibilidade_agenda?: StringNullableWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string | null
+    id_agenda_config_disponibilidade_agenda?: StringWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string
+    horario_inicio_config_disponibilidade_agenda?: StringWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string
+    horario_fim_config_disponibilidade_agenda?: StringWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | string
+    duracao_slot_config_disponibilidade_agenda?: IntWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | number
+    intervalo_config_disponibilidade_agenda?: IntWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | number
+    dias_semana_config_disponibilidade_agenda?: IntNullableListFilter<"ConfigDisponibilidadeAgenda">
+    data_criacao_config_disponibilidade_agenda?: DateTimeWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeWithAggregatesFilter<"ConfigDisponibilidadeAgenda"> | Date | string
   }
 
   export type ConversaCompletaGabiWhereInput = {
@@ -58894,335 +59038,391 @@ export namespace Prisma {
     expira_em_exportar_resultado?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendaCreateInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    slots?: SlotCreateNestedManyWithoutAgendaInput
-    config?: DisponibilidadeConfigCreateNestedOneWithoutAgendaInput
+  export type AgendaUsuarioCreateInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    horarios_agenda_usuario?: HorarioDisponivelCreateNestedManyWithoutAgenda_horario_disponivelInput
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput
   }
 
-  export type AgendaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    slots?: SlotUncheckedCreateNestedManyWithoutAgendaInput
-    config?: DisponibilidadeConfigUncheckedCreateNestedOneWithoutAgendaInput
+  export type AgendaUsuarioUncheckedCreateInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUncheckedCreateNestedManyWithoutAgenda_horario_disponivelInput
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUncheckedCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput
   }
 
-  export type AgendaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    slots?: SlotUpdateManyWithoutAgendaNestedInput
-    config?: DisponibilidadeConfigUpdateOneWithoutAgendaNestedInput
+  export type AgendaUsuarioUpdateInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUpdateManyWithoutAgenda_horario_disponivelNestedInput
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput
   }
 
-  export type AgendaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    slots?: SlotUncheckedUpdateManyWithoutAgendaNestedInput
-    config?: DisponibilidadeConfigUncheckedUpdateOneWithoutAgendaNestedInput
+  export type AgendaUsuarioUncheckedUpdateInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelNestedInput
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUncheckedUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput
   }
 
-  export type AgendaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type AgendaUsuarioCreateManyInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
   }
 
-  export type AgendaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type AgendaUsuarioUpdateManyMutationInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type AgendaUsuarioUncheckedUpdateManyInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SlotCreateInput = {
-    id?: string
-    tenant_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    agenda: AgendaCreateNestedOneWithoutSlotsInput
-    reservas?: ReservaCreateNestedManyWithoutSlotInput
+  export type HorarioDisponivelCreateInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
+    agenda_horario_disponivel: AgendaUsuarioCreateNestedOneWithoutHorarios_agenda_usuarioInput
+    reservas_horario_disponivel?: ReservaAgendaCreateNestedManyWithoutHorario_reserva_agendaInput
   }
 
-  export type SlotUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    agenda_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    reservas?: ReservaUncheckedCreateNestedManyWithoutSlotInput
+  export type HorarioDisponivelUncheckedCreateInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    id_agenda_horario_disponivel: string
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
+    reservas_horario_disponivel?: ReservaAgendaUncheckedCreateNestedManyWithoutHorario_reserva_agendaInput
   }
 
-  export type SlotUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    agenda?: AgendaUpdateOneRequiredWithoutSlotsNestedInput
-    reservas?: ReservaUpdateManyWithoutSlotNestedInput
+  export type HorarioDisponivelUpdateInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    agenda_horario_disponivel?: AgendaUsuarioUpdateOneRequiredWithoutHorarios_agenda_usuarioNestedInput
+    reservas_horario_disponivel?: ReservaAgendaUpdateManyWithoutHorario_reserva_agendaNestedInput
   }
 
-  export type SlotUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    agenda_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    reservas?: ReservaUncheckedUpdateManyWithoutSlotNestedInput
+  export type HorarioDisponivelUncheckedUpdateInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agenda_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservas_horario_disponivel?: ReservaAgendaUncheckedUpdateManyWithoutHorario_reserva_agendaNestedInput
   }
 
-  export type SlotCreateManyInput = {
-    id?: string
-    tenant_id: string
-    agenda_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type HorarioDisponivelCreateManyInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    id_agenda_horario_disponivel: string
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
   }
 
-  export type SlotUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type HorarioDisponivelUpdateManyMutationInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SlotUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    agenda_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type HorarioDisponivelUncheckedUpdateManyInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agenda_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaCreateInput = {
-    id?: string
-    tenant_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    slot: SlotCreateNestedOneWithoutReservasInput
+  export type ReservaAgendaCreateInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
+    horario_reserva_agenda: HorarioDisponivelCreateNestedOneWithoutReservas_horario_disponivelInput
   }
 
-  export type ReservaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    slot_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ReservaAgendaUncheckedCreateInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_horario_reserva_agenda: string
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
   }
 
-  export type ReservaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    slot?: SlotUpdateOneRequiredWithoutReservasNestedInput
+  export type ReservaAgendaUpdateInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    horario_reserva_agenda?: HorarioDisponivelUpdateOneRequiredWithoutReservas_horario_disponivelNestedInput
   }
 
-  export type ReservaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    slot_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUncheckedUpdateInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_horario_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    slot_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ReservaAgendaCreateManyInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_horario_reserva_agenda: string
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
   }
 
-  export type ReservaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUpdateManyMutationInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    slot_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUncheckedUpdateManyInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_horario_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DisponibilidadeConfigCreateInput = {
-    id?: string
-    tenant_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo?: number
-    diasSemana?: DisponibilidadeConfigCreatediasSemanaInput | number[]
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    agenda: AgendaCreateNestedOneWithoutConfigInput
+  export type ConfigDisponibilidadeAgendaCreateInput = {
+    id_config_disponibilidade_agenda?: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda?: string | null
+    id_usuario_config_disponibilidade_agenda?: string | null
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda?: number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: Date | string
+    data_atualizacao_config_disponibilidade_agenda?: Date | string
+    agenda_config_disponibilidade_agenda: AgendaUsuarioCreateNestedOneWithoutConfig_agenda_usuarioInput
   }
 
-  export type DisponibilidadeConfigUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    agenda_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo?: number
-    diasSemana?: DisponibilidadeConfigCreatediasSemanaInput | number[]
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ConfigDisponibilidadeAgendaUncheckedCreateInput = {
+    id_config_disponibilidade_agenda?: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda?: string | null
+    id_usuario_config_disponibilidade_agenda?: string | null
+    id_agenda_config_disponibilidade_agenda: string
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda?: number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: Date | string
+    data_atualizacao_config_disponibilidade_agenda?: Date | string
   }
 
-  export type DisponibilidadeConfigUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    agenda?: AgendaUpdateOneRequiredWithoutConfigNestedInput
+  export type ConfigDisponibilidadeAgendaUpdateInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    agenda_config_disponibilidade_agenda?: AgendaUsuarioUpdateOneRequiredWithoutConfig_agenda_usuarioNestedInput
   }
 
-  export type DisponibilidadeConfigUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    agenda_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfigDisponibilidadeAgendaUncheckedUpdateInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agenda_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DisponibilidadeConfigCreateManyInput = {
-    id?: string
-    tenant_id: string
-    agenda_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo?: number
-    diasSemana?: DisponibilidadeConfigCreatediasSemanaInput | number[]
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ConfigDisponibilidadeAgendaCreateManyInput = {
+    id_config_disponibilidade_agenda?: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda?: string | null
+    id_usuario_config_disponibilidade_agenda?: string | null
+    id_agenda_config_disponibilidade_agenda: string
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda?: number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: Date | string
+    data_atualizacao_config_disponibilidade_agenda?: Date | string
   }
 
-  export type DisponibilidadeConfigUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfigDisponibilidadeAgendaUpdateManyMutationInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DisponibilidadeConfigUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    agenda_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfigDisponibilidadeAgendaUncheckedUpdateManyInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agenda_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConversaCompletaGabiCreateInput = {
@@ -62625,146 +62825,164 @@ export namespace Prisma {
     contagem_registros_exportar_resultado?: SortOrder
   }
 
-  export type SlotListRelationFilter = {
-    every?: SlotWhereInput
-    some?: SlotWhereInput
-    none?: SlotWhereInput
+  export type HorarioDisponivelListRelationFilter = {
+    every?: HorarioDisponivelWhereInput
+    some?: HorarioDisponivelWhereInput
+    none?: HorarioDisponivelWhereInput
   }
 
-  export type DisponibilidadeConfigNullableRelationFilter = {
-    is?: DisponibilidadeConfigWhereInput | null
-    isNot?: DisponibilidadeConfigWhereInput | null
+  export type ConfigDisponibilidadeAgendaNullableRelationFilter = {
+    is?: ConfigDisponibilidadeAgendaWhereInput | null
+    isNot?: ConfigDisponibilidadeAgendaWhereInput | null
   }
 
-  export type SlotOrderByRelationAggregateInput = {
+  export type HorarioDisponivelOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AgendaCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    nome?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type AgendaUsuarioCountOrderByAggregateInput = {
+    id_agenda_usuario?: SortOrder
+    id_organizacao_agenda_usuario?: SortOrder
+    id_produto_agenda_usuario?: SortOrder
+    id_usuario_agenda_usuario?: SortOrder
+    nome_agenda_usuario?: SortOrder
+    descricao_agenda_usuario?: SortOrder
+    tipo_agenda_usuario?: SortOrder
+    data_criacao_agenda_usuario?: SortOrder
+    data_atualizacao_agenda_usuario?: SortOrder
   }
 
-  export type AgendaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    nome?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type AgendaUsuarioMaxOrderByAggregateInput = {
+    id_agenda_usuario?: SortOrder
+    id_organizacao_agenda_usuario?: SortOrder
+    id_produto_agenda_usuario?: SortOrder
+    id_usuario_agenda_usuario?: SortOrder
+    nome_agenda_usuario?: SortOrder
+    descricao_agenda_usuario?: SortOrder
+    tipo_agenda_usuario?: SortOrder
+    data_criacao_agenda_usuario?: SortOrder
+    data_atualizacao_agenda_usuario?: SortOrder
   }
 
-  export type AgendaMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    nome?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type AgendaUsuarioMinOrderByAggregateInput = {
+    id_agenda_usuario?: SortOrder
+    id_organizacao_agenda_usuario?: SortOrder
+    id_produto_agenda_usuario?: SortOrder
+    id_usuario_agenda_usuario?: SortOrder
+    nome_agenda_usuario?: SortOrder
+    descricao_agenda_usuario?: SortOrder
+    tipo_agenda_usuario?: SortOrder
+    data_criacao_agenda_usuario?: SortOrder
+    data_atualizacao_agenda_usuario?: SortOrder
   }
 
-  export type AgendaRelationFilter = {
-    is?: AgendaWhereInput
-    isNot?: AgendaWhereInput
+  export type AgendaUsuarioRelationFilter = {
+    is?: AgendaUsuarioWhereInput
+    isNot?: AgendaUsuarioWhereInput
   }
 
-  export type ReservaListRelationFilter = {
-    every?: ReservaWhereInput
-    some?: ReservaWhereInput
-    none?: ReservaWhereInput
+  export type ReservaAgendaListRelationFilter = {
+    every?: ReservaAgendaWhereInput
+    some?: ReservaAgendaWhereInput
+    none?: ReservaAgendaWhereInput
   }
 
-  export type ReservaOrderByRelationAggregateInput = {
+  export type ReservaAgendaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type SlotCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    inicio?: SortOrder
-    fim?: SortOrder
-    capacidade?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type HorarioDisponivelCountOrderByAggregateInput = {
+    id_horario_disponivel?: SortOrder
+    id_organizacao_horario_disponivel?: SortOrder
+    id_produto_horario_disponivel?: SortOrder
+    id_usuario_horario_disponivel?: SortOrder
+    id_agenda_horario_disponivel?: SortOrder
+    inicio_horario_disponivel?: SortOrder
+    fim_horario_disponivel?: SortOrder
+    capacidade_horario_disponivel?: SortOrder
+    data_criacao_horario_disponivel?: SortOrder
+    data_atualizacao_horario_disponivel?: SortOrder
   }
 
-  export type SlotAvgOrderByAggregateInput = {
-    capacidade?: SortOrder
+  export type HorarioDisponivelAvgOrderByAggregateInput = {
+    capacidade_horario_disponivel?: SortOrder
   }
 
-  export type SlotMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    inicio?: SortOrder
-    fim?: SortOrder
-    capacidade?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type HorarioDisponivelMaxOrderByAggregateInput = {
+    id_horario_disponivel?: SortOrder
+    id_organizacao_horario_disponivel?: SortOrder
+    id_produto_horario_disponivel?: SortOrder
+    id_usuario_horario_disponivel?: SortOrder
+    id_agenda_horario_disponivel?: SortOrder
+    inicio_horario_disponivel?: SortOrder
+    fim_horario_disponivel?: SortOrder
+    capacidade_horario_disponivel?: SortOrder
+    data_criacao_horario_disponivel?: SortOrder
+    data_atualizacao_horario_disponivel?: SortOrder
   }
 
-  export type SlotMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    inicio?: SortOrder
-    fim?: SortOrder
-    capacidade?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type HorarioDisponivelMinOrderByAggregateInput = {
+    id_horario_disponivel?: SortOrder
+    id_organizacao_horario_disponivel?: SortOrder
+    id_produto_horario_disponivel?: SortOrder
+    id_usuario_horario_disponivel?: SortOrder
+    id_agenda_horario_disponivel?: SortOrder
+    inicio_horario_disponivel?: SortOrder
+    fim_horario_disponivel?: SortOrder
+    capacidade_horario_disponivel?: SortOrder
+    data_criacao_horario_disponivel?: SortOrder
+    data_atualizacao_horario_disponivel?: SortOrder
   }
 
-  export type SlotSumOrderByAggregateInput = {
-    capacidade?: SortOrder
+  export type HorarioDisponivelSumOrderByAggregateInput = {
+    capacidade_horario_disponivel?: SortOrder
   }
 
-  export type SlotRelationFilter = {
-    is?: SlotWhereInput
-    isNot?: SlotWhereInput
+  export type HorarioDisponivelRelationFilter = {
+    is?: HorarioDisponivelWhereInput
+    isNot?: HorarioDisponivelWhereInput
   }
 
-  export type ReservaCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    slot_id?: SortOrder
-    usuario_id?: SortOrder
-    nome?: SortOrder
-    email?: SortOrder
-    status?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ReservaAgendaCountOrderByAggregateInput = {
+    id_reserva_agenda?: SortOrder
+    id_organizacao_reserva_agenda?: SortOrder
+    id_produto_reserva_agenda?: SortOrder
+    id_usuario_reserva_agenda?: SortOrder
+    id_horario_reserva_agenda?: SortOrder
+    id_reservante_reserva_agenda?: SortOrder
+    nome_reservante_reserva_agenda?: SortOrder
+    email_reservante_reserva_agenda?: SortOrder
+    status_reserva_agenda?: SortOrder
+    data_criacao_reserva_agenda?: SortOrder
+    data_atualizacao_reserva_agenda?: SortOrder
   }
 
-  export type ReservaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    slot_id?: SortOrder
-    usuario_id?: SortOrder
-    nome?: SortOrder
-    email?: SortOrder
-    status?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ReservaAgendaMaxOrderByAggregateInput = {
+    id_reserva_agenda?: SortOrder
+    id_organizacao_reserva_agenda?: SortOrder
+    id_produto_reserva_agenda?: SortOrder
+    id_usuario_reserva_agenda?: SortOrder
+    id_horario_reserva_agenda?: SortOrder
+    id_reservante_reserva_agenda?: SortOrder
+    nome_reservante_reserva_agenda?: SortOrder
+    email_reservante_reserva_agenda?: SortOrder
+    status_reserva_agenda?: SortOrder
+    data_criacao_reserva_agenda?: SortOrder
+    data_atualizacao_reserva_agenda?: SortOrder
   }
 
-  export type ReservaMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    slot_id?: SortOrder
-    usuario_id?: SortOrder
-    nome?: SortOrder
-    email?: SortOrder
-    status?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ReservaAgendaMinOrderByAggregateInput = {
+    id_reserva_agenda?: SortOrder
+    id_organizacao_reserva_agenda?: SortOrder
+    id_produto_reserva_agenda?: SortOrder
+    id_usuario_reserva_agenda?: SortOrder
+    id_horario_reserva_agenda?: SortOrder
+    id_reservante_reserva_agenda?: SortOrder
+    nome_reservante_reserva_agenda?: SortOrder
+    email_reservante_reserva_agenda?: SortOrder
+    status_reserva_agenda?: SortOrder
+    data_criacao_reserva_agenda?: SortOrder
+    data_atualizacao_reserva_agenda?: SortOrder
   }
 
   export type IntNullableListFilter<$PrismaModel = never> = {
@@ -62775,53 +62993,59 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type DisponibilidadeConfigCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    horarioInicio?: SortOrder
-    horarioFim?: SortOrder
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    diasSemana?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ConfigDisponibilidadeAgendaCountOrderByAggregateInput = {
+    id_config_disponibilidade_agenda?: SortOrder
+    id_organizacao_config_disponibilidade_agenda?: SortOrder
+    id_produto_config_disponibilidade_agenda?: SortOrder
+    id_usuario_config_disponibilidade_agenda?: SortOrder
+    id_agenda_config_disponibilidade_agenda?: SortOrder
+    horario_inicio_config_disponibilidade_agenda?: SortOrder
+    horario_fim_config_disponibilidade_agenda?: SortOrder
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    dias_semana_config_disponibilidade_agenda?: SortOrder
+    data_criacao_config_disponibilidade_agenda?: SortOrder
+    data_atualizacao_config_disponibilidade_agenda?: SortOrder
   }
 
-  export type DisponibilidadeConfigAvgOrderByAggregateInput = {
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    diasSemana?: SortOrder
+  export type ConfigDisponibilidadeAgendaAvgOrderByAggregateInput = {
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    dias_semana_config_disponibilidade_agenda?: SortOrder
   }
 
-  export type DisponibilidadeConfigMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    horarioInicio?: SortOrder
-    horarioFim?: SortOrder
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ConfigDisponibilidadeAgendaMaxOrderByAggregateInput = {
+    id_config_disponibilidade_agenda?: SortOrder
+    id_organizacao_config_disponibilidade_agenda?: SortOrder
+    id_produto_config_disponibilidade_agenda?: SortOrder
+    id_usuario_config_disponibilidade_agenda?: SortOrder
+    id_agenda_config_disponibilidade_agenda?: SortOrder
+    horario_inicio_config_disponibilidade_agenda?: SortOrder
+    horario_fim_config_disponibilidade_agenda?: SortOrder
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    data_criacao_config_disponibilidade_agenda?: SortOrder
+    data_atualizacao_config_disponibilidade_agenda?: SortOrder
   }
 
-  export type DisponibilidadeConfigMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    agenda_id?: SortOrder
-    horarioInicio?: SortOrder
-    horarioFim?: SortOrder
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    criadoEm?: SortOrder
-    atualizadoEm?: SortOrder
+  export type ConfigDisponibilidadeAgendaMinOrderByAggregateInput = {
+    id_config_disponibilidade_agenda?: SortOrder
+    id_organizacao_config_disponibilidade_agenda?: SortOrder
+    id_produto_config_disponibilidade_agenda?: SortOrder
+    id_usuario_config_disponibilidade_agenda?: SortOrder
+    id_agenda_config_disponibilidade_agenda?: SortOrder
+    horario_inicio_config_disponibilidade_agenda?: SortOrder
+    horario_fim_config_disponibilidade_agenda?: SortOrder
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    data_criacao_config_disponibilidade_agenda?: SortOrder
+    data_atualizacao_config_disponibilidade_agenda?: SortOrder
   }
 
-  export type DisponibilidadeConfigSumOrderByAggregateInput = {
-    duracaoSlot?: SortOrder
-    intervalo?: SortOrder
-    diasSemana?: SortOrder
+  export type ConfigDisponibilidadeAgendaSumOrderByAggregateInput = {
+    duracao_slot_config_disponibilidade_agenda?: SortOrder
+    intervalo_config_disponibilidade_agenda?: SortOrder
+    dias_semana_config_disponibilidade_agenda?: SortOrder
   }
 
   export type MensagemIndividualGabiaiListRelationFilter = {
@@ -64060,171 +64284,171 @@ export namespace Prisma {
     update?: XOR<XOR<EventoAlertaUpdateToOneWithWhereWithoutNotificacoes_evento_alertaInput, EventoAlertaUpdateWithoutNotificacoes_evento_alertaInput>, EventoAlertaUncheckedUpdateWithoutNotificacoes_evento_alertaInput>
   }
 
-  export type SlotCreateNestedManyWithoutAgendaInput = {
-    create?: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput> | SlotCreateWithoutAgendaInput[] | SlotUncheckedCreateWithoutAgendaInput[]
-    connectOrCreate?: SlotCreateOrConnectWithoutAgendaInput | SlotCreateOrConnectWithoutAgendaInput[]
-    createMany?: SlotCreateManyAgendaInputEnvelope
-    connect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
+  export type HorarioDisponivelCreateNestedManyWithoutAgenda_horario_disponivelInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput> | HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput[] | HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput[]
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput | HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput[]
+    createMany?: HorarioDisponivelCreateManyAgenda_horario_disponivelInputEnvelope
+    connect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
   }
 
-  export type DisponibilidadeConfigCreateNestedOneWithoutAgendaInput = {
-    create?: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
-    connectOrCreate?: DisponibilidadeConfigCreateOrConnectWithoutAgendaInput
-    connect?: DisponibilidadeConfigWhereUniqueInput
+  export type ConfigDisponibilidadeAgendaCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput = {
+    create?: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
+    connectOrCreate?: ConfigDisponibilidadeAgendaCreateOrConnectWithoutAgenda_config_disponibilidade_agendaInput
+    connect?: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
-  export type SlotUncheckedCreateNestedManyWithoutAgendaInput = {
-    create?: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput> | SlotCreateWithoutAgendaInput[] | SlotUncheckedCreateWithoutAgendaInput[]
-    connectOrCreate?: SlotCreateOrConnectWithoutAgendaInput | SlotCreateOrConnectWithoutAgendaInput[]
-    createMany?: SlotCreateManyAgendaInputEnvelope
-    connect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
+  export type HorarioDisponivelUncheckedCreateNestedManyWithoutAgenda_horario_disponivelInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput> | HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput[] | HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput[]
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput | HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput[]
+    createMany?: HorarioDisponivelCreateManyAgenda_horario_disponivelInputEnvelope
+    connect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
   }
 
-  export type DisponibilidadeConfigUncheckedCreateNestedOneWithoutAgendaInput = {
-    create?: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
-    connectOrCreate?: DisponibilidadeConfigCreateOrConnectWithoutAgendaInput
-    connect?: DisponibilidadeConfigWhereUniqueInput
+  export type ConfigDisponibilidadeAgendaUncheckedCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput = {
+    create?: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
+    connectOrCreate?: ConfigDisponibilidadeAgendaCreateOrConnectWithoutAgenda_config_disponibilidade_agendaInput
+    connect?: ConfigDisponibilidadeAgendaWhereUniqueInput
   }
 
-  export type SlotUpdateManyWithoutAgendaNestedInput = {
-    create?: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput> | SlotCreateWithoutAgendaInput[] | SlotUncheckedCreateWithoutAgendaInput[]
-    connectOrCreate?: SlotCreateOrConnectWithoutAgendaInput | SlotCreateOrConnectWithoutAgendaInput[]
-    upsert?: SlotUpsertWithWhereUniqueWithoutAgendaInput | SlotUpsertWithWhereUniqueWithoutAgendaInput[]
-    createMany?: SlotCreateManyAgendaInputEnvelope
-    set?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    disconnect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    delete?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    connect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    update?: SlotUpdateWithWhereUniqueWithoutAgendaInput | SlotUpdateWithWhereUniqueWithoutAgendaInput[]
-    updateMany?: SlotUpdateManyWithWhereWithoutAgendaInput | SlotUpdateManyWithWhereWithoutAgendaInput[]
-    deleteMany?: SlotScalarWhereInput | SlotScalarWhereInput[]
+  export type HorarioDisponivelUpdateManyWithoutAgenda_horario_disponivelNestedInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput> | HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput[] | HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput[]
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput | HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput[]
+    upsert?: HorarioDisponivelUpsertWithWhereUniqueWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpsertWithWhereUniqueWithoutAgenda_horario_disponivelInput[]
+    createMany?: HorarioDisponivelCreateManyAgenda_horario_disponivelInputEnvelope
+    set?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    disconnect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    delete?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    connect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    update?: HorarioDisponivelUpdateWithWhereUniqueWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpdateWithWhereUniqueWithoutAgenda_horario_disponivelInput[]
+    updateMany?: HorarioDisponivelUpdateManyWithWhereWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpdateManyWithWhereWithoutAgenda_horario_disponivelInput[]
+    deleteMany?: HorarioDisponivelScalarWhereInput | HorarioDisponivelScalarWhereInput[]
   }
 
-  export type DisponibilidadeConfigUpdateOneWithoutAgendaNestedInput = {
-    create?: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
-    connectOrCreate?: DisponibilidadeConfigCreateOrConnectWithoutAgendaInput
-    upsert?: DisponibilidadeConfigUpsertWithoutAgendaInput
-    disconnect?: DisponibilidadeConfigWhereInput | boolean
-    delete?: DisponibilidadeConfigWhereInput | boolean
-    connect?: DisponibilidadeConfigWhereUniqueInput
-    update?: XOR<XOR<DisponibilidadeConfigUpdateToOneWithWhereWithoutAgendaInput, DisponibilidadeConfigUpdateWithoutAgendaInput>, DisponibilidadeConfigUncheckedUpdateWithoutAgendaInput>
+  export type ConfigDisponibilidadeAgendaUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput = {
+    create?: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
+    connectOrCreate?: ConfigDisponibilidadeAgendaCreateOrConnectWithoutAgenda_config_disponibilidade_agendaInput
+    upsert?: ConfigDisponibilidadeAgendaUpsertWithoutAgenda_config_disponibilidade_agendaInput
+    disconnect?: ConfigDisponibilidadeAgendaWhereInput | boolean
+    delete?: ConfigDisponibilidadeAgendaWhereInput | boolean
+    connect?: ConfigDisponibilidadeAgendaWhereUniqueInput
+    update?: XOR<XOR<ConfigDisponibilidadeAgendaUpdateToOneWithWhereWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUpdateWithoutAgenda_config_disponibilidade_agendaInput>, ConfigDisponibilidadeAgendaUncheckedUpdateWithoutAgenda_config_disponibilidade_agendaInput>
   }
 
-  export type SlotUncheckedUpdateManyWithoutAgendaNestedInput = {
-    create?: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput> | SlotCreateWithoutAgendaInput[] | SlotUncheckedCreateWithoutAgendaInput[]
-    connectOrCreate?: SlotCreateOrConnectWithoutAgendaInput | SlotCreateOrConnectWithoutAgendaInput[]
-    upsert?: SlotUpsertWithWhereUniqueWithoutAgendaInput | SlotUpsertWithWhereUniqueWithoutAgendaInput[]
-    createMany?: SlotCreateManyAgendaInputEnvelope
-    set?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    disconnect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    delete?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    connect?: SlotWhereUniqueInput | SlotWhereUniqueInput[]
-    update?: SlotUpdateWithWhereUniqueWithoutAgendaInput | SlotUpdateWithWhereUniqueWithoutAgendaInput[]
-    updateMany?: SlotUpdateManyWithWhereWithoutAgendaInput | SlotUpdateManyWithWhereWithoutAgendaInput[]
-    deleteMany?: SlotScalarWhereInput | SlotScalarWhereInput[]
+  export type HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelNestedInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput> | HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput[] | HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput[]
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput | HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput[]
+    upsert?: HorarioDisponivelUpsertWithWhereUniqueWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpsertWithWhereUniqueWithoutAgenda_horario_disponivelInput[]
+    createMany?: HorarioDisponivelCreateManyAgenda_horario_disponivelInputEnvelope
+    set?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    disconnect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    delete?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    connect?: HorarioDisponivelWhereUniqueInput | HorarioDisponivelWhereUniqueInput[]
+    update?: HorarioDisponivelUpdateWithWhereUniqueWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpdateWithWhereUniqueWithoutAgenda_horario_disponivelInput[]
+    updateMany?: HorarioDisponivelUpdateManyWithWhereWithoutAgenda_horario_disponivelInput | HorarioDisponivelUpdateManyWithWhereWithoutAgenda_horario_disponivelInput[]
+    deleteMany?: HorarioDisponivelScalarWhereInput | HorarioDisponivelScalarWhereInput[]
   }
 
-  export type DisponibilidadeConfigUncheckedUpdateOneWithoutAgendaNestedInput = {
-    create?: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
-    connectOrCreate?: DisponibilidadeConfigCreateOrConnectWithoutAgendaInput
-    upsert?: DisponibilidadeConfigUpsertWithoutAgendaInput
-    disconnect?: DisponibilidadeConfigWhereInput | boolean
-    delete?: DisponibilidadeConfigWhereInput | boolean
-    connect?: DisponibilidadeConfigWhereUniqueInput
-    update?: XOR<XOR<DisponibilidadeConfigUpdateToOneWithWhereWithoutAgendaInput, DisponibilidadeConfigUpdateWithoutAgendaInput>, DisponibilidadeConfigUncheckedUpdateWithoutAgendaInput>
+  export type ConfigDisponibilidadeAgendaUncheckedUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput = {
+    create?: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
+    connectOrCreate?: ConfigDisponibilidadeAgendaCreateOrConnectWithoutAgenda_config_disponibilidade_agendaInput
+    upsert?: ConfigDisponibilidadeAgendaUpsertWithoutAgenda_config_disponibilidade_agendaInput
+    disconnect?: ConfigDisponibilidadeAgendaWhereInput | boolean
+    delete?: ConfigDisponibilidadeAgendaWhereInput | boolean
+    connect?: ConfigDisponibilidadeAgendaWhereUniqueInput
+    update?: XOR<XOR<ConfigDisponibilidadeAgendaUpdateToOneWithWhereWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUpdateWithoutAgenda_config_disponibilidade_agendaInput>, ConfigDisponibilidadeAgendaUncheckedUpdateWithoutAgenda_config_disponibilidade_agendaInput>
   }
 
-  export type AgendaCreateNestedOneWithoutSlotsInput = {
-    create?: XOR<AgendaCreateWithoutSlotsInput, AgendaUncheckedCreateWithoutSlotsInput>
-    connectOrCreate?: AgendaCreateOrConnectWithoutSlotsInput
-    connect?: AgendaWhereUniqueInput
+  export type AgendaUsuarioCreateNestedOneWithoutHorarios_agenda_usuarioInput = {
+    create?: XOR<AgendaUsuarioCreateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutHorarios_agenda_usuarioInput>
+    connectOrCreate?: AgendaUsuarioCreateOrConnectWithoutHorarios_agenda_usuarioInput
+    connect?: AgendaUsuarioWhereUniqueInput
   }
 
-  export type ReservaCreateNestedManyWithoutSlotInput = {
-    create?: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput> | ReservaCreateWithoutSlotInput[] | ReservaUncheckedCreateWithoutSlotInput[]
-    connectOrCreate?: ReservaCreateOrConnectWithoutSlotInput | ReservaCreateOrConnectWithoutSlotInput[]
-    createMany?: ReservaCreateManySlotInputEnvelope
-    connect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
+  export type ReservaAgendaCreateNestedManyWithoutHorario_reserva_agendaInput = {
+    create?: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput> | ReservaAgendaCreateWithoutHorario_reserva_agendaInput[] | ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput[]
+    connectOrCreate?: ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput | ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput[]
+    createMany?: ReservaAgendaCreateManyHorario_reserva_agendaInputEnvelope
+    connect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
   }
 
-  export type ReservaUncheckedCreateNestedManyWithoutSlotInput = {
-    create?: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput> | ReservaCreateWithoutSlotInput[] | ReservaUncheckedCreateWithoutSlotInput[]
-    connectOrCreate?: ReservaCreateOrConnectWithoutSlotInput | ReservaCreateOrConnectWithoutSlotInput[]
-    createMany?: ReservaCreateManySlotInputEnvelope
-    connect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
+  export type ReservaAgendaUncheckedCreateNestedManyWithoutHorario_reserva_agendaInput = {
+    create?: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput> | ReservaAgendaCreateWithoutHorario_reserva_agendaInput[] | ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput[]
+    connectOrCreate?: ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput | ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput[]
+    createMany?: ReservaAgendaCreateManyHorario_reserva_agendaInputEnvelope
+    connect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
   }
 
-  export type AgendaUpdateOneRequiredWithoutSlotsNestedInput = {
-    create?: XOR<AgendaCreateWithoutSlotsInput, AgendaUncheckedCreateWithoutSlotsInput>
-    connectOrCreate?: AgendaCreateOrConnectWithoutSlotsInput
-    upsert?: AgendaUpsertWithoutSlotsInput
-    connect?: AgendaWhereUniqueInput
-    update?: XOR<XOR<AgendaUpdateToOneWithWhereWithoutSlotsInput, AgendaUpdateWithoutSlotsInput>, AgendaUncheckedUpdateWithoutSlotsInput>
+  export type AgendaUsuarioUpdateOneRequiredWithoutHorarios_agenda_usuarioNestedInput = {
+    create?: XOR<AgendaUsuarioCreateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutHorarios_agenda_usuarioInput>
+    connectOrCreate?: AgendaUsuarioCreateOrConnectWithoutHorarios_agenda_usuarioInput
+    upsert?: AgendaUsuarioUpsertWithoutHorarios_agenda_usuarioInput
+    connect?: AgendaUsuarioWhereUniqueInput
+    update?: XOR<XOR<AgendaUsuarioUpdateToOneWithWhereWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUpdateWithoutHorarios_agenda_usuarioInput>, AgendaUsuarioUncheckedUpdateWithoutHorarios_agenda_usuarioInput>
   }
 
-  export type ReservaUpdateManyWithoutSlotNestedInput = {
-    create?: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput> | ReservaCreateWithoutSlotInput[] | ReservaUncheckedCreateWithoutSlotInput[]
-    connectOrCreate?: ReservaCreateOrConnectWithoutSlotInput | ReservaCreateOrConnectWithoutSlotInput[]
-    upsert?: ReservaUpsertWithWhereUniqueWithoutSlotInput | ReservaUpsertWithWhereUniqueWithoutSlotInput[]
-    createMany?: ReservaCreateManySlotInputEnvelope
-    set?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    disconnect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    delete?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    connect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    update?: ReservaUpdateWithWhereUniqueWithoutSlotInput | ReservaUpdateWithWhereUniqueWithoutSlotInput[]
-    updateMany?: ReservaUpdateManyWithWhereWithoutSlotInput | ReservaUpdateManyWithWhereWithoutSlotInput[]
-    deleteMany?: ReservaScalarWhereInput | ReservaScalarWhereInput[]
+  export type ReservaAgendaUpdateManyWithoutHorario_reserva_agendaNestedInput = {
+    create?: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput> | ReservaAgendaCreateWithoutHorario_reserva_agendaInput[] | ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput[]
+    connectOrCreate?: ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput | ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput[]
+    upsert?: ReservaAgendaUpsertWithWhereUniqueWithoutHorario_reserva_agendaInput | ReservaAgendaUpsertWithWhereUniqueWithoutHorario_reserva_agendaInput[]
+    createMany?: ReservaAgendaCreateManyHorario_reserva_agendaInputEnvelope
+    set?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    disconnect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    delete?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    connect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    update?: ReservaAgendaUpdateWithWhereUniqueWithoutHorario_reserva_agendaInput | ReservaAgendaUpdateWithWhereUniqueWithoutHorario_reserva_agendaInput[]
+    updateMany?: ReservaAgendaUpdateManyWithWhereWithoutHorario_reserva_agendaInput | ReservaAgendaUpdateManyWithWhereWithoutHorario_reserva_agendaInput[]
+    deleteMany?: ReservaAgendaScalarWhereInput | ReservaAgendaScalarWhereInput[]
   }
 
-  export type ReservaUncheckedUpdateManyWithoutSlotNestedInput = {
-    create?: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput> | ReservaCreateWithoutSlotInput[] | ReservaUncheckedCreateWithoutSlotInput[]
-    connectOrCreate?: ReservaCreateOrConnectWithoutSlotInput | ReservaCreateOrConnectWithoutSlotInput[]
-    upsert?: ReservaUpsertWithWhereUniqueWithoutSlotInput | ReservaUpsertWithWhereUniqueWithoutSlotInput[]
-    createMany?: ReservaCreateManySlotInputEnvelope
-    set?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    disconnect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    delete?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    connect?: ReservaWhereUniqueInput | ReservaWhereUniqueInput[]
-    update?: ReservaUpdateWithWhereUniqueWithoutSlotInput | ReservaUpdateWithWhereUniqueWithoutSlotInput[]
-    updateMany?: ReservaUpdateManyWithWhereWithoutSlotInput | ReservaUpdateManyWithWhereWithoutSlotInput[]
-    deleteMany?: ReservaScalarWhereInput | ReservaScalarWhereInput[]
+  export type ReservaAgendaUncheckedUpdateManyWithoutHorario_reserva_agendaNestedInput = {
+    create?: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput> | ReservaAgendaCreateWithoutHorario_reserva_agendaInput[] | ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput[]
+    connectOrCreate?: ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput | ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput[]
+    upsert?: ReservaAgendaUpsertWithWhereUniqueWithoutHorario_reserva_agendaInput | ReservaAgendaUpsertWithWhereUniqueWithoutHorario_reserva_agendaInput[]
+    createMany?: ReservaAgendaCreateManyHorario_reserva_agendaInputEnvelope
+    set?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    disconnect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    delete?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    connect?: ReservaAgendaWhereUniqueInput | ReservaAgendaWhereUniqueInput[]
+    update?: ReservaAgendaUpdateWithWhereUniqueWithoutHorario_reserva_agendaInput | ReservaAgendaUpdateWithWhereUniqueWithoutHorario_reserva_agendaInput[]
+    updateMany?: ReservaAgendaUpdateManyWithWhereWithoutHorario_reserva_agendaInput | ReservaAgendaUpdateManyWithWhereWithoutHorario_reserva_agendaInput[]
+    deleteMany?: ReservaAgendaScalarWhereInput | ReservaAgendaScalarWhereInput[]
   }
 
-  export type SlotCreateNestedOneWithoutReservasInput = {
-    create?: XOR<SlotCreateWithoutReservasInput, SlotUncheckedCreateWithoutReservasInput>
-    connectOrCreate?: SlotCreateOrConnectWithoutReservasInput
-    connect?: SlotWhereUniqueInput
+  export type HorarioDisponivelCreateNestedOneWithoutReservas_horario_disponivelInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutReservas_horario_disponivelInput>
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutReservas_horario_disponivelInput
+    connect?: HorarioDisponivelWhereUniqueInput
   }
 
-  export type SlotUpdateOneRequiredWithoutReservasNestedInput = {
-    create?: XOR<SlotCreateWithoutReservasInput, SlotUncheckedCreateWithoutReservasInput>
-    connectOrCreate?: SlotCreateOrConnectWithoutReservasInput
-    upsert?: SlotUpsertWithoutReservasInput
-    connect?: SlotWhereUniqueInput
-    update?: XOR<XOR<SlotUpdateToOneWithWhereWithoutReservasInput, SlotUpdateWithoutReservasInput>, SlotUncheckedUpdateWithoutReservasInput>
+  export type HorarioDisponivelUpdateOneRequiredWithoutReservas_horario_disponivelNestedInput = {
+    create?: XOR<HorarioDisponivelCreateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutReservas_horario_disponivelInput>
+    connectOrCreate?: HorarioDisponivelCreateOrConnectWithoutReservas_horario_disponivelInput
+    upsert?: HorarioDisponivelUpsertWithoutReservas_horario_disponivelInput
+    connect?: HorarioDisponivelWhereUniqueInput
+    update?: XOR<XOR<HorarioDisponivelUpdateToOneWithWhereWithoutReservas_horario_disponivelInput, HorarioDisponivelUpdateWithoutReservas_horario_disponivelInput>, HorarioDisponivelUncheckedUpdateWithoutReservas_horario_disponivelInput>
   }
 
-  export type DisponibilidadeConfigCreatediasSemanaInput = {
+  export type ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput = {
     set: number[]
   }
 
-  export type AgendaCreateNestedOneWithoutConfigInput = {
-    create?: XOR<AgendaCreateWithoutConfigInput, AgendaUncheckedCreateWithoutConfigInput>
-    connectOrCreate?: AgendaCreateOrConnectWithoutConfigInput
-    connect?: AgendaWhereUniqueInput
+  export type AgendaUsuarioCreateNestedOneWithoutConfig_agenda_usuarioInput = {
+    create?: XOR<AgendaUsuarioCreateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutConfig_agenda_usuarioInput>
+    connectOrCreate?: AgendaUsuarioCreateOrConnectWithoutConfig_agenda_usuarioInput
+    connect?: AgendaUsuarioWhereUniqueInput
   }
 
-  export type DisponibilidadeConfigUpdatediasSemanaInput = {
+  export type ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput = {
     set?: number[]
     push?: number | number[]
   }
 
-  export type AgendaUpdateOneRequiredWithoutConfigNestedInput = {
-    create?: XOR<AgendaCreateWithoutConfigInput, AgendaUncheckedCreateWithoutConfigInput>
-    connectOrCreate?: AgendaCreateOrConnectWithoutConfigInput
-    upsert?: AgendaUpsertWithoutConfigInput
-    connect?: AgendaWhereUniqueInput
-    update?: XOR<XOR<AgendaUpdateToOneWithWhereWithoutConfigInput, AgendaUpdateWithoutConfigInput>, AgendaUncheckedUpdateWithoutConfigInput>
+  export type AgendaUsuarioUpdateOneRequiredWithoutConfig_agenda_usuarioNestedInput = {
+    create?: XOR<AgendaUsuarioCreateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutConfig_agenda_usuarioInput>
+    connectOrCreate?: AgendaUsuarioCreateOrConnectWithoutConfig_agenda_usuarioInput
+    upsert?: AgendaUsuarioUpsertWithoutConfig_agenda_usuarioInput
+    connect?: AgendaUsuarioWhereUniqueInput
+    update?: XOR<XOR<AgendaUsuarioUpdateToOneWithWhereWithoutConfig_agenda_usuarioInput, AgendaUsuarioUpdateWithoutConfig_agenda_usuarioInput>, AgendaUsuarioUncheckedUpdateWithoutConfig_agenda_usuarioInput>
   }
 
   export type MensagemIndividualGabiaiCreateNestedManyWithoutConversationInput = {
@@ -66193,373 +66417,417 @@ export namespace Prisma {
     data_criacao_evento_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SlotCreateWithoutAgendaInput = {
-    id?: string
-    tenant_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    reservas?: ReservaCreateNestedManyWithoutSlotInput
+  export type HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
+    reservas_horario_disponivel?: ReservaAgendaCreateNestedManyWithoutHorario_reserva_agendaInput
   }
 
-  export type SlotUncheckedCreateWithoutAgendaInput = {
-    id?: string
-    tenant_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    reservas?: ReservaUncheckedCreateNestedManyWithoutSlotInput
+  export type HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
+    reservas_horario_disponivel?: ReservaAgendaUncheckedCreateNestedManyWithoutHorario_reserva_agendaInput
   }
 
-  export type SlotCreateOrConnectWithoutAgendaInput = {
-    where: SlotWhereUniqueInput
-    create: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput>
+  export type HorarioDisponivelCreateOrConnectWithoutAgenda_horario_disponivelInput = {
+    where: HorarioDisponivelWhereUniqueInput
+    create: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput>
   }
 
-  export type SlotCreateManyAgendaInputEnvelope = {
-    data: SlotCreateManyAgendaInput | SlotCreateManyAgendaInput[]
+  export type HorarioDisponivelCreateManyAgenda_horario_disponivelInputEnvelope = {
+    data: HorarioDisponivelCreateManyAgenda_horario_disponivelInput | HorarioDisponivelCreateManyAgenda_horario_disponivelInput[]
     skipDuplicates?: boolean
   }
 
-  export type DisponibilidadeConfigCreateWithoutAgendaInput = {
-    id?: string
-    tenant_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo?: number
-    diasSemana?: DisponibilidadeConfigCreatediasSemanaInput | number[]
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput = {
+    id_config_disponibilidade_agenda?: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda?: string | null
+    id_usuario_config_disponibilidade_agenda?: string | null
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda?: number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: Date | string
+    data_atualizacao_config_disponibilidade_agenda?: Date | string
   }
 
-  export type DisponibilidadeConfigUncheckedCreateWithoutAgendaInput = {
-    id?: string
-    tenant_id: string
-    horarioInicio: string
-    horarioFim: string
-    duracaoSlot: number
-    intervalo?: number
-    diasSemana?: DisponibilidadeConfigCreatediasSemanaInput | number[]
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput = {
+    id_config_disponibilidade_agenda?: string
+    id_organizacao_config_disponibilidade_agenda: string
+    id_produto_config_disponibilidade_agenda?: string | null
+    id_usuario_config_disponibilidade_agenda?: string | null
+    horario_inicio_config_disponibilidade_agenda: string
+    horario_fim_config_disponibilidade_agenda: string
+    duracao_slot_config_disponibilidade_agenda: number
+    intervalo_config_disponibilidade_agenda?: number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaCreatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: Date | string
+    data_atualizacao_config_disponibilidade_agenda?: Date | string
   }
 
-  export type DisponibilidadeConfigCreateOrConnectWithoutAgendaInput = {
-    where: DisponibilidadeConfigWhereUniqueInput
-    create: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
+  export type ConfigDisponibilidadeAgendaCreateOrConnectWithoutAgenda_config_disponibilidade_agendaInput = {
+    where: ConfigDisponibilidadeAgendaWhereUniqueInput
+    create: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
   }
 
-  export type SlotUpsertWithWhereUniqueWithoutAgendaInput = {
-    where: SlotWhereUniqueInput
-    update: XOR<SlotUpdateWithoutAgendaInput, SlotUncheckedUpdateWithoutAgendaInput>
-    create: XOR<SlotCreateWithoutAgendaInput, SlotUncheckedCreateWithoutAgendaInput>
+  export type HorarioDisponivelUpsertWithWhereUniqueWithoutAgenda_horario_disponivelInput = {
+    where: HorarioDisponivelWhereUniqueInput
+    update: XOR<HorarioDisponivelUpdateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedUpdateWithoutAgenda_horario_disponivelInput>
+    create: XOR<HorarioDisponivelCreateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutAgenda_horario_disponivelInput>
   }
 
-  export type SlotUpdateWithWhereUniqueWithoutAgendaInput = {
-    where: SlotWhereUniqueInput
-    data: XOR<SlotUpdateWithoutAgendaInput, SlotUncheckedUpdateWithoutAgendaInput>
+  export type HorarioDisponivelUpdateWithWhereUniqueWithoutAgenda_horario_disponivelInput = {
+    where: HorarioDisponivelWhereUniqueInput
+    data: XOR<HorarioDisponivelUpdateWithoutAgenda_horario_disponivelInput, HorarioDisponivelUncheckedUpdateWithoutAgenda_horario_disponivelInput>
   }
 
-  export type SlotUpdateManyWithWhereWithoutAgendaInput = {
-    where: SlotScalarWhereInput
-    data: XOR<SlotUpdateManyMutationInput, SlotUncheckedUpdateManyWithoutAgendaInput>
+  export type HorarioDisponivelUpdateManyWithWhereWithoutAgenda_horario_disponivelInput = {
+    where: HorarioDisponivelScalarWhereInput
+    data: XOR<HorarioDisponivelUpdateManyMutationInput, HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelInput>
   }
 
-  export type SlotScalarWhereInput = {
-    AND?: SlotScalarWhereInput | SlotScalarWhereInput[]
-    OR?: SlotScalarWhereInput[]
-    NOT?: SlotScalarWhereInput | SlotScalarWhereInput[]
-    id?: StringFilter<"Slot"> | string
-    tenant_id?: StringFilter<"Slot"> | string
-    agenda_id?: StringFilter<"Slot"> | string
-    inicio?: DateTimeFilter<"Slot"> | Date | string
-    fim?: DateTimeFilter<"Slot"> | Date | string
-    capacidade?: IntFilter<"Slot"> | number
-    criadoEm?: DateTimeFilter<"Slot"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Slot"> | Date | string
+  export type HorarioDisponivelScalarWhereInput = {
+    AND?: HorarioDisponivelScalarWhereInput | HorarioDisponivelScalarWhereInput[]
+    OR?: HorarioDisponivelScalarWhereInput[]
+    NOT?: HorarioDisponivelScalarWhereInput | HorarioDisponivelScalarWhereInput[]
+    id_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    id_organizacao_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    id_produto_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_usuario_horario_disponivel?: StringNullableFilter<"HorarioDisponivel"> | string | null
+    id_agenda_horario_disponivel?: StringFilter<"HorarioDisponivel"> | string
+    inicio_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    fim_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    capacidade_horario_disponivel?: IntFilter<"HorarioDisponivel"> | number
+    data_criacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFilter<"HorarioDisponivel"> | Date | string
   }
 
-  export type DisponibilidadeConfigUpsertWithoutAgendaInput = {
-    update: XOR<DisponibilidadeConfigUpdateWithoutAgendaInput, DisponibilidadeConfigUncheckedUpdateWithoutAgendaInput>
-    create: XOR<DisponibilidadeConfigCreateWithoutAgendaInput, DisponibilidadeConfigUncheckedCreateWithoutAgendaInput>
-    where?: DisponibilidadeConfigWhereInput
+  export type ConfigDisponibilidadeAgendaUpsertWithoutAgenda_config_disponibilidade_agendaInput = {
+    update: XOR<ConfigDisponibilidadeAgendaUpdateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedUpdateWithoutAgenda_config_disponibilidade_agendaInput>
+    create: XOR<ConfigDisponibilidadeAgendaCreateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedCreateWithoutAgenda_config_disponibilidade_agendaInput>
+    where?: ConfigDisponibilidadeAgendaWhereInput
   }
 
-  export type DisponibilidadeConfigUpdateToOneWithWhereWithoutAgendaInput = {
-    where?: DisponibilidadeConfigWhereInput
-    data: XOR<DisponibilidadeConfigUpdateWithoutAgendaInput, DisponibilidadeConfigUncheckedUpdateWithoutAgendaInput>
+  export type ConfigDisponibilidadeAgendaUpdateToOneWithWhereWithoutAgenda_config_disponibilidade_agendaInput = {
+    where?: ConfigDisponibilidadeAgendaWhereInput
+    data: XOR<ConfigDisponibilidadeAgendaUpdateWithoutAgenda_config_disponibilidade_agendaInput, ConfigDisponibilidadeAgendaUncheckedUpdateWithoutAgenda_config_disponibilidade_agendaInput>
   }
 
-  export type DisponibilidadeConfigUpdateWithoutAgendaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfigDisponibilidadeAgendaUpdateWithoutAgenda_config_disponibilidade_agendaInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DisponibilidadeConfigUncheckedUpdateWithoutAgendaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    horarioInicio?: StringFieldUpdateOperationsInput | string
-    horarioFim?: StringFieldUpdateOperationsInput | string
-    duracaoSlot?: IntFieldUpdateOperationsInput | number
-    intervalo?: IntFieldUpdateOperationsInput | number
-    diasSemana?: DisponibilidadeConfigUpdatediasSemanaInput | number[]
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfigDisponibilidadeAgendaUncheckedUpdateWithoutAgenda_config_disponibilidade_agendaInput = {
+    id_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_config_disponibilidade_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    horario_inicio_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    horario_fim_config_disponibilidade_agenda?: StringFieldUpdateOperationsInput | string
+    duracao_slot_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    intervalo_config_disponibilidade_agenda?: IntFieldUpdateOperationsInput | number
+    dias_semana_config_disponibilidade_agenda?: ConfigDisponibilidadeAgendaUpdatedias_semana_config_disponibilidade_agendaInput | number[]
+    data_criacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_disponibilidade_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendaCreateWithoutSlotsInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    config?: DisponibilidadeConfigCreateNestedOneWithoutAgendaInput
+  export type AgendaUsuarioCreateWithoutHorarios_agenda_usuarioInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput
   }
 
-  export type AgendaUncheckedCreateWithoutSlotsInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    config?: DisponibilidadeConfigUncheckedCreateNestedOneWithoutAgendaInput
+  export type AgendaUsuarioUncheckedCreateWithoutHorarios_agenda_usuarioInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUncheckedCreateNestedOneWithoutAgenda_config_disponibilidade_agendaInput
   }
 
-  export type AgendaCreateOrConnectWithoutSlotsInput = {
-    where: AgendaWhereUniqueInput
-    create: XOR<AgendaCreateWithoutSlotsInput, AgendaUncheckedCreateWithoutSlotsInput>
+  export type AgendaUsuarioCreateOrConnectWithoutHorarios_agenda_usuarioInput = {
+    where: AgendaUsuarioWhereUniqueInput
+    create: XOR<AgendaUsuarioCreateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutHorarios_agenda_usuarioInput>
   }
 
-  export type ReservaCreateWithoutSlotInput = {
-    id?: string
-    tenant_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ReservaAgendaCreateWithoutHorario_reserva_agendaInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
   }
 
-  export type ReservaUncheckedCreateWithoutSlotInput = {
-    id?: string
-    tenant_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
   }
 
-  export type ReservaCreateOrConnectWithoutSlotInput = {
-    where: ReservaWhereUniqueInput
-    create: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput>
+  export type ReservaAgendaCreateOrConnectWithoutHorario_reserva_agendaInput = {
+    where: ReservaAgendaWhereUniqueInput
+    create: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput>
   }
 
-  export type ReservaCreateManySlotInputEnvelope = {
-    data: ReservaCreateManySlotInput | ReservaCreateManySlotInput[]
+  export type ReservaAgendaCreateManyHorario_reserva_agendaInputEnvelope = {
+    data: ReservaAgendaCreateManyHorario_reserva_agendaInput | ReservaAgendaCreateManyHorario_reserva_agendaInput[]
     skipDuplicates?: boolean
   }
 
-  export type AgendaUpsertWithoutSlotsInput = {
-    update: XOR<AgendaUpdateWithoutSlotsInput, AgendaUncheckedUpdateWithoutSlotsInput>
-    create: XOR<AgendaCreateWithoutSlotsInput, AgendaUncheckedCreateWithoutSlotsInput>
-    where?: AgendaWhereInput
+  export type AgendaUsuarioUpsertWithoutHorarios_agenda_usuarioInput = {
+    update: XOR<AgendaUsuarioUpdateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedUpdateWithoutHorarios_agenda_usuarioInput>
+    create: XOR<AgendaUsuarioCreateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutHorarios_agenda_usuarioInput>
+    where?: AgendaUsuarioWhereInput
   }
 
-  export type AgendaUpdateToOneWithWhereWithoutSlotsInput = {
-    where?: AgendaWhereInput
-    data: XOR<AgendaUpdateWithoutSlotsInput, AgendaUncheckedUpdateWithoutSlotsInput>
+  export type AgendaUsuarioUpdateToOneWithWhereWithoutHorarios_agenda_usuarioInput = {
+    where?: AgendaUsuarioWhereInput
+    data: XOR<AgendaUsuarioUpdateWithoutHorarios_agenda_usuarioInput, AgendaUsuarioUncheckedUpdateWithoutHorarios_agenda_usuarioInput>
   }
 
-  export type AgendaUpdateWithoutSlotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    config?: DisponibilidadeConfigUpdateOneWithoutAgendaNestedInput
+  export type AgendaUsuarioUpdateWithoutHorarios_agenda_usuarioInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput
   }
 
-  export type AgendaUncheckedUpdateWithoutSlotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    config?: DisponibilidadeConfigUncheckedUpdateOneWithoutAgendaNestedInput
+  export type AgendaUsuarioUncheckedUpdateWithoutHorarios_agenda_usuarioInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    config_agenda_usuario?: ConfigDisponibilidadeAgendaUncheckedUpdateOneWithoutAgenda_config_disponibilidade_agendaNestedInput
   }
 
-  export type ReservaUpsertWithWhereUniqueWithoutSlotInput = {
-    where: ReservaWhereUniqueInput
-    update: XOR<ReservaUpdateWithoutSlotInput, ReservaUncheckedUpdateWithoutSlotInput>
-    create: XOR<ReservaCreateWithoutSlotInput, ReservaUncheckedCreateWithoutSlotInput>
+  export type ReservaAgendaUpsertWithWhereUniqueWithoutHorario_reserva_agendaInput = {
+    where: ReservaAgendaWhereUniqueInput
+    update: XOR<ReservaAgendaUpdateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedUpdateWithoutHorario_reserva_agendaInput>
+    create: XOR<ReservaAgendaCreateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedCreateWithoutHorario_reserva_agendaInput>
   }
 
-  export type ReservaUpdateWithWhereUniqueWithoutSlotInput = {
-    where: ReservaWhereUniqueInput
-    data: XOR<ReservaUpdateWithoutSlotInput, ReservaUncheckedUpdateWithoutSlotInput>
+  export type ReservaAgendaUpdateWithWhereUniqueWithoutHorario_reserva_agendaInput = {
+    where: ReservaAgendaWhereUniqueInput
+    data: XOR<ReservaAgendaUpdateWithoutHorario_reserva_agendaInput, ReservaAgendaUncheckedUpdateWithoutHorario_reserva_agendaInput>
   }
 
-  export type ReservaUpdateManyWithWhereWithoutSlotInput = {
-    where: ReservaScalarWhereInput
-    data: XOR<ReservaUpdateManyMutationInput, ReservaUncheckedUpdateManyWithoutSlotInput>
+  export type ReservaAgendaUpdateManyWithWhereWithoutHorario_reserva_agendaInput = {
+    where: ReservaAgendaScalarWhereInput
+    data: XOR<ReservaAgendaUpdateManyMutationInput, ReservaAgendaUncheckedUpdateManyWithoutHorario_reserva_agendaInput>
   }
 
-  export type ReservaScalarWhereInput = {
-    AND?: ReservaScalarWhereInput | ReservaScalarWhereInput[]
-    OR?: ReservaScalarWhereInput[]
-    NOT?: ReservaScalarWhereInput | ReservaScalarWhereInput[]
-    id?: StringFilter<"Reserva"> | string
-    tenant_id?: StringFilter<"Reserva"> | string
-    slot_id?: StringFilter<"Reserva"> | string
-    usuario_id?: StringFilter<"Reserva"> | string
-    nome?: StringNullableFilter<"Reserva"> | string | null
-    email?: StringNullableFilter<"Reserva"> | string | null
-    status?: StringFilter<"Reserva"> | string
-    criadoEm?: DateTimeFilter<"Reserva"> | Date | string
-    atualizadoEm?: DateTimeFilter<"Reserva"> | Date | string
+  export type ReservaAgendaScalarWhereInput = {
+    AND?: ReservaAgendaScalarWhereInput | ReservaAgendaScalarWhereInput[]
+    OR?: ReservaAgendaScalarWhereInput[]
+    NOT?: ReservaAgendaScalarWhereInput | ReservaAgendaScalarWhereInput[]
+    id_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_organizacao_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_produto_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_usuario_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    id_horario_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    id_reservante_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    nome_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    email_reservante_reserva_agenda?: StringNullableFilter<"ReservaAgenda"> | string | null
+    status_reserva_agenda?: StringFilter<"ReservaAgenda"> | string
+    data_criacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFilter<"ReservaAgenda"> | Date | string
   }
 
-  export type SlotCreateWithoutReservasInput = {
-    id?: string
-    tenant_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    agenda: AgendaCreateNestedOneWithoutSlotsInput
+  export type HorarioDisponivelCreateWithoutReservas_horario_disponivelInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
+    agenda_horario_disponivel: AgendaUsuarioCreateNestedOneWithoutHorarios_agenda_usuarioInput
   }
 
-  export type SlotUncheckedCreateWithoutReservasInput = {
-    id?: string
-    tenant_id: string
-    agenda_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type HorarioDisponivelUncheckedCreateWithoutReservas_horario_disponivelInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    id_agenda_horario_disponivel: string
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
   }
 
-  export type SlotCreateOrConnectWithoutReservasInput = {
-    where: SlotWhereUniqueInput
-    create: XOR<SlotCreateWithoutReservasInput, SlotUncheckedCreateWithoutReservasInput>
+  export type HorarioDisponivelCreateOrConnectWithoutReservas_horario_disponivelInput = {
+    where: HorarioDisponivelWhereUniqueInput
+    create: XOR<HorarioDisponivelCreateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutReservas_horario_disponivelInput>
   }
 
-  export type SlotUpsertWithoutReservasInput = {
-    update: XOR<SlotUpdateWithoutReservasInput, SlotUncheckedUpdateWithoutReservasInput>
-    create: XOR<SlotCreateWithoutReservasInput, SlotUncheckedCreateWithoutReservasInput>
-    where?: SlotWhereInput
+  export type HorarioDisponivelUpsertWithoutReservas_horario_disponivelInput = {
+    update: XOR<HorarioDisponivelUpdateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedUpdateWithoutReservas_horario_disponivelInput>
+    create: XOR<HorarioDisponivelCreateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedCreateWithoutReservas_horario_disponivelInput>
+    where?: HorarioDisponivelWhereInput
   }
 
-  export type SlotUpdateToOneWithWhereWithoutReservasInput = {
-    where?: SlotWhereInput
-    data: XOR<SlotUpdateWithoutReservasInput, SlotUncheckedUpdateWithoutReservasInput>
+  export type HorarioDisponivelUpdateToOneWithWhereWithoutReservas_horario_disponivelInput = {
+    where?: HorarioDisponivelWhereInput
+    data: XOR<HorarioDisponivelUpdateWithoutReservas_horario_disponivelInput, HorarioDisponivelUncheckedUpdateWithoutReservas_horario_disponivelInput>
   }
 
-  export type SlotUpdateWithoutReservasInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    agenda?: AgendaUpdateOneRequiredWithoutSlotsNestedInput
+  export type HorarioDisponivelUpdateWithoutReservas_horario_disponivelInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    agenda_horario_disponivel?: AgendaUsuarioUpdateOneRequiredWithoutHorarios_agenda_usuarioNestedInput
   }
 
-  export type SlotUncheckedUpdateWithoutReservasInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    agenda_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type HorarioDisponivelUncheckedUpdateWithoutReservas_horario_disponivelInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agenda_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendaCreateWithoutConfigInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    slots?: SlotCreateNestedManyWithoutAgendaInput
+  export type AgendaUsuarioCreateWithoutConfig_agenda_usuarioInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    horarios_agenda_usuario?: HorarioDisponivelCreateNestedManyWithoutAgenda_horario_disponivelInput
   }
 
-  export type AgendaUncheckedCreateWithoutConfigInput = {
-    id?: string
-    tenant_id: string
-    nome: string
-    descricao?: string | null
-    tipo: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
-    slots?: SlotUncheckedCreateNestedManyWithoutAgendaInput
+  export type AgendaUsuarioUncheckedCreateWithoutConfig_agenda_usuarioInput = {
+    id_agenda_usuario?: string
+    id_organizacao_agenda_usuario: string
+    id_produto_agenda_usuario?: string | null
+    id_usuario_agenda_usuario?: string | null
+    nome_agenda_usuario: string
+    descricao_agenda_usuario?: string | null
+    tipo_agenda_usuario: string
+    data_criacao_agenda_usuario?: Date | string
+    data_atualizacao_agenda_usuario?: Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUncheckedCreateNestedManyWithoutAgenda_horario_disponivelInput
   }
 
-  export type AgendaCreateOrConnectWithoutConfigInput = {
-    where: AgendaWhereUniqueInput
-    create: XOR<AgendaCreateWithoutConfigInput, AgendaUncheckedCreateWithoutConfigInput>
+  export type AgendaUsuarioCreateOrConnectWithoutConfig_agenda_usuarioInput = {
+    where: AgendaUsuarioWhereUniqueInput
+    create: XOR<AgendaUsuarioCreateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutConfig_agenda_usuarioInput>
   }
 
-  export type AgendaUpsertWithoutConfigInput = {
-    update: XOR<AgendaUpdateWithoutConfigInput, AgendaUncheckedUpdateWithoutConfigInput>
-    create: XOR<AgendaCreateWithoutConfigInput, AgendaUncheckedCreateWithoutConfigInput>
-    where?: AgendaWhereInput
+  export type AgendaUsuarioUpsertWithoutConfig_agenda_usuarioInput = {
+    update: XOR<AgendaUsuarioUpdateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedUpdateWithoutConfig_agenda_usuarioInput>
+    create: XOR<AgendaUsuarioCreateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedCreateWithoutConfig_agenda_usuarioInput>
+    where?: AgendaUsuarioWhereInput
   }
 
-  export type AgendaUpdateToOneWithWhereWithoutConfigInput = {
-    where?: AgendaWhereInput
-    data: XOR<AgendaUpdateWithoutConfigInput, AgendaUncheckedUpdateWithoutConfigInput>
+  export type AgendaUsuarioUpdateToOneWithWhereWithoutConfig_agenda_usuarioInput = {
+    where?: AgendaUsuarioWhereInput
+    data: XOR<AgendaUsuarioUpdateWithoutConfig_agenda_usuarioInput, AgendaUsuarioUncheckedUpdateWithoutConfig_agenda_usuarioInput>
   }
 
-  export type AgendaUpdateWithoutConfigInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    slots?: SlotUpdateManyWithoutAgendaNestedInput
+  export type AgendaUsuarioUpdateWithoutConfig_agenda_usuarioInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUpdateManyWithoutAgenda_horario_disponivelNestedInput
   }
 
-  export type AgendaUncheckedUpdateWithoutConfigInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    slots?: SlotUncheckedUpdateManyWithoutAgendaNestedInput
+  export type AgendaUsuarioUncheckedUpdateWithoutConfig_agenda_usuarioInput = {
+    id_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    id_produto_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    descricao_agenda_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_agenda_usuario?: StringFieldUpdateOperationsInput | string
+    data_criacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agenda_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios_agenda_usuario?: HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelNestedInput
   }
 
   export type MensagemIndividualGabiaiCreateWithoutConversationInput = {
@@ -67146,90 +67414,106 @@ export namespace Prisma {
     data_criacao_notificacao_alerta?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SlotCreateManyAgendaInput = {
-    id?: string
-    tenant_id: string
-    inicio: Date | string
-    fim: Date | string
-    capacidade?: number
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type HorarioDisponivelCreateManyAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: string
+    id_organizacao_horario_disponivel: string
+    id_produto_horario_disponivel?: string | null
+    id_usuario_horario_disponivel?: string | null
+    inicio_horario_disponivel: Date | string
+    fim_horario_disponivel: Date | string
+    capacidade_horario_disponivel?: number
+    data_criacao_horario_disponivel?: Date | string
+    data_atualizacao_horario_disponivel?: Date | string
   }
 
-  export type SlotUpdateWithoutAgendaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    reservas?: ReservaUpdateManyWithoutSlotNestedInput
+  export type HorarioDisponivelUpdateWithoutAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservas_horario_disponivel?: ReservaAgendaUpdateManyWithoutHorario_reserva_agendaNestedInput
   }
 
-  export type SlotUncheckedUpdateWithoutAgendaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    reservas?: ReservaUncheckedUpdateManyWithoutSlotNestedInput
+  export type HorarioDisponivelUncheckedUpdateWithoutAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservas_horario_disponivel?: ReservaAgendaUncheckedUpdateManyWithoutHorario_reserva_agendaNestedInput
   }
 
-  export type SlotUncheckedUpdateManyWithoutAgendaInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    capacidade?: IntFieldUpdateOperationsInput | number
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type HorarioDisponivelUncheckedUpdateManyWithoutAgenda_horario_disponivelInput = {
+    id_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_organizacao_horario_disponivel?: StringFieldUpdateOperationsInput | string
+    id_produto_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_horario_disponivel?: NullableStringFieldUpdateOperationsInput | string | null
+    inicio_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    fim_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    capacidade_horario_disponivel?: IntFieldUpdateOperationsInput | number
+    data_criacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_horario_disponivel?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaCreateManySlotInput = {
-    id?: string
-    tenant_id: string
-    usuario_id: string
-    nome?: string | null
-    email?: string | null
-    status?: string
-    criadoEm?: Date | string
-    atualizadoEm?: Date | string
+  export type ReservaAgendaCreateManyHorario_reserva_agendaInput = {
+    id_reserva_agenda?: string
+    id_organizacao_reserva_agenda: string
+    id_produto_reserva_agenda?: string | null
+    id_usuario_reserva_agenda?: string | null
+    id_reservante_reserva_agenda: string
+    nome_reservante_reserva_agenda?: string | null
+    email_reservante_reserva_agenda?: string | null
+    status_reserva_agenda?: string
+    data_criacao_reserva_agenda?: Date | string
+    data_atualizacao_reserva_agenda?: Date | string
   }
 
-  export type ReservaUpdateWithoutSlotInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUpdateWithoutHorario_reserva_agendaInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaUncheckedUpdateWithoutSlotInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUncheckedUpdateWithoutHorario_reserva_agendaInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ReservaUncheckedUpdateManyWithoutSlotInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    usuario_id?: StringFieldUpdateOperationsInput | string
-    nome?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    criadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizadoEm?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ReservaAgendaUncheckedUpdateManyWithoutHorario_reserva_agendaInput = {
+    id_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_organizacao_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    id_produto_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    id_reservante_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    nome_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    email_reservante_reserva_agenda?: NullableStringFieldUpdateOperationsInput | string | null
+    status_reserva_agenda?: StringFieldUpdateOperationsInput | string
+    data_criacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_reserva_agenda?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MensagemIndividualGabiaiCreateManyConversationInput = {
@@ -67306,13 +67590,13 @@ export namespace Prisma {
      */
     export type EventoAlertaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AgendaCountOutputTypeDefaultArgs instead
+     * @deprecated Use AgendaUsuarioCountOutputTypeDefaultArgs instead
      */
-    export type AgendaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendaCountOutputTypeDefaultArgs<ExtArgs>
+    export type AgendaUsuarioCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendaUsuarioCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use SlotCountOutputTypeDefaultArgs instead
+     * @deprecated Use HorarioDisponivelCountOutputTypeDefaultArgs instead
      */
-    export type SlotCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SlotCountOutputTypeDefaultArgs<ExtArgs>
+    export type HorarioDisponivelCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HorarioDisponivelCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ConversaCompletaGabiCountOutputTypeDefaultArgs instead
      */
@@ -67430,21 +67714,21 @@ export namespace Prisma {
      */
     export type ExportarResultadoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExportarResultadoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AgendaDefaultArgs instead
+     * @deprecated Use AgendaUsuarioDefaultArgs instead
      */
-    export type AgendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendaDefaultArgs<ExtArgs>
+    export type AgendaUsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendaUsuarioDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use SlotDefaultArgs instead
+     * @deprecated Use HorarioDisponivelDefaultArgs instead
      */
-    export type SlotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SlotDefaultArgs<ExtArgs>
+    export type HorarioDisponivelArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HorarioDisponivelDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ReservaDefaultArgs instead
+     * @deprecated Use ReservaAgendaDefaultArgs instead
      */
-    export type ReservaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ReservaDefaultArgs<ExtArgs>
+    export type ReservaAgendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ReservaAgendaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use DisponibilidadeConfigDefaultArgs instead
+     * @deprecated Use ConfigDisponibilidadeAgendaDefaultArgs instead
      */
-    export type DisponibilidadeConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DisponibilidadeConfigDefaultArgs<ExtArgs>
+    export type ConfigDisponibilidadeAgendaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfigDisponibilidadeAgendaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ConversaCompletaGabiDefaultArgs instead
      */

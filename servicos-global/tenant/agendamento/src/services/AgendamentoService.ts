@@ -3,15 +3,19 @@ import { AppError } from '../../server/lib/errors.js'
 
 export class AgendamentoService {
   async gerarSlots(tenant_id: string, agenda_id: string, dataInicio: Date, dataFim: Date) {
-    const config = await prisma.disponibilidadeConfig.findUnique({
-      where: { agenda_id },
+    const config = await prisma.configDisponibilidadeAgenda.findUnique({
+      where: { id_agenda_config_disponibilidade_agenda: agenda_id },
     })
 
-    if (!config || config.tenant_id !== tenant_id) {
+    if (!config || config.id_organizacao_config_disponibilidade_agenda !== tenant_id) {
       throw new AppError('Configuração de disponibilidade não encontrada para esta agenda', 404)
     }
 
-    const { horarioInicio, horarioFim, duracaoSlot, intervalo, diasSemana } = config
+    const horarioInicio = config.horario_inicio_config_disponibilidade_agenda
+    const horarioFim = config.horario_fim_config_disponibilidade_agenda
+    const duracaoSlot = config.duracao_slot_config_disponibilidade_agenda
+    const intervalo = config.intervalo_config_disponibilidade_agenda
+    const diasSemana = config.dias_semana_config_disponibilidade_agenda
 
     // Converter string HH:mm para minutos desde meia noite
     const [hInicio, mInicio] = horarioInicio.split(':').map(Number)
@@ -20,9 +24,15 @@ export class AgendamentoService {
     const [hFim, mFim] = horarioFim.split(':').map(Number)
     const fimMinutos = (hFim ?? 0) * 60 + (mFim ?? 0)
 
-    const slotsParaCriar = []
+    const slotsParaCriar: Array<{
+      id_organizacao_horario_disponivel: string
+      id_agenda_horario_disponivel: string
+      inicio_horario_disponivel: Date
+      fim_horario_disponivel: Date
+      capacidade_horario_disponivel: number
+    }> = []
 
-    let diaAtual = new Date(dataInicio)
+    const diaAtual = new Date(dataInicio)
     diaAtual.setHours(0, 0, 0, 0)
 
     const limiteFim = new Date(dataFim)
@@ -48,11 +58,11 @@ export class AgendamentoService {
           slotFim.setHours(horaFim, minutoFim, 0, 0)
 
           slotsParaCriar.push({
-            tenant_id,
-            agenda_id,
-            inicio: slotInicio,
-            fim: slotFim,
-            capacidade: 1, // Default,
+            id_organizacao_horario_disponivel: tenant_id,
+            id_agenda_horario_disponivel: agenda_id,
+            inicio_horario_disponivel: slotInicio,
+            fim_horario_disponivel: slotFim,
+            capacidade_horario_disponivel: 1,
           })
 
           tempoAtual += duracaoSlot + intervalo
@@ -66,35 +76,38 @@ export class AgendamentoService {
       return []
     }
 
-    await prisma.slot.createMany({
+    await prisma.horarioDisponivel.createMany({
       data: slotsParaCriar,
     })
 
     return slotsParaCriar
   }
 
-  async notificarReserva(reserva: any) {
+  async notificarReserva(reserva: {
+    id_reserva_agenda: string
+    id_organizacao_reserva_agenda: string
+    email_reservante_reserva_agenda: string | null
+  }) {
     const NOTIFICACOES_URL = process.env.NOTIFICACOES_API_URL ?? 'http://localhost:3001/api/v1/notificacoes'
-    
-    // Tentativa de integração com Notificações (fire and forget ou aguardar sucesso)
+
     try {
-      if (!reserva.email) return
+      if (!reserva.email_reservante_reserva_agenda) return
 
       const payload = {
-        tenant_id: reserva.tenant_id,
+        tenant_id: reserva.id_organizacao_reserva_agenda,
         canal: 'email',
-        destinatario: reserva.email,
+        destinatario: reserva.email_reservante_reserva_agenda,
         titulo: 'Confirmação de Agendamento',
-        mensagem: `A sua reserva foi confirmada com sucesso. ID da Reserva: ${reserva.id}`,
+        mensagem: `A sua reserva foi confirmada com sucesso. ID da Reserva: ${reserva.id_reserva_agenda}`,
       }
 
       const response = await fetch(NOTIFICACOES_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-correlation-id': crypto.randomUUID()
+          'x-correlation-id': crypto.randomUUID(),
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {

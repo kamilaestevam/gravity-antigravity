@@ -588,50 +588,58 @@ exports.Prisma.ExportarResultadoScalarFieldEnum = {
   expira_em_exportar_resultado: 'expira_em_exportar_resultado'
 };
 
-exports.Prisma.AgendaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  nome: 'nome',
-  descricao: 'descricao',
-  tipo: 'tipo',
-  criadoEm: 'criadoEm',
-  atualizadoEm: 'atualizadoEm'
+exports.Prisma.AgendaUsuarioScalarFieldEnum = {
+  id_agenda_usuario: 'id_agenda_usuario',
+  id_organizacao_agenda_usuario: 'id_organizacao_agenda_usuario',
+  id_produto_agenda_usuario: 'id_produto_agenda_usuario',
+  id_usuario_agenda_usuario: 'id_usuario_agenda_usuario',
+  nome_agenda_usuario: 'nome_agenda_usuario',
+  descricao_agenda_usuario: 'descricao_agenda_usuario',
+  tipo_agenda_usuario: 'tipo_agenda_usuario',
+  data_criacao_agenda_usuario: 'data_criacao_agenda_usuario',
+  data_atualizacao_agenda_usuario: 'data_atualizacao_agenda_usuario'
 };
 
-exports.Prisma.SlotScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  agenda_id: 'agenda_id',
-  inicio: 'inicio',
-  fim: 'fim',
-  capacidade: 'capacidade',
-  criadoEm: 'criadoEm',
-  atualizadoEm: 'atualizadoEm'
+exports.Prisma.HorarioDisponivelScalarFieldEnum = {
+  id_horario_disponivel: 'id_horario_disponivel',
+  id_organizacao_horario_disponivel: 'id_organizacao_horario_disponivel',
+  id_produto_horario_disponivel: 'id_produto_horario_disponivel',
+  id_usuario_horario_disponivel: 'id_usuario_horario_disponivel',
+  id_agenda_horario_disponivel: 'id_agenda_horario_disponivel',
+  inicio_horario_disponivel: 'inicio_horario_disponivel',
+  fim_horario_disponivel: 'fim_horario_disponivel',
+  capacidade_horario_disponivel: 'capacidade_horario_disponivel',
+  data_criacao_horario_disponivel: 'data_criacao_horario_disponivel',
+  data_atualizacao_horario_disponivel: 'data_atualizacao_horario_disponivel'
 };
 
-exports.Prisma.ReservaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  slot_id: 'slot_id',
-  usuario_id: 'usuario_id',
-  nome: 'nome',
-  email: 'email',
-  status: 'status',
-  criadoEm: 'criadoEm',
-  atualizadoEm: 'atualizadoEm'
+exports.Prisma.ReservaAgendaScalarFieldEnum = {
+  id_reserva_agenda: 'id_reserva_agenda',
+  id_organizacao_reserva_agenda: 'id_organizacao_reserva_agenda',
+  id_produto_reserva_agenda: 'id_produto_reserva_agenda',
+  id_usuario_reserva_agenda: 'id_usuario_reserva_agenda',
+  id_horario_reserva_agenda: 'id_horario_reserva_agenda',
+  id_reservante_reserva_agenda: 'id_reservante_reserva_agenda',
+  nome_reservante_reserva_agenda: 'nome_reservante_reserva_agenda',
+  email_reservante_reserva_agenda: 'email_reservante_reserva_agenda',
+  status_reserva_agenda: 'status_reserva_agenda',
+  data_criacao_reserva_agenda: 'data_criacao_reserva_agenda',
+  data_atualizacao_reserva_agenda: 'data_atualizacao_reserva_agenda'
 };
 
-exports.Prisma.DisponibilidadeConfigScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  agenda_id: 'agenda_id',
-  horarioInicio: 'horarioInicio',
-  horarioFim: 'horarioFim',
-  duracaoSlot: 'duracaoSlot',
-  intervalo: 'intervalo',
-  diasSemana: 'diasSemana',
-  criadoEm: 'criadoEm',
-  atualizadoEm: 'atualizadoEm'
+exports.Prisma.ConfigDisponibilidadeAgendaScalarFieldEnum = {
+  id_config_disponibilidade_agenda: 'id_config_disponibilidade_agenda',
+  id_organizacao_config_disponibilidade_agenda: 'id_organizacao_config_disponibilidade_agenda',
+  id_produto_config_disponibilidade_agenda: 'id_produto_config_disponibilidade_agenda',
+  id_usuario_config_disponibilidade_agenda: 'id_usuario_config_disponibilidade_agenda',
+  id_agenda_config_disponibilidade_agenda: 'id_agenda_config_disponibilidade_agenda',
+  horario_inicio_config_disponibilidade_agenda: 'horario_inicio_config_disponibilidade_agenda',
+  horario_fim_config_disponibilidade_agenda: 'horario_fim_config_disponibilidade_agenda',
+  duracao_slot_config_disponibilidade_agenda: 'duracao_slot_config_disponibilidade_agenda',
+  intervalo_config_disponibilidade_agenda: 'intervalo_config_disponibilidade_agenda',
+  dias_semana_config_disponibilidade_agenda: 'dias_semana_config_disponibilidade_agenda',
+  data_criacao_config_disponibilidade_agenda: 'data_criacao_config_disponibilidade_agenda',
+  data_atualizacao_config_disponibilidade_agenda: 'data_atualizacao_config_disponibilidade_agenda'
 };
 
 exports.Prisma.ConversaCompletaGabiScalarFieldEnum = {
@@ -954,10 +962,10 @@ exports.Prisma.ModelName = {
   EventoAlerta: 'EventoAlerta',
   NotificacaoAlerta: 'NotificacaoAlerta',
   ExportarResultado: 'ExportarResultado',
-  Agenda: 'Agenda',
-  Slot: 'Slot',
-  Reserva: 'Reserva',
-  DisponibilidadeConfig: 'DisponibilidadeConfig',
+  AgendaUsuario: 'AgendaUsuario',
+  HorarioDisponivel: 'HorarioDisponivel',
+  ReservaAgenda: 'ReservaAgenda',
+  ConfigDisponibilidadeAgenda: 'ConfigDisponibilidadeAgenda',
   ConversaCompletaGabi: 'ConversaCompletaGabi',
   MensagemIndividualGabiai: 'MensagemIndividualGabiai',
   GabiaLogUso: 'GabiaLogUso',

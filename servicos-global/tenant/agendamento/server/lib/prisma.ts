@@ -1,9 +1,13 @@
-import { PrismaClient } from '@prisma/client'
+// server/lib/prisma.ts
+// Singleton do PrismaClient para o serviço de Agendamento.
+// Usa o client gerado a partir do schema composto pelo Coordenador.
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+import { PrismaClient } from '../../../generated/index.js'
+
+const globalForPrisma = globalThis as unknown as { agendamentoPrisma: PrismaClient }
 
 export const prisma =
-  globalForPrisma.prisma ||
+  globalForPrisma.agendamentoPrisma ??
   new PrismaClient({
     log:
       process.env.NODE_ENV === 'development'
@@ -11,4 +15,6 @@ export const prisma =
         : ['error'],
   })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.agendamentoPrisma = prisma
+}

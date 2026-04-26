@@ -3,35 +3,67 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
 import { AgendamentoService } from '../../src/services/AgendamentoService.js'
-import { withTenantIsolation } from '../../../middleware/withTenantIsolation.js'
 
 export const slotRouter = Router()
 
 const slotSchema = z.object({
-  agenda_id: z.string().uuid(),
+  agenda_id: z.string().min(1),
   inicio: z.string().datetime(),
   fim: z.string().datetime(),
   capacidade: z.number().int().positive().default(1),
+  product_id: z.string().optional().nullable(),
 })
 
 const generateSlotsSchema = z.object({
-  agenda_id: z.string().uuid(),
+  agenda_id: z.string().min(1),
   dataInicio: z.string().datetime(),
   dataFim: z.string().datetime(),
 })
 
+// ---- ACL DTO ----
+function toSlotDto(s: {
+  id_horario_disponivel: string
+  id_organizacao_horario_disponivel: string
+  id_produto_horario_disponivel: string | null
+  id_usuario_horario_disponivel: string | null
+  id_agenda_horario_disponivel: string
+  inicio_horario_disponivel: Date
+  fim_horario_disponivel: Date
+  capacidade_horario_disponivel: number
+  data_criacao_horario_disponivel: Date
+  data_atualizacao_horario_disponivel: Date
+}) {
+  return {
+    id: s.id_horario_disponivel,
+    tenant_id: s.id_organizacao_horario_disponivel,
+    product_id: s.id_produto_horario_disponivel,
+    user_id: s.id_usuario_horario_disponivel,
+    agenda_id: s.id_agenda_horario_disponivel,
+    inicio: s.inicio_horario_disponivel,
+    fim: s.fim_horario_disponivel,
+    capacidade: s.capacidade_horario_disponivel,
+    created_at: s.data_criacao_horario_disponivel,
+    updated_at: s.data_atualizacao_horario_disponivel,
+  }
+}
+
 slotRouter.post('/', async (req, res, next) => {
   try {
     const data = slotSchema.parse(req.body)
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const slot = await db.slot.create({
+    const { tenantId, userId } = req.auth
+
+    const slot = await prisma.horarioDisponivel.create({
       data: {
-        ...data,
-        inicio: new Date(data.inicio),
-        fim: new Date(data.fim),
+        id_organizacao_horario_disponivel: tenantId,
+        id_usuario_horario_disponivel: userId || null,
+        id_produto_horario_disponivel: data.product_id ?? null,
+        id_agenda_horario_disponivel: data.agenda_id,
+        inicio_horario_disponivel: new Date(data.inicio),
+        fim_horario_disponivel: new Date(data.fim),
+        capacidade_horario_disponivel: data.capacidade,
       },
     })
-    res.status(201).json(slot)
+    res.status(201).json(toSlotDto(slot))
   } catch (error) {
     next(error)
   }
@@ -45,7 +77,7 @@ slotRouter.post('/gerar', async (req, res, next) => {
       req.auth.tenantId,
       data.agenda_id,
       new Date(data.dataInicio),
-      new Date(data.dataFim)
+      new Date(data.dataFim),
     )
     res.status(201).json({ gerados: slotsCriados.length, slots: slotsCriados })
   } catch (error) {
@@ -56,12 +88,16 @@ slotRouter.post('/gerar', async (req, res, next) => {
 slotRouter.get('/agenda/:agenda_id', async (req, res, next) => {
   try {
     const { agenda_id } = req.params
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const slots = await db.slot.findMany({
-      where: { agenda_id },
-      orderBy: { inicio: 'asc' },
+    const { tenantId } = req.auth
+
+    const slots = await prisma.horarioDisponivel.findMany({
+      where: {
+        id_agenda_horario_disponivel: agenda_id,
+        id_organizacao_horario_disponivel: tenantId,
+      },
+      orderBy: { inicio_horario_disponivel: 'asc' },
     })
-    res.json(slots)
+    res.json(slots.map(toSlotDto))
   } catch (error) {
     next(error)
   }
@@ -70,14 +106,21 @@ slotRouter.get('/agenda/:agenda_id', async (req, res, next) => {
 slotRouter.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const { tenantId } = req.auth
 
-    const existing = await db.slot.findFirst({ where: { id } })
+    const existing = await prisma.horarioDisponivel.findFirst({
+      where: {
+        id_horario_disponivel: id,
+        id_organizacao_horario_disponivel: tenantId,
+      },
+    })
     if (!existing) {
       throw new AppError('Slot não encontrado', 404)
     }
 
-    await db.slot.delete({ where: { id } })
+    await prisma.horarioDisponivel.delete({
+      where: { id_horario_disponivel: id },
+    })
     res.status(204).send()
   } catch (error) {
     next(error)

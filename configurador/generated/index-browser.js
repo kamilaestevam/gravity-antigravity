@@ -166,15 +166,15 @@ exports.Prisma.AssinaturaProdutoGravityScalarFieldEnum = {
 };
 
 exports.Prisma.UsuarioPermissaoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  user_id: 'user_id',
-  product_id: 'product_id',
-  permission: 'permission',
-  granted_by: 'granted_by',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_usuario_permissao: 'id_usuario_permissao',
+  id_organizacao_usuario_permissao: 'id_organizacao_usuario_permissao',
+  id_workspace_usuario_permissao: 'id_workspace_usuario_permissao',
+  id_usuario_usuario_permissao: 'id_usuario_usuario_permissao',
+  id_produto_usuario_permissao: 'id_produto_usuario_permissao',
+  permissao_usuario_permissao: 'permissao_usuario_permissao',
+  concedido_por_usuario_permissao: 'concedido_por_usuario_permissao',
+  data_criacao_usuario_permissao: 'data_criacao_usuario_permissao',
+  data_atualizacao_usuario_permissao: 'data_atualizacao_usuario_permissao'
 };
 
 exports.Prisma.PermissaoAdminGravityScalarFieldEnum = {

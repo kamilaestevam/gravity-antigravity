@@ -88,6 +88,7 @@ async function main() {
     const dbPermissions = await prisma.usuarioPermissao.count({
       where: { user: { clerk_user_id: { in: toDelete.map(u => u.id) } } },
     })
+    // ↑ relação `user` é tipada — não usa nome físico de coluna
     const dbMemberships = await prisma.usuarioWorkspace.count({
       where: { user: { clerk_user_id: { in: toDelete.map(u => u.id) } } },
     })

@@ -42,11 +42,11 @@ export const permissionsService = {
 
     const permission = await prisma.usuarioPermissao.findFirst({
       where: {
-        tenant_id: tenantId,
-        company_id: companyId,
-        user_id: userId,
-        product_id: productId,
-        permission: permissionKey,
+        id_organizacao_usuario_permissao: tenantId,
+        id_workspace_usuario_permissao: companyId,
+        id_usuario_usuario_permissao: userId,
+        id_produto_usuario_permissao: productId,
+        permissao_usuario_permissao: permissionKey,
       },
     })
 
@@ -57,19 +57,26 @@ export const permissionsService = {
    * Lista todas as permissões de um usuário no tenant/workspace
    */
   async getUserPermissions(tenantId: string, userId: string, companyId?: string) {
-    return prisma.usuarioPermissao.findMany({
+    const rows = await prisma.usuarioPermissao.findMany({
       where: {
-        tenant_id: tenantId,
-        user_id: userId,
-        ...(companyId && { company_id: companyId }),
+        id_organizacao_usuario_permissao: tenantId,
+        id_usuario_usuario_permissao: userId,
+        ...(companyId && { id_workspace_usuario_permissao: companyId }),
       },
       select: {
-        company_id: true,
-        product_id: true,
-        permission: true,
-        created_at: true,
+        id_workspace_usuario_permissao: true,
+        id_produto_usuario_permissao: true,
+        permissao_usuario_permissao: true,
+        data_criacao_usuario_permissao: true,
       },
     })
+    // DTO: mantém contrato externo (company_id, product_id, permission, created_at)
+    return rows.map((r) => ({
+      company_id: r.id_workspace_usuario_permissao,
+      product_id: r.id_produto_usuario_permissao,
+      permission: r.permissao_usuario_permissao,
+      created_at: r.data_criacao_usuario_permissao,
+    }))
   },
 
   /**
@@ -87,22 +94,22 @@ export const permissionsService = {
       // Limpa permissões antigas do produto neste workspace
       prisma.usuarioPermissao.deleteMany({
         where: {
-          tenant_id: tenantId,
-          company_id: companyId,
-          user_id: userId,
-          product_id: productId,
+          id_organizacao_usuario_permissao: tenantId,
+          id_workspace_usuario_permissao: companyId,
+          id_usuario_usuario_permissao: userId,
+          id_produto_usuario_permissao: productId,
         },
       }),
       // Insere novas
       ...permissions.map((p) =>
         prisma.usuarioPermissao.create({
           data: {
-            tenant_id: tenantId,
-            company_id: companyId,
-            user_id: userId,
-            product_id: productId,
-            permission: p,
-            granted_by: grantedBy,
+            id_organizacao_usuario_permissao: tenantId,
+            id_workspace_usuario_permissao: companyId,
+            id_usuario_usuario_permissao: userId,
+            id_produto_usuario_permissao: productId,
+            permissao_usuario_permissao: p,
+            concedido_por_usuario_permissao: grantedBy,
           },
         })
       ),

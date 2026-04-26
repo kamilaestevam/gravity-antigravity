@@ -6347,77 +6347,77 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    company_id: string | null
-    user_id: string | null
-    product_id: string | null
-    permission: string | null
-    granted_by: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_usuario_permissao: string | null
+    id_organizacao_usuario_permissao: string | null
+    id_workspace_usuario_permissao: string | null
+    id_usuario_usuario_permissao: string | null
+    id_produto_usuario_permissao: string | null
+    permissao_usuario_permissao: string | null
+    concedido_por_usuario_permissao: string | null
+    data_criacao_usuario_permissao: Date | null
+    data_atualizacao_usuario_permissao: Date | null
   }
 
   export type UsuarioPermissaoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    company_id: string | null
-    user_id: string | null
-    product_id: string | null
-    permission: string | null
-    granted_by: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_usuario_permissao: string | null
+    id_organizacao_usuario_permissao: string | null
+    id_workspace_usuario_permissao: string | null
+    id_usuario_usuario_permissao: string | null
+    id_produto_usuario_permissao: string | null
+    permissao_usuario_permissao: string | null
+    concedido_por_usuario_permissao: string | null
+    data_criacao_usuario_permissao: Date | null
+    data_atualizacao_usuario_permissao: Date | null
   }
 
   export type UsuarioPermissaoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    company_id: number
-    user_id: number
-    product_id: number
-    permission: number
-    granted_by: number
-    created_at: number
-    updated_at: number
+    id_usuario_permissao: number
+    id_organizacao_usuario_permissao: number
+    id_workspace_usuario_permissao: number
+    id_usuario_usuario_permissao: number
+    id_produto_usuario_permissao: number
+    permissao_usuario_permissao: number
+    concedido_por_usuario_permissao: number
+    data_criacao_usuario_permissao: number
+    data_atualizacao_usuario_permissao: number
     _all: number
   }
 
 
   export type UsuarioPermissaoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    company_id?: true
-    user_id?: true
-    product_id?: true
-    permission?: true
-    granted_by?: true
-    created_at?: true
-    updated_at?: true
+    id_usuario_permissao?: true
+    id_organizacao_usuario_permissao?: true
+    id_workspace_usuario_permissao?: true
+    id_usuario_usuario_permissao?: true
+    id_produto_usuario_permissao?: true
+    permissao_usuario_permissao?: true
+    concedido_por_usuario_permissao?: true
+    data_criacao_usuario_permissao?: true
+    data_atualizacao_usuario_permissao?: true
   }
 
   export type UsuarioPermissaoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    company_id?: true
-    user_id?: true
-    product_id?: true
-    permission?: true
-    granted_by?: true
-    created_at?: true
-    updated_at?: true
+    id_usuario_permissao?: true
+    id_organizacao_usuario_permissao?: true
+    id_workspace_usuario_permissao?: true
+    id_usuario_usuario_permissao?: true
+    id_produto_usuario_permissao?: true
+    permissao_usuario_permissao?: true
+    concedido_por_usuario_permissao?: true
+    data_criacao_usuario_permissao?: true
+    data_atualizacao_usuario_permissao?: true
   }
 
   export type UsuarioPermissaoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    company_id?: true
-    user_id?: true
-    product_id?: true
-    permission?: true
-    granted_by?: true
-    created_at?: true
-    updated_at?: true
+    id_usuario_permissao?: true
+    id_organizacao_usuario_permissao?: true
+    id_workspace_usuario_permissao?: true
+    id_usuario_usuario_permissao?: true
+    id_produto_usuario_permissao?: true
+    permissao_usuario_permissao?: true
+    concedido_por_usuario_permissao?: true
+    data_criacao_usuario_permissao?: true
+    data_atualizacao_usuario_permissao?: true
     _all?: true
   }
 
@@ -6494,15 +6494,15 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at: Date
-    updated_at: Date
+    id_usuario_permissao: string
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao: Date
+    data_atualizacao_usuario_permissao: Date
     _count: UsuarioPermissaoCountAggregateOutputType | null
     _min: UsuarioPermissaoMinAggregateOutputType | null
     _max: UsuarioPermissaoMaxAggregateOutputType | null
@@ -6523,43 +6523,43 @@ export namespace Prisma {
 
 
   export type UsuarioPermissaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    company_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    permission?: boolean
-    granted_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_usuario_permissao?: boolean
+    id_organizacao_usuario_permissao?: boolean
+    id_workspace_usuario_permissao?: boolean
+    id_usuario_usuario_permissao?: boolean
+    id_produto_usuario_permissao?: boolean
+    permissao_usuario_permissao?: boolean
+    concedido_por_usuario_permissao?: boolean
+    data_criacao_usuario_permissao?: boolean
+    data_atualizacao_usuario_permissao?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioPermissao"]>
 
   export type UsuarioPermissaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    company_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    permission?: boolean
-    granted_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_usuario_permissao?: boolean
+    id_organizacao_usuario_permissao?: boolean
+    id_workspace_usuario_permissao?: boolean
+    id_usuario_usuario_permissao?: boolean
+    id_produto_usuario_permissao?: boolean
+    permissao_usuario_permissao?: boolean
+    concedido_por_usuario_permissao?: boolean
+    data_criacao_usuario_permissao?: boolean
+    data_atualizacao_usuario_permissao?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioPermissao"]>
 
   export type UsuarioPermissaoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    company_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    permission?: boolean
-    granted_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_usuario_permissao?: boolean
+    id_organizacao_usuario_permissao?: boolean
+    id_workspace_usuario_permissao?: boolean
+    id_usuario_usuario_permissao?: boolean
+    id_produto_usuario_permissao?: boolean
+    permissao_usuario_permissao?: boolean
+    concedido_por_usuario_permissao?: boolean
+    data_criacao_usuario_permissao?: boolean
+    data_atualizacao_usuario_permissao?: boolean
   }
 
   export type UsuarioPermissaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6578,15 +6578,15 @@ export namespace Prisma {
       user: Prisma.$UsuarioPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      company_id: string
-      user_id: string
-      product_id: string
-      permission: string
-      granted_by: string
-      created_at: Date
-      updated_at: Date
+      id_usuario_permissao: string
+      id_organizacao_usuario_permissao: string
+      id_workspace_usuario_permissao: string
+      id_usuario_usuario_permissao: string
+      id_produto_usuario_permissao: string
+      permissao_usuario_permissao: string
+      concedido_por_usuario_permissao: string
+      data_criacao_usuario_permissao: Date
+      data_atualizacao_usuario_permissao: Date
     }, ExtArgs["result"]["usuarioPermissao"]>
     composites: {}
   }
@@ -6670,8 +6670,8 @@ export namespace Prisma {
      * // Get first 10 UsuarioPermissaos
      * const usuarioPermissaos = await prisma.usuarioPermissao.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const usuarioPermissaoWithIdOnly = await prisma.usuarioPermissao.findMany({ select: { id: true } })
+     * // Only select the `id_usuario_permissao`
+     * const usuarioPermissaoWithId_usuario_permissaoOnly = await prisma.usuarioPermissao.findMany({ select: { id_usuario_permissao: true } })
      * 
      */
     findMany<T extends UsuarioPermissaoFindManyArgs>(args?: SelectSubset<T, UsuarioPermissaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany">>
@@ -6715,9 +6715,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many UsuarioPermissaos and only return the `id`
-     * const usuarioPermissaoWithIdOnly = await prisma.usuarioPermissao.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many UsuarioPermissaos and only return the `id_usuario_permissao`
+     * const usuarioPermissaoWithId_usuario_permissaoOnly = await prisma.usuarioPermissao.createManyAndReturn({ 
+     *   select: { id_usuario_permissao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -6982,15 +6982,15 @@ export namespace Prisma {
    * Fields of the UsuarioPermissao model
    */ 
   interface UsuarioPermissaoFieldRefs {
-    readonly id: FieldRef<"UsuarioPermissao", 'String'>
-    readonly tenant_id: FieldRef<"UsuarioPermissao", 'String'>
-    readonly company_id: FieldRef<"UsuarioPermissao", 'String'>
-    readonly user_id: FieldRef<"UsuarioPermissao", 'String'>
-    readonly product_id: FieldRef<"UsuarioPermissao", 'String'>
-    readonly permission: FieldRef<"UsuarioPermissao", 'String'>
-    readonly granted_by: FieldRef<"UsuarioPermissao", 'String'>
-    readonly created_at: FieldRef<"UsuarioPermissao", 'DateTime'>
-    readonly updated_at: FieldRef<"UsuarioPermissao", 'DateTime'>
+    readonly id_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly id_organizacao_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly id_workspace_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly id_usuario_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly id_produto_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly permissao_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly concedido_por_usuario_permissao: FieldRef<"UsuarioPermissao", 'String'>
+    readonly data_criacao_usuario_permissao: FieldRef<"UsuarioPermissao", 'DateTime'>
+    readonly data_atualizacao_usuario_permissao: FieldRef<"UsuarioPermissao", 'DateTime'>
   }
     
 
@@ -26470,15 +26470,15 @@ export namespace Prisma {
 
 
   export const UsuarioPermissaoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    company_id: 'company_id',
-    user_id: 'user_id',
-    product_id: 'product_id',
-    permission: 'permission',
-    granted_by: 'granted_by',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_usuario_permissao: 'id_usuario_permissao',
+    id_organizacao_usuario_permissao: 'id_organizacao_usuario_permissao',
+    id_workspace_usuario_permissao: 'id_workspace_usuario_permissao',
+    id_usuario_usuario_permissao: 'id_usuario_usuario_permissao',
+    id_produto_usuario_permissao: 'id_produto_usuario_permissao',
+    permissao_usuario_permissao: 'permissao_usuario_permissao',
+    concedido_por_usuario_permissao: 'concedido_por_usuario_permissao',
+    data_criacao_usuario_permissao: 'data_criacao_usuario_permissao',
+    data_atualizacao_usuario_permissao: 'data_atualizacao_usuario_permissao'
   };
 
   export type UsuarioPermissaoScalarFieldEnum = (typeof UsuarioPermissaoScalarFieldEnum)[keyof typeof UsuarioPermissaoScalarFieldEnum]
@@ -27401,61 +27401,61 @@ export namespace Prisma {
     AND?: UsuarioPermissaoWhereInput | UsuarioPermissaoWhereInput[]
     OR?: UsuarioPermissaoWhereInput[]
     NOT?: UsuarioPermissaoWhereInput | UsuarioPermissaoWhereInput[]
-    id?: StringFilter<"UsuarioPermissao"> | string
-    tenant_id?: StringFilter<"UsuarioPermissao"> | string
-    company_id?: StringFilter<"UsuarioPermissao"> | string
-    user_id?: StringFilter<"UsuarioPermissao"> | string
-    product_id?: StringFilter<"UsuarioPermissao"> | string
-    permission?: StringFilter<"UsuarioPermissao"> | string
-    granted_by?: StringFilter<"UsuarioPermissao"> | string
-    created_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
-    updated_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    id_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_organizacao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_workspace_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_usuario_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_produto_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    permissao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    concedido_por_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    data_criacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
   }
 
   export type UsuarioPermissaoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    company_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    permission?: SortOrder
-    granted_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_usuario_permissao?: SortOrder
+    id_organizacao_usuario_permissao?: SortOrder
+    id_workspace_usuario_permissao?: SortOrder
+    id_usuario_usuario_permissao?: SortOrder
+    id_produto_usuario_permissao?: SortOrder
+    permissao_usuario_permissao?: SortOrder
+    concedido_por_usuario_permissao?: SortOrder
+    data_criacao_usuario_permissao?: SortOrder
+    data_atualizacao_usuario_permissao?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
     user?: UsuarioOrderByWithRelationInput
   }
 
   export type UsuarioPermissaoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_company_id_user_id_product_id_permission?: UsuarioPermissaoTenant_idCompany_idUser_idProduct_idPermissionCompoundUniqueInput
+    id_usuario_permissao?: string
+    id_organizacao_usuario_permissao_id_workspace_usuario_permissao_id_usuario_usuario_permissao_id_produto_usuario_permissao_permissao_usuario_permissao?: UsuarioPermissaoId_organizacao_usuario_permissaoId_workspace_usuario_permissaoId_usuario_usuario_permissaoId_produto_usuario_permissaoPermissao_usuario_permissaoCompoundUniqueInput
     AND?: UsuarioPermissaoWhereInput | UsuarioPermissaoWhereInput[]
     OR?: UsuarioPermissaoWhereInput[]
     NOT?: UsuarioPermissaoWhereInput | UsuarioPermissaoWhereInput[]
-    tenant_id?: StringFilter<"UsuarioPermissao"> | string
-    company_id?: StringFilter<"UsuarioPermissao"> | string
-    user_id?: StringFilter<"UsuarioPermissao"> | string
-    product_id?: StringFilter<"UsuarioPermissao"> | string
-    permission?: StringFilter<"UsuarioPermissao"> | string
-    granted_by?: StringFilter<"UsuarioPermissao"> | string
-    created_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
-    updated_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    id_organizacao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_workspace_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_usuario_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_produto_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    permissao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    concedido_por_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    data_criacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
-  }, "id" | "tenant_id_company_id_user_id_product_id_permission">
+  }, "id_usuario_permissao" | "id_organizacao_usuario_permissao_id_workspace_usuario_permissao_id_usuario_usuario_permissao_id_produto_usuario_permissao_permissao_usuario_permissao">
 
   export type UsuarioPermissaoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    company_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    permission?: SortOrder
-    granted_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_usuario_permissao?: SortOrder
+    id_organizacao_usuario_permissao?: SortOrder
+    id_workspace_usuario_permissao?: SortOrder
+    id_usuario_usuario_permissao?: SortOrder
+    id_produto_usuario_permissao?: SortOrder
+    permissao_usuario_permissao?: SortOrder
+    concedido_por_usuario_permissao?: SortOrder
+    data_criacao_usuario_permissao?: SortOrder
+    data_atualizacao_usuario_permissao?: SortOrder
     _count?: UsuarioPermissaoCountOrderByAggregateInput
     _max?: UsuarioPermissaoMaxOrderByAggregateInput
     _min?: UsuarioPermissaoMinOrderByAggregateInput
@@ -27465,15 +27465,15 @@ export namespace Prisma {
     AND?: UsuarioPermissaoScalarWhereWithAggregatesInput | UsuarioPermissaoScalarWhereWithAggregatesInput[]
     OR?: UsuarioPermissaoScalarWhereWithAggregatesInput[]
     NOT?: UsuarioPermissaoScalarWhereWithAggregatesInput | UsuarioPermissaoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    tenant_id?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    company_id?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    user_id?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    product_id?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    permission?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    granted_by?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
-    created_at?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
+    id_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    id_organizacao_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    id_workspace_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    id_usuario_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    id_produto_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    permissao_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    concedido_por_usuario_permissao?: StringWithAggregatesFilter<"UsuarioPermissao"> | string
+    data_criacao_usuario_permissao?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
   }
 
   export type PermissaoAdminGravityWhereInput = {
@@ -29485,85 +29485,85 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoCreateInput = {
-    id?: string
-    company_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_workspace_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUser_permissions_organizacaoInput
     user: UsuarioCreateNestedOneWithoutUser_permissionsInput
   }
 
   export type UsuarioPermissaoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type UsuarioPermissaoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissions_organizacaoNestedInput
     user?: UsuarioUpdateOneRequiredWithoutUser_permissionsNestedInput
   }
 
   export type UsuarioPermissaoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_usuario_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioPermissaoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type UsuarioPermissaoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioPermissaoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_usuario_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PermissaoAdminGravityCreateInput = {
@@ -31908,48 +31908,48 @@ export namespace Prisma {
     isNot?: UsuarioWhereInput
   }
 
-  export type UsuarioPermissaoTenant_idCompany_idUser_idProduct_idPermissionCompoundUniqueInput = {
-    tenant_id: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
+  export type UsuarioPermissaoId_organizacao_usuario_permissaoId_workspace_usuario_permissaoId_usuario_usuario_permissaoId_produto_usuario_permissaoPermissao_usuario_permissaoCompoundUniqueInput = {
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
   }
 
   export type UsuarioPermissaoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    company_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    permission?: SortOrder
-    granted_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_usuario_permissao?: SortOrder
+    id_organizacao_usuario_permissao?: SortOrder
+    id_workspace_usuario_permissao?: SortOrder
+    id_usuario_usuario_permissao?: SortOrder
+    id_produto_usuario_permissao?: SortOrder
+    permissao_usuario_permissao?: SortOrder
+    concedido_por_usuario_permissao?: SortOrder
+    data_criacao_usuario_permissao?: SortOrder
+    data_atualizacao_usuario_permissao?: SortOrder
   }
 
   export type UsuarioPermissaoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    company_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    permission?: SortOrder
-    granted_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_usuario_permissao?: SortOrder
+    id_organizacao_usuario_permissao?: SortOrder
+    id_workspace_usuario_permissao?: SortOrder
+    id_usuario_usuario_permissao?: SortOrder
+    id_produto_usuario_permissao?: SortOrder
+    permissao_usuario_permissao?: SortOrder
+    concedido_por_usuario_permissao?: SortOrder
+    data_criacao_usuario_permissao?: SortOrder
+    data_atualizacao_usuario_permissao?: SortOrder
   }
 
   export type UsuarioPermissaoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    company_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    permission?: SortOrder
-    granted_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_usuario_permissao?: SortOrder
+    id_organizacao_usuario_permissao?: SortOrder
+    id_workspace_usuario_permissao?: SortOrder
+    id_usuario_usuario_permissao?: SortOrder
+    id_produto_usuario_permissao?: SortOrder
+    permissao_usuario_permissao?: SortOrder
+    concedido_por_usuario_permissao?: SortOrder
+    data_criacao_usuario_permissao?: SortOrder
+    data_atualizacao_usuario_permissao?: SortOrder
   }
 
   export type PermissaoAdminGravityAdmin_idResourceActionCompoundUniqueInput = {
@@ -34721,25 +34721,25 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoCreateWithoutTenantInput = {
-    id?: string
-    company_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_workspace_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
     user: UsuarioCreateNestedOneWithoutUser_permissionsInput
   }
 
   export type UsuarioPermissaoUncheckedCreateWithoutTenantInput = {
-    id?: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type UsuarioPermissaoCreateOrConnectWithoutTenantInput = {
@@ -34928,15 +34928,15 @@ export namespace Prisma {
     AND?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
     OR?: UsuarioPermissaoScalarWhereInput[]
     NOT?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
-    id?: StringFilter<"UsuarioPermissao"> | string
-    tenant_id?: StringFilter<"UsuarioPermissao"> | string
-    company_id?: StringFilter<"UsuarioPermissao"> | string
-    user_id?: StringFilter<"UsuarioPermissao"> | string
-    product_id?: StringFilter<"UsuarioPermissao"> | string
-    permission?: StringFilter<"UsuarioPermissao"> | string
-    granted_by?: StringFilter<"UsuarioPermissao"> | string
-    created_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
-    updated_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    id_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_organizacao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_workspace_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_usuario_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    id_produto_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    permissao_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    concedido_por_usuario_permissao?: StringFilter<"UsuarioPermissao"> | string
+    data_criacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
   }
 
   export type EmpresaUpsertWithWhereUniqueWithoutTenantInput = {
@@ -35108,25 +35108,25 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoCreateWithoutUserInput = {
-    id?: string
-    company_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_workspace_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUser_permissions_organizacaoInput
   }
 
   export type UsuarioPermissaoUncheckedCreateWithoutUserInput = {
-    id?: string
-    tenant_id: string
-    company_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type UsuarioPermissaoCreateOrConnectWithoutUserInput = {
@@ -36685,14 +36685,14 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoCreateManyTenantInput = {
-    id?: string
-    company_id: string
-    user_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_workspace_usuario_permissao: string
+    id_usuario_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type EmpresaCreateManyTenantInput = {
@@ -36800,36 +36800,36 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UsuarioUpdateOneRequiredWithoutUser_permissionsNestedInput
   }
 
   export type UsuarioPermissaoUncheckedUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_usuario_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioPermissaoUncheckedUpdateManyWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_usuario_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaUpdateWithoutTenantInput = {
@@ -36923,14 +36923,14 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoCreateManyUserInput = {
-    id?: string
-    tenant_id: string
-    company_id: string
-    product_id: string
-    permission: string
-    granted_by: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_usuario_permissao?: string
+    id_organizacao_usuario_permissao: string
+    id_workspace_usuario_permissao: string
+    id_produto_usuario_permissao: string
+    permissao_usuario_permissao: string
+    concedido_por_usuario_permissao: string
+    data_criacao_usuario_permissao?: Date | string
+    data_atualizacao_usuario_permissao?: Date | string
   }
 
   export type UsuarioWorkspaceCreateManyUserInput = {
@@ -36944,36 +36944,36 @@ export namespace Prisma {
   }
 
   export type UsuarioPermissaoUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissions_organizacaoNestedInput
   }
 
   export type UsuarioPermissaoUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioPermissaoUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    company_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    permission?: StringFieldUpdateOperationsInput | string
-    granted_by?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_workspace_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    id_produto_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    concedido_por_usuario_permissao?: StringFieldUpdateOperationsInput | string
+    data_criacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioWorkspaceUpdateWithoutUserInput = {

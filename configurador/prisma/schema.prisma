@@ -177,28 +177,28 @@ model AssinaturaProdutoGravity {
 // ---------------------------------------------------------------------------
 
 model UsuarioPermissao {
-  id         String @id @default(cuid())
-  tenant_id  String
-  company_id String // workspace onde se aplica (obrigatório)
-  user_id    String
-  product_id String // produto ao qual a permissão pertence
-  permission String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
-  granted_by String // clerk_id do Master que concedeu a permissão
+  id_usuario_permissao             String @id @default(cuid())
+  id_organizacao_usuario_permissao String
+  id_workspace_usuario_permissao   String // workspace onde se aplica (obrigatório)
+  id_usuario_usuario_permissao     String
+  id_produto_usuario_permissao     String // produto ao qual a permissão pertence
+  permissao_usuario_permissao      String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  concedido_por_usuario_permissao  String // clerk_id do Master que concedeu a permissão
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_usuario_permissao     DateTime @default(now())
+  data_atualizacao_usuario_permissao DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  user   Usuario     @relation(fields: [user_id], references: [id_usuario], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_usuario_permissao], references: [id_organizacao], onDelete: Cascade)
+  user   Usuario     @relation(fields: [id_usuario_usuario_permissao], references: [id_usuario], onDelete: Cascade)
 
   // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
-  @@unique([tenant_id, company_id, user_id, product_id, permission])
+  @@unique([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao, id_produto_usuario_permissao, permissao_usuario_permissao])
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id, user_id])
+  @@index([id_organizacao_usuario_permissao])
+  @@index([id_organizacao_usuario_permissao, id_usuario_usuario_permissao])
+  @@index([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao])
   @@map("usuario_permissao")
 }
 

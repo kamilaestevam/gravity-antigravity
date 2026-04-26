@@ -301,7 +301,7 @@ const meResponseSchema = z.object({
 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Composição de Prisma fragments por serviço |
 | Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Zustand, Event Bus, cache cliente |
-| Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis, TTL, invalidação, prefixos `org:tenantId:` |
+| Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação por evento, prefixo `tenant:` (REGRA 4 do linter) |
 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
 | i18n | `skills/arquitetura/i18n/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |

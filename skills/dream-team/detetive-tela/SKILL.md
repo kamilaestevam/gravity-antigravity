@@ -273,7 +273,7 @@ Artefatos:
   - 5ms rede + 10ms middleware + 5ms validação + 80ms banco + 50ms lógica + 5ms serialização = **155ms**
 - Queries pesadas identificadas?
 - Caching implementado onde necessário?
-- Verificar conformidade com `skills/arquitetura/caching-strategy/SKILL.md`
+- Verificar conformidade com `skills/arquitetura/cache/SKILL.md`
 
 #### 7.3 Carregamento
 - Loading states implementados?

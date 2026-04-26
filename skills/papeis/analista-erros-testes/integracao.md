@@ -322,7 +322,7 @@ Se Flash devolver `confianca: baixa`, retenta uma vez no Pro. Pro custa ~10x mai
 - Mesmo hash key, mas em Redis
 - TTL 7 dias
 - Compartilhado entre instâncias do server
-- Skill `arquitetura/caching-strategy` já cobre o padrão
+- Skill `arquitetura/cache` já cobre o padrão
 
 ### Bypass de cache
 - `forceRefresh: true` no input

@@ -76,9 +76,9 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 2 | **Líder Técnico** | Qualidade de código, arquitetura | Code Review, API Design, Definition of Done |
 | 3 | **PO** | Backlog, valor de negócio | Sprint Management, Onboarding Produto |
 | 4 | **QA** | Testes, contratos, aprovação | Contract Testing, Definition of Done, Testes |
-| 5 | **Backend** | APIs, performance, lógica | API Design, SLA & Performance, Caching Strategy |
+| 5 | **Backend** | APIs, performance, lógica | API Design, SLA Metas, Cache |
 | 6 | **Frontend** | UI, acessibilidade, UX | Acessibilidade, Design System |
-| 7 | **Estrutura de Dados** | Banco, índices, migrations | Database Operations, Caching Strategy, SLA & Performance |
+| 7 | **Estrutura de Dados** | Banco, índices, migrations | Database Governance, Cache, SLA Metas |
 | 8 | **Estrutura de Sistemas** | Contratos, scaling | Contract Testing, Auto-Scaling |
 | 9 | **UX** | Design, tokens, handoff | Acessibilidade, Handoff |
 | 10 | **DevOps/SRE** | Infra, monitoramento, DR | Incident Response, Performance & Monitoring, Auto-Scaling, SLA & Performance, Backup & DR |
@@ -127,7 +127,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 23 | Teste em Tela | `skills/arquitetura/teste-em-tela/SKILL.md` | Validação visual em browser, evidências de UX |
 | 24 | Tier1 Security | `skills/arquitetura/tier1-security/SKILL.md` | Padrões P0 de segurança em endpoints críticos |
 | 25 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod como contrato, CI bloqueando breaking changes |
-| 26 | Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis, in-memory, TTL, invalidação, isolamento por organização |
+| 26 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `tenant:` |
 | 27 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Degradação graciosa, retry, circuit breaker, DLQ |
 
 ### Segurança (9) — Proteção em profundidade

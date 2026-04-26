@@ -153,8 +153,8 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       where: { id_organizacao: idParsed.data },
       include: {
         users_organizacao: {
-          select: { id: true, name: true, email: true, role: true, created_at: true },
-          orderBy: { created_at: 'desc' as const },
+          select: { id: true, name: true, email: true, role: true, data_criacao_usuario: true },
+          orderBy: { data_criacao_usuario: 'desc' as const },
           take: 50,
         },
         companies_organizacao: {
@@ -191,7 +191,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       tenant: {
         id: id_organizacao,
         ...tenantRest,
-        users: users_organizacao.map(({ role, ...u }) => ({ ...u, tipo_usuario: role })),
+        users: users_organizacao.map(({ role, data_criacao_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario })),
         companies: companies_organizacao,
         subscriptions: subscriptions_organizacao,
         product_configs: product_configs_organizacao,
@@ -433,7 +433,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
           name: true,
           email: true,
           role: true,
-          created_at: true,
+          data_criacao_usuario: true,
           tenant_id: true,
           tenant: {
             select: { nome_organizacao: true, subdominio_organizacao: true },
@@ -453,7 +453,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
             take: 20,
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_usuario: 'desc' },
       }),
       prisma.usuario.count({ where }),
     ])
@@ -471,10 +471,11 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario` (incluindo memberships aninhadas)
-    const usuarios = users.map(({ role, memberships, ...rest }) => ({
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario`, `data_criacao_usuario` → `created_at`
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
+      created_at: data_criacao_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,

@@ -60,7 +60,7 @@ usersRouter.get('/', async (req, res, next) => {
         name: true,
         email: true,
         role: true,
-        created_at: true,
+        data_criacao_usuario: true,
         memberships: {
           select: {
             id: true,
@@ -70,12 +70,13 @@ usersRouter.get('/', async (req, res, next) => {
           },
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_usuario: 'desc' },
     })
-    // DTO DDD: Prisma `role` → JSON `tipo_usuario` (Mandamento 03)
-    const usuarios = users.map(({ role, memberships, ...rest }) => ({
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario`, `data_criacao_usuario` → `created_at`
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
+      created_at: data_criacao_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,

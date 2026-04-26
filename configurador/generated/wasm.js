@@ -147,7 +147,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   name: 'name',
   role: 'role',
   preferred_company_id: 'preferred_company_id',
-  created_at: 'created_at',
+  data_criacao_usuario: 'data_criacao_usuario',
   updated_at: 'updated_at'
 };
 

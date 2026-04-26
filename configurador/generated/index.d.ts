@@ -4297,7 +4297,7 @@ export namespace Prisma {
     name: string | null
     role: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
-    created_at: Date | null
+    data_criacao_usuario: Date | null
     updated_at: Date | null
   }
 
@@ -4309,7 +4309,7 @@ export namespace Prisma {
     name: string | null
     role: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
-    created_at: Date | null
+    data_criacao_usuario: Date | null
     updated_at: Date | null
   }
 
@@ -4321,7 +4321,7 @@ export namespace Prisma {
     name: number
     role: number
     preferred_company_id: number
-    created_at: number
+    data_criacao_usuario: number
     updated_at: number
     _all: number
   }
@@ -4335,7 +4335,7 @@ export namespace Prisma {
     name?: true
     role?: true
     preferred_company_id?: true
-    created_at?: true
+    data_criacao_usuario?: true
     updated_at?: true
   }
 
@@ -4347,7 +4347,7 @@ export namespace Prisma {
     name?: true
     role?: true
     preferred_company_id?: true
-    created_at?: true
+    data_criacao_usuario?: true
     updated_at?: true
   }
 
@@ -4359,7 +4359,7 @@ export namespace Prisma {
     name?: true
     role?: true
     preferred_company_id?: true
-    created_at?: true
+    data_criacao_usuario?: true
     updated_at?: true
     _all?: true
   }
@@ -4444,7 +4444,7 @@ export namespace Prisma {
     name: string
     role: $Enums.UsuarioTipo
     preferred_company_id: string | null
-    created_at: Date
+    data_criacao_usuario: Date
     updated_at: Date
     _count: UsuarioCountAggregateOutputType | null
     _min: UsuarioMinAggregateOutputType | null
@@ -4473,7 +4473,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     preferred_company_id?: boolean
-    created_at?: boolean
+    data_criacao_usuario?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     preferred_company?: boolean | Usuario$preferred_companyArgs<ExtArgs>
@@ -4490,7 +4490,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     preferred_company_id?: boolean
-    created_at?: boolean
+    data_criacao_usuario?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     preferred_company?: boolean | Usuario$preferred_companyArgs<ExtArgs>
@@ -4504,7 +4504,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     preferred_company_id?: boolean
-    created_at?: boolean
+    data_criacao_usuario?: boolean
     updated_at?: boolean
   }
 
@@ -4536,7 +4536,7 @@ export namespace Prisma {
       name: string
       role: $Enums.UsuarioTipo
       preferred_company_id: string | null
-      created_at: Date
+      data_criacao_usuario: Date
       updated_at: Date
     }, ExtArgs["result"]["usuario"]>
     composites: {}
@@ -4942,7 +4942,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Usuario", 'String'>
     readonly role: FieldRef<"Usuario", 'UsuarioTipo'>
     readonly preferred_company_id: FieldRef<"Usuario", 'String'>
-    readonly created_at: FieldRef<"Usuario", 'DateTime'>
+    readonly data_criacao_usuario: FieldRef<"Usuario", 'DateTime'>
     readonly updated_at: FieldRef<"Usuario", 'DateTime'>
   }
     
@@ -26445,7 +26445,7 @@ export namespace Prisma {
     name: 'name',
     role: 'role',
     preferred_company_id: 'preferred_company_id',
-    created_at: 'created_at',
+    data_criacao_usuario: 'data_criacao_usuario',
     updated_at: 'updated_at'
   };
 
@@ -27238,7 +27238,7 @@ export namespace Prisma {
     name?: StringFilter<"Usuario"> | string
     role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
-    created_at?: DateTimeFilter<"Usuario"> | Date | string
+    data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
@@ -27254,7 +27254,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     preferred_company_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
     preferred_company?: EmpresaOrderByWithRelationInput
@@ -27274,7 +27274,7 @@ export namespace Prisma {
     name?: StringFilter<"Usuario"> | string
     role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
-    created_at?: DateTimeFilter<"Usuario"> | Date | string
+    data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
@@ -27290,7 +27290,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     preferred_company_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
     _count?: UsuarioCountOrderByAggregateInput
     _max?: UsuarioMaxOrderByAggregateInput
@@ -27308,7 +27308,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Usuario"> | string
     role?: EnumUsuarioTipoWithAggregatesFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableWithAggregatesFilter<"Usuario"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
+    data_criacao_usuario?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
   }
 
@@ -29303,7 +29303,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
@@ -29319,7 +29319,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
@@ -29331,7 +29331,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
@@ -29347,7 +29347,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
@@ -29361,7 +29361,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
   }
 
@@ -29371,7 +29371,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -29383,7 +29383,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -31781,7 +31781,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     preferred_company_id?: SortOrder
-    created_at?: SortOrder
+    data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -31793,7 +31793,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     preferred_company_id?: SortOrder
-    created_at?: SortOrder
+    data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -31805,7 +31805,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     preferred_company_id?: SortOrder
-    created_at?: SortOrder
+    data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -34654,7 +34654,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
@@ -34668,7 +34668,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
@@ -34871,7 +34871,7 @@ export namespace Prisma {
     name?: StringFilter<"Usuario"> | string
     role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
-    created_at?: DateTimeFilter<"Usuario"> | Date | string
+    data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
   }
 
@@ -35466,7 +35466,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
@@ -35481,7 +35481,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
   }
@@ -35563,7 +35563,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
@@ -35578,7 +35578,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -35696,7 +35696,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
@@ -35710,7 +35710,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutUserInput
@@ -35835,7 +35835,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
@@ -35850,7 +35850,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
   }
@@ -35908,7 +35908,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
@@ -35923,7 +35923,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -36667,7 +36667,7 @@ export namespace Prisma {
     name: string
     role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
   }
 
@@ -36729,7 +36729,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
@@ -36743,7 +36743,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
@@ -36756,7 +36756,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37032,7 +37032,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UsuarioTipo
-    created_at?: Date | string
+    data_criacao_usuario?: Date | string
     updated_at?: Date | string
   }
 
@@ -37099,7 +37099,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
@@ -37113,7 +37113,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
@@ -37126,7 +37126,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

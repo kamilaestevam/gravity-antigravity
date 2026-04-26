@@ -117,8 +117,8 @@ model Usuario {
   preferred_company_id String?
 
   // Timestamps
-  created_at DateTime @default(now()) @map("data_criacao_usuario")
-  updated_at DateTime @updatedAt
+  data_criacao_usuario DateTime @default(now())
+  updated_at           DateTime @updatedAt
 
   // Relações
   tenant            Organizacao        @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
@@ -130,7 +130,7 @@ model Usuario {
   @@unique([tenant_id, email])
   // Índices obrigatórios (tenant_id base + compostos)
   @@index([tenant_id])
-  @@index([tenant_id, created_at])
+  @@index([tenant_id, data_criacao_usuario])
   @@index([tenant_id, role])
   @@index([preferred_company_id])
   @@map("usuario")

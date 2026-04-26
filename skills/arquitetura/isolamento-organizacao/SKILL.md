@@ -1,5 +1,5 @@
 ---
-name: antigravity-organização-isolation
+name: antigravity-isolamento-organizacao
 description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organização em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organização + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
 ---
 

@@ -241,10 +241,10 @@ const meResponseSchema = z.object({
 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Criar/modificar componentes em `nucleo-global/` |
 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs, correlation ID, health checks, Sentry |
 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Qualquer alteração em Prisma/schema/fragment |
-| Serviços Tenant | `skills/arquitetura/servicos-tenant/SKILL.md` | Criar/modificar serviços em `servicos-global/tenant/` |
+| Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Criar/modificar serviços em `servicos-global/tenant/` |
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Gerenciar estado (stores, event bus, queries) |
-| Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | **Qualquer acesso a banco de dados** |
-| SDK Tenant-Resolver | `skills/arquitetura/sdk-tenant-resolver/SKILL.md` | **Usar `@gravity/tenant-resolver` — withTenant, withTenantContext, TenantDatabase** |
+| Isolamento de Organização | `skills/arquitetura/isolamento-organizacao/SKILL.md` | **Qualquer acesso a banco de dados** |
+| SDK Resolvedor de Organização | `skills/arquitetura/sdk-resolvedor-organizacao/SKILL.md` | **Usar `@gravity/tenant-resolver` — withTenant, withTenantContext, TenantDatabase** |
 | Testes | `skills/arquitetura/testes/SKILL.md` | Criar/modificar testes, validar cobertura |
 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod schemas como contratos, CI bloqueando breaking changes |
 | Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis/in-memory, TTL, invalidação, performance |
@@ -360,9 +360,9 @@ Estas regras se aplicam a TODOS os agentes, em TODAS as tarefas:
 - Imports via alias: `@nucleo/`, `@tenant/`, `@produto/`
 
 **Banco de Dados:**
-- Todo model tem `tenant_id String` obrigatório
-- Todo model tem 3 índices: `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])`
-- Nenhuma query sem filtro por `tenant_id`
+- Todo model tem `id_organizacao String` obrigatório
+- Todo model tem 3 índices: `@@index([id_organizacao])`, `@@index([id_organizacao, id_produto])`, `@@index([id_organizacao, id_usuario])`
+- Nenhuma query sem filtro por `id_organizacao`
 - Nenhum agente edita `schema.prisma` — só o Coordenador via script
 - Cada serviço escreve apenas seu `fragment.prisma`
 

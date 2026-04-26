@@ -1,5 +1,5 @@
 ---
-name: antigravity-sdk-tenant-resolver
+name: antigravity-sdk-resolvedor-organizacao
 description: "Use esta skill sempre que precisar acessar banco de dados de produto ou serviço-organização, configurar middleware de organização, escrever worker/CRON multi-tenant, ou consumir a identidade/cache do organização. Define o contrato público de @gravity/tenant-resolver — o ÚNICO caminho permitido para tocar o banco após o pivô Schema-per-Organização. Implementação validada Sprint 1 (2026-04-18): 71/71 testes passando."
 ---
 

@@ -5,7 +5,7 @@ description: "Use esta skill SEMPRE antes de criar ou alterar models Prisma, sch
 
 # Gravity — Governança de Banco de Dados
 
-> Esta skill é **complementar** a `skills/arquitetura/organização-isolation/SKILL.md` e `skills/arquitetura/sdk-tenant-resolver/SKILL.md`.
+> Esta skill é **complementar** a `skills/arquitetura/isolamento-organizacao/SKILL.md` e `skills/arquitetura/sdk-resolvedor-organizacao/SKILL.md`.
 > Foco: regras físicas de estrutura, nomeação e paridade — não no acesso ao banco (que é responsabilidade do SDK).
 
 ---

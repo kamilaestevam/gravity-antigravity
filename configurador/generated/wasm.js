@@ -140,12 +140,12 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
 };
 
 exports.Prisma.UsuarioScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
+  id_usuario: 'id_usuario',
+  id_organizacao_usuario: 'id_organizacao_usuario',
   clerk_user_id: 'clerk_user_id',
   email_usuario: 'email_usuario',
-  name: 'name',
-  role: 'role',
+  nome_usuario: 'nome_usuario',
+  tipo_usuario: 'tipo_usuario',
   preferred_company_id: 'preferred_company_id',
   data_criacao_usuario: 'data_criacao_usuario',
   updated_at: 'updated_at'

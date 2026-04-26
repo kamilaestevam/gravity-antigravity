@@ -4290,36 +4290,36 @@ export namespace Prisma {
   }
 
   export type UsuarioMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
+    id_usuario: string | null
+    id_organizacao_usuario: string | null
     clerk_user_id: string | null
     email_usuario: string | null
-    name: string | null
-    role: $Enums.UsuarioTipo | null
+    nome_usuario: string | null
+    tipo_usuario: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
     data_criacao_usuario: Date | null
     updated_at: Date | null
   }
 
   export type UsuarioMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
+    id_usuario: string | null
+    id_organizacao_usuario: string | null
     clerk_user_id: string | null
     email_usuario: string | null
-    name: string | null
-    role: $Enums.UsuarioTipo | null
+    nome_usuario: string | null
+    tipo_usuario: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
     data_criacao_usuario: Date | null
     updated_at: Date | null
   }
 
   export type UsuarioCountAggregateOutputType = {
-    id: number
-    tenant_id: number
+    id_usuario: number
+    id_organizacao_usuario: number
     clerk_user_id: number
     email_usuario: number
-    name: number
-    role: number
+    nome_usuario: number
+    tipo_usuario: number
     preferred_company_id: number
     data_criacao_usuario: number
     updated_at: number
@@ -4328,36 +4328,36 @@ export namespace Prisma {
 
 
   export type UsuarioMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
+    id_usuario?: true
+    id_organizacao_usuario?: true
     clerk_user_id?: true
     email_usuario?: true
-    name?: true
-    role?: true
+    nome_usuario?: true
+    tipo_usuario?: true
     preferred_company_id?: true
     data_criacao_usuario?: true
     updated_at?: true
   }
 
   export type UsuarioMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
+    id_usuario?: true
+    id_organizacao_usuario?: true
     clerk_user_id?: true
     email_usuario?: true
-    name?: true
-    role?: true
+    nome_usuario?: true
+    tipo_usuario?: true
     preferred_company_id?: true
     data_criacao_usuario?: true
     updated_at?: true
   }
 
   export type UsuarioCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
+    id_usuario?: true
+    id_organizacao_usuario?: true
     clerk_user_id?: true
     email_usuario?: true
-    name?: true
-    role?: true
+    nome_usuario?: true
+    tipo_usuario?: true
     preferred_company_id?: true
     data_criacao_usuario?: true
     updated_at?: true
@@ -4437,12 +4437,12 @@ export namespace Prisma {
   }
 
   export type UsuarioGroupByOutputType = {
-    id: string
-    tenant_id: string
+    id_usuario: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario: $Enums.UsuarioTipo
     preferred_company_id: string | null
     data_criacao_usuario: Date
     updated_at: Date
@@ -4466,12 +4466,12 @@ export namespace Prisma {
 
 
   export type UsuarioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
+    id_usuario?: boolean
+    id_organizacao_usuario?: boolean
     clerk_user_id?: boolean
     email_usuario?: boolean
-    name?: boolean
-    role?: boolean
+    nome_usuario?: boolean
+    tipo_usuario?: boolean
     preferred_company_id?: boolean
     data_criacao_usuario?: boolean
     updated_at?: boolean
@@ -4483,12 +4483,12 @@ export namespace Prisma {
   }, ExtArgs["result"]["usuario"]>
 
   export type UsuarioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
+    id_usuario?: boolean
+    id_organizacao_usuario?: boolean
     clerk_user_id?: boolean
     email_usuario?: boolean
-    name?: boolean
-    role?: boolean
+    nome_usuario?: boolean
+    tipo_usuario?: boolean
     preferred_company_id?: boolean
     data_criacao_usuario?: boolean
     updated_at?: boolean
@@ -4497,12 +4497,12 @@ export namespace Prisma {
   }, ExtArgs["result"]["usuario"]>
 
   export type UsuarioSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
+    id_usuario?: boolean
+    id_organizacao_usuario?: boolean
     clerk_user_id?: boolean
     email_usuario?: boolean
-    name?: boolean
-    role?: boolean
+    nome_usuario?: boolean
+    tipo_usuario?: boolean
     preferred_company_id?: boolean
     data_criacao_usuario?: boolean
     updated_at?: boolean
@@ -4529,12 +4529,12 @@ export namespace Prisma {
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
+      id_usuario: string
+      id_organizacao_usuario: string
       clerk_user_id: string
       email_usuario: string
-      name: string
-      role: $Enums.UsuarioTipo
+      nome_usuario: string
+      tipo_usuario: $Enums.UsuarioTipo
       preferred_company_id: string | null
       data_criacao_usuario: Date
       updated_at: Date
@@ -4621,8 +4621,8 @@ export namespace Prisma {
      * // Get first 10 Usuarios
      * const usuarios = await prisma.usuario.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const usuarioWithIdOnly = await prisma.usuario.findMany({ select: { id: true } })
+     * // Only select the `id_usuario`
+     * const usuarioWithId_usuarioOnly = await prisma.usuario.findMany({ select: { id_usuario: true } })
      * 
      */
     findMany<T extends UsuarioFindManyArgs>(args?: SelectSubset<T, UsuarioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany">>
@@ -4666,9 +4666,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Usuarios and only return the `id`
-     * const usuarioWithIdOnly = await prisma.usuario.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Usuarios and only return the `id_usuario`
+     * const usuarioWithId_usuarioOnly = await prisma.usuario.createManyAndReturn({ 
+     *   select: { id_usuario: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -4935,12 +4935,12 @@ export namespace Prisma {
    * Fields of the Usuario model
    */ 
   interface UsuarioFieldRefs {
-    readonly id: FieldRef<"Usuario", 'String'>
-    readonly tenant_id: FieldRef<"Usuario", 'String'>
+    readonly id_usuario: FieldRef<"Usuario", 'String'>
+    readonly id_organizacao_usuario: FieldRef<"Usuario", 'String'>
     readonly clerk_user_id: FieldRef<"Usuario", 'String'>
     readonly email_usuario: FieldRef<"Usuario", 'String'>
-    readonly name: FieldRef<"Usuario", 'String'>
-    readonly role: FieldRef<"Usuario", 'UsuarioTipo'>
+    readonly nome_usuario: FieldRef<"Usuario", 'String'>
+    readonly tipo_usuario: FieldRef<"Usuario", 'UsuarioTipo'>
     readonly preferred_company_id: FieldRef<"Usuario", 'String'>
     readonly data_criacao_usuario: FieldRef<"Usuario", 'DateTime'>
     readonly updated_at: FieldRef<"Usuario", 'DateTime'>
@@ -26438,12 +26438,12 @@ export namespace Prisma {
 
 
   export const UsuarioScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
+    id_usuario: 'id_usuario',
+    id_organizacao_usuario: 'id_organizacao_usuario',
     clerk_user_id: 'clerk_user_id',
     email_usuario: 'email_usuario',
-    name: 'name',
-    role: 'role',
+    nome_usuario: 'nome_usuario',
+    tipo_usuario: 'tipo_usuario',
     preferred_company_id: 'preferred_company_id',
     data_criacao_usuario: 'data_criacao_usuario',
     updated_at: 'updated_at'
@@ -27231,12 +27231,12 @@ export namespace Prisma {
     AND?: UsuarioWhereInput | UsuarioWhereInput[]
     OR?: UsuarioWhereInput[]
     NOT?: UsuarioWhereInput | UsuarioWhereInput[]
-    id?: StringFilter<"Usuario"> | string
-    tenant_id?: StringFilter<"Usuario"> | string
+    id_usuario?: StringFilter<"Usuario"> | string
+    id_organizacao_usuario?: StringFilter<"Usuario"> | string
     clerk_user_id?: StringFilter<"Usuario"> | string
     email_usuario?: StringFilter<"Usuario"> | string
-    name?: StringFilter<"Usuario"> | string
-    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
+    nome_usuario?: StringFilter<"Usuario"> | string
+    tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -27247,12 +27247,12 @@ export namespace Prisma {
   }
 
   export type UsuarioOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
+    id_usuario?: SortOrder
+    id_organizacao_usuario?: SortOrder
     clerk_user_id?: SortOrder
     email_usuario?: SortOrder
-    name?: SortOrder
-    role?: SortOrder
+    nome_usuario?: SortOrder
+    tipo_usuario?: SortOrder
     preferred_company_id?: SortOrderInput | SortOrder
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
@@ -27263,16 +27263,16 @@ export namespace Prisma {
   }
 
   export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_usuario?: string
     clerk_user_id?: string
-    tenant_id_email_usuario?: UsuarioTenant_idEmail_usuarioCompoundUniqueInput
+    id_organizacao_usuario_email_usuario?: UsuarioId_organizacao_usuarioEmail_usuarioCompoundUniqueInput
     AND?: UsuarioWhereInput | UsuarioWhereInput[]
     OR?: UsuarioWhereInput[]
     NOT?: UsuarioWhereInput | UsuarioWhereInput[]
-    tenant_id?: StringFilter<"Usuario"> | string
+    id_organizacao_usuario?: StringFilter<"Usuario"> | string
     email_usuario?: StringFilter<"Usuario"> | string
-    name?: StringFilter<"Usuario"> | string
-    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
+    nome_usuario?: StringFilter<"Usuario"> | string
+    tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -27280,15 +27280,15 @@ export namespace Prisma {
     preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
-  }, "id" | "clerk_user_id" | "tenant_id_email_usuario">
+  }, "id_usuario" | "clerk_user_id" | "id_organizacao_usuario_email_usuario">
 
   export type UsuarioOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
+    id_usuario?: SortOrder
+    id_organizacao_usuario?: SortOrder
     clerk_user_id?: SortOrder
     email_usuario?: SortOrder
-    name?: SortOrder
-    role?: SortOrder
+    nome_usuario?: SortOrder
+    tipo_usuario?: SortOrder
     preferred_company_id?: SortOrderInput | SortOrder
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
@@ -27301,12 +27301,12 @@ export namespace Prisma {
     AND?: UsuarioScalarWhereWithAggregatesInput | UsuarioScalarWhereWithAggregatesInput[]
     OR?: UsuarioScalarWhereWithAggregatesInput[]
     NOT?: UsuarioScalarWhereWithAggregatesInput | UsuarioScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Usuario"> | string
-    tenant_id?: StringWithAggregatesFilter<"Usuario"> | string
+    id_usuario?: StringWithAggregatesFilter<"Usuario"> | string
+    id_organizacao_usuario?: StringWithAggregatesFilter<"Usuario"> | string
     clerk_user_id?: StringWithAggregatesFilter<"Usuario"> | string
     email_usuario?: StringWithAggregatesFilter<"Usuario"> | string
-    name?: StringWithAggregatesFilter<"Usuario"> | string
-    role?: EnumUsuarioTipoWithAggregatesFilter<"Usuario"> | $Enums.UsuarioTipo
+    nome_usuario?: StringWithAggregatesFilter<"Usuario"> | string
+    tipo_usuario?: EnumUsuarioTipoWithAggregatesFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableWithAggregatesFilter<"Usuario"> | string | null
     data_criacao_usuario?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
@@ -29298,11 +29298,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -29312,12 +29312,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
@@ -29326,11 +29326,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -29340,12 +29340,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29354,34 +29354,34 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateManyInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
   }
 
   export type UsuarioUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31768,42 +31768,42 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type UsuarioTenant_idEmail_usuarioCompoundUniqueInput = {
-    tenant_id: string
+  export type UsuarioId_organizacao_usuarioEmail_usuarioCompoundUniqueInput = {
+    id_organizacao_usuario: string
     email_usuario: string
   }
 
   export type UsuarioCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
+    id_usuario?: SortOrder
+    id_organizacao_usuario?: SortOrder
     clerk_user_id?: SortOrder
     email_usuario?: SortOrder
-    name?: SortOrder
-    role?: SortOrder
+    nome_usuario?: SortOrder
+    tipo_usuario?: SortOrder
     preferred_company_id?: SortOrder
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
   }
 
   export type UsuarioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
+    id_usuario?: SortOrder
+    id_organizacao_usuario?: SortOrder
     clerk_user_id?: SortOrder
     email_usuario?: SortOrder
-    name?: SortOrder
-    role?: SortOrder
+    nome_usuario?: SortOrder
+    tipo_usuario?: SortOrder
     preferred_company_id?: SortOrder
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
   }
 
   export type UsuarioMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
+    id_usuario?: SortOrder
+    id_organizacao_usuario?: SortOrder
     clerk_user_id?: SortOrder
     email_usuario?: SortOrder
-    name?: SortOrder
-    role?: SortOrder
+    nome_usuario?: SortOrder
+    tipo_usuario?: SortOrder
     preferred_company_id?: SortOrder
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
@@ -34649,11 +34649,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateWithoutTenantInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
@@ -34662,11 +34662,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedCreateWithoutTenantInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
@@ -34864,12 +34864,12 @@ export namespace Prisma {
     AND?: UsuarioScalarWhereInput | UsuarioScalarWhereInput[]
     OR?: UsuarioScalarWhereInput[]
     NOT?: UsuarioScalarWhereInput | UsuarioScalarWhereInput[]
-    id?: StringFilter<"Usuario"> | string
-    tenant_id?: StringFilter<"Usuario"> | string
+    id_usuario?: StringFilter<"Usuario"> | string
+    id_organizacao_usuario?: StringFilter<"Usuario"> | string
     clerk_user_id?: StringFilter<"Usuario"> | string
     email_usuario?: StringFilter<"Usuario"> | string
-    name?: StringFilter<"Usuario"> | string
-    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
+    nome_usuario?: StringFilter<"Usuario"> | string
+    tipo_usuario?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -35461,11 +35461,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateWithoutUser_permissionsInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -35474,12 +35474,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedCreateWithoutUser_permissionsInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
@@ -35558,11 +35558,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUpdateWithoutUser_permissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -35571,12 +35571,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateWithoutUser_permissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35691,11 +35691,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateWithoutPreferred_companyInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -35704,12 +35704,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedCreateWithoutPreferred_companyInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -35830,11 +35830,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateWithoutMembershipsInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
@@ -35843,12 +35843,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedCreateWithoutMembershipsInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
@@ -35903,11 +35903,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUpdateWithoutMembershipsInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -35916,12 +35916,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateWithoutMembershipsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36661,11 +36661,11 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateManyTenantInput = {
-    id?: string
+    id_usuario?: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
@@ -36724,11 +36724,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
@@ -36737,11 +36737,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36750,11 +36750,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateManyWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37026,12 +37026,12 @@ export namespace Prisma {
   }
 
   export type UsuarioCreateManyPreferred_companyInput = {
-    id?: string
-    tenant_id: string
+    id_usuario?: string
+    id_organizacao_usuario: string
     clerk_user_id: string
     email_usuario: string
-    name: string
-    role?: $Enums.UsuarioTipo
+    nome_usuario: string
+    tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
   }
@@ -37094,11 +37094,11 @@ export namespace Prisma {
   }
 
   export type UsuarioUpdateWithoutPreferred_companyInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
@@ -37107,12 +37107,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateWithoutPreferred_companyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -37120,12 +37120,12 @@ export namespace Prisma {
   }
 
   export type UsuarioUncheckedUpdateManyWithoutPreferred_companyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
+    id_usuario?: StringFieldUpdateOperationsInput | string
+    id_organizacao_usuario?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email_usuario?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
+    nome_usuario?: StringFieldUpdateOperationsInput | string
+    tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }

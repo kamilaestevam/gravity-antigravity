@@ -53,9 +53,9 @@ meRouter.use(requireAuth)
 meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id: req.auth.userId },
+      where: { id_usuario: req.auth.userId },
       select: {
-        id: true,
+        id_usuario: true,
         nome_usuario: true,
         email_usuario: true,
         tipo_usuario: true,
@@ -95,7 +95,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 
     res.json({
       usuario: {
-        id_usuario: usuario.id,
+        id_usuario: usuario.id_usuario,
         nome_usuario: usuario.nome_usuario,
         email_usuario: usuario.email_usuario,
         tipo_usuario: usuario.tipo_usuario,
@@ -208,7 +208,7 @@ meRouter.get('/preferences', async (req, res, next) => {
     }
 
     const user = await prisma.usuario.findUnique({
-      where: { id: req.auth.userId },
+      where: { id_usuario: req.auth.userId },
       select: { preferred_company_id: true },
     })
 
@@ -229,7 +229,7 @@ meRouter.get('/preferences', async (req, res, next) => {
     if (!valid) {
       // Fallback silencioso: limpa o campo e retorna null
       await prisma.usuario.update({
-        where: { id: req.auth.userId },
+        where: { id_usuario: req.auth.userId },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -281,7 +281,7 @@ meRouter.put('/preferences', async (req, res, next) => {
     // Caso 1: desmarcar — sempre permitido
     if (preferredCompanyId === null) {
       await prisma.usuario.update({
-        where: { id: req.auth.userId },
+        where: { id_usuario: req.auth.userId },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -306,7 +306,7 @@ meRouter.put('/preferences', async (req, res, next) => {
     }
 
     await prisma.usuario.update({
-      where: { id: req.auth.userId },
+      where: { id_usuario: req.auth.userId },
       data: { preferred_company_id: preferredCompanyId },
     })
 

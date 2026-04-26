@@ -56,7 +56,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       role === 'FORNECEDOR'
         ? Promise.resolve(null)
         : prisma.usuario.findUnique({
-            where: { id: userId },
+            where: { id_usuario: userId },
             select: { preferred_company_id: true },
           }).catch(() => null),
     ])
@@ -87,7 +87,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
         prisma.usuario
           .update({
-            where: { id: userId },
+            where: { id_usuario: userId },
             data: { preferred_company_id: null },
           })
           .catch(() => {

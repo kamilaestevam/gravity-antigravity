@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 
 async function main() {
   const users = await prisma.usuario.findMany({
-    select: { id: true, email_usuario: true, tipo_usuario: true, id_organizacao_usuario: true, clerk_user_id: true },
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_organizacao_usuario: true, clerk_user_id: true },
   })
   console.log(`Total usuários: ${users.length}`)
   users.forEach(u => {

@@ -120,13 +120,13 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
               tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
+              actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
@@ -134,7 +134,7 @@ authRouter.post('/clerk', async (req, res, next) => {
               action: 'LOGIN',
               action_detail: `Login realizado por ${user.nome_usuario ?? user.email_usuario}`,
               status: 'SUCCESS',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -146,13 +146,13 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
               tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
+              actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
@@ -160,7 +160,7 @@ authRouter.post('/clerk', async (req, res, next) => {
               action: 'LOGOUT',
               action_detail: `Logout de ${user.nome_usuario ?? user.email_usuario}`,
               status: 'SUCCESS',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -172,13 +172,13 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
               tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
+              actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
@@ -186,7 +186,7 @@ authRouter.post('/clerk', async (req, res, next) => {
               action: 'SESSION_REVOKED',
               action_detail: `Sessão revogada de ${user.nome_usuario ?? user.email_usuario}`,
               status: 'PARTIAL',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }

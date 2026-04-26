@@ -105,7 +105,7 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id                     String   @id @default(cuid()) @map("id_usuario")
+  id_usuario             String   @id @default(cuid())
   id_organizacao_usuario String
   clerk_user_id          String   @unique
   email_usuario          String
@@ -191,7 +191,7 @@ model UsuarioPermissao {
 
   // Relações
   tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  user   Usuario     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user   Usuario     @relation(fields: [user_id], references: [id_usuario], onDelete: Cascade)
 
   // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
   @@unique([tenant_id, company_id, user_id, product_id, permission])
@@ -277,7 +277,7 @@ model UsuarioWorkspace {
   updated_at DateTime @updatedAt
 
   // Relações
-  user    Usuario   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Usuario   @relation(fields: [user_id], references: [id_usuario], onDelete: Cascade)
   company Empresa @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa

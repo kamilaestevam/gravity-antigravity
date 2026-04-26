@@ -83,7 +83,7 @@ async function main() {
   })
 
   console.log(`  ✔ Usuário criado:`)
-  console.log(`      id:        ${user.id}`)
+  console.log(`      id:        ${user.id_usuario}`)
   console.log(`      email:     ${user.email_usuario}`)
   console.log(`      role:      ${user.tipo_usuario}`)
   console.log(`      tenant_id: ${user.id_organizacao_usuario}`)

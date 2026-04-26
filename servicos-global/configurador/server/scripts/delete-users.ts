@@ -21,8 +21,8 @@ async function main() {
       continue
     }
 
-    await prisma.usuario.delete({ where: { id: user.id } })
-    console.log(`✓  ${email} deletado (${user.id})`)
+    await prisma.usuario.delete({ where: { id_usuario: user.id_usuario } })
+    console.log(`✓  ${email} deletado (${user.id_usuario})`)
   }
 
   console.log('\n✅ Concluído.')

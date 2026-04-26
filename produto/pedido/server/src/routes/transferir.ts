@@ -17,7 +17,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { TransferirService, AppError } from '../services/transferirService.js'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 
@@ -77,10 +77,10 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const preview = await service.preview(tenantId, parse.data, db)
 
@@ -127,12 +127,12 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
   const { confirmar_tipos_divergentes, ...payloadService } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
-      const ctx     = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? 'system'
+      const ctx     = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? 'system'
 
       // Validar divergência de tipo_operacao antes de executar a transação
       const pedidoOrigem = await db.pedido.findFirst({
@@ -178,12 +178,12 @@ transferirRouter.post('/:transfer_id/reverter', async (req: Request, res: Respon
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
-      const ctx     = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? 'system'
+      const ctx     = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? 'system'
 
       const resultado = await service.reverter(tenantId, userId, transfer_id, db)
       res.json(resultado)
@@ -202,10 +202,10 @@ transferirHistoricoRouter.get('/', async (req: Request, res: Response, next: Nex
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const historico = await service.historico(tenantId, pedidoId, db)
       res.json(historico)

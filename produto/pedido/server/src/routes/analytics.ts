@@ -20,7 +20,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { analyticsAuth } from '../middleware/analyticsAuth.js'
-import { withTenant } from '@gravity/tenant-resolver'
+import { withOrganizacao } from '@gravity/resolver-organizacao'
 
 export const analyticsRouter = Router()
 
@@ -99,7 +99,7 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -202,7 +202,7 @@ analyticsRouter.get('/trend', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -274,7 +274,7 @@ analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -311,7 +311,7 @@ analyticsRouter.get('/items', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -358,7 +358,7 @@ analyticsRouter.get('/raw', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 

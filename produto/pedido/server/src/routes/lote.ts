@@ -10,7 +10,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 
 export const loteRouter = Router()
 
@@ -40,10 +40,10 @@ loteRouter.post('/status/preview', async (req: Request, res: Response, next: Nex
   const { ids, status_novo } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const pedidos = await db.pedido.findMany({
         where: { id: { in: ids }, tenant_id: tenantId },
@@ -77,10 +77,10 @@ loteRouter.post('/status/confirmar', async (req: Request, res: Response, next: N
   const { ids, status_novo } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const resultado = await db.pedido.updateMany({
         where: { id: { in: ids }, tenant_id: tenantId },

@@ -638,7 +638,9 @@ describe('TransferirService — prepararItemDestino', () => {
 describe('TransferirService.historico', () => {
   it('retorna lista de histórico do pedido', async () => {
     const { db } = criarMockDb()
-    db.transferHistorico.findMany = vi.fn().mockResolvedValue([
+    // ORPHAN MODEL: transferHistorico não está no fragment.prisma; mock dinâmico via cast
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(db as any).transferHistorico.findMany = vi.fn().mockResolvedValue([
       { id: 'hist-001', pedido_origem_id: 'pedi_id_0000001-26', cenario: 'reducao_simples' },
     ])
     const service = new TransferirService()

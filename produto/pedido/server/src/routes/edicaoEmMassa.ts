@@ -16,7 +16,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { EdicaoEmMassaService, AppError } from '../services/edicaoEmMassaService.js'
 
 export const edicaoEmMassaRouter = Router()
@@ -50,10 +50,10 @@ edicaoEmMassaRouter.post('/preview', async (req: Request, res: Response, next: N
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const result = await service.preview(tenantId, db, parse.data)
       res.json(result)
@@ -74,12 +74,12 @@ edicaoEmMassaRouter.post('/confirmar', async (req: Request, res: Response, next:
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario
 
       const result = await service.confirmar(tenantId, userId ?? 'system', db, parse.data)
       res.json(result)

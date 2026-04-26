@@ -19,7 +19,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { AppError } from '../errors/AppError.js'
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import { analisarFormulaComGemini } from '../services/geminiFormulaAdvisor.js'
@@ -49,13 +49,13 @@ const service = new ColunasUsuarioService()
 
 colunasUsuarioRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId  = ctx.tenantId
-      const userId    = ctx.userId
-      const userRoles = ctx.roles
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId  = ctx.idOrganizacao
+      const userId    = ctx.idUsuario
+      const userRoles = ctx.tiposUsuario
 
       const colunas = await service.listar(tenantId, userId, userRoles, db)
       res.json(colunas)
@@ -80,12 +80,12 @@ colunasUsuarioRouter.post('/', async (req: Request, res: Response, next: NextFun
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario
 
       const coluna = await service.criar(tenantId, { ...parse.data, created_by: userId }, db)
       res.status(201).json(coluna)
@@ -111,10 +111,10 @@ colunasUsuarioRouter.post('/reordenar', async (req: Request, res: Response, next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.reordenar(tenantId, parse.data.ids, db)
       res.status(204).send()
@@ -139,10 +139,10 @@ colunasUsuarioRouter.post('/valores', async (req: Request, res: Response, next: 
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.salvarValores(tenantId, parse.data, db)
       res.status(204).send()
@@ -167,10 +167,10 @@ colunasUsuarioRouter.get('/valores', async (req: Request, res: Response, next: N
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const valores = await service.listarValores(
         tenantId,
@@ -210,10 +210,10 @@ colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextF
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const coluna = await service.atualizar(tenantId, req.params.id, parse.data, db)
       res.json(coluna)
@@ -252,10 +252,10 @@ colunasUsuarioRouter.post('/gabi-analise', async (req: Request, res: Response, n
 
 colunasUsuarioRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await service.excluir(tenantId, req.params.id, db)
       res.status(204).send()

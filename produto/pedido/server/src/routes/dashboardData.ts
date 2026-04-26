@@ -30,7 +30,7 @@
  */
 
 import { Router, Request, Response } from 'express'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { generateInsights, normalizeRole, type KpiSnapshot } from '../services/gabiInsightsService.js'
 import { getUserBehaviorScores } from '../services/behaviorTrackingService.js'
 import { enhanceWithLlm } from '../services/gabiLlmInsightsService.js'
@@ -95,7 +95,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
     : periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -270,7 +270,7 @@ dashboardDataRouter.get('/trend', async (req: Request, res: Response) => {
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -340,9 +340,9 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
   const period   = (req.query.period   as string) ?? '30d'
   const rawRole  = (req.headers['x-user-role'] as string | undefined) ?? (req.query.role as string | undefined)
   const role     = normalizeRole(rawRole)
-  const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-  const tenantId = ctx.tenantId
-  const userId   = ctx.userId ?? 'anonymous'
+  const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+  const tenantId = ctx.idOrganizacao
+  const userId   = ctx.idUsuario ?? 'anonymous'
 
   const fromParam = req.query.from as string | undefined
   const toParam   = req.query.to   as string | undefined
@@ -354,7 +354,7 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
     let kpis!: KpiSnapshot
     let behaviorScores: Awaited<ReturnType<typeof getUserBehaviorScores>>
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -447,7 +447,7 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
 // Consulta o serviço NCM tenant para saber quais NCMs usados nos itens são inválidos.
 // Falha silenciosa: se o serviço NCM estiver offline, retorna sem_sync=true.
 dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
-  const tenantId  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+  const tenantId  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
   const TENANT_SVC = process.env.TENANT_SERVICE_URL ?? 'http://localhost:3001'
   const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
 
@@ -455,7 +455,7 @@ dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
     // 1. Buscar todos os NCMs distintos usados em itens ativos deste tenant
     let itensNcm: Array<{ ncm_item: string | null }> = []
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       itensNcm = await db.pedidoItem.findMany({
@@ -531,7 +531,7 @@ dashboardDataRouter.get('/distribution', async (req: Request, res: Response) => 
   const { from, to } = periodToDateRange(period)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 

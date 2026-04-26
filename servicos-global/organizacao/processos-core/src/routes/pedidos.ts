@@ -27,7 +27,7 @@ import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { saldoEngine, AppError } from '../services/saldoEngine.js'
 import {
   parsearFormula,
@@ -390,11 +390,11 @@ function decodeCursor(encoded: string): CursorPayload | null {
 
 pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
@@ -509,11 +509,11 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
   const { termo, status, tipo_operacao, busca } = result.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       // WHERE base (tenant_id injetado também pelo $extends após fix do count)
@@ -620,11 +620,11 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
 
 pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
@@ -647,11 +647,11 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
 
 pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       // Garante que o pedido existe e pertence ao tenant/company antes de expor itens.
@@ -695,7 +695,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     // ── Fase 4 DDD: busca Empresas no Cadastros ANTES do $transaction ─────
     // I/O de rede não pode segurar conexão Prisma (mesma regra da saga
     // Cadastros-primeiro da Fase 3).
-    const ctxTenant = (req as unknown as { tenant: TenantContext }).tenant
+    const ctxTenant = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
     const correlation_id =
       (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID()
 
@@ -706,14 +706,14 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
     const empresasMap = await buscarEmpresasPorSuids(
       papeisPorSuid.map((p) => p.suid),
-      { id_organizacao: ctxTenant.tenantId, correlation_id },
+      { id_organizacao: ctxTenant.idOrganizacao, correlation_id },
     )
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedidoId = gerarId('pedi')
@@ -789,11 +789,11 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
@@ -825,11 +825,11 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
 
 pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
@@ -861,11 +861,11 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
@@ -1043,11 +1043,11 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id },
@@ -1183,11 +1183,11 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
 pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const original = await db.pedido.findFirst({
@@ -1301,11 +1301,11 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
@@ -1393,11 +1393,11 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
         where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
@@ -1555,11 +1555,11 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       valorNumerico = valor
     }
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
         where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
@@ -1669,11 +1669,11 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
 
 pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
 
       const item = await db.pedidoItem.findFirst({
         where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
@@ -1704,11 +1704,11 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const saldo = await saldoEngine.cancelar(db, {
@@ -1734,11 +1734,11 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id  = ctx.tenantId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id  = ctx.idOrganizacao
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const saldo = await saldoEngine.atualizarPronta(db, {

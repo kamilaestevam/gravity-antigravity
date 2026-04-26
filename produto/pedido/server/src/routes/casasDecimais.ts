@@ -17,7 +17,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
-import { withTenant, withTenantContext, type TenantContext, type TenantDatabase } from '@gravity/tenant-resolver'
+import { withOrganizacao, withOrganizacaoContext, type ContextoOrganizacao, type BancoOrganizacao } from '@gravity/resolver-organizacao'
 
 export const casasDecimaisRouter = Router()
 
@@ -118,7 +118,7 @@ const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string
 
 // ── Job de migração em background ─────────────────────────────────────────────
 
-async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: string, config: CasasDecimaisConfig): Promise<void> {
+async function executarMigracaoCasasDecimais(db: BancoOrganizacao, tenant_id: string, config: CasasDecimaisConfig): Promise<void> {
   console.log(`[CasasDecimais] Iniciando migração para tenant ${tenant_id}`)
 
   // 1. Atualizar metadados casas_decimais_* nos pedidos e itens
@@ -132,7 +132,7 @@ async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: stri
   }
 
   await Promise.all([
-    db.pedido.updateMany({ where: { tenant_id, deleted_at: null }, data: updatePedidoMeta }),
+    db.pedido.updateMany({ where: { id_organizacao: tenant_id }, data: updatePedidoMeta }),
     db.pedidoItem.updateMany({ where: { id_organizacao: tenant_id }, data: updateItemMeta }),
   ])
 
@@ -168,10 +168,10 @@ async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: stri
 
 casasDecimaisRouter.get('/casas-decimais', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const registro = await db.pedidoCasasDecimaisConfig.findUnique({
         where: { tenant_id },
       })
@@ -191,9 +191,9 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
       throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
     }
     const { confirmar, ...configData } = parsed.data
-    const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+    const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const tenant_id = tenantId
@@ -205,7 +205,7 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
       })
 
       const [totalPedidos, totalItens] = await Promise.all([
-        db.pedido.count({ where: { tenant_id, deleted_at: null } }),
+        db.pedido.count({ where: { id_organizacao: tenant_id } }),
         db.pedidoItem.count({ where: { id_organizacao: tenant_id } }),
       ])
 
@@ -222,8 +222,8 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
     // Dispara migração APÓS a transação principal commitar
     if (confirmar === true) {
       setImmediate(() => {
-        withTenantContext(tenantId, async (ctx, rawDb) => {
-          await executarMigracaoCasasDecimais(rawDb, ctx.tenantId, configData)
+        withOrganizacaoContext(tenantId, async (ctx, rawDb) => {
+          await executarMigracaoCasasDecimais(rawDb, ctx.idOrganizacao, configData)
         }).catch(err => {
           console.error(`[CasasDecimais] Erro na migração tenant=${tenantId}:`, err)
         })

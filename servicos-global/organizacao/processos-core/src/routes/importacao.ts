@@ -19,7 +19,7 @@ import type { PedidoImportado } from '../services/importEngine.js'
 import { AppError } from '../services/saldoEngine.js'
 import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
 import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
-import { withTenant } from '@gravity/tenant-resolver'
+import { withOrganizacao } from '@gravity/resolver-organizacao'
 
 export const importacaoRouter = Router()
 
@@ -122,7 +122,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
     )
 
     let criados: string[] = []
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       criados = await db.$transaction(async (tx: Record<string, Record<string, unknown>>) => {
@@ -228,7 +228,7 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
     if (filtros?.tipo_operacao) where.tipo_operacao_pedido = filtros.tipo_operacao
 
     let pedidos: Array<Record<string, unknown>> = []
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       pedidos = await db.pedido.findMany({

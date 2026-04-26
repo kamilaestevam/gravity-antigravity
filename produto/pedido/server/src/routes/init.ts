@@ -20,7 +20,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import {
@@ -37,10 +37,10 @@ const colunasService = new ColunasUsuarioService()
 // GET /init
 initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const { tenantId, userId, roles } = (req as unknown as { tenant: TenantContext }).tenant
+      const { idOrganizacao: tenantId, idUsuario: userId, tiposUsuario: roles } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = tenantId
       const user_id    = userId
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id

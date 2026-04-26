@@ -14,7 +14,7 @@
 
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 
 export const dashboardWidgetsRouter = Router()
 
@@ -64,7 +64,7 @@ const SaveWidgetsSchema = z.object({
 // ── GET — busca configuração persistida ──────────────────────────────────────
 dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
@@ -102,10 +102,10 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
   const { widgets } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const existing = await db.dashboardConfig.findFirst({
         where: { product_id: 'pedido' },
@@ -143,7 +143,7 @@ dashboardWidgetsRouter.delete('/:widgetId', async (req: Request, res: Response) 
   if (!widgetId) return res.status(400).json({ error: 'widgetId obrigatorio' })
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 

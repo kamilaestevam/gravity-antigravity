@@ -29,7 +29,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
-import { tenantResolver, AppError } from '@gravity/tenant-resolver'
+import { resolverOrganizacao, AppError } from '@gravity/resolver-organizacao'
 import { analyticsRouter } from './routes/analytics.js'
 import { dashboardWidgetsRouter } from './routes/dashboardWidgets.js'
 import { dashboardDataRouter } from './routes/dashboardData.js'
@@ -50,12 +50,12 @@ import { casasDecimaisRouter } from './routes/casasDecimais.js'
 import { saldoFormulaRouter } from './routes/saldoFormula.js'
 import { initRouter } from './routes/init.js'
 import { taxaCambioRouter } from './routes/taxaCambio.js'
-import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
-import { pedidosConfigRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos-config.js'
-import { importacaoRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/importacao.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { pedidosRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
+import { pedidosConfigRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos-config.js'
+import { importacaoRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
+import { apiObservability } from '../../../../servicos-global/organizacao/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/organizacao/historico-global/src/product-audit-plugin.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8030
@@ -106,10 +106,10 @@ app.use('/api/v1/analytics/pedido', analyticsRouter)
 app.use('/api/v1/taxa-cambio', taxaCambioRouter)
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
-app.use(tenantResolver({
-  productKey:          'pedido',
+app.use(resolverOrganizacao({
+  chaveProduto:        'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
-  internalKey:         process.env.INTERNAL_SERVICE_KEY!,
+  chaveInterna:        process.env.INTERNAL_SERVICE_KEY!,
 }))
 
 // ── 7. Observabilidade — captura métricas de uso por tenant/produto ───────────
@@ -120,9 +120,9 @@ app.use(createProductAuditPlugin({
   product_id: 'pedido',
   module: 'pedido',
   getActorFromReq: (req) => {
-    const ctx        = (req as { tenant?: { tenantId?: string; userId?: string } }).tenant
-    const tenant_id  = ctx?.tenantId
-    const actor_id   = ctx?.userId
+    const ctx        = (req as { organizacao?: { idOrganizacao?: string; idUsuario?: string } }).organizacao
+    const tenant_id  = ctx?.idOrganizacao
+    const actor_id   = ctx?.idUsuario
     const actor_name = req.headers['x-user-name'] as string | undefined
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_name || actor_id, actor_type: 'USER' }

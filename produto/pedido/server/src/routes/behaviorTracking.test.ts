@@ -14,7 +14,7 @@ import type { Request, Response, NextFunction } from 'express'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function criarReq(overrides: Partial<Request> = {}): Request {
+function criarReq(overrides: Record<string, unknown> = {}): Request {
   return {
     body: {},
     headers: {
@@ -44,25 +44,21 @@ function criarRes() {
 async function invocarHandler(
   req: Request,
   res: Response,
-  next: NextFunction = vi.fn(),
+  _next: NextFunction = (vi.fn() as unknown as NextFunction),
 ): Promise<void> {
-  // Importar dinamicamente para evitar efeitos colaterais de módulo
-  const { BehaviorEventSchema, trackBehaviorEvent } = await import('./behaviorTracking.js').catch(() =>
-    // Fallback: testar handler inline
-    ({ BehaviorEventSchema: null, trackBehaviorEvent: null }),
-  )
-
-  // Handler inline (reproduz a lógica da rota)
-  const { BehaviorEventSchema: schema } = await import('../services/behaviorTrackingService.js')
-  const { trackBehaviorEvent: track }    = await import('../services/behaviorTrackingService.js')
+  // Handler inline (reproduz a lógica da rota — schema/track vivem no service)
+  const { BehaviorEventSchema: schema, trackBehaviorEvent: track } = await import('../services/behaviorTrackingService.js')
 
   const parsed = schema.safeParse(req.body)
   if (!parsed.success) {
     res.status(204).end()
     return
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tenantId = (req as any).tenantId as string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userId   = (req as any).userId   as string ?? 'anonymous'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db       = (req as any).prisma
   void track(db, tenantId, userId, parsed.data)
   res.status(204).end()

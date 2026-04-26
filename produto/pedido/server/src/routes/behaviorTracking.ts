@@ -10,7 +10,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { BehaviorEventSchema, trackBehaviorEvent } from '../services/behaviorTrackingService.js'
 
 export const behaviorTrackingRouter = Router()
@@ -26,10 +26,10 @@ behaviorTrackingRouter.post(
         return
       }
 
-      const { tenantId, userId } = (req as unknown as { tenant: TenantContext }).tenant
+      const { idOrganizacao: tenantId, idUsuario: userId } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
 
       // Fire-and-forget — não aguarda o resultado para não impactar latência
-      void withTenant(req, async (db) => {
+      void withOrganizacao(req, async (db) => {
         await trackBehaviorEvent(db, tenantId, userId, parsed.data)
       })
 

@@ -8,7 +8,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { AppError } from '../errors/AppError.js'
 
 export const kanbanPreferenciasRouter = Router()
@@ -58,12 +58,12 @@ const KanbanPreferenciasSchema = z.object({
 
 kanbanPreferenciasRouter.get('/preferencias', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       const registro = await db.kanbanPreferencias.findFirst({
         where: { id_organizacao: tenant_id, id_usuario: user_id },
@@ -85,12 +85,12 @@ kanbanPreferenciasRouter.put('/preferencias', async (req: Request, res: Response
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       const registro = await db.kanbanPreferencias.upsert({
         where:  { id_organizacao_id_usuario: { id_organizacao: tenant_id, id_usuario: user_id } },
@@ -109,12 +109,12 @@ kanbanPreferenciasRouter.put('/preferencias', async (req: Request, res: Response
 
 kanbanPreferenciasRouter.delete('/preferencias', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       await db.kanbanPreferencias.deleteMany({
         where: { id_organizacao: tenant_id, id_usuario: user_id },

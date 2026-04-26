@@ -4,5 +4,5 @@ export {
   mapPedido,
   encodeCursor,
   CURSOR_SORT_FIELDS,
-} from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
-export type { CursorSortField } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
+} from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
+export type { CursorSortField } from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'

@@ -18,8 +18,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
-import { parsearFormula, SALDO_FORMULA_PADRAO } from '../../../../../servicos-global/tenant/processos-core/src/services/formulaEngine.js'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
+import { parsearFormula, SALDO_FORMULA_PADRAO } from '../../../../../servicos-global/organizacao/processos-core/src/services/formulaEngine.js'
 
 export const saldoFormulaRouter = Router()
 
@@ -33,10 +33,10 @@ const SaldoFormulaSchema = z.object({
 
 saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const registro = await db.pedidoSaldoFormulaConfig.findUnique({
         where: { id_organizacao: tenant_id },
       })
@@ -69,10 +69,10 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
       throw new AppError(`Formula invalida: ${msg}`, 400, 'VALIDATION_ERROR')
     }
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const registro = await db.pedidoSaldoFormulaConfig.upsert({
         where:  { id_organizacao: tenant_id },
         create: { id_organizacao: tenant_id, formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
@@ -94,10 +94,10 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
 
 saldoFormulaRouter.delete('/saldo-formula', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       await db.pedidoSaldoFormulaConfig.deleteMany({ where: { id_organizacao: tenant_id } })
       res.json({
         data: {

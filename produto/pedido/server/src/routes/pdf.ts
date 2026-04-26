@@ -20,7 +20,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import {
   compilarVariaveis,
   renderizarTemplate,
@@ -120,10 +120,10 @@ const GerarDocumentoSchema = z.object({
 
 pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const templates = await db.pedidoTemplate.findMany({
         where: { id_organizacao: tenantId },
@@ -148,12 +148,12 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
   const { pedido_id, template_id, salvar_como_anexo } = bodyParse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? 'system'
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? 'system'
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
@@ -245,12 +245,12 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
   const { pedido_id, tipo_documento, idioma, salvar_como_anexo } = bodyParse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? 'system'
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? 'system'
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({

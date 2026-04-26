@@ -10,7 +10,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { AppError } from '../errors/AppError.js'
 
 export const dashboardPaineisRouter = Router()
@@ -71,12 +71,12 @@ function mapPatch(patch: { nome?: string; is_visivel?: boolean; widgets_json?: s
 
 dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       let paineis = await db.pedidoDashboardPainel.findMany({
         where:   { id_organizacao: tenant_id, id_usuario: user_id },
@@ -111,12 +111,12 @@ dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       const ultimo = await db.pedidoDashboardPainel.findFirst({
         where:   { id_organizacao: tenant_id, id_usuario: user_id },
@@ -149,12 +149,12 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Respo
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
 
       await Promise.all(
         parsed.data.ids.map((id, index) =>
@@ -181,12 +181,12 @@ dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, n
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
       const { id }   = req.params
 
       const painel = await db.pedidoDashboardPainel.findFirst({
@@ -210,12 +210,12 @@ dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, n
 
 dashboardPaineisRouter.delete('/paineis/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
-      const tenant_id = ctx.tenantId
-      const user_id   = ctx.userId
+      const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenant_id = ctx.idOrganizacao
+      const user_id   = ctx.idUsuario
       const { id }   = req.params
 
       const total = await db.pedidoDashboardPainel.count({

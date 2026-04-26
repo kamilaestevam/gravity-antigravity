@@ -19,7 +19,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { DuplicarService, ExcluirService, AppError } from '../services/duplicarExcluirService.js'
 
 export const duplicarExcluirRouter = Router()
@@ -67,10 +67,10 @@ duplicarExcluirRouter.post('/duplicar/preview', async (req: Request, res: Respon
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const resultado = await duplicarService.preview(db, tenantId, parse.data.ids)
       res.json(resultado)
@@ -93,12 +93,12 @@ duplicarExcluirRouter.post('/duplicar/confirmar', async (req: Request, res: Resp
   const companyId = (req.headers['x-company-id'] as string | undefined)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? ''
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? ''
 
       const resultado = await duplicarService.confirmar(db, tenantId, companyId ?? tenantId, userId, parse.data)
       res.status(201).json(resultado)
@@ -121,10 +121,10 @@ duplicarExcluirRouter.post('/duplicar/itens', async (req: Request, res: Response
   const companyId = (req.headers['x-company-id'] as string | undefined)
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const resultado = await duplicarService.duplicarItens(db, tenantId, companyId ?? tenantId, parse.data)
       res.status(201).json(resultado)
@@ -145,10 +145,10 @@ duplicarExcluirRouter.post('/excluir/preview', async (req: Request, res: Respons
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const resultado = await excluirService.preview(db, tenantId, parse.data.ids)
       res.json(resultado)
@@ -169,12 +169,12 @@ duplicarExcluirRouter.post('/excluir/confirmar', async (req: Request, res: Respo
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? ''
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? ''
 
       const resultado = await excluirService.confirmar(db, tenantId, userId, parse.data.ids)
       res.json(resultado)
@@ -195,12 +195,12 @@ duplicarExcluirRouter.post('/excluir/itens', async (req: Request, res: Response,
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? ''
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? ''
 
       const resultado = await excluirService.excluirItens(
         db,

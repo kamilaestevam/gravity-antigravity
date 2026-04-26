@@ -18,7 +18,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { AppError } from '../errors/AppError.js'
 import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
@@ -125,7 +125,7 @@ smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunc
     res.set({
       'Content-Type':        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename="template-importacao-pedidos.xlsx"',
-      'Content-Length':      String((buf as Buffer).length),
+      'Content-Length':      String((buf as unknown as Buffer).length),
     })
     res.send(buf)
   }).catch(next)
@@ -134,8 +134,8 @@ smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunc
 // ── POST /analisar ─────────────────────────────────────────────────────────────
 
 smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Request, res: Response, next: NextFunction) => {
-  // Extrair tenantId antes de withTenant — necessário para o rate limit
-  const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+  // Extrair tenantId antes de withOrganizacao — necessário para o rate limit
+  const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
   if (!checkRateLimit(tenantId)) {
     return res.status(429).json({
@@ -174,7 +174,7 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       return res.json({ multiplas_planilhas: true, planilhas, preview: null })
     }
 
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db      = rawDb as any
       const service = criarSmartImportService(db)
@@ -201,7 +201,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   }
 
   // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
-  const tenantId  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+  const tenantId  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
   const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
 
   if (!parse.data.preview_id.startsWith(tenantId + '-')) {
@@ -211,10 +211,10 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db     = rawDb as any
-      const userId = (req as unknown as { tenant: TenantContext }).tenant.userId ?? 'system'
+      const userId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idUsuario ?? 'system'
 
       const service   = criarSmartImportService(db)
       const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
@@ -237,10 +237,10 @@ smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, n
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const service    = new MapeamentoMemoriaService(db)
       const mapeamento = await service.buscar(tenantId, hash)
@@ -273,10 +273,10 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
   ]
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       // P1.7 — Incluir colunas customizadas do tenant
       const colunasCustom = await db.colunaUsuarioPedido.findMany({
@@ -313,10 +313,10 @@ smartImportRouter.post('/mapeamento/salvar', async (req: Request, res: Response,
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const service = new MapeamentoMemoriaService(db)
       await service.salvar(tenantId, parse.data.hash_colunas, parse.data.mapeamento)
@@ -342,10 +342,10 @@ smartImportRouter.post('/reverter', async (req: Request, res: Response, next: Ne
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       // Cancelar pedidos (soft delete via status) garantindo tenant isolation
       const resultado = await db.pedido.updateMany({

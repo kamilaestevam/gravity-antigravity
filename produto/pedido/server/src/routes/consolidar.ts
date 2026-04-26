@@ -17,7 +17,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 
 function gerarId(prefixo: string): string {
@@ -86,10 +86,10 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
   const { ids } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       // Buscar pedidos com itens — filtrado por tenant_id
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,10 +198,10 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
   const { ids, numero_pedido, campos_escolhidos, fundir_itens_mesmo_part_number } = parse.data
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       // Buscar pedidos originais — filtrado por tenant_id
       const pedidos = await db.pedido.findMany({
@@ -293,7 +293,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         })(),
       }
 
-      // withTenant já garante atomicidade via $transaction — usar db diretamente
+      // withOrganizacao já garante atomicidade via $transaction — usar db diretamente
 
       // 1. Criar o pedido consolidado
       const novo = await db.pedido.create({

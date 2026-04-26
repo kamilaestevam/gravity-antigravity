@@ -21,7 +21,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
-import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import {
   validarExtensao,
   LIMITE_BYTES_ARQUIVO,
@@ -95,12 +95,12 @@ anexosRouter.post(
     }
 
     try {
-      await withTenant(req, async (rawDb) => {
+      await withOrganizacao(req, async (rawDb) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const db       = rawDb as any
-        const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-        const tenantId = ctx.tenantId
-        const userId   = ctx.userId ?? 'system'
+        const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+        const tenantId = ctx.idOrganizacao
+        const userId   = ctx.idUsuario ?? 'system'
 
         const { vinculo, vinculo_id, descricao, categoria } = bodyParse.data
 
@@ -165,10 +165,10 @@ anexosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =>
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const { vinculo, vinculo_id } = queryParse.data
 
@@ -221,10 +221,10 @@ anexosRouter.get('/:id/download', async (req: Request, res: Response, next: Next
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const { id } = paramParse.data
 
@@ -263,13 +263,13 @@ anexosRouter.delete('/:id', async (req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    await withTenant(req, async (rawDb) => {
+    await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
-      const tenantId = ctx.tenantId
-      const userId   = ctx.userId ?? ''
-      const userRoles = ctx.roles ?? []
+      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const tenantId = ctx.idOrganizacao
+      const userId   = ctx.idUsuario ?? ''
+      const userRoles = ctx.tiposUsuario ?? []
 
       const { id } = paramParse.data
 

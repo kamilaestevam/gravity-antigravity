@@ -212,8 +212,8 @@ export class EdicaoEmMassaService {
       include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
-    const itensAfetados = pedidos.reduce(
-      (acc: number, p: Record<string, unknown[]>) => acc + ((p.itens_pedido as unknown[])?.length ?? 0),
+    const itensAfetados = pedidos.reduce<number>(
+      (acc, p) => acc + ((p as { itens_pedido?: unknown[] }).itens_pedido?.length ?? 0),
       0,
     )
 
@@ -473,13 +473,15 @@ export class EdicaoEmMassaService {
       },
     })
 
-    const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_item: number }) => acc + Number(i.quantidade_inicial_item ?? 0),
+    const quantidadeInicialTotal = itens.reduce<number>(
+      (acc, i) => acc + Number((i as { quantidade_inicial_item?: unknown }).quantidade_inicial_item ?? 0),
       0,
     )
-    const valorTotal = itens.reduce(
-      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_item: number }) =>
-        acc + (Number(i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_item ?? 0)),
+    const valorTotal = itens.reduce<number>(
+      (acc, i) => {
+        const it = i as { valor_por_unidade_item?: unknown; quantidade_atual_item?: unknown }
+        return acc + (Number(it.valor_por_unidade_item ?? 0) * Number(it.quantidade_atual_item ?? 0))
+      },
       0,
     )
 

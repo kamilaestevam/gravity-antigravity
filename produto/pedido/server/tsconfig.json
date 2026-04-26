@@ -2,9 +2,14 @@
   "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-produto.json"],
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "rootDir": "."
+    "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../../servicos-global/organizacao/processos-core/**",
+    "../../../servicos-global/organizacao/middleware/**",
+    "../../../servicos-global/organizacao/historico-global/**"
+  ]
 }

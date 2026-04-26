@@ -139,9 +139,9 @@ export const tenantService = {
         // Empresa-local (child workspace legado do Configurador — distinto da Empresa SUID em Cadastros).
         await tx.empresa.create({
           data: {
-            tenant_id: newTenant.id_organizacao,
-            name: nome_organizacao,
-            status: 'ATIVO',
+            id_organizacao_workspace: newTenant.id_organizacao,
+            nome_workspace: nome_organizacao,
+            status_workspace: 'ATIVO',
           },
         })
 
@@ -206,34 +206,56 @@ export const tenantService = {
    * Lista empresas filhas do tenant
    */
   async getCompanies(tenantId: string) {
-    return prisma.empresa.findMany({
-      where: { tenant_id: tenantId },
+    const empresas = await prisma.empresa.findMany({
+      where: { id_organizacao_workspace: tenantId },
       select: {
-        id: true,
-        name: true,
-        subdomain: true,
-        cnpj: true,
-        status: true,
-        created_at: true,
+        id_workspace: true,
+        nome_workspace: true,
+        subdominio_workspace: true,
+        cnpj_workspace: true,
+        status_workspace: true,
+        data_criacao_workspace: true,
         _count: { select: { memberships: true } },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_workspace: 'desc' },
     })
+    // DTO: nomes Prisma `*_workspace` → chaves legadas do contrato (`id`, `name`, etc.)
+    return empresas.map(({ id_workspace, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, ...e }) => ({
+      ...e,
+      id: id_workspace,
+      name: nome_workspace,
+      subdomain: subdominio_workspace,
+      cnpj: cnpj_workspace,
+      status: status_workspace,
+      created_at: data_criacao_workspace,
+    }))
   },
 
   /**
    * Cria empresa filha no tenant
    */
   async createCompany(tenantId: string, data: CreateCompanyInput) {
-    return prisma.empresa.create({
+    const created = await prisma.empresa.create({
       data: {
-        tenant_id: tenantId,
-        name: data.name,
-        subdomain: data.subdomain,
-        cnpj: data.cnpj,
-        status: 'ATIVO',
+        id_organizacao_workspace: tenantId,
+        nome_workspace: data.name,
+        subdominio_workspace: data.subdomain,
+        cnpj_workspace: data.cnpj,
+        status_workspace: 'ATIVO',
       },
     })
+    // DTO: mapeia `*_workspace` → contrato legado
+    const { id_workspace, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, id_organizacao_workspace, ...c } = created
+    return {
+      ...c,
+      id: id_workspace,
+      name: nome_workspace,
+      subdomain: subdominio_workspace,
+      cnpj: cnpj_workspace,
+      status: status_workspace,
+      created_at: data_criacao_workspace,
+      tenant_id: id_organizacao_workspace,
+    }
   },
 
   /**
@@ -246,15 +268,32 @@ export const tenantService = {
     status?: 'ATIVO' | 'INATIVO'
   }) {
     const company = await prisma.empresa.findFirst({
-      where: { id: companyId, tenant_id: tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    return prisma.empresa.update({
-      where: { id: companyId },
-      data,
+    // Mapeia chaves do contrato externo (name/subdomain/cnpj/status) → Prisma (`*_workspace`)
+    const updated = await prisma.empresa.update({
+      where: { id_workspace: companyId },
+      data: {
+        ...(data.name !== undefined && { nome_workspace: data.name }),
+        ...(data.subdomain !== undefined && { subdominio_workspace: data.subdomain }),
+        ...(data.cnpj !== undefined && { cnpj_workspace: data.cnpj }),
+        ...(data.status !== undefined && { status_workspace: data.status }),
+      },
     })
+    const { id_workspace, nome_workspace, subdominio_workspace, cnpj_workspace, status_workspace, data_criacao_workspace, id_organizacao_workspace, ...c } = updated
+    return {
+      ...c,
+      id: id_workspace,
+      name: nome_workspace,
+      subdomain: subdominio_workspace,
+      cnpj: cnpj_workspace,
+      status: status_workspace,
+      created_at: data_criacao_workspace,
+      tenant_id: id_organizacao_workspace,
+    }
   },
 
   /**
@@ -262,11 +301,11 @@ export const tenantService = {
    */
   async deleteCompany(tenantId: string, companyId: string) {
     const company = await prisma.empresa.findFirst({
-      where: { id: companyId, tenant_id: tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    await prisma.empresa.delete({ where: { id: companyId } })
+    await prisma.empresa.delete({ where: { id_workspace: companyId } })
   },
 }

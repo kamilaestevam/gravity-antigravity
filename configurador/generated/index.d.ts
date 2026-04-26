@@ -8236,70 +8236,70 @@ export namespace Prisma {
   }
 
   export type EmpresaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    name: string | null
-    subdomain: string | null
-    cnpj: string | null
-    status: $Enums.EmpresaStatus | null
-    created_at: Date | null
+    id_workspace: string | null
+    id_organizacao_workspace: string | null
+    nome_workspace: string | null
+    subdominio_workspace: string | null
+    cnpj_workspace: string | null
+    status_workspace: $Enums.EmpresaStatus | null
+    data_criacao_workspace: Date | null
     updated_at: Date | null
   }
 
   export type EmpresaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    name: string | null
-    subdomain: string | null
-    cnpj: string | null
-    status: $Enums.EmpresaStatus | null
-    created_at: Date | null
+    id_workspace: string | null
+    id_organizacao_workspace: string | null
+    nome_workspace: string | null
+    subdominio_workspace: string | null
+    cnpj_workspace: string | null
+    status_workspace: $Enums.EmpresaStatus | null
+    data_criacao_workspace: Date | null
     updated_at: Date | null
   }
 
   export type EmpresaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    name: number
-    subdomain: number
-    cnpj: number
-    status: number
-    created_at: number
+    id_workspace: number
+    id_organizacao_workspace: number
+    nome_workspace: number
+    subdominio_workspace: number
+    cnpj_workspace: number
+    status_workspace: number
+    data_criacao_workspace: number
     updated_at: number
     _all: number
   }
 
 
   export type EmpresaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    subdomain?: true
-    cnpj?: true
-    status?: true
-    created_at?: true
+    id_workspace?: true
+    id_organizacao_workspace?: true
+    nome_workspace?: true
+    subdominio_workspace?: true
+    cnpj_workspace?: true
+    status_workspace?: true
+    data_criacao_workspace?: true
     updated_at?: true
   }
 
   export type EmpresaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    subdomain?: true
-    cnpj?: true
-    status?: true
-    created_at?: true
+    id_workspace?: true
+    id_organizacao_workspace?: true
+    nome_workspace?: true
+    subdominio_workspace?: true
+    cnpj_workspace?: true
+    status_workspace?: true
+    data_criacao_workspace?: true
     updated_at?: true
   }
 
   export type EmpresaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    name?: true
-    subdomain?: true
-    cnpj?: true
-    status?: true
-    created_at?: true
+    id_workspace?: true
+    id_organizacao_workspace?: true
+    nome_workspace?: true
+    subdominio_workspace?: true
+    cnpj_workspace?: true
+    status_workspace?: true
+    data_criacao_workspace?: true
     updated_at?: true
     _all?: true
   }
@@ -8377,13 +8377,13 @@ export namespace Prisma {
   }
 
   export type EmpresaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    name: string
-    subdomain: string | null
-    cnpj: string | null
-    status: $Enums.EmpresaStatus
-    created_at: Date
+    id_workspace: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace: string | null
+    cnpj_workspace: string | null
+    status_workspace: $Enums.EmpresaStatus
+    data_criacao_workspace: Date
     updated_at: Date
     _count: EmpresaCountAggregateOutputType | null
     _min: EmpresaMinAggregateOutputType | null
@@ -8405,13 +8405,13 @@ export namespace Prisma {
 
 
   export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    subdomain?: boolean
-    cnpj?: boolean
-    status?: boolean
-    created_at?: boolean
+    id_workspace?: boolean
+    id_organizacao_workspace?: boolean
+    nome_workspace?: boolean
+    subdominio_workspace?: boolean
+    cnpj_workspace?: boolean
+    status_workspace?: boolean
+    data_criacao_workspace?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     memberships?: boolean | Empresa$membershipsArgs<ExtArgs>
@@ -8421,25 +8421,25 @@ export namespace Prisma {
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    subdomain?: boolean
-    cnpj?: boolean
-    status?: boolean
-    created_at?: boolean
+    id_workspace?: boolean
+    id_organizacao_workspace?: boolean
+    nome_workspace?: boolean
+    subdominio_workspace?: boolean
+    cnpj_workspace?: boolean
+    status_workspace?: boolean
+    data_criacao_workspace?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    name?: boolean
-    subdomain?: boolean
-    cnpj?: boolean
-    status?: boolean
-    created_at?: boolean
+    id_workspace?: boolean
+    id_organizacao_workspace?: boolean
+    nome_workspace?: boolean
+    subdominio_workspace?: boolean
+    cnpj_workspace?: boolean
+    status_workspace?: boolean
+    data_criacao_workspace?: boolean
     updated_at?: boolean
   }
 
@@ -8463,13 +8463,13 @@ export namespace Prisma {
       preferred_by_users: Prisma.$UsuarioPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      name: string
-      subdomain: string | null
-      cnpj: string | null
-      status: $Enums.EmpresaStatus
-      created_at: Date
+      id_workspace: string
+      id_organizacao_workspace: string
+      nome_workspace: string
+      subdominio_workspace: string | null
+      cnpj_workspace: string | null
+      status_workspace: $Enums.EmpresaStatus
+      data_criacao_workspace: Date
       updated_at: Date
     }, ExtArgs["result"]["empresa"]>
     composites: {}
@@ -8554,8 +8554,8 @@ export namespace Prisma {
      * // Get first 10 Empresas
      * const empresas = await prisma.empresa.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const empresaWithIdOnly = await prisma.empresa.findMany({ select: { id: true } })
+     * // Only select the `id_workspace`
+     * const empresaWithId_workspaceOnly = await prisma.empresa.findMany({ select: { id_workspace: true } })
      * 
      */
     findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
@@ -8599,9 +8599,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Empresas and only return the `id`
-     * const empresaWithIdOnly = await prisma.empresa.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Empresas and only return the `id_workspace`
+     * const empresaWithId_workspaceOnly = await prisma.empresa.createManyAndReturn({ 
+     *   select: { id_workspace: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -8868,13 +8868,13 @@ export namespace Prisma {
    * Fields of the Empresa model
    */ 
   interface EmpresaFieldRefs {
-    readonly id: FieldRef<"Empresa", 'String'>
-    readonly tenant_id: FieldRef<"Empresa", 'String'>
-    readonly name: FieldRef<"Empresa", 'String'>
-    readonly subdomain: FieldRef<"Empresa", 'String'>
-    readonly cnpj: FieldRef<"Empresa", 'String'>
-    readonly status: FieldRef<"Empresa", 'EmpresaStatus'>
-    readonly created_at: FieldRef<"Empresa", 'DateTime'>
+    readonly id_workspace: FieldRef<"Empresa", 'String'>
+    readonly id_organizacao_workspace: FieldRef<"Empresa", 'String'>
+    readonly nome_workspace: FieldRef<"Empresa", 'String'>
+    readonly subdominio_workspace: FieldRef<"Empresa", 'String'>
+    readonly cnpj_workspace: FieldRef<"Empresa", 'String'>
+    readonly status_workspace: FieldRef<"Empresa", 'EmpresaStatus'>
+    readonly data_criacao_workspace: FieldRef<"Empresa", 'DateTime'>
     readonly updated_at: FieldRef<"Empresa", 'DateTime'>
   }
     
@@ -26498,13 +26498,13 @@ export namespace Prisma {
 
 
   export const EmpresaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    name: 'name',
-    subdomain: 'subdomain',
-    cnpj: 'cnpj',
-    status: 'status',
-    created_at: 'created_at',
+    id_workspace: 'id_workspace',
+    id_organizacao_workspace: 'id_organizacao_workspace',
+    nome_workspace: 'nome_workspace',
+    subdominio_workspace: 'subdominio_workspace',
+    cnpj_workspace: 'cnpj_workspace',
+    status_workspace: 'status_workspace',
+    data_criacao_workspace: 'data_criacao_workspace',
     updated_at: 'updated_at'
   };
 
@@ -27543,13 +27543,13 @@ export namespace Prisma {
     AND?: EmpresaWhereInput | EmpresaWhereInput[]
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id?: StringFilter<"Empresa"> | string
-    tenant_id?: StringFilter<"Empresa"> | string
-    name?: StringFilter<"Empresa"> | string
-    subdomain?: StringNullableFilter<"Empresa"> | string | null
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    id_workspace?: StringFilter<"Empresa"> | string
+    id_organizacao_workspace?: StringFilter<"Empresa"> | string
+    nome_workspace?: StringFilter<"Empresa"> | string
+    subdominio_workspace?: StringNullableFilter<"Empresa"> | string | null
+    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
@@ -27558,13 +27558,13 @@ export namespace Prisma {
   }
 
   export type EmpresaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    subdomain?: SortOrderInput | SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
+    id_workspace?: SortOrder
+    id_organizacao_workspace?: SortOrder
+    nome_workspace?: SortOrder
+    subdominio_workspace?: SortOrderInput | SortOrder
+    cnpj_workspace?: SortOrderInput | SortOrder
+    status_workspace?: SortOrder
+    data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
     memberships?: UsuarioWorkspaceOrderByRelationAggregateInput
@@ -27573,31 +27573,31 @@ export namespace Prisma {
   }
 
   export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    subdomain?: string
+    id_workspace?: string
+    subdominio_workspace?: string
     AND?: EmpresaWhereInput | EmpresaWhereInput[]
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    tenant_id?: StringFilter<"Empresa"> | string
-    name?: StringFilter<"Empresa"> | string
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    id_organizacao_workspace?: StringFilter<"Empresa"> | string
+    nome_workspace?: StringFilter<"Empresa"> | string
+    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
     preferred_by_users?: UsuarioListRelationFilter
-  }, "id" | "subdomain">
+  }, "id_workspace" | "subdominio_workspace">
 
   export type EmpresaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    subdomain?: SortOrderInput | SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
+    id_workspace?: SortOrder
+    id_organizacao_workspace?: SortOrder
+    nome_workspace?: SortOrder
+    subdominio_workspace?: SortOrderInput | SortOrder
+    cnpj_workspace?: SortOrderInput | SortOrder
+    status_workspace?: SortOrder
+    data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
     _count?: EmpresaCountOrderByAggregateInput
     _max?: EmpresaMaxOrderByAggregateInput
@@ -27608,13 +27608,13 @@ export namespace Prisma {
     AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
     OR?: EmpresaScalarWhereWithAggregatesInput[]
     NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Empresa"> | string
-    tenant_id?: StringWithAggregatesFilter<"Empresa"> | string
-    name?: StringWithAggregatesFilter<"Empresa"> | string
-    subdomain?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    cnpj?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusWithAggregatesFilter<"Empresa"> | $Enums.EmpresaStatus
-    created_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    id_workspace?: StringWithAggregatesFilter<"Empresa"> | string
+    id_organizacao_workspace?: StringWithAggregatesFilter<"Empresa"> | string
+    nome_workspace?: StringWithAggregatesFilter<"Empresa"> | string
+    subdominio_workspace?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    cnpj_workspace?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    status_workspace?: EnumEmpresaStatusWithAggregatesFilter<"Empresa"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
   }
 
@@ -29637,12 +29637,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
@@ -29651,13 +29651,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -29665,12 +29665,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -29679,13 +29679,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -29693,34 +29693,34 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
   }
 
   export type EmpresaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -31996,35 +31996,35 @@ export namespace Prisma {
   }
 
   export type EmpresaCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    subdomain?: SortOrder
-    cnpj?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
+    id_workspace?: SortOrder
+    id_organizacao_workspace?: SortOrder
+    nome_workspace?: SortOrder
+    subdominio_workspace?: SortOrder
+    cnpj_workspace?: SortOrder
+    status_workspace?: SortOrder
+    data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
   }
 
   export type EmpresaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    subdomain?: SortOrder
-    cnpj?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
+    id_workspace?: SortOrder
+    id_organizacao_workspace?: SortOrder
+    nome_workspace?: SortOrder
+    subdominio_workspace?: SortOrder
+    cnpj_workspace?: SortOrder
+    status_workspace?: SortOrder
+    data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
   }
 
   export type EmpresaMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    name?: SortOrder
-    subdomain?: SortOrder
-    cnpj?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
+    id_workspace?: SortOrder
+    id_organizacao_workspace?: SortOrder
+    nome_workspace?: SortOrder
+    subdominio_workspace?: SortOrder
+    cnpj_workspace?: SortOrder
+    status_workspace?: SortOrder
+    data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -34753,12 +34753,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateWithoutTenantInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
@@ -34766,12 +34766,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedCreateWithoutTenantInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -34959,13 +34959,13 @@ export namespace Prisma {
     AND?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
     OR?: EmpresaScalarWhereInput[]
     NOT?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
-    id?: StringFilter<"Empresa"> | string
-    tenant_id?: StringFilter<"Empresa"> | string
-    name?: StringFilter<"Empresa"> | string
-    subdomain?: StringNullableFilter<"Empresa"> | string | null
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    id_workspace?: StringFilter<"Empresa"> | string
+    id_organizacao_workspace?: StringFilter<"Empresa"> | string
+    nome_workspace?: StringFilter<"Empresa"> | string
+    subdominio_workspace?: StringNullableFilter<"Empresa"> | string | null
+    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
   }
 
@@ -35077,12 +35077,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateWithoutPreferred_by_usersInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
@@ -35090,13 +35090,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedCreateWithoutPreferred_by_usersInput = {
-    id?: string
-    tenant_id: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -35236,12 +35236,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUpdateWithoutPreferred_by_usersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -35249,13 +35249,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateWithoutPreferred_by_usersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -35861,12 +35861,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateWithoutMembershipsInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
@@ -35874,13 +35874,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedCreateWithoutMembershipsInput = {
-    id?: string
-    tenant_id: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
@@ -35940,12 +35940,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUpdateWithoutMembershipsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -35953,13 +35953,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateWithoutMembershipsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
@@ -36119,12 +36119,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateWithoutCompany_productsInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
@@ -36132,13 +36132,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedCreateWithoutCompany_productsInput = {
-    id?: string
-    tenant_id: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    id_organizacao_workspace: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
@@ -36216,12 +36216,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUpdateWithoutCompany_productsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -36229,13 +36229,13 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateWithoutCompany_productsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
@@ -36696,12 +36696,12 @@ export namespace Prisma {
   }
 
   export type EmpresaCreateManyTenantInput = {
-    id?: string
-    name: string
-    subdomain?: string | null
-    cnpj?: string | null
-    status?: $Enums.EmpresaStatus
-    created_at?: Date | string
+    id_workspace?: string
+    nome_workspace: string
+    subdominio_workspace?: string | null
+    cnpj_workspace?: string | null
+    status_workspace?: $Enums.EmpresaStatus
+    data_criacao_workspace?: Date | string
     updated_at?: Date | string
   }
 
@@ -36833,12 +36833,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -36846,12 +36846,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -36859,12 +36859,12 @@ export namespace Prisma {
   }
 
   export type EmpresaUncheckedUpdateManyWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    nome_workspace?: StringFieldUpdateOperationsInput | string
+    subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    status_workspace?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

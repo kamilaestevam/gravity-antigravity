@@ -188,13 +188,13 @@ exports.Prisma.PermissaoAdminGravityScalarFieldEnum = {
 };
 
 exports.Prisma.EmpresaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  name: 'name',
-  subdomain: 'subdomain',
-  cnpj: 'cnpj',
-  status: 'status',
-  created_at: 'created_at',
+  id_workspace: 'id_workspace',
+  id_organizacao_workspace: 'id_organizacao_workspace',
+  nome_workspace: 'nome_workspace',
+  subdominio_workspace: 'subdominio_workspace',
+  cnpj_workspace: 'cnpj_workspace',
+  status_workspace: 'status_workspace',
+  data_criacao_workspace: 'data_criacao_workspace',
   updated_at: 'updated_at'
 };
 

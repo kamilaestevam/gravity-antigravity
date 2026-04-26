@@ -122,22 +122,22 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     // Pré-computa empresas fora da transação — evita lock de longa duração em reads
     const workspacesPayload = parsed.data.workspaces
-    let empresasParaVincular: { id: string }[] = []
+    let empresasParaVincular: { id_workspace: string }[] = []
 
     if (role === 'MASTER' || workspacesPayload === 'all') {
       empresasParaVincular = await prisma.empresa.findMany({
-        where: { tenant_id: req.auth.tenantId, status: 'ATIVO' },
-        select: { id: true },
+        where: { id_organizacao_workspace: req.auth.tenantId, status_workspace: 'ATIVO' },
+        select: { id_workspace: true },
       })
     } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
       // IDOR prevention: valida que todos os IDs pertencem ao tenant antes do insert
       empresasParaVincular = await prisma.empresa.findMany({
         where: {
-          id: { in: workspacesPayload },
-          tenant_id: req.auth.tenantId,
-          status: 'ATIVO',
+          id_workspace: { in: workspacesPayload },
+          id_organizacao_workspace: req.auth.tenantId,
+          status_workspace: 'ATIVO',
         },
-        select: { id: true },
+        select: { id_workspace: true },
       })
       if (empresasParaVincular.length !== workspacesPayload.length) {
         throw new AppError(
@@ -165,7 +165,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
           data: empresasParaVincular.map((e) => ({
             tenant_id: req.auth.tenantId,
             user_id: created.id_usuario,
-            company_id: e.id,
+            company_id: e.id_workspace,
             role,
             is_active: true,
           })),
@@ -213,7 +213,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
 
     // Garante que a empresa filha pertence ao mesmo tenant
     const company = await prisma.empresa.findFirst({
-      where: { id: companyId, tenant_id: req.auth.tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
@@ -250,8 +250,8 @@ async function validarWorkspacesDoTenant(
   workspaceIds: string[],
 ): Promise<void> {
   const empresas = await prisma.empresa.findMany({
-    where: { id: { in: workspaceIds }, tenant_id: tenantId, status: 'ATIVO' },
-    select: { id: true },
+    where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: tenantId, status_workspace: 'ATIVO' },
+    select: { id_workspace: true },
   })
   if (empresas.length !== workspaceIds.length) {
     throw new AppError(

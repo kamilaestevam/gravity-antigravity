@@ -101,10 +101,10 @@ adminRouter.get('/tenants', async (req, res, next) => {
           },
           companies_organizacao: {
             select: {
-              id: true, name: true, subdomain: true, status: true,
+              id_workspace: true, nome_workspace: true, subdominio_workspace: true, status_workspace: true,
               _count: { select: { memberships: true } },
             },
-            orderBy: { created_at: 'desc' },
+            orderBy: { data_criacao_workspace: 'desc' },
             take: 5,
           },
         },
@@ -127,7 +127,13 @@ adminRouter.get('/tenants', async (req, res, next) => {
         ...rest,
         _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
         subscriptions: subscriptions_organizacao,
-        companies: companies_organizacao,
+        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
+          ...c,
+          id: id_workspace,
+          name: nome_workspace,
+          subdomain: subdominio_workspace,
+          status: status_workspace,
+        })),
       }
     })
 
@@ -158,8 +164,8 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
           take: 50,
         },
         companies_organizacao: {
-          select: { id: true, name: true, subdomain: true, status: true },
-          orderBy: { created_at: 'desc' as const },
+          select: { id_workspace: true, nome_workspace: true, subdominio_workspace: true, status_workspace: true },
+          orderBy: { data_criacao_workspace: 'desc' as const },
           take: 50,
         },
         subscriptions_organizacao: {
@@ -192,7 +198,13 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
         id: id_organizacao,
         ...tenantRest,
         users: users_organizacao.map(({ data_criacao_usuario, email_usuario, nome_usuario, id_usuario, ...u }) => ({ ...u, id: id_usuario, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
-        companies: companies_organizacao,
+        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
+          ...c,
+          id: id_workspace,
+          name: nome_workspace,
+          subdomain: subdominio_workspace,
+          status: status_workspace,
+        })),
         subscriptions: subscriptions_organizacao,
         product_configs: product_configs_organizacao,
       },
@@ -333,13 +345,13 @@ adminRouter.patch('/workspaces/:id', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.empresa.findUnique({ where: { id: idParsed.data } })
+    const existing = await prisma.empresa.findUnique({ where: { id_workspace: idParsed.data } })
     if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
 
     const company = await prisma.empresa.update({
-      where: { id: idParsed.data },
-      data: { status: parsed.data.status },
-      select: { id: true, name: true, status: true, tenant_id: true },
+      where: { id_workspace: idParsed.data },
+      data: { status_workspace: parsed.data.status },
+      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao_workspace: true },
     })
 
     AuditService.log({
@@ -350,15 +362,25 @@ adminRouter.patch('/workspaces/:id', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Workspace',
-      resource_id: company.id,
+      resource_id: company.id_workspace,
       action: 'WORKSPACE_STATUS_CHANGED',
-      action_detail: `Workspace "${company.name}" — status alterado de ${existing.status} para ${company.status}`,
-      before: { status: existing.status },
-      after: { status: company.status },
+      action_detail: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
+      before: { status: existing.status_workspace },
+      after: { status: company.status_workspace },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ workspace: company })
+    // DTO: id_workspace → id, nome_workspace → name, etc.
+    const { id_workspace, nome_workspace, status_workspace, id_organizacao_workspace, ...cRest } = company
+    res.json({
+      workspace: {
+        ...cRest,
+        id: id_workspace,
+        name: nome_workspace,
+        status: status_workspace,
+        tenant_id: id_organizacao_workspace,
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -446,7 +468,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
               role: true,
               is_active: true,
               company: {
-                select: { name: true, subdomain: true },
+                select: { nome_workspace: true, subdominio_workspace: true },
               },
             },
             orderBy: { created_at: 'desc' as const },
@@ -479,9 +501,13 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       email: email_usuario,
       name: nome_usuario,
       tenant_id: id_organizacao_usuario,
-      memberships: memberships.map(({ role: mRole, ...m }) => ({
+      memberships: memberships.map(({ role: mRole, company, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
+        company: {
+          name: company.nome_workspace,
+          subdomain: company.subdominio_workspace,
+        },
       })),
     }))
     res.json({

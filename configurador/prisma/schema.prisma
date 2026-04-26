@@ -122,7 +122,7 @@ model Usuario {
 
   // Relações
   tenant            Organizacao        @relation(fields: [id_organizacao_usuario], references: [id_organizacao], onDelete: Cascade)
-  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
+  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id_workspace], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
@@ -234,27 +234,27 @@ model PermissaoAdminGravity {
 // ---------------------------------------------------------------------------
 
 model Empresa {
-  id        String        @id @default(cuid())
-  tenant_id String
-  name      String
-  subdomain String?       @unique
-  cnpj      String?
-  status    EmpresaStatus @default(ATIVO)
+  id_workspace             String        @id @default(cuid())
+  id_organizacao_workspace String
+  nome_workspace           String
+  subdominio_workspace     String?       @unique
+  cnpj_workspace           String?
+  status_workspace         EmpresaStatus @default(ATIVO)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_workspace DateTime @default(now())
+  updated_at             DateTime @updatedAt
 
   // Relações
-  tenant             Organizacao               @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant             Organizacao               @relation(fields: [id_organizacao_workspace], references: [id_organizacao], onDelete: Cascade)
   memberships        UsuarioWorkspace[]
   company_products   ProdutoGravityWorkspace[]
   preferred_by_users Usuario[]                 @relation("UserPreferredCompany")
 
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao_workspace])
+  @@index([id_organizacao_workspace, status_workspace])
+  @@index([id_organizacao_workspace, data_criacao_workspace])
   @@map("workspace")
 }
 
@@ -278,7 +278,7 @@ model UsuarioWorkspace {
 
   // Relações
   user    Usuario   @relation(fields: [user_id], references: [id_usuario], onDelete: Cascade)
-  company Empresa @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company Empresa @relation(fields: [company_id], references: [id_workspace], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
   @@unique([tenant_id, user_id, company_id])
@@ -336,7 +336,7 @@ model ProdutoGravityWorkspace {
 
   // Relações
   tenant  Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  company Empresa     @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company Empresa     @relation(fields: [company_id], references: [id_workspace], onDelete: Cascade)
 
   // Apenas uma ativação por produto por workspace
   @@unique([company_id, product_key])

@@ -75,9 +75,9 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
             role: true,
             company: {
               select: {
-                id: true,
-                name: true,
-                status: true,
+                id_workspace: true,
+                nome_workspace: true,
+                status_workspace: true,
                 company_products: {
                   where: { is_active: true },
                   select: { product_key: true },
@@ -111,9 +111,9 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           }
         : null,
       workspaces: usuario.memberships.map((m) => ({
-        id: m.company.id,
-        nome_workspace: m.company.name,
-        status: m.company.status,
+        id: m.company.id_workspace,
+        nome_workspace: m.company.nome_workspace,
+        status: m.company.status_workspace,
         tipo_usuario: m.role,
         produtos: m.company.company_products.map((p) => p.product_key),
       })),
@@ -166,11 +166,11 @@ async function isPreferredCompanyValid(
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
     const company = await prisma.empresa.findFirst({
       where: {
-        id: companyId,
-        tenant_id: tenantId,
-        status: 'ATIVO',
+        id_workspace: companyId,
+        id_organizacao_workspace: tenantId,
+        status_workspace: 'ATIVO',
       },
-      select: { id: true },
+      select: { id_workspace: true },
     })
     return company !== null
   }
@@ -182,7 +182,7 @@ async function isPreferredCompanyValid(
       company_id: companyId,
       tenant_id: tenantId,
       is_active: true,
-      company: { status: 'ATIVO' },
+      company: { status_workspace: 'ATIVO' },
     },
     select: { id: true },
   })

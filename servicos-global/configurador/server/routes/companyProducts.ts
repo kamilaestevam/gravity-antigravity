@@ -26,7 +26,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.empresa.findFirst({
-      where: { id: companyId, tenant_id: req.auth.tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -97,7 +97,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.empresa.findFirst({
-      where: { id: companyId, tenant_id: req.auth.tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:48:52.758Z
+// Gerado em: 2026-04-26T00:50:35.445Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -644,14 +644,14 @@ model PedidoCasasDecimais {
   saldo_itens_do_pedido_casas_decimais             Int @default(2)
   quantidade_transferida_total_pedido_casas_decimais Int @default(2)
   quantidade_cancelada_total_pedido_casas_decimais Int @default(2)
-  peso_liquido_total_pedido         Int @default(3)
-  peso_bruto_total_pedido           Int @default(3)
-  cubagem_total_pedido              Int @default(3)
+  peso_liquido_total_pedido_casas_decimais Int @default(3)
+  peso_bruto_total_pedido_casas_decimais   Int @default(3)
+  cubagem_total_pedido_casas_decimais      Int @default(3)
 
-  formato_data String @default("DD/MM/AAAA")
+  formato_data_pedido String @default("DD/MM/AAAA")
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_casas_decimais_pedido     DateTime @default(now())
+  data_atualizacao_pedido_casas_decimais DateTime @updatedAt
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])

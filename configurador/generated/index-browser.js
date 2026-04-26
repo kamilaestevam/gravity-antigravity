@@ -129,12 +129,12 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
   status: 'status',
   clerk_org_id: 'clerk_org_id',
   stripe_customer_id: 'stripe_customer_id',
-  suid_empresa: 'suid_empresa',
-  cnpj: 'cnpj',
+  suid_empresa_organizacao: 'suid_empresa_organizacao',
+  cnpj_organizacao: 'cnpj_organizacao',
   estado_organizacao: 'estado_organizacao',
   cidade_organizacao: 'cidade_organizacao',
   segmento_organizacao: 'segmento_organizacao',
-  tipo_empresa: 'tipo_empresa',
+  tipo_empresa_organizacao: 'tipo_empresa_organizacao',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };

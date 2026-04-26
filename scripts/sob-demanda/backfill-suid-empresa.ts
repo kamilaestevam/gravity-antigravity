@@ -63,7 +63,7 @@ function parseArgs(): BackfillArgs {
 
 async function processarOrganizacao(
   prisma: PrismaClient,
-  org: { id: string; name: string; cnpj: string | null },
+  org: { id: string; name: string; cnpj_organizacao: string | null },
   dryRun: boolean,
   result: BackfillResult,
 ): Promise<void> {
@@ -72,7 +72,7 @@ async function processarOrganizacao(
 
   // Sem CNPJ: assume país = BR no legado. Sem CNPJ + BR = regra de Cadastros bloqueia.
   // Aqui não adivinhamos — pulamos e alertamos.
-  if (!org.cnpj) {
+  if (!org.cnpj_organizacao) {
     console.warn(
       `⚠️  [${correlationId}] ${org.id} "${org.name}" — sem CNPJ, país=BR presumido → PULADO. Preencha o CNPJ antes de rodar o backfill para esta org.`,
     )
@@ -83,7 +83,7 @@ async function processarOrganizacao(
   try {
     // 1. Verifica se Empresa já existe (idempotência)
     const existentes = await listarEmpresasPorOrganizacao(ctx)
-    const matchCnpj = existentes.find((e) => e.cnpj === org.cnpj)
+    const matchCnpj = existentes.find((e) => e.cnpj === org.cnpj_organizacao)
 
     let suid: string
     if (matchCnpj) {
@@ -95,7 +95,7 @@ async function processarOrganizacao(
     } else {
       if (dryRun) {
         console.log(
-          `🔍 [DRY] [${correlationId}] ${org.id} "${org.name}" — criaria Empresa em Cadastros (cnpj=${org.cnpj})`,
+          `🔍 [DRY] [${correlationId}] ${org.id} "${org.name}" — criaria Empresa em Cadastros (cnpj=${org.cnpj_organizacao})`,
         )
         result.criadas += 1
         return
@@ -104,7 +104,7 @@ async function processarOrganizacao(
         {
           id_organizacao: org.id,
           nome_empresa: org.name,
-          cnpj: org.cnpj,
+          cnpj: org.cnpj_organizacao,
           pais: 'BR',
           pode_ser_importador: true,
           pode_ser_exportador: false,
@@ -126,17 +126,17 @@ async function processarOrganizacao(
     // 2. Persiste SUID no Configurador
     if (dryRun) {
       console.log(
-        `🔍 [DRY] [${correlationId}] ${org.id} — atualizaria Organizacao.suid_empresa=${suid}`,
+        `🔍 [DRY] [${correlationId}] ${org.id} — atualizaria Organizacao.suid_empresa_organizacao=${suid}`,
       )
       return
     }
 
     await prisma.organizacao.update({
       where: { id: org.id },
-      data: { suid_empresa: suid },
+      data: { suid_empresa_organizacao: suid },
     })
     console.log(
-      `💾 [${correlationId}] ${org.id} — Organizacao.suid_empresa gravado`,
+      `💾 [${correlationId}] ${org.id} — Organizacao.suid_empresa_organizacao gravado`,
     )
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -178,10 +178,10 @@ async function main(): Promise<void> {
   try {
     const organizacoes = await prisma.organizacao.findMany({
       where: {
-        suid_empresa: null,
+        suid_empresa_organizacao: null,
         ...(orgId ? { id: orgId } : {}),
       },
-      select: { id: true, name: true, cnpj: true },
+      select: { id: true, name: true, cnpj_organizacao: true },
       orderBy: { created_at: 'asc' },
     })
 

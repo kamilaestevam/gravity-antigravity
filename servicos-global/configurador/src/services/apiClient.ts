@@ -242,7 +242,7 @@ export const adminTenantsApi = {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`)
   },
 
-  async create(data: { name: string; slug: string; plano?: string; cnpj?: string }) {
+  async create(data: { name: string; slug: string; plano?: string; cnpj_organizacao?: string }) {
     return request<{ tenant: TenantApi }>('/admin/tenants', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -601,11 +601,11 @@ export interface PlatformConfigApi {
   id: string
   name: string
   slug: string
-  cnpj: string | null
+  cnpj_organizacao: string | null
   estado_organizacao: string | null
   cidade_organizacao: string | null
   segmento_organizacao: string | null
-  tipo_empresa: string | null
+  tipo_empresa_organizacao: string | null
   created_at: string
   subscriptions?: Array<{ plan: string }>
 }
@@ -617,11 +617,11 @@ export const adminPlatformApi = {
 
   async updateConfig(data: {
     name?: string
-    cnpj?: string
+    cnpj_organizacao?: string
     estado_organizacao?: string
     cidade_organizacao?: string
     segmento_organizacao?: string
-    tipo_empresa?: string
+    tipo_empresa_organizacao?: string
   }) {
     return request<{ config: PlatformConfigApi }>('/admin/visao-geral', {
       method: 'PUT',

@@ -84,7 +84,7 @@ export function Onboarding() {
           name: user?.fullName ?? user?.firstName ?? 'Usuario',
         },
         pais: 'BR',
-        cnpj,
+        cnpj_organizacao: cnpj,
       }
 
       const res = await fetch('/api/v1/organizacao', {

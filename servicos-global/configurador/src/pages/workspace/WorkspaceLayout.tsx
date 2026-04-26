@@ -108,7 +108,7 @@ export function WorkspaceLayout() {
         })
         if (res.ok) {
           const { tenant } = await res.json()
-          setTipoEmpresa(tenant.tipo_empresa ?? '')
+          setTipoEmpresa(tenant.tipo_empresa_organizacao ?? '')
         }
       } catch { /* silencioso */ }
     }

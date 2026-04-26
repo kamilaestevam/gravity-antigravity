@@ -14,7 +14,7 @@ interface CreateTenantInput {
   slug: string
   clerkUserId: string
   owner: { email: string; name: string }
-  cnpj?: string
+  cnpj_organizacao?: string
   pais?: string
   correlationId: string
 }
@@ -53,7 +53,7 @@ export const tenantService = {
       slug,
       clerkUserId,
       owner,
-      cnpj,
+      cnpj_organizacao,
       pais = 'BR',
       correlationId,
     } = input
@@ -89,7 +89,7 @@ export const tenantService = {
       {
         id_organizacao: newOrgId,
         nome_empresa: name,
-        cnpj: pais === 'BR' ? cnpj ?? null : null,
+        cnpj: pais === 'BR' ? cnpj_organizacao ?? null : null,
         pais,
         pode_ser_importador: true,
         pode_ser_exportador: false,
@@ -112,8 +112,8 @@ export const tenantService = {
             name,
             slug,
             status: 'CONFIGURACAO_PENDENTE',
-            suid_empresa: suid,
-            cnpj: pais === 'BR' ? cnpj ?? null : null,
+            suid_empresa_organizacao: suid,
+            cnpj_organizacao: pais === 'BR' ? cnpj_organizacao ?? null : null,
           },
         })
 
@@ -151,7 +151,7 @@ export const tenantService = {
       log.info('saga.onboarding.success', {
         correlation_id: correlationId,
         id_organizacao: newOrgId,
-        suid_empresa: suid,
+        suid_empresa_organizacao: suid,
       })
       return tenant
     } catch (err) {
@@ -159,7 +159,7 @@ export const tenantService = {
       log.error('saga.onboarding.rollback', {
         correlation_id: correlationId,
         id_organizacao: newOrgId,
-        suid_empresa: suid,
+        suid_empresa_organizacao: suid,
         causa,
       })
       // Compensação — não lança mesmo em falha (dead-letter no próprio método)
@@ -190,11 +190,11 @@ export const tenantService = {
    */
   async updateTenant(tenantId: string, data: {
     name?: string
-    cnpj?: string
+    cnpj_organizacao?: string
     estado_organizacao?: string
     cidade_organizacao?: string
     segmento_organizacao?: string
-    tipo_empresa?: string
+    tipo_empresa_organizacao?: string
   }) {
     return prisma.organizacao.update({
       where: { id: tenantId },

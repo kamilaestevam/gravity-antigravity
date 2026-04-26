@@ -17,19 +17,19 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     const parsed = CreateTenantSchema.safeParse({
       ...baseInput,
       pais: 'BR',
-      cnpj: '12.345.678/0001-99',
+      cnpj_organizacao: '12.345.678/0001-99',
     })
     expect(parsed.success).toBe(true)
     if (parsed.success) {
       expect(parsed.data.pais).toBe('BR')
-      expect(parsed.data.cnpj).toBe('12.345.678/0001-99')
+      expect(parsed.data.cnpj_organizacao).toBe('12.345.678/0001-99')
     }
   })
 
   it('aplica default pais=BR quando pais ausente e exige CNPJ', () => {
     const semPais = CreateTenantSchema.safeParse({
       ...baseInput,
-      cnpj: '12.345.678/0001-99',
+      cnpj_organizacao: '12.345.678/0001-99',
     })
     expect(semPais.success).toBe(true)
     if (semPais.success) expect(semPais.data.pais).toBe('BR')
@@ -37,7 +37,7 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     const semPaisSemCnpj = CreateTenantSchema.safeParse({ ...baseInput })
     expect(semPaisSemCnpj.success).toBe(false)
     if (!semPaisSemCnpj.success) {
-      const erro = semPaisSemCnpj.error.errors.find((e) => e.path.includes('cnpj'))
+      const erro = semPaisSemCnpj.error.errors.find((e) => e.path.includes('cnpj_organizacao'))
       expect(erro?.message).toMatch(/CNPJ é obrigatório quando país = BR/)
     }
   })
@@ -46,7 +46,7 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     const parsed = CreateTenantSchema.safeParse({ ...baseInput, pais: 'BR' })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {
-      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj'))
+      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj_organizacao'))
       expect(erro?.message).toMatch(/CNPJ é obrigatório quando país = BR/)
     }
   })
@@ -59,7 +59,7 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {
-      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj'))
+      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj_organizacao'))
       expect(erro?.message).toMatch(/XX\.XXX\.XXX\/XXXX-XX/)
     }
   })
@@ -69,7 +69,7 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     expect(parsed.success).toBe(true)
     if (parsed.success) {
       expect(parsed.data.pais).toBe('US')
-      expect(parsed.data.cnpj).toBeUndefined()
+      expect(parsed.data.cnpj_organizacao).toBeUndefined()
     }
   })
 
@@ -77,11 +77,11 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
     const parsed = CreateTenantSchema.safeParse({
       ...baseInput,
       pais: 'US',
-      cnpj: '12.345.678/0001-99',
+      cnpj_organizacao: '12.345.678/0001-99',
     })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {
-      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj'))
+      const erro = parsed.error.errors.find((e) => e.path.includes('cnpj_organizacao'))
       expect(erro?.message).toMatch(/só pode ser preenchido quando país = BR/)
     }
   })
@@ -100,7 +100,7 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
       ...baseInput,
       slug: 'Empresa Exemplo!',
       pais: 'BR',
-      cnpj: '12.345.678/0001-99',
+      cnpj_organizacao: '12.345.678/0001-99',
     })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {

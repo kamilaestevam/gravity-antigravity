@@ -55,7 +55,7 @@ const INPUT_BASE = {
   slug: 'empresa-teste',
   clerkUserId: 'clerk_user_123',
   owner: { email: 'owner@teste.com', name: 'Owner' },
-  cnpj: '12.345.678/0001-99',
+  cnpj_organizacao: '12.345.678/0001-99',
   pais: 'BR' as const,
   correlationId: 'corr-test-abc',
 }
@@ -125,7 +125,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
         id: 'new-id',
         name: INPUT_BASE.name,
         slug: INPUT_BASE.slug,
-        suid_empresa: suid,
+        suid_empresa_organizacao: suid,
       })
       prismaMock.usuario.create.mockResolvedValueOnce({ id: 'user-id' })
       prismaMock.assinaturaProdutoGravity.create.mockResolvedValueOnce({ id: 'sub-id' })
@@ -147,12 +147,12 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     // Prisma escreveu localmente
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1)
     expect(prismaMock.organizacao.create).toHaveBeenCalledTimes(1)
-    expect(prismaMock.organizacao.create.mock.calls[0][0].data.suid_empresa).toBe(suid)
+    expect(prismaMock.organizacao.create.mock.calls[0][0].data.suid_empresa_organizacao).toBe(suid)
     expect(prismaMock.usuario.create).toHaveBeenCalledTimes(1)
     expect(prismaMock.assinaturaProdutoGravity.create).toHaveBeenCalledTimes(1)
     expect(prismaMock.empresa.create).toHaveBeenCalledTimes(1)
 
-    expect(tenant.suid_empresa).toBe(suid)
+    expect(tenant.suid_empresa_organizacao).toBe(suid)
   })
 
   it('(B) Cadastros 4xx → zero escrita local, erro propaga, sem compensação', async () => {
@@ -196,7 +196,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     // Log de rollback emitido
     expect(loggerChild.error).toHaveBeenCalledWith(
       'saga.onboarding.rollback',
-      expect.objectContaining({ suid_empresa: suid }),
+      expect.objectContaining({ suid_empresa_organizacao: suid }),
     )
   })
 

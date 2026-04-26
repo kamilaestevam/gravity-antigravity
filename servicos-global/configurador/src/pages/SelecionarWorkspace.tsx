@@ -449,7 +449,7 @@ export function SelecionarWorkspace() {
               id: c.id,
               nome: c.name,
               iniciais: c.name.substring(0, 2).toUpperCase(),
-              role: data.tenant?.tipo_empresa ?? '',
+              role: data.tenant?.tipo_empresa_organizacao ?? '',
               modulos: totalAtivos,
               membros,
               gradientFrom: grad.from,

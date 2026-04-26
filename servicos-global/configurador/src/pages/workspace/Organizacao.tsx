@@ -141,11 +141,11 @@ export function Organizacao() {
           const { tenant } = await tenantRes.json()
           const dadosApi: DadosMae = {
             nome:       tenant.name ?? '',
-            cnpj:       tenant.cnpj ?? '',
+            cnpj:       tenant.cnpj_organizacao ?? '',
             estado:     tenant.estado_organizacao ?? '',
             cidade:     tenant.cidade_organizacao ?? '',
             segmento:     tenant.segmento_organizacao ?? '',
-            tipo_empresa: tenant.tipo_empresa ?? '',
+            tipo_empresa: tenant.tipo_empresa_organizacao ?? '',
             subdominio: tenant.slug ?? '',
             criadaEm:   tenant.created_at
               ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
@@ -226,11 +226,11 @@ export function Organizacao() {
         headers,
         body: JSON.stringify({
           name: dados.nome,
-          cnpj: dados.cnpj,
+          cnpj_organizacao: dados.cnpj,
           estado_organizacao: dados.estado,
           cidade_organizacao: dados.cidade,
           segmento_organizacao: dados.segmento,
-          tipo_empresa: dados.tipo_empresa,
+          tipo_empresa_organizacao: dados.tipo_empresa,
         }),
       })
 

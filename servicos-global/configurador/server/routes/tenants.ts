@@ -31,7 +31,7 @@ export const CreateTenantSchema = z
       email: z.string().email(),
       name: z.string().min(1),
     }),
-    cnpj: z
+    cnpj_organizacao: z
       .string()
       .regex(cnpjRegex, 'CNPJ precisa estar no formato XX.XXX.XXX/XXXX-XX')
       .optional(),
@@ -41,17 +41,17 @@ export const CreateTenantSchema = z
       .default('BR'),
   })
   .superRefine((data, ctx) => {
-    if (data.pais === 'BR' && !data.cnpj) {
+    if (data.pais === 'BR' && !data.cnpj_organizacao) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['cnpj'],
+        path: ['cnpj_organizacao'],
         message: 'CNPJ é obrigatório quando país = BR',
       })
     }
-    if (data.pais !== 'BR' && data.cnpj) {
+    if (data.pais !== 'BR' && data.cnpj_organizacao) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['cnpj'],
+        path: ['cnpj_organizacao'],
         message: 'CNPJ só pode ser preenchido quando país = BR',
       })
     }
@@ -59,11 +59,11 @@ export const CreateTenantSchema = z
 
 const UpdateTenantSchema = z.object({
   name: z.string().min(2).optional(),
-  cnpj: z.string().optional(),
+  cnpj_organizacao: z.string().optional(),
   estado_organizacao: z.string().optional(),
   cidade_organizacao: z.string().optional(),
   segmento_organizacao: z.string().optional(),
-  tipo_empresa: z.string().optional(),
+  tipo_empresa_organizacao: z.string().optional(),
 })
 
 const CreateCompanySchema = z.object({

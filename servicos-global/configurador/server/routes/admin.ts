@@ -55,7 +55,7 @@ const CreateTenantSchema = z.object({
   name: z.string().min(2).max(200),
   slug: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
   plano: z.string().max(100).optional(),
-  cnpj: z.string().max(20).optional(),
+  cnpj_organizacao: z.string().max(20).optional(),
 })
 
 const UpdateWorkspaceSchema = z.object({
@@ -250,7 +250,7 @@ adminRouter.post('/tenants', async (req, res, next) => {
         name: parsed.data.name.trim(),
         slug: parsed.data.slug,
         status: 'ATIVO',
-        ...(parsed.data.cnpj && { cnpj: parsed.data.cnpj }),
+        ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
       },
       select: {
         id: true, name: true, slug: true, status: true, created_at: true,
@@ -1147,7 +1147,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
         id: true,
         name: true,
         slug: true,
-        cnpj: true,
+        cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,
         created_at: true,
@@ -1160,15 +1160,15 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
-    let extras: { segmento_organizacao?: string | null; tipo_empresa?: string | null } = {}
+    let extras: { segmento_organizacao?: string | null; tipo_empresa_organizacao?: string | null } = {}
     try {
       const row = await prisma.organizacao.findUnique({
         where: { id: tenant.id },
-        select: { segmento_organizacao: true, tipo_empresa: true },
+        select: { segmento_organizacao: true, tipo_empresa_organizacao: true },
       })
       if (row) extras = row
     } catch {
-      // Colunas segmento_organizacao/tipo_empresa ainda não migradas — retorna sem elas
+      // Colunas segmento_organizacao/tipo_empresa_organizacao ainda não migradas — retorna sem elas
     }
 
     res.json({ config: { ...tenant, ...extras } })
@@ -1183,11 +1183,11 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
  */
 const PlatformConfigSchema = z.object({
   name: z.string().min(1).max(200).optional(),
-  cnpj: z.string().max(20).optional(),
+  cnpj_organizacao: z.string().max(20).optional(),
   estado_organizacao: z.string().max(2).optional(),
   cidade_organizacao: z.string().max(200).optional(),
   segmento_organizacao: z.string().max(200).optional(),
-  tipo_empresa: z.string().max(500).optional(),
+  tipo_empresa_organizacao: z.string().max(500).optional(),
 })
 
 /**
@@ -1342,7 +1342,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
 
     const before = await prisma.organizacao.findUnique({
       where: { id: user.tenant_id },
-      select: { name: true, cnpj: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa: true },
+      select: { name: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
@@ -1352,11 +1352,11 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
         id: true,
         name: true,
         slug: true,
-        cnpj: true,
+        cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,
         segmento_organizacao: true,
-        tipo_empresa: true,
+        tipo_empresa_organizacao: true,
         created_at: true,
       },
     })

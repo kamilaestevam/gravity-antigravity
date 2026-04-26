@@ -201,7 +201,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         name: dados.nome,
         slug: dados.subdominio,
         plano: dados.plano,
-        cnpj: dados.cnpj || undefined,
+        cnpj_organizacao: dados.cnpj || undefined,
       })
       const novo: Tenant = {
         id: tenant.id,

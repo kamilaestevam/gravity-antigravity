@@ -72,14 +72,14 @@ model Organizacao {
   status             OrganizacaoStatus @default(CONFIGURACAO_PENDENTE) @map("status_organizacao")
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
-  suid_empresa       String?      @unique
+  suid_empresa_organizacao String?      @unique
 
   // Dados cadastrais da organização
-  cnpj                 String? @map("cnpj_organizacao")
-  estado_organizacao   String?
-  cidade_organizacao   String?
-  segmento_organizacao String?
-  tipo_empresa         String? @map("tipo_organizacao")
+  cnpj_organizacao         String?
+  estado_organizacao       String?
+  cidade_organizacao       String?
+  segmento_organizacao     String?
+  tipo_empresa_organizacao String?
 
   // Metadata
   created_at DateTime @default(now()) @map("data_criacao_organizacao")

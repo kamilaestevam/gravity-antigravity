@@ -139,7 +139,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
 
   const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, name: true, cnpj: true },
+    select: { id: true, name: true, cnpj_organizacao: true },
   })
   if (!tenant) {
     log.warn('invoice.paid — tenant não encontrado pelo stripe_customer_id', {
@@ -159,7 +159,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     return
   }
 
-  if (!tenant.cnpj) {
+  if (!tenant.cnpj_organizacao) {
     log.warn('invoice.paid — NFS-e não emitida: tenant sem CNPJ', {
       invoice_id: inv.id,
       tenant_id: tenant.id,
@@ -175,7 +175,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     const result = await nfseProvider.emit({
       reference_id: inv.id,
       tomador: {
-        cnpj_cpf: tenant.cnpj.replace(/\D/g, ''),
+        cnpj_cpf: tenant.cnpj_organizacao.replace(/\D/g, ''),
         razao_social: tenant.name,
         email: inv.customer_email ?? undefined,
       },

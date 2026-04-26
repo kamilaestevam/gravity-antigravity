@@ -446,48 +446,48 @@ exports.Prisma.DashboardCompartilharScalarFieldEnum = {
 };
 
 exports.Prisma.RelatoriosSalvosScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  nome: 'nome',
-  tabelas: 'tabelas',
-  colunas: 'colunas',
-  filtros: 'filtros',
-  join_type: 'join_type',
-  is_shared: 'is_shared',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_relatorios_salvos: 'id_relatorios_salvos',
+  id_organizacao_relatorios_salvos: 'id_organizacao_relatorios_salvos',
+  id_produto_relatorios_salvos: 'id_produto_relatorios_salvos',
+  id_usuario_relatorios_salvos: 'id_usuario_relatorios_salvos',
+  nome_relatorios_salvos: 'nome_relatorios_salvos',
+  tabelas_relatorios_salvos: 'tabelas_relatorios_salvos',
+  colunas_relatorios_salvos: 'colunas_relatorios_salvos',
+  filtros_relatorios_salvos: 'filtros_relatorios_salvos',
+  tipo_join_relatorios_salvos: 'tipo_join_relatorios_salvos',
+  compartilhado_relatorios_salvos: 'compartilhado_relatorios_salvos',
+  data_criacao_relatorios_salvos: 'data_criacao_relatorios_salvos',
+  data_atualizacao_relatorios_salvos: 'data_atualizacao_relatorios_salvos'
 };
 
 exports.Prisma.RelatoriosConfiguracaoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  relatorio_id: 'relatorio_id',
-  frequencia: 'frequencia',
-  canais: 'canais',
-  formato: 'formato',
-  ativo: 'ativo',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_relatorios_configuracao: 'id_relatorios_configuracao',
+  id_organizacao_relatorios_configuracao: 'id_organizacao_relatorios_configuracao',
+  id_produto_relatorios_configuracao: 'id_produto_relatorios_configuracao',
+  id_usuario_relatorios_configuracao: 'id_usuario_relatorios_configuracao',
+  id_relatorio_relatorios_configuracao: 'id_relatorio_relatorios_configuracao',
+  frequencia_relatorios_configuracao: 'frequencia_relatorios_configuracao',
+  canais_relatorios_configuracao: 'canais_relatorios_configuracao',
+  formato_relatorios_configuracao: 'formato_relatorios_configuracao',
+  ativo_relatorios_configuracao: 'ativo_relatorios_configuracao',
+  data_criacao_relatorios_configuracao: 'data_criacao_relatorios_configuracao',
+  data_atualizacao_relatorios_configuracao: 'data_atualizacao_relatorios_configuracao'
 };
 
 exports.Prisma.ExportarJobScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  relatorio_id: 'relatorio_id',
-  status: 'status',
-  formato: 'formato',
-  url_arquivo: 'url_arquivo',
-  erro: 'erro',
-  started_at: 'started_at',
-  completed_at: 'completed_at',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_exportar_job: 'id_exportar_job',
+  id_organizacao_exportar_job: 'id_organizacao_exportar_job',
+  id_produto_exportar_job: 'id_produto_exportar_job',
+  id_usuario_exportar_job: 'id_usuario_exportar_job',
+  id_relatorio_exportar_job: 'id_relatorio_exportar_job',
+  status_exportar_job: 'status_exportar_job',
+  formato_exportar_job: 'formato_exportar_job',
+  url_arquivo_exportar_job: 'url_arquivo_exportar_job',
+  erro_exportar_job: 'erro_exportar_job',
+  iniciado_em_exportar_job: 'iniciado_em_exportar_job',
+  concluido_em_exportar_job: 'concluido_em_exportar_job',
+  data_criacao_exportar_job: 'data_criacao_exportar_job',
+  data_atualizacao_exportar_job: 'data_atualizacao_exportar_job'
 };
 
 exports.Prisma.HistoricoLogScalarFieldEnum = {

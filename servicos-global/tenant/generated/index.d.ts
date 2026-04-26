@@ -25561,83 +25561,83 @@ export namespace Prisma {
   }
 
   export type RelatoriosSalvosMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    join_type: string | null
-    is_shared: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_relatorios_salvos: string | null
+    id_organizacao_relatorios_salvos: string | null
+    id_produto_relatorios_salvos: string | null
+    id_usuario_relatorios_salvos: string | null
+    nome_relatorios_salvos: string | null
+    tipo_join_relatorios_salvos: string | null
+    compartilhado_relatorios_salvos: boolean | null
+    data_criacao_relatorios_salvos: Date | null
+    data_atualizacao_relatorios_salvos: Date | null
   }
 
   export type RelatoriosSalvosMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    join_type: string | null
-    is_shared: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_relatorios_salvos: string | null
+    id_organizacao_relatorios_salvos: string | null
+    id_produto_relatorios_salvos: string | null
+    id_usuario_relatorios_salvos: string | null
+    nome_relatorios_salvos: string | null
+    tipo_join_relatorios_salvos: string | null
+    compartilhado_relatorios_salvos: boolean | null
+    data_criacao_relatorios_salvos: Date | null
+    data_atualizacao_relatorios_salvos: Date | null
   }
 
   export type RelatoriosSalvosCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    nome: number
-    tabelas: number
-    colunas: number
-    filtros: number
-    join_type: number
-    is_shared: number
-    created_at: number
-    updated_at: number
+    id_relatorios_salvos: number
+    id_organizacao_relatorios_salvos: number
+    id_produto_relatorios_salvos: number
+    id_usuario_relatorios_salvos: number
+    nome_relatorios_salvos: number
+    tabelas_relatorios_salvos: number
+    colunas_relatorios_salvos: number
+    filtros_relatorios_salvos: number
+    tipo_join_relatorios_salvos: number
+    compartilhado_relatorios_salvos: number
+    data_criacao_relatorios_salvos: number
+    data_atualizacao_relatorios_salvos: number
     _all: number
   }
 
 
   export type RelatoriosSalvosMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    join_type?: true
-    is_shared?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_salvos?: true
+    id_organizacao_relatorios_salvos?: true
+    id_produto_relatorios_salvos?: true
+    id_usuario_relatorios_salvos?: true
+    nome_relatorios_salvos?: true
+    tipo_join_relatorios_salvos?: true
+    compartilhado_relatorios_salvos?: true
+    data_criacao_relatorios_salvos?: true
+    data_atualizacao_relatorios_salvos?: true
   }
 
   export type RelatoriosSalvosMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    join_type?: true
-    is_shared?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_salvos?: true
+    id_organizacao_relatorios_salvos?: true
+    id_produto_relatorios_salvos?: true
+    id_usuario_relatorios_salvos?: true
+    nome_relatorios_salvos?: true
+    tipo_join_relatorios_salvos?: true
+    compartilhado_relatorios_salvos?: true
+    data_criacao_relatorios_salvos?: true
+    data_atualizacao_relatorios_salvos?: true
   }
 
   export type RelatoriosSalvosCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    tabelas?: true
-    colunas?: true
-    filtros?: true
-    join_type?: true
-    is_shared?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_salvos?: true
+    id_organizacao_relatorios_salvos?: true
+    id_produto_relatorios_salvos?: true
+    id_usuario_relatorios_salvos?: true
+    nome_relatorios_salvos?: true
+    tabelas_relatorios_salvos?: true
+    colunas_relatorios_salvos?: true
+    filtros_relatorios_salvos?: true
+    tipo_join_relatorios_salvos?: true
+    compartilhado_relatorios_salvos?: true
+    data_criacao_relatorios_salvos?: true
+    data_atualizacao_relatorios_salvos?: true
     _all?: true
   }
 
@@ -25714,18 +25714,18 @@ export namespace Prisma {
   }
 
   export type RelatoriosSalvosGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    nome: string
-    tabelas: JsonValue
-    colunas: JsonValue
-    filtros: JsonValue
-    join_type: string
-    is_shared: boolean
-    created_at: Date
-    updated_at: Date
+    id_relatorios_salvos: string
+    id_organizacao_relatorios_salvos: string
+    id_produto_relatorios_salvos: string | null
+    id_usuario_relatorios_salvos: string | null
+    nome_relatorios_salvos: string
+    tabelas_relatorios_salvos: JsonValue
+    colunas_relatorios_salvos: JsonValue
+    filtros_relatorios_salvos: JsonValue
+    tipo_join_relatorios_salvos: string
+    compartilhado_relatorios_salvos: boolean
+    data_criacao_relatorios_salvos: Date
+    data_atualizacao_relatorios_salvos: Date
     _count: RelatoriosSalvosCountAggregateOutputType | null
     _min: RelatoriosSalvosMinAggregateOutputType | null
     _max: RelatoriosSalvosMaxAggregateOutputType | null
@@ -25746,48 +25746,48 @@ export namespace Prisma {
 
 
   export type RelatoriosSalvosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    tabelas?: boolean
-    colunas?: boolean
-    filtros?: boolean
-    join_type?: boolean
-    is_shared?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_salvos?: boolean
+    id_organizacao_relatorios_salvos?: boolean
+    id_produto_relatorios_salvos?: boolean
+    id_usuario_relatorios_salvos?: boolean
+    nome_relatorios_salvos?: boolean
+    tabelas_relatorios_salvos?: boolean
+    colunas_relatorios_salvos?: boolean
+    filtros_relatorios_salvos?: boolean
+    tipo_join_relatorios_salvos?: boolean
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: boolean
+    data_atualizacao_relatorios_salvos?: boolean
   }, ExtArgs["result"]["relatoriosSalvos"]>
 
   export type RelatoriosSalvosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    tabelas?: boolean
-    colunas?: boolean
-    filtros?: boolean
-    join_type?: boolean
-    is_shared?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_salvos?: boolean
+    id_organizacao_relatorios_salvos?: boolean
+    id_produto_relatorios_salvos?: boolean
+    id_usuario_relatorios_salvos?: boolean
+    nome_relatorios_salvos?: boolean
+    tabelas_relatorios_salvos?: boolean
+    colunas_relatorios_salvos?: boolean
+    filtros_relatorios_salvos?: boolean
+    tipo_join_relatorios_salvos?: boolean
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: boolean
+    data_atualizacao_relatorios_salvos?: boolean
   }, ExtArgs["result"]["relatoriosSalvos"]>
 
   export type RelatoriosSalvosSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    tabelas?: boolean
-    colunas?: boolean
-    filtros?: boolean
-    join_type?: boolean
-    is_shared?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_salvos?: boolean
+    id_organizacao_relatorios_salvos?: boolean
+    id_produto_relatorios_salvos?: boolean
+    id_usuario_relatorios_salvos?: boolean
+    nome_relatorios_salvos?: boolean
+    tabelas_relatorios_salvos?: boolean
+    colunas_relatorios_salvos?: boolean
+    filtros_relatorios_salvos?: boolean
+    tipo_join_relatorios_salvos?: boolean
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: boolean
+    data_atualizacao_relatorios_salvos?: boolean
   }
 
 
@@ -25795,18 +25795,18 @@ export namespace Prisma {
     name: "RelatoriosSalvos"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      nome: string
-      tabelas: Prisma.JsonValue
-      colunas: Prisma.JsonValue
-      filtros: Prisma.JsonValue
-      join_type: string
-      is_shared: boolean
-      created_at: Date
-      updated_at: Date
+      id_relatorios_salvos: string
+      id_organizacao_relatorios_salvos: string
+      id_produto_relatorios_salvos: string | null
+      id_usuario_relatorios_salvos: string | null
+      nome_relatorios_salvos: string
+      tabelas_relatorios_salvos: Prisma.JsonValue
+      colunas_relatorios_salvos: Prisma.JsonValue
+      filtros_relatorios_salvos: Prisma.JsonValue
+      tipo_join_relatorios_salvos: string
+      compartilhado_relatorios_salvos: boolean
+      data_criacao_relatorios_salvos: Date
+      data_atualizacao_relatorios_salvos: Date
     }, ExtArgs["result"]["relatoriosSalvos"]>
     composites: {}
   }
@@ -25890,8 +25890,8 @@ export namespace Prisma {
      * // Get first 10 RelatoriosSalvos
      * const relatoriosSalvos = await prisma.relatoriosSalvos.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const relatoriosSalvosWithIdOnly = await prisma.relatoriosSalvos.findMany({ select: { id: true } })
+     * // Only select the `id_relatorios_salvos`
+     * const relatoriosSalvosWithId_relatorios_salvosOnly = await prisma.relatoriosSalvos.findMany({ select: { id_relatorios_salvos: true } })
      * 
      */
     findMany<T extends RelatoriosSalvosFindManyArgs>(args?: SelectSubset<T, RelatoriosSalvosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RelatoriosSalvosPayload<ExtArgs>, T, "findMany">>
@@ -25935,9 +25935,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many RelatoriosSalvos and only return the `id`
-     * const relatoriosSalvosWithIdOnly = await prisma.relatoriosSalvos.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many RelatoriosSalvos and only return the `id_relatorios_salvos`
+     * const relatoriosSalvosWithId_relatorios_salvosOnly = await prisma.relatoriosSalvos.createManyAndReturn({ 
+     *   select: { id_relatorios_salvos: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -26200,18 +26200,18 @@ export namespace Prisma {
    * Fields of the RelatoriosSalvos model
    */ 
   interface RelatoriosSalvosFieldRefs {
-    readonly id: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly tenant_id: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly product_id: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly user_id: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly nome: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly tabelas: FieldRef<"RelatoriosSalvos", 'Json'>
-    readonly colunas: FieldRef<"RelatoriosSalvos", 'Json'>
-    readonly filtros: FieldRef<"RelatoriosSalvos", 'Json'>
-    readonly join_type: FieldRef<"RelatoriosSalvos", 'String'>
-    readonly is_shared: FieldRef<"RelatoriosSalvos", 'Boolean'>
-    readonly created_at: FieldRef<"RelatoriosSalvos", 'DateTime'>
-    readonly updated_at: FieldRef<"RelatoriosSalvos", 'DateTime'>
+    readonly id_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly id_organizacao_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly id_produto_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly id_usuario_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly nome_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly tabelas_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'Json'>
+    readonly colunas_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'Json'>
+    readonly filtros_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'Json'>
+    readonly tipo_join_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'String'>
+    readonly compartilhado_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'Boolean'>
+    readonly data_criacao_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'DateTime'>
+    readonly data_atualizacao_relatorios_salvos: FieldRef<"RelatoriosSalvos", 'DateTime'>
   }
     
 
@@ -26511,85 +26511,85 @@ export namespace Prisma {
   }
 
   export type RelatoriosConfiguracaoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string | null
-    frequencia: string | null
-    formato: string | null
-    ativo: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_relatorios_configuracao: string | null
+    id_organizacao_relatorios_configuracao: string | null
+    id_produto_relatorios_configuracao: string | null
+    id_usuario_relatorios_configuracao: string | null
+    id_relatorio_relatorios_configuracao: string | null
+    frequencia_relatorios_configuracao: string | null
+    formato_relatorios_configuracao: string | null
+    ativo_relatorios_configuracao: boolean | null
+    data_criacao_relatorios_configuracao: Date | null
+    data_atualizacao_relatorios_configuracao: Date | null
   }
 
   export type RelatoriosConfiguracaoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string | null
-    frequencia: string | null
-    formato: string | null
-    ativo: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_relatorios_configuracao: string | null
+    id_organizacao_relatorios_configuracao: string | null
+    id_produto_relatorios_configuracao: string | null
+    id_usuario_relatorios_configuracao: string | null
+    id_relatorio_relatorios_configuracao: string | null
+    frequencia_relatorios_configuracao: string | null
+    formato_relatorios_configuracao: string | null
+    ativo_relatorios_configuracao: boolean | null
+    data_criacao_relatorios_configuracao: Date | null
+    data_atualizacao_relatorios_configuracao: Date | null
   }
 
   export type RelatoriosConfiguracaoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    relatorio_id: number
-    frequencia: number
-    canais: number
-    formato: number
-    ativo: number
-    created_at: number
-    updated_at: number
+    id_relatorios_configuracao: number
+    id_organizacao_relatorios_configuracao: number
+    id_produto_relatorios_configuracao: number
+    id_usuario_relatorios_configuracao: number
+    id_relatorio_relatorios_configuracao: number
+    frequencia_relatorios_configuracao: number
+    canais_relatorios_configuracao: number
+    formato_relatorios_configuracao: number
+    ativo_relatorios_configuracao: number
+    data_criacao_relatorios_configuracao: number
+    data_atualizacao_relatorios_configuracao: number
     _all: number
   }
 
 
   export type RelatoriosConfiguracaoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    frequencia?: true
-    formato?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_configuracao?: true
+    id_organizacao_relatorios_configuracao?: true
+    id_produto_relatorios_configuracao?: true
+    id_usuario_relatorios_configuracao?: true
+    id_relatorio_relatorios_configuracao?: true
+    frequencia_relatorios_configuracao?: true
+    formato_relatorios_configuracao?: true
+    ativo_relatorios_configuracao?: true
+    data_criacao_relatorios_configuracao?: true
+    data_atualizacao_relatorios_configuracao?: true
   }
 
   export type RelatoriosConfiguracaoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    frequencia?: true
-    formato?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_configuracao?: true
+    id_organizacao_relatorios_configuracao?: true
+    id_produto_relatorios_configuracao?: true
+    id_usuario_relatorios_configuracao?: true
+    id_relatorio_relatorios_configuracao?: true
+    frequencia_relatorios_configuracao?: true
+    formato_relatorios_configuracao?: true
+    ativo_relatorios_configuracao?: true
+    data_criacao_relatorios_configuracao?: true
+    data_atualizacao_relatorios_configuracao?: true
   }
 
   export type RelatoriosConfiguracaoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    frequencia?: true
-    canais?: true
-    formato?: true
-    ativo?: true
-    created_at?: true
-    updated_at?: true
+    id_relatorios_configuracao?: true
+    id_organizacao_relatorios_configuracao?: true
+    id_produto_relatorios_configuracao?: true
+    id_usuario_relatorios_configuracao?: true
+    id_relatorio_relatorios_configuracao?: true
+    frequencia_relatorios_configuracao?: true
+    canais_relatorios_configuracao?: true
+    formato_relatorios_configuracao?: true
+    ativo_relatorios_configuracao?: true
+    data_criacao_relatorios_configuracao?: true
+    data_atualizacao_relatorios_configuracao?: true
     _all?: true
   }
 
@@ -26666,17 +26666,17 @@ export namespace Prisma {
   }
 
   export type RelatoriosConfiguracaoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string
-    frequencia: string
-    canais: JsonValue
-    formato: string
-    ativo: boolean
-    created_at: Date
-    updated_at: Date
+    id_relatorios_configuracao: string
+    id_organizacao_relatorios_configuracao: string
+    id_produto_relatorios_configuracao: string | null
+    id_usuario_relatorios_configuracao: string | null
+    id_relatorio_relatorios_configuracao: string
+    frequencia_relatorios_configuracao: string
+    canais_relatorios_configuracao: JsonValue
+    formato_relatorios_configuracao: string
+    ativo_relatorios_configuracao: boolean
+    data_criacao_relatorios_configuracao: Date
+    data_atualizacao_relatorios_configuracao: Date
     _count: RelatoriosConfiguracaoCountAggregateOutputType | null
     _min: RelatoriosConfiguracaoMinAggregateOutputType | null
     _max: RelatoriosConfiguracaoMaxAggregateOutputType | null
@@ -26697,45 +26697,45 @@ export namespace Prisma {
 
 
   export type RelatoriosConfiguracaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    frequencia?: boolean
-    canais?: boolean
-    formato?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_configuracao?: boolean
+    id_organizacao_relatorios_configuracao?: boolean
+    id_produto_relatorios_configuracao?: boolean
+    id_usuario_relatorios_configuracao?: boolean
+    id_relatorio_relatorios_configuracao?: boolean
+    frequencia_relatorios_configuracao?: boolean
+    canais_relatorios_configuracao?: boolean
+    formato_relatorios_configuracao?: boolean
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: boolean
+    data_atualizacao_relatorios_configuracao?: boolean
   }, ExtArgs["result"]["relatoriosConfiguracao"]>
 
   export type RelatoriosConfiguracaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    frequencia?: boolean
-    canais?: boolean
-    formato?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_configuracao?: boolean
+    id_organizacao_relatorios_configuracao?: boolean
+    id_produto_relatorios_configuracao?: boolean
+    id_usuario_relatorios_configuracao?: boolean
+    id_relatorio_relatorios_configuracao?: boolean
+    frequencia_relatorios_configuracao?: boolean
+    canais_relatorios_configuracao?: boolean
+    formato_relatorios_configuracao?: boolean
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: boolean
+    data_atualizacao_relatorios_configuracao?: boolean
   }, ExtArgs["result"]["relatoriosConfiguracao"]>
 
   export type RelatoriosConfiguracaoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    frequencia?: boolean
-    canais?: boolean
-    formato?: boolean
-    ativo?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_relatorios_configuracao?: boolean
+    id_organizacao_relatorios_configuracao?: boolean
+    id_produto_relatorios_configuracao?: boolean
+    id_usuario_relatorios_configuracao?: boolean
+    id_relatorio_relatorios_configuracao?: boolean
+    frequencia_relatorios_configuracao?: boolean
+    canais_relatorios_configuracao?: boolean
+    formato_relatorios_configuracao?: boolean
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: boolean
+    data_atualizacao_relatorios_configuracao?: boolean
   }
 
 
@@ -26743,17 +26743,17 @@ export namespace Prisma {
     name: "RelatoriosConfiguracao"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      relatorio_id: string
-      frequencia: string
-      canais: Prisma.JsonValue
-      formato: string
-      ativo: boolean
-      created_at: Date
-      updated_at: Date
+      id_relatorios_configuracao: string
+      id_organizacao_relatorios_configuracao: string
+      id_produto_relatorios_configuracao: string | null
+      id_usuario_relatorios_configuracao: string | null
+      id_relatorio_relatorios_configuracao: string
+      frequencia_relatorios_configuracao: string
+      canais_relatorios_configuracao: Prisma.JsonValue
+      formato_relatorios_configuracao: string
+      ativo_relatorios_configuracao: boolean
+      data_criacao_relatorios_configuracao: Date
+      data_atualizacao_relatorios_configuracao: Date
     }, ExtArgs["result"]["relatoriosConfiguracao"]>
     composites: {}
   }
@@ -26837,8 +26837,8 @@ export namespace Prisma {
      * // Get first 10 RelatoriosConfiguracaos
      * const relatoriosConfiguracaos = await prisma.relatoriosConfiguracao.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const relatoriosConfiguracaoWithIdOnly = await prisma.relatoriosConfiguracao.findMany({ select: { id: true } })
+     * // Only select the `id_relatorios_configuracao`
+     * const relatoriosConfiguracaoWithId_relatorios_configuracaoOnly = await prisma.relatoriosConfiguracao.findMany({ select: { id_relatorios_configuracao: true } })
      * 
      */
     findMany<T extends RelatoriosConfiguracaoFindManyArgs>(args?: SelectSubset<T, RelatoriosConfiguracaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RelatoriosConfiguracaoPayload<ExtArgs>, T, "findMany">>
@@ -26882,9 +26882,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many RelatoriosConfiguracaos and only return the `id`
-     * const relatoriosConfiguracaoWithIdOnly = await prisma.relatoriosConfiguracao.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many RelatoriosConfiguracaos and only return the `id_relatorios_configuracao`
+     * const relatoriosConfiguracaoWithId_relatorios_configuracaoOnly = await prisma.relatoriosConfiguracao.createManyAndReturn({ 
+     *   select: { id_relatorios_configuracao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -27147,17 +27147,17 @@ export namespace Prisma {
    * Fields of the RelatoriosConfiguracao model
    */ 
   interface RelatoriosConfiguracaoFieldRefs {
-    readonly id: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly tenant_id: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly product_id: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly user_id: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly relatorio_id: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly frequencia: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly canais: FieldRef<"RelatoriosConfiguracao", 'Json'>
-    readonly formato: FieldRef<"RelatoriosConfiguracao", 'String'>
-    readonly ativo: FieldRef<"RelatoriosConfiguracao", 'Boolean'>
-    readonly created_at: FieldRef<"RelatoriosConfiguracao", 'DateTime'>
-    readonly updated_at: FieldRef<"RelatoriosConfiguracao", 'DateTime'>
+    readonly id_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly id_organizacao_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly id_produto_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly id_usuario_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly id_relatorio_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly frequencia_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly canais_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'Json'>
+    readonly formato_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'String'>
+    readonly ativo_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'Boolean'>
+    readonly data_criacao_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'DateTime'>
+    readonly data_atualizacao_relatorios_configuracao: FieldRef<"RelatoriosConfiguracao", 'DateTime'>
   }
     
 
@@ -27457,101 +27457,101 @@ export namespace Prisma {
   }
 
   export type ExportarJobMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string | null
-    status: string | null
-    formato: string | null
-    url_arquivo: string | null
-    erro: string | null
-    started_at: Date | null
-    completed_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_exportar_job: string | null
+    id_organizacao_exportar_job: string | null
+    id_produto_exportar_job: string | null
+    id_usuario_exportar_job: string | null
+    id_relatorio_exportar_job: string | null
+    status_exportar_job: string | null
+    formato_exportar_job: string | null
+    url_arquivo_exportar_job: string | null
+    erro_exportar_job: string | null
+    iniciado_em_exportar_job: Date | null
+    concluido_em_exportar_job: Date | null
+    data_criacao_exportar_job: Date | null
+    data_atualizacao_exportar_job: Date | null
   }
 
   export type ExportarJobMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string | null
-    status: string | null
-    formato: string | null
-    url_arquivo: string | null
-    erro: string | null
-    started_at: Date | null
-    completed_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_exportar_job: string | null
+    id_organizacao_exportar_job: string | null
+    id_produto_exportar_job: string | null
+    id_usuario_exportar_job: string | null
+    id_relatorio_exportar_job: string | null
+    status_exportar_job: string | null
+    formato_exportar_job: string | null
+    url_arquivo_exportar_job: string | null
+    erro_exportar_job: string | null
+    iniciado_em_exportar_job: Date | null
+    concluido_em_exportar_job: Date | null
+    data_criacao_exportar_job: Date | null
+    data_atualizacao_exportar_job: Date | null
   }
 
   export type ExportarJobCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    relatorio_id: number
-    status: number
-    formato: number
-    url_arquivo: number
-    erro: number
-    started_at: number
-    completed_at: number
-    created_at: number
-    updated_at: number
+    id_exportar_job: number
+    id_organizacao_exportar_job: number
+    id_produto_exportar_job: number
+    id_usuario_exportar_job: number
+    id_relatorio_exportar_job: number
+    status_exportar_job: number
+    formato_exportar_job: number
+    url_arquivo_exportar_job: number
+    erro_exportar_job: number
+    iniciado_em_exportar_job: number
+    concluido_em_exportar_job: number
+    data_criacao_exportar_job: number
+    data_atualizacao_exportar_job: number
     _all: number
   }
 
 
   export type ExportarJobMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    status?: true
-    formato?: true
-    url_arquivo?: true
-    erro?: true
-    started_at?: true
-    completed_at?: true
-    created_at?: true
-    updated_at?: true
+    id_exportar_job?: true
+    id_organizacao_exportar_job?: true
+    id_produto_exportar_job?: true
+    id_usuario_exportar_job?: true
+    id_relatorio_exportar_job?: true
+    status_exportar_job?: true
+    formato_exportar_job?: true
+    url_arquivo_exportar_job?: true
+    erro_exportar_job?: true
+    iniciado_em_exportar_job?: true
+    concluido_em_exportar_job?: true
+    data_criacao_exportar_job?: true
+    data_atualizacao_exportar_job?: true
   }
 
   export type ExportarJobMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    status?: true
-    formato?: true
-    url_arquivo?: true
-    erro?: true
-    started_at?: true
-    completed_at?: true
-    created_at?: true
-    updated_at?: true
+    id_exportar_job?: true
+    id_organizacao_exportar_job?: true
+    id_produto_exportar_job?: true
+    id_usuario_exportar_job?: true
+    id_relatorio_exportar_job?: true
+    status_exportar_job?: true
+    formato_exportar_job?: true
+    url_arquivo_exportar_job?: true
+    erro_exportar_job?: true
+    iniciado_em_exportar_job?: true
+    concluido_em_exportar_job?: true
+    data_criacao_exportar_job?: true
+    data_atualizacao_exportar_job?: true
   }
 
   export type ExportarJobCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    relatorio_id?: true
-    status?: true
-    formato?: true
-    url_arquivo?: true
-    erro?: true
-    started_at?: true
-    completed_at?: true
-    created_at?: true
-    updated_at?: true
+    id_exportar_job?: true
+    id_organizacao_exportar_job?: true
+    id_produto_exportar_job?: true
+    id_usuario_exportar_job?: true
+    id_relatorio_exportar_job?: true
+    status_exportar_job?: true
+    formato_exportar_job?: true
+    url_arquivo_exportar_job?: true
+    erro_exportar_job?: true
+    iniciado_em_exportar_job?: true
+    concluido_em_exportar_job?: true
+    data_criacao_exportar_job?: true
+    data_atualizacao_exportar_job?: true
     _all?: true
   }
 
@@ -27628,19 +27628,19 @@ export namespace Prisma {
   }
 
   export type ExportarJobGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    relatorio_id: string
-    status: string
-    formato: string
-    url_arquivo: string | null
-    erro: string | null
-    started_at: Date | null
-    completed_at: Date | null
-    created_at: Date
-    updated_at: Date
+    id_exportar_job: string
+    id_organizacao_exportar_job: string
+    id_produto_exportar_job: string | null
+    id_usuario_exportar_job: string | null
+    id_relatorio_exportar_job: string
+    status_exportar_job: string
+    formato_exportar_job: string
+    url_arquivo_exportar_job: string | null
+    erro_exportar_job: string | null
+    iniciado_em_exportar_job: Date | null
+    concluido_em_exportar_job: Date | null
+    data_criacao_exportar_job: Date
+    data_atualizacao_exportar_job: Date
     _count: ExportarJobCountAggregateOutputType | null
     _min: ExportarJobMinAggregateOutputType | null
     _max: ExportarJobMaxAggregateOutputType | null
@@ -27661,51 +27661,51 @@ export namespace Prisma {
 
 
   export type ExportarJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    status?: boolean
-    formato?: boolean
-    url_arquivo?: boolean
-    erro?: boolean
-    started_at?: boolean
-    completed_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_exportar_job?: boolean
+    id_organizacao_exportar_job?: boolean
+    id_produto_exportar_job?: boolean
+    id_usuario_exportar_job?: boolean
+    id_relatorio_exportar_job?: boolean
+    status_exportar_job?: boolean
+    formato_exportar_job?: boolean
+    url_arquivo_exportar_job?: boolean
+    erro_exportar_job?: boolean
+    iniciado_em_exportar_job?: boolean
+    concluido_em_exportar_job?: boolean
+    data_criacao_exportar_job?: boolean
+    data_atualizacao_exportar_job?: boolean
   }, ExtArgs["result"]["exportarJob"]>
 
   export type ExportarJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    status?: boolean
-    formato?: boolean
-    url_arquivo?: boolean
-    erro?: boolean
-    started_at?: boolean
-    completed_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_exportar_job?: boolean
+    id_organizacao_exportar_job?: boolean
+    id_produto_exportar_job?: boolean
+    id_usuario_exportar_job?: boolean
+    id_relatorio_exportar_job?: boolean
+    status_exportar_job?: boolean
+    formato_exportar_job?: boolean
+    url_arquivo_exportar_job?: boolean
+    erro_exportar_job?: boolean
+    iniciado_em_exportar_job?: boolean
+    concluido_em_exportar_job?: boolean
+    data_criacao_exportar_job?: boolean
+    data_atualizacao_exportar_job?: boolean
   }, ExtArgs["result"]["exportarJob"]>
 
   export type ExportarJobSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    relatorio_id?: boolean
-    status?: boolean
-    formato?: boolean
-    url_arquivo?: boolean
-    erro?: boolean
-    started_at?: boolean
-    completed_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_exportar_job?: boolean
+    id_organizacao_exportar_job?: boolean
+    id_produto_exportar_job?: boolean
+    id_usuario_exportar_job?: boolean
+    id_relatorio_exportar_job?: boolean
+    status_exportar_job?: boolean
+    formato_exportar_job?: boolean
+    url_arquivo_exportar_job?: boolean
+    erro_exportar_job?: boolean
+    iniciado_em_exportar_job?: boolean
+    concluido_em_exportar_job?: boolean
+    data_criacao_exportar_job?: boolean
+    data_atualizacao_exportar_job?: boolean
   }
 
 
@@ -27713,19 +27713,19 @@ export namespace Prisma {
     name: "ExportarJob"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      relatorio_id: string
-      status: string
-      formato: string
-      url_arquivo: string | null
-      erro: string | null
-      started_at: Date | null
-      completed_at: Date | null
-      created_at: Date
-      updated_at: Date
+      id_exportar_job: string
+      id_organizacao_exportar_job: string
+      id_produto_exportar_job: string | null
+      id_usuario_exportar_job: string | null
+      id_relatorio_exportar_job: string
+      status_exportar_job: string
+      formato_exportar_job: string
+      url_arquivo_exportar_job: string | null
+      erro_exportar_job: string | null
+      iniciado_em_exportar_job: Date | null
+      concluido_em_exportar_job: Date | null
+      data_criacao_exportar_job: Date
+      data_atualizacao_exportar_job: Date
     }, ExtArgs["result"]["exportarJob"]>
     composites: {}
   }
@@ -27809,8 +27809,8 @@ export namespace Prisma {
      * // Get first 10 ExportarJobs
      * const exportarJobs = await prisma.exportarJob.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const exportarJobWithIdOnly = await prisma.exportarJob.findMany({ select: { id: true } })
+     * // Only select the `id_exportar_job`
+     * const exportarJobWithId_exportar_jobOnly = await prisma.exportarJob.findMany({ select: { id_exportar_job: true } })
      * 
      */
     findMany<T extends ExportarJobFindManyArgs>(args?: SelectSubset<T, ExportarJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportarJobPayload<ExtArgs>, T, "findMany">>
@@ -27854,9 +27854,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ExportarJobs and only return the `id`
-     * const exportarJobWithIdOnly = await prisma.exportarJob.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ExportarJobs and only return the `id_exportar_job`
+     * const exportarJobWithId_exportar_jobOnly = await prisma.exportarJob.createManyAndReturn({ 
+     *   select: { id_exportar_job: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -28119,19 +28119,19 @@ export namespace Prisma {
    * Fields of the ExportarJob model
    */ 
   interface ExportarJobFieldRefs {
-    readonly id: FieldRef<"ExportarJob", 'String'>
-    readonly tenant_id: FieldRef<"ExportarJob", 'String'>
-    readonly product_id: FieldRef<"ExportarJob", 'String'>
-    readonly user_id: FieldRef<"ExportarJob", 'String'>
-    readonly relatorio_id: FieldRef<"ExportarJob", 'String'>
-    readonly status: FieldRef<"ExportarJob", 'String'>
-    readonly formato: FieldRef<"ExportarJob", 'String'>
-    readonly url_arquivo: FieldRef<"ExportarJob", 'String'>
-    readonly erro: FieldRef<"ExportarJob", 'String'>
-    readonly started_at: FieldRef<"ExportarJob", 'DateTime'>
-    readonly completed_at: FieldRef<"ExportarJob", 'DateTime'>
-    readonly created_at: FieldRef<"ExportarJob", 'DateTime'>
-    readonly updated_at: FieldRef<"ExportarJob", 'DateTime'>
+    readonly id_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly id_organizacao_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly id_produto_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly id_usuario_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly id_relatorio_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly status_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly formato_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly url_arquivo_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly erro_exportar_job: FieldRef<"ExportarJob", 'String'>
+    readonly iniciado_em_exportar_job: FieldRef<"ExportarJob", 'DateTime'>
+    readonly concluido_em_exportar_job: FieldRef<"ExportarJob", 'DateTime'>
+    readonly data_criacao_exportar_job: FieldRef<"ExportarJob", 'DateTime'>
+    readonly data_atualizacao_exportar_job: FieldRef<"ExportarJob", 'DateTime'>
   }
     
 
@@ -50665,54 +50665,54 @@ export namespace Prisma {
 
 
   export const RelatoriosSalvosScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    nome: 'nome',
-    tabelas: 'tabelas',
-    colunas: 'colunas',
-    filtros: 'filtros',
-    join_type: 'join_type',
-    is_shared: 'is_shared',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_relatorios_salvos: 'id_relatorios_salvos',
+    id_organizacao_relatorios_salvos: 'id_organizacao_relatorios_salvos',
+    id_produto_relatorios_salvos: 'id_produto_relatorios_salvos',
+    id_usuario_relatorios_salvos: 'id_usuario_relatorios_salvos',
+    nome_relatorios_salvos: 'nome_relatorios_salvos',
+    tabelas_relatorios_salvos: 'tabelas_relatorios_salvos',
+    colunas_relatorios_salvos: 'colunas_relatorios_salvos',
+    filtros_relatorios_salvos: 'filtros_relatorios_salvos',
+    tipo_join_relatorios_salvos: 'tipo_join_relatorios_salvos',
+    compartilhado_relatorios_salvos: 'compartilhado_relatorios_salvos',
+    data_criacao_relatorios_salvos: 'data_criacao_relatorios_salvos',
+    data_atualizacao_relatorios_salvos: 'data_atualizacao_relatorios_salvos'
   };
 
   export type RelatoriosSalvosScalarFieldEnum = (typeof RelatoriosSalvosScalarFieldEnum)[keyof typeof RelatoriosSalvosScalarFieldEnum]
 
 
   export const RelatoriosConfiguracaoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    relatorio_id: 'relatorio_id',
-    frequencia: 'frequencia',
-    canais: 'canais',
-    formato: 'formato',
-    ativo: 'ativo',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_relatorios_configuracao: 'id_relatorios_configuracao',
+    id_organizacao_relatorios_configuracao: 'id_organizacao_relatorios_configuracao',
+    id_produto_relatorios_configuracao: 'id_produto_relatorios_configuracao',
+    id_usuario_relatorios_configuracao: 'id_usuario_relatorios_configuracao',
+    id_relatorio_relatorios_configuracao: 'id_relatorio_relatorios_configuracao',
+    frequencia_relatorios_configuracao: 'frequencia_relatorios_configuracao',
+    canais_relatorios_configuracao: 'canais_relatorios_configuracao',
+    formato_relatorios_configuracao: 'formato_relatorios_configuracao',
+    ativo_relatorios_configuracao: 'ativo_relatorios_configuracao',
+    data_criacao_relatorios_configuracao: 'data_criacao_relatorios_configuracao',
+    data_atualizacao_relatorios_configuracao: 'data_atualizacao_relatorios_configuracao'
   };
 
   export type RelatoriosConfiguracaoScalarFieldEnum = (typeof RelatoriosConfiguracaoScalarFieldEnum)[keyof typeof RelatoriosConfiguracaoScalarFieldEnum]
 
 
   export const ExportarJobScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    relatorio_id: 'relatorio_id',
-    status: 'status',
-    formato: 'formato',
-    url_arquivo: 'url_arquivo',
-    erro: 'erro',
-    started_at: 'started_at',
-    completed_at: 'completed_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_exportar_job: 'id_exportar_job',
+    id_organizacao_exportar_job: 'id_organizacao_exportar_job',
+    id_produto_exportar_job: 'id_produto_exportar_job',
+    id_usuario_exportar_job: 'id_usuario_exportar_job',
+    id_relatorio_exportar_job: 'id_relatorio_exportar_job',
+    status_exportar_job: 'status_exportar_job',
+    formato_exportar_job: 'formato_exportar_job',
+    url_arquivo_exportar_job: 'url_arquivo_exportar_job',
+    erro_exportar_job: 'erro_exportar_job',
+    iniciado_em_exportar_job: 'iniciado_em_exportar_job',
+    concluido_em_exportar_job: 'concluido_em_exportar_job',
+    data_criacao_exportar_job: 'data_criacao_exportar_job',
+    data_atualizacao_exportar_job: 'data_atualizacao_exportar_job'
   };
 
   export type ExportarJobScalarFieldEnum = (typeof ExportarJobScalarFieldEnum)[keyof typeof ExportarJobScalarFieldEnum]
@@ -53333,66 +53333,66 @@ export namespace Prisma {
     AND?: RelatoriosSalvosWhereInput | RelatoriosSalvosWhereInput[]
     OR?: RelatoriosSalvosWhereInput[]
     NOT?: RelatoriosSalvosWhereInput | RelatoriosSalvosWhereInput[]
-    id?: StringFilter<"RelatoriosSalvos"> | string
-    tenant_id?: StringFilter<"RelatoriosSalvos"> | string
-    product_id?: StringNullableFilter<"RelatoriosSalvos"> | string | null
-    user_id?: StringNullableFilter<"RelatoriosSalvos"> | string | null
-    nome?: StringFilter<"RelatoriosSalvos"> | string
-    tabelas?: JsonFilter<"RelatoriosSalvos">
-    colunas?: JsonFilter<"RelatoriosSalvos">
-    filtros?: JsonFilter<"RelatoriosSalvos">
-    join_type?: StringFilter<"RelatoriosSalvos"> | string
-    is_shared?: BoolFilter<"RelatoriosSalvos"> | boolean
-    created_at?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
-    updated_at?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
+    id_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    id_organizacao_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    id_produto_relatorios_salvos?: StringNullableFilter<"RelatoriosSalvos"> | string | null
+    id_usuario_relatorios_salvos?: StringNullableFilter<"RelatoriosSalvos"> | string | null
+    nome_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    tabelas_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    colunas_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    filtros_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    tipo_join_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    compartilhado_relatorios_salvos?: BoolFilter<"RelatoriosSalvos"> | boolean
+    data_criacao_relatorios_salvos?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
   }
 
   export type RelatoriosSalvosOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    tabelas?: SortOrder
-    colunas?: SortOrder
-    filtros?: SortOrder
-    join_type?: SortOrder
-    is_shared?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_salvos?: SortOrder
+    id_organizacao_relatorios_salvos?: SortOrder
+    id_produto_relatorios_salvos?: SortOrderInput | SortOrder
+    id_usuario_relatorios_salvos?: SortOrderInput | SortOrder
+    nome_relatorios_salvos?: SortOrder
+    tabelas_relatorios_salvos?: SortOrder
+    colunas_relatorios_salvos?: SortOrder
+    filtros_relatorios_salvos?: SortOrder
+    tipo_join_relatorios_salvos?: SortOrder
+    compartilhado_relatorios_salvos?: SortOrder
+    data_criacao_relatorios_salvos?: SortOrder
+    data_atualizacao_relatorios_salvos?: SortOrder
   }
 
   export type RelatoriosSalvosWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_relatorios_salvos?: string
     AND?: RelatoriosSalvosWhereInput | RelatoriosSalvosWhereInput[]
     OR?: RelatoriosSalvosWhereInput[]
     NOT?: RelatoriosSalvosWhereInput | RelatoriosSalvosWhereInput[]
-    tenant_id?: StringFilter<"RelatoriosSalvos"> | string
-    product_id?: StringNullableFilter<"RelatoriosSalvos"> | string | null
-    user_id?: StringNullableFilter<"RelatoriosSalvos"> | string | null
-    nome?: StringFilter<"RelatoriosSalvos"> | string
-    tabelas?: JsonFilter<"RelatoriosSalvos">
-    colunas?: JsonFilter<"RelatoriosSalvos">
-    filtros?: JsonFilter<"RelatoriosSalvos">
-    join_type?: StringFilter<"RelatoriosSalvos"> | string
-    is_shared?: BoolFilter<"RelatoriosSalvos"> | boolean
-    created_at?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
-    updated_at?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
-  }, "id">
+    id_organizacao_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    id_produto_relatorios_salvos?: StringNullableFilter<"RelatoriosSalvos"> | string | null
+    id_usuario_relatorios_salvos?: StringNullableFilter<"RelatoriosSalvos"> | string | null
+    nome_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    tabelas_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    colunas_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    filtros_relatorios_salvos?: JsonFilter<"RelatoriosSalvos">
+    tipo_join_relatorios_salvos?: StringFilter<"RelatoriosSalvos"> | string
+    compartilhado_relatorios_salvos?: BoolFilter<"RelatoriosSalvos"> | boolean
+    data_criacao_relatorios_salvos?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFilter<"RelatoriosSalvos"> | Date | string
+  }, "id_relatorios_salvos">
 
   export type RelatoriosSalvosOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    tabelas?: SortOrder
-    colunas?: SortOrder
-    filtros?: SortOrder
-    join_type?: SortOrder
-    is_shared?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_salvos?: SortOrder
+    id_organizacao_relatorios_salvos?: SortOrder
+    id_produto_relatorios_salvos?: SortOrderInput | SortOrder
+    id_usuario_relatorios_salvos?: SortOrderInput | SortOrder
+    nome_relatorios_salvos?: SortOrder
+    tabelas_relatorios_salvos?: SortOrder
+    colunas_relatorios_salvos?: SortOrder
+    filtros_relatorios_salvos?: SortOrder
+    tipo_join_relatorios_salvos?: SortOrder
+    compartilhado_relatorios_salvos?: SortOrder
+    data_criacao_relatorios_salvos?: SortOrder
+    data_atualizacao_relatorios_salvos?: SortOrder
     _count?: RelatoriosSalvosCountOrderByAggregateInput
     _max?: RelatoriosSalvosMaxOrderByAggregateInput
     _min?: RelatoriosSalvosMinOrderByAggregateInput
@@ -53402,80 +53402,80 @@ export namespace Prisma {
     AND?: RelatoriosSalvosScalarWhereWithAggregatesInput | RelatoriosSalvosScalarWhereWithAggregatesInput[]
     OR?: RelatoriosSalvosScalarWhereWithAggregatesInput[]
     NOT?: RelatoriosSalvosScalarWhereWithAggregatesInput | RelatoriosSalvosScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
-    tenant_id?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
-    product_id?: StringNullableWithAggregatesFilter<"RelatoriosSalvos"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"RelatoriosSalvos"> | string | null
-    nome?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
-    tabelas?: JsonWithAggregatesFilter<"RelatoriosSalvos">
-    colunas?: JsonWithAggregatesFilter<"RelatoriosSalvos">
-    filtros?: JsonWithAggregatesFilter<"RelatoriosSalvos">
-    join_type?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
-    is_shared?: BoolWithAggregatesFilter<"RelatoriosSalvos"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"RelatoriosSalvos"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"RelatoriosSalvos"> | Date | string
+    id_relatorios_salvos?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
+    id_organizacao_relatorios_salvos?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
+    id_produto_relatorios_salvos?: StringNullableWithAggregatesFilter<"RelatoriosSalvos"> | string | null
+    id_usuario_relatorios_salvos?: StringNullableWithAggregatesFilter<"RelatoriosSalvos"> | string | null
+    nome_relatorios_salvos?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
+    tabelas_relatorios_salvos?: JsonWithAggregatesFilter<"RelatoriosSalvos">
+    colunas_relatorios_salvos?: JsonWithAggregatesFilter<"RelatoriosSalvos">
+    filtros_relatorios_salvos?: JsonWithAggregatesFilter<"RelatoriosSalvos">
+    tipo_join_relatorios_salvos?: StringWithAggregatesFilter<"RelatoriosSalvos"> | string
+    compartilhado_relatorios_salvos?: BoolWithAggregatesFilter<"RelatoriosSalvos"> | boolean
+    data_criacao_relatorios_salvos?: DateTimeWithAggregatesFilter<"RelatoriosSalvos"> | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeWithAggregatesFilter<"RelatoriosSalvos"> | Date | string
   }
 
   export type RelatoriosConfiguracaoWhereInput = {
     AND?: RelatoriosConfiguracaoWhereInput | RelatoriosConfiguracaoWhereInput[]
     OR?: RelatoriosConfiguracaoWhereInput[]
     NOT?: RelatoriosConfiguracaoWhereInput | RelatoriosConfiguracaoWhereInput[]
-    id?: StringFilter<"RelatoriosConfiguracao"> | string
-    tenant_id?: StringFilter<"RelatoriosConfiguracao"> | string
-    product_id?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
-    user_id?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
-    relatorio_id?: StringFilter<"RelatoriosConfiguracao"> | string
-    frequencia?: StringFilter<"RelatoriosConfiguracao"> | string
-    canais?: JsonFilter<"RelatoriosConfiguracao">
-    formato?: StringFilter<"RelatoriosConfiguracao"> | string
-    ativo?: BoolFilter<"RelatoriosConfiguracao"> | boolean
-    created_at?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
-    updated_at?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
+    id_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    id_organizacao_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    id_produto_relatorios_configuracao?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
+    id_usuario_relatorios_configuracao?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
+    id_relatorio_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    frequencia_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    canais_relatorios_configuracao?: JsonFilter<"RelatoriosConfiguracao">
+    formato_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    ativo_relatorios_configuracao?: BoolFilter<"RelatoriosConfiguracao"> | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
   }
 
   export type RelatoriosConfiguracaoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    relatorio_id?: SortOrder
-    frequencia?: SortOrder
-    canais?: SortOrder
-    formato?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_configuracao?: SortOrder
+    id_organizacao_relatorios_configuracao?: SortOrder
+    id_produto_relatorios_configuracao?: SortOrderInput | SortOrder
+    id_usuario_relatorios_configuracao?: SortOrderInput | SortOrder
+    id_relatorio_relatorios_configuracao?: SortOrder
+    frequencia_relatorios_configuracao?: SortOrder
+    canais_relatorios_configuracao?: SortOrder
+    formato_relatorios_configuracao?: SortOrder
+    ativo_relatorios_configuracao?: SortOrder
+    data_criacao_relatorios_configuracao?: SortOrder
+    data_atualizacao_relatorios_configuracao?: SortOrder
   }
 
   export type RelatoriosConfiguracaoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_relatorios_configuracao?: string
     AND?: RelatoriosConfiguracaoWhereInput | RelatoriosConfiguracaoWhereInput[]
     OR?: RelatoriosConfiguracaoWhereInput[]
     NOT?: RelatoriosConfiguracaoWhereInput | RelatoriosConfiguracaoWhereInput[]
-    tenant_id?: StringFilter<"RelatoriosConfiguracao"> | string
-    product_id?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
-    user_id?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
-    relatorio_id?: StringFilter<"RelatoriosConfiguracao"> | string
-    frequencia?: StringFilter<"RelatoriosConfiguracao"> | string
-    canais?: JsonFilter<"RelatoriosConfiguracao">
-    formato?: StringFilter<"RelatoriosConfiguracao"> | string
-    ativo?: BoolFilter<"RelatoriosConfiguracao"> | boolean
-    created_at?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
-    updated_at?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
-  }, "id">
+    id_organizacao_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    id_produto_relatorios_configuracao?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
+    id_usuario_relatorios_configuracao?: StringNullableFilter<"RelatoriosConfiguracao"> | string | null
+    id_relatorio_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    frequencia_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    canais_relatorios_configuracao?: JsonFilter<"RelatoriosConfiguracao">
+    formato_relatorios_configuracao?: StringFilter<"RelatoriosConfiguracao"> | string
+    ativo_relatorios_configuracao?: BoolFilter<"RelatoriosConfiguracao"> | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFilter<"RelatoriosConfiguracao"> | Date | string
+  }, "id_relatorios_configuracao">
 
   export type RelatoriosConfiguracaoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    relatorio_id?: SortOrder
-    frequencia?: SortOrder
-    canais?: SortOrder
-    formato?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_configuracao?: SortOrder
+    id_organizacao_relatorios_configuracao?: SortOrder
+    id_produto_relatorios_configuracao?: SortOrderInput | SortOrder
+    id_usuario_relatorios_configuracao?: SortOrderInput | SortOrder
+    id_relatorio_relatorios_configuracao?: SortOrder
+    frequencia_relatorios_configuracao?: SortOrder
+    canais_relatorios_configuracao?: SortOrder
+    formato_relatorios_configuracao?: SortOrder
+    ativo_relatorios_configuracao?: SortOrder
+    data_criacao_relatorios_configuracao?: SortOrder
+    data_atualizacao_relatorios_configuracao?: SortOrder
     _count?: RelatoriosConfiguracaoCountOrderByAggregateInput
     _max?: RelatoriosConfiguracaoMaxOrderByAggregateInput
     _min?: RelatoriosConfiguracaoMinOrderByAggregateInput
@@ -53485,87 +53485,87 @@ export namespace Prisma {
     AND?: RelatoriosConfiguracaoScalarWhereWithAggregatesInput | RelatoriosConfiguracaoScalarWhereWithAggregatesInput[]
     OR?: RelatoriosConfiguracaoScalarWhereWithAggregatesInput[]
     NOT?: RelatoriosConfiguracaoScalarWhereWithAggregatesInput | RelatoriosConfiguracaoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
-    tenant_id?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
-    product_id?: StringNullableWithAggregatesFilter<"RelatoriosConfiguracao"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"RelatoriosConfiguracao"> | string | null
-    relatorio_id?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
-    frequencia?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
-    canais?: JsonWithAggregatesFilter<"RelatoriosConfiguracao">
-    formato?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
-    ativo?: BoolWithAggregatesFilter<"RelatoriosConfiguracao"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"RelatoriosConfiguracao"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"RelatoriosConfiguracao"> | Date | string
+    id_relatorios_configuracao?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
+    id_organizacao_relatorios_configuracao?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
+    id_produto_relatorios_configuracao?: StringNullableWithAggregatesFilter<"RelatoriosConfiguracao"> | string | null
+    id_usuario_relatorios_configuracao?: StringNullableWithAggregatesFilter<"RelatoriosConfiguracao"> | string | null
+    id_relatorio_relatorios_configuracao?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
+    frequencia_relatorios_configuracao?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
+    canais_relatorios_configuracao?: JsonWithAggregatesFilter<"RelatoriosConfiguracao">
+    formato_relatorios_configuracao?: StringWithAggregatesFilter<"RelatoriosConfiguracao"> | string
+    ativo_relatorios_configuracao?: BoolWithAggregatesFilter<"RelatoriosConfiguracao"> | boolean
+    data_criacao_relatorios_configuracao?: DateTimeWithAggregatesFilter<"RelatoriosConfiguracao"> | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeWithAggregatesFilter<"RelatoriosConfiguracao"> | Date | string
   }
 
   export type ExportarJobWhereInput = {
     AND?: ExportarJobWhereInput | ExportarJobWhereInput[]
     OR?: ExportarJobWhereInput[]
     NOT?: ExportarJobWhereInput | ExportarJobWhereInput[]
-    id?: StringFilter<"ExportarJob"> | string
-    tenant_id?: StringFilter<"ExportarJob"> | string
-    product_id?: StringNullableFilter<"ExportarJob"> | string | null
-    user_id?: StringNullableFilter<"ExportarJob"> | string | null
-    relatorio_id?: StringFilter<"ExportarJob"> | string
-    status?: StringFilter<"ExportarJob"> | string
-    formato?: StringFilter<"ExportarJob"> | string
-    url_arquivo?: StringNullableFilter<"ExportarJob"> | string | null
-    erro?: StringNullableFilter<"ExportarJob"> | string | null
-    started_at?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
-    completed_at?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
-    created_at?: DateTimeFilter<"ExportarJob"> | Date | string
-    updated_at?: DateTimeFilter<"ExportarJob"> | Date | string
+    id_exportar_job?: StringFilter<"ExportarJob"> | string
+    id_organizacao_exportar_job?: StringFilter<"ExportarJob"> | string
+    id_produto_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    id_usuario_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    id_relatorio_exportar_job?: StringFilter<"ExportarJob"> | string
+    status_exportar_job?: StringFilter<"ExportarJob"> | string
+    formato_exportar_job?: StringFilter<"ExportarJob"> | string
+    url_arquivo_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    erro_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    iniciado_em_exportar_job?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
+    concluido_em_exportar_job?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
+    data_criacao_exportar_job?: DateTimeFilter<"ExportarJob"> | Date | string
+    data_atualizacao_exportar_job?: DateTimeFilter<"ExportarJob"> | Date | string
   }
 
   export type ExportarJobOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    relatorio_id?: SortOrder
-    status?: SortOrder
-    formato?: SortOrder
-    url_arquivo?: SortOrderInput | SortOrder
-    erro?: SortOrderInput | SortOrder
-    started_at?: SortOrderInput | SortOrder
-    completed_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_exportar_job?: SortOrder
+    id_organizacao_exportar_job?: SortOrder
+    id_produto_exportar_job?: SortOrderInput | SortOrder
+    id_usuario_exportar_job?: SortOrderInput | SortOrder
+    id_relatorio_exportar_job?: SortOrder
+    status_exportar_job?: SortOrder
+    formato_exportar_job?: SortOrder
+    url_arquivo_exportar_job?: SortOrderInput | SortOrder
+    erro_exportar_job?: SortOrderInput | SortOrder
+    iniciado_em_exportar_job?: SortOrderInput | SortOrder
+    concluido_em_exportar_job?: SortOrderInput | SortOrder
+    data_criacao_exportar_job?: SortOrder
+    data_atualizacao_exportar_job?: SortOrder
   }
 
   export type ExportarJobWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_exportar_job?: string
     AND?: ExportarJobWhereInput | ExportarJobWhereInput[]
     OR?: ExportarJobWhereInput[]
     NOT?: ExportarJobWhereInput | ExportarJobWhereInput[]
-    tenant_id?: StringFilter<"ExportarJob"> | string
-    product_id?: StringNullableFilter<"ExportarJob"> | string | null
-    user_id?: StringNullableFilter<"ExportarJob"> | string | null
-    relatorio_id?: StringFilter<"ExportarJob"> | string
-    status?: StringFilter<"ExportarJob"> | string
-    formato?: StringFilter<"ExportarJob"> | string
-    url_arquivo?: StringNullableFilter<"ExportarJob"> | string | null
-    erro?: StringNullableFilter<"ExportarJob"> | string | null
-    started_at?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
-    completed_at?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
-    created_at?: DateTimeFilter<"ExportarJob"> | Date | string
-    updated_at?: DateTimeFilter<"ExportarJob"> | Date | string
-  }, "id">
+    id_organizacao_exportar_job?: StringFilter<"ExportarJob"> | string
+    id_produto_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    id_usuario_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    id_relatorio_exportar_job?: StringFilter<"ExportarJob"> | string
+    status_exportar_job?: StringFilter<"ExportarJob"> | string
+    formato_exportar_job?: StringFilter<"ExportarJob"> | string
+    url_arquivo_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    erro_exportar_job?: StringNullableFilter<"ExportarJob"> | string | null
+    iniciado_em_exportar_job?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
+    concluido_em_exportar_job?: DateTimeNullableFilter<"ExportarJob"> | Date | string | null
+    data_criacao_exportar_job?: DateTimeFilter<"ExportarJob"> | Date | string
+    data_atualizacao_exportar_job?: DateTimeFilter<"ExportarJob"> | Date | string
+  }, "id_exportar_job">
 
   export type ExportarJobOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    relatorio_id?: SortOrder
-    status?: SortOrder
-    formato?: SortOrder
-    url_arquivo?: SortOrderInput | SortOrder
-    erro?: SortOrderInput | SortOrder
-    started_at?: SortOrderInput | SortOrder
-    completed_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_exportar_job?: SortOrder
+    id_organizacao_exportar_job?: SortOrder
+    id_produto_exportar_job?: SortOrderInput | SortOrder
+    id_usuario_exportar_job?: SortOrderInput | SortOrder
+    id_relatorio_exportar_job?: SortOrder
+    status_exportar_job?: SortOrder
+    formato_exportar_job?: SortOrder
+    url_arquivo_exportar_job?: SortOrderInput | SortOrder
+    erro_exportar_job?: SortOrderInput | SortOrder
+    iniciado_em_exportar_job?: SortOrderInput | SortOrder
+    concluido_em_exportar_job?: SortOrderInput | SortOrder
+    data_criacao_exportar_job?: SortOrder
+    data_atualizacao_exportar_job?: SortOrder
     _count?: ExportarJobCountOrderByAggregateInput
     _max?: ExportarJobMaxOrderByAggregateInput
     _min?: ExportarJobMinOrderByAggregateInput
@@ -53575,19 +53575,19 @@ export namespace Prisma {
     AND?: ExportarJobScalarWhereWithAggregatesInput | ExportarJobScalarWhereWithAggregatesInput[]
     OR?: ExportarJobScalarWhereWithAggregatesInput[]
     NOT?: ExportarJobScalarWhereWithAggregatesInput | ExportarJobScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ExportarJob"> | string
-    tenant_id?: StringWithAggregatesFilter<"ExportarJob"> | string
-    product_id?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
-    relatorio_id?: StringWithAggregatesFilter<"ExportarJob"> | string
-    status?: StringWithAggregatesFilter<"ExportarJob"> | string
-    formato?: StringWithAggregatesFilter<"ExportarJob"> | string
-    url_arquivo?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
-    erro?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
-    started_at?: DateTimeNullableWithAggregatesFilter<"ExportarJob"> | Date | string | null
-    completed_at?: DateTimeNullableWithAggregatesFilter<"ExportarJob"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ExportarJob"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ExportarJob"> | Date | string
+    id_exportar_job?: StringWithAggregatesFilter<"ExportarJob"> | string
+    id_organizacao_exportar_job?: StringWithAggregatesFilter<"ExportarJob"> | string
+    id_produto_exportar_job?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
+    id_usuario_exportar_job?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
+    id_relatorio_exportar_job?: StringWithAggregatesFilter<"ExportarJob"> | string
+    status_exportar_job?: StringWithAggregatesFilter<"ExportarJob"> | string
+    formato_exportar_job?: StringWithAggregatesFilter<"ExportarJob"> | string
+    url_arquivo_exportar_job?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
+    erro_exportar_job?: StringNullableWithAggregatesFilter<"ExportarJob"> | string | null
+    iniciado_em_exportar_job?: DateTimeNullableWithAggregatesFilter<"ExportarJob"> | Date | string | null
+    concluido_em_exportar_job?: DateTimeNullableWithAggregatesFilter<"ExportarJob"> | Date | string | null
+    data_criacao_exportar_job?: DateTimeWithAggregatesFilter<"ExportarJob"> | Date | string
+    data_atualizacao_exportar_job?: DateTimeWithAggregatesFilter<"ExportarJob"> | Date | string
   }
 
   export type HistoricoLogWhereInput = {
@@ -57727,318 +57727,318 @@ export namespace Prisma {
   }
 
   export type RelatoriosSalvosCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: string
-    is_shared?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_salvos?: string
+    id_organizacao_relatorios_salvos: string
+    id_produto_relatorios_salvos?: string | null
+    id_usuario_relatorios_salvos?: string | null
+    nome_relatorios_salvos: string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: string
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: Date | string
+    data_atualizacao_relatorios_salvos?: Date | string
   }
 
   export type RelatoriosSalvosUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: string
-    is_shared?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_salvos?: string
+    id_organizacao_relatorios_salvos: string
+    id_produto_relatorios_salvos?: string | null
+    id_usuario_relatorios_salvos?: string | null
+    nome_relatorios_salvos: string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: string
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: Date | string
+    data_atualizacao_relatorios_salvos?: Date | string
   }
 
   export type RelatoriosSalvosUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: StringFieldUpdateOperationsInput | string
-    is_shared?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    compartilhado_relatorios_salvos?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosSalvosUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: StringFieldUpdateOperationsInput | string
-    is_shared?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    compartilhado_relatorios_salvos?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosSalvosCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: string
-    is_shared?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_salvos?: string
+    id_organizacao_relatorios_salvos: string
+    id_produto_relatorios_salvos?: string | null
+    id_usuario_relatorios_salvos?: string | null
+    nome_relatorios_salvos: string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: string
+    compartilhado_relatorios_salvos?: boolean
+    data_criacao_relatorios_salvos?: Date | string
+    data_atualizacao_relatorios_salvos?: Date | string
   }
 
   export type RelatoriosSalvosUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: StringFieldUpdateOperationsInput | string
-    is_shared?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    compartilhado_relatorios_salvos?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosSalvosUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    tabelas?: JsonNullValueInput | InputJsonValue
-    colunas?: JsonNullValueInput | InputJsonValue
-    filtros?: JsonNullValueInput | InputJsonValue
-    join_type?: StringFieldUpdateOperationsInput | string
-    is_shared?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_salvos?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    tabelas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    colunas_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    filtros_relatorios_salvos?: JsonNullValueInput | InputJsonValue
+    tipo_join_relatorios_salvos?: StringFieldUpdateOperationsInput | string
+    compartilhado_relatorios_salvos?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_salvos?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosConfiguracaoCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    frequencia: string
-    canais: JsonNullValueInput | InputJsonValue
-    formato?: string
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_configuracao?: string
+    id_organizacao_relatorios_configuracao: string
+    id_produto_relatorios_configuracao?: string | null
+    id_usuario_relatorios_configuracao?: string | null
+    id_relatorio_relatorios_configuracao: string
+    frequencia_relatorios_configuracao: string
+    canais_relatorios_configuracao: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: string
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: Date | string
+    data_atualizacao_relatorios_configuracao?: Date | string
   }
 
   export type RelatoriosConfiguracaoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    frequencia: string
-    canais: JsonNullValueInput | InputJsonValue
-    formato?: string
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_configuracao?: string
+    id_organizacao_relatorios_configuracao: string
+    id_produto_relatorios_configuracao?: string | null
+    id_usuario_relatorios_configuracao?: string | null
+    id_relatorio_relatorios_configuracao: string
+    frequencia_relatorios_configuracao: string
+    canais_relatorios_configuracao: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: string
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: Date | string
+    data_atualizacao_relatorios_configuracao?: Date | string
   }
 
   export type RelatoriosConfiguracaoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    frequencia?: StringFieldUpdateOperationsInput | string
-    canais?: JsonNullValueInput | InputJsonValue
-    formato?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    frequencia_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    canais_relatorios_configuracao?: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    ativo_relatorios_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosConfiguracaoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    frequencia?: StringFieldUpdateOperationsInput | string
-    canais?: JsonNullValueInput | InputJsonValue
-    formato?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    frequencia_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    canais_relatorios_configuracao?: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    ativo_relatorios_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosConfiguracaoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    frequencia: string
-    canais: JsonNullValueInput | InputJsonValue
-    formato?: string
-    ativo?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_relatorios_configuracao?: string
+    id_organizacao_relatorios_configuracao: string
+    id_produto_relatorios_configuracao?: string | null
+    id_usuario_relatorios_configuracao?: string | null
+    id_relatorio_relatorios_configuracao: string
+    frequencia_relatorios_configuracao: string
+    canais_relatorios_configuracao: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: string
+    ativo_relatorios_configuracao?: boolean
+    data_criacao_relatorios_configuracao?: Date | string
+    data_atualizacao_relatorios_configuracao?: Date | string
   }
 
   export type RelatoriosConfiguracaoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    frequencia?: StringFieldUpdateOperationsInput | string
-    canais?: JsonNullValueInput | InputJsonValue
-    formato?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    frequencia_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    canais_relatorios_configuracao?: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    ativo_relatorios_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosConfiguracaoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    frequencia?: StringFieldUpdateOperationsInput | string
-    canais?: JsonNullValueInput | InputJsonValue
-    formato?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_relatorios_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    frequencia_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    canais_relatorios_configuracao?: JsonNullValueInput | InputJsonValue
+    formato_relatorios_configuracao?: StringFieldUpdateOperationsInput | string
+    ativo_relatorios_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_relatorios_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarJobCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    status?: string
-    formato?: string
-    url_arquivo?: string | null
-    erro?: string | null
-    started_at?: Date | string | null
-    completed_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_exportar_job?: string
+    id_organizacao_exportar_job: string
+    id_produto_exportar_job?: string | null
+    id_usuario_exportar_job?: string | null
+    id_relatorio_exportar_job: string
+    status_exportar_job?: string
+    formato_exportar_job?: string
+    url_arquivo_exportar_job?: string | null
+    erro_exportar_job?: string | null
+    iniciado_em_exportar_job?: Date | string | null
+    concluido_em_exportar_job?: Date | string | null
+    data_criacao_exportar_job?: Date | string
+    data_atualizacao_exportar_job?: Date | string
   }
 
   export type ExportarJobUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    status?: string
-    formato?: string
-    url_arquivo?: string | null
-    erro?: string | null
-    started_at?: Date | string | null
-    completed_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_exportar_job?: string
+    id_organizacao_exportar_job: string
+    id_produto_exportar_job?: string | null
+    id_usuario_exportar_job?: string | null
+    id_relatorio_exportar_job: string
+    status_exportar_job?: string
+    formato_exportar_job?: string
+    url_arquivo_exportar_job?: string | null
+    erro_exportar_job?: string | null
+    iniciado_em_exportar_job?: Date | string | null
+    concluido_em_exportar_job?: Date | string | null
+    data_criacao_exportar_job?: Date | string
+    data_atualizacao_exportar_job?: Date | string
   }
 
   export type ExportarJobUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    formato?: StringFieldUpdateOperationsInput | string
-    url_arquivo?: NullableStringFieldUpdateOperationsInput | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    started_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_exportar_job?: StringFieldUpdateOperationsInput | string
+    status_exportar_job?: StringFieldUpdateOperationsInput | string
+    formato_exportar_job?: StringFieldUpdateOperationsInput | string
+    url_arquivo_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    concluido_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarJobUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    formato?: StringFieldUpdateOperationsInput | string
-    url_arquivo?: NullableStringFieldUpdateOperationsInput | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    started_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_exportar_job?: StringFieldUpdateOperationsInput | string
+    status_exportar_job?: StringFieldUpdateOperationsInput | string
+    formato_exportar_job?: StringFieldUpdateOperationsInput | string
+    url_arquivo_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    concluido_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarJobCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    relatorio_id: string
-    status?: string
-    formato?: string
-    url_arquivo?: string | null
-    erro?: string | null
-    started_at?: Date | string | null
-    completed_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_exportar_job?: string
+    id_organizacao_exportar_job: string
+    id_produto_exportar_job?: string | null
+    id_usuario_exportar_job?: string | null
+    id_relatorio_exportar_job: string
+    status_exportar_job?: string
+    formato_exportar_job?: string
+    url_arquivo_exportar_job?: string | null
+    erro_exportar_job?: string | null
+    iniciado_em_exportar_job?: Date | string | null
+    concluido_em_exportar_job?: Date | string | null
+    data_criacao_exportar_job?: Date | string
+    data_atualizacao_exportar_job?: Date | string
   }
 
   export type ExportarJobUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    formato?: StringFieldUpdateOperationsInput | string
-    url_arquivo?: NullableStringFieldUpdateOperationsInput | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    started_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_exportar_job?: StringFieldUpdateOperationsInput | string
+    status_exportar_job?: StringFieldUpdateOperationsInput | string
+    formato_exportar_job?: StringFieldUpdateOperationsInput | string
+    url_arquivo_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    concluido_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExportarJobUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    relatorio_id?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    formato?: StringFieldUpdateOperationsInput | string
-    url_arquivo?: NullableStringFieldUpdateOperationsInput | string | null
-    erro?: NullableStringFieldUpdateOperationsInput | string | null
-    started_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    completed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_organizacao_exportar_job?: StringFieldUpdateOperationsInput | string
+    id_produto_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    id_relatorio_exportar_job?: StringFieldUpdateOperationsInput | string
+    status_exportar_job?: StringFieldUpdateOperationsInput | string
+    formato_exportar_job?: StringFieldUpdateOperationsInput | string
+    url_arquivo_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_exportar_job?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    concluido_em_exportar_job?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_exportar_job?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type HistoricoLogCreateInput = {
@@ -61846,130 +61846,130 @@ export namespace Prisma {
   }
 
   export type RelatoriosSalvosCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    tabelas?: SortOrder
-    colunas?: SortOrder
-    filtros?: SortOrder
-    join_type?: SortOrder
-    is_shared?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_salvos?: SortOrder
+    id_organizacao_relatorios_salvos?: SortOrder
+    id_produto_relatorios_salvos?: SortOrder
+    id_usuario_relatorios_salvos?: SortOrder
+    nome_relatorios_salvos?: SortOrder
+    tabelas_relatorios_salvos?: SortOrder
+    colunas_relatorios_salvos?: SortOrder
+    filtros_relatorios_salvos?: SortOrder
+    tipo_join_relatorios_salvos?: SortOrder
+    compartilhado_relatorios_salvos?: SortOrder
+    data_criacao_relatorios_salvos?: SortOrder
+    data_atualizacao_relatorios_salvos?: SortOrder
   }
 
   export type RelatoriosSalvosMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    join_type?: SortOrder
-    is_shared?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_salvos?: SortOrder
+    id_organizacao_relatorios_salvos?: SortOrder
+    id_produto_relatorios_salvos?: SortOrder
+    id_usuario_relatorios_salvos?: SortOrder
+    nome_relatorios_salvos?: SortOrder
+    tipo_join_relatorios_salvos?: SortOrder
+    compartilhado_relatorios_salvos?: SortOrder
+    data_criacao_relatorios_salvos?: SortOrder
+    data_atualizacao_relatorios_salvos?: SortOrder
   }
 
   export type RelatoriosSalvosMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    nome?: SortOrder
-    join_type?: SortOrder
-    is_shared?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_salvos?: SortOrder
+    id_organizacao_relatorios_salvos?: SortOrder
+    id_produto_relatorios_salvos?: SortOrder
+    id_usuario_relatorios_salvos?: SortOrder
+    nome_relatorios_salvos?: SortOrder
+    tipo_join_relatorios_salvos?: SortOrder
+    compartilhado_relatorios_salvos?: SortOrder
+    data_criacao_relatorios_salvos?: SortOrder
+    data_atualizacao_relatorios_salvos?: SortOrder
   }
 
   export type RelatoriosConfiguracaoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    frequencia?: SortOrder
-    canais?: SortOrder
-    formato?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_configuracao?: SortOrder
+    id_organizacao_relatorios_configuracao?: SortOrder
+    id_produto_relatorios_configuracao?: SortOrder
+    id_usuario_relatorios_configuracao?: SortOrder
+    id_relatorio_relatorios_configuracao?: SortOrder
+    frequencia_relatorios_configuracao?: SortOrder
+    canais_relatorios_configuracao?: SortOrder
+    formato_relatorios_configuracao?: SortOrder
+    ativo_relatorios_configuracao?: SortOrder
+    data_criacao_relatorios_configuracao?: SortOrder
+    data_atualizacao_relatorios_configuracao?: SortOrder
   }
 
   export type RelatoriosConfiguracaoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    frequencia?: SortOrder
-    formato?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_configuracao?: SortOrder
+    id_organizacao_relatorios_configuracao?: SortOrder
+    id_produto_relatorios_configuracao?: SortOrder
+    id_usuario_relatorios_configuracao?: SortOrder
+    id_relatorio_relatorios_configuracao?: SortOrder
+    frequencia_relatorios_configuracao?: SortOrder
+    formato_relatorios_configuracao?: SortOrder
+    ativo_relatorios_configuracao?: SortOrder
+    data_criacao_relatorios_configuracao?: SortOrder
+    data_atualizacao_relatorios_configuracao?: SortOrder
   }
 
   export type RelatoriosConfiguracaoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    frequencia?: SortOrder
-    formato?: SortOrder
-    ativo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_relatorios_configuracao?: SortOrder
+    id_organizacao_relatorios_configuracao?: SortOrder
+    id_produto_relatorios_configuracao?: SortOrder
+    id_usuario_relatorios_configuracao?: SortOrder
+    id_relatorio_relatorios_configuracao?: SortOrder
+    frequencia_relatorios_configuracao?: SortOrder
+    formato_relatorios_configuracao?: SortOrder
+    ativo_relatorios_configuracao?: SortOrder
+    data_criacao_relatorios_configuracao?: SortOrder
+    data_atualizacao_relatorios_configuracao?: SortOrder
   }
 
   export type ExportarJobCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    status?: SortOrder
-    formato?: SortOrder
-    url_arquivo?: SortOrder
-    erro?: SortOrder
-    started_at?: SortOrder
-    completed_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_exportar_job?: SortOrder
+    id_organizacao_exportar_job?: SortOrder
+    id_produto_exportar_job?: SortOrder
+    id_usuario_exportar_job?: SortOrder
+    id_relatorio_exportar_job?: SortOrder
+    status_exportar_job?: SortOrder
+    formato_exportar_job?: SortOrder
+    url_arquivo_exportar_job?: SortOrder
+    erro_exportar_job?: SortOrder
+    iniciado_em_exportar_job?: SortOrder
+    concluido_em_exportar_job?: SortOrder
+    data_criacao_exportar_job?: SortOrder
+    data_atualizacao_exportar_job?: SortOrder
   }
 
   export type ExportarJobMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    status?: SortOrder
-    formato?: SortOrder
-    url_arquivo?: SortOrder
-    erro?: SortOrder
-    started_at?: SortOrder
-    completed_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_exportar_job?: SortOrder
+    id_organizacao_exportar_job?: SortOrder
+    id_produto_exportar_job?: SortOrder
+    id_usuario_exportar_job?: SortOrder
+    id_relatorio_exportar_job?: SortOrder
+    status_exportar_job?: SortOrder
+    formato_exportar_job?: SortOrder
+    url_arquivo_exportar_job?: SortOrder
+    erro_exportar_job?: SortOrder
+    iniciado_em_exportar_job?: SortOrder
+    concluido_em_exportar_job?: SortOrder
+    data_criacao_exportar_job?: SortOrder
+    data_atualizacao_exportar_job?: SortOrder
   }
 
   export type ExportarJobMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    relatorio_id?: SortOrder
-    status?: SortOrder
-    formato?: SortOrder
-    url_arquivo?: SortOrder
-    erro?: SortOrder
-    started_at?: SortOrder
-    completed_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_exportar_job?: SortOrder
+    id_organizacao_exportar_job?: SortOrder
+    id_produto_exportar_job?: SortOrder
+    id_usuario_exportar_job?: SortOrder
+    id_relatorio_exportar_job?: SortOrder
+    status_exportar_job?: SortOrder
+    formato_exportar_job?: SortOrder
+    url_arquivo_exportar_job?: SortOrder
+    erro_exportar_job?: SortOrder
+    iniciado_em_exportar_job?: SortOrder
+    concluido_em_exportar_job?: SortOrder
+    data_criacao_exportar_job?: SortOrder
+    data_atualizacao_exportar_job?: SortOrder
   }
 
   export type EnumAcaoExecutadaPorFilter<$PrismaModel = never> = {

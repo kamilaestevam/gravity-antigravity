@@ -1,64 +1,80 @@
 // servicos-global/tenant/relatorios/prisma/fragment.prisma
+// AGENTE RELATORIOS — ONDA 31 (DDD Servicos)
+
+// ---------------------------------------------------------------------------
+// RelatoriosSalvos — relatórios customizados salvos por usuário
+// ---------------------------------------------------------------------------
 
 model RelatoriosSalvos {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id_relatorios_salvos             String  @id @default(cuid())
+  id_organizacao_relatorios_salvos String
+  id_produto_relatorios_salvos     String?
+  id_usuario_relatorios_salvos     String?
 
-  nome       String
-  tabelas    Json     @default("[]") // [{"productId":"simulador-comex", "tableId":"simulacoes"}]
-  colunas    Json     @default("[]") // Colunas visíveis
-  filtros    Json     @default("{}") // Filtros salvos
-  join_type  String   @default("left")
-  is_shared  Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  nome_relatorios_salvos        String
+  tabelas_relatorios_salvos     Json    @default("[]")  // [{"productId":"simulador-comex", "tableId":"simulacoes"}]
+  colunas_relatorios_salvos     Json    @default("[]")  // Colunas visíveis
+  filtros_relatorios_salvos     Json    @default("{}")  // Filtros salvos
+  tipo_join_relatorios_salvos   String  @default("left")
+  compartilhado_relatorios_salvos Boolean @default(false)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  data_criacao_relatorios_salvos     DateTime @default(now())
+  data_atualizacao_relatorios_salvos DateTime @updatedAt
+
+  @@index([id_organizacao_relatorios_salvos], map: "rs_org_idx")
+  @@index([id_organizacao_relatorios_salvos, id_produto_relatorios_salvos], map: "rs_org_prd_idx")
+  @@index([id_organizacao_relatorios_salvos, id_usuario_relatorios_salvos], map: "rs_org_usr_idx")
   @@map("relatorios_salvos")
 }
 
+// ---------------------------------------------------------------------------
+// RelatoriosConfiguracao — agendamento e canais de envio
+// ---------------------------------------------------------------------------
+
 model RelatoriosConfiguracao {
-  id              String   @id @default(cuid())
-  tenant_id       String
-  product_id      String?
-  user_id         String?
+  id_relatorios_configuracao             String  @id @default(cuid())
+  id_organizacao_relatorios_configuracao String
+  id_produto_relatorios_configuracao     String?
+  id_usuario_relatorios_configuracao     String?
 
-  relatorio_id    String
-  frequencia      String   // once | daily | weekly | monthly
-  canais          Json     // { email:[], whatsapp:[] }
-  formato         String   @default("csv") // csv | excel | pdf
-  ativo           Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  id_relatorio_relatorios_configuracao   String
+  frequencia_relatorios_configuracao     String   // once | daily | weekly | monthly
+  canais_relatorios_configuracao         Json     // { email:[], whatsapp:[] }
+  formato_relatorios_configuracao        String   @default("csv") // csv | excel | pdf
+  ativo_relatorios_configuracao          Boolean  @default(true)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  data_criacao_relatorios_configuracao     DateTime @default(now())
+  data_atualizacao_relatorios_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao_relatorios_configuracao], map: "rc_org_idx")
+  @@index([id_organizacao_relatorios_configuracao, id_produto_relatorios_configuracao], map: "rc_org_prd_idx")
+  @@index([id_organizacao_relatorios_configuracao, id_usuario_relatorios_configuracao], map: "rc_org_usr_idx")
   @@map("relatorios_configuracao")
 }
 
+// ---------------------------------------------------------------------------
+// ExportarJob — job de exportação assíncrona de relatório
+// ---------------------------------------------------------------------------
+
 model ExportarJob {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  product_id   String?
-  user_id      String?
+  id_exportar_job             String  @id @default(cuid())
+  id_organizacao_exportar_job String
+  id_produto_exportar_job     String?
+  id_usuario_exportar_job     String?
 
-  relatorio_id String
-  status       String   @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
-  formato      String   @default("csv")
-  url_arquivo  String?
-  erro         String?
-  started_at   DateTime?
-  completed_at DateTime?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id_relatorio_exportar_job   String
+  status_exportar_job         String   @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
+  formato_exportar_job        String   @default("csv")
+  url_arquivo_exportar_job    String?
+  erro_exportar_job           String?
+  iniciado_em_exportar_job    DateTime?
+  concluido_em_exportar_job   DateTime?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  data_criacao_exportar_job     DateTime @default(now())
+  data_atualizacao_exportar_job DateTime @updatedAt
+
+  @@index([id_organizacao_exportar_job], map: "ej_org_idx")
+  @@index([id_organizacao_exportar_job, id_produto_exportar_job], map: "ej_org_prd_idx")
+  @@index([id_organizacao_exportar_job, id_usuario_exportar_job], map: "ej_org_usr_idx")
   @@map("exportar_job")
 }

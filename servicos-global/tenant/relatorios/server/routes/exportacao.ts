@@ -12,12 +12,37 @@ const createExportSchema = z.object({
   formato: z.enum(['csv', 'excel', 'json', 'xml', 'txt', 'pdf']).default('csv'),
 });
 
+// ---- ACL DTO ----
+function toExportJobDto(j: {
+  id_exportar_job: string;
+  status_exportar_job: string;
+  formato_exportar_job: string;
+  url_arquivo_exportar_job: string | null;
+  erro_exportar_job: string | null;
+  iniciado_em_exportar_job: Date | null;
+  concluido_em_exportar_job: Date | null;
+  data_criacao_exportar_job: Date;
+  id_relatorio_exportar_job: string;
+}) {
+  return {
+    id: j.id_exportar_job,
+    status: j.status_exportar_job,
+    formato: j.formato_exportar_job,
+    url_arquivo: j.url_arquivo_exportar_job,
+    erro: j.erro_exportar_job,
+    started_at: j.iniciado_em_exportar_job,
+    completed_at: j.concluido_em_exportar_job,
+    created_at: j.data_criacao_exportar_job,
+    relatorio_id: j.id_relatorio_exportar_job,
+  };
+}
+
 // ---- Iniciar Exportação (Assíncrono) ----
 exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth;
     const { report_id } = req.params;
-    
+
     const parse = createExportSchema.safeParse(req.body);
     if (!parse.success) {
       throw new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR');
@@ -28,22 +53,22 @@ exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, as
     // Enfileira job
     const job = await prisma.exportarJob.create({
       data: {
-        tenant_id: tenantId,
-        user_id: userId || '',
-        product_id: productId || null,
-        relatorio_id: report_id,
-        formato,
-        status: 'PENDING',
+        id_organizacao_exportar_job: tenantId,
+        id_usuario_exportar_job: userId || null,
+        id_produto_exportar_job: productId || null,
+        id_relatorio_exportar_job: report_id,
+        formato_exportar_job: formato,
+        status_exportar_job: 'PENDING',
       },
     });
 
     // Chama o worker para iniciar o processamento em background
-    processExportJob(job.id, tenantId).catch(console.error);
+    processExportJob(job.id_exportar_job, tenantId).catch(console.error);
 
     res.status(202).json({
       message: 'Exportação enfileirada com sucesso',
-      jobId: job.id,
-      status: job.status,
+      jobId: job.id_exportar_job,
+      status: job.status_exportar_job,
     });
   } catch (err) {
     next(err);
@@ -58,9 +83,9 @@ exportacaoRouter.get('/api/v1/relatorios/export/:jobId', authMiddleware, async (
 
     const job = await prisma.exportarJob.findFirst({
       where: {
-        id: jobId,
-        tenant_id: tenantId,
-        user_id: userId,
+        id_exportar_job: jobId,
+        id_organizacao_exportar_job: tenantId,
+        id_usuario_exportar_job: userId,
       },
     });
 
@@ -68,7 +93,7 @@ exportacaoRouter.get('/api/v1/relatorios/export/:jobId', authMiddleware, async (
       throw new AppError('Job de exportação não encontrado', 404, 'NOT_FOUND');
     }
 
-    res.json({ data: job });
+    res.json({ data: toExportJobDto(job) });
   } catch (err) {
     next(err);
   }

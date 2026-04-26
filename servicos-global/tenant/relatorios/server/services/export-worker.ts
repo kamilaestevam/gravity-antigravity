@@ -5,10 +5,10 @@ export async function processExportJob(jobId: string, _tenantId: string) {
   setTimeout(async () => {
     try {
       await prisma.exportarJob.update({
-        where: { id: jobId },
+        where: { id_exportar_job: jobId },
         data: {
-          status: 'PROCESSING',
-          started_at: new Date(),
+          status_exportar_job: 'PROCESSING',
+          iniciado_em_exportar_job: new Date(),
         },
       });
 
@@ -16,22 +16,22 @@ export async function processExportJob(jobId: string, _tenantId: string) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       await prisma.exportarJob.update({
-        where: { id: jobId },
+        where: { id_exportar_job: jobId },
         data: {
-          status: 'DONE',
-          url_arquivo: `https://storage.example.com/exports/${jobId}.csv`,
-          completed_at: new Date(),
+          status_exportar_job: 'DONE',
+          url_arquivo_exportar_job: `https://storage.example.com/exports/${jobId}.csv`,
+          concluido_em_exportar_job: new Date(),
         },
       });
     } catch (err) {
       console.error(`Error processing job ${jobId}:`, err);
       try {
         await prisma.exportarJob.update({
-          where: { id: jobId },
+          where: { id_exportar_job: jobId },
           data: {
-            status: 'FAILED',
-            erro: err instanceof Error ? err.message : 'Unknown error',
-            completed_at: new Date(),
+            status_exportar_job: 'FAILED',
+            erro_exportar_job: err instanceof Error ? err.message : 'Unknown error',
+            concluido_em_exportar_job: new Date(),
           },
         });
       } catch (e) {}

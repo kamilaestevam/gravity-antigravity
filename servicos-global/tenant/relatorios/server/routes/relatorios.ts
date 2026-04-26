@@ -18,22 +18,53 @@ const createRelatorioSchema = z.object({
 
 const updateRelatorioSchema = createRelatorioSchema.partial();
 
+// ---- ACL DTO — mantém payload público estável ----
+function toRelatorioDto(r: {
+  id_relatorios_salvos: string;
+  id_organizacao_relatorios_salvos: string;
+  id_produto_relatorios_salvos: string | null;
+  id_usuario_relatorios_salvos: string | null;
+  nome_relatorios_salvos: string;
+  tabelas_relatorios_salvos: unknown;
+  colunas_relatorios_salvos: unknown;
+  filtros_relatorios_salvos: unknown;
+  tipo_join_relatorios_salvos: string;
+  compartilhado_relatorios_salvos: boolean;
+  data_criacao_relatorios_salvos: Date;
+  data_atualizacao_relatorios_salvos: Date;
+}) {
+  return {
+    id: r.id_relatorios_salvos,
+    tenant_id: r.id_organizacao_relatorios_salvos,
+    product_id: r.id_produto_relatorios_salvos,
+    user_id: r.id_usuario_relatorios_salvos,
+    nome: r.nome_relatorios_salvos,
+    tabelas: r.tabelas_relatorios_salvos,
+    colunas: r.colunas_relatorios_salvos,
+    filtros: r.filtros_relatorios_salvos,
+    join_type: r.tipo_join_relatorios_salvos,
+    is_shared: r.compartilhado_relatorios_salvos,
+    created_at: r.data_criacao_relatorios_salvos,
+    updated_at: r.data_atualizacao_relatorios_salvos,
+  };
+}
+
 // ---- Workspace: Listar relatórios salvos ----
 relatoriosRouter.get('/api/v1/relatorios/saved', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth;
     const { product_id } = req.query;
 
-    const where = { tenant_id: tenantId } as Record<string, unknown>;
-    
-    // Lista os do usuário + os compartilhados
-    where.OR = [
-      { user_id: userId },
-      { is_shared: true }
-    ];
+    const where: Record<string, unknown> = {
+      id_organizacao_relatorios_salvos: tenantId,
+      OR: [
+        { id_usuario_relatorios_salvos: userId },
+        { compartilhado_relatorios_salvos: true },
+      ],
+    };
 
     if (product_id) {
-      where.product_id = String(product_id);
+      where.id_produto_relatorios_salvos = String(product_id);
     }
 
     const page = Math.max(1, Number(req.query.page) || 1);
@@ -41,12 +72,12 @@ relatoriosRouter.get('/api/v1/relatorios/saved', authMiddleware, async (req: Req
 
     const relatorios = await prisma.relatoriosSalvos.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_relatorios_salvos: 'desc' },
       take: limit,
       skip: (page - 1) * limit,
     });
 
-    res.json({ data: relatorios });
+    res.json({ data: relatorios.map(toRelatorioDto) });
   } catch (err) {
     next(err);
   }
@@ -56,7 +87,7 @@ relatoriosRouter.get('/api/v1/relatorios/saved', authMiddleware, async (req: Req
 relatoriosRouter.post('/api/v1/relatorios/saved', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth;
-    
+
     const parse = createRelatorioSchema.safeParse(req.body);
     if (!parse.success) {
       throw new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR');
@@ -64,13 +95,19 @@ relatoriosRouter.post('/api/v1/relatorios/saved', authMiddleware, async (req: Re
 
     const relatorio = await prisma.relatoriosSalvos.create({
       data: {
-        tenant_id: tenantId,
-        user_id: userId || '',
-        ...parse.data,
+        id_organizacao_relatorios_salvos: tenantId,
+        id_usuario_relatorios_salvos: userId || null,
+        id_produto_relatorios_salvos: parse.data.product_id ?? null,
+        nome_relatorios_salvos: parse.data.nome,
+        tabelas_relatorios_salvos: parse.data.tabelas,
+        colunas_relatorios_salvos: parse.data.colunas,
+        filtros_relatorios_salvos: parse.data.filtros,
+        tipo_join_relatorios_salvos: parse.data.join_type,
+        compartilhado_relatorios_salvos: parse.data.is_shared,
       },
     });
 
-    res.status(201).json({ data: relatorio });
+    res.status(201).json({ data: toRelatorioDto(relatorio) });
   } catch (err) {
     next(err);
   }
@@ -84,12 +121,12 @@ relatoriosRouter.get('/api/v1/relatorios/saved/:id', authMiddleware, async (req:
 
     const relatorio = await prisma.relatoriosSalvos.findFirst({
       where: {
-        id,
-        tenant_id: tenantId,
+        id_relatorios_salvos: id,
+        id_organizacao_relatorios_salvos: tenantId,
         OR: [
-          { user_id: userId },
-          { is_shared: true }
-        ]
+          { id_usuario_relatorios_salvos: userId },
+          { compartilhado_relatorios_salvos: true },
+        ],
       },
     });
 
@@ -97,7 +134,7 @@ relatoriosRouter.get('/api/v1/relatorios/saved/:id', authMiddleware, async (req:
       throw new AppError('Relatório não encontrado', 404, 'NOT_FOUND');
     }
 
-    res.json({ data: relatorio });
+    res.json({ data: toRelatorioDto(relatorio) });
   } catch (err) {
     next(err);
   }
@@ -108,7 +145,7 @@ relatoriosRouter.put('/api/v1/relatorios/saved/:id', authMiddleware, async (req:
   try {
     const { tenantId, userId } = req.auth;
     const { id } = req.params;
-    
+
     const parse = updateRelatorioSchema.safeParse(req.body);
     if (!parse.success) {
       throw new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR');
@@ -116,19 +153,32 @@ relatoriosRouter.put('/api/v1/relatorios/saved/:id', authMiddleware, async (req:
 
     // Apenas dono pode editar (ou admin, mas simplificando para dono neste contexto)
     const existente = await prisma.relatoriosSalvos.findFirst({
-      where: { id, tenant_id: tenantId, user_id: userId }
+      where: {
+        id_relatorios_salvos: id,
+        id_organizacao_relatorios_salvos: tenantId,
+        id_usuario_relatorios_salvos: userId,
+      },
     });
 
     if (!existente) {
       throw new AppError('Relatório não encontrado ou sem permissão para editar', 404, 'NOT_FOUND');
     }
 
+    const data: Record<string, unknown> = {};
+    if (parse.data.product_id !== undefined) data.id_produto_relatorios_salvos = parse.data.product_id;
+    if (parse.data.nome !== undefined) data.nome_relatorios_salvos = parse.data.nome;
+    if (parse.data.tabelas !== undefined) data.tabelas_relatorios_salvos = parse.data.tabelas;
+    if (parse.data.colunas !== undefined) data.colunas_relatorios_salvos = parse.data.colunas;
+    if (parse.data.filtros !== undefined) data.filtros_relatorios_salvos = parse.data.filtros;
+    if (parse.data.join_type !== undefined) data.tipo_join_relatorios_salvos = parse.data.join_type;
+    if (parse.data.is_shared !== undefined) data.compartilhado_relatorios_salvos = parse.data.is_shared;
+
     const relatorio = await prisma.relatoriosSalvos.update({
-      where: { id },
-      data: parse.data,
+      where: { id_relatorios_salvos: id },
+      data,
     });
 
-    res.json({ data: relatorio });
+    res.json({ data: toRelatorioDto(relatorio) });
   } catch (err) {
     next(err);
   }
@@ -141,7 +191,11 @@ relatoriosRouter.delete('/api/v1/relatorios/saved/:id', authMiddleware, async (r
     const { id } = req.params;
 
     const existente = await prisma.relatoriosSalvos.findFirst({
-      where: { id, tenant_id: tenantId, user_id: userId }
+      where: {
+        id_relatorios_salvos: id,
+        id_organizacao_relatorios_salvos: tenantId,
+        id_usuario_relatorios_salvos: userId,
+      },
     });
 
     if (!existente) {
@@ -149,7 +203,7 @@ relatoriosRouter.delete('/api/v1/relatorios/saved/:id', authMiddleware, async (r
     }
 
     await prisma.relatoriosSalvos.delete({
-      where: { id },
+      where: { id_relatorios_salvos: id },
     });
 
     res.status(204).send();
@@ -162,15 +216,13 @@ relatoriosRouter.delete('/api/v1/relatorios/saved/:id', authMiddleware, async (r
 relatoriosRouter.get('/api/v1/relatorios/:report_id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId } = req.auth;
-    // const { report_id } = req.params;
-    // Aqui usaria o produto e tabela para buscar os dados de fato ou cruzar tabelas
-    
+
     res.json({
       data: [
-         { id: '1', name: 'Mock Data 1', tenant: tenantId },
-         { id: '2', name: 'Mock Data 2', tenant: tenantId }
+        { id: '1', name: 'Mock Data 1', tenant: tenantId },
+        { id: '2', name: 'Mock Data 2', tenant: tenantId },
       ],
-      meta: { total: 2 }
+      meta: { total: 2 },
     });
   } catch (err) {
     next(err);

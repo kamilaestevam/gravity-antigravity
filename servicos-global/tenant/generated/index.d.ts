@@ -204,10 +204,10 @@ export type GabiTokenWorkspace = $Result.DefaultSelection<Prisma.$GabiTokenWorks
  */
 export type GabiPersonalizacao = $Result.DefaultSelection<Prisma.$GabiPersonalizacaoPayload>
 /**
- * Model UserPreferences
+ * Model PreferenciaWorkspace
  * 
  */
-export type UserPreferences = $Result.DefaultSelection<Prisma.$UserPreferencesPayload>
+export type PreferenciaWorkspace = $Result.DefaultSelection<Prisma.$PreferenciaWorkspacePayload>
 /**
  * Model NcmItem
  * 
@@ -929,14 +929,14 @@ export class PrismaClient<
   get gabiPersonalizacao(): Prisma.GabiPersonalizacaoDelegate<ExtArgs>;
 
   /**
-   * `prisma.userPreferences`: Exposes CRUD operations for the **UserPreferences** model.
+   * `prisma.preferenciaWorkspace`: Exposes CRUD operations for the **PreferenciaWorkspace** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more UserPreferences
-    * const userPreferences = await prisma.userPreferences.findMany()
+    * // Fetch zero or more PreferenciaWorkspaces
+    * const preferenciaWorkspaces = await prisma.preferenciaWorkspace.findMany()
     * ```
     */
-  get userPreferences(): Prisma.UserPreferencesDelegate<ExtArgs>;
+  get preferenciaWorkspace(): Prisma.PreferenciaWorkspaceDelegate<ExtArgs>;
 
   /**
    * `prisma.ncmItem`: Exposes CRUD operations for the **NcmItem** model.
@@ -1476,7 +1476,7 @@ export namespace Prisma {
     GabiTokenConsumido: 'GabiTokenConsumido',
     GabiTokenWorkspace: 'GabiTokenWorkspace',
     GabiPersonalizacao: 'GabiPersonalizacao',
-    UserPreferences: 'UserPreferences',
+    PreferenciaWorkspace: 'PreferenciaWorkspace',
     NcmItem: 'NcmItem',
     NcmSyncLog: 'NcmSyncLog',
     NcmScheduleConfig: 'NcmScheduleConfig',
@@ -1498,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "preferenciaWorkspace" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4162,73 +4162,73 @@ export namespace Prisma {
           }
         }
       }
-      UserPreferences: {
-        payload: Prisma.$UserPreferencesPayload<ExtArgs>
-        fields: Prisma.UserPreferencesFieldRefs
+      PreferenciaWorkspace: {
+        payload: Prisma.$PreferenciaWorkspacePayload<ExtArgs>
+        fields: Prisma.PreferenciaWorkspaceFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.UserPreferencesFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload> | null
+            args: Prisma.PreferenciaWorkspaceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.UserPreferencesFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           findFirst: {
-            args: Prisma.UserPreferencesFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload> | null
+            args: Prisma.PreferenciaWorkspaceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.UserPreferencesFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           findMany: {
-            args: Prisma.UserPreferencesFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>[]
+            args: Prisma.PreferenciaWorkspaceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>[]
           }
           create: {
-            args: Prisma.UserPreferencesCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           createMany: {
-            args: Prisma.UserPreferencesCreateManyArgs<ExtArgs>
+            args: Prisma.PreferenciaWorkspaceCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.UserPreferencesCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>[]
+            args: Prisma.PreferenciaWorkspaceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>[]
           }
           delete: {
-            args: Prisma.UserPreferencesDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           update: {
-            args: Prisma.UserPreferencesUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           deleteMany: {
-            args: Prisma.UserPreferencesDeleteManyArgs<ExtArgs>
+            args: Prisma.PreferenciaWorkspaceDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.UserPreferencesUpdateManyArgs<ExtArgs>
+            args: Prisma.PreferenciaWorkspaceUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.UserPreferencesUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciaWorkspaceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciaWorkspacePayload>
           }
           aggregate: {
-            args: Prisma.UserPreferencesAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateUserPreferences>
+            args: Prisma.PreferenciaWorkspaceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePreferenciaWorkspace>
           }
           groupBy: {
-            args: Prisma.UserPreferencesGroupByArgs<ExtArgs>
-            result: $Utils.Optional<UserPreferencesGroupByOutputType>[]
+            args: Prisma.PreferenciaWorkspaceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PreferenciaWorkspaceGroupByOutputType>[]
           }
           count: {
-            args: Prisma.UserPreferencesCountArgs<ExtArgs>
-            result: $Utils.Optional<UserPreferencesCountAggregateOutputType> | number
+            args: Prisma.PreferenciaWorkspaceCountArgs<ExtArgs>
+            result: $Utils.Optional<PreferenciaWorkspaceCountAggregateOutputType> | number
           }
         }
       }
@@ -43803,361 +43803,361 @@ export namespace Prisma {
 
 
   /**
-   * Model UserPreferences
+   * Model PreferenciaWorkspace
    */
 
-  export type AggregateUserPreferences = {
-    _count: UserPreferencesCountAggregateOutputType | null
-    _min: UserPreferencesMinAggregateOutputType | null
-    _max: UserPreferencesMaxAggregateOutputType | null
+  export type AggregatePreferenciaWorkspace = {
+    _count: PreferenciaWorkspaceCountAggregateOutputType | null
+    _min: PreferenciaWorkspaceMinAggregateOutputType | null
+    _max: PreferenciaWorkspaceMaxAggregateOutputType | null
   }
 
-  export type UserPreferencesMinAggregateOutputType = {
-    id: string | null
-    user_id: string | null
-    tenant_id: string | null
-    tooltips_disabled: boolean | null
-    theme: string | null
-    sidebar_open: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type PreferenciaWorkspaceMinAggregateOutputType = {
+    id_preferencia_workspace: string | null
+    id_organizacao_preferencia_workspace: string | null
+    id_usuario_preferencia_workspace: string | null
+    tooltips_desabilitado_preferencia_workspace: boolean | null
+    tema_preferencia_workspace: string | null
+    sidebar_aberta_preferencia_workspace: boolean | null
+    data_criacao_preferencia_workspace: Date | null
+    data_atualizacao_preferencia_workspace: Date | null
   }
 
-  export type UserPreferencesMaxAggregateOutputType = {
-    id: string | null
-    user_id: string | null
-    tenant_id: string | null
-    tooltips_disabled: boolean | null
-    theme: string | null
-    sidebar_open: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type PreferenciaWorkspaceMaxAggregateOutputType = {
+    id_preferencia_workspace: string | null
+    id_organizacao_preferencia_workspace: string | null
+    id_usuario_preferencia_workspace: string | null
+    tooltips_desabilitado_preferencia_workspace: boolean | null
+    tema_preferencia_workspace: string | null
+    sidebar_aberta_preferencia_workspace: boolean | null
+    data_criacao_preferencia_workspace: Date | null
+    data_atualizacao_preferencia_workspace: Date | null
   }
 
-  export type UserPreferencesCountAggregateOutputType = {
-    id: number
-    user_id: number
-    tenant_id: number
-    tooltips_disabled: number
-    theme: number
-    sidebar_open: number
-    created_at: number
-    updated_at: number
+  export type PreferenciaWorkspaceCountAggregateOutputType = {
+    id_preferencia_workspace: number
+    id_organizacao_preferencia_workspace: number
+    id_usuario_preferencia_workspace: number
+    tooltips_desabilitado_preferencia_workspace: number
+    tema_preferencia_workspace: number
+    sidebar_aberta_preferencia_workspace: number
+    data_criacao_preferencia_workspace: number
+    data_atualizacao_preferencia_workspace: number
     _all: number
   }
 
 
-  export type UserPreferencesMinAggregateInputType = {
-    id?: true
-    user_id?: true
-    tenant_id?: true
-    tooltips_disabled?: true
-    theme?: true
-    sidebar_open?: true
-    created_at?: true
-    updated_at?: true
+  export type PreferenciaWorkspaceMinAggregateInputType = {
+    id_preferencia_workspace?: true
+    id_organizacao_preferencia_workspace?: true
+    id_usuario_preferencia_workspace?: true
+    tooltips_desabilitado_preferencia_workspace?: true
+    tema_preferencia_workspace?: true
+    sidebar_aberta_preferencia_workspace?: true
+    data_criacao_preferencia_workspace?: true
+    data_atualizacao_preferencia_workspace?: true
   }
 
-  export type UserPreferencesMaxAggregateInputType = {
-    id?: true
-    user_id?: true
-    tenant_id?: true
-    tooltips_disabled?: true
-    theme?: true
-    sidebar_open?: true
-    created_at?: true
-    updated_at?: true
+  export type PreferenciaWorkspaceMaxAggregateInputType = {
+    id_preferencia_workspace?: true
+    id_organizacao_preferencia_workspace?: true
+    id_usuario_preferencia_workspace?: true
+    tooltips_desabilitado_preferencia_workspace?: true
+    tema_preferencia_workspace?: true
+    sidebar_aberta_preferencia_workspace?: true
+    data_criacao_preferencia_workspace?: true
+    data_atualizacao_preferencia_workspace?: true
   }
 
-  export type UserPreferencesCountAggregateInputType = {
-    id?: true
-    user_id?: true
-    tenant_id?: true
-    tooltips_disabled?: true
-    theme?: true
-    sidebar_open?: true
-    created_at?: true
-    updated_at?: true
+  export type PreferenciaWorkspaceCountAggregateInputType = {
+    id_preferencia_workspace?: true
+    id_organizacao_preferencia_workspace?: true
+    id_usuario_preferencia_workspace?: true
+    tooltips_desabilitado_preferencia_workspace?: true
+    tema_preferencia_workspace?: true
+    sidebar_aberta_preferencia_workspace?: true
+    data_criacao_preferencia_workspace?: true
+    data_atualizacao_preferencia_workspace?: true
     _all?: true
   }
 
-  export type UserPreferencesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UserPreferences to aggregate.
+     * Filter which PreferenciaWorkspace to aggregate.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciaWorkspaces to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciaWorkspaceOrderByWithRelationInput | PreferenciaWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciaWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciaWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciaWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned UserPreferences
+     * Count returned PreferenciaWorkspaces
     **/
-    _count?: true | UserPreferencesCountAggregateInputType
+    _count?: true | PreferenciaWorkspaceCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: UserPreferencesMinAggregateInputType
+    _min?: PreferenciaWorkspaceMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: UserPreferencesMaxAggregateInputType
+    _max?: PreferenciaWorkspaceMaxAggregateInputType
   }
 
-  export type GetUserPreferencesAggregateType<T extends UserPreferencesAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserPreferences]: P extends '_count' | 'count'
+  export type GetPreferenciaWorkspaceAggregateType<T extends PreferenciaWorkspaceAggregateArgs> = {
+        [P in keyof T & keyof AggregatePreferenciaWorkspace]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateUserPreferences[P]>
-      : GetScalarType<T[P], AggregateUserPreferences[P]>
+        : GetScalarType<T[P], AggregatePreferenciaWorkspace[P]>
+      : GetScalarType<T[P], AggregatePreferenciaWorkspace[P]>
   }
 
 
 
 
-  export type UserPreferencesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserPreferencesWhereInput
-    orderBy?: UserPreferencesOrderByWithAggregationInput | UserPreferencesOrderByWithAggregationInput[]
-    by: UserPreferencesScalarFieldEnum[] | UserPreferencesScalarFieldEnum
-    having?: UserPreferencesScalarWhereWithAggregatesInput
+  export type PreferenciaWorkspaceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PreferenciaWorkspaceWhereInput
+    orderBy?: PreferenciaWorkspaceOrderByWithAggregationInput | PreferenciaWorkspaceOrderByWithAggregationInput[]
+    by: PreferenciaWorkspaceScalarFieldEnum[] | PreferenciaWorkspaceScalarFieldEnum
+    having?: PreferenciaWorkspaceScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: UserPreferencesCountAggregateInputType | true
-    _min?: UserPreferencesMinAggregateInputType
-    _max?: UserPreferencesMaxAggregateInputType
+    _count?: PreferenciaWorkspaceCountAggregateInputType | true
+    _min?: PreferenciaWorkspaceMinAggregateInputType
+    _max?: PreferenciaWorkspaceMaxAggregateInputType
   }
 
-  export type UserPreferencesGroupByOutputType = {
-    id: string
-    user_id: string
-    tenant_id: string
-    tooltips_disabled: boolean
-    theme: string
-    sidebar_open: boolean
-    created_at: Date
-    updated_at: Date
-    _count: UserPreferencesCountAggregateOutputType | null
-    _min: UserPreferencesMinAggregateOutputType | null
-    _max: UserPreferencesMaxAggregateOutputType | null
+  export type PreferenciaWorkspaceGroupByOutputType = {
+    id_preferencia_workspace: string
+    id_organizacao_preferencia_workspace: string
+    id_usuario_preferencia_workspace: string
+    tooltips_desabilitado_preferencia_workspace: boolean
+    tema_preferencia_workspace: string
+    sidebar_aberta_preferencia_workspace: boolean
+    data_criacao_preferencia_workspace: Date
+    data_atualizacao_preferencia_workspace: Date
+    _count: PreferenciaWorkspaceCountAggregateOutputType | null
+    _min: PreferenciaWorkspaceMinAggregateOutputType | null
+    _max: PreferenciaWorkspaceMaxAggregateOutputType | null
   }
 
-  type GetUserPreferencesGroupByPayload<T extends UserPreferencesGroupByArgs> = Prisma.PrismaPromise<
+  type GetPreferenciaWorkspaceGroupByPayload<T extends PreferenciaWorkspaceGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<UserPreferencesGroupByOutputType, T['by']> &
+      PickEnumerable<PreferenciaWorkspaceGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof UserPreferencesGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof PreferenciaWorkspaceGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], UserPreferencesGroupByOutputType[P]>
-            : GetScalarType<T[P], UserPreferencesGroupByOutputType[P]>
+              : GetScalarType<T[P], PreferenciaWorkspaceGroupByOutputType[P]>
+            : GetScalarType<T[P], PreferenciaWorkspaceGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type UserPreferencesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    user_id?: boolean
-    tenant_id?: boolean
-    tooltips_disabled?: boolean
-    theme?: boolean
-    sidebar_open?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["userPreferences"]>
+  export type PreferenciaWorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_preferencia_workspace?: boolean
+    id_organizacao_preferencia_workspace?: boolean
+    id_usuario_preferencia_workspace?: boolean
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: boolean
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: boolean
+    data_atualizacao_preferencia_workspace?: boolean
+  }, ExtArgs["result"]["preferenciaWorkspace"]>
 
-  export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    user_id?: boolean
-    tenant_id?: boolean
-    tooltips_disabled?: boolean
-    theme?: boolean
-    sidebar_open?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["userPreferences"]>
+  export type PreferenciaWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_preferencia_workspace?: boolean
+    id_organizacao_preferencia_workspace?: boolean
+    id_usuario_preferencia_workspace?: boolean
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: boolean
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: boolean
+    data_atualizacao_preferencia_workspace?: boolean
+  }, ExtArgs["result"]["preferenciaWorkspace"]>
 
-  export type UserPreferencesSelectScalar = {
-    id?: boolean
-    user_id?: boolean
-    tenant_id?: boolean
-    tooltips_disabled?: boolean
-    theme?: boolean
-    sidebar_open?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type PreferenciaWorkspaceSelectScalar = {
+    id_preferencia_workspace?: boolean
+    id_organizacao_preferencia_workspace?: boolean
+    id_usuario_preferencia_workspace?: boolean
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: boolean
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: boolean
+    data_atualizacao_preferencia_workspace?: boolean
   }
 
 
-  export type $UserPreferencesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserPreferences"
+  export type $PreferenciaWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PreferenciaWorkspace"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      user_id: string
-      tenant_id: string
-      tooltips_disabled: boolean
-      theme: string
-      sidebar_open: boolean
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["userPreferences"]>
+      id_preferencia_workspace: string
+      id_organizacao_preferencia_workspace: string
+      id_usuario_preferencia_workspace: string
+      tooltips_desabilitado_preferencia_workspace: boolean
+      tema_preferencia_workspace: string
+      sidebar_aberta_preferencia_workspace: boolean
+      data_criacao_preferencia_workspace: Date
+      data_atualizacao_preferencia_workspace: Date
+    }, ExtArgs["result"]["preferenciaWorkspace"]>
     composites: {}
   }
 
-  type UserPreferencesGetPayload<S extends boolean | null | undefined | UserPreferencesDefaultArgs> = $Result.GetResult<Prisma.$UserPreferencesPayload, S>
+  type PreferenciaWorkspaceGetPayload<S extends boolean | null | undefined | PreferenciaWorkspaceDefaultArgs> = $Result.GetResult<Prisma.$PreferenciaWorkspacePayload, S>
 
-  type UserPreferencesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<UserPreferencesFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: UserPreferencesCountAggregateInputType | true
+  type PreferenciaWorkspaceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PreferenciaWorkspaceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PreferenciaWorkspaceCountAggregateInputType | true
     }
 
-  export interface UserPreferencesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPreferences'], meta: { name: 'UserPreferences' } }
+  export interface PreferenciaWorkspaceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PreferenciaWorkspace'], meta: { name: 'PreferenciaWorkspace' } }
     /**
-     * Find zero or one UserPreferences that matches the filter.
-     * @param {UserPreferencesFindUniqueArgs} args - Arguments to find a UserPreferences
+     * Find zero or one PreferenciaWorkspace that matches the filter.
+     * @param {PreferenciaWorkspaceFindUniqueArgs} args - Arguments to find a PreferenciaWorkspace
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findUnique({
+     * // Get one PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends UserPreferencesFindUniqueArgs>(args: SelectSubset<T, UserPreferencesFindUniqueArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends PreferenciaWorkspaceFindUniqueArgs>(args: SelectSubset<T, PreferenciaWorkspaceFindUniqueArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one UserPreferences that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one PreferenciaWorkspace that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {UserPreferencesFindUniqueOrThrowArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciaWorkspaceFindUniqueOrThrowArgs} args - Arguments to find a PreferenciaWorkspace
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findUniqueOrThrow({
+     * // Get one PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UserPreferencesFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPreferencesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends PreferenciaWorkspaceFindUniqueOrThrowArgs>(args: SelectSubset<T, PreferenciaWorkspaceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first UserPreferences that matches the filter.
+     * Find the first PreferenciaWorkspace that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindFirstArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciaWorkspaceFindFirstArgs} args - Arguments to find a PreferenciaWorkspace
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findFirst({
+     * // Get one PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends UserPreferencesFindFirstArgs>(args?: SelectSubset<T, UserPreferencesFindFirstArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends PreferenciaWorkspaceFindFirstArgs>(args?: SelectSubset<T, PreferenciaWorkspaceFindFirstArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first UserPreferences that matches the filter or
+     * Find the first PreferenciaWorkspace that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindFirstOrThrowArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciaWorkspaceFindFirstOrThrowArgs} args - Arguments to find a PreferenciaWorkspace
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findFirstOrThrow({
+     * // Get one PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends UserPreferencesFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPreferencesFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends PreferenciaWorkspaceFindFirstOrThrowArgs>(args?: SelectSubset<T, PreferenciaWorkspaceFindFirstOrThrowArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more UserPreferences that matches the filter.
+     * Find zero or more PreferenciaWorkspaces that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {PreferenciaWorkspaceFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all UserPreferences
-     * const userPreferences = await prisma.userPreferences.findMany()
+     * // Get all PreferenciaWorkspaces
+     * const preferenciaWorkspaces = await prisma.preferenciaWorkspace.findMany()
      * 
-     * // Get first 10 UserPreferences
-     * const userPreferences = await prisma.userPreferences.findMany({ take: 10 })
+     * // Get first 10 PreferenciaWorkspaces
+     * const preferenciaWorkspaces = await prisma.preferenciaWorkspace.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const userPreferencesWithIdOnly = await prisma.userPreferences.findMany({ select: { id: true } })
+     * // Only select the `id_preferencia_workspace`
+     * const preferenciaWorkspaceWithId_preferencia_workspaceOnly = await prisma.preferenciaWorkspace.findMany({ select: { id_preferencia_workspace: true } })
      * 
      */
-    findMany<T extends UserPreferencesFindManyArgs>(args?: SelectSubset<T, UserPreferencesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends PreferenciaWorkspaceFindManyArgs>(args?: SelectSubset<T, PreferenciaWorkspaceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a UserPreferences.
-     * @param {UserPreferencesCreateArgs} args - Arguments to create a UserPreferences.
+     * Create a PreferenciaWorkspace.
+     * @param {PreferenciaWorkspaceCreateArgs} args - Arguments to create a PreferenciaWorkspace.
      * @example
-     * // Create one UserPreferences
-     * const UserPreferences = await prisma.userPreferences.create({
+     * // Create one PreferenciaWorkspace
+     * const PreferenciaWorkspace = await prisma.preferenciaWorkspace.create({
      *   data: {
-     *     // ... data to create a UserPreferences
+     *     // ... data to create a PreferenciaWorkspace
      *   }
      * })
      * 
      */
-    create<T extends UserPreferencesCreateArgs>(args: SelectSubset<T, UserPreferencesCreateArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends PreferenciaWorkspaceCreateArgs>(args: SelectSubset<T, PreferenciaWorkspaceCreateArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many UserPreferences.
-     * @param {UserPreferencesCreateManyArgs} args - Arguments to create many UserPreferences.
+     * Create many PreferenciaWorkspaces.
+     * @param {PreferenciaWorkspaceCreateManyArgs} args - Arguments to create many PreferenciaWorkspaces.
      * @example
-     * // Create many UserPreferences
-     * const userPreferences = await prisma.userPreferences.createMany({
+     * // Create many PreferenciaWorkspaces
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends UserPreferencesCreateManyArgs>(args?: SelectSubset<T, UserPreferencesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends PreferenciaWorkspaceCreateManyArgs>(args?: SelectSubset<T, PreferenciaWorkspaceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many UserPreferences and returns the data saved in the database.
-     * @param {UserPreferencesCreateManyAndReturnArgs} args - Arguments to create many UserPreferences.
+     * Create many PreferenciaWorkspaces and returns the data saved in the database.
+     * @param {PreferenciaWorkspaceCreateManyAndReturnArgs} args - Arguments to create many PreferenciaWorkspaces.
      * @example
-     * // Create many UserPreferences
-     * const userPreferences = await prisma.userPreferences.createManyAndReturn({
+     * // Create many PreferenciaWorkspaces
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many UserPreferences and only return the `id`
-     * const userPreferencesWithIdOnly = await prisma.userPreferences.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many PreferenciaWorkspaces and only return the `id_preferencia_workspace`
+     * const preferenciaWorkspaceWithId_preferencia_workspaceOnly = await prisma.preferenciaWorkspace.createManyAndReturn({ 
+     *   select: { id_preferencia_workspace: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -44166,28 +44166,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends UserPreferencesCreateManyAndReturnArgs>(args?: SelectSubset<T, UserPreferencesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends PreferenciaWorkspaceCreateManyAndReturnArgs>(args?: SelectSubset<T, PreferenciaWorkspaceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a UserPreferences.
-     * @param {UserPreferencesDeleteArgs} args - Arguments to delete one UserPreferences.
+     * Delete a PreferenciaWorkspace.
+     * @param {PreferenciaWorkspaceDeleteArgs} args - Arguments to delete one PreferenciaWorkspace.
      * @example
-     * // Delete one UserPreferences
-     * const UserPreferences = await prisma.userPreferences.delete({
+     * // Delete one PreferenciaWorkspace
+     * const PreferenciaWorkspace = await prisma.preferenciaWorkspace.delete({
      *   where: {
-     *     // ... filter to delete one UserPreferences
+     *     // ... filter to delete one PreferenciaWorkspace
      *   }
      * })
      * 
      */
-    delete<T extends UserPreferencesDeleteArgs>(args: SelectSubset<T, UserPreferencesDeleteArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends PreferenciaWorkspaceDeleteArgs>(args: SelectSubset<T, PreferenciaWorkspaceDeleteArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one UserPreferences.
-     * @param {UserPreferencesUpdateArgs} args - Arguments to update one UserPreferences.
+     * Update one PreferenciaWorkspace.
+     * @param {PreferenciaWorkspaceUpdateArgs} args - Arguments to update one PreferenciaWorkspace.
      * @example
-     * // Update one UserPreferences
-     * const userPreferences = await prisma.userPreferences.update({
+     * // Update one PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -44197,30 +44197,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UserPreferencesUpdateArgs>(args: SelectSubset<T, UserPreferencesUpdateArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends PreferenciaWorkspaceUpdateArgs>(args: SelectSubset<T, PreferenciaWorkspaceUpdateArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more UserPreferences.
-     * @param {UserPreferencesDeleteManyArgs} args - Arguments to filter UserPreferences to delete.
+     * Delete zero or more PreferenciaWorkspaces.
+     * @param {PreferenciaWorkspaceDeleteManyArgs} args - Arguments to filter PreferenciaWorkspaces to delete.
      * @example
-     * // Delete a few UserPreferences
-     * const { count } = await prisma.userPreferences.deleteMany({
+     * // Delete a few PreferenciaWorkspaces
+     * const { count } = await prisma.preferenciaWorkspace.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends UserPreferencesDeleteManyArgs>(args?: SelectSubset<T, UserPreferencesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends PreferenciaWorkspaceDeleteManyArgs>(args?: SelectSubset<T, PreferenciaWorkspaceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more UserPreferences.
+     * Update zero or more PreferenciaWorkspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {PreferenciaWorkspaceUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many UserPreferences
-     * const userPreferences = await prisma.userPreferences.updateMany({
+     * // Update many PreferenciaWorkspaces
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -44230,56 +44230,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends UserPreferencesUpdateManyArgs>(args: SelectSubset<T, UserPreferencesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends PreferenciaWorkspaceUpdateManyArgs>(args: SelectSubset<T, PreferenciaWorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one UserPreferences.
-     * @param {UserPreferencesUpsertArgs} args - Arguments to update or create a UserPreferences.
+     * Create or update one PreferenciaWorkspace.
+     * @param {PreferenciaWorkspaceUpsertArgs} args - Arguments to update or create a PreferenciaWorkspace.
      * @example
-     * // Update or create a UserPreferences
-     * const userPreferences = await prisma.userPreferences.upsert({
+     * // Update or create a PreferenciaWorkspace
+     * const preferenciaWorkspace = await prisma.preferenciaWorkspace.upsert({
      *   create: {
-     *     // ... data to create a UserPreferences
+     *     // ... data to create a PreferenciaWorkspace
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the UserPreferences we want to update
+     *     // ... the filter for the PreferenciaWorkspace we want to update
      *   }
      * })
      */
-    upsert<T extends UserPreferencesUpsertArgs>(args: SelectSubset<T, UserPreferencesUpsertArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends PreferenciaWorkspaceUpsertArgs>(args: SelectSubset<T, PreferenciaWorkspaceUpsertArgs<ExtArgs>>): Prisma__PreferenciaWorkspaceClient<$Result.GetResult<Prisma.$PreferenciaWorkspacePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of UserPreferences.
+     * Count the number of PreferenciaWorkspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesCountArgs} args - Arguments to filter UserPreferences to count.
+     * @param {PreferenciaWorkspaceCountArgs} args - Arguments to filter PreferenciaWorkspaces to count.
      * @example
-     * // Count the number of UserPreferences
-     * const count = await prisma.userPreferences.count({
+     * // Count the number of PreferenciaWorkspaces
+     * const count = await prisma.preferenciaWorkspace.count({
      *   where: {
-     *     // ... the filter for the UserPreferences we want to count
+     *     // ... the filter for the PreferenciaWorkspaces we want to count
      *   }
      * })
     **/
-    count<T extends UserPreferencesCountArgs>(
-      args?: Subset<T, UserPreferencesCountArgs>,
+    count<T extends PreferenciaWorkspaceCountArgs>(
+      args?: Subset<T, PreferenciaWorkspaceCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], UserPreferencesCountAggregateOutputType>
+          : GetScalarType<T['select'], PreferenciaWorkspaceCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a UserPreferences.
+     * Allows you to perform aggregations operations on a PreferenciaWorkspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {PreferenciaWorkspaceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -44299,13 +44299,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends UserPreferencesAggregateArgs>(args: Subset<T, UserPreferencesAggregateArgs>): Prisma.PrismaPromise<GetUserPreferencesAggregateType<T>>
+    aggregate<T extends PreferenciaWorkspaceAggregateArgs>(args: Subset<T, PreferenciaWorkspaceAggregateArgs>): Prisma.PrismaPromise<GetPreferenciaWorkspaceAggregateType<T>>
 
     /**
-     * Group by UserPreferences.
+     * Group by PreferenciaWorkspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesGroupByArgs} args - Group by arguments.
+     * @param {PreferenciaWorkspaceGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -44320,14 +44320,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends UserPreferencesGroupByArgs,
+      T extends PreferenciaWorkspaceGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserPreferencesGroupByArgs['orderBy'] }
-        : { orderBy?: UserPreferencesGroupByArgs['orderBy'] },
+        ? { orderBy: PreferenciaWorkspaceGroupByArgs['orderBy'] }
+        : { orderBy?: PreferenciaWorkspaceGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -44376,20 +44376,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, UserPreferencesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPreferencesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, PreferenciaWorkspaceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPreferenciaWorkspaceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the UserPreferences model
+   * Fields of the PreferenciaWorkspace model
    */
-  readonly fields: UserPreferencesFieldRefs;
+  readonly fields: PreferenciaWorkspaceFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for UserPreferences.
+   * The delegate class that acts as a "Promise-like" for PreferenciaWorkspace.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UserPreferencesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__PreferenciaWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -44417,302 +44417,302 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the UserPreferences model
+   * Fields of the PreferenciaWorkspace model
    */ 
-  interface UserPreferencesFieldRefs {
-    readonly id: FieldRef<"UserPreferences", 'String'>
-    readonly user_id: FieldRef<"UserPreferences", 'String'>
-    readonly tenant_id: FieldRef<"UserPreferences", 'String'>
-    readonly tooltips_disabled: FieldRef<"UserPreferences", 'Boolean'>
-    readonly theme: FieldRef<"UserPreferences", 'String'>
-    readonly sidebar_open: FieldRef<"UserPreferences", 'Boolean'>
-    readonly created_at: FieldRef<"UserPreferences", 'DateTime'>
-    readonly updated_at: FieldRef<"UserPreferences", 'DateTime'>
+  interface PreferenciaWorkspaceFieldRefs {
+    readonly id_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'String'>
+    readonly id_organizacao_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'String'>
+    readonly id_usuario_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'String'>
+    readonly tooltips_desabilitado_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'Boolean'>
+    readonly tema_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'String'>
+    readonly sidebar_aberta_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'Boolean'>
+    readonly data_criacao_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'DateTime'>
+    readonly data_atualizacao_preferencia_workspace: FieldRef<"PreferenciaWorkspace", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * UserPreferences findUnique
+   * PreferenciaWorkspace findUnique
    */
-  export type UserPreferencesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciaWorkspace to fetch.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciaWorkspaceWhereUniqueInput
   }
 
   /**
-   * UserPreferences findUniqueOrThrow
+   * PreferenciaWorkspace findUniqueOrThrow
    */
-  export type UserPreferencesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciaWorkspace to fetch.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciaWorkspaceWhereUniqueInput
   }
 
   /**
-   * UserPreferences findFirst
+   * PreferenciaWorkspace findFirst
    */
-  export type UserPreferencesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciaWorkspace to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciaWorkspaces to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciaWorkspaceOrderByWithRelationInput | PreferenciaWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UserPreferences.
+     * Sets the position for searching for PreferenciaWorkspaces.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciaWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciaWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciaWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UserPreferences.
+     * Filter by unique combinations of PreferenciaWorkspaces.
      */
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciaWorkspaceScalarFieldEnum | PreferenciaWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences findFirstOrThrow
+   * PreferenciaWorkspace findFirstOrThrow
    */
-  export type UserPreferencesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciaWorkspace to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciaWorkspaces to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciaWorkspaceOrderByWithRelationInput | PreferenciaWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UserPreferences.
+     * Sets the position for searching for PreferenciaWorkspaces.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciaWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciaWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciaWorkspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UserPreferences.
+     * Filter by unique combinations of PreferenciaWorkspaces.
      */
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciaWorkspaceScalarFieldEnum | PreferenciaWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences findMany
+   * PreferenciaWorkspace findMany
    */
-  export type UserPreferencesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciaWorkspaces to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciaWorkspaces to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciaWorkspaceOrderByWithRelationInput | PreferenciaWorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing UserPreferences.
+     * Sets the position for listing PreferenciaWorkspaces.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciaWorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciaWorkspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciaWorkspaces.
      */
     skip?: number
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciaWorkspaceScalarFieldEnum | PreferenciaWorkspaceScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences create
+   * PreferenciaWorkspace create
    */
-  export type UserPreferencesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * The data needed to create a UserPreferences.
+     * The data needed to create a PreferenciaWorkspace.
      */
-    data: XOR<UserPreferencesCreateInput, UserPreferencesUncheckedCreateInput>
+    data: XOR<PreferenciaWorkspaceCreateInput, PreferenciaWorkspaceUncheckedCreateInput>
   }
 
   /**
-   * UserPreferences createMany
+   * PreferenciaWorkspace createMany
    */
-  export type UserPreferencesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many UserPreferences.
+     * The data used to create many PreferenciaWorkspaces.
      */
-    data: UserPreferencesCreateManyInput | UserPreferencesCreateManyInput[]
+    data: PreferenciaWorkspaceCreateManyInput | PreferenciaWorkspaceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * UserPreferences createManyAndReturn
+   * PreferenciaWorkspace createManyAndReturn
    */
-  export type UserPreferencesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelectCreateManyAndReturn<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many UserPreferences.
+     * The data used to create many PreferenciaWorkspaces.
      */
-    data: UserPreferencesCreateManyInput | UserPreferencesCreateManyInput[]
+    data: PreferenciaWorkspaceCreateManyInput | PreferenciaWorkspaceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * UserPreferences update
+   * PreferenciaWorkspace update
    */
-  export type UserPreferencesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * The data needed to update a UserPreferences.
+     * The data needed to update a PreferenciaWorkspace.
      */
-    data: XOR<UserPreferencesUpdateInput, UserPreferencesUncheckedUpdateInput>
+    data: XOR<PreferenciaWorkspaceUpdateInput, PreferenciaWorkspaceUncheckedUpdateInput>
     /**
-     * Choose, which UserPreferences to update.
+     * Choose, which PreferenciaWorkspace to update.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciaWorkspaceWhereUniqueInput
   }
 
   /**
-   * UserPreferences updateMany
+   * PreferenciaWorkspace updateMany
    */
-  export type UserPreferencesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update UserPreferences.
+     * The data used to update PreferenciaWorkspaces.
      */
-    data: XOR<UserPreferencesUpdateManyMutationInput, UserPreferencesUncheckedUpdateManyInput>
+    data: XOR<PreferenciaWorkspaceUpdateManyMutationInput, PreferenciaWorkspaceUncheckedUpdateManyInput>
     /**
-     * Filter which UserPreferences to update
+     * Filter which PreferenciaWorkspaces to update
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
   }
 
   /**
-   * UserPreferences upsert
+   * PreferenciaWorkspace upsert
    */
-  export type UserPreferencesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * The filter to search for the UserPreferences to update in case it exists.
+     * The filter to search for the PreferenciaWorkspace to update in case it exists.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciaWorkspaceWhereUniqueInput
     /**
-     * In case the UserPreferences found by the `where` argument doesn't exist, create a new UserPreferences with this data.
+     * In case the PreferenciaWorkspace found by the `where` argument doesn't exist, create a new PreferenciaWorkspace with this data.
      */
-    create: XOR<UserPreferencesCreateInput, UserPreferencesUncheckedCreateInput>
+    create: XOR<PreferenciaWorkspaceCreateInput, PreferenciaWorkspaceUncheckedCreateInput>
     /**
-     * In case the UserPreferences was found with the provided `where` argument, update it with this data.
+     * In case the PreferenciaWorkspace was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<UserPreferencesUpdateInput, UserPreferencesUncheckedUpdateInput>
+    update: XOR<PreferenciaWorkspaceUpdateInput, PreferenciaWorkspaceUncheckedUpdateInput>
   }
 
   /**
-   * UserPreferences delete
+   * PreferenciaWorkspace delete
    */
-  export type UserPreferencesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
     /**
-     * Filter which UserPreferences to delete.
+     * Filter which PreferenciaWorkspace to delete.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciaWorkspaceWhereUniqueInput
   }
 
   /**
-   * UserPreferences deleteMany
+   * PreferenciaWorkspace deleteMany
    */
-  export type UserPreferencesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UserPreferences to delete
+     * Filter which PreferenciaWorkspaces to delete
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciaWorkspaceWhereInput
   }
 
   /**
-   * UserPreferences without action
+   * PreferenciaWorkspace without action
    */
-  export type UserPreferencesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciaWorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciaWorkspace
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciaWorkspaceSelect<ExtArgs> | null
   }
 
 
@@ -51206,18 +51206,18 @@ export namespace Prisma {
   export type GabiPersonalizacaoScalarFieldEnum = (typeof GabiPersonalizacaoScalarFieldEnum)[keyof typeof GabiPersonalizacaoScalarFieldEnum]
 
 
-  export const UserPreferencesScalarFieldEnum: {
-    id: 'id',
-    user_id: 'user_id',
-    tenant_id: 'tenant_id',
-    tooltips_disabled: 'tooltips_disabled',
-    theme: 'theme',
-    sidebar_open: 'sidebar_open',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const PreferenciaWorkspaceScalarFieldEnum: {
+    id_preferencia_workspace: 'id_preferencia_workspace',
+    id_organizacao_preferencia_workspace: 'id_organizacao_preferencia_workspace',
+    id_usuario_preferencia_workspace: 'id_usuario_preferencia_workspace',
+    tooltips_desabilitado_preferencia_workspace: 'tooltips_desabilitado_preferencia_workspace',
+    tema_preferencia_workspace: 'tema_preferencia_workspace',
+    sidebar_aberta_preferencia_workspace: 'sidebar_aberta_preferencia_workspace',
+    data_criacao_preferencia_workspace: 'data_criacao_preferencia_workspace',
+    data_atualizacao_preferencia_workspace: 'data_atualizacao_preferencia_workspace'
   };
 
-  export type UserPreferencesScalarFieldEnum = (typeof UserPreferencesScalarFieldEnum)[keyof typeof UserPreferencesScalarFieldEnum]
+  export type PreferenciaWorkspaceScalarFieldEnum = (typeof PreferenciaWorkspaceScalarFieldEnum)[keyof typeof PreferenciaWorkspaceScalarFieldEnum]
 
 
   export const NcmItemScalarFieldEnum: {
@@ -55198,71 +55198,71 @@ export namespace Prisma {
     data_atualizacao_gabi_personalizacao?: DateTimeWithAggregatesFilter<"GabiPersonalizacao"> | Date | string
   }
 
-  export type UserPreferencesWhereInput = {
-    AND?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    OR?: UserPreferencesWhereInput[]
-    NOT?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    id?: StringFilter<"UserPreferences"> | string
-    user_id?: StringFilter<"UserPreferences"> | string
-    tenant_id?: StringFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolFilter<"UserPreferences"> | boolean
-    theme?: StringFilter<"UserPreferences"> | string
-    sidebar_open?: BoolFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeFilter<"UserPreferences"> | Date | string
+  export type PreferenciaWorkspaceWhereInput = {
+    AND?: PreferenciaWorkspaceWhereInput | PreferenciaWorkspaceWhereInput[]
+    OR?: PreferenciaWorkspaceWhereInput[]
+    NOT?: PreferenciaWorkspaceWhereInput | PreferenciaWorkspaceWhereInput[]
+    id_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    id_organizacao_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    id_usuario_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFilter<"PreferenciaWorkspace"> | boolean
+    tema_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    sidebar_aberta_preferencia_workspace?: BoolFilter<"PreferenciaWorkspace"> | boolean
+    data_criacao_preferencia_workspace?: DateTimeFilter<"PreferenciaWorkspace"> | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFilter<"PreferenciaWorkspace"> | Date | string
   }
 
-  export type UserPreferencesOrderByWithRelationInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-    tenant_id?: SortOrder
-    tooltips_disabled?: SortOrder
-    theme?: SortOrder
-    sidebar_open?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type PreferenciaWorkspaceOrderByWithRelationInput = {
+    id_preferencia_workspace?: SortOrder
+    id_organizacao_preferencia_workspace?: SortOrder
+    id_usuario_preferencia_workspace?: SortOrder
+    tooltips_desabilitado_preferencia_workspace?: SortOrder
+    tema_preferencia_workspace?: SortOrder
+    sidebar_aberta_preferencia_workspace?: SortOrder
+    data_criacao_preferencia_workspace?: SortOrder
+    data_atualizacao_preferencia_workspace?: SortOrder
   }
 
-  export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    user_id?: string
-    AND?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    OR?: UserPreferencesWhereInput[]
-    NOT?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    tenant_id?: StringFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolFilter<"UserPreferences"> | boolean
-    theme?: StringFilter<"UserPreferences"> | string
-    sidebar_open?: BoolFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeFilter<"UserPreferences"> | Date | string
-  }, "id" | "user_id">
+  export type PreferenciaWorkspaceWhereUniqueInput = Prisma.AtLeast<{
+    id_preferencia_workspace?: string
+    id_usuario_preferencia_workspace?: string
+    AND?: PreferenciaWorkspaceWhereInput | PreferenciaWorkspaceWhereInput[]
+    OR?: PreferenciaWorkspaceWhereInput[]
+    NOT?: PreferenciaWorkspaceWhereInput | PreferenciaWorkspaceWhereInput[]
+    id_organizacao_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFilter<"PreferenciaWorkspace"> | boolean
+    tema_preferencia_workspace?: StringFilter<"PreferenciaWorkspace"> | string
+    sidebar_aberta_preferencia_workspace?: BoolFilter<"PreferenciaWorkspace"> | boolean
+    data_criacao_preferencia_workspace?: DateTimeFilter<"PreferenciaWorkspace"> | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFilter<"PreferenciaWorkspace"> | Date | string
+  }, "id_preferencia_workspace" | "id_usuario_preferencia_workspace">
 
-  export type UserPreferencesOrderByWithAggregationInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-    tenant_id?: SortOrder
-    tooltips_disabled?: SortOrder
-    theme?: SortOrder
-    sidebar_open?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: UserPreferencesCountOrderByAggregateInput
-    _max?: UserPreferencesMaxOrderByAggregateInput
-    _min?: UserPreferencesMinOrderByAggregateInput
+  export type PreferenciaWorkspaceOrderByWithAggregationInput = {
+    id_preferencia_workspace?: SortOrder
+    id_organizacao_preferencia_workspace?: SortOrder
+    id_usuario_preferencia_workspace?: SortOrder
+    tooltips_desabilitado_preferencia_workspace?: SortOrder
+    tema_preferencia_workspace?: SortOrder
+    sidebar_aberta_preferencia_workspace?: SortOrder
+    data_criacao_preferencia_workspace?: SortOrder
+    data_atualizacao_preferencia_workspace?: SortOrder
+    _count?: PreferenciaWorkspaceCountOrderByAggregateInput
+    _max?: PreferenciaWorkspaceMaxOrderByAggregateInput
+    _min?: PreferenciaWorkspaceMinOrderByAggregateInput
   }
 
-  export type UserPreferencesScalarWhereWithAggregatesInput = {
-    AND?: UserPreferencesScalarWhereWithAggregatesInput | UserPreferencesScalarWhereWithAggregatesInput[]
-    OR?: UserPreferencesScalarWhereWithAggregatesInput[]
-    NOT?: UserPreferencesScalarWhereWithAggregatesInput | UserPreferencesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    user_id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    tenant_id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolWithAggregatesFilter<"UserPreferences"> | boolean
-    theme?: StringWithAggregatesFilter<"UserPreferences"> | string
-    sidebar_open?: BoolWithAggregatesFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
+  export type PreferenciaWorkspaceScalarWhereWithAggregatesInput = {
+    AND?: PreferenciaWorkspaceScalarWhereWithAggregatesInput | PreferenciaWorkspaceScalarWhereWithAggregatesInput[]
+    OR?: PreferenciaWorkspaceScalarWhereWithAggregatesInput[]
+    NOT?: PreferenciaWorkspaceScalarWhereWithAggregatesInput | PreferenciaWorkspaceScalarWhereWithAggregatesInput[]
+    id_preferencia_workspace?: StringWithAggregatesFilter<"PreferenciaWorkspace"> | string
+    id_organizacao_preferencia_workspace?: StringWithAggregatesFilter<"PreferenciaWorkspace"> | string
+    id_usuario_preferencia_workspace?: StringWithAggregatesFilter<"PreferenciaWorkspace"> | string
+    tooltips_desabilitado_preferencia_workspace?: BoolWithAggregatesFilter<"PreferenciaWorkspace"> | boolean
+    tema_preferencia_workspace?: StringWithAggregatesFilter<"PreferenciaWorkspace"> | string
+    sidebar_aberta_preferencia_workspace?: BoolWithAggregatesFilter<"PreferenciaWorkspace"> | boolean
+    data_criacao_preferencia_workspace?: DateTimeWithAggregatesFilter<"PreferenciaWorkspace"> | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeWithAggregatesFilter<"PreferenciaWorkspace"> | Date | string
   }
 
   export type NcmItemWhereInput = {
@@ -59978,81 +59978,81 @@ export namespace Prisma {
     data_atualizacao_gabi_personalizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesCreateInput = {
-    id?: string
-    user_id: string
-    tenant_id: string
-    tooltips_disabled?: boolean
-    theme?: string
-    sidebar_open?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type PreferenciaWorkspaceCreateInput = {
+    id_preferencia_workspace?: string
+    id_organizacao_preferencia_workspace: string
+    id_usuario_preferencia_workspace: string
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: string
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: Date | string
+    data_atualizacao_preferencia_workspace?: Date | string
   }
 
-  export type UserPreferencesUncheckedCreateInput = {
-    id?: string
-    user_id: string
-    tenant_id: string
-    tooltips_disabled?: boolean
-    theme?: string
-    sidebar_open?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type PreferenciaWorkspaceUncheckedCreateInput = {
+    id_preferencia_workspace?: string
+    id_organizacao_preferencia_workspace: string
+    id_usuario_preferencia_workspace: string
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: string
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: Date | string
+    data_atualizacao_preferencia_workspace?: Date | string
   }
 
-  export type UserPreferencesUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tooltips_disabled?: BoolFieldUpdateOperationsInput | boolean
-    theme?: StringFieldUpdateOperationsInput | string
-    sidebar_open?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PreferenciaWorkspaceUpdateInput = {
+    id_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_usuario_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    tema_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    sidebar_aberta_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tooltips_disabled?: BoolFieldUpdateOperationsInput | boolean
-    theme?: StringFieldUpdateOperationsInput | string
-    sidebar_open?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PreferenciaWorkspaceUncheckedUpdateInput = {
+    id_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_usuario_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    tema_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    sidebar_aberta_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesCreateManyInput = {
-    id?: string
-    user_id: string
-    tenant_id: string
-    tooltips_disabled?: boolean
-    theme?: string
-    sidebar_open?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type PreferenciaWorkspaceCreateManyInput = {
+    id_preferencia_workspace?: string
+    id_organizacao_preferencia_workspace: string
+    id_usuario_preferencia_workspace: string
+    tooltips_desabilitado_preferencia_workspace?: boolean
+    tema_preferencia_workspace?: string
+    sidebar_aberta_preferencia_workspace?: boolean
+    data_criacao_preferencia_workspace?: Date | string
+    data_atualizacao_preferencia_workspace?: Date | string
   }
 
-  export type UserPreferencesUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tooltips_disabled?: BoolFieldUpdateOperationsInput | boolean
-    theme?: StringFieldUpdateOperationsInput | string
-    sidebar_open?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PreferenciaWorkspaceUpdateManyMutationInput = {
+    id_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_usuario_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    tema_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    sidebar_aberta_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    tooltips_disabled?: BoolFieldUpdateOperationsInput | boolean
-    theme?: StringFieldUpdateOperationsInput | string
-    sidebar_open?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type PreferenciaWorkspaceUncheckedUpdateManyInput = {
+    id_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    id_usuario_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    tooltips_desabilitado_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    tema_preferencia_workspace?: StringFieldUpdateOperationsInput | string
+    sidebar_aberta_preferencia_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_preferencia_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NcmItemCreateInput = {
@@ -63356,37 +63356,37 @@ export namespace Prisma {
     data_atualizacao_gabi_personalizacao?: SortOrder
   }
 
-  export type UserPreferencesCountOrderByAggregateInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-    tenant_id?: SortOrder
-    tooltips_disabled?: SortOrder
-    theme?: SortOrder
-    sidebar_open?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type PreferenciaWorkspaceCountOrderByAggregateInput = {
+    id_preferencia_workspace?: SortOrder
+    id_organizacao_preferencia_workspace?: SortOrder
+    id_usuario_preferencia_workspace?: SortOrder
+    tooltips_desabilitado_preferencia_workspace?: SortOrder
+    tema_preferencia_workspace?: SortOrder
+    sidebar_aberta_preferencia_workspace?: SortOrder
+    data_criacao_preferencia_workspace?: SortOrder
+    data_atualizacao_preferencia_workspace?: SortOrder
   }
 
-  export type UserPreferencesMaxOrderByAggregateInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-    tenant_id?: SortOrder
-    tooltips_disabled?: SortOrder
-    theme?: SortOrder
-    sidebar_open?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type PreferenciaWorkspaceMaxOrderByAggregateInput = {
+    id_preferencia_workspace?: SortOrder
+    id_organizacao_preferencia_workspace?: SortOrder
+    id_usuario_preferencia_workspace?: SortOrder
+    tooltips_desabilitado_preferencia_workspace?: SortOrder
+    tema_preferencia_workspace?: SortOrder
+    sidebar_aberta_preferencia_workspace?: SortOrder
+    data_criacao_preferencia_workspace?: SortOrder
+    data_atualizacao_preferencia_workspace?: SortOrder
   }
 
-  export type UserPreferencesMinOrderByAggregateInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-    tenant_id?: SortOrder
-    tooltips_disabled?: SortOrder
-    theme?: SortOrder
-    sidebar_open?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type PreferenciaWorkspaceMinOrderByAggregateInput = {
+    id_preferencia_workspace?: SortOrder
+    id_organizacao_preferencia_workspace?: SortOrder
+    id_usuario_preferencia_workspace?: SortOrder
+    tooltips_desabilitado_preferencia_workspace?: SortOrder
+    tema_preferencia_workspace?: SortOrder
+    sidebar_aberta_preferencia_workspace?: SortOrder
+    data_criacao_preferencia_workspace?: SortOrder
+    data_atualizacao_preferencia_workspace?: SortOrder
   }
 
   export type NcmItemTenant_idCodigoCompoundUniqueInput = {
@@ -67782,9 +67782,9 @@ export namespace Prisma {
      */
     export type GabiPersonalizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiPersonalizacaoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use UserPreferencesDefaultArgs instead
+     * @deprecated Use PreferenciaWorkspaceDefaultArgs instead
      */
-    export type UserPreferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserPreferencesDefaultArgs<ExtArgs>
+    export type PreferenciaWorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PreferenciaWorkspaceDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NcmItemDefaultArgs instead
      */

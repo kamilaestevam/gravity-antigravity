@@ -1,8 +1,17 @@
-import { PrismaClient } from '@prisma/client'
+// preferencias-usuario/server/lib/prisma.ts
+// Singleton do PrismaClient tenant — usa o cliente composto em
+// servicos-global/tenant/generated (NÃO @prisma/client raiz, que aponta
+// para o configurador).
 
-// Singleton para evitar exaustão de conexões no dev
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
+import { PrismaClient } from '../../../generated/index.js'
 
-export const prisma = globalForPrisma.prisma || new PrismaClient()
+const globalForPrisma = globalThis as unknown as { preferenciasPrisma?: PrismaClient }
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+export const prisma =
+  globalForPrisma.preferenciasPrisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.preferenciasPrisma = prisma
+}
+
+export default prisma

@@ -718,15 +718,15 @@ exports.Prisma.GabiPersonalizacaoScalarFieldEnum = {
   data_atualizacao_gabi_personalizacao: 'data_atualizacao_gabi_personalizacao'
 };
 
-exports.Prisma.UserPreferencesScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  tenant_id: 'tenant_id',
-  tooltips_disabled: 'tooltips_disabled',
-  theme: 'theme',
-  sidebar_open: 'sidebar_open',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.PreferenciaWorkspaceScalarFieldEnum = {
+  id_preferencia_workspace: 'id_preferencia_workspace',
+  id_organizacao_preferencia_workspace: 'id_organizacao_preferencia_workspace',
+  id_usuario_preferencia_workspace: 'id_usuario_preferencia_workspace',
+  tooltips_desabilitado_preferencia_workspace: 'tooltips_desabilitado_preferencia_workspace',
+  tema_preferencia_workspace: 'tema_preferencia_workspace',
+  sidebar_aberta_preferencia_workspace: 'sidebar_aberta_preferencia_workspace',
+  data_criacao_preferencia_workspace: 'data_criacao_preferencia_workspace',
+  data_atualizacao_preferencia_workspace: 'data_atualizacao_preferencia_workspace'
 };
 
 exports.Prisma.NcmItemScalarFieldEnum = {
@@ -973,7 +973,7 @@ exports.Prisma.ModelName = {
   GabiTokenConsumido: 'GabiTokenConsumido',
   GabiTokenWorkspace: 'GabiTokenWorkspace',
   GabiPersonalizacao: 'GabiPersonalizacao',
-  UserPreferences: 'UserPreferences',
+  PreferenciaWorkspace: 'PreferenciaWorkspace',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',
   NcmScheduleConfig: 'NcmScheduleConfig',

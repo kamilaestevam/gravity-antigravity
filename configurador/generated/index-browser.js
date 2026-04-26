@@ -220,13 +220,13 @@ exports.Prisma.ConfiguracaoProdutoScalarFieldEnum = {
 };
 
 exports.Prisma.ProdutoGravityWorkspaceScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  product_key: 'product_key',
-  is_active: 'is_active',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_produto_gravity_workspace: 'id_produto_gravity_workspace',
+  id_organizacao_produto_gravity_workspace: 'id_organizacao_produto_gravity_workspace',
+  id_workspace_produto_gravity_workspace: 'id_workspace_produto_gravity_workspace',
+  chave_produto_produto_gravity_workspace: 'chave_produto_produto_gravity_workspace',
+  ativo_produto_gravity_workspace: 'ativo_produto_gravity_workspace',
+  data_criacao_produto_gravity_workspace: 'data_criacao_produto_gravity_workspace',
+  data_atualizacao_produto_gravity_workspace: 'data_atualizacao_produto_gravity_workspace'
 };
 
 exports.Prisma.ProdutoGravityScalarFieldEnum = {

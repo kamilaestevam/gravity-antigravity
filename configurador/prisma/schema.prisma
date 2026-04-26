@@ -324,26 +324,26 @@ model ConfiguracaoProduto {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityWorkspace {
-  id          String  @id @default(cuid())
-  tenant_id   String
-  company_id  String
-  product_key String // ex: "simulacusto", "gestao-atividades"
-  is_active   Boolean @default(true)
+  id_produto_gravity_workspace             String  @id @default(cuid())
+  id_organizacao_produto_gravity_workspace String
+  id_workspace_produto_gravity_workspace   String
+  chave_produto_produto_gravity_workspace  String // ex: "simulacusto", "gestao-atividades"
+  ativo_produto_gravity_workspace          Boolean @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_produto_gravity_workspace     DateTime @default(now())
+  data_atualizacao_produto_gravity_workspace DateTime @updatedAt
 
   // Relações
-  tenant  Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  company Empresa     @relation(fields: [company_id], references: [id_workspace], onDelete: Cascade)
+  tenant  Organizacao @relation(fields: [id_organizacao_produto_gravity_workspace], references: [id_organizacao], onDelete: Cascade)
+  company Empresa     @relation(fields: [id_workspace_produto_gravity_workspace], references: [id_workspace], onDelete: Cascade)
 
-  // Apenas uma ativação por produto por workspace
-  @@unique([company_id, product_key])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([company_id])
-  @@index([company_id, is_active])
+  // Apenas uma ativação por produto por workspace — `map` explícito para evitar colisão pós truncamento PG
+  @@unique([id_workspace_produto_gravity_workspace, chave_produto_produto_gravity_workspace], map: "pgw_ws_chave_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_produto_gravity_workspace], map: "pgw_org_idx")
+  @@index([id_workspace_produto_gravity_workspace], map: "pgw_ws_idx")
+  @@index([id_workspace_produto_gravity_workspace, ativo_produto_gravity_workspace], map: "pgw_ws_ativo_idx")
   @@map("produto_gravity_workspace")
 }
 

@@ -79,8 +79,8 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
                 nome_workspace: true,
                 status_workspace: true,
                 company_products: {
-                  where: { is_active: true },
-                  select: { product_key: true },
+                  where: { ativo_produto_gravity_workspace: true },
+                  select: { chave_produto_produto_gravity_workspace: true },
                 },
               },
             },
@@ -115,7 +115,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_workspace: m.company.nome_workspace,
         status: m.company.status_workspace,
         tipo_usuario: m.tipo_usuario_workspace,
-        produtos: m.company.company_products.map((p) => p.product_key),
+        produtos: m.company.company_products.map((p) => p.chave_produto_produto_gravity_workspace),
       })),
     })
   } catch (err) {

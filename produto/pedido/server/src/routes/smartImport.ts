@@ -280,9 +280,9 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
 
       // P1.7 — Incluir colunas customizadas do tenant
       const colunasCustom = await db.colunaUsuarioPedido.findMany({
-        where: { id_organizacao: tenantId, ativo: true },
+        where: { id_organizacao: tenantId, ativo_coluna_usuario_pedido: true },
         select: { chave_coluna_usuario_pedido: true, nome_coluna_usuario_pedido: true },
-        orderBy: { ordem: 'asc' },
+        orderBy: { ordem_coluna_usuario_pedido: 'asc' },
       }).catch(() => [] as { chave_coluna_usuario_pedido: string; nome_coluna_usuario_pedido: string }[])
 
       const camposCustom = (colunasCustom as { chave_coluna_usuario_pedido: string; nome_coluna_usuario_pedido: string }[]).map((c) => ({

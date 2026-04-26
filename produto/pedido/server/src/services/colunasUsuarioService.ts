@@ -79,14 +79,14 @@ function mapColuna(c: Record<string, unknown>): Record<string, unknown> {
     visibilidade:     c.visibilidade_coluna_usuario_pedido,
     roles_permitidas: c.tipos_usuario_workspace_permitidos_coluna_usuario_pedido,
     obrigatorio:      c.obrigatorio_coluna_usuario_pedido,
-    opcoes:           c.opcoes,
-    descricao:        c.descricao,
-    valor_padrao:     c.valor_padrao,
-    ordem:            c.ordem,
-    ativo:            c.ativo,
-    created_by:       c.created_by,
-    created_at:       c.created_at,
-    updated_at:       c.updated_at,
+    opcoes:           c.opcoes_coluna_usuario_pedido,
+    descricao:        c.descricao_coluna_usuario_pedido,
+    valor_padrao:     c.valor_padrao_coluna_usuario_pedido,
+    ordem:            c.ordem_coluna_usuario_pedido,
+    ativo:            c.ativo_coluna_usuario_pedido,
+    created_by:       c.criado_por_coluna_usuario_pedido,
+    created_at:       c.data_criacao_coluna_usuario_pedido,
+    updated_at:       c.data_atualizacao_coluna_usuario_pedido,
   }
 }
 
@@ -100,7 +100,7 @@ export class ColunasUsuarioService {
 
     // 1. Limite de 50 colunas
     const total = await prisma.colunaUsuarioPedido.count({
-      where: { id_organizacao: tenantId, ativo: true },
+      where: { id_organizacao: tenantId, ativo_coluna_usuario_pedido: true },
     })
     if (total >= 50) {
       throw new AppError('Limite de 50 colunas atingido.', 422, 'LIMITE_COLUNAS')
@@ -108,7 +108,7 @@ export class ColunasUsuarioService {
 
     // 2. Nome único por tenant
     const nomeExistente = await prisma.colunaUsuarioPedido.findFirst({
-      where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo: true },
+      where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo_coluna_usuario_pedido: true },
     })
     if (nomeExistente) {
       throw new AppError('Já existe uma coluna com este nome.', 409, 'NOME_DUPLICADO')
@@ -132,9 +132,9 @@ export class ColunasUsuarioService {
     // 4. Calcular próxima ordem
     const maxOrdem = await prisma.colunaUsuarioPedido.aggregate({
       where: { id_organizacao: tenantId },
-      _max: { ordem: true },
+      _max: { ordem_coluna_usuario_pedido: true },
     })
-    const novaOrdem = (maxOrdem._max.ordem ?? 0) + 1
+    const novaOrdem = (maxOrdem._max.ordem_coluna_usuario_pedido ?? 0) + 1
 
     // 5. Criar
     const created = await prisma.colunaUsuarioPedido.create({
@@ -147,12 +147,12 @@ export class ColunasUsuarioService {
         visibilidade_coluna_usuario_pedido: input.visibilidade,
         tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas ?? [],
         obrigatorio_coluna_usuario_pedido: input.obrigatorio ?? false,
-        opcoes:           input.opcoes ?? [],
-        descricao:        input.descricao,
-        valor_padrao:     input.valor_padrao,
-        ordem:            novaOrdem,
-        ativo:            true,
-        created_by:       input.created_by,
+        opcoes_coluna_usuario_pedido:      input.opcoes ?? [],
+        descricao_coluna_usuario_pedido:   input.descricao,
+        valor_padrao_coluna_usuario_pedido: input.valor_padrao,
+        ordem_coluna_usuario_pedido:       novaOrdem,
+        ativo_coluna_usuario_pedido:       true,
+        criado_por_coluna_usuario_pedido:  input.created_by,
       },
     })
     return mapColuna(created)
@@ -164,18 +164,18 @@ export class ColunasUsuarioService {
     const prisma = db as any
 
     const colunas = await prisma.colunaUsuarioPedido.findMany({
-      where: { id_organizacao: tenantId, ativo: true },
-      orderBy: { ordem: 'asc' },
+      where: { id_organizacao: tenantId, ativo_coluna_usuario_pedido: true },
+      orderBy: { ordem_coluna_usuario_pedido: 'asc' },
     })
 
     // Filtra por visibilidade (campos DDD novos)
     const filtradas = colunas.filter((col: {
       visibilidade_coluna_usuario_pedido: string
       tipos_usuario_workspace_permitidos_coluna_usuario_pedido: string[]
-      created_by: string
+      criado_por_coluna_usuario_pedido: string
     }) => {
       if (col.visibilidade_coluna_usuario_pedido === 'todos') return true
-      if (col.visibilidade_coluna_usuario_pedido === 'privado') return col.created_by === userId
+      if (col.visibilidade_coluna_usuario_pedido === 'privado') return col.criado_por_coluna_usuario_pedido === userId
       if (col.visibilidade_coluna_usuario_pedido === 'roles') {
         return col.tipos_usuario_workspace_permitidos_coluna_usuario_pedido.some((r: string) => userRoles.includes(r))
       }
@@ -204,7 +204,7 @@ export class ColunasUsuarioService {
     // Valida nome único (se mudou)
     if (input.nome && input.nome !== coluna.nome_coluna_usuario_pedido) {
       const nomeExistente = await prisma.colunaUsuarioPedido.findFirst({
-        where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo: true, id_coluna_usuario_pedido: { not: id } },
+        where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo_coluna_usuario_pedido: true, id_coluna_usuario_pedido: { not: id } },
       })
       if (nomeExistente) {
         throw new AppError('Já existe uma coluna com este nome.', 409, 'NOME_DUPLICADO')
@@ -219,9 +219,9 @@ export class ColunasUsuarioService {
         visibilidade_coluna_usuario_pedido: input.visibilidade,
         tipos_usuario_workspace_permitidos_coluna_usuario_pedido: input.roles_permitidas,
         obrigatorio_coluna_usuario_pedido: input.obrigatorio,
-        opcoes:           input.opcoes,
-        descricao:        input.descricao,
-        valor_padrao:     input.valor_padrao,
+        opcoes_coluna_usuario_pedido:      input.opcoes,
+        descricao_coluna_usuario_pedido:   input.descricao,
+        valor_padrao_coluna_usuario_pedido: input.valor_padrao,
       },
     })
     return mapColuna(updated)
@@ -241,7 +241,7 @@ export class ColunasUsuarioService {
 
     await prisma.colunaUsuarioPedido.update({
       where: { id_coluna_usuario_pedido: id },
-      data: { ativo: false },
+      data: { ativo_coluna_usuario_pedido: false },
     })
   }
 
@@ -254,7 +254,7 @@ export class ColunasUsuarioService {
       ids.map((id, idx) =>
         prisma.colunaUsuarioPedido.updateMany({
           where: { id_coluna_usuario_pedido: id, id_organizacao: tenantId },
-          data: { ordem: idx + 1 },
+          data: { ordem_coluna_usuario_pedido: idx + 1 },
         }),
       ),
     )

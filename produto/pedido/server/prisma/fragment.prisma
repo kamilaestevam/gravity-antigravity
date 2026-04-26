@@ -539,20 +539,20 @@ model ColunaUsuarioPedido {
   visibilidade_coluna_usuario_pedido String
   tipos_usuario_workspace_permitidos_coluna_usuario_pedido String[] @default([])
   obrigatorio_coluna_usuario_pedido Boolean                    @default(false)
-  opcoes           String[]                   @default([])
-  descricao        String?
-  valor_padrao     String?
-  ordem            Int                        @default(0)
-  ativo            Boolean                    @default(true)
-  created_by       String
-  created_at       DateTime                   @default(now())
-  updated_at       DateTime                   @updatedAt
-  valores          PedidoValorColunaUsuario[]
+  opcoes_coluna_usuario_pedido       String[]                   @default([])
+  descricao_coluna_usuario_pedido    String?
+  valor_padrao_coluna_usuario_pedido String?
+  ordem_coluna_usuario_pedido        Int                        @default(0)
+  ativo_coluna_usuario_pedido        Boolean                    @default(true)
+  criado_por_coluna_usuario_pedido   String
+  data_criacao_coluna_usuario_pedido DateTime                   @default(now())
+  data_atualizacao_coluna_usuario_pedido DateTime               @updatedAt
+  valores_coluna_usuario_pedido      PedidoValorColunaUsuario[] @relation("ColunaValores")
 
   @@unique([id_organizacao, chave_coluna_usuario_pedido])
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
-  @@index([id_organizacao, ativo])
+  @@index([id_organizacao, ativo_coluna_usuario_pedido])
   @@map("coluna_usuario_pedido")
 }
 
@@ -564,7 +564,7 @@ model PedidoValorColunaUsuario {
   vinculo_valor_coluna_usuario_pedido       String
   id_vinculo_valor_coluna_usuario_pedido    String
   valor_coluna_usuario_pedido               String
-  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation(fields: [id_coluna_usuario_pedido], references: [id_coluna_usuario_pedido])
+  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation("ColunaValores", fields: [id_coluna_usuario_pedido], references: [id_coluna_usuario_pedido])
 
   @@unique([id_organizacao, id_coluna_usuario_pedido, id_vinculo_valor_coluna_usuario_pedido])
   @@index([id_organizacao])

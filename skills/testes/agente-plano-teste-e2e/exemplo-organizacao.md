@@ -43,7 +43,7 @@
 | 12 | Filtros / busca | 0 — não aplicável (tela tem 1 registro) | — | 0 (justificado) |
 | 13 | Ordenação | 0 — não aplicável | — | 0 (justificado) |
 | 14 | Permissões / RBAC | 0 | **+6** (USER read-only, ADMIN edita, SUPER deleta tudo) | 6 |
-| 15 | Multi-organização | 0 | **+4** (tipo CRO — vai pro testes-cross-tenant) | 4 |
+| 15 | Multi-organização | 0 | **+4** (tipo CRO — vai pro testes-cross-organização) | 4 |
 | 16 | Acessibilidade | 0 | **+6** (Tab nav, focus visível, aria-label, contraste) | 6 |
 | 17 | Responsividade | 0 | **+4** (375, 768, 1280, dark mode) | 4 |
 | 18 | Internacionalização | 0 | **+4** (PT/EN, formatos data/moeda) | 4 |
@@ -60,7 +60,7 @@
 
 ## Resumo executivo gerado pelo agente
 
-> **Tela de edição da Organização.** Permite alterar dados básicos da empresa (nome, CNPJ, estado, cidade, segmento, tipo) e definir o Workspace padrão. **Risco principal:** vazamento de CNPJ ou edição não-autorizada entre Organizações — por isso a categoria 15 (Isolamento de Organização) tem 4 passos dedicados em `testes-cross-tenant` (nome de pasta legado preservado). **Cobertura: 18/20** — categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis porque a Organização é única e seu ciclo de vida é gerenciado pelo onboarding/cancelamento, não por esta tela. **Criticidade: alta** porque é a porta de entrada para configuração de qualquer Organização — quebra aqui bloqueia todo o resto. **Ambientes:** Local, Staging, Produção (3 obrigatórios). Plano preserva os 63 passos do PDF original do dono e adiciona 59 passos cobrindo validações, permissões via `tipo_usuario`, a11y, i18n, performance e estados.
+> **Tela de edição da Organização.** Permite alterar dados básicos da empresa (nome, CNPJ, estado, cidade, segmento, tipo) e definir o Workspace padrão. **Risco principal:** vazamento de CNPJ ou edição não-autorizada entre Organizações — por isso a categoria 15 (Isolamento de Organização) tem 4 passos dedicados em `testes-cross-organização` (nome de pasta legado preservado). **Cobertura: 18/20** — categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis porque a Organização é única e seu ciclo de vida é gerenciado pelo onboarding/cancelamento, não por esta tela. **Criticidade: alta** porque é a porta de entrada para configuração de qualquer Organização — quebra aqui bloqueia todo o resto. **Ambientes:** Local, Staging, Produção (3 obrigatórios). Plano preserva os 63 passos do PDF original do dono e adiciona 59 passos cobrindo validações, permissões via `tipo_usuario`, a11y, i18n, performance e estados.
 
 ---
 
@@ -249,7 +249,7 @@
 }
 ```
 
-### Categoria 15 — Multi-organização (vai pro testes-cross-tenant)
+### Categoria 15 — Multi-organização (vai pro testes-cross-organização)
 
 ```json
 {
@@ -257,7 +257,7 @@
   "acao": "Organização B tenta GET /api/organizacao com ID da Organização A",
   "categoria": 15,
   "origem": "agente-adicionado",
-  "preCondicoes": ["2 Organizações criadas via fixtures de cross-tenant"],
+  "preCondicoes": ["2 Organizações criadas via fixtures de cross-organização"],
   "interacao": { "tipo": "verificacao" },
   "assercao": { "tipo": "apiResponse", "rota": "/api/organizacao/{idOrganizacaoA}", "status": 404 },
   "resultadoEsperado": "404 — finge que não existe (não 403, pra não vazar existência)",
@@ -318,7 +318,7 @@
   { "categoria": 12, "nome": "Filtros e busca",             "status": "nao_aplicavel", "justificativa": "Tela mostra 1 registro único — não há listagem para filtrar" },
   { "categoria": 13, "nome": "Ordenação",                   "status": "nao_aplicavel", "justificativa": "Sem listagem para ordenar" },
   { "categoria": 14, "nome": "Permissões / RBAC",           "status": "coberta",       "passosAssociados": [109,110,111,112,113,114] },
-  { "categoria": 15, "nome": "Multi-organização / isolamento", "status": "coberta",     "passosAssociados": [115,116,117,118], "notas": "Migra para testes-cross-tenant via tiposAplicaveis: CRO" },
+  { "categoria": 15, "nome": "Multi-organização / isolamento", "status": "coberta",     "passosAssociados": [115,116,117,118], "notas": "Migra para testes-cross-organização via tiposAplicaveis: CRO" },
   { "categoria": 16, "nome": "Acessibilidade",              "status": "coberta",       "passosAssociados": [119,120,121,122,123,124] },
   { "categoria": 17, "nome": "Responsividade",              "status": "coberta",       "passosAssociados": [125,126,127,128] },
   { "categoria": 18, "nome": "Internacionalização",         "status": "coberta",       "passosAssociados": [129,130,131,132] },

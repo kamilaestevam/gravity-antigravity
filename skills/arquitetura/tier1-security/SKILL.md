@@ -6,9 +6,9 @@ description: Regras Invioláveis de Arquitetura de Banco de Dados B2B e Prevenç
 # 🛡️ Padrão Ouro de Segurança: Gravity Platform (Tier 1)
 
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
+> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 >
-> **Nomes técnicos preservados:** o pacote npm `@gravity/tenant-resolver`, o prefixo de schema PostgreSQL `tenant_<cuid>` e a API `req.tenant.tenantId` continuam sendo identificadores reais. Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
+> **Nomes técnicos preservados:** o pacote npm `@gravity/tenant-resolver`, o prefixo de schema PostgreSQL `tenant_<cuid>` e a API `req.organizacao.idOrganizacao` continuam sendo identificadores reais. Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
 
 Você está trabalhando num ecossistema B2B Multi-Organização da Gravity. Vazamentos de dados cruzados entre Organizações (ex: Organização A vendo a Fatura ou DUIMP da Organização B) representam um Incidente de Severidade Crítica (Tier 1 Incident).
 **Siga as diretrizes abaixo religiosamente sob risco de corromper a plataforma.**
@@ -86,7 +86,6 @@ model Fatura {
 }
 ```
 
-Durante a janela de migração (Fases 2-3 do ADR-003), `id_organizacao` permanece em coluna por causa do dual-write. **Após Fase 4, é removido.**
 
 ### RLS NÃO é mais a defesa primária em produtos
 
@@ -138,16 +137,16 @@ it('crash do handler não polui search_path da próxima request', async () => {
 });
 ```
 
-### 4.2 Linter de Tenant Safety (CI bloqueia deploy)
+### 4.2 Linter de Organização Safety (CI bloqueia deploy)
 
-> O nome do linter (`Tenant Safety`) é mantido — referencia o pacote real `@gravity/tenant-resolver` e o prefixo físico `tenant_<cuid>`.
+> O nome do linter (`Organização Safety`) é mantido — referencia o pacote real `@gravity/tenant-resolver` e o prefixo físico `tenant_<cuid>`.
 
-Falha o build se detectar em `produto/*/server/` ou `servicos-global/tenant/*/server/`:
+Falha o build se detectar em `produto/*/server/` ou `servicos-global/organização/*/server/`:
 
 - `import { PrismaClient } from '@prisma/client'`
 - `new PrismaClient(`
 - Acesso ao banco fora de `withTenant` ou `withTenantContext`
-- Chave de cache sem prefixo `tenant:<id>:` ou `tenant:_global:` (com justificativa) — prefixo do SDK mantido por compatibilidade
+- Chave de cache sem prefixo `organização:<id>:` ou `organização:_global:` (com justificativa) — prefixo do SDK mantido por compatibilidade
 
 ---
 
@@ -176,14 +175,14 @@ Cada iteração abre transação isolada. Falha em uma organização não polui 
 A proteção se aplica fora do banco isolando blobs e cache.
 
 ### Key-Value Cache (Redis ou in-memory)
-**OBRIGATÓRIO** prefixo de organização em toda chave. Linter CI bloqueia chaves sem o prefixo (o prefixo `tenant:` é mantido por compatibilidade do SDK).
+**OBRIGATÓRIO** prefixo de organização em toda chave. Linter CI bloqueia chaves sem o prefixo (o prefixo `organização:` é mantido por compatibilidade do SDK).
 
 ```typescript
 // ✅ correto
-await redis.set(`tenant:${idOrganizacao}:produtos:${id}`, payload);
+await redis.set(`organização:${idOrganizacao}:produtos:${id}`, payload);
 
 // ✅ correto — cache global explícito
-await redis.set(`tenant:_global:ncm:8471.30`, payload);
+await redis.set(`organização:_global:ncm:8471.30`, payload);
 
 // ❌ proibido
 await redis.set(`produtos:${id}`, payload);
@@ -200,8 +199,8 @@ PDFs de Fatura Comercial são estritamente privados (S3 Public ACL = off).
 ## 7. Endpoints Administrativos `/admin/*`
 
 Rotas administrativas exigem:
-- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (de `req.tenant.roles`, vindo do `GET /api/v1/me` — Mandamento 01)
-- Header `x-target-tenant-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
+- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (de `req.organizacao.roles`, vindo do `GET /api/v1/me` — Mandamento 01)
+- Header `x-target-organização-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
 - Validação dupla pelo SDK: usuário tem permissão **E** organização alvo existe e está ativa
 - Log especial `admin_action: true`, ingerido pela aba "Eventos de Segurança"
 

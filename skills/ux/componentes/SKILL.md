@@ -1,6 +1,6 @@
 ---
 name: antigravity-componentes
-description: "Use esta skill sempre que um agente precisar decidir qual componente global usar em uma situação específica. É um catálogo de decisão: dada uma necessidade de interface ou funcionalidade, aponta qual componente do nucleo-global ou serviço de organização usar, como importar e quando NÃO usar cada um. Não documenta implementação detalhada — para isso consultar antigravity-nucleo-global ou antigravity-servicos-tenant."
+description: "Use esta skill sempre que um agente precisar decidir qual componente global usar em uma situação específica. É um catálogo de decisão: dada uma necessidade de interface ou funcionalidade, aponta qual componente do nucleo-global ou serviço de organização usar, como importar e quando NÃO usar cada um. Não documenta implementação detalhada — para isso consultar antigravity-nucleo-global ou antigravity-servicos-organização."
 ---
 
 # Gravity — Catálogo de Componentes
@@ -224,7 +224,7 @@ on('venda-concluida', (dados) => { ... })
 ```typescript
 // Declarar no PRODUCT_CONFIG
 tenantServices: ['activities']
-navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'tenant' }]
+navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'organização' }]
 // O shell carrega automaticamente via lazy loading
 ```
 **NÃO usar** para checklists internos de formulário ou steps de wizard.

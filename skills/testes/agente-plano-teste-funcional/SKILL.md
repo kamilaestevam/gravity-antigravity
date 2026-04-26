@@ -122,7 +122,7 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 ```
 
 ### 3. Middleware de Auth
-*Arquivo: `requireAuth.ts`, `requireInternalKey.ts`, middleware de tenant*
+*Arquivo: `requireAuth.ts`, `requireInternalKey.ts`, middleware de organização*
 
 **O que testa:**
 - Token válido → `req.auth` enriquecido com `{ idUsuario, idOrganizacao, clerkUserId, tipoUsuario }` (DDD — Mandamento 03)
@@ -132,26 +132,26 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 - Cache miss: token novo → banco consultado e resultado cacheado
 - Fallback por email: `clerk_user_id` null → busca por `email_usuario`
 - Email com múltiplos matches → erro de conflito
-- `x-internal-key` ausente/inválido → `401` (para rotas S2S)
-- `x-internal-key` válido → `req.auth` S2S injetado
+- `x-chave-interna` ausente/inválido → `401` (para rotas S2S)
+- `x-chave-interna` válido → `req.auth` S2S injetado
 
 ### 4. Isolamento de Organização (Cross-Organização)
-*Arquivo: qualquer rota com `WHERE id_organizacao = req.tenant.tenantId` (campo Prisma DDD)*
+*Arquivo: qualquer rota com `WHERE id_organizacao = req.organizacao.idOrganizacao` (campo Prisma DDD)*
 
 **O que testa:**
-- WHERE da query Prisma **sempre** inclui o campo Prisma DDD de Organização (`id_organizacao: req.tenant.tenantId`)
+- WHERE da query Prisma **sempre** inclui o campo Prisma DDD de Organização (`id_organizacao: req.organizacao.idOrganizacao`)
 - Token da Organização A não consegue ler dados da Organização B (mesmo com ID válido)
 - URL `GET /recurso/:id` com ID de outra Organização → `404` (não `403` — não vazar existência)
-- `POST` com `idOrganizacao` no body diferente de `req.tenant.tenantId` → o body é ignorado; `idOrganizacao` vem SEMPRE do JWT/middleware (Mandamento 01)
+- `POST` com `idOrganizacao` no body diferente de `req.organizacao.idOrganizacao` → o body é ignorado; `idOrganizacao` vem SEMPRE do JWT/middleware (Mandamento 01)
 - Mock com 2 Organizações distintas → verificar que cada query filtra pela Organização correta
 
-> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String @map("tenant_id")` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). O header HTTP `x-tenant-id` e o campo da API atual `req.tenant.tenantId` são contratos externos preservados (semântica: Organização). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
+> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). O header HTTP `x-organização-id` e o campo da API atual `req.organizacao.idOrganizacao` são contratos externos preservados (semântica: Organização). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
 
 **Padrão de mock:**
 ```typescript
 function headersForOrganizacao(idOrganizacao: string, idUsuario: string) {
   // headers HTTP mantêm nomes históricos por compatibilidade de protocolo
-  return { 'x-internal-validated': '1', 'x-tenant-id': idOrganizacao, 'x-user-id': idUsuario }
+  return { 'x-internal-validated': '1', 'x-organização-id': idOrganizacao, 'x-user-id': idUsuario }
 }
 
 // Verificar WHERE clause (campo Prisma DDD)
@@ -213,7 +213,7 @@ const resUser = await request(app).post('/api/v1/usuarios').send({ ...userPayloa
 *Arquivo: rota que faz `fetch` para outro serviço interno*
 
 **O que testa:**
-- Chamada outbound usa `x-internal-key` correto no header
+- Chamada outbound usa `x-chave-interna` correto no header
 - URL de destino correta (não hardcoded, via `process.env`)
 - Response do serviço B 2xx → rota A retorna 2xx
 - Response do serviço B 4xx → rota A retorna erro adequado (não expõe detalhes internos)
@@ -226,7 +226,7 @@ vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(
 ))
 const [url, opts] = (fetch as ReturnType<typeof vi.fn>).mock.calls[0]
 expect(url).toContain('/api/v1/recurso')
-expect((opts.headers as Record<string, string>)['x-internal-key']).toBeTruthy()
+expect((opts.headers as Record<string, string>)['x-chave-interna']).toBeTruthy()
 ```
 
 ### 8. Script CLI / Migração
@@ -387,7 +387,7 @@ expect(res.body.error.stack).toBeUndefined()  // stack trace não vaza
 ```
 
 ### 8. Isolamento de Organização: verificar o WHERE da query, não só o status HTTP
-Verificar `mockFindMany.mock.calls[0][0].where.id_organizacao === req.tenant.tenantId` (campo Prisma DDD; `req.tenant.tenantId` é o nome legado da API atual do SDK — semântica: `idOrganizacao`). Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
+Verificar `mockFindMany.mock.calls[0][0].where.id_organizacao === req.organizacao.idOrganizacao` (campo Prisma DDD; `req.organizacao.idOrganizacao` é o nome legado da API atual do SDK — semântica: `idOrganizacao`). Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
 
 ### 9. Contrato de API: validar response contra schema Zod
 Para rotas com `tipoModulo: 'contrato_api'`, todo teste de happy path valida `schema.safeParse(res.body).success === true`.
@@ -411,7 +411,7 @@ Se já existem `.test.ts` para o módulo, o agente lê e marca casos existentes 
 Fluxos multi-step, módulos de billing, isolamento crítico, integrações com Clerk/Resend/Meta WhatsApp/Gemini: SME revisa antes de aprovar. Registrar `smeRevisadoPor` e `smeRevisadoEm`.
 
 ### 16. Mock de fetch para chamadas cross-service
-Quando a rota chama outro serviço via fetch, o plano declara o mock de fetch e verifica: URL correta, `x-internal-key` presente, corpo correto. Nunca chamar o serviço real em teste funcional.
+Quando a rota chama outro serviço via fetch, o plano declara o mock de fetch e verifica: URL correta, `x-chave-interna` presente, corpo correto. Nunca chamar o serviço real em teste funcional.
 
 ---
 
@@ -457,7 +457,7 @@ Quando a rota chama outro serviço via fetch, o plano declara o mock de fetch e 
 |---|---|
 | Todos os endpoints cobertos | 100% |
 | Happy + sad + 401 + 500 por endpoint | 100% |
-| WHERE de tenant verificado nas queries | 100% dos endpoints com dados |
+| WHERE de organização verificado nas queries | 100% dos endpoints com dados |
 | Contratos Zod validados | 100% dos endpoints com response schema |
 | Aceitação humana sem edição | ≥85% dos planos |
 | Tempo de geração | ≤25s por módulo |
@@ -480,13 +480,13 @@ testes/testes-funcionais/
 ├── infra/
 │   └── migrate-tenants/
 │       └── shared.funcional.test.ts
-└── tenant/
+└── organização/
     └── notificacoes/
         └── notificacoes.funcional.test.ts
 
-testes/testes-cross-tenant/
+testes/testes-cross-organização/
 └── notificacoes/
-    └── notificacoes.cross-tenant.test.ts
+    └── notificacoes.cross-organização.test.ts
 
 servicos-global/configurador/server/__tests__/
 ├── setup.ts                              ← setupFiles global

@@ -1,6 +1,6 @@
 ---
 name: antigravity-service-registry
-description: "Use esta skill sempre que uma tarefa envolver a declaração de serviços no PRODUCT_CONFIG de um produto, configuração da navegação do shell, ou decisão sobre qual serviço um produto deve usar. Define como declarar serviços no config.ts, a diferença entre source tenant e source product, e como o shell consome a navegação."
+description: "Use esta skill sempre que uma tarefa envolver a declaração de serviços no PRODUCT_CONFIG de um produto, configuração da navegação do shell, ou decisão sobre qual serviço um produto deve usar. Define como declarar serviços no config.ts, a diferença entre source organização e source product, e como o shell consome a navegação."
 ---
 
 # Gravity — Service Registry
@@ -8,7 +8,7 @@ description: "Use esta skill sempre que uma tarefa envolver a declaração de se
 ## O Que é o Service Registry
 
 O **PRODUCT_CONFIG** em `src/shared/config.ts` é a fonte de verdade de um produto. Ele declara:
-- Quais serviços de tenant o produto usa
+- Quais serviços de organização o produto usa
 - Quais serviços de produto (templates) o produto instancia
 - Como a navegação lateral é montada pelo shell
 
@@ -25,14 +25,14 @@ export interface NavigationItem {
   id: string         // identificador único da seção
   label: string      // texto exibido na sidebar
   icon: string       // nome do ícone (biblioteca do design system)
-  source: 'product' | 'tenant'  // de onde vem o componente
+  source: 'product' | 'organização'  // de onde vem o componente
 }
 
 export const PRODUCT_CONFIG = {
   id: '[nome-do-produto]',    // identificador único no ecossistema
   name: '[Nome do Produto]',  // nome exibido na interface
 
-  // Serviços de tenant que este produto usa
+  // Serviços de organização que este produto usa
   // O proxy será configurado automaticamente para estes serviços
   tenantServices: [
     'activities',
@@ -54,33 +54,33 @@ export const PRODUCT_CONFIG = {
     // Pages específicas do produto (source: 'product')
     { id: '[pagina-1]', label: '[Label]', icon: '[icon]', source: 'product' },
 
-    // Serviços de tenant (source: 'tenant')
-    { id: 'activities', label: 'Atividades', icon: 'check-circle',   source: 'tenant' },
-    { id: 'email',      label: 'Email',      icon: 'mail',           source: 'tenant' },
-    { id: 'whatsapp',   label: 'WhatsApp',   icon: 'message-circle', source: 'tenant' },
+    // Serviços de organização (source: 'organização')
+    { id: 'activities', label: 'Atividades', icon: 'check-circle',   source: 'organização' },
+    { id: 'email',      label: 'Email',      icon: 'mail',           source: 'organização' },
+    { id: 'whatsapp',   label: 'WhatsApp',   icon: 'message-circle', source: 'organização' },
 
     // Serviços de produto (source: 'product')
     { id: 'helpdesk', label: 'Helpdesk', icon: 'headphones', source: 'product' },
 
-    // Serviços de tenant de consolidação
-    { id: 'dashboard', label: 'Dashboard',  icon: 'layout',    source: 'tenant' },
-    { id: 'reports',   label: 'Relatórios', icon: 'bar-chart', source: 'tenant' },
-    { id: 'history',   label: 'Histórico',  icon: 'clock',     source: 'tenant' },
-    { id: 'schedule',  label: 'Agenda',     icon: 'calendar',  source: 'tenant' },
-    { id: 'gabi',      label: 'Gabi',       icon: 'cpu',       source: 'tenant' },
+    // Serviços de organização de consolidação
+    { id: 'dashboard', label: 'Dashboard',  icon: 'layout',    source: 'organização' },
+    { id: 'reports',   label: 'Relatórios', icon: 'bar-chart', source: 'organização' },
+    { id: 'history',   label: 'Histórico',  icon: 'clock',     source: 'organização' },
+    { id: 'schedule',  label: 'Agenda',     icon: 'calendar',  source: 'organização' },
+    { id: 'gabi',      label: 'Gabi',       icon: 'cpu',       source: 'organização' },
   ] satisfies NavigationItem[]
 } as const
 ```
 
 ---
 
-## A Diferença entre source: tenant e source: product
+## A Diferença entre source: organização e source: product
 
-### `source: 'tenant'`
-- O componente React vem de `servicos-global/tenant/[servico]/src/`
-- O backend roda no servidor de tenant — não no servidor do produto
-- O produto acessa via proxy: `/api/tenant/[servico]`
-- Os dados pertencem à empresa (tenant), não ao produto
+### `source: 'organização'`
+- O componente React vem de `servicos-global/organização/[servico]/src/`
+- O backend roda no servidor de organização — não no servidor do produto
+- O produto acessa via proxy: `/api/organização/[servico]`
+- Os dados pertencem à empresa (organização), não ao produto
 - **Quando usar:** email, atividades, whatsapp, dashboard, relatórios, histórico, agenda, gabi
 
 ### `source: 'product'`
@@ -99,25 +99,25 @@ export const PRODUCT_CONFIG = {
 import { lazy, Suspense } from 'react'
 import type { NavigationItem } from '../types'
 
-// Módulos de tenant — carregados via lazy loading
+// Módulos de organização — carregados via lazy loading
 const tenantModules: Record<string, React.LazyExoticComponent<React.FC>> = {
-  activities: lazy(() => import('@tenant/atividades/src/Atividades')),
-  email:      lazy(() => import('@tenant/email/src/Email')),
-  whatsapp:   lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
-  dashboard:  lazy(() => import('@tenant/dashboard/src/Dashboard')),
-  reports:    lazy(() => import('@tenant/relatorios/src/Relatorios')),
-  history:    lazy(() => import('@tenant/historico/src/Historico')),
-  schedule:   lazy(() => import('@tenant/agendamento/src/Agendamento')),
-  gabi:       lazy(() => import('@tenant/gabi/src/Gabi')),
+  activities: lazy(() => import('@organização/atividades/src/Atividades')),
+  email:      lazy(() => import('@organização/email/src/Email')),
+  whatsapp:   lazy(() => import('@organização/whatsapp/src/WhatsApp')),
+  dashboard:  lazy(() => import('@organização/dashboard/src/Dashboard')),
+  reports:    lazy(() => import('@organização/relatorios/src/Relatorios')),
+  history:    lazy(() => import('@organização/historico/src/Historico')),
+  schedule:   lazy(() => import('@organização/agendamento/src/Agendamento')),
+  gabi:       lazy(() => import('@organização/gabi/src/Gabi')),
 }
 
 export function renderModule(
   item: NavigationItem,
   productPages: Record<string, React.LazyExoticComponent<React.FC>>
 ) {
-  // source: 'tenant'  → carrega do tenantModules
+  // source: 'organização'  → carrega do tenantModules
   // source: 'product' → carrega das pages do produto
-  const Component = item.source === 'tenant'
+  const Component = item.source === 'organização'
     ? tenantModules[item.id]
     : productPages[item.id]
 
@@ -137,19 +137,19 @@ export function renderModule(
 
 ```typescript
 // produtos/[nome-do-produto]/server/index.ts
-import { createTenantProxy } from '@tenant/proxy'
+import { createTenantProxy } from '@organização/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
-// Proxy automático para todos os serviços de tenant declarados
-app.use('/api/tenant', createTenantProxy({
+// Proxy automático para todos os serviços de organização declarados
+app.use('/api/organização', createTenantProxy({
   baseUrl: process.env.TENANT_SERVICES_URL!,
   services: PRODUCT_CONFIG.tenantServices
 }))
 
 // O proxy monta automaticamente:
-// /api/tenant/activities → tenant-services/api/v1/activities
-// /api/tenant/email      → tenant-services/api/v1/email
-// /api/tenant/whatsapp   → tenant-services/api/v1/whatsapp
+// /api/organização/activities → organização-services/api/v1/activities
+// /api/organização/email      → organização-services/api/v1/email
+// /api/organização/whatsapp   → organização-services/api/v1/whatsapp
 // etc.
 ```
 
@@ -157,7 +157,7 @@ app.use('/api/tenant', createTenantProxy({
 
 ## Catálogo de Serviços Disponíveis
 
-### Serviços de Tenant — usar com `source: 'tenant'`
+### Serviços de Organização — usar com `source: 'organização'`
 
 | id | label sugerido | icon sugerido | O que faz |
 |:---|:---|:---|:---|
@@ -183,19 +183,19 @@ app.use('/api/tenant', createTenantProxy({
 
 - Todo item de `navigation` deve ter `source` explícito — nunca implícito
 - A ordem em `navigation` define a ordem de exibição na sidebar
-- Itens com `source: 'tenant'` devem estar em `tenantServices`
+- Itens com `source: 'organização'` devem estar em `tenantServices`
 - Itens com `source: 'product'` e que são templates devem estar em `productServices`
 - Pages específicas do produto (`source: 'product'`) não precisam de entrada em `productServices`
-- Não declarar serviços de tenant que o produto não usa — gera proxy desnecessário
+- Não declarar serviços de organização que o produto não usa — gera proxy desnecessário
 
 ---
 
 ## Checklist — Antes de Finalizar o PRODUCT_CONFIG
 
 - [ ] `id` do produto é único no ecossistema?
-- [ ] Todos os itens de `navigation` com `source: 'tenant'` estão em `tenantServices`?
+- [ ] Todos os itens de `navigation` com `source: 'organização'` estão em `tenantServices`?
 - [ ] Todos os templates de serviço de produto estão em `productServices`?
-- [ ] Nenhum serviço de tenant declarado que o produto não vai usar?
+- [ ] Nenhum serviço de organização declarado que o produto não vai usar?
 - [ ] Ordem da `navigation` reflete a ordem desejada na sidebar?
 - [ ] Todos os `icon` usam nomes da biblioteca de ícones do design system?
 - [ ] `satisfies NavigationItem[]` presente para garantir tipagem?

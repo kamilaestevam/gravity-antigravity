@@ -53,7 +53,7 @@ Produto valida token via @clerk/backend
 
 ```text
 servicos-global/
-├── tenant/
+├── organização/
 ├── produto/
 ├── marketplace/
 ├── configurador/   ← AQUI
@@ -242,7 +242,7 @@ Retorna campos com nomes DDD em Português:
 - `GET /api/v1/plans` — listar planos
 - `GET /api/v1/billing/invoices` — histórico de faturas
 
-### APIs Internas (x-internal-key obrigatória)
+### APIs Internas (x-chave-interna obrigatória)
 - `POST /api/internal/validate-session` — valida ticket do gateway
 - `GET /api/internal/check-access` — checa acesso ao produto/workspace
 - `GET /api/internal/product-permissions` — busca definições do produto
@@ -342,7 +342,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
   syncRoleToClerk: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/tenant/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/organização/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
 }))
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({

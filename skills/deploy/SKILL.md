@@ -16,8 +16,8 @@ Regras fundamentais:
 
 Ordem de deploy (dependências):
 1. configurador (sem dependências)
-2. tenant-services (depende de configurador)
-3. produtos (depende de configurador + tenant-services)
+2. organização-services (depende de configurador)
+3. produtos (depende de configurador + organização-services)
 4. marketplace (sem dependências, qualquer momento)
 
 Após cada deploy: verificar health check antes de prosseguir.

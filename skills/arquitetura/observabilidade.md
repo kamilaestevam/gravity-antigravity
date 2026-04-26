@@ -26,7 +26,7 @@ Substituia `<RAILWAY_DOMAIN>` pelo domínio gerado pelo Railway para cada servi�
 | Serviço        | Porta | URL de monitoramento (Railway)                          | Caminho       |
 |----------------|-------|---------------------------------------------------------|---------------|
 | configurador   | 8005  | `https://configurador.<RAILWAY_DOMAIN>/health`          | `/health`     |
-| tenant-server  | 3001  | `https://tenant.<RAILWAY_DOMAIN>/health`                | `/health`     |
+| organização-server  | 3001  | `https://organização.<RAILWAY_DOMAIN>/health`                | `/health`     |
 | api-cockpit    | 8016  | `https://api-cockpit.<RAILWAY_DOMAIN>/health`           | `/health`     |
 | conector-erp   | 8017  | `https://conector-erp.<RAILWAY_DOMAIN>/health`          | `/health`     |
 | simula-custo   | 8020  | `https://simula-custo.<RAILWAY_DOMAIN>/health`          | `/health`     |
@@ -39,7 +39,7 @@ Substituia `<RAILWAY_DOMAIN>` pelo domínio gerado pelo Railway para cada servi�
 | pedido         | 8030  | `https://pedido.<RAILWAY_DOMAIN>/health`                | `/health`     |
 | marketplace    | 8001  | `https://marketplace.<RAILWAY_DOMAIN>/`                 | `/`           |
 
-> **Nota:** Os 11 serviços da organização (atividades, cronômetro, email, gabi, dashboard, relatórios, histórico, notificações, agendamento, preferências, whatsapp) rodam no **super-servidor** (porta 3001) sob o caminho real `servicos-global/tenant/`. Um único monitor no `/health` cobre todos — a resposta inclui lista de serviços ativos.
+> **Nota:** Os 11 serviços da organização (atividades, cronômetro, email, gabi, dashboard, relatórios, histórico, notificações, agendamento, preferências, whatsapp) rodam no **super-servidor** (porta 3001) sob o caminho real `servicos-global/organização/`. Um único monitor no `/health` cobre todos — a resposta inclui lista de serviços ativos.
 
 ### Alertas UptimeRobot
 - Criar **Alert Contact** por e-mail/Slack para o time.

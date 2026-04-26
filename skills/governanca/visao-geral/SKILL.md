@@ -57,7 +57,7 @@ Gravity é uma plataforma multi-organização SaaS B2B modular. Uma empresa (org
 |:---|:---|
 | Resend | Envio de emails transacionais |
 | Meta / WhatsApp Cloud API | Integração de WhatsApp |
-| OpenAI | Motor da Gabi (assistente de IA do tenant) |
+| OpenAI | Motor da Gabi (assistente de IA do organização) |
 | NF-e APIs | Emissão e importação de notas fiscais |
 
 ### Infraestrutura e Deploy
@@ -89,7 +89,7 @@ gravity/
 │   └── utils/                  ← helpers compartilhados
 │
 ├── servicos-global/
-│   ├── tenant/                 ← serviços que existem uma vez por empresa
+│   ├── organização/                 ← serviços que existem uma vez por empresa
 │   │   ├── atividades/
 │   │   ├── cronometro/
 │   │   ├── email/
@@ -116,14 +116,14 @@ gravity/
 │   │   └── server/             ← Express + Prisma
 │   └── nf-importacao/          ← próximo produto
 │
-└── scripts/                    ← compose-tenant-schema.ts, compose-schema.js
+└── scripts/                    ← compose-organização-schema.ts, compose-schema.js
 ```
 
 ### Aliases TypeScript
 
 ```typescript
 @nucleo/*   → nucleo-global/*
-@tenant/*   → servicos-global/tenant/*       (alias técnico real — manter)
+@organização/*   → servicos-global/organização/*       (alias técnico real — manter)
 @produto/*  → servicos-global/produto/*
 ```
 
@@ -177,7 +177,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 - Existe **uma vez por empresa (organização)**, independente de quantos produtos ela use
 - **Todos os 11 serviços rodam em processo único — super-servidor por organização (porta 3001)**
-- Banco de dados próprio compartilhado entre os 11 serviços (`tenant-db`)
+- Banco de dados próprio compartilhado entre os 11 serviços (`organização-db`)
 - Acessado por todos os produtos via API REST (`/api/v1/[servico]` na porta 3001)
 - Dados isolados por **Schema-per-Organização** (PostgreSQL `tenant_<cuid>`) e opcionalmente `id_produto`
 - Acesso ao banco exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`
@@ -196,7 +196,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Banco | Pertence a | Modelo | O que armazena |
 |:---|:---|:---|:---|
 | `configurador-db` | Configurador | single-schema `public` | Organizações, Workspaces, Usuários, permissões (fonte global) |
-| `tenant-db` | Serviços por organização | **Schema-per-Organização** (`tenant_<cuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
+| `organização-db` | Serviços por organização | **Schema-per-Organização** (`tenant_<cuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
 | `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **Schema-per-Organização** | Dados isolados em schema próprio por organização |
 
 **Regras:**
@@ -216,7 +216,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 - **Acesso ao banco de produto:** **exclusivamente via `withTenant(req, db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia).
 - **Validação:** nenhuma rota Express sem schema Zod (Mandamento 06)
 - **Erros:** toda rota lança `AppError` — o handler global responde
-- **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-internal-key` em toda chamada entre serviços. **Clerk APENAS para autenticação** (Mandamento 01).
+- **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-chave-interna` em toda chamada entre serviços. **Clerk APENAS para autenticação** (Mandamento 01).
 - **Autorização:** vem do Prisma via `GET /api/v1/me` (cacheado pelo SDK). PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões.
 - **DDD obrigatório** (Mandamento 03): payloads, props e variáveis usam `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `is_gravity_admin`.
 
@@ -232,9 +232,9 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Ambiente de trabalho (porta, navegador) | `antigravity-ambiente` |
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
-| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-tenant` |
-| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-tenant-isolation` |
-| Auth entre serviços (`x-internal-key`, JWT) | `antigravity-autenticacao-s2s` |
+| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-organização` |
+| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-organização-isolation` |
+| Auth entre serviços (`x-chave-interna`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
 | Permissões de usuário (`tipo_usuario`, granulares, produtos) | `antigravity-permissoes` |
 | Papel do Coordenador, checklists de onda | `antigravity-coordenador` |

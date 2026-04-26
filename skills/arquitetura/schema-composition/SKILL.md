@@ -6,9 +6,9 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 # Gravity — Schema Composition (pós-pivô 2026-04-17)
 
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 >
-> **Notas sobre nomes técnicos preservados:** o prefixo de schema PostgreSQL `tenant_<cuid>` é nome físico real; `@map("tenant_id")` é a coluna física antiga durante a janela de migração — o **campo Prisma é sempre `id_organizacao`** (DDD). Os ADRs mantêm os nomes de arquivo originais.
+> **Notas sobre nomes técnicos preservados:** o prefixo de schema PostgreSQL `tenant_<cuid>` é nome físico real; `` é a coluna física antiga durante a janela de migração — o **campo Prisma é sempre `id_organizacao`** (DDD). Os ADRs mantêm os nomes de arquivo originais.
 
 ---
 
@@ -16,8 +16,8 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 
 | Antes (pré-pivô) | Depois (pós-pivô 2026-04-17) |
 |:---|:---|
-| 1 banco `tenant-db` compartilhado por todos os serviços da Organização | Cada produto e o serviço-de-organização compartilhado têm seu **próprio banco** com **N schemas (1 por Organização)** |
-| Models tinham `id_organizacao String @map("tenant_id")` + 3 índices `@@index([id_organizacao, ...])` | Models de produto **não têm campo de Organização**. O **schema é a Organização**. |
+| 1 banco `organização-db` compartilhado por todos os serviços da Organização | Cada produto e o serviço-de-organização compartilhado têm seu **próprio banco** com **N schemas (1 por Organização)** |
+| Models tinham `id_organizacao String` + 3 índices `@@index([id_organizacao, ...])` | Models de produto **não têm campo de Organização**. O **schema é a Organização**. |
 | Coordenador compunha schema unificado de todos os serviços da Organização | Coordenador compõe schema **por produto** (base + fragments dos serviços de produto) — não há mais "schema unificado de Organização" |
 | RLS PostgreSQL como defesa secundária | RLS apenas no Configurador. Em produtos, isolamento via `SET LOCAL search_path` no `withTenant` |
 | `prisma migrate dev` aplicava em 1 schema | `scripts/ativamente/migrate-all-tenants.ts` aplica migration em **N schemas** (nome do script preservado por compatibilidade) |
@@ -31,7 +31,7 @@ DB configurador          ← single-schema "public"
   └── organizacoes, usuarios, billing, permissões, plans
       (fonte de verdade global de identidade)
 
-DB tenant-shared         ← schema-per-Organização (nome do banco mantido por compatibilidade)
+DB organização-shared         ← schema-per-Organização (nome do banco mantido por compatibilidade)
   ├── schema "tenant_<cuid_A>" → atividades, email, whatsapp, ... da Organização A
   ├── schema "tenant_<cuid_B>" → atividades, email, whatsapp, ... da Organização B
   └── schema "public"          → tabelas globais (ex: ncm_catalog se houver)
@@ -89,7 +89,7 @@ enum FaturaStatus {
 // ❌ proibido pós-pivô — o schema é a Organização
 model Fatura {
   id              String @id
-  id_organizacao  String @map("tenant_id")    // ← REMOVER (campo + coluna física legada)
+  id_organizacao  String    // ← REMOVER (campo + coluna física legada)
   numero          String
 
   @@index([id_organizacao])                       // ← REMOVER
@@ -100,7 +100,7 @@ model Fatura {
 
 ### Janela transitória (Fases 2-3 do ADR-003)
 
-Durante o dual-write, o campo Prisma `id_organizacao` (com `@map("tenant_id")` apontando para a coluna física antiga) permanece nas tabelas por compatibilidade. **Após Fase 4 (Cleanup), o campo e a coluna são removidos via migration**. Não escreva código novo confiando em `id_organizacao` em produto — sempre use o schema isolado pelo SDK.
+Durante o dual-write, o campo Prisma `id_organizacao` (com `` apontando para a coluna física antiga) permanece nas tabelas por compatibilidade. **Após Fase 4 (Cleanup), o campo e a coluna são removidos via migration**. Não escreva código novo confiando em `id_organizacao` em produto — sempre use o schema isolado pelo SDK.
 
 ---
 
@@ -119,10 +119,10 @@ servicos-global/produto/helpdesk/prisma/
 └── fragment.prisma         ← composto no schema do produto que usar helpdesk
 ```
 
-### Para o tenant-shared (compartilhado entre serviços da Organização)
+### Para o organização-shared (compartilhado entre serviços da Organização)
 
 ```text
-servicos-global/tenant/prisma/
+servicos-global/organização/prisma/
 ├── schema.base.prisma                   ← datasource + generator
 ├── atividades/prisma/fragment.prisma
 ├── email/prisma/fragment.prisma
@@ -130,7 +130,7 @@ servicos-global/tenant/prisma/
 └── schema.prisma                         ← composto (base + N fragments)
 ```
 
-> **Regra:** `tenant-shared` (nome do diretório mantido por compatibilidade) continua tendo composição via fragments porque os serviços da Organização são desenvolvidos em paralelo. Mas o resultado é aplicado em **cada schema `tenant_<cuid>`** via orquestrador, não em uma única tabela global.
+> **Regra:** `organização-shared` (nome do diretório mantido por compatibilidade) continua tendo composição via fragments porque os serviços da Organização são desenvolvidos em paralelo. Mas o resultado é aplicado em **cada schema `tenant_<cuid>`** via orquestrador, não em uma única tabela global.
 
 ---
 
@@ -165,7 +165,7 @@ Executado pelo Coordenador antes de `prisma generate` e antes do orquestrador de
 
 ## O Orquestrador de Migrations — `migrate-all-tenants.ts`
 
-Migrations aplicam em **N schemas** (1 por tenant ativo):
+Migrations aplicam em **N schemas** (1 por organização ativo):
 
 ```typescript
 // scripts/ativamente/migrate-all-tenants.ts
@@ -217,7 +217,7 @@ async function migrateAllTenants({ databaseUrl, migrationName }: MigrateArgs) {
 Não é responsabilidade do agente que escreve a feature. Quando o Configurador emite `TenantProvisioned` (nome do evento mantido por compatibilidade do SDK):
 
 ```typescript
-// servicos-global/tenant/provisioner/worker.ts (consome o evento)
+// servicos-global/organização/provisioner/worker.ts (consome o evento)
 async function onTenantProvisioned({ idOrganizacao, products }: TenantProvisionedEvent) {
   for (const product of products) {
     const dbUrl = getProductDbUrl(product)
@@ -306,7 +306,7 @@ Se qualquer etapa falhar → Coordenador notifica o agente responsável com o er
 - [ ] Models não têm `@@index([id_organizacao, ...])` (o schema isola fisicamente)
 - [ ] Nomes de models e enums não colidem com outros fragments
 - [ ] Nenhuma relação com models de outros fragments (use IDs cruzados ou peça ao Coordenador para arbitrar)
-- [ ] **`@@map("tabela_snake_case")` declarado em todo model** (PascalCase Prisma + snake_case PG). `@map` de coluna: só para colunas físicas legadas durante janela de migração (ex.: `@map("tenant_id")`). Colunas novas seguem DDD direto com paridade Prisma↔PG.
+- [ ] **`@@map("tabela_snake_case")` declarado em todo model** (PascalCase Prisma + snake_case PG). `@map` de coluna: só para colunas físicas legadas durante janela de migração (ex.: ``). Colunas novas seguem DDD direto com paridade Prisma↔PG.
 
 ---
 
@@ -324,7 +324,7 @@ Se qualquer etapa falhar → Coordenador notifica o agente responsável com o er
 
 ## Checklist — Antes de Submeter Schema/Migration
 
-- [ ] Models não têm campo `id_organizacao` (exceto durante janela de migração ADR-003 Fases 2-3, onde fica `id_organizacao String @map("tenant_id")`)?
+- [ ] Models não têm campo `id_organizacao` (exceto durante janela de migração ADR-003 Fases 2-3, onde fica `id_organizacao String`)?
 - [ ] Removi os 3 índices antigos por Organização (`@@index([id_organizacao])`, `@@index([id_organizacao, id_produto])`, `@@index([id_organizacao, id_usuario])`)?
 - [ ] Rodei `compose-product-schema` localmente?
 - [ ] `prisma validate` passou?

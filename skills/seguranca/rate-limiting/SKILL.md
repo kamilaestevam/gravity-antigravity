@@ -23,7 +23,7 @@ Sem rate limiting:
 | Rotas públicas (marketplace) | 30 req | 1 min | IP |
 | Login/auth | 10 req | 15 min | IP + email |
 | Webhooks (Clerk) | 50 req | 1 min | IP |
-| Chamadas S2S internas | 500 req | 1 min | `x-internal-key` |
+| Chamadas S2S internas | 500 req | 1 min | `x-chave-interna` |
 | Upload de arquivos | 10 req | 1 min | `id_organizacao` |
 | Export (CSV/Excel) | 5 req | 1 min | `id_organizacao` |
 
@@ -69,7 +69,7 @@ export const authRateLimit = rateLimit({
 
 // Bypass para serviços internos
 export const internalBypass = (req, res, next) => {
-  if (req.headers['x-internal-key'] === process.env.INTERNAL_SERVICE_KEY) {
+  if (req.headers['x-chave-interna'] === process.env.INTERNAL_SERVICE_KEY) {
     return next() // Sem rate limit para chamadas internas
   }
   orgRateLimit(req, res, next)

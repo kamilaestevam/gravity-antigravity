@@ -72,10 +72,10 @@ export function createLogger(context: LogContext) {
 
 ## Pilar 2 — Correlation ID
 
-O correlation ID é gerado no **primeiro serviço** que recebe o request. É propagado via header `x-correlation-id` em **toda chamada interna**. Permite rastrear um request de ponta a ponta:
+O correlation ID é gerado no **primeiro serviço** que recebe o request. É propagado via header `x-id-correlacao` em **toda chamada interna**. Permite rastrear um request de ponta a ponta:
 
 ```
-produto → tenant-services → configurador
+produto → organização-services → configurador
 ```
 
 **Middleware obrigatório em todo servidor:**
@@ -90,10 +90,10 @@ export function correlationMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  req.correlationId = req.headers['x-correlation-id'] as string
+  req.correlationId = req.headers['x-id-correlacao'] as string
     || randomUUID()
 
-  res.setHeader('x-correlation-id', req.correlationId)
+  res.setHeader('x-id-correlacao', req.correlationId)
   next()
 }
 ```
@@ -110,8 +110,8 @@ async function callTenantService(
   return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'x-correlation-id': correlationId,  // ← obrigatório
-      'x-internal-key': process.env.INTERNAL_SERVICE_KEY!
+      'x-id-correlacao': correlationId,  // ← obrigatório
+      'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!
     }
   })
 }
@@ -152,7 +152,7 @@ app.get('/health', async (req, res) => {
 |:---|:---|
 | Gateway | `gravity-gateway` |
 | Configurador | `configurador` |
-| Tenant Services | `tenant-services` |
+| Organização Services | `organização-services` |
 | Simulador Comex | `simulador-comex` |
 | Marketplace | `marketplace` |
 
@@ -196,7 +196,7 @@ app.use(errorHandler) // error handler global do antigravity-code-standards
 | Monitor | URL | Intervalo |
 |:---|:---|:---|
 | Configurador | `https://configurador.gravity.com.br/health` | 5 min |
-| Tenant Services | `https://tenant-services.gravity.com.br/health` | 5 min |
+| Organização Services | `https://organização-services.gravity.com.br/health` | 5 min |
 | Simulador Comex | `https://simulador-comex.gravity.com.br/health` | 5 min |
 | Marketplace | `https://marketplace.gravity.com.br/health` | 5 min |
 
@@ -310,7 +310,7 @@ app.get('/health', async (req, res) => {
 | Monitor | URL | Intervalo | Alerta |
 |:---|:---|:---|:---|
 | Configurador | `/health` | 2 min | Slack + Email |
-| Tenant Services | `/health` | 2 min | Slack + Email |
+| Organização Services | `/health` | 2 min | Slack + Email |
 | SimulaCusto | `/health` | 5 min | Slack |
 | Bid Frete | `/health` | 5 min | Slack |
 | Marketplace | `/health` | 5 min | Email |
@@ -322,7 +322,7 @@ app.get('/health', async (req, res) => {
 ## Checklist — Ao Criar um Novo Servidor
 
 - [ ] `correlationMiddleware` registrado antes das rotas de negócio?
-- [ ] Correlation ID propagado via `x-correlation-id` em toda chamada para outros serviços?
+- [ ] Correlation ID propagado via `x-id-correlacao` em toda chamada para outros serviços?
 - [ ] Endpoint `/health` implementado com verificação do banco?
 - [ ] Sentry inicializado com `dsn`, `environment`, contexto de organização **e performance**?
 - [ ] `SENTRY_DSN` documentado no `.env.example`?

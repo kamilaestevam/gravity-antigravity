@@ -30,12 +30,12 @@ O Coordenador é o agente técnico transversal do projeto. Não escreve código 
 
 A composição de schema único e global foi eliminada. Cada banco tem composição própria:
 
-### Banco `tenant-shared` (super-servidor de serviços por organização)
+### Banco `organização-shared` (super-servidor de serviços por organização)
 
 Continua tendo composição via fragments (paralelismo dos agentes da Onda 3):
 
 ```text
-servicos-global/tenant/
+servicos-global/organização/
 ├── prisma/schema.base.prisma                ← datasource + generator
 ├── atividades/prisma/fragment.prisma
 ├── cronometro/prisma/fragment.prisma
@@ -69,9 +69,9 @@ servicos-global/produto/helpdesk/prisma/
 npx tsx scripts/compose-product-schema.ts --product=pedido
 npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
-# Para tenant-shared
-npx tsx scripts/ativamente/compose-tenant-schema.ts
-npx prisma validate --schema=servicos-global/tenant/prisma/schema.prisma
+# Para organização-shared
+npx tsx scripts/ativamente/compose-organização-schema.ts
+npx prisma validate --schema=servicos-global/organização/prisma/schema.prisma
 ```
 
 Ver `antigravity-schema-composition` para detalhes.
@@ -83,8 +83,8 @@ Ver `antigravity-schema-composition` para detalhes.
 Após compor cada schema, o Coordenador valida obrigatoriamente:
 
 - [ ] Nenhum nome de model duplicado entre fragments
-- [ ] **Models de produto NÃO têm campo de identificador de organização** (após migração completa — schema isola)
-- [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização** (após migração completa)
+- [ ] **Models de produto NÃO têm campo de identificador de organização** ( — schema isola)
+- [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização** ()
 - [ ] Convenção de naming respeitada: PascalCase para models, snake_case para campos
 - [ ] Nenhum `@map` ou `@@map` (mantém naming canônico)
 - [ ] `prisma validate` passa sem erros
@@ -197,8 +197,8 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 |:---|:---|
 | Estrutura do monorepo correta | Reexecutar agente 0A |
 | `@gravity/tenant-resolver` SDK compila e tests passam | Reexecutar Tech Lead — bloqueia tudo |
-| Bancos `configurador-db` e `tenant-shared` criados | DevOps recria via Railway |
-| Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-tenant` |
+| Bancos `configurador-db` e `organização-shared` criados | DevOps recria via Railway |
+| Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-organização` |
 | ESLint custom rule (bloqueia `import { PrismaClient }`) ativa em CI | Reexecutar agente DevOps |
 
 ### Após Onda 2 — antes de iniciar Onda 3
@@ -217,7 +217,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 |:---|:---|
 | Cada serviço por organização responde `GET /health` | Reexecutar serviço que falhou |
 | Todos os serviços usam **exclusivamente** `withTenant` ou `withTenantContext` | Reprovação imediata pelo lint CI |
-| Schema `tenant-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
+| Schema `organização-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
 | Schema de cada produto compõe sem conflito | Coordenador resolve naming |
 | `contracts.json` atualizado com endpoints da Onda 3 | Coordenador atualiza |
 | Testes anti-cross-organização + pool leak passam para cada serviço | Reprovação imediata |
@@ -230,7 +230,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Produto navega entre pages e serviços por organização | Verificar `PRODUCT_CONFIG` |
 | Proxy roteia para todos os serviços | Verificar `contracts.json` vs endpoints reais |
 | JWT propagado em toda a cadeia | Reexecutar Auth Flow |
-| `x-internal-key` validado em toda chamada S2S | Verificar env Railway |
+| `x-chave-interna` validado em toda chamada S2S | Verificar env Railway |
 | Testes E2E Playwright passam | Identificar fluxo + agente |
 | Sentry, UptimeRobot, dashboard de segurança/observabilidade ativos | DevOps configura |
 
@@ -262,10 +262,10 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 ## Checklist — Antes de Liberar Cada Onda
 
 - [ ] Todos os fragments entregues pelos agentes?
-- [ ] Composição executada sem erros (por produto + tenant-shared)?
+- [ ] Composição executada sem erros (por produto + organização-shared)?
 - [ ] `prisma validate` passou em todos os schemas?
 - [ ] Nenhum model duplicado entre fragments?
-- [ ] Nenhum model de produto com campo de identificador de organização (após migração completa)?
+- [ ] Nenhum model de produto com campo de identificador de organização ()?
 - [ ] `contracts.json` atualizado?
 - [ ] Conflitos identificados e resolvidos?
 - [ ] Testes anti-cross-organização passando?

@@ -57,7 +57,7 @@ Usuários **Master** (`gravity_admin = true`) ou **Super Admins** (`tipo_usuario
 
 O código deve garantir que o **Frontend e o Backend** reconheçam o acesso global deles, **independentemente** de estarem vinculados fisicamente na tabela `UsuarioWorkspace`.
 
-**Por quê:** admins Gravity supervisionam todos os workspaces do tenant — não precisam de membership formal. Tratá-los como usuários comuns os bloqueia da própria ferramenta de administração.
+**Por quê:** admins Gravity supervisionam todos os workspaces do organização — não precisam de membership formal. Tratá-los como usuários comuns os bloqueia da própria ferramenta de administração.
 
 ---
 

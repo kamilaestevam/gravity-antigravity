@@ -7,7 +7,7 @@ description: "Use esta skill para implementar contract tests entre serviços. De
 
 ## Por Que Contract Tests
 
-Na arquitetura do Gravity, produtos chamam serviços de tenant via API REST. Se um serviço de tenant mudar o formato do response sem avisar, o produto que consume essa API quebra em produção.
+Na arquitetura do Gravity, produtos chamam serviços de organização via API REST. Se um serviço de organização mudar o formato do response sem avisar, o produto que consume essa API quebra em produção.
 
 Contract tests resolvem isso: o mesmo schema Zod que valida a rota **é** o contrato. Mudou o schema? O CI bloqueia o merge.
 
@@ -26,7 +26,7 @@ export const meResponseSchema = z.object({
     email_usuario:          z.string().email(),
     tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
     id_organizacao_usuario: z.string(),
-    preferred_company_id:   z.string().nullable(),
+    id_workspace_preferido: z.string().nullable(),
   }),
   organizacao: z.object({
     id_organizacao:         z.string(),
@@ -35,11 +35,11 @@ export const meResponseSchema = z.object({
     status_organizacao:     z.string(),
   }).nullable(),
   workspaces: z.array(z.object({
-    id:             z.string(),
-    nome_workspace: z.string(),
-    status:         z.string(),
-    tipo_usuario:   z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
-    produtos:       z.array(z.string()),
+    id_workspace:     z.string(),
+    nome_workspace:   z.string(),
+    status_workspace: z.string(),
+    tipo_usuario:     z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+    produtos:         z.array(z.string()),
   })),
 })
 export type MeResponse = z.infer<typeof meResponseSchema>
@@ -81,12 +81,12 @@ it('meResponseSchema rejeita payload com estrutura legada', () => {
 
 ---
 
-## Padrão 2 — Schema em arquivo separado (serviços tenant)
+## Padrão 2 — Schema em arquivo separado (serviços organização)
 
 Para serviços com múltiplos endpoints, usar arquivo `contracts.ts` dedicado:
 
 ```typescript
-// servicos-global/tenant/atividades/server/contracts.ts
+// servicos-global/organização/atividades/server/contracts.ts
 import { z } from 'zod'
 
 // Contrato de Request
@@ -124,7 +124,7 @@ O produto que consome a API valida que o response ainda segue o contrato:
 ```typescript
 // testes/testes-funcionais/bid-frete/contracts.test.ts
 import { describe, it, expect } from 'vitest'
-import { activityResponseContract } from '@tenant/atividades/server/contracts'
+import { activityResponseContract } from '@organização/atividades/server/contracts'
 
 describe('Contract: Atividades API', () => {
   it('GET /api/v1/activities response matches contract', async () => {
@@ -149,7 +149,7 @@ describe('Contract: Atividades API', () => {
 O serviço valida que seus responses continuam conformes:
 
 ```typescript
-// testes/testes-unitarios/servicos-tenant/atividades/contract.test.ts
+// testes/testes-unitarios/servicos-organização/atividades/contract.test.ts
 import { describe, it, expect } from 'vitest'
 import { activityResponseContract } from './contracts'
 
@@ -224,7 +224,7 @@ Se uma breaking change é necessária:
 3. Manter endpoint antigo por 1 ciclo de release
 4. Migrar consumers para v2
 5. Deprecar v1 (log warning nos acessos)
-6. Remover v1 após migração completa
+6. Remover v1
 
 ---
 

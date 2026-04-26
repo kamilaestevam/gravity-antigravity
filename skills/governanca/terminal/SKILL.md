@@ -192,7 +192,7 @@ AÇÃO: rm -rf node_modules/.cache (ou .next/dist) → reiniciar
 
 | Produto/Serviço | Backend | Frontend |
 |:----------------|:--------|:---------|
-| Tenant Server (todos os 11 serviços) | 3001 | — |
+| Organização Server (todos os 11 serviços) | 3001 | — |
 | Dashboard BI (client) | — | 5010 |
 | Configurador | 8005 | 8000 |
 | Marketplace | — | 8001 |

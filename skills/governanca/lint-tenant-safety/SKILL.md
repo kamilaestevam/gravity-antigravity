@@ -1,12 +1,12 @@
 ---
-name: antigravity-lint-tenant-safety
+name: antigravity-lint-organização-safety
 description: "Use esta skill para entender, configurar ou estender o linter custom de isolamento que roda no CI e bloqueia deploy. Define as regras AST que detectam violações de Schema-per-Organização: PrismaClient direto, SET search_path manual, cache sem prefixo de organização, identidade vinda do Clerk metadata (Mandamento 01). Criada na Sprint 1 (2026-04-18)."
 ---
 
 # Gravity — Linter Custom de Isolamento de Organização
 
 > Esta skill implementa a estratégia de **Isolamento de Organização** (Schema-per-Organização) e o Mandamento 01 (Clerk APENAS para autenticação). Sem o linter, o SDK é apenas convenção. Com ele, é estrutural.
-> O nome `tenant-safety` é mantido por compatibilidade técnica com o pacote `@gravity/eslint-plugin-tenant-safety` e configurações já mergeadas no CI.
+> O nome `organização-safety` é mantido por compatibilidade técnica com o pacote `@gravity/eslint-plugin-organização-safety` e configurações já mergeadas no CI.
 
 ---
 
@@ -17,7 +17,7 @@ O SDK `@gravity/tenant-resolver` só protege os agentes **se ninguém puder igno
 O linter:
 1. **Falha o build no CI** se detectar uma das violações listadas abaixo
 2. **Falha localmente** via pre-commit hook (Husky) — feedback imediato
-3. **Não pode ser desativado** com `// eslint-disable` em produto/serviço-tenant — apenas dentro do SDK
+3. **Não pode ser desativado** com `// eslint-disable` em produto/serviço-organização — apenas dentro do SDK
 
 > Sem CI verde nesta regra → **deploy é bloqueado**. Não há override. Override exige PR para o linter, aprovado pelo Coordenador + Líder.
 
@@ -28,7 +28,7 @@ O linter:
 | Localização | Comportamento |
 |:---|:---|
 | `produtos/*/server/**` | **Estrito** — todas as regras ativas, override proibido |
-| `servicos-global/tenant/**/server/**` | **Estrito** — idem (serviços por organização) |
+| `servicos-global/organização/**/server/**` | **Estrito** — idem (serviços por organização) |
 | `servicos-global/configurador/**` | **Relaxado** — Configurador pode usar PrismaClient direto (single-schema) |
 | `packages/tenant-resolver/**` | **Desligado** — é o SDK que precisa usar PrismaClient |
 | `scripts/**` | **Avisos** — scripts de operação podem precisar acesso direto, mas alertam |
@@ -107,7 +107,7 @@ await db.$executeRawUnsafe(`SET search_path TO tenant_xxx`)
 // ❌ ERRO — sem LOCAL
 await db.$executeRaw`SET search_path TO tenant_xxx`
 
-// ✅ OK — dentro do SDK (with-tenant.ts) com LOCAL
+// ✅ OK — dentro do SDK (with-organização.ts) com LOCAL
 await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 ```
 
@@ -115,9 +115,9 @@ await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 
 ---
 
-### Regra 4 — `cache-key-must-have-tenant-prefix`
+### Regra 4 — `cache-key-must-have-organização-prefix`
 
-Toda chamada a `redis.set/get/del/expire` deve ter chave prefixada por `tenant:` ou `tenant:_global:`. O prefixo `tenant:` é mantido como identificador técnico real do namespace de cache.
+Toda chamada a `redis.set/get/del/expire` deve ter chave prefixada por `organização:` ou `organização:_global:`. O prefixo `organização:` é mantido como identificador técnico real do namespace de cache.
 
 ```typescript
 // ❌ ERRO
@@ -125,17 +125,17 @@ await redis.set(`produtos:${id}`, payload)
 await redis.get('config:dashboard')
 
 // ✅ OK
-await redis.set(`tenant:${idOrganizacao}:produtos:${id}`, payload)
-await redis.get(`tenant:_global:ncm:8471.30`)        // global exige justificativa em comment
+await redis.set(`organização:${idOrganizacao}:produtos:${id}`, payload)
+await redis.get(`organização:_global:ncm:8471.30`)        // global exige justificativa em comment
 
 // ✅ OK — usando o helper do SDK
-const cache = tenantCache(req.tenant)
+const cache = tenantCache(req.organizacao)
 await cache.set(`produtos:${id}`, payload)            // helper prefixa automaticamente
 ```
 
-**Implementação:** detecta `CallExpression` em `redis.{set,get,del,mget,mset,expire,exists}` e checa se primeiro argumento começa com `tenant:` (string literal ou template literal).
+**Implementação:** detecta `CallExpression` em `redis.{set,get,del,mget,mset,expire,exists}` e checa se primeiro argumento começa com `organização:` (string literal ou template literal).
 
-> **Helper preferido:** sempre que possível, usar `tenantCache(req.tenant)` — evita escrever o prefixo na mão.
+> **Helper preferido:** sempre que possível, usar `tenantCache(req.organizacao)` — evita escrever o prefixo na mão.
 
 ---
 
@@ -153,7 +153,7 @@ const role = (currentUser.publicMetadata?.role ?? null) as Role  // Mandamento 0
 const idOrganizacao = user.publicMetadata.idOrganizacao
 
 // ✅ OK — identidade da organização vem do JWT validado pelo SDK
-const idOrganizacao = req.tenant.tenantId  // API real do SDK — manter
+const idOrganizacao = req.organizacao.idOrganizacao  // API real do SDK — manter
 
 // ✅ OK — autorização vem do Prisma via /api/v1/me
 const me = meResponseSchema.parse(await fetch('/api/v1/me').then(r => r.json()))
@@ -166,11 +166,11 @@ const tipoUsuario = me.usuario.tipo_usuario
 
 ### Regra 6 — `no-organizacao-id-in-product-query`
 
-Em código sob `produtos/*/server/`, bloqueia `WHERE id_organizacao = ...` em queries Prisma — o schema **é** a organização após migração completa.
+Em código sob `produtos/*/server/`, bloqueia `WHERE id_organizacao = ...` em queries Prisma — o schema **é** a organização.
 
 ```typescript
-// ❌ ERRO em produto (após migração completa)
-await db.fatura.findMany({ where: { id_organizacao: req.tenant.tenantId } })
+// ❌ ERRO em produto ()
+await db.fatura.findMany({ where: { id_organizacao: req.organizacao.idOrganizacao } })
 
 // ✅ OK em produto — schema isola
 await db.fatura.findMany()
@@ -181,14 +181,14 @@ await prisma.organizacao.findUnique({ where: { id: idOrganizacao } })
 
 **Implementação:** detecta `Property` com `key.name === 'id_organizacao'` dentro de objetos passados para métodos Prisma (`findMany`, `findFirst`, `findUnique`, `create`, `update`, `delete`, `count`, `aggregate`, `groupBy`, `where:`).
 
-> **Janela transitória (dual-write em andamento):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo. Após migração completa, flag removida e regra fica permanente.
+> **Janela transitória (dual-write em andamento):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo., flag removida e regra fica permanente.
 
 ---
 
 ## Estrutura do Pacote do Linter
 
 ```text
-packages/eslint-plugin-tenant-safety/
+packages/eslint-plugin-organização-safety/
 ├── package.json
 ├── README.md
 ├── src/
@@ -197,11 +197,11 @@ packages/eslint-plugin-tenant-safety/
 │   │   ├── no-direct-prisma-import.ts
 │   │   ├── no-prisma-client-instantiation.ts
 │   │   ├── no-manual-search-path.ts
-│   │   ├── cache-key-must-have-tenant-prefix.ts
-│   │   ├── no-clerk-metadata-tenant.ts
-│   │   └── no-tenant-id-in-product-query.ts
+│   │   ├── cache-key-must-have-organização-prefix.ts
+│   │   ├── no-clerk-metadata-organização.ts
+│   │   └── no-organização-id-in-product-query.ts
 │   ├── configs/
-│   │   ├── strict.ts                     ← preset "strict" (produto/tenant)
+│   │   ├── strict.ts                     ← preset "strict" (produto/organização)
 │   │   ├── relaxed.ts                    ← preset "relaxed" (Configurador)
 │   │   └── warnings-only.ts              ← preset "warnings" (scripts/testes)
 │   └── utils/ast-helpers.ts
@@ -219,25 +219,25 @@ packages/eslint-plugin-tenant-safety/
 
 ```javascript
 module.exports = {
-  plugins: ['@gravity/tenant-safety'],
+  plugins: ['@gravity/organização-safety'],
   overrides: [
     {
-      files: ['produtos/*/server/**/*.ts', 'servicos-global/tenant/**/server/**/*.ts'],
-      extends: ['plugin:@gravity/tenant-safety/strict'],
+      files: ['produtos/*/server/**/*.ts', 'servicos-global/organização/**/server/**/*.ts'],
+      extends: ['plugin:@gravity/organização-safety/strict'],
     },
     {
       files: ['servicos-global/configurador/**/*.ts'],
-      extends: ['plugin:@gravity/tenant-safety/relaxed'],
+      extends: ['plugin:@gravity/organização-safety/relaxed'],
     },
     {
       files: ['scripts/**/*.ts', 'testes/**/*.ts'],
-      extends: ['plugin:@gravity/tenant-safety/warnings-only'],
+      extends: ['plugin:@gravity/organização-safety/warnings-only'],
     },
     {
       files: ['packages/tenant-resolver/**/*.ts'],
       rules: {
-        '@gravity/tenant-safety/no-direct-prisma-import': 'off',
-        '@gravity/tenant-safety/no-prisma-client-instantiation': 'off',
+        '@gravity/organização-safety/no-direct-prisma-import': 'off',
+        '@gravity/organização-safety/no-prisma-client-instantiation': 'off',
       },
     },
   ],
@@ -265,8 +265,8 @@ npx lint-staged
 ### CI (`.github/workflows/ci.yml`)
 
 ```yaml
-- name: Lint Tenant Safety
-  run: npx eslint --max-warnings 0 'produtos/**/server/**/*.ts' 'servicos-global/tenant/**/server/**/*.ts'
+- name: Lint Organização Safety
+  run: npx eslint --max-warnings 0 'produtos/**/server/**/*.ts' 'servicos-global/organização/**/server/**/*.ts'
 ```
 
 > `--max-warnings 0` garante que **warning vira erro no CI**. Localmente, devs veem warning; CI bloqueia.
@@ -279,7 +279,7 @@ npx lint-staged
 
 ```
 error  Importar @prisma/client direto é proibido. Use @gravity/tenant-resolver.
-       @gravity/tenant-safety/no-direct-prisma-import
+       @gravity/organização-safety/no-direct-prisma-import
 ```
 
 **Ação:** trocar pelo SDK. Não desabilite a regra.
@@ -289,13 +289,13 @@ error  Importar @prisma/client direto é proibido. Use @gravity/tenant-resolver.
 Ex: script de migração one-off que precisa rodar como superuser sem search_path.
 
 **Ação:**
-1. Abra PR no `packages/eslint-plugin-tenant-safety` propondo nova exceção via configuração
+1. Abra PR no `packages/eslint-plugin-organização-safety` propondo nova exceção via configuração
 2. Aprovação requer Coordenador + Líder + revisão de segurança
 3. Nunca: `// eslint-disable-next-line` em código de produto ou serviço por organização
 
 ### Cenário 3 — Falso positivo
 
-**Ação:** adicione fixture failing no teste da regra (`packages/eslint-plugin-tenant-safety/tests/`) e abra PR. Coordenador valida e ajusta a AST query.
+**Ação:** adicione fixture failing no teste da regra (`packages/eslint-plugin-organização-safety/tests/`) e abra PR. Coordenador valida e ajusta a AST query.
 
 ---
 
@@ -316,7 +316,7 @@ Coordenador acompanha mensalmente:
 | Sprint | Adição |
 |:---|:---|
 | S2 | Regra 7 — `no-cross-product-import` (produto A não importa código do produto B) |
-| S2 | Regra 8 — `internal-key-required-on-fetch` (toda chamada inter-serviço com `x-internal-key`) |
+| S2 | Regra 8 — `internal-key-required-on-fetch` (toda chamada inter-serviço com `x-chave-interna`) |
 | S3 | Regra 9 — `no-bypass-rls-roles` (BYPASSRLS no Postgres do Configurador exige justificativa) |
 | S3 | Regra 10 — `s3-presigned-ttl-max-300` (URLs S3 pré-assinadas com TTL ≤ 300s) |
 

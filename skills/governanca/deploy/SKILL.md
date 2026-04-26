@@ -18,7 +18,7 @@ Nenhuma operação de deploy é feita sem seguir este documento. Nenhuma migrati
 | Serviço | Porta | Banco |
 |:---|:---|:---|
 | `configurador` | 3000 | configurador-db |
-| `tenant-services` | 3001 | tenant-db (banco compartilhado dos serviços por organização) |
+| `organização-services` | 3001 | organização-db (banco compartilhado dos serviços por organização) |
 | `simulador-comex` | 3002 | simulador-comex-db |
 | `nf-importacao` | 3003 | nf-importacao-db |
 | `marketplace` | 3004 | — (estático ou SSR) |
@@ -40,7 +40,7 @@ feature branch → PR → merge na main → deploy automático em staging
 → testes E2E rodam → aprovação manual → promote para production
 ```
 
-Serviços compartilhados (configurador, tenant-services) têm staging próprio. Produtos apontam para o staging dos serviços compartilhados no ambiente de staging.
+Serviços compartilhados (configurador, organização-services) têm staging próprio. Produtos apontam para o staging dos serviços compartilhados no ambiente de staging.
 
 ---
 
@@ -53,8 +53,8 @@ Padrão de naming: `SERVICO_PROVIDER_TIPO`
 DATABASE_URL=postgresql://...configurador-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 
-# === tenant-services ===
-TENANT_DATABASE_URL=postgresql://...tenant-db...
+# === organização-services ===
+TENANT_DATABASE_URL=postgresql://...organização-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 RESEND_API_KEY=re_...
 META_WHATSAPP_TOKEN=...
@@ -63,14 +63,14 @@ OPENAI_API_KEY=sk-...
 # === simulador-comex (primeiro produto) ===
 DATABASE_URL=postgresql://...simulador-comex-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
-TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
+TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
 
 # === nf-importacao (próximo produto) ===
 DATABASE_URL=postgresql://...nf-importacao-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
-TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
+TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
 ```
@@ -88,8 +88,8 @@ INTERNAL_SERVICE_KEY=...
 A ordem importa. Serviços dependentes só sobem após os serviços que dependem estarem saudáveis.
 
 1. **configurador** — sem dependências
-2. **tenant-services** — depende do configurador para auth
-3. **produtos** — dependem do configurador + tenant-services
+2. **organização-services** — depende do configurador para auth
+3. **produtos** — dependem do configurador + organização-services
 4. **marketplace** — sem dependências, pode subir a qualquer momento
 
 Verificar health check antes de subir o próximo:
@@ -168,8 +168,8 @@ Esse comportamento **não é um bug**. É a garantia de que nenhum usuário aces
 ### Migrations não destrutivas (adicionar coluna, nova tabela)
 
 ```bash
-# 1. Compor schema (se tenant-services)
-npx ts-node scripts/ativamente/compose-tenant-schema.ts
+# 1. Compor schema (se organização-services)
+npx ts-node scripts/ativamente/compose-organização-schema.ts
 
 # 2. Validar schema
 npx prisma validate
@@ -246,7 +246,7 @@ Comunicação entre serviços usa rede interna do Railway — nunca internet pú
 ```bash
 # Endereços internos (usar nas variáveis de ambiente)
 configurador.railway.internal:3000
-tenant-services.railway.internal:3001
+organização-services.railway.internal:3001
 simulador-comex.railway.internal:3002
 ```
 
@@ -306,7 +306,7 @@ jobs:
 
 | Ferramenta | O que monitora |
 |:---|:---|
-| **Sentry** | Erros de aplicação (backend e frontend), stack traces, contexto do tenant |
+| **Sentry** | Erros de aplicação (backend e frontend), stack traces, contexto do organização |
 | **UptimeRobot** | Health check de cada serviço a cada 5 minutos |
 | **Railway Metrics** | CPU, memória, conexões de banco |
 
@@ -347,7 +347,7 @@ Se um serviço em produção estiver fora do ar:
 | Serviço | Min | Max | CPU trigger | RAM trigger |
 |:---|:---|:---|:---|:---|
 | configurador | 1 | 3 | 70% | 80% |
-| tenant-services | 1 | 5 | 70% | 80% |
+| organização-services | 1 | 5 | 70% | 80% |
 | produtos | 1 | 3 | 70% | 80% |
 | marketplace | 0 | 2 | 60% | 70% |
 

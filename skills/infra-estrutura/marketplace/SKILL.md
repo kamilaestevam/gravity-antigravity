@@ -43,7 +43,7 @@ Produto (produto.gravity.com.br)  ← trabalho real começa aqui
 
 ```text
 servicos-global/
-├── tenant/
+├── organização/
 ├── produto/
 ├── marketplace/    ← AQUI
 ├── configurador/

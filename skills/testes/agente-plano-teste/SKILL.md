@@ -85,7 +85,7 @@ Se o passo é "Clicar Salvar", o botão na tela tem que exibir literalmente "Sal
 
 ### 5. **Plano vale para os 6 tipos**
 O JSON é único — o gerador de specs depois decide quais passos viram E2E, funcional, contract, etc. Cada passo tem `tiposAplicaveis: ['E2E','FUN']` (por exemplo). Categorias específicas:
-- **Isolamento de Organização (cross-tenant)** → passos com `tiposAplicaveis: ['CRO']`
+- **Isolamento de Organização (cross-organização)** → passos com `tiposAplicaveis: ['CRO']`
 - **Pentest** → passos com `tiposAplicaveis: ['PEN']`
 
 ### 6. **Numeração sequencial e estável**

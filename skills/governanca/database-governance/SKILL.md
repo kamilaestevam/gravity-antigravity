@@ -5,7 +5,7 @@ description: "Use esta skill SEMPRE antes de criar ou alterar models Prisma, sch
 
 # Gravity — Governança de Banco de Dados
 
-> Esta skill é **complementar** a `skills/arquitetura/tenant-isolation/SKILL.md` e `skills/arquitetura/sdk-tenant-resolver/SKILL.md`.
+> Esta skill é **complementar** a `skills/arquitetura/organização-isolation/SKILL.md` e `skills/arquitetura/sdk-tenant-resolver/SKILL.md`.
 > Foco: regras físicas de estrutura, nomeação e paridade — não no acesso ao banco (que é responsabilidade do SDK).
 
 ---
@@ -22,9 +22,9 @@ model Qualquer {
   id String @id @default(cuid())
 }
 
-// ❌ ESTRITAMENTE PROIBIDO — nunca usar uuid() em nenhum model
+// ❌ ESTRITAMENTE PROIBIDO — nunca usar suid() em nenhum model
 model Qualquer {
-  id String @id @default(uuid())
+  id String @id @default(suid())
 }
 ```
 
@@ -32,15 +32,15 @@ model Qualquer {
 |:---|:---|:---|
 | Organização, Workspace, Pedido, todos os models | Prisma `@default(cuid())` | `c` + 24 chars `[a-z0-9]`, 25 chars total |
 | Usuário (Clerk) | Clerk (externo) | `user_...` — não controlado pelo Prisma |
-| correlationId (por request) | `randomUUID()` runtime | UUID v4 — não é ID de model Prisma |
+| correlationId (por request) | `randomUUID()` runtime | SUID v4 — não é ID de model Prisma |
 
-**Por que CUID e não UUID:**
+**Por que CUID e não SUID:**
 - O banco é a fonte de verdade — os dados existentes usam CUID
 - O código obedece o banco (Mandamento 02 — `schema.prisma` é INTOCÁVEL)
 - CUID é o padrão gerado pelo Prisma `@default(cuid())` desde o início do projeto
 - Schema names derivam do `id_organizacao`: `tenant_<cuid>` (regex `^tenant_c[a-z0-9]{24}$`) — o prefixo `tenant_` é mantido como identificador real de schema PostgreSQL
 
-**Agentes: se você escrever `@default(uuid())` em qualquer arquivo `.prisma`, o CI vai bloquear o deploy.**
+**Agentes: se você escrever `@default(suid())` em qualquer arquivo `.prisma`, o CI vai bloquear o deploy.**
 
 ---
 
@@ -109,8 +109,8 @@ Banco PostgreSQL (por produto)
 | Processo | `gravity-processo` | `DATABASE_URL` em `produto/processo/server/` |
 | SimulaCusto | `gravity-simula-custo` | `DATABASE_URL` em `produto/simula-custo/server/` |
 | NF Importação | `gravity-nf-importacao` | `DATABASE_URL` em `produto/nf-importacao/server/` |
-| Conector ERP | `gravity-conector-erp` | `DATABASE_URL` em `servicos-global/tenant/conector-erp/` |
-| Serviços por Organização | `gravity-tenant-services` | `DATABASE_URL` em `servicos-global/tenant/server/` |
+| Conector ERP | `gravity-conector-erp` | `DATABASE_URL` em `servicos-global/organização/conector-erp/` |
+| Serviços por Organização | `gravity-organização-services` | `DATABASE_URL` em `servicos-global/organização/server/` |
 | Configurador | `gravity-configurador` | `DATABASE_URL` em `servicos-global/configurador/` |
 
 > **Configurador é exceção:** schema `public` único (fonte de verdade de identidade global — Organização, Workspace, Usuário, Subscription). Não usa Schema-per-Organização.
@@ -124,9 +124,9 @@ import { prisma as pedidoPrisma } from '../../../produto/pedido/server/prisma.js
 // ❌ PROIBIDO — produto acessando banco do Configurador
 import { prisma as configuradorPrisma } from '../../../servicos-global/configurador/server/prisma.js'
 
-// ✅ CORRETO — comunicação apenas via REST API com x-internal-key
+// ✅ CORRETO — comunicação apenas via REST API com x-chave-interna
 const response = await fetch(`${CONFIGURATOR_URL}/api/internal/users/${idUsuario}`, {
-  headers: { 'x-internal-key': process.env.INTERNAL_SERVICE_KEY! }
+  headers: { 'x-chave-interna': process.env.INTERNAL_SERVICE_KEY! }
 })
 ```
 
@@ -134,18 +134,18 @@ const response = await fetch(`${CONFIGURATOR_URL}/api/internal/users/${idUsuario
 
 ### Regra 3 — `public` 100% Vazio em Bancos de Produto
 
-Em todo banco de produto (Pedido, Processo, SimulaCusto, etc.), após a migração Schema-per-Tenant, o schema `public` **deve estar completamente vazio**. Toda tabela de dados vive em `tenant_<id>`.
+Em todo banco de produto (Pedido, Processo, SimulaCusto, etc.), após a migração Schema-per-Organização, o schema `public` **deve estar completamente vazio**. Toda tabela de dados vive em `tenant_<id>`.
 
 ```sql
--- ✅ Estado correto após migração completa (Pivô Arquitetural 2026-04-17)
+-- ✅ Estado correto (Pivô Arquitetural 2026-04-17)
 SELECT table_name FROM information_schema.tables
 WHERE table_schema = 'public';
 -- → 0 linhas (zero tabelas)
 
--- ✅ Todas as tabelas estão nos schemas de tenant
+-- ✅ Todas as tabelas estão nos schemas de organização
 SELECT schemaname, tablename FROM pg_tables
 WHERE schemaname LIKE 'tenant_%';
--- → pedido, pedido_item, pedido_item_lote, ... (por schema/tenant)
+-- → pedido, pedido_item, pedido_item_lote, ... (por schema/organização)
 ```
 
 **Por que isso importa:**
@@ -211,7 +211,7 @@ async function convidarUsuarioComVinculo(idOrganizacao: string, idUsuario: strin
 **Por que Bulk Insert e não FK nullable:**
 1. **Consistência:** o banco sempre reflete o estado real — sem lógica condicional de "null = todos"
 2. **Auditoria:** cada vínculo tem timestamp de criação — rastreável
-3. **Novos Workspaces:** ao criar um novo `Workspace`, o worker cria automaticamente o vínculo para todos os usuários do tenant que têm `tipo_usuario` que requer vínculo
+3. **Novos Workspaces:** ao criar um novo `Workspace`, o worker cria automaticamente o vínculo para todos os usuários do organização que têm `tipo_usuario` que requer vínculo
 4. **Performance:** `WHERE id_workspace = ?` usa índice — sem table scan condicional
 
 **Regra adicional:** ao criar um novo `Workspace` na organização, disparar um job que cria `UsuarioWorkspace` para todos os usuários cujo `tipo_usuario` exige vínculo explícito. Master/Super Admin são ignorados (acesso global automático).
@@ -352,7 +352,7 @@ ALTER TABLE "pedidos_comerciais"
 Ao criar um novo banco de produto no Railway:
 
 ```bash
-# Passo 1 — Provisionar schemas físicos (um por tenant ativo)
+# Passo 1 — Provisionar schemas físicos (um por organização ativo)
 CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto> \
   npx tsx scripts/migration/01-provision-schemas.ts
 
@@ -371,25 +371,25 @@ O Passo 1 e 2 em produção exigem autorização explícita do responsável téc
 
 ## Estrutura de `fragment.prisma` por Produto
 
-Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/ativamente/compose-tenant-schema.ts`.
+Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/ativamente/compose-organização-schema.ts`.
 
 ```text
 produto/pedido/server/prisma/
   └── fragment.prisma           ← define modelos Pedido, PedidoItem, PedidoItemLote
 
-servicos-global/tenant/notificacoes/prisma/
+servicos-global/organização/notificacoes/prisma/
   └── fragment.prisma           ← define modelos Notificacao, NotificacaoConfig
 
 # O Coordenador une todos os fragments:
-servicos-global/tenant/generated/
+servicos-global/organização/generated/
   └── schema.prisma             ← NUNCA editar diretamente
 ```
 
 **Regras do `fragment.prisma`:**
 - Nenhum `@map()` de **coluna** (paridade campo Prisma ↔ coluna PG é absoluta)
 - **`@@map("tabela_snake_case")` é obrigatório** em todo model — garante nome da tabela PG em snake_case enquanto o model fica em PascalCase
-- Nenhum campo de identificador de organização em models de produto após migração completa (o schema isolado dispensa o campo)
-- Nenhum `@@index` em campo de identificador de organização após migração completa
+- Nenhum campo de identificador de organização em models de produto (o schema isolado dispensa o campo)
+- Nenhum `@@index` em campo de identificador de organização
 - Nenhum agente edita `schema.prisma` final — só o Coordenador (Mandamento 02 — schema é INTOCÁVEL)
 
 ---

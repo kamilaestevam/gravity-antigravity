@@ -33,9 +33,9 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] **Nenhum** `new PrismaClient(`?
 - [ ] **Nenhum** `WHERE id_organizacao = ?` em models de produto (o schema **é** a organização — Schema-per-Organização)?
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` ou fora de `$transaction`?
-- [ ] `idOrganizacao` lido de `req.tenant` (API real do SDK) — **NUNCA** do `publicMetadata` do Clerk (Mandamento 01)?
+- [ ] `idOrganizacao` lido de `req.organizacao` (API real do SDK) — **NUNCA** do `publicMetadata` do Clerk (Mandamento 01)?
 - [ ] **Nenhuma autorização** baseada em `currentUser.publicMetadata.role` — sempre via `/api/v1/me` + Prisma (Mandamento 01)?
-- [ ] `x-internal-key` em chamadas S2S?
+- [ ] `x-chave-interna` em chamadas S2S?
 - [ ] Chaves de cache prefixadas por `org:<idOrganizacao>:` ou `org:_global:`?
 - [ ] Erros via `AppError` (nunca `res.status().json()` direto)?
 - [ ] Nenhum dado sensível em logs?
@@ -45,7 +45,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Schemas Zod do front refletem o payload do back no MESMO commit (Mandamento 07 + 09)?
 - [ ] **Nenhum** `schema.prisma` editado (apenas Coordenador, via script — Mandamento 02)?
 
-> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-tenant-isolation`, `antigravity-tier1-security`, `9-mandamentos`.
+> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-organização-isolation`, `antigravity-tier1-security`, `9-mandamentos`.
 
 ### Qualidade de Código
 

@@ -1,20 +1,20 @@
 ---
 name: antigravity-sdk-tenant-resolver
-description: "Use esta skill sempre que precisar acessar banco de dados de produto ou serviço-tenant, configurar middleware de tenant, escrever worker/CRON multi-tenant, ou consumir a identidade/cache do tenant. Define o contrato público de @gravity/tenant-resolver — o ÚNICO caminho permitido para tocar o banco após o pivô Schema-per-Tenant. Implementação validada Sprint 1 (2026-04-18): 71/71 testes passando."
+description: "Use esta skill sempre que precisar acessar banco de dados de produto ou serviço-organização, configurar middleware de organização, escrever worker/CRON multi-tenant, ou consumir a identidade/cache do organização. Define o contrato público de @gravity/tenant-resolver — o ÚNICO caminho permitido para tocar o banco após o pivô Schema-per-Organização. Implementação validada Sprint 1 (2026-04-18): 71/71 testes passando."
 ---
 
 # Gravity — SDK `@gravity/tenant-resolver`
 
-> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
+> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 > Referência completa: [`documentos-tecnicos/sdk/tenant-resolver.md`](../../../documentos-tecnicos/sdk/tenant-resolver.md)
 >
-> **Nota DDD (Mandamento 03):** embora a biblioteca tenha nome legado (`@gravity/tenant-resolver`) e a sua API pública atual ainda exponha campos com nome `tenantId`/`schemaName`, o **parâmetro semântico que trafega é estritamente a Organização** (`id_organizacao`/`idOrganizacao`). Em código de aplicação, alimente sempre as chamadas com a variável `idOrganizacao` (DDD); funções legadas internas que ainda recebem `tenantId` devem ser refatoradas para aceitar `idOrganizacao` no roadmap. Os identificadores reais preservados (nome do pacote, prefixo de schema PostgreSQL `tenant_<cuid>`, header `x-tenant-id`) são objetos físicos/contratos externos que não são renomeados sem ciclo de migração coordenado.
+> **Nota DDD (Mandamento 03):** embora a biblioteca tenha nome legado (`@gravity/tenant-resolver`) e a sua API pública atual ainda exponha campos com nome `tenantId`/`schemaName`, o **parâmetro semântico que trafega é estritamente a Organização** (`id_organizacao`/`idOrganizacao`). Em código de aplicação, alimente sempre as chamadas com a variável `idOrganizacao` (DDD); funções legadas internas que ainda recebem `tenantId` devem ser refatoradas para aceitar `idOrganizacao` no roadmap. Os identificadores reais preservados (nome do pacote, prefixo de schema PostgreSQL `tenant_<cuid>`, header `x-organização-id`) são objetos físicos/contratos externos que não são renomeados sem ciclo de migração coordenado.
 
 ---
 
 ## Por Que Este SDK Existe
 
-Após o pivô Schema-per-Tenant, **acessar o banco direto via Prisma é proibido**. O SDK é o **único caminho** de qualquer código de produto/serviço para o banco. Ele garante:
+Após o pivô Schema-per-Organização, **acessar o banco direto via Prisma é proibido**. O SDK é o **único caminho** de qualquer código de produto/serviço para o banco. Ele garante:
 
 1. `SET LOCAL search_path TO "tenant_<id>", public` aplicado dentro de `$transaction` — **garantia do Postgres, não da aplicação**
 2. Tipagem `TenantDatabase` que remove métodos perigosos (`$transaction`, `$connect`, etc.)
@@ -117,7 +117,7 @@ app.get('/pedidos', async (req, res, next) => {
 ```
 
 **Erros possíveis:**
-- `TENANT_MISSING` (500) — `req.tenant` não populado (middleware não rodou)
+- `TENANT_MISSING` (500) — `req.organizacao` não populado (middleware não rodou)
 - `INVALID_TENANT_ID` (400) — schemaName fora do regex (defense-in-depth antes do SQL)
 
 ---
@@ -185,12 +185,12 @@ await withTenantContext(organizacoesAtivas[0].id_organizacao, async (ctx, db) =>
 
 ```typescript
 interface TenantContext {
-  tenantId:      string    // CUID da Organização — req.tenant.tenantId (semântica: idOrganizacao)
+  idOrganizacao: string    // CUID da Organização — req.organizacao.idOrganizacao (semântica: idOrganizacao)
   schemaName:    string    // "tenant_<32hex>" — schema PostgreSQL real, não usar diretamente
   workspaceId?:  string    // Workspace ativo (opcional — semântica: idWorkspace)
-  userId:        string    // UUID do usuário Clerk (semântica: idUsuario)
+  userId:        string    // SUID do usuário Clerk (semântica: idUsuario)
   roles:         string[]  // Ex: ['PEDIDO_READ', 'PEDIDO_WRITE']
-  correlationId: string    // UUID por request — propagar em logs
+  correlationId: string    // SUID por request — propagar em logs
 }
 // NÃO HÁ: permissions, email (versão 0.1.0)
 ```
@@ -202,7 +202,7 @@ interface TenantContext {
 | Código | HTTP | Origem |
 |:---|:---:|:---|
 | `UNAUTHENTICATED` | 401 | Token ausente/inválido/expirado |
-| `TENANT_MISSING` | 500 | `req.tenant` (semântica: contexto da Organização) não populado pelo middleware |
+| `TENANT_MISSING` | 500 | `req.organizacao` (semântica: contexto da Organização) não populado pelo middleware |
 | `TENANT_NOT_FOUND` | 404 | Configurador retorna 404 para a Organização solicitada |
 | `TENANT_INACTIVE` | 403 | Organização `suspended` ou `deleted` |
 | `TENANT_SCHEMA_MISMATCH` | 500 | schemaName diverge do `idOrganizacao` (spoofing detectado) |
@@ -295,15 +295,15 @@ app.use(resolver.middleware())  // ERRADO — tenantResolver já retorna Request
 app.use(tenantResolver(config))
 
 // ❌ TenantContext.id (nome antigo)
-req.tenant.id              // ERRADO — campo do contrato externo é tenantId (semântica: idOrganizacao)
-req.tenant.tenantId        // CORRETO (em aplicação, trate como idOrganizacao)
+req.organizacao.id              // ERRADO — campo do contrato externo é tenantId (semântica: idOrganizacao)
+req.organizacao.idOrganizacao        // CORRETO (em aplicação, trate como idOrganizacao)
 
 // ❌ $transaction aninhado dentro de withTenant
 await withTenant(req, async (db) => {
   await db.$transaction(async (tx) => { ... })  // PROIBIDO
 
 // ❌ identidade do Clerk (Mandamento 01 — Clerk só serve para autenticação)
-session.publicMetadata.tenantId  // NUNCA — use req.tenant.tenantId (semântica: idOrganizacao)
+session.publicMetadata.tenantId  // NUNCA — use req.organizacao.idOrganizacao (semântica: idOrganizacao)
 
 // ❌ SET search_path manual — linter bloqueia
 await db.$executeRawUnsafe('SET search_path TO meu_schema')
@@ -322,7 +322,7 @@ await db.pedido.findMany()   // transação já fechou
 - [ ] `configuradorBaseUrl` (não `configuradorUrl`) na config?
 - [ ] Todo acesso a banco via `withTenant` ou `withTenantContext`?
 - [ ] Nenhum `import { PrismaClient }` no diff?
-- [ ] `req.tenant.tenantId` (não `req.tenant.id`) — semântica: `idOrganizacao`?
+- [ ] `req.organizacao.idOrganizacao` (não `req.organizacao.id`) — semântica: `idOrganizacao`?
 - [ ] Nenhum `db.$transaction` aninhado dentro do callback?
 - [ ] Testes anti-cross-organização presentes para as tabelas do produto?
 - [ ] Error handler global trata `instanceof AppError`?
@@ -335,6 +335,6 @@ await db.pedido.findMany()   // transação já fechou
 | Sprint | O que muda no SDK |
 |:---|:---|
 | **Sprint 1** ✅ | Implementação completa: middleware, withTenant, withTenantContext, cache, errors, 71 testes |
-| **Sprint 2** | BullMQ real; Redis distribuído; `tenantCache(req.tenant)` helper para chaves de produtos |
+| **Sprint 2** | BullMQ real; Redis distribuído; `tenantCache(req.organizacao)` helper para chaves de produtos |
 | **Sprint 3** | `produto/pedido` e demais migrados do modelo antigo para `withTenant` |
-| **Sprint 4** | Remoção do campo Prisma `id_organizacao` (e da coluna física legada `tenant_id`) dos models (ADR-003 Fase 4) |
+| **Sprint 4** | Remoção do campo Prisma `id_organizacao` (e da coluna física legada `tenant_id`) dos models |

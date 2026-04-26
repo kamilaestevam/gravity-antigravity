@@ -21,14 +21,14 @@ Antes de criar qualquer produto, ler **obrigatoriamente**:
 | `antigravity-code-standards` | Padrões de código |
 | `antigravity-service-registry` | PRODUCT_CONFIG e navegação |
 | `antigravity-ambiente` | Portas e dev servers |
-| `antigravity-tenant-isolation` | Schema-per-Organização e 3 índices |
+| `antigravity-organização-isolation` | Schema-per-Organização e 3 índices |
 | `antigravity-seguranca-5-camadas` | 5 camadas de segurança |
 | `antigravity-schema-composition` | Prisma fragments |
 | `antigravity-observabilidade` | Logs, health check, Sentry |
 | `antigravity-definition-of-done` | Critérios de entrega |
 | `antigravity-onboarding-produto` | Wizard e dados demo |
 | `antigravity-rate-limiting` | Rate limiting por organização |
-| `antigravity-autenticacao-s2s` | JWT, x-internal-key, proxy |
+| `antigravity-autenticacao-s2s` | JWT, x-chave-interna, proxy |
 | `9-mandamentos` | Regras absolutas (Clerk isolado, schema intocável, DDD, sem fallback) |
 
 ---
@@ -49,7 +49,7 @@ Antes de escrever qualquer código, registrar o produto em `servicos-global/cont
 ```
 
 **Como escolher a porta:**
-- Super-servidor tenant (todos os 11 serviços): 3001 (reservado)
+- Super-servidor organização (todos os 11 serviços): 3001 (reservado)
 - Configurador: 8005 (reservado)
 - Produtos em uso: 8020 (simula-custo), 8023 (bid-frete), 8025 (bid-cambio), 8026 (processo), 8027 (lpco), 8028 (nf-importacao), 8029 (financeiro-comex), 8030 (pedido)
 - **Próxima disponível para produto: 8031+**
@@ -74,7 +74,7 @@ produto/meu-produto/
 │       ├── pages/                  ← Uma subpasta por tela
 │       └── shared/
 │           ├── config.ts           ← PRODUCT_CONFIG
-│           ├── api.ts              ← Chamadas REST (com tenant context)
+│           ├── api.ts              ← Chamadas REST (com organização context)
 │           └── types.ts            ← Tipos do domínio (espelham Prisma enums)
 │
 ├── server/
@@ -172,7 +172,7 @@ testes/
       "@nucleo/*": ["../../../nucleo-global/*"],
       "@shell": ["../../../servicos-global/shell/index.ts"],
       "@shell/*": ["../../../servicos-global/shell/*"],
-      "@tenant/*": ["../../../servicos-global/tenant/*"],
+      "@organização/*": ["../../../servicos-global/organização/*"],
       "@produto/*": ["../../../servicos-global/produto/*"]
     }
   },
@@ -210,7 +210,7 @@ export default defineConfig({
       // ... adicionar cada componente usado
       '@shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell'),
-      '@tenant': path.resolve(monorepoRoot, 'servicos-global/tenant'),
+      '@organização': path.resolve(monorepoRoot, 'servicos-global/organização'),
     },
     dedupe: ['react', 'react-dom', '@clerk/clerk-react', 'react-router-dom', 'zustand'],
   },
@@ -292,7 +292,7 @@ export interface NavigationItem {
   id: string
   label: string
   icon: string
-  source: 'product' | 'tenant'
+  source: 'product' | 'organização'
 }
 
 export const PRODUCT_CONFIG = {
@@ -301,7 +301,7 @@ export const PRODUCT_CONFIG = {
   name: 'Meu Produto',
   port: 8025,                  // Porta do backend (contracts.json)
 
-  // Serviços de tenant consumidos via proxy
+  // Serviços de organização consumidos via proxy
   tenantServices: [
     'atividades', 'dashboard', 'relatorios',
     'historico', 'notificacoes', 'gabi',
@@ -315,11 +315,11 @@ export const PRODUCT_CONFIG = {
   // Menu lateral
   navigation: [
     { id: 'principal',   label: 'Principal',    icon: 'house',        source: 'product' },
-    { id: 'atividades',  label: 'Atividades',   icon: 'check-circle', source: 'tenant'  },
-    { id: 'dashboard',   label: 'Dashboard',    icon: 'bar-chart',    source: 'tenant'  },
-    { id: 'relatorios',  label: 'Relatórios',   icon: 'file-text',    source: 'tenant'  },
-    { id: 'historico',   label: 'Histórico',    icon: 'clock',        source: 'tenant'  },
-    { id: 'gabi',        label: 'Gabi IA',      icon: 'sparkle',      source: 'tenant'  },
+    { id: 'atividades',  label: 'Atividades',   icon: 'check-circle', source: 'organização'  },
+    { id: 'dashboard',   label: 'Dashboard',    icon: 'bar-chart',    source: 'organização'  },
+    { id: 'relatorios',  label: 'Relatórios',   icon: 'file-text',    source: 'organização'  },
+    { id: 'historico',   label: 'Histórico',    icon: 'clock',        source: 'organização'  },
+    { id: 'gabi',        label: 'Gabi IA',      icon: 'sparkle',      source: 'organização'  },
   ] satisfies NavigationItem[],
 
   features: {},
@@ -349,7 +349,7 @@ async function request<T>(endpoint: string, schema: z.ZodType<T>, options?: Requ
     headers: {
       'Content-Type': 'application/json',
       // O backend deve preferir extrair id_organizacao do JWT (nunca confiar em headers de cliente)
-      'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+      'x-chave-interna': import.meta.env.VITE_INTERNAL_KEY || '',
       ...options?.headers,
     },
   })
@@ -418,7 +418,7 @@ import cors from 'cors'
 import { join } from 'path'
 import { correlationMiddleware } from './middleware/correlation'
 import { requireInternalKey } from './middleware/internal-auth'
-import { tenantIsolationMiddleware } from './middleware/tenant-isolation'
+import { tenantIsolationMiddleware } from './middleware/organização-isolation'
 import { errorHandler } from './middleware/error-handler'
 import { recursoRouter } from './routes/recursos'
 import { prisma } from './lib/prisma'
@@ -451,7 +451,7 @@ app.get('/health', async (req, res) => {
 // 6. Correlation ID
 app.use(correlationMiddleware)
 
-// 7. S2S Auth (x-internal-key)
+// 7. S2S Auth (x-chave-interna)
 app.use('/api/', requireInternalKey)
 
 // 8. Isolamento de Organização — Schema-per-Organização via @gravity/tenant-resolver
@@ -476,7 +476,7 @@ app.listen(PORT, () => console.log(`meu-produto server on :${PORT}`))
 
 ## Passo 13 — Server: fragment.prisma
 
-**REGRA (Mandamento 03):** todo model DEVE ter `id_organizacao`, `id_produto`, `id_usuario` e os **3 índices obrigatórios**. Conforme `database-governance`, em produtos Schema-per-Organização os models não filtram por `id_organizacao` em queries (o schema **é** a organização) — mas mantêm o campo + índices durante a fase de transição (ADR-003 Fase 4).
+**REGRA (Mandamento 03):** todo model DEVE ter `id_organizacao`, `id_produto`, `id_usuario` e os **3 índices obrigatórios**. Conforme `database-governance`, em produtos Schema-per-Organização os models não filtram por `id_organizacao` em queries (o schema **é** a organização) — mas mantêm o campo + índices durante a fase de transição.
 
 ```prisma
 // produto/meu-produto/server/prisma/fragment.prisma
@@ -569,16 +569,16 @@ export { router as recursoRouter }
 
 ---
 
-## Passo 16 — Proxy de Tenant
+## Passo 16 — Proxy de Organização
 
-No servidor do produto, configurar o proxy para serviços de tenant:
+No servidor do produto, configurar o proxy para serviços de organização:
 
 ```typescript
 // Adicionar ao server/src/index.ts (após middleware 8)
 import { createTenantProxy } from './proxy'
 import { PRODUCT_CONFIG } from '../../client/src/shared/config'
 
-app.use('/api/tenant', createTenantProxy({
+app.use('/api/organização', createTenantProxy({
   baseUrl: process.env.TENANT_SERVICES_URL!,
   services: [...PRODUCT_CONFIG.tenantServices],
 }))
@@ -595,7 +595,7 @@ Para que o produto apareça na plataforma:
 1. **Catálogo** — adicionar via API ou seed no Configurador:
    - `POST /api/admin/products` com slug, nome, preço, status `ACTIVE`
 
-2. **Shell** — o hook `useLoadAllowedProducts` consulta `/api/internal/tenant-products` no Configurador
+2. **Shell** — o hook `useLoadAllowedProducts` consulta `/api/internal/organização-products` no Configurador
    - Sem registro, o produto **nunca aparece** na sidebar
 
 3. **Marketplace** — adicionar página de vendas em `servicos-global/marketplace/src/pages/`
@@ -614,7 +614,7 @@ testes/
 │   └── engine.test.ts             ← Lógica de negócio pura
 ├── testes-funcionais/meu-produto/
 │   ├── recursos.test.ts           ← CRUD via supertest (banco real)
-│   └── tenant-isolation.test.ts   ← Cross-tenant obrigatório
+│   └── organização-isolation.test.ts   ← Cross-organização obrigatório
 └── testes-e2e/meu-produto/
     └── fluxo-completo.spec.ts     ← Playwright (após plano aprovado)
 ```
@@ -681,7 +681,7 @@ Validar todas antes de entregar:
 
 | Camada | Implementação | Status |
 |:---|:---|:---|
-| 1. Rede | `x-internal-key` em toda chamada S2S | - [ ] |
+| 1. Rede | `x-chave-interna` em toda chamada S2S | - [ ] |
 | 2. Autenticação | Clerk JWT validado no server | - [ ] |
 | 3. Autorização | Verificar permissão via Configurador | - [ ] |
 | 4. Isolamento | Prisma middleware + RLS + 3 índices | - [ ] |
@@ -720,12 +720,12 @@ Implementar wizard de 3-5 passos no primeiro acesso. Ver skill `antigravity-onbo
 
 ### Client
 - [ ] 4. Dependências instaladas (Clerk, i18next, zustand, phosphor)?
-- [ ] 5. tsconfig.json com paths (`@nucleo/*`, `@shell`, `@tenant/*`, `@produto/*`)?
+- [ ] 5. tsconfig.json com paths (`@nucleo/*`, `@shell`, `@organização/*`, `@produto/*`)?
 - [ ] 6. vite.config.ts com aliases, dedupe, optimizeDeps, fs.allow, proxy?
 - [ ] 7. main.tsx com ClerkProvider + BrowserRouter?
 - [ ] 8. App.tsx com Layout do Shell + setApiContext?
 - [ ] 9. PRODUCT_CONFIG com id, port, tenantServices, productServices, navigation?
-- [ ] 10. api.ts com `setApiContext({ idOrganizacao, idUsuario })`, `x-internal-key` e `schema.parse()` em todas as respostas (Mandamento 06)? `id_organizacao` extraído do JWT no backend, nunca confiando em headers de cliente.
+- [ ] 10. api.ts com `setApiContext({ idOrganizacao, idUsuario })`, `x-chave-interna` e `schema.parse()` em todas as respostas (Mandamento 06)? `id_organizacao` extraído do JWT no backend, nunca confiando em headers de cliente.
 - [ ] 11. types.ts espelhando enums do Prisma com labels e badges?
 
 ### Server
@@ -733,7 +733,7 @@ Implementar wizard de 3-5 passos no primeiro acesso. Ver skill `antigravity-onbo
 - [ ] 13. fragment.prisma com `id_organizacao` + `id_produto` + `id_usuario` + 3 índices (DDD — Mandamento 03)?
 - [ ] 14. .env.example completo?
 - [ ] 15. Validação Zod em toda rota?
-- [ ] 16. Proxy de tenant configurado?
+- [ ] 16. Proxy de organização configurado?
 
 ### Plataforma
 - [ ] 17. Registrado no Configurador (catálogo + marketplace)?

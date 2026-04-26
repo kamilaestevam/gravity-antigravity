@@ -35,8 +35,8 @@ O monorepo Gravity tem uma infraestrutura padronizada que **nunca pode ser alter
 | `tsconfig.json` (raiz) | Líder ou Coordenador | Paths base de todo o monorepo |
 | `tsconfig.paths-produto.json` | Líder ou Coordenador | Paths para `produto/*/client` e `server` |
 | `tsconfig.paths-servico.json` | Líder ou Coordenador | Paths para `servicos-global/*` |
-| `tsconfig.paths-tenant.json` | Líder ou Coordenador | Paths para `servicos-global/tenant/*` |
-| `tsconfig.paths-tenant-client.json` | Líder ou Coordenador | Paths para `servicos-global/tenant/*/client` |
+| `tsconfig.paths-organização.json` | Líder ou Coordenador | Paths para `servicos-global/organização/*` |
+| `tsconfig.paths-organização-client.json` | Líder ou Coordenador | Paths para `servicos-global/organização/*/client` |
 | `nucleo-global/vite-aliases.ts` | Líder ou Coordenador | Aliases automáticos do Vite |
 
 ---
@@ -107,11 +107,11 @@ alias: {
 ```typescript
 // ❌ NUNCA cruzar fronteiras de pacote com caminhos relativos
 import { TabelaGlobal } from '../../../../nucleo-global/Tabelas/tabela-global/src'
-import { something } from '../../../servicos-global/tenant/gabi/src'
+import { something } from '../../../servicos-global/organização/gabi/src'
 
 // ✅ SEMPRE usar aliases configurados
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { something } from '@tenant/gabi'
+import { something } from '@organização/gabi'
 ```
 
 ### Três funções disponíveis
@@ -119,8 +119,8 @@ import { something } from '@tenant/gabi'
 | Função | O que gera | Quando usar |
 |:---|:---|:---|
 | `createNucleoAliases(root)` | `@nucleo/*` para 16 categorias | **Todo** vite.config.ts de client |
-| `createServiceAliases(root)` | `@gravity/shell`, `@shell`, `@tenant`, `@produto` | **Todo** vite.config.ts |
-| `createTenantAliases(root, [...])` | `@tenant/gabi`, `@tenant/historico`, etc. | Só quando importar tenant específico |
+| `createServiceAliases(root)` | `@gravity/shell`, `@shell`, `@organização`, `@produto` | **Todo** vite.config.ts |
+| `createTenantAliases(root, [...])` | `@organização/gabi`, `@organização/historico`, etc. | Só quando importar organização específico |
 
 ---
 
@@ -149,11 +149,11 @@ Todo `tsconfig.json` de produto ou serviço **deve usar `extends`** dos arquivos
 }
 ```
 
-### ✅ Correto — Tenant service
+### ✅ Correto — Organização service
 
 ```json
 {
-  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-tenant.json"],
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-organização.json"],
   "compilerOptions": { "baseUrl": ".", "rootDir": ".", "outDir": "dist" },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]

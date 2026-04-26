@@ -23,15 +23,15 @@ Request → [1. Rede] → [2. Autenticação] → [3. Autorização] → [4. Iso
 |:---|:---|
 | Comunicação interna via rede Railway | `*.railway.internal:PORT` |
 | Sem exposição pública de serviços | Apenas marketplace e gateway são públicos |
-| `x-internal-key` em toda chamada S2S | Header obrigatório — **PRIORIDADE P1** |
+| `x-chave-interna` em toda chamada S2S | Header obrigatório — **PRIORIDADE P1** |
 | HTTPS obrigatório | Railway provê TLS automático |
 
-### x-internal-key — Prioridade P1
+### x-chave-interna — Prioridade P1
 
 ```typescript
 // Middleware obrigatório em todo servidor que recebe chamadas internas
 function requireInternalKey(req: Request, res: Response, next: NextFunction) {
-  const key = req.headers['x-internal-key']
+  const key = req.headers['x-chave-interna']
   if (key !== process.env.INTERNAL_SERVICE_KEY) {
     return res.status(403).json({
       error: { code: 'UNAUTHORIZED_SERVICE', message: 'Unauthorized service' }
@@ -44,7 +44,7 @@ function requireInternalKey(req: Request, res: Response, next: NextFunction) {
 ```typescript
 // Todo produto DEVE enviar o header ao chamar serviços de organização
 orgAPI.get('/activities', {
-  headers: { 'x-internal-key': process.env.INTERNAL_SERVICE_KEY }
+  headers: { 'x-chave-interna': process.env.INTERNAL_SERVICE_KEY }
 })
 ```
 
@@ -92,7 +92,7 @@ const { allowed, tipo_usuario } = await fetch(
   {
     headers: {
       'Authorization': `Bearer ${req.auth.token}`,
-      'x-internal-key': process.env.INTERNAL_SERVICE_KEY!,
+      'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
     }
   }
 ).then(r => r.json())
@@ -104,7 +104,7 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 
 ## Camada 4 — Isolamento de Organização (pós-pivô 2026-04-17)
 
-**Proteção:** Mesmo com auth e permissão, dados de uma organização nunca vazam para outra. Após o pivô Schema-per-Organização ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE id_organizacao = ?`.
+**Proteção:** Mesmo com auth e permissão, dados de uma organização nunca vazam para outra. Após o pivô Schema-per-Organização ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE id_organizacao = ?`.
 
 | Mecanismo | Camada | Função |
 |:---|:---|:---|
@@ -114,14 +114,14 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 | **ESLint + CI lint** | Build | Bloqueia `import { PrismaClient } from '@prisma/client'` fora do SDK. |
 | **PostgreSQL RLS** | Banco | Mantido **apenas** no Configurador (single-schema). Em bancos de produto, o `search_path` substitui RLS. |
 
-Ver skill `antigravity-tenant-isolation` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) para implementação completa.
+Ver skill `antigravity-organização-isolation` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) para implementação completa.
 
 **Regras críticas (pós-pivô):**
-- O identificador de organização NUNCA vem do body — sempre de `req.tenant.tenantId` (API real do SDK, vem do `GET /api/v1/me` do Configurador, **nunca** do `publicMetadata` do Clerk — Mandamento 01)
+- O identificador de organização NUNCA vem do body — sempre de `req.organizacao.idOrganizacao` (API real do SDK, vem do `GET /api/v1/me` do Configurador, **nunca** do `publicMetadata` do Clerk — Mandamento 01)
 - Acesso a banco de produto **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(idOrganizacao, fn)` para workers
 - `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
 - Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
-- Cache prefixado por `tenant:<id>:` ou `tenant:_global:` (prefixo real de chave Redis — com justificativa); linter CI bloqueia chaves sem prefixo
+- Cache prefixado por `organização:<id>:` ou `organização:_global:` (prefixo real de chave Redis — com justificativa); linter CI bloqueia chaves sem prefixo
 - Pre-signed URLs S3: `tenant_<id>/...` no caminho (prefixo real de path S3), TTL ≤ 300s
 
 ---
@@ -138,7 +138,7 @@ Ver skill `antigravity-tenant-isolation` (reescrita 2026-04-17) e [ADR-002](../.
 | Tentativas de acesso negado | who, what_attempted, when |
 
 ```typescript
-// servicos-global/tenant/historico intercepta automaticamente
+// servicos-global/organização/historico intercepta automaticamente
 // Middleware registrado no servidor de organização
 app.use(auditMiddleware({
   ignore: ['GET'], // Só audita mutações
@@ -153,7 +153,7 @@ app.use(auditMiddleware({
 ## Checklist de Segurança — Obrigatório em Toda Entrega
 
 ### Camada 1 — Rede
-- [ ] `x-internal-key` em toda chamada S2S?
+- [ ] `x-chave-interna` em toda chamada S2S?
 - [ ] Serviço não exposto publicamente (exceto marketplace/gateway)?
 - [ ] Comunicação via rede interna Railway?
 
@@ -173,8 +173,8 @@ app.use(auditMiddleware({
 - [ ] Nenhum `import { PrismaClient } from '@prisma/client'` no código (exceto dentro do SDK)?
 - [ ] Nenhum `new PrismaClient(`?
 - [ ] Nenhum `WHERE id_organizacao = ?` em queries de banco de produto (o schema **é** a organização)?
-- [ ] Identificador de organização lido de `req.tenant.tenantId` (API real do SDK), nunca do `publicMetadata` do Clerk?
-- [ ] Toda chave de cache prefixada por `tenant:<id>:` ou `tenant:_global:` (com justificativa)?
+- [ ] Identificador de organização lido de `req.organizacao.idOrganizacao` (API real do SDK), nunca do `publicMetadata` do Clerk?
+- [ ] Toda chave de cache prefixada por `organização:<id>:` ou `organização:_global:` (com justificativa)?
 - [ ] Pre-signed URLs S3 com TTL ≤ 300s e `tenant_<id>/...` no caminho?
 - [ ] Teste anti-cross-organização + teste de pool leak (`SET LOCAL` reset) implementados?
 

@@ -215,7 +215,7 @@
 ---
 
 ### 15. Multi-organização / isolamento 🔴
-**O que cobre:** Organização A não vê dados da Organização B. **Mora em `testes-cross-tenant` (nome de pasta legado preservado para compatibilidade).**
+**O que cobre:** Organização A não vê dados da Organização B. **Mora em `testes-cross-organização` (nome de pasta legado preservado para compatibilidade).**
 
 **Passos típicos:**
 - Criar dado na Organização A

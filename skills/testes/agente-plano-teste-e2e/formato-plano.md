@@ -93,7 +93,7 @@ const PreRequisitosSchema = z.object({
     descricao: z.string(),
     fixture:   z.string().optional(),
   })).optional(),
-  servicosAtivos: z.array(z.string()),  // ex: ['configurador-server', 'tenant-server']
+  servicosAtivos: z.array(z.string()),  // ex: ['configurador-server', 'organização-server']
   notas: z.string().optional(),
 })
 

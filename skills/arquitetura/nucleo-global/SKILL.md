@@ -29,7 +29,7 @@ As três perguntas precisam ter resposta **NÃO** para o código pertencer ao nu
 
 ## O Que um Componente do nucleo-global NUNCA Pode Fazer
 
-- Importar nada de `servicos-global`, `tenant/*` ou `produto/*` — ciclo de dependência proibido
+- Importar nada de `servicos-global`, `organização/*` ou `produto/*` — ciclo de dependência proibido
 - Fazer `fetch` ou usar `axios` diretamente (exceto em utilitários de tipagem de API base)
 - Acessar `localStorage` ou `sessionStorage` — deve receber dados via props
 - Ter lógica de permissão de usuário (`roles`, `permissions`)

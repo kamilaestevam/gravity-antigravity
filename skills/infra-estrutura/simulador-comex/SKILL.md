@@ -39,7 +39,7 @@ Antes de iniciar o desenvolvimento do Simulador Comex, preciso que você respond
 - Há regras de permissão específicas por papel de usuário?
 
 ### 5 — Serviços
-- Quais serviços de tenant este produto usa? (atividades, email, whatsapp, dashboard, relatórios, histórico, agenda, gabi)
+- Quais serviços de organização este produto usa? (atividades, email, whatsapp, dashboard, relatórios, histórico, agenda, gabi)
 - Precisa de helpdesk?
 - Há algum serviço específico que não está no catálogo padrão?
 

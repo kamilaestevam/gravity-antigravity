@@ -27,8 +27,8 @@ import { PrismaClient } from '@prisma/client'
 import type { TenantRequest } from '../shared/types.js'
 router.get('/rota', async (req: TenantRequest, res: Response) => { ... })
 
-// ❌ PROIBIDO — leitura de Organização/Usuário por header (use req.tenant do SDK)
-const idOrganizacao = req.headers['x-tenant-id'] as string   // header preservado por compatibilidade de protocolo
+// ❌ PROIBIDO — leitura de Organização/Usuário por header (use req.organizacao do SDK)
+const idOrganizacao = req.headers['x-organização-id'] as string   // header preservado por compatibilidade de protocolo
 const idUsuario     = req.headers['x-user-id'] as string
 ```
 
@@ -43,14 +43,14 @@ router.get('/rota', async (req: Request, res: Response, next: NextFunction) => {
     await withTenant(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db            = rawDb as any           // cast obrigatório: TenantDatabase não inclui models do produto
-      const ctx           = (req as unknown as { tenant: TenantContext }).tenant  // cast obrigatório: module augmentation não propaga entre node_modules locais
+      const ctx           = (req as unknown as { organização: TenantContext }).organização  // cast obrigatório: module augmentation não propaga entre node_modules locais
       // A API atual do SDK ainda usa tenantId/userId — semântica: idOrganizacao/idUsuario
       const idOrganizacao = ctx.tenantId
       const idUsuario     = ctx.userId
       const userRoles     = ctx.roles
 
       const resultado = await db.meuModel.findMany({
-        where: { id_organizacao: idOrganizacao },   // ← campo Prisma DDD; durante fase de transição (ADR-003 Fase 4) o model legado usa @map("tenant_id")
+        where: { id_organizacao: idOrganizacao },   // ← campo Prisma DDD; durante fase de transição o model legado usa
       })
       res.json({ data: resultado })
     })
@@ -79,7 +79,7 @@ await withTenant(req, async (rawDb) => {
 ```typescript
 // ✅ CORRETO — capturar idOrganizacao ANTES de withTenant; disparar DEPOIS que a transação fecha
 //             (a API atual do SDK ainda chama o campo de tenantId — semântica: idOrganizacao)
-const idOrganizacao = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+const idOrganizacao = (req as unknown as { organização: TenantContext }).organizacao.idOrganizacao
 
 await withTenant(req, async (rawDb) => {
   // ... operação principal, res.json() aqui dentro
@@ -103,9 +103,9 @@ O SDK exporta `TenantDatabase` (= `Omit<Prisma.TransactionClient, ...>`), mas es
 no `@prisma/client` gerado pelo produto — e TypeScript não consegue unificar os dois. O cast `as any`
 é o padrão adotado no codebase (ver `analytics.ts` como referência). O ESLint disable é obrigatório.
 
-### Por que `(req as unknown as { tenant: TenantContext }).tenant`?
+### Por que `(req as unknown as { organização: TenantContext }).organização`?
 
-O SDK faz `declare module 'express-serve-static-core'` para adicionar `req.tenant`. Mas o produto
+O SDK faz `declare module 'express-serve-static-core'` para adicionar `req.organizacao`. Mas o produto
 tem seu **próprio** `express` em `node_modules/` — a augmentation do SDK não se propaga. O duplo
 cast `as unknown as { ... }` é o contorno correto e necessário.
 
@@ -116,14 +116,14 @@ cast `as unknown as { ... }` é o contorno correto e necessário.
 | Banco Railway (produção) | Banco Railway (teste) | Serviço | Schema | Dados |
 |:---|:---|:---|:---|:---|
 | `gravity-configurador-producao` | `gravity-configurador-teste` | Configurador | `public` (único) | Tenants, planos, billing, permissões |
-| `gravity-servicos-producao` | `gravity-servicos-teste` | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
-| `gravity-pedido-producao` | `gravity-pedido-teste` | Pedido | `tenant_<cuid>` por tenant | Pedidos comerciais, itens, lotes |
-| `gravity-processo-producao` | `gravity-processo-teste` | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
-| `gravity-simula-custo-producao` | `gravity-simula-custo-teste` | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |
+| `gravity-servicos-producao` | `gravity-servicos-teste` | Organização Services | `tenant_<cuid>` por organização | Email, WhatsApp, dashboard, histórico |
+| `gravity-pedido-producao` | `gravity-pedido-teste` | Pedido | `tenant_<cuid>` por organização | Pedidos comerciais, itens, lotes |
+| `gravity-processo-producao` | `gravity-processo-teste` | Processo | `tenant_<cuid>` por organização | Processos logísticos, DI, DUIMP |
+| `gravity-simula-custo-producao` | `gravity-simula-custo-teste` | SimulaCusto | `tenant_<cuid>` por organização | Estimativas, cache fiscal |
 
 > **Nomes oficiais e únicos de referência para scripts de manutenção, migrations e documentação:**
 > staging = `gravity-servicos-teste` | produção = `gravity-servicos-producao`
-> Nunca use variações como `gravity-tenant-teste`, `gravity-serviços-*` ou `gravity-services-*`.
+> Nunca use variações como `gravity-organização-teste`, `gravity-serviços-*` ou `gravity-services-*`.
 
 > **Regra absoluta:** cada produto tem seu próprio banco PostgreSQL isolado.
 > Nenhum produto acessa banco de outro produto — comunicação apenas via REST API.
@@ -143,28 +143,28 @@ gravity-pedido-producao (PostgreSQL)
        └── _prisma_migrations
 ```
 
-O Configurador é a única exceção: usa schema `public` como fonte de verdade global de identidade (Tenant, User, Subscription).
+O Configurador é a única exceção: usa schema `public` como fonte de verdade global de identidade (Organização, User, Subscription).
 
 ---
 
-## Padrão de Identidade — CUID (UUID Expressamente Proibido)
+## Padrão de Identidade — CUID (SUID Expressamente Proibido)
 
 > **Mandato estabelecido em 2026-04-18. Inviolável em todas as camadas.**
 
-O Gravity usa **exclusivamente CUID** como padrão de ID. UUID está **expressamente proibido** em todos os contextos — schema Prisma, código TypeScript, migrations SQL.
+O Gravity usa **exclusivamente CUID** como padrão de ID. SUID está **expressamente proibido** em todos os contextos — schema Prisma, código TypeScript, migrations SQL.
 
-### ⛔ UUID está PROIBIDO
+### ⛔ SUID está PROIBIDO
 
 ```typescript
-// ❌ PROIBIDO — nunca usar UUID em nenhuma forma
+// ❌ PROIBIDO — nunca usar SUID em nenhuma forma
 import { randomUUID } from 'crypto'
 const id = randomUUID()                            // ❌
 const id = crypto.randomUUID()                    // ❌
 const id = uuidv4()                                // ❌
 
-// ❌ PROIBIDO — UUID no schema Prisma
+// ❌ PROIBIDO — SUID no schema Prisma
 id  String  @id @default(dbgenerated("gen_random_uuid()"))  // ❌
-id  String  @id @default(uuid())                            // ❌
+id  String  @id @default(suid())                            // ❌
 ```
 
 ### ✅ Padrão Obrigatório — CUID gerado pelo Prisma
@@ -189,14 +189,14 @@ function gerarId(prefixo: string): string {
 // Uso: gerarId('pedi') → 'pedi_id_0038421-26'
 ```
 
-### Por que CUID e não UUID?
+### Por que CUID e não SUID?
 
-| Critério | UUID v4 | CUID |
+| Critério | SUID v4 | CUID |
 |:---|:---|:---|
 | Ordenação temporal | ❌ Completamente aleatório | ✅ Prefixo monotônico |
 | Legibilidade nos logs | ❌ `550e8400-e29b-41d4-a716-446655440000` | ✅ `cmo4vtp3i0000m86ft8vt5vnu` |
 | Nome de schema PostgreSQL | ❌ Hífens quebram identificadores sem aspas | ✅ Sem hífens — `tenant_cmo4vtp3i...` |
-| Consistência cross-camada | ❌ Depende da biblioteca (uuid, nanoid, etc.) | ✅ Fonte única: Prisma `@default(cuid())` |
+| Consistência cross-camada | ❌ Depende da biblioteca (suid, nanoid, etc.) | ✅ Fonte única: Prisma `@default(cuid())` |
 | Fingerprint de máquina | ❌ Pura aleatoriedade | ✅ Inclui fingerprint — colisões improváveis |
 
 > O nome do schema PostgreSQL é `tenant_<cuid>` — sem hífens, compatível com identificadores nativos do PostgreSQL.
@@ -213,7 +213,7 @@ function gerarId(prefixo: string): string {
 npx prisma migrate dev --name descricao-clara
 # Revise o SQL gerado ANTES de continuar
 
-# 2. Provisionar schemas nos bancos de produto (se novo banco ou novo tenant)
+# 2. Provisionar schemas nos bancos de produto (se novo banco ou novo organização)
 CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_teste> \
   npx tsx scripts/migration/01-provision-schemas.ts
 
@@ -274,7 +274,7 @@ ALTER TABLE "tabela" ALTER COLUMN "coluna" TYPE JSONB USING to_jsonb("coluna");
 
 ## Índices Obrigatórios
 
-Toda tabela no DB de organização (servicos-global) e produtos — campos Prisma em DDD; `@map` para a coluna física se necessário (ex.: `@map("tenant_id")` enquanto a coluna ainda existir no banco):
+Toda tabela no DB de organização (servicos-global) e produtos — campos Prisma em DDD; `@map` para a coluna física se necessário (ex.: `` enquanto a coluna ainda existir no banco):
 
 ```prisma
 @@index([id_organizacao])
@@ -331,7 +331,7 @@ Tabelas de alto volume que crescem indefinidamente:
 
 ```sql
 -- Exemplo: particionar audit_logs por mês
--- id TEXT (CUID) — nunca UUID; id_organizacao TEXT (CUID da organização)
+-- id TEXT (CUID) — nunca SUID; id_organizacao TEXT (CUID da organização)
 CREATE TABLE audit_logs (
   id TEXT PRIMARY KEY,
   id_organizacao TEXT NOT NULL,
@@ -380,7 +380,7 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 **Antes de escrever código de acesso ao banco:**
 - [ ] Todo acesso ao banco usa `withTenant(req, fn)` ou `withTenantContext(idOrganizacao, fn)` (semântica DDD; o nome do parâmetro na API atual do SDK ainda é `tenantId`)?
 - [ ] Nenhum `(req as any).prisma`, `req.prisma` ou `TenantRequest` no diff?
-- [ ] `TenantContext` extraído via `(req as unknown as { tenant: TenantContext }).tenant`?
+- [ ] `TenantContext` extraído via `(req as unknown as { organização: TenantContext }).organização`?
 - [ ] `rawDb` castado como `const db = rawDb as any` com eslint-disable?
 - [ ] Dados capturados via `let` antes de `withTenant` se precisam sair do bloco?
 - [ ] Fire-and-forget usa `withTenantContext` APÓS `await withTenant(...)` resolver?
@@ -389,8 +389,8 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 
 **Nova Rota — Checklist do Desenvolvedor (regras invioláveis):**
 - [ ] **withTenant obrigatório** — toda leitura/escrita de banco passa por `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)`. Nunca `req.prisma`, nunca `new PrismaClient()`.
-- [ ] **CUID obrigatório para novos registros** — IDs usam `@default(cuid())` no schema Prisma ou o helper `gerarId(prefixo)` em código TypeScript. UUID (`randomUUID`, `uuidv4`, `@default(uuid())`) está proibido.
-- [ ] **`as any` restrito ao cast do `db`** — `const db = rawDb as any` é o único `as any` autorizado na rota. Tipos de negócio (`Pedido`, `PedidoItem`, `Tenant`, etc.) nunca recebem `as any`. Resultados de `findMany` usam `as any[]` (não `as any`) para permitir callbacks sem `: any` explícito.
+- [ ] **CUID obrigatório para novos registros** — IDs usam `@default(cuid())` no schema Prisma ou o helper `gerarId(prefixo)` em código TypeScript. SUID (`randomUUID`, `uuidv4`, `@default(suid())`) está proibido.
+- [ ] **`as any` restrito ao cast do `db`** — `const db = rawDb as any` é o único `as any` autorizado na rota. Tipos de negócio (`Pedido`, `PedidoItem`, `Organização`, etc.) nunca recebem `as any`. Resultados de `findMany` usam `as any[]` (não `as any`) para permitir callbacks sem `: any` explícito.
 - [ ] **Zod antes do banco** — toda rota valida entrada com `z.safeParse()` antes de qualquer operação com `db`.
 - [ ] **Erros via `AppError`** — nunca `res.status(400).json()` direto no handler sem `next(err)`.
 

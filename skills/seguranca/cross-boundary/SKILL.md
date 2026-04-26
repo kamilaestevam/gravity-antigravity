@@ -42,12 +42,12 @@ async function enqueueOrgAction({
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       await fetch(
-        `${process.env.TENANT_SERVICES_URL}/api/tenant/${service}/${action}`,
+        `${process.env.TENANT_SERVICES_URL}/api/organização/${service}/${action}`,
         {
           method: 'POST',
           headers: {
             'Authorization':     `Bearer ${serviceToken}`,
-            'X-Idempotency-Key': idempotencyKey,
+            'x-chave-idempotencia': idempotencyKey,
             'Content-Type':      'application/json'
           },
           body: JSON.stringify(payload)
@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
     service:        'comex',
     action:         'sync-simulation',
     payload:        sim,
-    idOrganizacao:  req.tenant.tenantId,  // SDK @gravity/tenant-resolver
+    idOrganizacao:  req.organizacao.idOrganizacao,  // SDK @gravity/tenant-resolver
     idUsuario:      req.user.id,
     idempotencyKey: `sim_${sim.id}`
   }).catch(err => console.error('Silent failure enqueued', err))
@@ -110,7 +110,7 @@ Esta tabela deve existir no schema de todos os produtos que falam com serviços 
 
 | Campo | Tipo | Descrição |
 |:---|:---|:---|
-| `id` | UUID | PK |
+| `id` | SUID | PK |
 | `service` | String | Nome do microserviço de destino |
 | `action` | String | Endpoint/Ação sendo executada |
 | `payload` | JSON | Dados completos da requisição |
@@ -156,7 +156,7 @@ for (const action of failed) {
 
 ## Idempotência — Evitar Duplicação
 
-O serviço de organização **deve** verificar a `X-Idempotency-Key` antes de processar:
+O serviço de organização **deve** verificar a `x-chave-idempotencia` antes de processar:
 
 1. Verifica se já existe um registro com essa chave no banco (tabela `processed_actions`)
 2. Se sim, retorna 200 OK imediatamente sem reprocessar
@@ -199,11 +199,11 @@ await orgQueue.add('create-activity', payload, {
 // Worker — processa a fila
 new Worker('org-actions', async (job) => {
   const serviceToken = await getServiceToken(job.data.idOrganizacao, job.data.idUsuario)
-  await fetch(`${TENANT_URL}/api/tenant/${job.name}`, {
+  await fetch(`${TENANT_URL}/api/organização/${job.name}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${serviceToken}`,
-      'X-Idempotency-Key': job.data.idempotencyKey,
+      'x-chave-idempotencia': job.data.idempotencyKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(job.data.payload),

@@ -87,7 +87,7 @@ export default function () {
   const res = http.get('https://staging.gravity.com.br/api/v1/cotacoes', {
     headers: {
       'Authorization': `Bearer ${__ENV.TEST_TOKEN}`,
-      'x-internal-key': __ENV.INTERNAL_KEY,
+      'x-chave-interna': __ENV.INTERNAL_KEY,
     },
   })
   check(res, { 'status is 200': (r) => r.status === 200 })

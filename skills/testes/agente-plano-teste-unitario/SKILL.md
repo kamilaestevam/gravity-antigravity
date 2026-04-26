@@ -126,7 +126,7 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 - Mock de `req`, `res` e `next` como `vi.fn()`
 - Happy path: middleware chama `next()` sem argumento (fluxo normal)
 - Falha de auth: middleware chama `next(new AppError(...))` ou `res.status(401).json()`
-- Side effects: verificar que enriquece `req` com os campos esperados (ex: `req.tenant`, `req.correlationId`)
+- Side effects: verificar que enriquece `req` com os campos esperados (ex: `req.organizacao`, `req.correlationId`)
 - Middleware não deve chamar `next()` E retornar resposta ao mesmo tempo
 
 ### 8. Utilitário (utils.ts / helpers.ts)
@@ -162,7 +162,7 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 - Set + Get: valor setado é lido corretamente
 - TTL: valor expirado → `null` no get (se TTL aplicável)
 - Invalidação: invalidar chave → próximo get retorna `null`/busca nova
-- Prefixo obrigatório: chave **sempre** inclui `tenant:<idOrganizacao>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
+- Prefixo obrigatório: chave **sempre** inclui `organização:<idOrganizacao>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
 - Duas escritas simultâneas (simuladas) → valor final determinístico
 - Ambiente: `@vitest-environment node`
 
@@ -267,7 +267,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
   syncRoleToClerk: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/tenant/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/organização/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
 }))
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
@@ -463,7 +463,7 @@ testes/testes-unitarios/
 │       └── entity-link-factory.test.ts
 ├── pedido/
 │   └── api-context.test.ts
-└── tenant/
+└── organização/
     └── notificacoes/
         └── webhook-resend-signature.test.ts
 

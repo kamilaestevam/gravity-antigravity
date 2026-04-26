@@ -43,7 +43,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] **PROIBIDO ler `publicMetadata.role` ou qualquer publicMetadata para autorização** (Mandamento 01) — autorização vem do Prisma via `GET /api/v1/me`
 - [ ] Nenhum `(data?.x?.y ?? null) as Role` (Mandamento 08 — sem fallback silencioso)
 - [ ] Toda resposta `fetch().json()` passa por `schema.parse()` Zod (Mandamento 06)
-- [ ] `x-internal-key` presente em toda chamada entre serviços internos
+- [ ] `x-chave-interna` presente em toda chamada entre serviços internos
 - [ ] Nenhuma variável de ambiente hardcoded no código
 - [ ] Nenhum `console.log` expondo dados de usuário ou organização
 - [ ] Nenhum `useState<T>({} as T)` (Mandamento 05) — usar `useState<T | null>(null)` + tratamento loading
@@ -55,18 +55,18 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 ### 2 — Isolamento de Organização (Schema-per-Organização)
 
-> Consultar `antigravity-tenant-isolation`.
+> Consultar `antigravity-organização-isolation`.
 
 - [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
 - [ ] `withTenantContext(idOrganizacao, fn)` em CRON jobs e workers (sem `req`)
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK — reprovação imediata
 - [ ] **Nenhum** `new PrismaClient(` no código de aplicação — reprovação imediata
 - [ ] **Nenhum** `WHERE id_organizacao = ?` em queries de produto (o schema **é** a organização)
-- [ ] Models de produto **não têm campo de identificador de organização** (após migração completa)
+- [ ] Models de produto **não têm campo de identificador de organização** ()
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` dentro de transação
 - [ ] **Nenhum** uso de PgBouncer session mode para banco de produto
-- [ ] `idOrganizacao` lido de `req.tenant.tenantId` (do `GET /api/v1/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
-- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:` (prefixo técnico real do SDK — manter)
+- [ ] `idOrganizacao` lido de `req.organizacao.idOrganizacao` (do `GET /api/v1/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
+- [ ] Chaves de cache prefixadas por `organização:<id>:` ou `organização:_global:` (prefixo técnico real do SDK — manter)
 - [ ] Teste anti-cross-organização em `testes/security/cross-tenant-isolation.test.ts`
 - [ ] Teste de pool leak (crash do handler não polui `search_path` da próxima request)
 - [ ] Nenhum endpoint retorna dados de múltiplas organizações misturados
@@ -105,7 +105,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] Nenhum serviço por organização importa código de outro serviço por organização
 - [ ] Serviços de produto não acessam o banco do Configurador diretamente
 - [ ] Produtos não acessam o banco de outros produtos
-- [ ] Imports usam aliases configurados (`@nucleo/`, `@tenant/`, `@produto/`)
+- [ ] Imports usam aliases configurados (`@nucleo/`, `@organização/`, `@produto/`)
 - [ ] `Fragment.prisma` não modifica o `schema.prisma` final diretamente (Mandamento 02)
 
 ### 6 — Qualidade Geral
@@ -340,7 +340,7 @@ Após correção, QA deve ser acionado novamente.
 | Para validar | Consultar |
 |:---|:---|
 | 9 Mandamentos | `antigravity-9-mandamentos` |
-| Isolamento de Organização | `antigravity-tenant-isolation` (nome do arquivo da skill preservado) + `antigravity-tier1-security` |
+| Isolamento de Organização | `antigravity-organização-isolation` (nome do arquivo da skill preservado) + `antigravity-tier1-security` |
 | Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
 | Como escrever testes | `antigravity-testes` |
 | Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |

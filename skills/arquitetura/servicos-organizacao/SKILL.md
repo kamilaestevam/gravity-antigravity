@@ -1,5 +1,5 @@
 ---
-name: antigravity-servicos-tenant
+name: antigravity-servicos-organização
 description: "Use esta skill sempre que uma tarefa envolver criação, modificação ou uso de serviços da organização ou serviços de produto do projeto Gravity. Define a diferença entre as duas naturezas de serviço, a estrutura obrigatória de pastas, as regras de autocontido, como expor fragment.prisma (pós-pivô Schema-per-Organização) e como o frontend integra os serviços. Todo agente consulta esta skill antes de criar ou modificar qualquer serviço."
 ---
 
@@ -14,7 +14,7 @@ Dentro de `servicos-global` existem duas categorias fundamentalmente diferentes.
 Existem uma vez por organização, independente de quantos produtos ela use. O email é da organização, não do produto. As atividades precisam aparecer unificadas em todos os produtos. O dashboard consolida KPIs de tudo.
 
 - **Todos os 11 serviços rodam em processo único — o super-servidor de organização (porta 3001)**
-- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/tenant/server/index.ts`) é o único `app.listen()`
+- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/organização/server/index.ts`) é o único `app.listen()`
 - Acessados por todos os produtos via API REST
 - Após o pivô Schema-per-Organização (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`); models não carregam mais `id_organizacao` como coluna
 
@@ -30,7 +30,7 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 
 ## Tabela Comparativa
 
-| Característica | nucleo-global | servicos-global/tenant | servicos-global/produto |
+| Característica | nucleo-global | servicos-global/organização | servicos-global/produto |
 |:---|:---|:---|:---|
 | Tem estado próprio? | ❌ Não | ✅ Sim | ✅ Sim |
 | Tem backend? | ❌ Nunca | ✅ Sempre | ✅ Sempre |
@@ -74,15 +74,15 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 Todos os 11 serviços compartilham um único processo Node.js. Isso elimina a sobrecarga de 11 portas, 11 processos e 11 conexões de banco separadas em dev e em produção.
 
 ```
-servicos-global/tenant/
+servicos-global/organização/
 ├── server/
 │   ├── index.ts       ← ÚNICO app.listen() — monta todos os serviceRouters
 │   └── lib/
 │       └── prisma.ts  ← instância Prisma compartilhada
 ├── middleware/
-│   ├── auth.ts                       ← authMiddleware (x-tenant-id obrigatório)
-│   ├── correlation.ts                ← correlationMiddleware (UUID automático)
-│   ├── withInternalKeyValidation.ts  ← timingSafeEqual no x-internal-key
+│   ├── auth.ts                       ← authMiddleware (x-organização-id obrigatório)
+│   ├── correlation.ts                ← correlationMiddleware (SUID automático)
+│   ├── withInternalKeyValidation.ts  ← timingSafeEqual no x-chave-interna
 │   ├── appError.ts                   ← classe AppError
 │   └── errorHandler.ts               ← handler global de erros
 └── [nome-do-servico]/
@@ -101,24 +101,24 @@ servicos-global/tenant/
 ### Ordem dos Middlewares no Super-Servidor
 
 ```typescript
-app.use(correlationMiddleware)          // 1. Gera/propaga x-correlation-id
+app.use(correlationMiddleware)          // 1. Gera/propaga x-id-correlacao
 app.get('/health', healthHandler)       // 2. Health check — sem auth
 app.use('/webhook', express.raw(...))   // 3. Raw body para webhooks (antes do json)
 app.use(express.json())                 // 4. Body parser
-app.use(authMiddleware)                 // 5. Exige x-tenant-id (header de protocolo) → 401 se ausente
-app.use(withInternalKeyValidation)      // 6. Valida x-internal-key → 403 se inválida
+app.use(authMiddleware)                 // 5. Exige x-organização-id (header de protocolo) → 401 se ausente
+app.use(withInternalKeyValidation)      // 6. Valida x-chave-interna → 403 se inválida
 app.use(serviceRouter)                  // 7. Routers dos 11 serviços
 app.use(errorHandler)                   // 8. Handler global de erros
 ```
 
-> **Nota:** o header `x-tenant-id` é nome de protocolo HTTP em uso e não é renomeado por compatibilidade. O valor que ele transporta corresponde ao `id_organizacao` da request.
+> **Nota:** o header `x-organização-id` é nome de protocolo HTTP em uso e não é renomeado por compatibilidade. O valor que ele transporta corresponde ao `id_organizacao` da request.
 
 ---
 
 ## Estrutura Obrigatória — Serviço da Organização
 
 ```text
-servicos-global/tenant/[nome-do-servico]/
+servicos-global/organização/[nome-do-servico]/
 ├── src/
 │   ├── [NomeServico].tsx   ← componente principal
 │   └── index.ts            ← barrel export
@@ -152,9 +152,9 @@ Cada serviço deve ser **autocontido em termos de deploy e banco de dados**, mas
 
 ```typescript
 // ✅ correto — consumir outro serviço via API
-const timers = await fetch('/api/tenant/timers?activity_id=123')
+const timers = await fetch('/api/organização/timers?activity_id=123')
 
-// ❌ proibido — importar código de outro serviço de tenant
+// ❌ proibido — importar código de outro serviço de organização
 import { something } from '../cronometro/src/Cronometro'
 ```
 
@@ -171,7 +171,7 @@ Cada serviço escreve apenas seu próprio fragment. Nunca edita o `schema.prisma
 - Acesso só via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`)
 
 ```prisma
-// servicos-global/tenant/atividades/prisma/fragment.prisma
+// servicos-global/organização/atividades/prisma/fragment.prisma
 
 model Activity {
   id         String   @id @default(cuid())
@@ -189,7 +189,6 @@ model Activity {
 }
 ```
 
-> Durante a janela de migração (ADR-003 Fases 2-3), `id_organizacao` pode permanecer em coluna. Após Fase 4 (Cleanup), é removido via migration.
 
 ---
 
@@ -223,14 +222,14 @@ O shell carrega a navegação e delega para o módulo correto via lazy loading:
 ```typescript
 // nucleo-global/shell/navigation.tsx
 const tenantModules = {
-  activities: lazy(() => import('@tenant/atividades/src/Atividades')),
-  email:      lazy(() => import('@tenant/email/src/Email')),
-  whatsapp:   lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
-  dashboard:  lazy(() => import('@tenant/dashboard/src/Dashboard')),
-  reports:    lazy(() => import('@tenant/relatorios/src/Relatorios')),
-  history:    lazy(() => import('@tenant/historico/src/Historico')),
-  schedule:   lazy(() => import('@tenant/agendamento/src/Agendamento')),
-  gabi:       lazy(() => import('@tenant/gabi/src/Gabi')),
+  activities: lazy(() => import('@organização/atividades/src/Atividades')),
+  email:      lazy(() => import('@organização/email/src/Email')),
+  whatsapp:   lazy(() => import('@organização/whatsapp/src/WhatsApp')),
+  dashboard:  lazy(() => import('@organização/dashboard/src/Dashboard')),
+  reports:    lazy(() => import('@organização/relatorios/src/Relatorios')),
+  history:    lazy(() => import('@organização/historico/src/Historico')),
+  schedule:   lazy(() => import('@organização/agendamento/src/Agendamento')),
+  gabi:       lazy(() => import('@organização/gabi/src/Gabi')),
 }
 ```
 
@@ -242,7 +241,7 @@ const tenantModules = {
 
 ```typescript
 // produtos/simulador-comex/server/index.ts
-import { createOrgProxy } from '@tenant/proxy'
+import { createOrgProxy } from '@organização/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
 // Rotas específicas do produto
@@ -335,6 +334,6 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - [ ] Rotas com prefixo `/api/v1/`?
 - [ ] `server/routes.ts` exporta `[nome]ServiceRouter` (sem `app.listen()`)?
 - [ ] Se tem pg-boss/workers/cron: extraiu para `server/init.ts`?
-- [ ] Registrou o `serviceRouter` em `servicos-global/tenant/server/index.ts`?
+- [ ] Registrou o `serviceRouter` em `servicos-global/organização/server/index.ts`?
 - [ ] Validação Zod em todas as rotas?
 - [ ] Testes unitários e funcionais criados?

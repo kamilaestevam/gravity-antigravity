@@ -46,8 +46,8 @@ Cada agente só escreve dentro da sua pasta autorizada. Nenhum agente modifica c
 | Camada | Quem pode modificar | Quem nunca modifica |
 |:---|:---|:---|
 | `nucleo-global/` | Agente 1A (Onda 2) | Qualquer agente das Ondas 3 e 4 |
-| `servicos-global/tenant/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
-| `servicos-global/tenant/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
+| `servicos-global/organização/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
+| `servicos-global/organização/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
 | `servicos-global/produto/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
 | `servicos-global/marketplace/` | Agente Marketplace (Onda 1) | Qualquer outro agente |
 | `servicos-global/configurador/` | Agente Configurador (Onda 2) | Qualquer outro agente |
@@ -63,10 +63,10 @@ Cada agente só escreve dentro da sua pasta autorizada. Nenhum agente modifica c
 import { TabelaGlobal } from '@nucleo/tabela-global'
 
 // ✅ permitido — consumir serviços via API REST
-const response = await fetch('/api/tenant/activities')
+const response = await fetch('/api/organização/activities')
 
-// ❌ proibido — serviço de tenant importando outro serviço de tenant
-import { something } from '@tenant/email' // dentro de @tenant/atividades
+// ❌ proibido — serviço de organização importando outro serviço de organização
+import { something } from '@organização/email' // dentro de @organização/atividades
 
 // ❌ proibido — produto acessando banco de outro produto
 import { prisma } from '../../bid-frete/server/prisma'
@@ -79,10 +79,10 @@ import { prisma } from '../../bid-frete/server/prisma'
 
 ## Regras de Comunicação entre Serviços
 
-- Todo produto acessa serviços de tenant via proxy (`/api/tenant/[servico]`)
+- Todo produto acessa serviços de organização via proxy (`/api/organização/[servico]`)
 - Nenhum produto acessa o banco do Configurador diretamente — usa `GET /api/check-access`
 - Nenhum produto acessa o banco de outro produto
-- Serviços de tenant **nunca importam código** de outro serviço de tenant
+- Serviços de organização **nunca importam código** de outro serviço de organização
 - Serviços comunicam-se **apenas via API REST** (ou eventos se houver barramento)
 - Somente o `nucleo-global` pode exportar tipos e constantes compartilhadas
 
@@ -96,7 +96,7 @@ import { prisma } from '../../bid-frete/server/prisma'
 |:---|:---|:---|
 | Onda 1 | Esqueleto do monorepo, schemas Prisma base, Marketplace | Nenhum |
 | Onda 2 | Núcleo UI, Shell, Configurador | Onda 1 concluída |
-| Onda 3 | Serviços de tenant, serviços de produto, produto | Onda 2 concluída |
+| Onda 3 | Serviços de organização, serviços de produto, produto | Onda 2 concluída |
 | Onda 4 | Proxy, Auth Flow, DevOps | Onda 3 concluída |
 
 ### Regra de bloqueio
@@ -125,16 +125,16 @@ Todo agente que escreve código garante:
 - Nenhum `console.log` com dados sensíveis
 - Nenhuma variável de ambiente hardcoded
 - JWT validado em toda rota protegida via `@clerk/backend` — **Clerk APENAS para autenticação** (Mandamento 01)
-- `x-internal-key` presente em toda chamada entre serviços
+- `x-chave-interna` presente em toda chamada entre serviços
 - **Acesso ao banco de produto exclusivamente via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
-- Toda chave de cache prefixada por `tenant:<id>:` (ou `tenant:_global:` com justificativa) — o nome do SDK é mantido por compatibilidade técnica
+- Toda chave de cache prefixada por `organização:<id>:` (ou `organização:_global:` com justificativa) — o nome do SDK é mantido por compatibilidade técnica
 - **Autorização vem do Prisma via `GET /api/v1/me`** — PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões (Mandamento 01)
 - Identidade da organização vem do JWT validado pelo SDK — **nunca** do body da requisição
 - Sem fallbacks silenciosos em autorização: `tipo_usuario` ausente → falhar alto (Mandamento 08)
 - Toda resposta de `fetch().json()` passa por `schema.parse()` Zod antes do uso (Mandamento 06)
 
 > Consultar `antigravity-9-mandamentos` para as regras absolutas e não-negociáveis.
-> Consultar `antigravity-tenant-isolation` para as regras completas de Isolamento de Organização.
+> Consultar `antigravity-organização-isolation` para as regras completas de Isolamento de Organização.
 > Consultar `antigravity-code-standards` para os padrões completos de código.
 > Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
 
@@ -220,9 +220,9 @@ O agente notifica o **Coordenador** (não o Líder) quando:
 |:---|:---|
 | Qualquer código | `antigravity-agent-policy` + `antigravity-code-standards` |
 | Componente do núcleo | `+ antigravity-global-ui` |
-| Serviço de tenant | `+ antigravity-tenant-routing` + `antigravity-cross-boundary` |
+| Serviço de organização | `+ antigravity-organização-routing` + `antigravity-cross-boundary` |
 | Produto | `+ antigravity-marketplace` + `antigravity-configurador` + skill do produto |
-| Schema Prisma | `+ antigravity-coordenador` + `antigravity-tenant-routing` |
+| Schema Prisma | `+ antigravity-coordenador` + `antigravity-organização-routing` |
 | Auth entre serviços | `+ antigravity-auth-cross` |
 | Ações cross-boundary | `+ antigravity-cross-boundary` |
 | Deploy | `+ antigravity-deploy` |

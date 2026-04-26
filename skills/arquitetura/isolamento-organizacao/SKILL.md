@@ -1,5 +1,5 @@
 ---
-name: antigravity-tenant-isolation
+name: antigravity-organização-isolation
 description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organização em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organização + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
 ---
 
@@ -9,7 +9,7 @@ description: "Use esta skill sempre que uma tarefa envolver queries ao banco de 
 > O modelo anterior (`WHERE id_organizacao = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
 > Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-organização e Configurador como hub central). Os ADRs que documentavam esse pivô foram consolidados nesta skill e em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
 >
-> **Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real registrado), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco) e a API pública atual do SDK ainda expõe `req.tenant.tenantId`/`withTenantContext(tenantId, ...)` (contrato externo legado, em refatoração para `idOrganizacao`). Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03). Embora a biblioteca tenha nome legado, o parâmetro semântico que trafega é estritamente a Organização (`id_organizacao`).
+> **Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real registrado), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco) e a API pública atual do SDK ainda expõe `req.organizacao.idOrganizacao`/`withTenantContext(tenantId, ...)` (contrato externo legado, em refatoração para `idOrganizacao`). Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03). Embora a biblioteca tenha nome legado, o parâmetro semântico que trafega é estritamente a Organização (`id_organizacao`).
 
 ---
 
@@ -27,7 +27,7 @@ Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é 
 |---|---|
 | `configurador` | single-schema `public` (fonte de verdade global de identidade) |
 | `pedido`, `processo`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`, `financeiro-comex`, `conector-erp` | **schema-per-organização**: 1 schema por organização, nomeado `tenant_<cuid>` (prefixo real de Postgres) |
-| `servicos-global/tenant` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organização** |
+| `servicos-global/organização` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organização** |
 
 ---
 
@@ -39,7 +39,7 @@ import { withTenant } from '@gravity/tenant-resolver';
 app.get('/pedidos', async (req, res) => {
   const pedidos = await withTenant(req, async (db) => {
     // db é o cliente Prisma DENTRO de $transaction com SET LOCAL search_path
-    // Apontando para o schema do tenant. COMMIT/ROLLBACK reseta automaticamente.
+    // Apontando para o schema do organização. COMMIT/ROLLBACK reseta automaticamente.
     return db.pedido.findMany();
   });
   res.json(pedidos);
@@ -79,8 +79,8 @@ await withTenantContext(idOrganizacao, async (ctx, db) => {
 - ❌ `new PrismaClient(...)` em qualquer produto
 - ❌ Acesso ao banco fora de `withTenant(...)` ou `withTenantContext(...)`
 - ❌ `WHERE id_organizacao = ?` em queries de produto (modelo antigo morto)
-- ❌ Coluna `tenant_id` ou campo Prisma `id_organizacao` em tabelas de produto após migração completa (Pivô 2026-04-17)
-- ❌ Cache (`redis.set`, in-memory) sem prefixo `tenant:<id>:`
+- ❌ Coluna `tenant_id` ou campo Prisma `id_organizacao` em tabelas de produto
+- ❌ Cache (`redis.set`, in-memory) sem prefixo `organização:<id>:`
 - ❌ PgBouncer em modo `session` para banco de produto (modo `transaction` é obrigatório)
 - ❌ `SET search_path` (sem `LOCAL`) — vaza no pool
 - ❌ Provisionar schema "on-demand" no primeiro request — corrida garantida
@@ -117,7 +117,6 @@ model Pedido {
 }
 ```
 
-> Durante a janela de migração (dual-write), o campo Prisma `id_organizacao String @map("tenant_id")` permanece nas tabelas. Após migração completa (Pivô 2026-04-17), o campo e a coluna física são removidos.
 
 No Configurador (não muda):
 
@@ -198,9 +197,9 @@ O serviço de produto nunca acessa o banco do Configurador. Identidade vem via `
 
 ```typescript
 // ✅ correto — via SDK, que cacheia GET /api/v1/me (Mandamento 01: Prisma é fonte da verdade)
-// O middleware tenantResolver já fez isso. req.tenant tem o que você precisa.
+// O middleware tenantResolver já fez isso. req.organizacao tem o que você precisa.
 app.get('/algo', tenantResolver(config), async (req, res) => {
-  const { roles } = req.tenant;
+  const { roles } = req.organizacao;
   if (!roles.includes('PEDIDO_WRITE')) throw new AppError('Sem permissão', 403);
   // ...
 });
@@ -217,8 +216,8 @@ const role = currentUser.publicMetadata.role;  // NUNCA — só fonte de verdade
 ## Endpoints `/admin/*`
 
 Rotas administrativas em qualquer produto exigem:
-- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (vindo de `req.tenant.roles`)
-- Header `x-target-tenant-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
+- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (vindo de `req.organizacao.roles`)
+- Header `x-target-organização-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
 - Validação dupla pelo SDK: usuário tem permissão **E** organização alvo existe e está ativa
 - Log especial com `admin_action: true`, ingerido pela aba "Eventos de Segurança"
 
@@ -245,7 +244,7 @@ CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_exi
 - [ ] Estou usando `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` — não há outra forma?
 - [ ] O produto tem `@gravity/tenant-resolver` no `package.json` (e **não** `@prisma/client`)?
 - [ ] Estou dentro do callback do SDK ao tocar o banco?
-- [ ] O cache (se houver) está prefixado com `tenant:<id>:` (prefixo do SDK) ou `org:<id_organizacao>:`?
+- [ ] O cache (se houver) está prefixado com `organização:<id>:` (prefixo do SDK) ou `org:<id_organizacao>:`?
 - [ ] O teste de cross-organização está implementado e passando?
 - [ ] O teste de "crash não polui search_path" está implementado para esse produto?
 - [ ] Schema novo (se aplicável) é criado pelo worker de `TenantProvisioned`?
@@ -257,10 +256,9 @@ CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_exi
 ## Histórico — Modelo Antigo (apenas referência durante migração)
 
 Antes do pivô de 2026-04-17, o isolamento era feito por:
-- Campo Prisma `id_organizacao String @map("tenant_id")` obrigatório em todo model (coluna física `tenant_id`).
+- Campo Prisma `id_organizacao String` obrigatório em todo model (coluna física `tenant_id`).
 - `WHERE id_organizacao = ?` injetado por middleware Prisma (`$extends`).
-- RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::uuid)` — nome da coluna física legada).
+- RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::suid)` — nome da coluna física legada).
 
 Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. Decisão consolidada no Pivô Arquitetural de 2026-04-17.
 
-Durante a janela de migração (dual-write), os dois modelos coexistem. Após migração completa, o campo `id_organizacao` (e a coluna física `tenant_id`) são removidos das tabelas de produto.

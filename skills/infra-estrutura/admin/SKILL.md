@@ -1,6 +1,6 @@
 ---
 name: antigravity-admin
-description: "Use esta skill sempre que uma tarefa envolver o painel administrativo interno do Gravity — exclusivo para a equipe Gravity, não para clientes. Cobre: gestão de todos os tenants (empresas mãe e filhas), produtos contratados, usuários e permissões globais, financeiro consolidado, histórico de alterações global, painel de deploy Railway, configurações da Gabi por tenant, consumo de recursos, e monitoramento de APIs em tempo real (clientes e dependências externas) com alertas de queda."
+description: "Use esta skill sempre que uma tarefa envolver o painel administrativo interno do Gravity — exclusivo para a equipe Gravity, não para clientes. Cobre: gestão de todos os tenants (empresas mãe e filhas), produtos contratados, usuários e permissões globais, financeiro consolidado, histórico de alterações global, painel de deploy Railway, configurações da Gabi por organização, consumo de recursos, e monitoramento de APIs em tempo real (clientes e dependências externas) com alertas de queda."
 ---
 
 # Gravity — Painel Admin (Interno)
@@ -117,7 +117,7 @@ Painel de controle de deploys de todos os serviços no Railway.
 | Serviço | Ambiente | Versão | Status | Último deploy | Uptime | Ações |
 |:---|:---|:---|:---|:---|:---|:---|
 | configurador | production | v2.1.4 | 🟢 Online | há 2h | 99.9% | Deploy / Rollback |
-| tenant-services | production | v1.8.2 | 🟢 Online | há 5h | 100% | Deploy / Rollback |
+| organização-services | production | v1.8.2 | 🟢 Online | há 5h | 100% | Deploy / Rollback |
 | simulador-comex | production | v3.0.1 | 🟡 Alerta | há 1h | 98.2% | Deploy / Rollback |
 
 ---

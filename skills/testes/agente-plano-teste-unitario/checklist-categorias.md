@@ -137,7 +137,7 @@
 - Segundo acesso com mesmo input (hit) → fetch NÃO chamado novamente
 - Após `invalidateCache()` → fetch chamado novamente no próximo acesso
 - Cache da Organização A não contamina Organização B
-- Cache prefixado com `tenant:<idOrganizacao>:` (ou justificativa documentada)
+- Cache prefixado com `organização:<idOrganizacao>:` (ou justificativa documentada)
 
 ---
 

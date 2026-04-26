@@ -29,7 +29,7 @@ async function fetchOrgService<T>(
       {
         ...options,
         headers: {
-          'x-internal-key': INTERNAL_KEY,
+          'x-chave-interna': INTERNAL_KEY,
           ...options?.headers,
         },
         signal: AbortSignal.timeout(5000), // timeout de 5s

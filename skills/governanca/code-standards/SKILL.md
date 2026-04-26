@@ -32,7 +32,7 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
     "baseUrl": ".",
     "paths": {
       "@nucleo/*": ["../../nucleo-global/*"],
-      "@tenant/*": ["../../servicos-global/tenant/*"],
+      "@organização/*": ["../../servicos-global/organização/*"],
       "@produto/*": ["../../servicos-global/produto/*"]
     }
   }
@@ -214,9 +214,9 @@ Para erros de validação Zod, o campo `details` é incluído:
 | Pastas | kebab-case | `nucleo-global`, `servicos-global` |
 | Models Prisma | PascalCase | `Activity`, `Pedido` |
 | Campos de banco | snake_case | `created_at`, `numero_pedido` |
-| Schemas de tenant (Postgres) | `tenant_<uuid_sem_hifens>` | `tenant_a1b2c3d4e5f6...` |
-| Arquivos de server | kebab-case | `tenant-isolation.ts` |
-| Aliases de import | camelCase com `@` | `@nucleo`, `@tenant`, `@produto` |
+| Schemas de organização (Postgres) | `tenant_<uuid_sem_hifens>` | `tenant_a1b2c3d4e5f6...` |
+| Arquivos de server | kebab-case | `organização-isolation.ts` |
+| Aliases de import | camelCase com `@` | `@nucleo`, `@organização`, `@produto` |
 
 ---
 
@@ -238,7 +238,7 @@ Para erros de validação Zod, o campo `details` é incluído:
 
 ## Logs
 
-- Nenhum `console.log` expondo dados de usuário, tenant ou variáveis de ambiente
+- Nenhum `console.log` expondo dados de usuário, organização ou variáveis de ambiente
 - Logs de erro usam `console.error` com correlation ID e código do erro
 - Dados sensíveis nunca aparecem em logs — mesmo em desenvolvimento
 
@@ -274,7 +274,7 @@ OPENAI_API_KEY=sk-...                # provider: OpenAI, tipo: API key
 
 # Internos
 INTERNAL_SERVICE_KEY=...             # chave inter-serviço (rotacionar trimestralmente)
-TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
+TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 SENTRY_DSN=https://...
 ```
@@ -290,7 +290,7 @@ SENTRY_DSN=https://...
 const tenantUrl = process.env.TENANT_SERVICES_URL!
 
 // ❌ proibido
-const tenantUrl = 'http://tenant-services.railway.internal:3001'
+const tenantUrl = 'http://organização-services.railway.internal:3001'
 ```
 
 ---
@@ -317,14 +317,14 @@ app.use(correlationMiddleware)
 // 3. Autenticação inter-serviço
 app.use(requireInternalKey)
 
-// 4. Tenant resolver — JWT + cache + injeção de req.tenant
+// 4. Organização resolver — JWT + cache + injeção de req.organizacao
 app.use(tenantResolver({
   productKey: 'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   internalKey: process.env.INTERNAL_SERVICE_KEY!,
 }))
 
-// 5. Health check — sem auth, NÃO usa banco de tenant (sem search_path)
+// 5. Health check — sem auth, NÃO usa banco de organização (sem search_path)
 app.get('/health', async (_req, res) => {
   res.json({ status: 'ok', service: 'pedido' })
 })
@@ -372,7 +372,7 @@ Todos os endpoints usam prefixo de versão desde o início:
 - [ ] Toda rota tem schema Zod?
 - [ ] Erros lançados via `AppError`, nunca `res.status()` direto?
 - [ ] Error handler global registrado no servidor?
-- [ ] Imports via aliases `@nucleo/`, `@tenant/`, `@produto/`?
+- [ ] Imports via aliases `@nucleo/`, `@organização/`, `@produto/`?
 - [ ] Nenhum `console.log` com dados sensíveis?
 - [ ] Nenhuma variável de ambiente hardcoded?
 - [ ] Funções com menos de 50 linhas?

@@ -18,7 +18,7 @@ Inglês no código aparece **apenas** quando uma destas 4 condições se aplica:
 
 - Keyword de linguagem (`select`, `where`, `id`, `function`, `interface`, `async`)
 - Identificador de sistema externo (`clerk_user_id`, `stripe_customer_id`)
-- Padrão técnico universal (`HTTP`, `JSON`, `JWT`, `URL`, `UUID`, `ISO8601`)
+- Padrão técnico universal (`HTTP`, `JSON`, `JWT`, `URL`, `ISO8601`)
 - Valor de enum (constante técnica do banco — ver REGRA 7)
 
 Fora dessas 4 → **PT-BR sem perdão**.
@@ -246,7 +246,7 @@ Marcar com `—` quando o campo **não aparece em tela do usuário final**:
 |---|---|
 | `Cnpj` | `CNPJ` |
 | `Created At` | `Criado em` |
-| `Tenant Id` | `—` (interno) |
+| `Organização Id` | `—` (interno) |
 | `Valor total pedido` | `Valor Total do Pedido` |
 
 **Abreviações aceitas no canonical:** `Nº`, `%`, `Qtd.`, `CNPJ`, `NCM`, `LPCO`, `DUIMP`, `BACEN`, `R$`, `US$`, `kg`, `m³`.
@@ -275,6 +275,8 @@ Campo `valor_total_pedido = quantidade × valor_unitario` (calculado em runtime,
 ---
 
 ## Rotas e endpoints (REST)
+
+> **Para regras de design — verbos, paginação, status, erro, headers, hierarquia DDD-aware — ver [`skills/gestao/api-design/SKILL.md`](../../gestao/api-design/SKILL.md). Em conflito de naming, esta skill (`ddd-nomenclatura`) prevalece.**
 
 Sub-aplicação das regras pra URLs:
 
@@ -312,7 +314,7 @@ Em dúvida? → consulta glossário canônico
 ## Anti-padrões proibidos
 
 - ❌ Inventar nome novo sem consultar esta skill
-- ❌ Usar termo legado (`tenant`, `company`, `role`, `subscription`) em código
+- ❌ Usar termo legado (`organização`, `company`, `role`, `subscription`) em código
 - ❌ Adicionar `@map("...")` em coluna (paridade Prisma-PG precisa ser total)
 - ❌ Criar model Prisma em lowercase/snake_case (use PascalCase + `@@map`)
 - ❌ Criar model PascalCase sem `@@map` (a tabela PG precisa ficar em snake_case)

@@ -120,11 +120,11 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email_usuario: true, nome_usuario: true },
+            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
               actor_id: user.id,
               actor_name: user.nome_usuario ?? user.email_usuario,
@@ -146,11 +146,11 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email_usuario: true, nome_usuario: true },
+            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
               actor_id: user.id,
               actor_name: user.nome_usuario ?? user.email_usuario,
@@ -172,11 +172,11 @@ authRouter.post('/clerk', async (req, res, next) => {
         try {
           const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email_usuario: true, nome_usuario: true },
+            select: { id: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
               actor_id: user.id,
               actor_name: user.nome_usuario ?? user.email_usuario,

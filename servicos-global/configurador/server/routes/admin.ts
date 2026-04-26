@@ -434,7 +434,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
           email_usuario: true,
           tipo_usuario: true,
           data_criacao_usuario: true,
-          tenant_id: true,
+          id_organizacao_usuario: true,
           tenant: {
             select: { nome_organizacao: true, subdominio_organizacao: true },
           },
@@ -472,11 +472,12 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_organizacao_usuario, ...rest }) => ({
       ...rest,
       created_at: data_criacao_usuario,
       email: email_usuario,
       name: nome_usuario,
+      tenant_id: id_organizacao_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
@@ -1174,7 +1175,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     // Busca o tenant do usuário admin logado
     const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
-      select: { tenant_id: true },
+      select: { id_organizacao_usuario: true },
     })
 
     if (!user) {
@@ -1184,7 +1185,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 
     // Campos core — sempre existem na migration init
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.tenant_id },
+      where: { id_organizacao: user.id_organizacao_usuario },
       select: {
         id_organizacao: true,
         nome_organizacao: true,
@@ -1266,9 +1267,9 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 
     const user = await prisma.usuario.findUnique({
       where: { id: req.params.userId },
-      select: { id: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, tenant_id: true },
+      select: { id: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
     })
-    if (!user || user.tenant_id !== req.auth.tenantId) {
+    if (!user || user.id_organizacao_usuario !== req.auth.tenantId) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -1319,7 +1320,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, tenant_id: req.auth.tenantId } })
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao_usuario: req.auth.tenantId } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1332,7 +1333,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
     const user = await prisma.usuario.create({
       data: {
-        tenant_id:     req.auth.tenantId,
+        id_organizacao_usuario: req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
         email_usuario: email,
         nome_usuario:  name,
@@ -1377,7 +1378,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
 
     const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
-      select: { tenant_id: true },
+      select: { id_organizacao_usuario: true },
     })
 
     if (!user) {
@@ -1385,12 +1386,12 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     }
 
     const before = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.tenant_id },
+      where: { id_organizacao: user.id_organizacao_usuario },
       select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
-      where: { id_organizacao: user.tenant_id },
+      where: { id_organizacao: user.id_organizacao_usuario },
       data: parsed.data,
       select: {
         id_organizacao: true,

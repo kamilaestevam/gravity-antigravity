@@ -22,7 +22,7 @@ export const permissionsService = {
 
     // Busca usuário e sua role global
     const user = await prisma.usuario.findFirst({
-      where: { id: userId, tenant_id: tenantId },
+      where: { id: userId, id_organizacao_usuario: tenantId },
       select: { tipo_usuario: true },
     })
 

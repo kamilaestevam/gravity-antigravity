@@ -54,7 +54,7 @@ export const UpdateWorkspacesSchema = z.object({
 usersRouter.get('/', async (req, res, next) => {
   try {
     const users = await prisma.usuario.findMany({
-      where: { tenant_id: req.auth.tenantId },
+      where: { id_organizacao_usuario: req.auth.tenantId },
       select: {
         id: true,
         nome_usuario: true,
@@ -108,7 +108,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     // Verifica se usuário já existe no tenant
     const existing = await prisma.usuario.findFirst({
-      where: { tenant_id: req.auth.tenantId, email_usuario: email },
+      where: { id_organizacao_usuario: req.auth.tenantId, email_usuario: email },
     })
     if (existing) {
       throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
@@ -151,7 +151,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.usuario.create({
         data: {
-          tenant_id: req.auth.tenantId,
+          id_organizacao_usuario: req.auth.tenantId,
           clerk_user_id: `pending_${invitation.id}`,
           email_usuario: email,
           nome_usuario:  name,
@@ -204,7 +204,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
 
     // Garante que o usuário pertence ao mesmo tenant
     const user = await prisma.usuario.findFirst({
-      where: { id: userId, tenant_id: req.auth.tenantId },
+      where: { id: userId, id_organizacao_usuario: req.auth.tenantId },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -297,7 +297,7 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
     const userId = req.params.id
 
     const user = await prisma.usuario.findFirst({
-      where: { id: userId, tenant_id: req.auth.tenantId },
+      where: { id: userId, id_organizacao_usuario: req.auth.tenantId },
       select: { id: true, tipo_usuario: true },
     })
     if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -344,7 +344,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
     }
 
     const user = await prisma.usuario.findFirst({
-      where: { id: req.params.id, tenant_id: req.auth.tenantId },
+      where: { id: req.params.id, id_organizacao_usuario: req.auth.tenantId },
       select: { id: true, clerk_user_id: true, tipo_usuario: true },
     })
     if (!user) {
@@ -352,7 +352,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
     }
 
     const updated = await prisma.usuario.update({
-      where: { id: req.params.id, tenant_id: req.auth.tenantId },
+      where: { id: req.params.id, id_organizacao_usuario: req.auth.tenantId },
       data: { tipo_usuario: parsed.data.role },
       select: { id: true, email_usuario: true, tipo_usuario: true },
     })

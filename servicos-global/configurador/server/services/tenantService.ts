@@ -119,7 +119,7 @@ export const tenantService = {
 
         await tx.usuario.create({
           data: {
-            tenant_id: newTenant.id_organizacao,
+            id_organizacao_usuario: newTenant.id_organizacao,
             clerk_user_id: clerkUserId,
             email_usuario: owner.email,
             nome_usuario:  owner.name,

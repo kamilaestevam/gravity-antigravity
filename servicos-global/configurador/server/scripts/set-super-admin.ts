@@ -34,7 +34,7 @@ async function main() {
 
   const user = await prisma.usuario.findFirst({
     where: { email_usuario: email },
-    select: { id: true, email_usuario: true, tipo_usuario: true, tenant_id: true, clerk_user_id: true },
+    select: { id: true, email_usuario: true, tipo_usuario: true, id_organizacao_usuario: true, clerk_user_id: true },
   })
 
   if (!user) {
@@ -46,7 +46,7 @@ async function main() {
   console.log(`  ID:       ${user.id}`)
   console.log(`  Email:    ${user.email_usuario}`)
   console.log(`  Role atual: ${user.tipo_usuario}`)
-  console.log(`  TenantID: ${user.tenant_id}`)
+  console.log(`  TenantID: ${user.id_organizacao_usuario}`)
 
   if (user.tipo_usuario === role) {
     console.log(`\nNada a fazer — usuário já possui role ${role}.`)

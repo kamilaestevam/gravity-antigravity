@@ -59,7 +59,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_usuario: true,
         email_usuario: true,
         tipo_usuario: true,
-        tenant_id: true,
+        id_organizacao_usuario: true,
         preferred_company_id: true,
         tenant: {
           select: {
@@ -99,7 +99,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_usuario: usuario.nome_usuario,
         email_usuario: usuario.email_usuario,
         tipo_usuario: usuario.tipo_usuario,
-        id_organizacao_usuario: usuario.tenant_id,
+        id_organizacao_usuario: usuario.id_organizacao_usuario,
         preferred_company_id: usuario.preferred_company_id,
       },
       organizacao: usuario.tenant

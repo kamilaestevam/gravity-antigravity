@@ -299,12 +299,12 @@ exports.Prisma.DeployScalarFieldEnum = {
 };
 
 exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
-  id: 'id',
+  id_fornecedor_organizacao: 'id_fornecedor_organizacao',
   clerk_user_id: 'clerk_user_id',
-  tenant_id: 'tenant_id',
-  status: 'status',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_organizacao_fornecedor_organizacao: 'id_organizacao_fornecedor_organizacao',
+  status_fornecedor_organizacao: 'status_fornecedor_organizacao',
+  data_criacao_fornecedor_organizacao: 'data_criacao_fornecedor_organizacao',
+  data_atualizacao_fornecedor_organizacao: 'data_atualizacao_fornecedor_organizacao'
 };
 
 exports.Prisma.SegurancaScalarFieldEnum = {

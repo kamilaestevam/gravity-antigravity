@@ -535,21 +535,21 @@ model Deploy {
 // ---------------------------------------------------------------------------
 
 model FornecedorOrganizacao {
-  id            String @id @default(cuid())
-  clerk_user_id String
-  tenant_id     String
-  status        String @default("active")
+  id_fornecedor_organizacao             String @id @default(cuid())
+  clerk_user_id                         String
+  id_organizacao_fornecedor_organizacao String
+  status_fornecedor_organizacao         String @default("active")
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_fornecedor_organizacao     DateTime @default(now())
+  data_atualizacao_fornecedor_organizacao DateTime @updatedAt
 
-  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
-  @@unique([clerk_user_id, tenant_id])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([clerk_user_id])
-  @@index([tenant_id, clerk_user_id])
+  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant — `map` explícito (truncamento PG 63 chars)
+  @@unique([clerk_user_id, id_organizacao_fornecedor_organizacao], map: "fo_clerk_org_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_fornecedor_organizacao], map: "fo_org_idx")
+  @@index([clerk_user_id], map: "fo_clerk_idx")
+  @@index([id_organizacao_fornecedor_organizacao, clerk_user_id], map: "fo_org_clerk_idx")
   @@map("fornecedor_organizacao")
 }
 

@@ -75,7 +75,7 @@ async function main() {
   const user = await prisma.usuario.create({
     data: {
       email_usuario: email,
-      name,
+      nome_usuario:  name,
       role:          'SUPER_ADMIN',
       tenant_id:     org.id_organizacao,
       clerk_user_id: `bootstrap_${Date.now()}`,

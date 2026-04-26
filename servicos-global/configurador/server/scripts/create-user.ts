@@ -35,7 +35,7 @@ async function main() {
   const user = await prisma.usuario.create({
     data: {
       email_usuario: email,
-      name: email.split('@')[0],
+      nome_usuario:  email.split('@')[0],
       role,
       tenant_id: tenantId,
       clerk_user_id: `pending_${Date.now()}`,  // será auto-vinculado no primeiro login

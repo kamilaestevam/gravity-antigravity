@@ -153,7 +153,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       where: { id_organizacao: idParsed.data },
       include: {
         users_organizacao: {
-          select: { id: true, name: true, email_usuario: true, role: true, data_criacao_usuario: true },
+          select: { id: true, nome_usuario: true, email_usuario: true, role: true, data_criacao_usuario: true },
           orderBy: { data_criacao_usuario: 'desc' as const },
           take: 50,
         },
@@ -191,7 +191,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       tenant: {
         id: id_organizacao,
         ...tenantRest,
-        users: users_organizacao.map(({ role, data_criacao_usuario, email_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario, email: email_usuario })),
+        users: users_organizacao.map(({ role, data_criacao_usuario, email_usuario, nome_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
         companies: companies_organizacao,
         subscriptions: subscriptions_organizacao,
         product_configs: product_configs_organizacao,
@@ -417,8 +417,8 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     const where = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { email: { contains: search, mode: 'insensitive' as const } },
+            { nome_usuario: { contains: search, mode: 'insensitive' as const } },
+            { email_usuario: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {}
@@ -430,7 +430,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
         take: limit,
         select: {
           id: true,
-          name: true,
+          nome_usuario: true,
           email_usuario: true,
           role: true,
           data_criacao_usuario: true,
@@ -472,11 +472,12 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, ...rest }) => ({
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
       created_at: data_criacao_usuario,
       email: email_usuario,
+      name: nome_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
@@ -725,9 +726,9 @@ adminRouter.post('/deploy', async (req, res, next) => {
     // Resolve nome do admin a partir do banco
     const user = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
-      select: { id: true, name: true, email_usuario: true },
+      select: { id: true, nome_usuario: true, email_usuario: true },
     })
-    const deployedBy = user?.name ?? user?.email_usuario ?? req.auth.clerkUserId
+    const deployedBy = user?.nome_usuario ?? user?.email_usuario ?? req.auth.clerkUserId
 
     const deploy = await deployLogService.create({
       ...parsed.data,
@@ -1335,7 +1336,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
         tenant_id:     req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
         email_usuario: email,
-        name,
+        nome_usuario:  name,
         role,
       },
     })

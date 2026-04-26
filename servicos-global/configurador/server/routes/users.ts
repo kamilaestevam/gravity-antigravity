@@ -57,7 +57,7 @@ usersRouter.get('/', async (req, res, next) => {
       where: { tenant_id: req.auth.tenantId },
       select: {
         id: true,
-        name: true,
+        nome_usuario: true,
         email_usuario: true,
         role: true,
         data_criacao_usuario: true,
@@ -73,11 +73,12 @@ usersRouter.get('/', async (req, res, next) => {
       orderBy: { data_criacao_usuario: 'desc' },
     })
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, ...rest }) => ({
+    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
       ...rest,
       tipo_usuario: role,
       created_at: data_criacao_usuario,
       email: email_usuario,
+      name: nome_usuario,
       memberships: memberships.map(({ role: mRole, ...m }) => ({
         ...m,
         tipo_usuario: mRole,
@@ -154,7 +155,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
           tenant_id: req.auth.tenantId,
           clerk_user_id: `pending_${invitation.id}`,
           email_usuario: email,
-          name,
+          nome_usuario:  name,
           role,
         },
       })

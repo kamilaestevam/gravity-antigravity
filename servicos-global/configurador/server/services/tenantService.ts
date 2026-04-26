@@ -122,7 +122,7 @@ export const tenantService = {
             tenant_id: newTenant.id_organizacao,
             clerk_user_id: clerkUserId,
             email_usuario: owner.email,
-            name: owner.name,
+            nome_usuario:  owner.name,
             role: 'MASTER',
           },
         })

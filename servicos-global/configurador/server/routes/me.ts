@@ -56,7 +56,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       where: { id: req.auth.userId },
       select: {
         id: true,
-        name: true,
+        nome_usuario: true,
         email_usuario: true,
         role: true,
         tenant_id: true,
@@ -96,7 +96,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     res.json({
       usuario: {
         id_usuario: usuario.id,
-        nome_usuario: usuario.name,
+        nome_usuario: usuario.nome_usuario,
         email_usuario: usuario.email_usuario,
         tipo_usuario: usuario.role,
         id_organizacao_usuario: usuario.tenant_id,

@@ -109,7 +109,7 @@ model Usuario {
   tenant_id     String   @map("id_organizacao_usuario")
   clerk_user_id String   @unique
   email_usuario String
-  name          String   @map("nome_usuario")
+  nome_usuario  String
   role          UsuarioTipo @default(PADRAO) @map("tipo_usuario")
 
   // Workspace preferido — skip pós-login para Master/Standard

@@ -65,7 +65,7 @@ export async function requireAuth(
 
     let user = await prisma.usuario.findFirst({
       where: { clerk_user_id: verified.sub },
-      select: { id: true, tenant_id: true, role: true, name: true },
+      select: { id: true, tenant_id: true, role: true, nome_usuario: true },
     })
 
     // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
@@ -80,7 +80,7 @@ export async function requireAuth(
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({
             where: { email_usuario: primaryEmail },
-            select: { id: true, tenant_id: true, role: true, name: true },
+            select: { id: true, tenant_id: true, role: true, nome_usuario: true },
           })
           if (candidates.length === 1) {
             const only = candidates[0]
@@ -118,7 +118,7 @@ export async function requireAuth(
       userId: user.id,
       tenantId: user.tenant_id,
       role: user.role,
-      name: user.name ?? '',
+      name: user.nome_usuario ?? '',
       expiry: Date.now() + USER_CACHE_TTL,
     })
 
@@ -127,7 +127,7 @@ export async function requireAuth(
       tenantId: user.tenant_id,
       clerkUserId: verified.sub,
       role: user.role,
-      name: user.name ?? '',
+      name: user.nome_usuario ?? '',
     }
 
     next()

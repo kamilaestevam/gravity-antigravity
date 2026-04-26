@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T18:57:41.378Z
+// Gerado em: 2026-04-26T19:05:09.259Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -1360,102 +1360,131 @@ model PreferenciaWorkspace {
 
 // --- Fragment: ncm-sync ---
 // servicos-global/tenant/ncm-sync/prisma/fragment.prisma
-// NcmItem  — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
-// NcmSyncLog — histórico de cada sincronização com o Portal Único
+// SERVIÇO NCM-SYNC — ONDA 36 (DDD Servicos)
+//
+// NcmItem        — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmLog         — histórico de cada sincronização com o Portal Único
+// NcmAgendamento — configuração singleton do job de sincronização
+
+// ---------------------------------------------------------------------------
+// NcmItem
+// ---------------------------------------------------------------------------
 
 model NcmItem {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  product_id  String?
-  user_id     String?
+  id_ncm_item             String   @id @default(cuid())
 
-  codigo      String   // 8 dígitos — ex: "84713019"
-  descricao   String
-  ativo       Boolean  @default(true)
+  // Identificação tenant
+  id_organizacao_ncm_item String
+  id_produto_ncm_item     String?
+  id_usuario_ncm_item     String?
+
+  // Dados NCM
+  codigo_ncm_item         String   // 8 dígitos — ex: "84713019"
+  descricao_ncm_item      String
+  ativo_ncm_item          Boolean  @default(true)
 
   // Metadados do Portal Único
-  data_inicio DateTime?
-  data_fim    DateTime?
-  sync_id     String   // referência ao NcmSyncLog que inseriu/atualizou
+  data_inicio_ncm_item    DateTime?
+  data_fim_ncm_item       DateTime?
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  // Referência ao NcmLog que inseriu/atualizou este item
+  id_sincronizacao_ncm_item String
 
-  @@unique([tenant_id, codigo])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, ativo])
-  @@index([tenant_id, codigo])
+  // Timestamps
+  data_criacao_ncm_item     DateTime @default(now())
+  data_atualizacao_ncm_item DateTime @updatedAt
+
+  @@unique([id_organizacao_ncm_item, codigo_ncm_item],                                 map: "ni_unq_org_codigo")
+  @@index([id_organizacao_ncm_item],                                                   map: "ni_org_idx")
+  @@index([id_organizacao_ncm_item, id_produto_ncm_item],                              map: "ni_org_prd_idx")
+  @@index([id_organizacao_ncm_item, id_usuario_ncm_item],                              map: "ni_org_usr_idx")
+  @@index([id_organizacao_ncm_item, ativo_ncm_item],                                   map: "ni_org_ativo_idx")
+  @@index([id_organizacao_ncm_item, codigo_ncm_item],                                  map: "ni_org_codigo_idx")
   @@map("ncm_item")
 }
 
-model NcmSyncLog {
-  id           String    @id @default(cuid())
-  tenant_id    String
-  product_id   String?
-  user_id      String?
+// ---------------------------------------------------------------------------
+// NcmLog — histórico de sincronização
+// ---------------------------------------------------------------------------
 
-  iniciado_em  DateTime  @default(now())
-  concluido_em DateTime?
+model NcmLog {
+  id_ncm_log             String    @id @default(cuid())
 
-  status       NCMStatusSincronizacao @default(EXECUTANDO)
+  // Identificação tenant
+  id_organizacao_ncm_log String
+  id_produto_ncm_log     String?
+  id_usuario_ncm_log     String?
+
+  // Timestamps de execução
+  data_inicio_ncm_log    DateTime  @default(now())
+  data_conclusao_ncm_log DateTime?
+
+  // Status (enum PT)
+  status_ncm_log         NcmStatus @default(EXECUTANDO)
 
   // Totais do diff
-  total        Int @default(0)
-  adicionados  Int @default(0)
-  alterados    Int @default(0)
-  removidos    Int @default(0)
+  total_ncm_log        Int @default(0)
+  adicionados_ncm_log  Int @default(0)
+  alterados_ncm_log    Int @default(0)
+  removidos_ncm_log    Int @default(0)
 
   // Origem do trigger
-  origem       NCMOrigemSincronizacao @default(JOB)  // 'JOB' | 'MANUAL'
-  disparado_por String?  // user_id se MANUAL
+  origem_ncm_log        NcmOrigem @default(JOB)
+  disparado_por_ncm_log String?   // user_id se MANUAL
 
-  erro_msg     String?
+  // Erro (apenas em caso de falha)
+  mensagem_erro_ncm_log String?
 
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  // Timestamps
+  data_criacao_ncm_log     DateTime @default(now())
+  data_atualizacao_ncm_log DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, iniciado_em])
+  @@index([id_organizacao_ncm_log],                                map: "nl_org_idx")
+  @@index([id_organizacao_ncm_log, id_produto_ncm_log],            map: "nl_org_prd_idx")
+  @@index([id_organizacao_ncm_log, id_usuario_ncm_log],            map: "nl_org_usr_idx")
+  @@index([id_organizacao_ncm_log, status_ncm_log],                map: "nl_org_status_idx")
+  @@index([id_organizacao_ncm_log, data_inicio_ncm_log],           map: "nl_org_inicio_idx")
   @@map("ncm_log")
 }
 
-enum NCMStatusSincronizacao {
+// ---------------------------------------------------------------------------
+// NcmAgendamento — configuração singleton do job de sincronização
+// id = 'default' — registro único (singleton global)
+// id_organizacao_ncm_agendamento = '__system__' — satisfaz padrão de índices
+// ---------------------------------------------------------------------------
+
+model NcmAgendamento {
+  id_ncm_agendamento             String   @id @default("default")
+  id_organizacao_ncm_agendamento String   @default("__system__")
+  id_produto_ncm_agendamento     String?
+  id_usuario_ncm_agendamento     String?
+
+  ativo_ncm_agendamento          Boolean  @default(false)
+  cron_expressao_ncm_agendamento String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
+  notificadores_ncm_agendamento  Json     @default("[]")            // Array<NcmNotificador>
+
+  data_criacao_ncm_agendamento     DateTime @default(now())
+  data_atualizacao_ncm_agendamento DateTime @updatedAt
+
+  @@index([id_organizacao_ncm_agendamento],                                       map: "nag_org_idx")
+  @@index([id_organizacao_ncm_agendamento, id_produto_ncm_agendamento],           map: "nag_org_prd_idx")
+  @@index([id_organizacao_ncm_agendamento, id_usuario_ncm_agendamento],           map: "nag_org_usr_idx")
+  @@map("ncm_agendamento")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (valores em PT-BR)
+// ---------------------------------------------------------------------------
+
+enum NcmStatus {
   EXECUTANDO
   SUCESSO
   ERRO
 }
 
-enum NCMOrigemSincronizacao {
+enum NcmOrigem {
   JOB
   MANUAL
-}
-
-// ── NcmScheduleConfig — configuração singleton do job de sincronização NCM ───
-// id = 'default' — registro único (singleton global do sistema)
-// tenant_id = '__system__' — satisfaz padrão de índices obrigatórios
-
-model NcmScheduleConfig {
-  id             String   @id @default("default")
-  tenant_id      String   @default("__system__")
-  product_id     String?
-  user_id        String?
-
-  ativo          Boolean  @default(false)
-  cron_expressao String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
-  notificadores  Json     @default("[]")            // NcmNotificador[]
-
-  criado_em      DateTime @default(now())
-  atualizado_em  DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@map("ncm_agendamento")
 }
 
 

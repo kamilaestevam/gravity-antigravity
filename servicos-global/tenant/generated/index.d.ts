@@ -214,15 +214,15 @@ export type PreferenciaWorkspace = $Result.DefaultSelection<Prisma.$PreferenciaW
  */
 export type NcmItem = $Result.DefaultSelection<Prisma.$NcmItemPayload>
 /**
- * Model NcmSyncLog
+ * Model NcmLog
  * 
  */
-export type NcmSyncLog = $Result.DefaultSelection<Prisma.$NcmSyncLogPayload>
+export type NcmLog = $Result.DefaultSelection<Prisma.$NcmLogPayload>
 /**
- * Model NcmScheduleConfig
+ * Model NcmAgendamento
  * 
  */
-export type NcmScheduleConfig = $Result.DefaultSelection<Prisma.$NcmScheduleConfigPayload>
+export type NcmAgendamento = $Result.DefaultSelection<Prisma.$NcmAgendamentoPayload>
 /**
  * Model NotificacoesTituloCorpo
  * 
@@ -355,21 +355,21 @@ export const AlertaStatus: {
 export type AlertaStatus = (typeof AlertaStatus)[keyof typeof AlertaStatus]
 
 
-export const NCMStatusSincronizacao: {
+export const NcmStatus: {
   EXECUTANDO: 'EXECUTANDO',
   SUCESSO: 'SUCESSO',
   ERRO: 'ERRO'
 };
 
-export type NCMStatusSincronizacao = (typeof NCMStatusSincronizacao)[keyof typeof NCMStatusSincronizacao]
+export type NcmStatus = (typeof NcmStatus)[keyof typeof NcmStatus]
 
 
-export const NCMOrigemSincronizacao: {
+export const NcmOrigem: {
   JOB: 'JOB',
   MANUAL: 'MANUAL'
 };
 
-export type NCMOrigemSincronizacao = (typeof NCMOrigemSincronizacao)[keyof typeof NCMOrigemSincronizacao]
+export type NcmOrigem = (typeof NcmOrigem)[keyof typeof NcmOrigem]
 
 }
 
@@ -417,13 +417,13 @@ export type AlertaStatus = $Enums.AlertaStatus
 
 export const AlertaStatus: typeof $Enums.AlertaStatus
 
-export type NCMStatusSincronizacao = $Enums.NCMStatusSincronizacao
+export type NcmStatus = $Enums.NcmStatus
 
-export const NCMStatusSincronizacao: typeof $Enums.NCMStatusSincronizacao
+export const NcmStatus: typeof $Enums.NcmStatus
 
-export type NCMOrigemSincronizacao = $Enums.NCMOrigemSincronizacao
+export type NcmOrigem = $Enums.NcmOrigem
 
-export const NCMOrigemSincronizacao: typeof $Enums.NCMOrigemSincronizacao
+export const NcmOrigem: typeof $Enums.NcmOrigem
 
 /**
  * ##  Prisma Client ʲˢ
@@ -949,24 +949,24 @@ export class PrismaClient<
   get ncmItem(): Prisma.NcmItemDelegate<ExtArgs>;
 
   /**
-   * `prisma.ncmSyncLog`: Exposes CRUD operations for the **NcmSyncLog** model.
+   * `prisma.ncmLog`: Exposes CRUD operations for the **NcmLog** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more NcmSyncLogs
-    * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+    * // Fetch zero or more NcmLogs
+    * const ncmLogs = await prisma.ncmLog.findMany()
     * ```
     */
-  get ncmSyncLog(): Prisma.NcmSyncLogDelegate<ExtArgs>;
+  get ncmLog(): Prisma.NcmLogDelegate<ExtArgs>;
 
   /**
-   * `prisma.ncmScheduleConfig`: Exposes CRUD operations for the **NcmScheduleConfig** model.
+   * `prisma.ncmAgendamento`: Exposes CRUD operations for the **NcmAgendamento** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more NcmScheduleConfigs
-    * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany()
+    * // Fetch zero or more NcmAgendamentos
+    * const ncmAgendamentos = await prisma.ncmAgendamento.findMany()
     * ```
     */
-  get ncmScheduleConfig(): Prisma.NcmScheduleConfigDelegate<ExtArgs>;
+  get ncmAgendamento(): Prisma.NcmAgendamentoDelegate<ExtArgs>;
 
   /**
    * `prisma.notificacoesTituloCorpo`: Exposes CRUD operations for the **NotificacoesTituloCorpo** model.
@@ -1478,8 +1478,8 @@ export namespace Prisma {
     GabiPersonalizacao: 'GabiPersonalizacao',
     PreferenciaWorkspace: 'PreferenciaWorkspace',
     NcmItem: 'NcmItem',
-    NcmSyncLog: 'NcmSyncLog',
-    NcmScheduleConfig: 'NcmScheduleConfig',
+    NcmLog: 'NcmLog',
+    NcmAgendamento: 'NcmAgendamento',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
     ExternalContact: 'ExternalContact',
     TenantChannelConfig: 'TenantChannelConfig'
@@ -1498,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "preferenciaWorkspace" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "preferenciaWorkspace" | "ncmItem" | "ncmLog" | "ncmAgendamento" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4302,143 +4302,143 @@ export namespace Prisma {
           }
         }
       }
-      NcmSyncLog: {
-        payload: Prisma.$NcmSyncLogPayload<ExtArgs>
-        fields: Prisma.NcmSyncLogFieldRefs
+      NcmLog: {
+        payload: Prisma.$NcmLogPayload<ExtArgs>
+        fields: Prisma.NcmLogFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.NcmSyncLogFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+            args: Prisma.NcmLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           findFirst: {
-            args: Prisma.NcmSyncLogFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+            args: Prisma.NcmLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.NcmSyncLogFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           findMany: {
-            args: Prisma.NcmSyncLogFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+            args: Prisma.NcmLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>[]
           }
           create: {
-            args: Prisma.NcmSyncLogCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           createMany: {
-            args: Prisma.NcmSyncLogCreateManyArgs<ExtArgs>
+            args: Prisma.NcmLogCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.NcmSyncLogCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+            args: Prisma.NcmLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>[]
           }
           delete: {
-            args: Prisma.NcmSyncLogDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           update: {
-            args: Prisma.NcmSyncLogUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           deleteMany: {
-            args: Prisma.NcmSyncLogDeleteManyArgs<ExtArgs>
+            args: Prisma.NcmLogDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.NcmSyncLogUpdateManyArgs<ExtArgs>
+            args: Prisma.NcmLogUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.NcmSyncLogUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+            args: Prisma.NcmLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmLogPayload>
           }
           aggregate: {
-            args: Prisma.NcmSyncLogAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNcmSyncLog>
+            args: Prisma.NcmLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmLog>
           }
           groupBy: {
-            args: Prisma.NcmSyncLogGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NcmSyncLogGroupByOutputType>[]
+            args: Prisma.NcmLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmLogGroupByOutputType>[]
           }
           count: {
-            args: Prisma.NcmSyncLogCountArgs<ExtArgs>
-            result: $Utils.Optional<NcmSyncLogCountAggregateOutputType> | number
+            args: Prisma.NcmLogCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmLogCountAggregateOutputType> | number
           }
         }
       }
-      NcmScheduleConfig: {
-        payload: Prisma.$NcmScheduleConfigPayload<ExtArgs>
-        fields: Prisma.NcmScheduleConfigFieldRefs
+      NcmAgendamento: {
+        payload: Prisma.$NcmAgendamentoPayload<ExtArgs>
+        fields: Prisma.NcmAgendamentoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.NcmScheduleConfigFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload> | null
+            args: Prisma.NcmAgendamentoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           findFirst: {
-            args: Prisma.NcmScheduleConfigFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload> | null
+            args: Prisma.NcmAgendamentoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           findMany: {
-            args: Prisma.NcmScheduleConfigFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>[]
+            args: Prisma.NcmAgendamentoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>[]
           }
           create: {
-            args: Prisma.NcmScheduleConfigCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           createMany: {
-            args: Prisma.NcmScheduleConfigCreateManyArgs<ExtArgs>
+            args: Prisma.NcmAgendamentoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>[]
+            args: Prisma.NcmAgendamentoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>[]
           }
           delete: {
-            args: Prisma.NcmScheduleConfigDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           update: {
-            args: Prisma.NcmScheduleConfigUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           deleteMany: {
-            args: Prisma.NcmScheduleConfigDeleteManyArgs<ExtArgs>
+            args: Prisma.NcmAgendamentoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.NcmScheduleConfigUpdateManyArgs<ExtArgs>
+            args: Prisma.NcmAgendamentoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.NcmScheduleConfigUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+            args: Prisma.NcmAgendamentoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmAgendamentoPayload>
           }
           aggregate: {
-            args: Prisma.NcmScheduleConfigAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNcmScheduleConfig>
+            args: Prisma.NcmAgendamentoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmAgendamento>
           }
           groupBy: {
-            args: Prisma.NcmScheduleConfigGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NcmScheduleConfigGroupByOutputType>[]
+            args: Prisma.NcmAgendamentoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmAgendamentoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.NcmScheduleConfigCountArgs<ExtArgs>
-            result: $Utils.Optional<NcmScheduleConfigCountAggregateOutputType> | number
+            args: Prisma.NcmAgendamentoCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmAgendamentoCountAggregateOutputType> | number
           }
         }
       }
@@ -44727,95 +44727,95 @@ export namespace Prisma {
   }
 
   export type NcmItemMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    codigo: string | null
-    descricao: string | null
-    ativo: boolean | null
-    data_inicio: Date | null
-    data_fim: Date | null
-    sync_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_ncm_item: string | null
+    id_organizacao_ncm_item: string | null
+    id_produto_ncm_item: string | null
+    id_usuario_ncm_item: string | null
+    codigo_ncm_item: string | null
+    descricao_ncm_item: string | null
+    ativo_ncm_item: boolean | null
+    data_inicio_ncm_item: Date | null
+    data_fim_ncm_item: Date | null
+    id_sincronizacao_ncm_item: string | null
+    data_criacao_ncm_item: Date | null
+    data_atualizacao_ncm_item: Date | null
   }
 
   export type NcmItemMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    codigo: string | null
-    descricao: string | null
-    ativo: boolean | null
-    data_inicio: Date | null
-    data_fim: Date | null
-    sync_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_ncm_item: string | null
+    id_organizacao_ncm_item: string | null
+    id_produto_ncm_item: string | null
+    id_usuario_ncm_item: string | null
+    codigo_ncm_item: string | null
+    descricao_ncm_item: string | null
+    ativo_ncm_item: boolean | null
+    data_inicio_ncm_item: Date | null
+    data_fim_ncm_item: Date | null
+    id_sincronizacao_ncm_item: string | null
+    data_criacao_ncm_item: Date | null
+    data_atualizacao_ncm_item: Date | null
   }
 
   export type NcmItemCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    codigo: number
-    descricao: number
-    ativo: number
-    data_inicio: number
-    data_fim: number
-    sync_id: number
-    created_at: number
-    updated_at: number
+    id_ncm_item: number
+    id_organizacao_ncm_item: number
+    id_produto_ncm_item: number
+    id_usuario_ncm_item: number
+    codigo_ncm_item: number
+    descricao_ncm_item: number
+    ativo_ncm_item: number
+    data_inicio_ncm_item: number
+    data_fim_ncm_item: number
+    id_sincronizacao_ncm_item: number
+    data_criacao_ncm_item: number
+    data_atualizacao_ncm_item: number
     _all: number
   }
 
 
   export type NcmItemMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    codigo?: true
-    descricao?: true
-    ativo?: true
-    data_inicio?: true
-    data_fim?: true
-    sync_id?: true
-    created_at?: true
-    updated_at?: true
+    id_ncm_item?: true
+    id_organizacao_ncm_item?: true
+    id_produto_ncm_item?: true
+    id_usuario_ncm_item?: true
+    codigo_ncm_item?: true
+    descricao_ncm_item?: true
+    ativo_ncm_item?: true
+    data_inicio_ncm_item?: true
+    data_fim_ncm_item?: true
+    id_sincronizacao_ncm_item?: true
+    data_criacao_ncm_item?: true
+    data_atualizacao_ncm_item?: true
   }
 
   export type NcmItemMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    codigo?: true
-    descricao?: true
-    ativo?: true
-    data_inicio?: true
-    data_fim?: true
-    sync_id?: true
-    created_at?: true
-    updated_at?: true
+    id_ncm_item?: true
+    id_organizacao_ncm_item?: true
+    id_produto_ncm_item?: true
+    id_usuario_ncm_item?: true
+    codigo_ncm_item?: true
+    descricao_ncm_item?: true
+    ativo_ncm_item?: true
+    data_inicio_ncm_item?: true
+    data_fim_ncm_item?: true
+    id_sincronizacao_ncm_item?: true
+    data_criacao_ncm_item?: true
+    data_atualizacao_ncm_item?: true
   }
 
   export type NcmItemCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    codigo?: true
-    descricao?: true
-    ativo?: true
-    data_inicio?: true
-    data_fim?: true
-    sync_id?: true
-    created_at?: true
-    updated_at?: true
+    id_ncm_item?: true
+    id_organizacao_ncm_item?: true
+    id_produto_ncm_item?: true
+    id_usuario_ncm_item?: true
+    codigo_ncm_item?: true
+    descricao_ncm_item?: true
+    ativo_ncm_item?: true
+    data_inicio_ncm_item?: true
+    data_fim_ncm_item?: true
+    id_sincronizacao_ncm_item?: true
+    data_criacao_ncm_item?: true
+    data_atualizacao_ncm_item?: true
     _all?: true
   }
 
@@ -44892,18 +44892,18 @@ export namespace Prisma {
   }
 
   export type NcmItemGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    codigo: string
-    descricao: string
-    ativo: boolean
-    data_inicio: Date | null
-    data_fim: Date | null
-    sync_id: string
-    created_at: Date
-    updated_at: Date
+    id_ncm_item: string
+    id_organizacao_ncm_item: string
+    id_produto_ncm_item: string | null
+    id_usuario_ncm_item: string | null
+    codigo_ncm_item: string
+    descricao_ncm_item: string
+    ativo_ncm_item: boolean
+    data_inicio_ncm_item: Date | null
+    data_fim_ncm_item: Date | null
+    id_sincronizacao_ncm_item: string
+    data_criacao_ncm_item: Date
+    data_atualizacao_ncm_item: Date
     _count: NcmItemCountAggregateOutputType | null
     _min: NcmItemMinAggregateOutputType | null
     _max: NcmItemMaxAggregateOutputType | null
@@ -44924,48 +44924,48 @@ export namespace Prisma {
 
 
   export type NcmItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    codigo?: boolean
-    descricao?: boolean
-    ativo?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    sync_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_ncm_item?: boolean
+    id_organizacao_ncm_item?: boolean
+    id_produto_ncm_item?: boolean
+    id_usuario_ncm_item?: boolean
+    codigo_ncm_item?: boolean
+    descricao_ncm_item?: boolean
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: boolean
+    data_fim_ncm_item?: boolean
+    id_sincronizacao_ncm_item?: boolean
+    data_criacao_ncm_item?: boolean
+    data_atualizacao_ncm_item?: boolean
   }, ExtArgs["result"]["ncmItem"]>
 
   export type NcmItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    codigo?: boolean
-    descricao?: boolean
-    ativo?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    sync_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_ncm_item?: boolean
+    id_organizacao_ncm_item?: boolean
+    id_produto_ncm_item?: boolean
+    id_usuario_ncm_item?: boolean
+    codigo_ncm_item?: boolean
+    descricao_ncm_item?: boolean
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: boolean
+    data_fim_ncm_item?: boolean
+    id_sincronizacao_ncm_item?: boolean
+    data_criacao_ncm_item?: boolean
+    data_atualizacao_ncm_item?: boolean
   }, ExtArgs["result"]["ncmItem"]>
 
   export type NcmItemSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    codigo?: boolean
-    descricao?: boolean
-    ativo?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    sync_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_ncm_item?: boolean
+    id_organizacao_ncm_item?: boolean
+    id_produto_ncm_item?: boolean
+    id_usuario_ncm_item?: boolean
+    codigo_ncm_item?: boolean
+    descricao_ncm_item?: boolean
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: boolean
+    data_fim_ncm_item?: boolean
+    id_sincronizacao_ncm_item?: boolean
+    data_criacao_ncm_item?: boolean
+    data_atualizacao_ncm_item?: boolean
   }
 
 
@@ -44973,18 +44973,18 @@ export namespace Prisma {
     name: "NcmItem"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      codigo: string
-      descricao: string
-      ativo: boolean
-      data_inicio: Date | null
-      data_fim: Date | null
-      sync_id: string
-      created_at: Date
-      updated_at: Date
+      id_ncm_item: string
+      id_organizacao_ncm_item: string
+      id_produto_ncm_item: string | null
+      id_usuario_ncm_item: string | null
+      codigo_ncm_item: string
+      descricao_ncm_item: string
+      ativo_ncm_item: boolean
+      data_inicio_ncm_item: Date | null
+      data_fim_ncm_item: Date | null
+      id_sincronizacao_ncm_item: string
+      data_criacao_ncm_item: Date
+      data_atualizacao_ncm_item: Date
     }, ExtArgs["result"]["ncmItem"]>
     composites: {}
   }
@@ -45068,8 +45068,8 @@ export namespace Prisma {
      * // Get first 10 NcmItems
      * const ncmItems = await prisma.ncmItem.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const ncmItemWithIdOnly = await prisma.ncmItem.findMany({ select: { id: true } })
+     * // Only select the `id_ncm_item`
+     * const ncmItemWithId_ncm_itemOnly = await prisma.ncmItem.findMany({ select: { id_ncm_item: true } })
      * 
      */
     findMany<T extends NcmItemFindManyArgs>(args?: SelectSubset<T, NcmItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findMany">>
@@ -45113,9 +45113,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many NcmItems and only return the `id`
-     * const ncmItemWithIdOnly = await prisma.ncmItem.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NcmItems and only return the `id_ncm_item`
+     * const ncmItemWithId_ncm_itemOnly = await prisma.ncmItem.createManyAndReturn({ 
+     *   select: { id_ncm_item: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -45378,18 +45378,18 @@ export namespace Prisma {
    * Fields of the NcmItem model
    */ 
   interface NcmItemFieldRefs {
-    readonly id: FieldRef<"NcmItem", 'String'>
-    readonly tenant_id: FieldRef<"NcmItem", 'String'>
-    readonly product_id: FieldRef<"NcmItem", 'String'>
-    readonly user_id: FieldRef<"NcmItem", 'String'>
-    readonly codigo: FieldRef<"NcmItem", 'String'>
-    readonly descricao: FieldRef<"NcmItem", 'String'>
-    readonly ativo: FieldRef<"NcmItem", 'Boolean'>
-    readonly data_inicio: FieldRef<"NcmItem", 'DateTime'>
-    readonly data_fim: FieldRef<"NcmItem", 'DateTime'>
-    readonly sync_id: FieldRef<"NcmItem", 'String'>
-    readonly created_at: FieldRef<"NcmItem", 'DateTime'>
-    readonly updated_at: FieldRef<"NcmItem", 'DateTime'>
+    readonly id_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly id_organizacao_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly id_produto_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly id_usuario_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly codigo_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly descricao_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly ativo_ncm_item: FieldRef<"NcmItem", 'Boolean'>
+    readonly data_inicio_ncm_item: FieldRef<"NcmItem", 'DateTime'>
+    readonly data_fim_ncm_item: FieldRef<"NcmItem", 'DateTime'>
+    readonly id_sincronizacao_ncm_item: FieldRef<"NcmItem", 'String'>
+    readonly data_criacao_ncm_item: FieldRef<"NcmItem", 'DateTime'>
+    readonly data_atualizacao_ncm_item: FieldRef<"NcmItem", 'DateTime'>
   }
     
 
@@ -45679,495 +45679,495 @@ export namespace Prisma {
 
 
   /**
-   * Model NcmSyncLog
+   * Model NcmLog
    */
 
-  export type AggregateNcmSyncLog = {
-    _count: NcmSyncLogCountAggregateOutputType | null
-    _avg: NcmSyncLogAvgAggregateOutputType | null
-    _sum: NcmSyncLogSumAggregateOutputType | null
-    _min: NcmSyncLogMinAggregateOutputType | null
-    _max: NcmSyncLogMaxAggregateOutputType | null
+  export type AggregateNcmLog = {
+    _count: NcmLogCountAggregateOutputType | null
+    _avg: NcmLogAvgAggregateOutputType | null
+    _sum: NcmLogSumAggregateOutputType | null
+    _min: NcmLogMinAggregateOutputType | null
+    _max: NcmLogMaxAggregateOutputType | null
   }
 
-  export type NcmSyncLogAvgAggregateOutputType = {
-    total: number | null
-    adicionados: number | null
-    alterados: number | null
-    removidos: number | null
+  export type NcmLogAvgAggregateOutputType = {
+    total_ncm_log: number | null
+    adicionados_ncm_log: number | null
+    alterados_ncm_log: number | null
+    removidos_ncm_log: number | null
   }
 
-  export type NcmSyncLogSumAggregateOutputType = {
-    total: number | null
-    adicionados: number | null
-    alterados: number | null
-    removidos: number | null
+  export type NcmLogSumAggregateOutputType = {
+    total_ncm_log: number | null
+    adicionados_ncm_log: number | null
+    alterados_ncm_log: number | null
+    removidos_ncm_log: number | null
   }
 
-  export type NcmSyncLogMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    iniciado_em: Date | null
-    concluido_em: Date | null
-    status: $Enums.NCMStatusSincronizacao | null
-    total: number | null
-    adicionados: number | null
-    alterados: number | null
-    removidos: number | null
-    origem: $Enums.NCMOrigemSincronizacao | null
-    disparado_por: string | null
-    erro_msg: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type NcmLogMinAggregateOutputType = {
+    id_ncm_log: string | null
+    id_organizacao_ncm_log: string | null
+    id_produto_ncm_log: string | null
+    id_usuario_ncm_log: string | null
+    data_inicio_ncm_log: Date | null
+    data_conclusao_ncm_log: Date | null
+    status_ncm_log: $Enums.NcmStatus | null
+    total_ncm_log: number | null
+    adicionados_ncm_log: number | null
+    alterados_ncm_log: number | null
+    removidos_ncm_log: number | null
+    origem_ncm_log: $Enums.NcmOrigem | null
+    disparado_por_ncm_log: string | null
+    mensagem_erro_ncm_log: string | null
+    data_criacao_ncm_log: Date | null
+    data_atualizacao_ncm_log: Date | null
   }
 
-  export type NcmSyncLogMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    iniciado_em: Date | null
-    concluido_em: Date | null
-    status: $Enums.NCMStatusSincronizacao | null
-    total: number | null
-    adicionados: number | null
-    alterados: number | null
-    removidos: number | null
-    origem: $Enums.NCMOrigemSincronizacao | null
-    disparado_por: string | null
-    erro_msg: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type NcmLogMaxAggregateOutputType = {
+    id_ncm_log: string | null
+    id_organizacao_ncm_log: string | null
+    id_produto_ncm_log: string | null
+    id_usuario_ncm_log: string | null
+    data_inicio_ncm_log: Date | null
+    data_conclusao_ncm_log: Date | null
+    status_ncm_log: $Enums.NcmStatus | null
+    total_ncm_log: number | null
+    adicionados_ncm_log: number | null
+    alterados_ncm_log: number | null
+    removidos_ncm_log: number | null
+    origem_ncm_log: $Enums.NcmOrigem | null
+    disparado_por_ncm_log: string | null
+    mensagem_erro_ncm_log: string | null
+    data_criacao_ncm_log: Date | null
+    data_atualizacao_ncm_log: Date | null
   }
 
-  export type NcmSyncLogCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    iniciado_em: number
-    concluido_em: number
-    status: number
-    total: number
-    adicionados: number
-    alterados: number
-    removidos: number
-    origem: number
-    disparado_por: number
-    erro_msg: number
-    created_at: number
-    updated_at: number
+  export type NcmLogCountAggregateOutputType = {
+    id_ncm_log: number
+    id_organizacao_ncm_log: number
+    id_produto_ncm_log: number
+    id_usuario_ncm_log: number
+    data_inicio_ncm_log: number
+    data_conclusao_ncm_log: number
+    status_ncm_log: number
+    total_ncm_log: number
+    adicionados_ncm_log: number
+    alterados_ncm_log: number
+    removidos_ncm_log: number
+    origem_ncm_log: number
+    disparado_por_ncm_log: number
+    mensagem_erro_ncm_log: number
+    data_criacao_ncm_log: number
+    data_atualizacao_ncm_log: number
     _all: number
   }
 
 
-  export type NcmSyncLogAvgAggregateInputType = {
-    total?: true
-    adicionados?: true
-    alterados?: true
-    removidos?: true
+  export type NcmLogAvgAggregateInputType = {
+    total_ncm_log?: true
+    adicionados_ncm_log?: true
+    alterados_ncm_log?: true
+    removidos_ncm_log?: true
   }
 
-  export type NcmSyncLogSumAggregateInputType = {
-    total?: true
-    adicionados?: true
-    alterados?: true
-    removidos?: true
+  export type NcmLogSumAggregateInputType = {
+    total_ncm_log?: true
+    adicionados_ncm_log?: true
+    alterados_ncm_log?: true
+    removidos_ncm_log?: true
   }
 
-  export type NcmSyncLogMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    iniciado_em?: true
-    concluido_em?: true
-    status?: true
-    total?: true
-    adicionados?: true
-    alterados?: true
-    removidos?: true
-    origem?: true
-    disparado_por?: true
-    erro_msg?: true
-    created_at?: true
-    updated_at?: true
+  export type NcmLogMinAggregateInputType = {
+    id_ncm_log?: true
+    id_organizacao_ncm_log?: true
+    id_produto_ncm_log?: true
+    id_usuario_ncm_log?: true
+    data_inicio_ncm_log?: true
+    data_conclusao_ncm_log?: true
+    status_ncm_log?: true
+    total_ncm_log?: true
+    adicionados_ncm_log?: true
+    alterados_ncm_log?: true
+    removidos_ncm_log?: true
+    origem_ncm_log?: true
+    disparado_por_ncm_log?: true
+    mensagem_erro_ncm_log?: true
+    data_criacao_ncm_log?: true
+    data_atualizacao_ncm_log?: true
   }
 
-  export type NcmSyncLogMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    iniciado_em?: true
-    concluido_em?: true
-    status?: true
-    total?: true
-    adicionados?: true
-    alterados?: true
-    removidos?: true
-    origem?: true
-    disparado_por?: true
-    erro_msg?: true
-    created_at?: true
-    updated_at?: true
+  export type NcmLogMaxAggregateInputType = {
+    id_ncm_log?: true
+    id_organizacao_ncm_log?: true
+    id_produto_ncm_log?: true
+    id_usuario_ncm_log?: true
+    data_inicio_ncm_log?: true
+    data_conclusao_ncm_log?: true
+    status_ncm_log?: true
+    total_ncm_log?: true
+    adicionados_ncm_log?: true
+    alterados_ncm_log?: true
+    removidos_ncm_log?: true
+    origem_ncm_log?: true
+    disparado_por_ncm_log?: true
+    mensagem_erro_ncm_log?: true
+    data_criacao_ncm_log?: true
+    data_atualizacao_ncm_log?: true
   }
 
-  export type NcmSyncLogCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    iniciado_em?: true
-    concluido_em?: true
-    status?: true
-    total?: true
-    adicionados?: true
-    alterados?: true
-    removidos?: true
-    origem?: true
-    disparado_por?: true
-    erro_msg?: true
-    created_at?: true
-    updated_at?: true
+  export type NcmLogCountAggregateInputType = {
+    id_ncm_log?: true
+    id_organizacao_ncm_log?: true
+    id_produto_ncm_log?: true
+    id_usuario_ncm_log?: true
+    data_inicio_ncm_log?: true
+    data_conclusao_ncm_log?: true
+    status_ncm_log?: true
+    total_ncm_log?: true
+    adicionados_ncm_log?: true
+    alterados_ncm_log?: true
+    removidos_ncm_log?: true
+    origem_ncm_log?: true
+    disparado_por_ncm_log?: true
+    mensagem_erro_ncm_log?: true
+    data_criacao_ncm_log?: true
+    data_atualizacao_ncm_log?: true
     _all?: true
   }
 
-  export type NcmSyncLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NcmSyncLog to aggregate.
+     * Filter which NcmLog to aggregate.
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmSyncLogs to fetch.
+     * Determine the order of NcmLogs to fetch.
      */
-    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: NcmSyncLogWhereUniqueInput
+    cursor?: NcmLogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmSyncLogs from the position of the cursor.
+     * Take `±n` NcmLogs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmSyncLogs.
+     * Skip the first `n` NcmLogs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned NcmSyncLogs
+     * Count returned NcmLogs
     **/
-    _count?: true | NcmSyncLogCountAggregateInputType
+    _count?: true | NcmLogCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: NcmSyncLogAvgAggregateInputType
+    _avg?: NcmLogAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: NcmSyncLogSumAggregateInputType
+    _sum?: NcmLogSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: NcmSyncLogMinAggregateInputType
+    _min?: NcmLogMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: NcmSyncLogMaxAggregateInputType
+    _max?: NcmLogMaxAggregateInputType
   }
 
-  export type GetNcmSyncLogAggregateType<T extends NcmSyncLogAggregateArgs> = {
-        [P in keyof T & keyof AggregateNcmSyncLog]: P extends '_count' | 'count'
+  export type GetNcmLogAggregateType<T extends NcmLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmLog]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateNcmSyncLog[P]>
-      : GetScalarType<T[P], AggregateNcmSyncLog[P]>
+        : GetScalarType<T[P], AggregateNcmLog[P]>
+      : GetScalarType<T[P], AggregateNcmLog[P]>
   }
 
 
 
 
-  export type NcmSyncLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NcmSyncLogWhereInput
-    orderBy?: NcmSyncLogOrderByWithAggregationInput | NcmSyncLogOrderByWithAggregationInput[]
-    by: NcmSyncLogScalarFieldEnum[] | NcmSyncLogScalarFieldEnum
-    having?: NcmSyncLogScalarWhereWithAggregatesInput
+  export type NcmLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmLogWhereInput
+    orderBy?: NcmLogOrderByWithAggregationInput | NcmLogOrderByWithAggregationInput[]
+    by: NcmLogScalarFieldEnum[] | NcmLogScalarFieldEnum
+    having?: NcmLogScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: NcmSyncLogCountAggregateInputType | true
-    _avg?: NcmSyncLogAvgAggregateInputType
-    _sum?: NcmSyncLogSumAggregateInputType
-    _min?: NcmSyncLogMinAggregateInputType
-    _max?: NcmSyncLogMaxAggregateInputType
+    _count?: NcmLogCountAggregateInputType | true
+    _avg?: NcmLogAvgAggregateInputType
+    _sum?: NcmLogSumAggregateInputType
+    _min?: NcmLogMinAggregateInputType
+    _max?: NcmLogMaxAggregateInputType
   }
 
-  export type NcmSyncLogGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    iniciado_em: Date
-    concluido_em: Date | null
-    status: $Enums.NCMStatusSincronizacao
-    total: number
-    adicionados: number
-    alterados: number
-    removidos: number
-    origem: $Enums.NCMOrigemSincronizacao
-    disparado_por: string | null
-    erro_msg: string | null
-    created_at: Date
-    updated_at: Date
-    _count: NcmSyncLogCountAggregateOutputType | null
-    _avg: NcmSyncLogAvgAggregateOutputType | null
-    _sum: NcmSyncLogSumAggregateOutputType | null
-    _min: NcmSyncLogMinAggregateOutputType | null
-    _max: NcmSyncLogMaxAggregateOutputType | null
+  export type NcmLogGroupByOutputType = {
+    id_ncm_log: string
+    id_organizacao_ncm_log: string
+    id_produto_ncm_log: string | null
+    id_usuario_ncm_log: string | null
+    data_inicio_ncm_log: Date
+    data_conclusao_ncm_log: Date | null
+    status_ncm_log: $Enums.NcmStatus
+    total_ncm_log: number
+    adicionados_ncm_log: number
+    alterados_ncm_log: number
+    removidos_ncm_log: number
+    origem_ncm_log: $Enums.NcmOrigem
+    disparado_por_ncm_log: string | null
+    mensagem_erro_ncm_log: string | null
+    data_criacao_ncm_log: Date
+    data_atualizacao_ncm_log: Date
+    _count: NcmLogCountAggregateOutputType | null
+    _avg: NcmLogAvgAggregateOutputType | null
+    _sum: NcmLogSumAggregateOutputType | null
+    _min: NcmLogMinAggregateOutputType | null
+    _max: NcmLogMaxAggregateOutputType | null
   }
 
-  type GetNcmSyncLogGroupByPayload<T extends NcmSyncLogGroupByArgs> = Prisma.PrismaPromise<
+  type GetNcmLogGroupByPayload<T extends NcmLogGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<NcmSyncLogGroupByOutputType, T['by']> &
+      PickEnumerable<NcmLogGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof NcmSyncLogGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NcmLogGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
-            : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
+              : GetScalarType<T[P], NcmLogGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmLogGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type NcmSyncLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    iniciado_em?: boolean
-    concluido_em?: boolean
-    status?: boolean
-    total?: boolean
-    adicionados?: boolean
-    alterados?: boolean
-    removidos?: boolean
-    origem?: boolean
-    disparado_por?: boolean
-    erro_msg?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["ncmSyncLog"]>
+  export type NcmLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_log?: boolean
+    id_organizacao_ncm_log?: boolean
+    id_produto_ncm_log?: boolean
+    id_usuario_ncm_log?: boolean
+    data_inicio_ncm_log?: boolean
+    data_conclusao_ncm_log?: boolean
+    status_ncm_log?: boolean
+    total_ncm_log?: boolean
+    adicionados_ncm_log?: boolean
+    alterados_ncm_log?: boolean
+    removidos_ncm_log?: boolean
+    origem_ncm_log?: boolean
+    disparado_por_ncm_log?: boolean
+    mensagem_erro_ncm_log?: boolean
+    data_criacao_ncm_log?: boolean
+    data_atualizacao_ncm_log?: boolean
+  }, ExtArgs["result"]["ncmLog"]>
 
-  export type NcmSyncLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    iniciado_em?: boolean
-    concluido_em?: boolean
-    status?: boolean
-    total?: boolean
-    adicionados?: boolean
-    alterados?: boolean
-    removidos?: boolean
-    origem?: boolean
-    disparado_por?: boolean
-    erro_msg?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["ncmSyncLog"]>
+  export type NcmLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_log?: boolean
+    id_organizacao_ncm_log?: boolean
+    id_produto_ncm_log?: boolean
+    id_usuario_ncm_log?: boolean
+    data_inicio_ncm_log?: boolean
+    data_conclusao_ncm_log?: boolean
+    status_ncm_log?: boolean
+    total_ncm_log?: boolean
+    adicionados_ncm_log?: boolean
+    alterados_ncm_log?: boolean
+    removidos_ncm_log?: boolean
+    origem_ncm_log?: boolean
+    disparado_por_ncm_log?: boolean
+    mensagem_erro_ncm_log?: boolean
+    data_criacao_ncm_log?: boolean
+    data_atualizacao_ncm_log?: boolean
+  }, ExtArgs["result"]["ncmLog"]>
 
-  export type NcmSyncLogSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    iniciado_em?: boolean
-    concluido_em?: boolean
-    status?: boolean
-    total?: boolean
-    adicionados?: boolean
-    alterados?: boolean
-    removidos?: boolean
-    origem?: boolean
-    disparado_por?: boolean
-    erro_msg?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type NcmLogSelectScalar = {
+    id_ncm_log?: boolean
+    id_organizacao_ncm_log?: boolean
+    id_produto_ncm_log?: boolean
+    id_usuario_ncm_log?: boolean
+    data_inicio_ncm_log?: boolean
+    data_conclusao_ncm_log?: boolean
+    status_ncm_log?: boolean
+    total_ncm_log?: boolean
+    adicionados_ncm_log?: boolean
+    alterados_ncm_log?: boolean
+    removidos_ncm_log?: boolean
+    origem_ncm_log?: boolean
+    disparado_por_ncm_log?: boolean
+    mensagem_erro_ncm_log?: boolean
+    data_criacao_ncm_log?: boolean
+    data_atualizacao_ncm_log?: boolean
   }
 
 
-  export type $NcmSyncLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NcmSyncLog"
+  export type $NcmLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmLog"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      iniciado_em: Date
-      concluido_em: Date | null
-      status: $Enums.NCMStatusSincronizacao
-      total: number
-      adicionados: number
-      alterados: number
-      removidos: number
-      origem: $Enums.NCMOrigemSincronizacao
-      disparado_por: string | null
-      erro_msg: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["ncmSyncLog"]>
+      id_ncm_log: string
+      id_organizacao_ncm_log: string
+      id_produto_ncm_log: string | null
+      id_usuario_ncm_log: string | null
+      data_inicio_ncm_log: Date
+      data_conclusao_ncm_log: Date | null
+      status_ncm_log: $Enums.NcmStatus
+      total_ncm_log: number
+      adicionados_ncm_log: number
+      alterados_ncm_log: number
+      removidos_ncm_log: number
+      origem_ncm_log: $Enums.NcmOrigem
+      disparado_por_ncm_log: string | null
+      mensagem_erro_ncm_log: string | null
+      data_criacao_ncm_log: Date
+      data_atualizacao_ncm_log: Date
+    }, ExtArgs["result"]["ncmLog"]>
     composites: {}
   }
 
-  type NcmSyncLogGetPayload<S extends boolean | null | undefined | NcmSyncLogDefaultArgs> = $Result.GetResult<Prisma.$NcmSyncLogPayload, S>
+  type NcmLogGetPayload<S extends boolean | null | undefined | NcmLogDefaultArgs> = $Result.GetResult<Prisma.$NcmLogPayload, S>
 
-  type NcmSyncLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NcmSyncLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NcmSyncLogCountAggregateInputType | true
+  type NcmLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmLogCountAggregateInputType | true
     }
 
-  export interface NcmSyncLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmSyncLog'], meta: { name: 'NcmSyncLog' } }
+  export interface NcmLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmLog'], meta: { name: 'NcmLog' } }
     /**
-     * Find zero or one NcmSyncLog that matches the filter.
-     * @param {NcmSyncLogFindUniqueArgs} args - Arguments to find a NcmSyncLog
+     * Find zero or one NcmLog that matches the filter.
+     * @param {NcmLogFindUniqueArgs} args - Arguments to find a NcmLog
      * @example
-     * // Get one NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.findUnique({
+     * // Get one NcmLog
+     * const ncmLog = await prisma.ncmLog.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends NcmSyncLogFindUniqueArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NcmLogFindUniqueArgs>(args: SelectSubset<T, NcmLogFindUniqueArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one NcmSyncLog that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NcmLog that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {NcmSyncLogFindUniqueOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @param {NcmLogFindUniqueOrThrowArgs} args - Arguments to find a NcmLog
      * @example
-     * // Get one NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.findUniqueOrThrow({
+     * // Get one NcmLog
+     * const ncmLog = await prisma.ncmLog.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NcmSyncLogFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NcmLogFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first NcmSyncLog that matches the filter.
+     * Find the first NcmLog that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogFindFirstArgs} args - Arguments to find a NcmSyncLog
+     * @param {NcmLogFindFirstArgs} args - Arguments to find a NcmLog
      * @example
-     * // Get one NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.findFirst({
+     * // Get one NcmLog
+     * const ncmLog = await prisma.ncmLog.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends NcmSyncLogFindFirstArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NcmLogFindFirstArgs>(args?: SelectSubset<T, NcmLogFindFirstArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first NcmSyncLog that matches the filter or
+     * Find the first NcmLog that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogFindFirstOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @param {NcmLogFindFirstOrThrowArgs} args - Arguments to find a NcmLog
      * @example
-     * // Get one NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.findFirstOrThrow({
+     * // Get one NcmLog
+     * const ncmLog = await prisma.ncmLog.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends NcmSyncLogFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NcmLogFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more NcmSyncLogs that matches the filter.
+     * Find zero or more NcmLogs that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NcmLogFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all NcmSyncLogs
-     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+     * // Get all NcmLogs
+     * const ncmLogs = await prisma.ncmLog.findMany()
      * 
-     * // Get first 10 NcmSyncLogs
-     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany({ take: 10 })
+     * // Get first 10 NcmLogs
+     * const ncmLogs = await prisma.ncmLog.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const ncmSyncLogWithIdOnly = await prisma.ncmSyncLog.findMany({ select: { id: true } })
+     * // Only select the `id_ncm_log`
+     * const ncmLogWithId_ncm_logOnly = await prisma.ncmLog.findMany({ select: { id_ncm_log: true } })
      * 
      */
-    findMany<T extends NcmSyncLogFindManyArgs>(args?: SelectSubset<T, NcmSyncLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NcmLogFindManyArgs>(args?: SelectSubset<T, NcmLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a NcmSyncLog.
-     * @param {NcmSyncLogCreateArgs} args - Arguments to create a NcmSyncLog.
+     * Create a NcmLog.
+     * @param {NcmLogCreateArgs} args - Arguments to create a NcmLog.
      * @example
-     * // Create one NcmSyncLog
-     * const NcmSyncLog = await prisma.ncmSyncLog.create({
+     * // Create one NcmLog
+     * const NcmLog = await prisma.ncmLog.create({
      *   data: {
-     *     // ... data to create a NcmSyncLog
+     *     // ... data to create a NcmLog
      *   }
      * })
      * 
      */
-    create<T extends NcmSyncLogCreateArgs>(args: SelectSubset<T, NcmSyncLogCreateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NcmLogCreateArgs>(args: SelectSubset<T, NcmLogCreateArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many NcmSyncLogs.
-     * @param {NcmSyncLogCreateManyArgs} args - Arguments to create many NcmSyncLogs.
+     * Create many NcmLogs.
+     * @param {NcmLogCreateManyArgs} args - Arguments to create many NcmLogs.
      * @example
-     * // Create many NcmSyncLogs
-     * const ncmSyncLog = await prisma.ncmSyncLog.createMany({
+     * // Create many NcmLogs
+     * const ncmLog = await prisma.ncmLog.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends NcmSyncLogCreateManyArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NcmLogCreateManyArgs>(args?: SelectSubset<T, NcmLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many NcmSyncLogs and returns the data saved in the database.
-     * @param {NcmSyncLogCreateManyAndReturnArgs} args - Arguments to create many NcmSyncLogs.
+     * Create many NcmLogs and returns the data saved in the database.
+     * @param {NcmLogCreateManyAndReturnArgs} args - Arguments to create many NcmLogs.
      * @example
-     * // Create many NcmSyncLogs
-     * const ncmSyncLog = await prisma.ncmSyncLog.createManyAndReturn({
+     * // Create many NcmLogs
+     * const ncmLog = await prisma.ncmLog.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many NcmSyncLogs and only return the `id`
-     * const ncmSyncLogWithIdOnly = await prisma.ncmSyncLog.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NcmLogs and only return the `id_ncm_log`
+     * const ncmLogWithId_ncm_logOnly = await prisma.ncmLog.createManyAndReturn({ 
+     *   select: { id_ncm_log: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -46176,28 +46176,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NcmSyncLogCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NcmLogCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a NcmSyncLog.
-     * @param {NcmSyncLogDeleteArgs} args - Arguments to delete one NcmSyncLog.
+     * Delete a NcmLog.
+     * @param {NcmLogDeleteArgs} args - Arguments to delete one NcmLog.
      * @example
-     * // Delete one NcmSyncLog
-     * const NcmSyncLog = await prisma.ncmSyncLog.delete({
+     * // Delete one NcmLog
+     * const NcmLog = await prisma.ncmLog.delete({
      *   where: {
-     *     // ... filter to delete one NcmSyncLog
+     *     // ... filter to delete one NcmLog
      *   }
      * })
      * 
      */
-    delete<T extends NcmSyncLogDeleteArgs>(args: SelectSubset<T, NcmSyncLogDeleteArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NcmLogDeleteArgs>(args: SelectSubset<T, NcmLogDeleteArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one NcmSyncLog.
-     * @param {NcmSyncLogUpdateArgs} args - Arguments to update one NcmSyncLog.
+     * Update one NcmLog.
+     * @param {NcmLogUpdateArgs} args - Arguments to update one NcmLog.
      * @example
-     * // Update one NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.update({
+     * // Update one NcmLog
+     * const ncmLog = await prisma.ncmLog.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -46207,30 +46207,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NcmSyncLogUpdateArgs>(args: SelectSubset<T, NcmSyncLogUpdateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NcmLogUpdateArgs>(args: SelectSubset<T, NcmLogUpdateArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more NcmSyncLogs.
-     * @param {NcmSyncLogDeleteManyArgs} args - Arguments to filter NcmSyncLogs to delete.
+     * Delete zero or more NcmLogs.
+     * @param {NcmLogDeleteManyArgs} args - Arguments to filter NcmLogs to delete.
      * @example
-     * // Delete a few NcmSyncLogs
-     * const { count } = await prisma.ncmSyncLog.deleteMany({
+     * // Delete a few NcmLogs
+     * const { count } = await prisma.ncmLog.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends NcmSyncLogDeleteManyArgs>(args?: SelectSubset<T, NcmSyncLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NcmLogDeleteManyArgs>(args?: SelectSubset<T, NcmLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more NcmSyncLogs.
+     * Update zero or more NcmLogs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NcmLogUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many NcmSyncLogs
-     * const ncmSyncLog = await prisma.ncmSyncLog.updateMany({
+     * // Update many NcmLogs
+     * const ncmLog = await prisma.ncmLog.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -46240,56 +46240,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends NcmSyncLogUpdateManyArgs>(args: SelectSubset<T, NcmSyncLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NcmLogUpdateManyArgs>(args: SelectSubset<T, NcmLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one NcmSyncLog.
-     * @param {NcmSyncLogUpsertArgs} args - Arguments to update or create a NcmSyncLog.
+     * Create or update one NcmLog.
+     * @param {NcmLogUpsertArgs} args - Arguments to update or create a NcmLog.
      * @example
-     * // Update or create a NcmSyncLog
-     * const ncmSyncLog = await prisma.ncmSyncLog.upsert({
+     * // Update or create a NcmLog
+     * const ncmLog = await prisma.ncmLog.upsert({
      *   create: {
-     *     // ... data to create a NcmSyncLog
+     *     // ... data to create a NcmLog
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the NcmSyncLog we want to update
+     *     // ... the filter for the NcmLog we want to update
      *   }
      * })
      */
-    upsert<T extends NcmSyncLogUpsertArgs>(args: SelectSubset<T, NcmSyncLogUpsertArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NcmLogUpsertArgs>(args: SelectSubset<T, NcmLogUpsertArgs<ExtArgs>>): Prisma__NcmLogClient<$Result.GetResult<Prisma.$NcmLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of NcmSyncLogs.
+     * Count the number of NcmLogs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogCountArgs} args - Arguments to filter NcmSyncLogs to count.
+     * @param {NcmLogCountArgs} args - Arguments to filter NcmLogs to count.
      * @example
-     * // Count the number of NcmSyncLogs
-     * const count = await prisma.ncmSyncLog.count({
+     * // Count the number of NcmLogs
+     * const count = await prisma.ncmLog.count({
      *   where: {
-     *     // ... the filter for the NcmSyncLogs we want to count
+     *     // ... the filter for the NcmLogs we want to count
      *   }
      * })
     **/
-    count<T extends NcmSyncLogCountArgs>(
-      args?: Subset<T, NcmSyncLogCountArgs>,
+    count<T extends NcmLogCountArgs>(
+      args?: Subset<T, NcmLogCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], NcmSyncLogCountAggregateOutputType>
+          : GetScalarType<T['select'], NcmLogCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a NcmSyncLog.
+     * Allows you to perform aggregations operations on a NcmLog.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NcmLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -46309,13 +46309,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends NcmSyncLogAggregateArgs>(args: Subset<T, NcmSyncLogAggregateArgs>): Prisma.PrismaPromise<GetNcmSyncLogAggregateType<T>>
+    aggregate<T extends NcmLogAggregateArgs>(args: Subset<T, NcmLogAggregateArgs>): Prisma.PrismaPromise<GetNcmLogAggregateType<T>>
 
     /**
-     * Group by NcmSyncLog.
+     * Group by NcmLog.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmSyncLogGroupByArgs} args - Group by arguments.
+     * @param {NcmLogGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -46330,14 +46330,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends NcmSyncLogGroupByArgs,
+      T extends NcmLogGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NcmSyncLogGroupByArgs['orderBy'] }
-        : { orderBy?: NcmSyncLogGroupByArgs['orderBy'] },
+        ? { orderBy: NcmLogGroupByArgs['orderBy'] }
+        : { orderBy?: NcmLogGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -46386,20 +46386,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, NcmSyncLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmSyncLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NcmLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the NcmSyncLog model
+   * Fields of the NcmLog model
    */
-  readonly fields: NcmSyncLogFieldRefs;
+  readonly fields: NcmLogFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for NcmSyncLog.
+   * The delegate class that acts as a "Promise-like" for NcmLog.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NcmSyncLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NcmLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -46427,676 +46427,676 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the NcmSyncLog model
+   * Fields of the NcmLog model
    */ 
-  interface NcmSyncLogFieldRefs {
-    readonly id: FieldRef<"NcmSyncLog", 'String'>
-    readonly tenant_id: FieldRef<"NcmSyncLog", 'String'>
-    readonly product_id: FieldRef<"NcmSyncLog", 'String'>
-    readonly user_id: FieldRef<"NcmSyncLog", 'String'>
-    readonly iniciado_em: FieldRef<"NcmSyncLog", 'DateTime'>
-    readonly concluido_em: FieldRef<"NcmSyncLog", 'DateTime'>
-    readonly status: FieldRef<"NcmSyncLog", 'NCMStatusSincronizacao'>
-    readonly total: FieldRef<"NcmSyncLog", 'Int'>
-    readonly adicionados: FieldRef<"NcmSyncLog", 'Int'>
-    readonly alterados: FieldRef<"NcmSyncLog", 'Int'>
-    readonly removidos: FieldRef<"NcmSyncLog", 'Int'>
-    readonly origem: FieldRef<"NcmSyncLog", 'NCMOrigemSincronizacao'>
-    readonly disparado_por: FieldRef<"NcmSyncLog", 'String'>
-    readonly erro_msg: FieldRef<"NcmSyncLog", 'String'>
-    readonly created_at: FieldRef<"NcmSyncLog", 'DateTime'>
-    readonly updated_at: FieldRef<"NcmSyncLog", 'DateTime'>
+  interface NcmLogFieldRefs {
+    readonly id_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly id_organizacao_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly id_produto_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly id_usuario_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly data_inicio_ncm_log: FieldRef<"NcmLog", 'DateTime'>
+    readonly data_conclusao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
+    readonly status_ncm_log: FieldRef<"NcmLog", 'NcmStatus'>
+    readonly total_ncm_log: FieldRef<"NcmLog", 'Int'>
+    readonly adicionados_ncm_log: FieldRef<"NcmLog", 'Int'>
+    readonly alterados_ncm_log: FieldRef<"NcmLog", 'Int'>
+    readonly removidos_ncm_log: FieldRef<"NcmLog", 'Int'>
+    readonly origem_ncm_log: FieldRef<"NcmLog", 'NcmOrigem'>
+    readonly disparado_por_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly mensagem_erro_ncm_log: FieldRef<"NcmLog", 'String'>
+    readonly data_criacao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
+    readonly data_atualizacao_ncm_log: FieldRef<"NcmLog", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * NcmSyncLog findUnique
+   * NcmLog findUnique
    */
-  export type NcmSyncLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter, which NcmSyncLog to fetch.
+     * Filter, which NcmLog to fetch.
      */
-    where: NcmSyncLogWhereUniqueInput
+    where: NcmLogWhereUniqueInput
   }
 
   /**
-   * NcmSyncLog findUniqueOrThrow
+   * NcmLog findUniqueOrThrow
    */
-  export type NcmSyncLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter, which NcmSyncLog to fetch.
+     * Filter, which NcmLog to fetch.
      */
-    where: NcmSyncLogWhereUniqueInput
+    where: NcmLogWhereUniqueInput
   }
 
   /**
-   * NcmSyncLog findFirst
+   * NcmLog findFirst
    */
-  export type NcmSyncLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter, which NcmSyncLog to fetch.
+     * Filter, which NcmLog to fetch.
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmSyncLogs to fetch.
+     * Determine the order of NcmLogs to fetch.
      */
-    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NcmSyncLogs.
+     * Sets the position for searching for NcmLogs.
      */
-    cursor?: NcmSyncLogWhereUniqueInput
+    cursor?: NcmLogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmSyncLogs from the position of the cursor.
+     * Take `±n` NcmLogs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmSyncLogs.
+     * Skip the first `n` NcmLogs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NcmSyncLogs.
+     * Filter by unique combinations of NcmLogs.
      */
-    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
   }
 
   /**
-   * NcmSyncLog findFirstOrThrow
+   * NcmLog findFirstOrThrow
    */
-  export type NcmSyncLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter, which NcmSyncLog to fetch.
+     * Filter, which NcmLog to fetch.
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmSyncLogs to fetch.
+     * Determine the order of NcmLogs to fetch.
      */
-    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NcmSyncLogs.
+     * Sets the position for searching for NcmLogs.
      */
-    cursor?: NcmSyncLogWhereUniqueInput
+    cursor?: NcmLogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmSyncLogs from the position of the cursor.
+     * Take `±n` NcmLogs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmSyncLogs.
+     * Skip the first `n` NcmLogs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NcmSyncLogs.
+     * Filter by unique combinations of NcmLogs.
      */
-    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
   }
 
   /**
-   * NcmSyncLog findMany
+   * NcmLog findMany
    */
-  export type NcmSyncLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter, which NcmSyncLogs to fetch.
+     * Filter, which NcmLogs to fetch.
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmSyncLogs to fetch.
+     * Determine the order of NcmLogs to fetch.
      */
-    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    orderBy?: NcmLogOrderByWithRelationInput | NcmLogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing NcmSyncLogs.
+     * Sets the position for listing NcmLogs.
      */
-    cursor?: NcmSyncLogWhereUniqueInput
+    cursor?: NcmLogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmSyncLogs from the position of the cursor.
+     * Take `±n` NcmLogs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmSyncLogs.
+     * Skip the first `n` NcmLogs.
      */
     skip?: number
-    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+    distinct?: NcmLogScalarFieldEnum | NcmLogScalarFieldEnum[]
   }
 
   /**
-   * NcmSyncLog create
+   * NcmLog create
    */
-  export type NcmSyncLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * The data needed to create a NcmSyncLog.
+     * The data needed to create a NcmLog.
      */
-    data: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+    data: XOR<NcmLogCreateInput, NcmLogUncheckedCreateInput>
   }
 
   /**
-   * NcmSyncLog createMany
+   * NcmLog createMany
    */
-  export type NcmSyncLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many NcmSyncLogs.
+     * The data used to create many NcmLogs.
      */
-    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    data: NcmLogCreateManyInput | NcmLogCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NcmSyncLog createManyAndReturn
+   * NcmLog createManyAndReturn
    */
-  export type NcmSyncLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NcmLogSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many NcmSyncLogs.
+     * The data used to create many NcmLogs.
      */
-    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    data: NcmLogCreateManyInput | NcmLogCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NcmSyncLog update
+   * NcmLog update
    */
-  export type NcmSyncLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * The data needed to update a NcmSyncLog.
+     * The data needed to update a NcmLog.
      */
-    data: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+    data: XOR<NcmLogUpdateInput, NcmLogUncheckedUpdateInput>
     /**
-     * Choose, which NcmSyncLog to update.
+     * Choose, which NcmLog to update.
      */
-    where: NcmSyncLogWhereUniqueInput
+    where: NcmLogWhereUniqueInput
   }
 
   /**
-   * NcmSyncLog updateMany
+   * NcmLog updateMany
    */
-  export type NcmSyncLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update NcmSyncLogs.
+     * The data used to update NcmLogs.
      */
-    data: XOR<NcmSyncLogUpdateManyMutationInput, NcmSyncLogUncheckedUpdateManyInput>
+    data: XOR<NcmLogUpdateManyMutationInput, NcmLogUncheckedUpdateManyInput>
     /**
-     * Filter which NcmSyncLogs to update
+     * Filter which NcmLogs to update
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
   }
 
   /**
-   * NcmSyncLog upsert
+   * NcmLog upsert
    */
-  export type NcmSyncLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * The filter to search for the NcmSyncLog to update in case it exists.
+     * The filter to search for the NcmLog to update in case it exists.
      */
-    where: NcmSyncLogWhereUniqueInput
+    where: NcmLogWhereUniqueInput
     /**
-     * In case the NcmSyncLog found by the `where` argument doesn't exist, create a new NcmSyncLog with this data.
+     * In case the NcmLog found by the `where` argument doesn't exist, create a new NcmLog with this data.
      */
-    create: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+    create: XOR<NcmLogCreateInput, NcmLogUncheckedCreateInput>
     /**
-     * In case the NcmSyncLog was found with the provided `where` argument, update it with this data.
+     * In case the NcmLog was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+    update: XOR<NcmLogUpdateInput, NcmLogUncheckedUpdateInput>
   }
 
   /**
-   * NcmSyncLog delete
+   * NcmLog delete
    */
-  export type NcmSyncLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
     /**
-     * Filter which NcmSyncLog to delete.
+     * Filter which NcmLog to delete.
      */
-    where: NcmSyncLogWhereUniqueInput
+    where: NcmLogWhereUniqueInput
   }
 
   /**
-   * NcmSyncLog deleteMany
+   * NcmLog deleteMany
    */
-  export type NcmSyncLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NcmSyncLogs to delete
+     * Filter which NcmLogs to delete
      */
-    where?: NcmSyncLogWhereInput
+    where?: NcmLogWhereInput
   }
 
   /**
-   * NcmSyncLog without action
+   * NcmLog without action
    */
-  export type NcmSyncLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmSyncLog
+     * Select specific fields to fetch from the NcmLog
      */
-    select?: NcmSyncLogSelect<ExtArgs> | null
+    select?: NcmLogSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model NcmScheduleConfig
+   * Model NcmAgendamento
    */
 
-  export type AggregateNcmScheduleConfig = {
-    _count: NcmScheduleConfigCountAggregateOutputType | null
-    _min: NcmScheduleConfigMinAggregateOutputType | null
-    _max: NcmScheduleConfigMaxAggregateOutputType | null
+  export type AggregateNcmAgendamento = {
+    _count: NcmAgendamentoCountAggregateOutputType | null
+    _min: NcmAgendamentoMinAggregateOutputType | null
+    _max: NcmAgendamentoMaxAggregateOutputType | null
   }
 
-  export type NcmScheduleConfigMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    ativo: boolean | null
-    cron_expressao: string | null
-    criado_em: Date | null
-    atualizado_em: Date | null
+  export type NcmAgendamentoMinAggregateOutputType = {
+    id_ncm_agendamento: string | null
+    id_organizacao_ncm_agendamento: string | null
+    id_produto_ncm_agendamento: string | null
+    id_usuario_ncm_agendamento: string | null
+    ativo_ncm_agendamento: boolean | null
+    cron_expressao_ncm_agendamento: string | null
+    data_criacao_ncm_agendamento: Date | null
+    data_atualizacao_ncm_agendamento: Date | null
   }
 
-  export type NcmScheduleConfigMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    ativo: boolean | null
-    cron_expressao: string | null
-    criado_em: Date | null
-    atualizado_em: Date | null
+  export type NcmAgendamentoMaxAggregateOutputType = {
+    id_ncm_agendamento: string | null
+    id_organizacao_ncm_agendamento: string | null
+    id_produto_ncm_agendamento: string | null
+    id_usuario_ncm_agendamento: string | null
+    ativo_ncm_agendamento: boolean | null
+    cron_expressao_ncm_agendamento: string | null
+    data_criacao_ncm_agendamento: Date | null
+    data_atualizacao_ncm_agendamento: Date | null
   }
 
-  export type NcmScheduleConfigCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    ativo: number
-    cron_expressao: number
-    notificadores: number
-    criado_em: number
-    atualizado_em: number
+  export type NcmAgendamentoCountAggregateOutputType = {
+    id_ncm_agendamento: number
+    id_organizacao_ncm_agendamento: number
+    id_produto_ncm_agendamento: number
+    id_usuario_ncm_agendamento: number
+    ativo_ncm_agendamento: number
+    cron_expressao_ncm_agendamento: number
+    notificadores_ncm_agendamento: number
+    data_criacao_ncm_agendamento: number
+    data_atualizacao_ncm_agendamento: number
     _all: number
   }
 
 
-  export type NcmScheduleConfigMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    ativo?: true
-    cron_expressao?: true
-    criado_em?: true
-    atualizado_em?: true
+  export type NcmAgendamentoMinAggregateInputType = {
+    id_ncm_agendamento?: true
+    id_organizacao_ncm_agendamento?: true
+    id_produto_ncm_agendamento?: true
+    id_usuario_ncm_agendamento?: true
+    ativo_ncm_agendamento?: true
+    cron_expressao_ncm_agendamento?: true
+    data_criacao_ncm_agendamento?: true
+    data_atualizacao_ncm_agendamento?: true
   }
 
-  export type NcmScheduleConfigMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    ativo?: true
-    cron_expressao?: true
-    criado_em?: true
-    atualizado_em?: true
+  export type NcmAgendamentoMaxAggregateInputType = {
+    id_ncm_agendamento?: true
+    id_organizacao_ncm_agendamento?: true
+    id_produto_ncm_agendamento?: true
+    id_usuario_ncm_agendamento?: true
+    ativo_ncm_agendamento?: true
+    cron_expressao_ncm_agendamento?: true
+    data_criacao_ncm_agendamento?: true
+    data_atualizacao_ncm_agendamento?: true
   }
 
-  export type NcmScheduleConfigCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    ativo?: true
-    cron_expressao?: true
-    notificadores?: true
-    criado_em?: true
-    atualizado_em?: true
+  export type NcmAgendamentoCountAggregateInputType = {
+    id_ncm_agendamento?: true
+    id_organizacao_ncm_agendamento?: true
+    id_produto_ncm_agendamento?: true
+    id_usuario_ncm_agendamento?: true
+    ativo_ncm_agendamento?: true
+    cron_expressao_ncm_agendamento?: true
+    notificadores_ncm_agendamento?: true
+    data_criacao_ncm_agendamento?: true
+    data_atualizacao_ncm_agendamento?: true
     _all?: true
   }
 
-  export type NcmScheduleConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NcmScheduleConfig to aggregate.
+     * Filter which NcmAgendamento to aggregate.
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmScheduleConfigs to fetch.
+     * Determine the order of NcmAgendamentos to fetch.
      */
-    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    orderBy?: NcmAgendamentoOrderByWithRelationInput | NcmAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: NcmScheduleConfigWhereUniqueInput
+    cursor?: NcmAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     * Take `±n` NcmAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmScheduleConfigs.
+     * Skip the first `n` NcmAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned NcmScheduleConfigs
+     * Count returned NcmAgendamentos
     **/
-    _count?: true | NcmScheduleConfigCountAggregateInputType
+    _count?: true | NcmAgendamentoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: NcmScheduleConfigMinAggregateInputType
+    _min?: NcmAgendamentoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: NcmScheduleConfigMaxAggregateInputType
+    _max?: NcmAgendamentoMaxAggregateInputType
   }
 
-  export type GetNcmScheduleConfigAggregateType<T extends NcmScheduleConfigAggregateArgs> = {
-        [P in keyof T & keyof AggregateNcmScheduleConfig]: P extends '_count' | 'count'
+  export type GetNcmAgendamentoAggregateType<T extends NcmAgendamentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmAgendamento]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateNcmScheduleConfig[P]>
-      : GetScalarType<T[P], AggregateNcmScheduleConfig[P]>
+        : GetScalarType<T[P], AggregateNcmAgendamento[P]>
+      : GetScalarType<T[P], AggregateNcmAgendamento[P]>
   }
 
 
 
 
-  export type NcmScheduleConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NcmScheduleConfigWhereInput
-    orderBy?: NcmScheduleConfigOrderByWithAggregationInput | NcmScheduleConfigOrderByWithAggregationInput[]
-    by: NcmScheduleConfigScalarFieldEnum[] | NcmScheduleConfigScalarFieldEnum
-    having?: NcmScheduleConfigScalarWhereWithAggregatesInput
+  export type NcmAgendamentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmAgendamentoWhereInput
+    orderBy?: NcmAgendamentoOrderByWithAggregationInput | NcmAgendamentoOrderByWithAggregationInput[]
+    by: NcmAgendamentoScalarFieldEnum[] | NcmAgendamentoScalarFieldEnum
+    having?: NcmAgendamentoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: NcmScheduleConfigCountAggregateInputType | true
-    _min?: NcmScheduleConfigMinAggregateInputType
-    _max?: NcmScheduleConfigMaxAggregateInputType
+    _count?: NcmAgendamentoCountAggregateInputType | true
+    _min?: NcmAgendamentoMinAggregateInputType
+    _max?: NcmAgendamentoMaxAggregateInputType
   }
 
-  export type NcmScheduleConfigGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    ativo: boolean
-    cron_expressao: string
-    notificadores: JsonValue
-    criado_em: Date
-    atualizado_em: Date
-    _count: NcmScheduleConfigCountAggregateOutputType | null
-    _min: NcmScheduleConfigMinAggregateOutputType | null
-    _max: NcmScheduleConfigMaxAggregateOutputType | null
+  export type NcmAgendamentoGroupByOutputType = {
+    id_ncm_agendamento: string
+    id_organizacao_ncm_agendamento: string
+    id_produto_ncm_agendamento: string | null
+    id_usuario_ncm_agendamento: string | null
+    ativo_ncm_agendamento: boolean
+    cron_expressao_ncm_agendamento: string
+    notificadores_ncm_agendamento: JsonValue
+    data_criacao_ncm_agendamento: Date
+    data_atualizacao_ncm_agendamento: Date
+    _count: NcmAgendamentoCountAggregateOutputType | null
+    _min: NcmAgendamentoMinAggregateOutputType | null
+    _max: NcmAgendamentoMaxAggregateOutputType | null
   }
 
-  type GetNcmScheduleConfigGroupByPayload<T extends NcmScheduleConfigGroupByArgs> = Prisma.PrismaPromise<
+  type GetNcmAgendamentoGroupByPayload<T extends NcmAgendamentoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<NcmScheduleConfigGroupByOutputType, T['by']> &
+      PickEnumerable<NcmAgendamentoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof NcmScheduleConfigGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NcmAgendamentoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], NcmScheduleConfigGroupByOutputType[P]>
-            : GetScalarType<T[P], NcmScheduleConfigGroupByOutputType[P]>
+              : GetScalarType<T[P], NcmAgendamentoGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmAgendamentoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type NcmScheduleConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    ativo?: boolean
-    cron_expressao?: boolean
-    notificadores?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
-  }, ExtArgs["result"]["ncmScheduleConfig"]>
+  export type NcmAgendamentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_agendamento?: boolean
+    id_organizacao_ncm_agendamento?: boolean
+    id_produto_ncm_agendamento?: boolean
+    id_usuario_ncm_agendamento?: boolean
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: boolean
+    notificadores_ncm_agendamento?: boolean
+    data_criacao_ncm_agendamento?: boolean
+    data_atualizacao_ncm_agendamento?: boolean
+  }, ExtArgs["result"]["ncmAgendamento"]>
 
-  export type NcmScheduleConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    ativo?: boolean
-    cron_expressao?: boolean
-    notificadores?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
-  }, ExtArgs["result"]["ncmScheduleConfig"]>
+  export type NcmAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_ncm_agendamento?: boolean
+    id_organizacao_ncm_agendamento?: boolean
+    id_produto_ncm_agendamento?: boolean
+    id_usuario_ncm_agendamento?: boolean
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: boolean
+    notificadores_ncm_agendamento?: boolean
+    data_criacao_ncm_agendamento?: boolean
+    data_atualizacao_ncm_agendamento?: boolean
+  }, ExtArgs["result"]["ncmAgendamento"]>
 
-  export type NcmScheduleConfigSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    ativo?: boolean
-    cron_expressao?: boolean
-    notificadores?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
+  export type NcmAgendamentoSelectScalar = {
+    id_ncm_agendamento?: boolean
+    id_organizacao_ncm_agendamento?: boolean
+    id_produto_ncm_agendamento?: boolean
+    id_usuario_ncm_agendamento?: boolean
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: boolean
+    notificadores_ncm_agendamento?: boolean
+    data_criacao_ncm_agendamento?: boolean
+    data_atualizacao_ncm_agendamento?: boolean
   }
 
 
-  export type $NcmScheduleConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NcmScheduleConfig"
+  export type $NcmAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmAgendamento"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      ativo: boolean
-      cron_expressao: string
-      notificadores: Prisma.JsonValue
-      criado_em: Date
-      atualizado_em: Date
-    }, ExtArgs["result"]["ncmScheduleConfig"]>
+      id_ncm_agendamento: string
+      id_organizacao_ncm_agendamento: string
+      id_produto_ncm_agendamento: string | null
+      id_usuario_ncm_agendamento: string | null
+      ativo_ncm_agendamento: boolean
+      cron_expressao_ncm_agendamento: string
+      notificadores_ncm_agendamento: Prisma.JsonValue
+      data_criacao_ncm_agendamento: Date
+      data_atualizacao_ncm_agendamento: Date
+    }, ExtArgs["result"]["ncmAgendamento"]>
     composites: {}
   }
 
-  type NcmScheduleConfigGetPayload<S extends boolean | null | undefined | NcmScheduleConfigDefaultArgs> = $Result.GetResult<Prisma.$NcmScheduleConfigPayload, S>
+  type NcmAgendamentoGetPayload<S extends boolean | null | undefined | NcmAgendamentoDefaultArgs> = $Result.GetResult<Prisma.$NcmAgendamentoPayload, S>
 
-  type NcmScheduleConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NcmScheduleConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NcmScheduleConfigCountAggregateInputType | true
+  type NcmAgendamentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmAgendamentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmAgendamentoCountAggregateInputType | true
     }
 
-  export interface NcmScheduleConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmScheduleConfig'], meta: { name: 'NcmScheduleConfig' } }
+  export interface NcmAgendamentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmAgendamento'], meta: { name: 'NcmAgendamento' } }
     /**
-     * Find zero or one NcmScheduleConfig that matches the filter.
-     * @param {NcmScheduleConfigFindUniqueArgs} args - Arguments to find a NcmScheduleConfig
+     * Find zero or one NcmAgendamento that matches the filter.
+     * @param {NcmAgendamentoFindUniqueArgs} args - Arguments to find a NcmAgendamento
      * @example
-     * // Get one NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findUnique({
+     * // Get one NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends NcmScheduleConfigFindUniqueArgs>(args: SelectSubset<T, NcmScheduleConfigFindUniqueArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NcmAgendamentoFindUniqueArgs>(args: SelectSubset<T, NcmAgendamentoFindUniqueArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one NcmScheduleConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NcmAgendamento that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {NcmScheduleConfigFindUniqueOrThrowArgs} args - Arguments to find a NcmScheduleConfig
+     * @param {NcmAgendamentoFindUniqueOrThrowArgs} args - Arguments to find a NcmAgendamento
      * @example
-     * // Get one NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findUniqueOrThrow({
+     * // Get one NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NcmScheduleConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NcmAgendamentoFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmAgendamentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first NcmScheduleConfig that matches the filter.
+     * Find the first NcmAgendamento that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigFindFirstArgs} args - Arguments to find a NcmScheduleConfig
+     * @param {NcmAgendamentoFindFirstArgs} args - Arguments to find a NcmAgendamento
      * @example
-     * // Get one NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findFirst({
+     * // Get one NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends NcmScheduleConfigFindFirstArgs>(args?: SelectSubset<T, NcmScheduleConfigFindFirstArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NcmAgendamentoFindFirstArgs>(args?: SelectSubset<T, NcmAgendamentoFindFirstArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first NcmScheduleConfig that matches the filter or
+     * Find the first NcmAgendamento that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigFindFirstOrThrowArgs} args - Arguments to find a NcmScheduleConfig
+     * @param {NcmAgendamentoFindFirstOrThrowArgs} args - Arguments to find a NcmAgendamento
      * @example
-     * // Get one NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findFirstOrThrow({
+     * // Get one NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends NcmScheduleConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NcmAgendamentoFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmAgendamentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more NcmScheduleConfigs that matches the filter.
+     * Find zero or more NcmAgendamentos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NcmAgendamentoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all NcmScheduleConfigs
-     * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany()
+     * // Get all NcmAgendamentos
+     * const ncmAgendamentos = await prisma.ncmAgendamento.findMany()
      * 
-     * // Get first 10 NcmScheduleConfigs
-     * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany({ take: 10 })
+     * // Get first 10 NcmAgendamentos
+     * const ncmAgendamentos = await prisma.ncmAgendamento.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const ncmScheduleConfigWithIdOnly = await prisma.ncmScheduleConfig.findMany({ select: { id: true } })
+     * // Only select the `id_ncm_agendamento`
+     * const ncmAgendamentoWithId_ncm_agendamentoOnly = await prisma.ncmAgendamento.findMany({ select: { id_ncm_agendamento: true } })
      * 
      */
-    findMany<T extends NcmScheduleConfigFindManyArgs>(args?: SelectSubset<T, NcmScheduleConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NcmAgendamentoFindManyArgs>(args?: SelectSubset<T, NcmAgendamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a NcmScheduleConfig.
-     * @param {NcmScheduleConfigCreateArgs} args - Arguments to create a NcmScheduleConfig.
+     * Create a NcmAgendamento.
+     * @param {NcmAgendamentoCreateArgs} args - Arguments to create a NcmAgendamento.
      * @example
-     * // Create one NcmScheduleConfig
-     * const NcmScheduleConfig = await prisma.ncmScheduleConfig.create({
+     * // Create one NcmAgendamento
+     * const NcmAgendamento = await prisma.ncmAgendamento.create({
      *   data: {
-     *     // ... data to create a NcmScheduleConfig
+     *     // ... data to create a NcmAgendamento
      *   }
      * })
      * 
      */
-    create<T extends NcmScheduleConfigCreateArgs>(args: SelectSubset<T, NcmScheduleConfigCreateArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NcmAgendamentoCreateArgs>(args: SelectSubset<T, NcmAgendamentoCreateArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many NcmScheduleConfigs.
-     * @param {NcmScheduleConfigCreateManyArgs} args - Arguments to create many NcmScheduleConfigs.
+     * Create many NcmAgendamentos.
+     * @param {NcmAgendamentoCreateManyArgs} args - Arguments to create many NcmAgendamentos.
      * @example
-     * // Create many NcmScheduleConfigs
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.createMany({
+     * // Create many NcmAgendamentos
+     * const ncmAgendamento = await prisma.ncmAgendamento.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends NcmScheduleConfigCreateManyArgs>(args?: SelectSubset<T, NcmScheduleConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NcmAgendamentoCreateManyArgs>(args?: SelectSubset<T, NcmAgendamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many NcmScheduleConfigs and returns the data saved in the database.
-     * @param {NcmScheduleConfigCreateManyAndReturnArgs} args - Arguments to create many NcmScheduleConfigs.
+     * Create many NcmAgendamentos and returns the data saved in the database.
+     * @param {NcmAgendamentoCreateManyAndReturnArgs} args - Arguments to create many NcmAgendamentos.
      * @example
-     * // Create many NcmScheduleConfigs
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.createManyAndReturn({
+     * // Create many NcmAgendamentos
+     * const ncmAgendamento = await prisma.ncmAgendamento.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many NcmScheduleConfigs and only return the `id`
-     * const ncmScheduleConfigWithIdOnly = await prisma.ncmScheduleConfig.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NcmAgendamentos and only return the `id_ncm_agendamento`
+     * const ncmAgendamentoWithId_ncm_agendamentoOnly = await prisma.ncmAgendamento.createManyAndReturn({ 
+     *   select: { id_ncm_agendamento: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -47105,28 +47105,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NcmScheduleConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NcmAgendamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmAgendamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a NcmScheduleConfig.
-     * @param {NcmScheduleConfigDeleteArgs} args - Arguments to delete one NcmScheduleConfig.
+     * Delete a NcmAgendamento.
+     * @param {NcmAgendamentoDeleteArgs} args - Arguments to delete one NcmAgendamento.
      * @example
-     * // Delete one NcmScheduleConfig
-     * const NcmScheduleConfig = await prisma.ncmScheduleConfig.delete({
+     * // Delete one NcmAgendamento
+     * const NcmAgendamento = await prisma.ncmAgendamento.delete({
      *   where: {
-     *     // ... filter to delete one NcmScheduleConfig
+     *     // ... filter to delete one NcmAgendamento
      *   }
      * })
      * 
      */
-    delete<T extends NcmScheduleConfigDeleteArgs>(args: SelectSubset<T, NcmScheduleConfigDeleteArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NcmAgendamentoDeleteArgs>(args: SelectSubset<T, NcmAgendamentoDeleteArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one NcmScheduleConfig.
-     * @param {NcmScheduleConfigUpdateArgs} args - Arguments to update one NcmScheduleConfig.
+     * Update one NcmAgendamento.
+     * @param {NcmAgendamentoUpdateArgs} args - Arguments to update one NcmAgendamento.
      * @example
-     * // Update one NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.update({
+     * // Update one NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -47136,30 +47136,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NcmScheduleConfigUpdateArgs>(args: SelectSubset<T, NcmScheduleConfigUpdateArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NcmAgendamentoUpdateArgs>(args: SelectSubset<T, NcmAgendamentoUpdateArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more NcmScheduleConfigs.
-     * @param {NcmScheduleConfigDeleteManyArgs} args - Arguments to filter NcmScheduleConfigs to delete.
+     * Delete zero or more NcmAgendamentos.
+     * @param {NcmAgendamentoDeleteManyArgs} args - Arguments to filter NcmAgendamentos to delete.
      * @example
-     * // Delete a few NcmScheduleConfigs
-     * const { count } = await prisma.ncmScheduleConfig.deleteMany({
+     * // Delete a few NcmAgendamentos
+     * const { count } = await prisma.ncmAgendamento.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends NcmScheduleConfigDeleteManyArgs>(args?: SelectSubset<T, NcmScheduleConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NcmAgendamentoDeleteManyArgs>(args?: SelectSubset<T, NcmAgendamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more NcmScheduleConfigs.
+     * Update zero or more NcmAgendamentos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NcmAgendamentoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many NcmScheduleConfigs
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.updateMany({
+     * // Update many NcmAgendamentos
+     * const ncmAgendamento = await prisma.ncmAgendamento.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -47169,56 +47169,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends NcmScheduleConfigUpdateManyArgs>(args: SelectSubset<T, NcmScheduleConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NcmAgendamentoUpdateManyArgs>(args: SelectSubset<T, NcmAgendamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one NcmScheduleConfig.
-     * @param {NcmScheduleConfigUpsertArgs} args - Arguments to update or create a NcmScheduleConfig.
+     * Create or update one NcmAgendamento.
+     * @param {NcmAgendamentoUpsertArgs} args - Arguments to update or create a NcmAgendamento.
      * @example
-     * // Update or create a NcmScheduleConfig
-     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.upsert({
+     * // Update or create a NcmAgendamento
+     * const ncmAgendamento = await prisma.ncmAgendamento.upsert({
      *   create: {
-     *     // ... data to create a NcmScheduleConfig
+     *     // ... data to create a NcmAgendamento
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the NcmScheduleConfig we want to update
+     *     // ... the filter for the NcmAgendamento we want to update
      *   }
      * })
      */
-    upsert<T extends NcmScheduleConfigUpsertArgs>(args: SelectSubset<T, NcmScheduleConfigUpsertArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NcmAgendamentoUpsertArgs>(args: SelectSubset<T, NcmAgendamentoUpsertArgs<ExtArgs>>): Prisma__NcmAgendamentoClient<$Result.GetResult<Prisma.$NcmAgendamentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of NcmScheduleConfigs.
+     * Count the number of NcmAgendamentos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigCountArgs} args - Arguments to filter NcmScheduleConfigs to count.
+     * @param {NcmAgendamentoCountArgs} args - Arguments to filter NcmAgendamentos to count.
      * @example
-     * // Count the number of NcmScheduleConfigs
-     * const count = await prisma.ncmScheduleConfig.count({
+     * // Count the number of NcmAgendamentos
+     * const count = await prisma.ncmAgendamento.count({
      *   where: {
-     *     // ... the filter for the NcmScheduleConfigs we want to count
+     *     // ... the filter for the NcmAgendamentos we want to count
      *   }
      * })
     **/
-    count<T extends NcmScheduleConfigCountArgs>(
-      args?: Subset<T, NcmScheduleConfigCountArgs>,
+    count<T extends NcmAgendamentoCountArgs>(
+      args?: Subset<T, NcmAgendamentoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], NcmScheduleConfigCountAggregateOutputType>
+          : GetScalarType<T['select'], NcmAgendamentoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a NcmScheduleConfig.
+     * Allows you to perform aggregations operations on a NcmAgendamento.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NcmAgendamentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -47238,13 +47238,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends NcmScheduleConfigAggregateArgs>(args: Subset<T, NcmScheduleConfigAggregateArgs>): Prisma.PrismaPromise<GetNcmScheduleConfigAggregateType<T>>
+    aggregate<T extends NcmAgendamentoAggregateArgs>(args: Subset<T, NcmAgendamentoAggregateArgs>): Prisma.PrismaPromise<GetNcmAgendamentoAggregateType<T>>
 
     /**
-     * Group by NcmScheduleConfig.
+     * Group by NcmAgendamento.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NcmScheduleConfigGroupByArgs} args - Group by arguments.
+     * @param {NcmAgendamentoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -47259,14 +47259,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends NcmScheduleConfigGroupByArgs,
+      T extends NcmAgendamentoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NcmScheduleConfigGroupByArgs['orderBy'] }
-        : { orderBy?: NcmScheduleConfigGroupByArgs['orderBy'] },
+        ? { orderBy: NcmAgendamentoGroupByArgs['orderBy'] }
+        : { orderBy?: NcmAgendamentoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -47315,20 +47315,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, NcmScheduleConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmScheduleConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NcmAgendamentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmAgendamentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the NcmScheduleConfig model
+   * Fields of the NcmAgendamento model
    */
-  readonly fields: NcmScheduleConfigFieldRefs;
+  readonly fields: NcmAgendamentoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for NcmScheduleConfig.
+   * The delegate class that acts as a "Promise-like" for NcmAgendamento.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NcmScheduleConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NcmAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -47356,303 +47356,303 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the NcmScheduleConfig model
+   * Fields of the NcmAgendamento model
    */ 
-  interface NcmScheduleConfigFieldRefs {
-    readonly id: FieldRef<"NcmScheduleConfig", 'String'>
-    readonly tenant_id: FieldRef<"NcmScheduleConfig", 'String'>
-    readonly product_id: FieldRef<"NcmScheduleConfig", 'String'>
-    readonly user_id: FieldRef<"NcmScheduleConfig", 'String'>
-    readonly ativo: FieldRef<"NcmScheduleConfig", 'Boolean'>
-    readonly cron_expressao: FieldRef<"NcmScheduleConfig", 'String'>
-    readonly notificadores: FieldRef<"NcmScheduleConfig", 'Json'>
-    readonly criado_em: FieldRef<"NcmScheduleConfig", 'DateTime'>
-    readonly atualizado_em: FieldRef<"NcmScheduleConfig", 'DateTime'>
+  interface NcmAgendamentoFieldRefs {
+    readonly id_ncm_agendamento: FieldRef<"NcmAgendamento", 'String'>
+    readonly id_organizacao_ncm_agendamento: FieldRef<"NcmAgendamento", 'String'>
+    readonly id_produto_ncm_agendamento: FieldRef<"NcmAgendamento", 'String'>
+    readonly id_usuario_ncm_agendamento: FieldRef<"NcmAgendamento", 'String'>
+    readonly ativo_ncm_agendamento: FieldRef<"NcmAgendamento", 'Boolean'>
+    readonly cron_expressao_ncm_agendamento: FieldRef<"NcmAgendamento", 'String'>
+    readonly notificadores_ncm_agendamento: FieldRef<"NcmAgendamento", 'Json'>
+    readonly data_criacao_ncm_agendamento: FieldRef<"NcmAgendamento", 'DateTime'>
+    readonly data_atualizacao_ncm_agendamento: FieldRef<"NcmAgendamento", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * NcmScheduleConfig findUnique
+   * NcmAgendamento findUnique
    */
-  export type NcmScheduleConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which NcmScheduleConfig to fetch.
+     * Filter, which NcmAgendamento to fetch.
      */
-    where: NcmScheduleConfigWhereUniqueInput
+    where: NcmAgendamentoWhereUniqueInput
   }
 
   /**
-   * NcmScheduleConfig findUniqueOrThrow
+   * NcmAgendamento findUniqueOrThrow
    */
-  export type NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which NcmScheduleConfig to fetch.
+     * Filter, which NcmAgendamento to fetch.
      */
-    where: NcmScheduleConfigWhereUniqueInput
+    where: NcmAgendamentoWhereUniqueInput
   }
 
   /**
-   * NcmScheduleConfig findFirst
+   * NcmAgendamento findFirst
    */
-  export type NcmScheduleConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which NcmScheduleConfig to fetch.
+     * Filter, which NcmAgendamento to fetch.
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmScheduleConfigs to fetch.
+     * Determine the order of NcmAgendamentos to fetch.
      */
-    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    orderBy?: NcmAgendamentoOrderByWithRelationInput | NcmAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NcmScheduleConfigs.
+     * Sets the position for searching for NcmAgendamentos.
      */
-    cursor?: NcmScheduleConfigWhereUniqueInput
+    cursor?: NcmAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     * Take `±n` NcmAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmScheduleConfigs.
+     * Skip the first `n` NcmAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NcmScheduleConfigs.
+     * Filter by unique combinations of NcmAgendamentos.
      */
-    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+    distinct?: NcmAgendamentoScalarFieldEnum | NcmAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * NcmScheduleConfig findFirstOrThrow
+   * NcmAgendamento findFirstOrThrow
    */
-  export type NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which NcmScheduleConfig to fetch.
+     * Filter, which NcmAgendamento to fetch.
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmScheduleConfigs to fetch.
+     * Determine the order of NcmAgendamentos to fetch.
      */
-    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    orderBy?: NcmAgendamentoOrderByWithRelationInput | NcmAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NcmScheduleConfigs.
+     * Sets the position for searching for NcmAgendamentos.
      */
-    cursor?: NcmScheduleConfigWhereUniqueInput
+    cursor?: NcmAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     * Take `±n` NcmAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmScheduleConfigs.
+     * Skip the first `n` NcmAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NcmScheduleConfigs.
+     * Filter by unique combinations of NcmAgendamentos.
      */
-    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+    distinct?: NcmAgendamentoScalarFieldEnum | NcmAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * NcmScheduleConfig findMany
+   * NcmAgendamento findMany
    */
-  export type NcmScheduleConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which NcmScheduleConfigs to fetch.
+     * Filter, which NcmAgendamentos to fetch.
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NcmScheduleConfigs to fetch.
+     * Determine the order of NcmAgendamentos to fetch.
      */
-    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    orderBy?: NcmAgendamentoOrderByWithRelationInput | NcmAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing NcmScheduleConfigs.
+     * Sets the position for listing NcmAgendamentos.
      */
-    cursor?: NcmScheduleConfigWhereUniqueInput
+    cursor?: NcmAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     * Take `±n` NcmAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NcmScheduleConfigs.
+     * Skip the first `n` NcmAgendamentos.
      */
     skip?: number
-    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+    distinct?: NcmAgendamentoScalarFieldEnum | NcmAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * NcmScheduleConfig create
+   * NcmAgendamento create
    */
-  export type NcmScheduleConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * The data needed to create a NcmScheduleConfig.
+     * The data needed to create a NcmAgendamento.
      */
-    data: XOR<NcmScheduleConfigCreateInput, NcmScheduleConfigUncheckedCreateInput>
+    data: XOR<NcmAgendamentoCreateInput, NcmAgendamentoUncheckedCreateInput>
   }
 
   /**
-   * NcmScheduleConfig createMany
+   * NcmAgendamento createMany
    */
-  export type NcmScheduleConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many NcmScheduleConfigs.
+     * The data used to create many NcmAgendamentos.
      */
-    data: NcmScheduleConfigCreateManyInput | NcmScheduleConfigCreateManyInput[]
+    data: NcmAgendamentoCreateManyInput | NcmAgendamentoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NcmScheduleConfig createManyAndReturn
+   * NcmAgendamento createManyAndReturn
    */
-  export type NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NcmAgendamentoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many NcmScheduleConfigs.
+     * The data used to create many NcmAgendamentos.
      */
-    data: NcmScheduleConfigCreateManyInput | NcmScheduleConfigCreateManyInput[]
+    data: NcmAgendamentoCreateManyInput | NcmAgendamentoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NcmScheduleConfig update
+   * NcmAgendamento update
    */
-  export type NcmScheduleConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * The data needed to update a NcmScheduleConfig.
+     * The data needed to update a NcmAgendamento.
      */
-    data: XOR<NcmScheduleConfigUpdateInput, NcmScheduleConfigUncheckedUpdateInput>
+    data: XOR<NcmAgendamentoUpdateInput, NcmAgendamentoUncheckedUpdateInput>
     /**
-     * Choose, which NcmScheduleConfig to update.
+     * Choose, which NcmAgendamento to update.
      */
-    where: NcmScheduleConfigWhereUniqueInput
+    where: NcmAgendamentoWhereUniqueInput
   }
 
   /**
-   * NcmScheduleConfig updateMany
+   * NcmAgendamento updateMany
    */
-  export type NcmScheduleConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update NcmScheduleConfigs.
+     * The data used to update NcmAgendamentos.
      */
-    data: XOR<NcmScheduleConfigUpdateManyMutationInput, NcmScheduleConfigUncheckedUpdateManyInput>
+    data: XOR<NcmAgendamentoUpdateManyMutationInput, NcmAgendamentoUncheckedUpdateManyInput>
     /**
-     * Filter which NcmScheduleConfigs to update
+     * Filter which NcmAgendamentos to update
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
   }
 
   /**
-   * NcmScheduleConfig upsert
+   * NcmAgendamento upsert
    */
-  export type NcmScheduleConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * The filter to search for the NcmScheduleConfig to update in case it exists.
+     * The filter to search for the NcmAgendamento to update in case it exists.
      */
-    where: NcmScheduleConfigWhereUniqueInput
+    where: NcmAgendamentoWhereUniqueInput
     /**
-     * In case the NcmScheduleConfig found by the `where` argument doesn't exist, create a new NcmScheduleConfig with this data.
+     * In case the NcmAgendamento found by the `where` argument doesn't exist, create a new NcmAgendamento with this data.
      */
-    create: XOR<NcmScheduleConfigCreateInput, NcmScheduleConfigUncheckedCreateInput>
+    create: XOR<NcmAgendamentoCreateInput, NcmAgendamentoUncheckedCreateInput>
     /**
-     * In case the NcmScheduleConfig was found with the provided `where` argument, update it with this data.
+     * In case the NcmAgendamento was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<NcmScheduleConfigUpdateInput, NcmScheduleConfigUncheckedUpdateInput>
+    update: XOR<NcmAgendamentoUpdateInput, NcmAgendamentoUncheckedUpdateInput>
   }
 
   /**
-   * NcmScheduleConfig delete
+   * NcmAgendamento delete
    */
-  export type NcmScheduleConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter which NcmScheduleConfig to delete.
+     * Filter which NcmAgendamento to delete.
      */
-    where: NcmScheduleConfigWhereUniqueInput
+    where: NcmAgendamentoWhereUniqueInput
   }
 
   /**
-   * NcmScheduleConfig deleteMany
+   * NcmAgendamento deleteMany
    */
-  export type NcmScheduleConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NcmScheduleConfigs to delete
+     * Filter which NcmAgendamentos to delete
      */
-    where?: NcmScheduleConfigWhereInput
+    where?: NcmAgendamentoWhereInput
   }
 
   /**
-   * NcmScheduleConfig without action
+   * NcmAgendamento without action
    */
-  export type NcmScheduleConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NcmScheduleConfig
+     * Select specific fields to fetch from the NcmAgendamento
      */
-    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    select?: NcmAgendamentoSelect<ExtArgs> | null
   }
 
 
@@ -51221,58 +51221,58 @@ export namespace Prisma {
 
 
   export const NcmItemScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    codigo: 'codigo',
-    descricao: 'descricao',
-    ativo: 'ativo',
-    data_inicio: 'data_inicio',
-    data_fim: 'data_fim',
-    sync_id: 'sync_id',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_ncm_item: 'id_ncm_item',
+    id_organizacao_ncm_item: 'id_organizacao_ncm_item',
+    id_produto_ncm_item: 'id_produto_ncm_item',
+    id_usuario_ncm_item: 'id_usuario_ncm_item',
+    codigo_ncm_item: 'codigo_ncm_item',
+    descricao_ncm_item: 'descricao_ncm_item',
+    ativo_ncm_item: 'ativo_ncm_item',
+    data_inicio_ncm_item: 'data_inicio_ncm_item',
+    data_fim_ncm_item: 'data_fim_ncm_item',
+    id_sincronizacao_ncm_item: 'id_sincronizacao_ncm_item',
+    data_criacao_ncm_item: 'data_criacao_ncm_item',
+    data_atualizacao_ncm_item: 'data_atualizacao_ncm_item'
   };
 
   export type NcmItemScalarFieldEnum = (typeof NcmItemScalarFieldEnum)[keyof typeof NcmItemScalarFieldEnum]
 
 
-  export const NcmSyncLogScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    iniciado_em: 'iniciado_em',
-    concluido_em: 'concluido_em',
-    status: 'status',
-    total: 'total',
-    adicionados: 'adicionados',
-    alterados: 'alterados',
-    removidos: 'removidos',
-    origem: 'origem',
-    disparado_por: 'disparado_por',
-    erro_msg: 'erro_msg',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const NcmLogScalarFieldEnum: {
+    id_ncm_log: 'id_ncm_log',
+    id_organizacao_ncm_log: 'id_organizacao_ncm_log',
+    id_produto_ncm_log: 'id_produto_ncm_log',
+    id_usuario_ncm_log: 'id_usuario_ncm_log',
+    data_inicio_ncm_log: 'data_inicio_ncm_log',
+    data_conclusao_ncm_log: 'data_conclusao_ncm_log',
+    status_ncm_log: 'status_ncm_log',
+    total_ncm_log: 'total_ncm_log',
+    adicionados_ncm_log: 'adicionados_ncm_log',
+    alterados_ncm_log: 'alterados_ncm_log',
+    removidos_ncm_log: 'removidos_ncm_log',
+    origem_ncm_log: 'origem_ncm_log',
+    disparado_por_ncm_log: 'disparado_por_ncm_log',
+    mensagem_erro_ncm_log: 'mensagem_erro_ncm_log',
+    data_criacao_ncm_log: 'data_criacao_ncm_log',
+    data_atualizacao_ncm_log: 'data_atualizacao_ncm_log'
   };
 
-  export type NcmSyncLogScalarFieldEnum = (typeof NcmSyncLogScalarFieldEnum)[keyof typeof NcmSyncLogScalarFieldEnum]
+  export type NcmLogScalarFieldEnum = (typeof NcmLogScalarFieldEnum)[keyof typeof NcmLogScalarFieldEnum]
 
 
-  export const NcmScheduleConfigScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    ativo: 'ativo',
-    cron_expressao: 'cron_expressao',
-    notificadores: 'notificadores',
-    criado_em: 'criado_em',
-    atualizado_em: 'atualizado_em'
+  export const NcmAgendamentoScalarFieldEnum: {
+    id_ncm_agendamento: 'id_ncm_agendamento',
+    id_organizacao_ncm_agendamento: 'id_organizacao_ncm_agendamento',
+    id_produto_ncm_agendamento: 'id_produto_ncm_agendamento',
+    id_usuario_ncm_agendamento: 'id_usuario_ncm_agendamento',
+    ativo_ncm_agendamento: 'ativo_ncm_agendamento',
+    cron_expressao_ncm_agendamento: 'cron_expressao_ncm_agendamento',
+    notificadores_ncm_agendamento: 'notificadores_ncm_agendamento',
+    data_criacao_ncm_agendamento: 'data_criacao_ncm_agendamento',
+    data_atualizacao_ncm_agendamento: 'data_atualizacao_ncm_agendamento'
   };
 
-  export type NcmScheduleConfigScalarFieldEnum = (typeof NcmScheduleConfigScalarFieldEnum)[keyof typeof NcmScheduleConfigScalarFieldEnum]
+  export type NcmAgendamentoScalarFieldEnum = (typeof NcmAgendamentoScalarFieldEnum)[keyof typeof NcmAgendamentoScalarFieldEnum]
 
 
   export const NotificacoesTituloCorpoScalarFieldEnum: {
@@ -51616,30 +51616,30 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'NCMStatusSincronizacao'
+   * Reference to a field of type 'NcmStatus'
    */
-  export type EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao'>
+  export type EnumNcmStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmStatus'>
     
 
 
   /**
-   * Reference to a field of type 'NCMStatusSincronizacao[]'
+   * Reference to a field of type 'NcmStatus[]'
    */
-  export type ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao[]'>
+  export type ListEnumNcmStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'NCMOrigemSincronizacao'
+   * Reference to a field of type 'NcmOrigem'
    */
-  export type EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao'>
+  export type EnumNcmOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmOrigem'>
     
 
 
   /**
-   * Reference to a field of type 'NCMOrigemSincronizacao[]'
+   * Reference to a field of type 'NcmOrigem[]'
    */
-  export type ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao[]'>
+  export type ListEnumNcmOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmOrigem[]'>
     
   /**
    * Deep Input Types
@@ -55269,67 +55269,67 @@ export namespace Prisma {
     AND?: NcmItemWhereInput | NcmItemWhereInput[]
     OR?: NcmItemWhereInput[]
     NOT?: NcmItemWhereInput | NcmItemWhereInput[]
-    id?: StringFilter<"NcmItem"> | string
-    tenant_id?: StringFilter<"NcmItem"> | string
-    product_id?: StringNullableFilter<"NcmItem"> | string | null
-    user_id?: StringNullableFilter<"NcmItem"> | string | null
-    codigo?: StringFilter<"NcmItem"> | string
-    descricao?: StringFilter<"NcmItem"> | string
-    ativo?: BoolFilter<"NcmItem"> | boolean
-    data_inicio?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    data_fim?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    sync_id?: StringFilter<"NcmItem"> | string
-    created_at?: DateTimeFilter<"NcmItem"> | Date | string
-    updated_at?: DateTimeFilter<"NcmItem"> | Date | string
+    id_ncm_item?: StringFilter<"NcmItem"> | string
+    id_organizacao_ncm_item?: StringFilter<"NcmItem"> | string
+    id_produto_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
+    id_usuario_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
+    codigo_ncm_item?: StringFilter<"NcmItem"> | string
+    descricao_ncm_item?: StringFilter<"NcmItem"> | string
+    ativo_ncm_item?: BoolFilter<"NcmItem"> | boolean
+    data_inicio_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    data_fim_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    id_sincronizacao_ncm_item?: StringFilter<"NcmItem"> | string
+    data_criacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
+    data_atualizacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
   }
 
   export type NcmItemOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ativo?: SortOrder
-    data_inicio?: SortOrderInput | SortOrder
-    data_fim?: SortOrderInput | SortOrder
-    sync_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_ncm_item?: SortOrder
+    id_organizacao_ncm_item?: SortOrder
+    id_produto_ncm_item?: SortOrderInput | SortOrder
+    id_usuario_ncm_item?: SortOrderInput | SortOrder
+    codigo_ncm_item?: SortOrder
+    descricao_ncm_item?: SortOrder
+    ativo_ncm_item?: SortOrder
+    data_inicio_ncm_item?: SortOrderInput | SortOrder
+    data_fim_ncm_item?: SortOrderInput | SortOrder
+    id_sincronizacao_ncm_item?: SortOrder
+    data_criacao_ncm_item?: SortOrder
+    data_atualizacao_ncm_item?: SortOrder
   }
 
   export type NcmItemWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_codigo?: NcmItemTenant_idCodigoCompoundUniqueInput
+    id_ncm_item?: string
+    id_organizacao_ncm_item_codigo_ncm_item?: NcmItemId_organizacao_ncm_itemCodigo_ncm_itemCompoundUniqueInput
     AND?: NcmItemWhereInput | NcmItemWhereInput[]
     OR?: NcmItemWhereInput[]
     NOT?: NcmItemWhereInput | NcmItemWhereInput[]
-    tenant_id?: StringFilter<"NcmItem"> | string
-    product_id?: StringNullableFilter<"NcmItem"> | string | null
-    user_id?: StringNullableFilter<"NcmItem"> | string | null
-    codigo?: StringFilter<"NcmItem"> | string
-    descricao?: StringFilter<"NcmItem"> | string
-    ativo?: BoolFilter<"NcmItem"> | boolean
-    data_inicio?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    data_fim?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
-    sync_id?: StringFilter<"NcmItem"> | string
-    created_at?: DateTimeFilter<"NcmItem"> | Date | string
-    updated_at?: DateTimeFilter<"NcmItem"> | Date | string
-  }, "id" | "tenant_id_codigo">
+    id_organizacao_ncm_item?: StringFilter<"NcmItem"> | string
+    id_produto_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
+    id_usuario_ncm_item?: StringNullableFilter<"NcmItem"> | string | null
+    codigo_ncm_item?: StringFilter<"NcmItem"> | string
+    descricao_ncm_item?: StringFilter<"NcmItem"> | string
+    ativo_ncm_item?: BoolFilter<"NcmItem"> | boolean
+    data_inicio_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    data_fim_ncm_item?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    id_sincronizacao_ncm_item?: StringFilter<"NcmItem"> | string
+    data_criacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
+    data_atualizacao_ncm_item?: DateTimeFilter<"NcmItem"> | Date | string
+  }, "id_ncm_item" | "id_organizacao_ncm_item_codigo_ncm_item">
 
   export type NcmItemOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ativo?: SortOrder
-    data_inicio?: SortOrderInput | SortOrder
-    data_fim?: SortOrderInput | SortOrder
-    sync_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_ncm_item?: SortOrder
+    id_organizacao_ncm_item?: SortOrder
+    id_produto_ncm_item?: SortOrderInput | SortOrder
+    id_usuario_ncm_item?: SortOrderInput | SortOrder
+    codigo_ncm_item?: SortOrder
+    descricao_ncm_item?: SortOrder
+    ativo_ncm_item?: SortOrder
+    data_inicio_ncm_item?: SortOrderInput | SortOrder
+    data_fim_ncm_item?: SortOrderInput | SortOrder
+    id_sincronizacao_ncm_item?: SortOrder
+    data_criacao_ncm_item?: SortOrder
+    data_atualizacao_ncm_item?: SortOrder
     _count?: NcmItemCountOrderByAggregateInput
     _max?: NcmItemMaxOrderByAggregateInput
     _min?: NcmItemMinOrderByAggregateInput
@@ -55339,199 +55339,199 @@ export namespace Prisma {
     AND?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
     OR?: NcmItemScalarWhereWithAggregatesInput[]
     NOT?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"NcmItem"> | string
-    tenant_id?: StringWithAggregatesFilter<"NcmItem"> | string
-    product_id?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
-    codigo?: StringWithAggregatesFilter<"NcmItem"> | string
-    descricao?: StringWithAggregatesFilter<"NcmItem"> | string
-    ativo?: BoolWithAggregatesFilter<"NcmItem"> | boolean
-    data_inicio?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
-    data_fim?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
-    sync_id?: StringWithAggregatesFilter<"NcmItem"> | string
-    created_at?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
+    id_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
+    id_organizacao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
+    id_produto_ncm_item?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
+    id_usuario_ncm_item?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
+    codigo_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
+    descricao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
+    ativo_ncm_item?: BoolWithAggregatesFilter<"NcmItem"> | boolean
+    data_inicio_ncm_item?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
+    data_fim_ncm_item?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
+    id_sincronizacao_ncm_item?: StringWithAggregatesFilter<"NcmItem"> | string
+    data_criacao_ncm_item?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
+    data_atualizacao_ncm_item?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
   }
 
-  export type NcmSyncLogWhereInput = {
-    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
-    OR?: NcmSyncLogWhereInput[]
-    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
-    id?: StringFilter<"NcmSyncLog"> | string
-    tenant_id?: StringFilter<"NcmSyncLog"> | string
-    product_id?: StringNullableFilter<"NcmSyncLog"> | string | null
-    user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
-    iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
-    concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
-    total?: IntFilter<"NcmSyncLog"> | number
-    adicionados?: IntFilter<"NcmSyncLog"> | number
-    alterados?: IntFilter<"NcmSyncLog"> | number
-    removidos?: IntFilter<"NcmSyncLog"> | number
-    origem?: EnumNCMOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
-    erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
-    created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
-    updated_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
+  export type NcmLogWhereInput = {
+    AND?: NcmLogWhereInput | NcmLogWhereInput[]
+    OR?: NcmLogWhereInput[]
+    NOT?: NcmLogWhereInput | NcmLogWhereInput[]
+    id_ncm_log?: StringFilter<"NcmLog"> | string
+    id_organizacao_ncm_log?: StringFilter<"NcmLog"> | string
+    id_produto_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    id_usuario_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    data_inicio_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
+    data_conclusao_ncm_log?: DateTimeNullableFilter<"NcmLog"> | Date | string | null
+    status_ncm_log?: EnumNcmStatusFilter<"NcmLog"> | $Enums.NcmStatus
+    total_ncm_log?: IntFilter<"NcmLog"> | number
+    adicionados_ncm_log?: IntFilter<"NcmLog"> | number
+    alterados_ncm_log?: IntFilter<"NcmLog"> | number
+    removidos_ncm_log?: IntFilter<"NcmLog"> | number
+    origem_ncm_log?: EnumNcmOrigemFilter<"NcmLog"> | $Enums.NcmOrigem
+    disparado_por_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    mensagem_erro_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    data_criacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
+    data_atualizacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
   }
 
-  export type NcmSyncLogOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    iniciado_em?: SortOrder
-    concluido_em?: SortOrderInput | SortOrder
-    status?: SortOrder
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
-    origem?: SortOrder
-    disparado_por?: SortOrderInput | SortOrder
-    erro_msg?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type NcmLogOrderByWithRelationInput = {
+    id_ncm_log?: SortOrder
+    id_organizacao_ncm_log?: SortOrder
+    id_produto_ncm_log?: SortOrderInput | SortOrder
+    id_usuario_ncm_log?: SortOrderInput | SortOrder
+    data_inicio_ncm_log?: SortOrder
+    data_conclusao_ncm_log?: SortOrderInput | SortOrder
+    status_ncm_log?: SortOrder
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
+    origem_ncm_log?: SortOrder
+    disparado_por_ncm_log?: SortOrderInput | SortOrder
+    mensagem_erro_ncm_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_log?: SortOrder
+    data_atualizacao_ncm_log?: SortOrder
   }
 
-  export type NcmSyncLogWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
-    OR?: NcmSyncLogWhereInput[]
-    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
-    tenant_id?: StringFilter<"NcmSyncLog"> | string
-    product_id?: StringNullableFilter<"NcmSyncLog"> | string | null
-    user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
-    iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
-    concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
-    total?: IntFilter<"NcmSyncLog"> | number
-    adicionados?: IntFilter<"NcmSyncLog"> | number
-    alterados?: IntFilter<"NcmSyncLog"> | number
-    removidos?: IntFilter<"NcmSyncLog"> | number
-    origem?: EnumNCMOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
-    erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
-    created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
-    updated_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
-  }, "id">
+  export type NcmLogWhereUniqueInput = Prisma.AtLeast<{
+    id_ncm_log?: string
+    AND?: NcmLogWhereInput | NcmLogWhereInput[]
+    OR?: NcmLogWhereInput[]
+    NOT?: NcmLogWhereInput | NcmLogWhereInput[]
+    id_organizacao_ncm_log?: StringFilter<"NcmLog"> | string
+    id_produto_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    id_usuario_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    data_inicio_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
+    data_conclusao_ncm_log?: DateTimeNullableFilter<"NcmLog"> | Date | string | null
+    status_ncm_log?: EnumNcmStatusFilter<"NcmLog"> | $Enums.NcmStatus
+    total_ncm_log?: IntFilter<"NcmLog"> | number
+    adicionados_ncm_log?: IntFilter<"NcmLog"> | number
+    alterados_ncm_log?: IntFilter<"NcmLog"> | number
+    removidos_ncm_log?: IntFilter<"NcmLog"> | number
+    origem_ncm_log?: EnumNcmOrigemFilter<"NcmLog"> | $Enums.NcmOrigem
+    disparado_por_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    mensagem_erro_ncm_log?: StringNullableFilter<"NcmLog"> | string | null
+    data_criacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
+    data_atualizacao_ncm_log?: DateTimeFilter<"NcmLog"> | Date | string
+  }, "id_ncm_log">
 
-  export type NcmSyncLogOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    iniciado_em?: SortOrder
-    concluido_em?: SortOrderInput | SortOrder
-    status?: SortOrder
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
-    origem?: SortOrder
-    disparado_por?: SortOrderInput | SortOrder
-    erro_msg?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: NcmSyncLogCountOrderByAggregateInput
-    _avg?: NcmSyncLogAvgOrderByAggregateInput
-    _max?: NcmSyncLogMaxOrderByAggregateInput
-    _min?: NcmSyncLogMinOrderByAggregateInput
-    _sum?: NcmSyncLogSumOrderByAggregateInput
+  export type NcmLogOrderByWithAggregationInput = {
+    id_ncm_log?: SortOrder
+    id_organizacao_ncm_log?: SortOrder
+    id_produto_ncm_log?: SortOrderInput | SortOrder
+    id_usuario_ncm_log?: SortOrderInput | SortOrder
+    data_inicio_ncm_log?: SortOrder
+    data_conclusao_ncm_log?: SortOrderInput | SortOrder
+    status_ncm_log?: SortOrder
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
+    origem_ncm_log?: SortOrder
+    disparado_por_ncm_log?: SortOrderInput | SortOrder
+    mensagem_erro_ncm_log?: SortOrderInput | SortOrder
+    data_criacao_ncm_log?: SortOrder
+    data_atualizacao_ncm_log?: SortOrder
+    _count?: NcmLogCountOrderByAggregateInput
+    _avg?: NcmLogAvgOrderByAggregateInput
+    _max?: NcmLogMaxOrderByAggregateInput
+    _min?: NcmLogMinOrderByAggregateInput
+    _sum?: NcmLogSumOrderByAggregateInput
   }
 
-  export type NcmSyncLogScalarWhereWithAggregatesInput = {
-    AND?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
-    OR?: NcmSyncLogScalarWhereWithAggregatesInput[]
-    NOT?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"NcmSyncLog"> | string
-    tenant_id?: StringWithAggregatesFilter<"NcmSyncLog"> | string
-    product_id?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
-    iniciado_em?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
-    concluido_em?: DateTimeNullableWithAggregatesFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumNCMStatusSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
-    total?: IntWithAggregatesFilter<"NcmSyncLog"> | number
-    adicionados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
-    alterados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
-    removidos?: IntWithAggregatesFilter<"NcmSyncLog"> | number
-    origem?: EnumNCMOrigemSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
-    disparado_por?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
-    erro_msg?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+  export type NcmLogScalarWhereWithAggregatesInput = {
+    AND?: NcmLogScalarWhereWithAggregatesInput | NcmLogScalarWhereWithAggregatesInput[]
+    OR?: NcmLogScalarWhereWithAggregatesInput[]
+    NOT?: NcmLogScalarWhereWithAggregatesInput | NcmLogScalarWhereWithAggregatesInput[]
+    id_ncm_log?: StringWithAggregatesFilter<"NcmLog"> | string
+    id_organizacao_ncm_log?: StringWithAggregatesFilter<"NcmLog"> | string
+    id_produto_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
+    id_usuario_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
+    data_inicio_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
+    data_conclusao_ncm_log?: DateTimeNullableWithAggregatesFilter<"NcmLog"> | Date | string | null
+    status_ncm_log?: EnumNcmStatusWithAggregatesFilter<"NcmLog"> | $Enums.NcmStatus
+    total_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
+    adicionados_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
+    alterados_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
+    removidos_ncm_log?: IntWithAggregatesFilter<"NcmLog"> | number
+    origem_ncm_log?: EnumNcmOrigemWithAggregatesFilter<"NcmLog"> | $Enums.NcmOrigem
+    disparado_por_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
+    mensagem_erro_ncm_log?: StringNullableWithAggregatesFilter<"NcmLog"> | string | null
+    data_criacao_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
+    data_atualizacao_ncm_log?: DateTimeWithAggregatesFilter<"NcmLog"> | Date | string
   }
 
-  export type NcmScheduleConfigWhereInput = {
-    AND?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
-    OR?: NcmScheduleConfigWhereInput[]
-    NOT?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
-    id?: StringFilter<"NcmScheduleConfig"> | string
-    tenant_id?: StringFilter<"NcmScheduleConfig"> | string
-    product_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
-    user_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
-    ativo?: BoolFilter<"NcmScheduleConfig"> | boolean
-    cron_expressao?: StringFilter<"NcmScheduleConfig"> | string
-    notificadores?: JsonFilter<"NcmScheduleConfig">
-    criado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
-    atualizado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
+  export type NcmAgendamentoWhereInput = {
+    AND?: NcmAgendamentoWhereInput | NcmAgendamentoWhereInput[]
+    OR?: NcmAgendamentoWhereInput[]
+    NOT?: NcmAgendamentoWhereInput | NcmAgendamentoWhereInput[]
+    id_ncm_agendamento?: StringFilter<"NcmAgendamento"> | string
+    id_organizacao_ncm_agendamento?: StringFilter<"NcmAgendamento"> | string
+    id_produto_ncm_agendamento?: StringNullableFilter<"NcmAgendamento"> | string | null
+    id_usuario_ncm_agendamento?: StringNullableFilter<"NcmAgendamento"> | string | null
+    ativo_ncm_agendamento?: BoolFilter<"NcmAgendamento"> | boolean
+    cron_expressao_ncm_agendamento?: StringFilter<"NcmAgendamento"> | string
+    notificadores_ncm_agendamento?: JsonFilter<"NcmAgendamento">
+    data_criacao_ncm_agendamento?: DateTimeFilter<"NcmAgendamento"> | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFilter<"NcmAgendamento"> | Date | string
   }
 
-  export type NcmScheduleConfigOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    ativo?: SortOrder
-    cron_expressao?: SortOrder
-    notificadores?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+  export type NcmAgendamentoOrderByWithRelationInput = {
+    id_ncm_agendamento?: SortOrder
+    id_organizacao_ncm_agendamento?: SortOrder
+    id_produto_ncm_agendamento?: SortOrderInput | SortOrder
+    id_usuario_ncm_agendamento?: SortOrderInput | SortOrder
+    ativo_ncm_agendamento?: SortOrder
+    cron_expressao_ncm_agendamento?: SortOrder
+    notificadores_ncm_agendamento?: SortOrder
+    data_criacao_ncm_agendamento?: SortOrder
+    data_atualizacao_ncm_agendamento?: SortOrder
   }
 
-  export type NcmScheduleConfigWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
-    OR?: NcmScheduleConfigWhereInput[]
-    NOT?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
-    tenant_id?: StringFilter<"NcmScheduleConfig"> | string
-    product_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
-    user_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
-    ativo?: BoolFilter<"NcmScheduleConfig"> | boolean
-    cron_expressao?: StringFilter<"NcmScheduleConfig"> | string
-    notificadores?: JsonFilter<"NcmScheduleConfig">
-    criado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
-    atualizado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
-  }, "id">
+  export type NcmAgendamentoWhereUniqueInput = Prisma.AtLeast<{
+    id_ncm_agendamento?: string
+    AND?: NcmAgendamentoWhereInput | NcmAgendamentoWhereInput[]
+    OR?: NcmAgendamentoWhereInput[]
+    NOT?: NcmAgendamentoWhereInput | NcmAgendamentoWhereInput[]
+    id_organizacao_ncm_agendamento?: StringFilter<"NcmAgendamento"> | string
+    id_produto_ncm_agendamento?: StringNullableFilter<"NcmAgendamento"> | string | null
+    id_usuario_ncm_agendamento?: StringNullableFilter<"NcmAgendamento"> | string | null
+    ativo_ncm_agendamento?: BoolFilter<"NcmAgendamento"> | boolean
+    cron_expressao_ncm_agendamento?: StringFilter<"NcmAgendamento"> | string
+    notificadores_ncm_agendamento?: JsonFilter<"NcmAgendamento">
+    data_criacao_ncm_agendamento?: DateTimeFilter<"NcmAgendamento"> | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFilter<"NcmAgendamento"> | Date | string
+  }, "id_ncm_agendamento">
 
-  export type NcmScheduleConfigOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    ativo?: SortOrder
-    cron_expressao?: SortOrder
-    notificadores?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
-    _count?: NcmScheduleConfigCountOrderByAggregateInput
-    _max?: NcmScheduleConfigMaxOrderByAggregateInput
-    _min?: NcmScheduleConfigMinOrderByAggregateInput
+  export type NcmAgendamentoOrderByWithAggregationInput = {
+    id_ncm_agendamento?: SortOrder
+    id_organizacao_ncm_agendamento?: SortOrder
+    id_produto_ncm_agendamento?: SortOrderInput | SortOrder
+    id_usuario_ncm_agendamento?: SortOrderInput | SortOrder
+    ativo_ncm_agendamento?: SortOrder
+    cron_expressao_ncm_agendamento?: SortOrder
+    notificadores_ncm_agendamento?: SortOrder
+    data_criacao_ncm_agendamento?: SortOrder
+    data_atualizacao_ncm_agendamento?: SortOrder
+    _count?: NcmAgendamentoCountOrderByAggregateInput
+    _max?: NcmAgendamentoMaxOrderByAggregateInput
+    _min?: NcmAgendamentoMinOrderByAggregateInput
   }
 
-  export type NcmScheduleConfigScalarWhereWithAggregatesInput = {
-    AND?: NcmScheduleConfigScalarWhereWithAggregatesInput | NcmScheduleConfigScalarWhereWithAggregatesInput[]
-    OR?: NcmScheduleConfigScalarWhereWithAggregatesInput[]
-    NOT?: NcmScheduleConfigScalarWhereWithAggregatesInput | NcmScheduleConfigScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
-    tenant_id?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
-    product_id?: StringNullableWithAggregatesFilter<"NcmScheduleConfig"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"NcmScheduleConfig"> | string | null
-    ativo?: BoolWithAggregatesFilter<"NcmScheduleConfig"> | boolean
-    cron_expressao?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
-    notificadores?: JsonWithAggregatesFilter<"NcmScheduleConfig">
-    criado_em?: DateTimeWithAggregatesFilter<"NcmScheduleConfig"> | Date | string
-    atualizado_em?: DateTimeWithAggregatesFilter<"NcmScheduleConfig"> | Date | string
+  export type NcmAgendamentoScalarWhereWithAggregatesInput = {
+    AND?: NcmAgendamentoScalarWhereWithAggregatesInput | NcmAgendamentoScalarWhereWithAggregatesInput[]
+    OR?: NcmAgendamentoScalarWhereWithAggregatesInput[]
+    NOT?: NcmAgendamentoScalarWhereWithAggregatesInput | NcmAgendamentoScalarWhereWithAggregatesInput[]
+    id_ncm_agendamento?: StringWithAggregatesFilter<"NcmAgendamento"> | string
+    id_organizacao_ncm_agendamento?: StringWithAggregatesFilter<"NcmAgendamento"> | string
+    id_produto_ncm_agendamento?: StringNullableWithAggregatesFilter<"NcmAgendamento"> | string | null
+    id_usuario_ncm_agendamento?: StringNullableWithAggregatesFilter<"NcmAgendamento"> | string | null
+    ativo_ncm_agendamento?: BoolWithAggregatesFilter<"NcmAgendamento"> | boolean
+    cron_expressao_ncm_agendamento?: StringWithAggregatesFilter<"NcmAgendamento"> | string
+    notificadores_ncm_agendamento?: JsonWithAggregatesFilter<"NcmAgendamento">
+    data_criacao_ncm_agendamento?: DateTimeWithAggregatesFilter<"NcmAgendamento"> | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeWithAggregatesFilter<"NcmAgendamento"> | Date | string
   }
 
   export type NotificacoesTituloCorpoWhereInput = {
@@ -60056,325 +60056,325 @@ export namespace Prisma {
   }
 
   export type NcmItemCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    codigo: string
-    descricao: string
-    ativo?: boolean
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    sync_id: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_ncm_item?: string
+    id_organizacao_ncm_item: string
+    id_produto_ncm_item?: string | null
+    id_usuario_ncm_item?: string | null
+    codigo_ncm_item: string
+    descricao_ncm_item: string
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: Date | string | null
+    data_fim_ncm_item?: Date | string | null
+    id_sincronizacao_ncm_item: string
+    data_criacao_ncm_item?: Date | string
+    data_atualizacao_ncm_item?: Date | string
   }
 
   export type NcmItemUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    codigo: string
-    descricao: string
-    ativo?: boolean
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    sync_id: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_ncm_item?: string
+    id_organizacao_ncm_item: string
+    id_produto_ncm_item?: string | null
+    id_usuario_ncm_item?: string | null
+    codigo_ncm_item: string
+    descricao_ncm_item: string
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: Date | string | null
+    data_fim_ncm_item?: Date | string | null
+    id_sincronizacao_ncm_item: string
+    data_criacao_ncm_item?: Date | string
+    data_atualizacao_ncm_item?: Date | string
   }
 
   export type NcmItemUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sync_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NcmItemUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sync_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NcmItemCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    codigo: string
-    descricao: string
-    ativo?: boolean
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    sync_id: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_ncm_item?: string
+    id_organizacao_ncm_item: string
+    id_produto_ncm_item?: string | null
+    id_usuario_ncm_item?: string | null
+    codigo_ncm_item: string
+    descricao_ncm_item: string
+    ativo_ncm_item?: boolean
+    data_inicio_ncm_item?: Date | string | null
+    data_fim_ncm_item?: Date | string | null
+    id_sincronizacao_ncm_item: string
+    data_criacao_ncm_item?: Date | string
+    data_atualizacao_ncm_item?: Date | string
   }
 
   export type NcmItemUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sync_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NcmItemUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sync_id?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_item?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo_ncm_item?: StringFieldUpdateOperationsInput | string
+    descricao_ncm_item?: StringFieldUpdateOperationsInput | string
+    ativo_ncm_item?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim_ncm_item?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    id_sincronizacao_ncm_item?: StringFieldUpdateOperationsInput | string
+    data_criacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_item?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmSyncLogCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    iniciado_em?: Date | string
-    concluido_em?: Date | string | null
-    status?: $Enums.NCMStatusSincronizacao
-    total?: number
-    adicionados?: number
-    alterados?: number
-    removidos?: number
-    origem?: $Enums.NCMOrigemSincronizacao
-    disparado_por?: string | null
-    erro_msg?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NcmLogCreateInput = {
+    id_ncm_log?: string
+    id_organizacao_ncm_log: string
+    id_produto_ncm_log?: string | null
+    id_usuario_ncm_log?: string | null
+    data_inicio_ncm_log?: Date | string
+    data_conclusao_ncm_log?: Date | string | null
+    status_ncm_log?: $Enums.NcmStatus
+    total_ncm_log?: number
+    adicionados_ncm_log?: number
+    alterados_ncm_log?: number
+    removidos_ncm_log?: number
+    origem_ncm_log?: $Enums.NcmOrigem
+    disparado_por_ncm_log?: string | null
+    mensagem_erro_ncm_log?: string | null
+    data_criacao_ncm_log?: Date | string
+    data_atualizacao_ncm_log?: Date | string
   }
 
-  export type NcmSyncLogUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    iniciado_em?: Date | string
-    concluido_em?: Date | string | null
-    status?: $Enums.NCMStatusSincronizacao
-    total?: number
-    adicionados?: number
-    alterados?: number
-    removidos?: number
-    origem?: $Enums.NCMOrigemSincronizacao
-    disparado_por?: string | null
-    erro_msg?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NcmLogUncheckedCreateInput = {
+    id_ncm_log?: string
+    id_organizacao_ncm_log: string
+    id_produto_ncm_log?: string | null
+    id_usuario_ncm_log?: string | null
+    data_inicio_ncm_log?: Date | string
+    data_conclusao_ncm_log?: Date | string | null
+    status_ncm_log?: $Enums.NcmStatus
+    total_ncm_log?: number
+    adicionados_ncm_log?: number
+    alterados_ncm_log?: number
+    removidos_ncm_log?: number
+    origem_ncm_log?: $Enums.NcmOrigem
+    disparado_por_ncm_log?: string | null
+    mensagem_erro_ncm_log?: string | null
+    data_criacao_ncm_log?: Date | string
+    data_atualizacao_ncm_log?: Date | string
   }
 
-  export type NcmSyncLogUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total?: IntFieldUpdateOperationsInput | number
-    adicionados?: IntFieldUpdateOperationsInput | number
-    alterados?: IntFieldUpdateOperationsInput | number
-    removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
-    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmLogUpdateInput = {
+    id_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_log?: EnumNcmStatusFieldUpdateOperationsInput | $Enums.NcmStatus
+    total_ncm_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_log?: EnumNcmOrigemFieldUpdateOperationsInput | $Enums.NcmOrigem
+    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmSyncLogUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total?: IntFieldUpdateOperationsInput | number
-    adicionados?: IntFieldUpdateOperationsInput | number
-    alterados?: IntFieldUpdateOperationsInput | number
-    removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
-    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmLogUncheckedUpdateInput = {
+    id_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_log?: EnumNcmStatusFieldUpdateOperationsInput | $Enums.NcmStatus
+    total_ncm_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_log?: EnumNcmOrigemFieldUpdateOperationsInput | $Enums.NcmOrigem
+    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmSyncLogCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    iniciado_em?: Date | string
-    concluido_em?: Date | string | null
-    status?: $Enums.NCMStatusSincronizacao
-    total?: number
-    adicionados?: number
-    alterados?: number
-    removidos?: number
-    origem?: $Enums.NCMOrigemSincronizacao
-    disparado_por?: string | null
-    erro_msg?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type NcmLogCreateManyInput = {
+    id_ncm_log?: string
+    id_organizacao_ncm_log: string
+    id_produto_ncm_log?: string | null
+    id_usuario_ncm_log?: string | null
+    data_inicio_ncm_log?: Date | string
+    data_conclusao_ncm_log?: Date | string | null
+    status_ncm_log?: $Enums.NcmStatus
+    total_ncm_log?: number
+    adicionados_ncm_log?: number
+    alterados_ncm_log?: number
+    removidos_ncm_log?: number
+    origem_ncm_log?: $Enums.NcmOrigem
+    disparado_por_ncm_log?: string | null
+    mensagem_erro_ncm_log?: string | null
+    data_criacao_ncm_log?: Date | string
+    data_atualizacao_ncm_log?: Date | string
   }
 
-  export type NcmSyncLogUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total?: IntFieldUpdateOperationsInput | number
-    adicionados?: IntFieldUpdateOperationsInput | number
-    alterados?: IntFieldUpdateOperationsInput | number
-    removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
-    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmLogUpdateManyMutationInput = {
+    id_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_log?: EnumNcmStatusFieldUpdateOperationsInput | $Enums.NcmStatus
+    total_ncm_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_log?: EnumNcmOrigemFieldUpdateOperationsInput | $Enums.NcmOrigem
+    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmSyncLogUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
-    total?: IntFieldUpdateOperationsInput | number
-    adicionados?: IntFieldUpdateOperationsInput | number
-    alterados?: IntFieldUpdateOperationsInput | number
-    removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
-    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
-    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmLogUncheckedUpdateManyInput = {
+    id_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_log?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_inicio_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_conclusao_ncm_log?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status_ncm_log?: EnumNcmStatusFieldUpdateOperationsInput | $Enums.NcmStatus
+    total_ncm_log?: IntFieldUpdateOperationsInput | number
+    adicionados_ncm_log?: IntFieldUpdateOperationsInput | number
+    alterados_ncm_log?: IntFieldUpdateOperationsInput | number
+    removidos_ncm_log?: IntFieldUpdateOperationsInput | number
+    origem_ncm_log?: EnumNcmOrigemFieldUpdateOperationsInput | $Enums.NcmOrigem
+    disparado_por_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_erro_ncm_log?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmScheduleConfigCreateInput = {
-    id?: string
-    tenant_id?: string
-    product_id?: string | null
-    user_id?: string | null
-    ativo?: boolean
-    cron_expressao?: string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+  export type NcmAgendamentoCreateInput = {
+    id_ncm_agendamento?: string
+    id_organizacao_ncm_agendamento?: string
+    id_produto_ncm_agendamento?: string | null
+    id_usuario_ncm_agendamento?: string | null
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: Date | string
+    data_atualizacao_ncm_agendamento?: Date | string
   }
 
-  export type NcmScheduleConfigUncheckedCreateInput = {
-    id?: string
-    tenant_id?: string
-    product_id?: string | null
-    user_id?: string | null
-    ativo?: boolean
-    cron_expressao?: string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+  export type NcmAgendamentoUncheckedCreateInput = {
+    id_ncm_agendamento?: string
+    id_organizacao_ncm_agendamento?: string
+    id_produto_ncm_agendamento?: string | null
+    id_usuario_ncm_agendamento?: string | null
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: Date | string
+    data_atualizacao_ncm_agendamento?: Date | string
   }
 
-  export type NcmScheduleConfigUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao?: StringFieldUpdateOperationsInput | string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmAgendamentoUpdateInput = {
+    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmScheduleConfigUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao?: StringFieldUpdateOperationsInput | string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmAgendamentoUncheckedUpdateInput = {
+    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmScheduleConfigCreateManyInput = {
-    id?: string
-    tenant_id?: string
-    product_id?: string | null
-    user_id?: string | null
-    ativo?: boolean
-    cron_expressao?: string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+  export type NcmAgendamentoCreateManyInput = {
+    id_ncm_agendamento?: string
+    id_organizacao_ncm_agendamento?: string
+    id_produto_ncm_agendamento?: string | null
+    id_usuario_ncm_agendamento?: string | null
+    ativo_ncm_agendamento?: boolean
+    cron_expressao_ncm_agendamento?: string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: Date | string
+    data_atualizacao_ncm_agendamento?: Date | string
   }
 
-  export type NcmScheduleConfigUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao?: StringFieldUpdateOperationsInput | string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmAgendamentoUpdateManyMutationInput = {
+    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NcmScheduleConfigUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    cron_expressao?: StringFieldUpdateOperationsInput | string
-    notificadores?: JsonNullValueInput | InputJsonValue
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NcmAgendamentoUncheckedUpdateManyInput = {
+    id_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    id_produto_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ncm_agendamento?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo_ncm_agendamento?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao_ncm_agendamento?: StringFieldUpdateOperationsInput | string
+    notificadores_ncm_agendamento?: JsonNullValueInput | InputJsonValue
+    data_criacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_ncm_agendamento?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificacoesTituloCorpoCreateInput = {
@@ -63389,193 +63389,193 @@ export namespace Prisma {
     data_atualizacao_preferencia_workspace?: SortOrder
   }
 
-  export type NcmItemTenant_idCodigoCompoundUniqueInput = {
-    tenant_id: string
-    codigo: string
+  export type NcmItemId_organizacao_ncm_itemCodigo_ncm_itemCompoundUniqueInput = {
+    id_organizacao_ncm_item: string
+    codigo_ncm_item: string
   }
 
   export type NcmItemCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ativo?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    sync_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_ncm_item?: SortOrder
+    id_organizacao_ncm_item?: SortOrder
+    id_produto_ncm_item?: SortOrder
+    id_usuario_ncm_item?: SortOrder
+    codigo_ncm_item?: SortOrder
+    descricao_ncm_item?: SortOrder
+    ativo_ncm_item?: SortOrder
+    data_inicio_ncm_item?: SortOrder
+    data_fim_ncm_item?: SortOrder
+    id_sincronizacao_ncm_item?: SortOrder
+    data_criacao_ncm_item?: SortOrder
+    data_atualizacao_ncm_item?: SortOrder
   }
 
   export type NcmItemMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ativo?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    sync_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_ncm_item?: SortOrder
+    id_organizacao_ncm_item?: SortOrder
+    id_produto_ncm_item?: SortOrder
+    id_usuario_ncm_item?: SortOrder
+    codigo_ncm_item?: SortOrder
+    descricao_ncm_item?: SortOrder
+    ativo_ncm_item?: SortOrder
+    data_inicio_ncm_item?: SortOrder
+    data_fim_ncm_item?: SortOrder
+    id_sincronizacao_ncm_item?: SortOrder
+    data_criacao_ncm_item?: SortOrder
+    data_atualizacao_ncm_item?: SortOrder
   }
 
   export type NcmItemMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ativo?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    sync_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_ncm_item?: SortOrder
+    id_organizacao_ncm_item?: SortOrder
+    id_produto_ncm_item?: SortOrder
+    id_usuario_ncm_item?: SortOrder
+    codigo_ncm_item?: SortOrder
+    descricao_ncm_item?: SortOrder
+    ativo_ncm_item?: SortOrder
+    data_inicio_ncm_item?: SortOrder
+    data_fim_ncm_item?: SortOrder
+    id_sincronizacao_ncm_item?: SortOrder
+    data_criacao_ncm_item?: SortOrder
+    data_atualizacao_ncm_item?: SortOrder
   }
 
-  export type EnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
+  export type EnumNcmStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmStatus | EnumNcmStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmStatusFilter<$PrismaModel> | $Enums.NcmStatus
   }
 
-  export type EnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
+  export type EnumNcmOrigemFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmOrigem | EnumNcmOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmOrigemFilter<$PrismaModel> | $Enums.NcmOrigem
   }
 
-  export type NcmSyncLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    iniciado_em?: SortOrder
-    concluido_em?: SortOrder
-    status?: SortOrder
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
-    origem?: SortOrder
-    disparado_por?: SortOrder
-    erro_msg?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type NcmLogCountOrderByAggregateInput = {
+    id_ncm_log?: SortOrder
+    id_organizacao_ncm_log?: SortOrder
+    id_produto_ncm_log?: SortOrder
+    id_usuario_ncm_log?: SortOrder
+    data_inicio_ncm_log?: SortOrder
+    data_conclusao_ncm_log?: SortOrder
+    status_ncm_log?: SortOrder
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
+    origem_ncm_log?: SortOrder
+    disparado_por_ncm_log?: SortOrder
+    mensagem_erro_ncm_log?: SortOrder
+    data_criacao_ncm_log?: SortOrder
+    data_atualizacao_ncm_log?: SortOrder
   }
 
-  export type NcmSyncLogAvgOrderByAggregateInput = {
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
+  export type NcmLogAvgOrderByAggregateInput = {
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
   }
 
-  export type NcmSyncLogMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    iniciado_em?: SortOrder
-    concluido_em?: SortOrder
-    status?: SortOrder
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
-    origem?: SortOrder
-    disparado_por?: SortOrder
-    erro_msg?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type NcmLogMaxOrderByAggregateInput = {
+    id_ncm_log?: SortOrder
+    id_organizacao_ncm_log?: SortOrder
+    id_produto_ncm_log?: SortOrder
+    id_usuario_ncm_log?: SortOrder
+    data_inicio_ncm_log?: SortOrder
+    data_conclusao_ncm_log?: SortOrder
+    status_ncm_log?: SortOrder
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
+    origem_ncm_log?: SortOrder
+    disparado_por_ncm_log?: SortOrder
+    mensagem_erro_ncm_log?: SortOrder
+    data_criacao_ncm_log?: SortOrder
+    data_atualizacao_ncm_log?: SortOrder
   }
 
-  export type NcmSyncLogMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    iniciado_em?: SortOrder
-    concluido_em?: SortOrder
-    status?: SortOrder
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
-    origem?: SortOrder
-    disparado_por?: SortOrder
-    erro_msg?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type NcmLogMinOrderByAggregateInput = {
+    id_ncm_log?: SortOrder
+    id_organizacao_ncm_log?: SortOrder
+    id_produto_ncm_log?: SortOrder
+    id_usuario_ncm_log?: SortOrder
+    data_inicio_ncm_log?: SortOrder
+    data_conclusao_ncm_log?: SortOrder
+    status_ncm_log?: SortOrder
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
+    origem_ncm_log?: SortOrder
+    disparado_por_ncm_log?: SortOrder
+    mensagem_erro_ncm_log?: SortOrder
+    data_criacao_ncm_log?: SortOrder
+    data_atualizacao_ncm_log?: SortOrder
   }
 
-  export type NcmSyncLogSumOrderByAggregateInput = {
-    total?: SortOrder
-    adicionados?: SortOrder
-    alterados?: SortOrder
-    removidos?: SortOrder
+  export type NcmLogSumOrderByAggregateInput = {
+    total_ncm_log?: SortOrder
+    adicionados_ncm_log?: SortOrder
+    alterados_ncm_log?: SortOrder
+    removidos_ncm_log?: SortOrder
   }
 
-  export type EnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
+  export type EnumNcmStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmStatus | EnumNcmStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmStatusWithAggregatesFilter<$PrismaModel> | $Enums.NcmStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
+    _min?: NestedEnumNcmStatusFilter<$PrismaModel>
+    _max?: NestedEnumNcmStatusFilter<$PrismaModel>
   }
 
-  export type EnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
+  export type EnumNcmOrigemWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmOrigem | EnumNcmOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmOrigem
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
+    _min?: NestedEnumNcmOrigemFilter<$PrismaModel>
+    _max?: NestedEnumNcmOrigemFilter<$PrismaModel>
   }
 
-  export type NcmScheduleConfigCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    ativo?: SortOrder
-    cron_expressao?: SortOrder
-    notificadores?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+  export type NcmAgendamentoCountOrderByAggregateInput = {
+    id_ncm_agendamento?: SortOrder
+    id_organizacao_ncm_agendamento?: SortOrder
+    id_produto_ncm_agendamento?: SortOrder
+    id_usuario_ncm_agendamento?: SortOrder
+    ativo_ncm_agendamento?: SortOrder
+    cron_expressao_ncm_agendamento?: SortOrder
+    notificadores_ncm_agendamento?: SortOrder
+    data_criacao_ncm_agendamento?: SortOrder
+    data_atualizacao_ncm_agendamento?: SortOrder
   }
 
-  export type NcmScheduleConfigMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    ativo?: SortOrder
-    cron_expressao?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+  export type NcmAgendamentoMaxOrderByAggregateInput = {
+    id_ncm_agendamento?: SortOrder
+    id_organizacao_ncm_agendamento?: SortOrder
+    id_produto_ncm_agendamento?: SortOrder
+    id_usuario_ncm_agendamento?: SortOrder
+    ativo_ncm_agendamento?: SortOrder
+    cron_expressao_ncm_agendamento?: SortOrder
+    data_criacao_ncm_agendamento?: SortOrder
+    data_atualizacao_ncm_agendamento?: SortOrder
   }
 
-  export type NcmScheduleConfigMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    ativo?: SortOrder
-    cron_expressao?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+  export type NcmAgendamentoMinOrderByAggregateInput = {
+    id_ncm_agendamento?: SortOrder
+    id_organizacao_ncm_agendamento?: SortOrder
+    id_produto_ncm_agendamento?: SortOrder
+    id_usuario_ncm_agendamento?: SortOrder
+    ativo_ncm_agendamento?: SortOrder
+    cron_expressao_ncm_agendamento?: SortOrder
+    data_criacao_ncm_agendamento?: SortOrder
+    data_atualizacao_ncm_agendamento?: SortOrder
   }
 
   export type NotificacoesTituloCorpoCountOrderByAggregateInput = {
@@ -64535,12 +64535,12 @@ export namespace Prisma {
     update?: XOR<XOR<GabiConversaUpdateToOneWithWhereWithoutMensagens_gabi_conversaInput, GabiConversaUpdateWithoutMensagens_gabi_conversaInput>, GabiConversaUncheckedUpdateWithoutMensagens_gabi_conversaInput>
   }
 
-  export type EnumNCMStatusSincronizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.NCMStatusSincronizacao
+  export type EnumNcmStatusFieldUpdateOperationsInput = {
+    set?: $Enums.NcmStatus
   }
 
-  export type EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.NCMOrigemSincronizacao
+  export type EnumNcmOrigemFieldUpdateOperationsInput = {
+    set?: $Enums.NcmOrigem
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -65068,38 +65068,38 @@ export namespace Prisma {
     _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
+  export type NestedEnumNcmStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmStatus | EnumNcmStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmStatusFilter<$PrismaModel> | $Enums.NcmStatus
   }
 
-  export type NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
+  export type NestedEnumNcmOrigemFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmOrigem | EnumNcmOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmOrigemFilter<$PrismaModel> | $Enums.NcmOrigem
   }
 
-  export type NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
+  export type NestedEnumNcmStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmStatus | EnumNcmStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmStatus[] | ListEnumNcmStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmStatusWithAggregatesFilter<$PrismaModel> | $Enums.NcmStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
+    _min?: NestedEnumNcmStatusFilter<$PrismaModel>
+    _max?: NestedEnumNcmStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
+  export type NestedEnumNcmOrigemWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmOrigem | EnumNcmOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmOrigem[] | ListEnumNcmOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmOrigem
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
-    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
+    _min?: NestedEnumNcmOrigemFilter<$PrismaModel>
+    _max?: NestedEnumNcmOrigemFilter<$PrismaModel>
   }
 
   export type AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput = {
@@ -67790,13 +67790,13 @@ export namespace Prisma {
      */
     export type NcmItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmItemDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use NcmSyncLogDefaultArgs instead
+     * @deprecated Use NcmLogDefaultArgs instead
      */
-    export type NcmSyncLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncLogDefaultArgs<ExtArgs>
+    export type NcmLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmLogDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use NcmScheduleConfigDefaultArgs instead
+     * @deprecated Use NcmAgendamentoDefaultArgs instead
      */
-    export type NcmScheduleConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmScheduleConfigDefaultArgs<ExtArgs>
+    export type NcmAgendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmAgendamentoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NotificacoesTituloCorpoDefaultArgs instead
      */

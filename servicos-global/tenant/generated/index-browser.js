@@ -730,49 +730,49 @@ exports.Prisma.PreferenciaWorkspaceScalarFieldEnum = {
 };
 
 exports.Prisma.NcmItemScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  codigo: 'codigo',
-  descricao: 'descricao',
-  ativo: 'ativo',
-  data_inicio: 'data_inicio',
-  data_fim: 'data_fim',
-  sync_id: 'sync_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_ncm_item: 'id_ncm_item',
+  id_organizacao_ncm_item: 'id_organizacao_ncm_item',
+  id_produto_ncm_item: 'id_produto_ncm_item',
+  id_usuario_ncm_item: 'id_usuario_ncm_item',
+  codigo_ncm_item: 'codigo_ncm_item',
+  descricao_ncm_item: 'descricao_ncm_item',
+  ativo_ncm_item: 'ativo_ncm_item',
+  data_inicio_ncm_item: 'data_inicio_ncm_item',
+  data_fim_ncm_item: 'data_fim_ncm_item',
+  id_sincronizacao_ncm_item: 'id_sincronizacao_ncm_item',
+  data_criacao_ncm_item: 'data_criacao_ncm_item',
+  data_atualizacao_ncm_item: 'data_atualizacao_ncm_item'
 };
 
-exports.Prisma.NcmSyncLogScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  iniciado_em: 'iniciado_em',
-  concluido_em: 'concluido_em',
-  status: 'status',
-  total: 'total',
-  adicionados: 'adicionados',
-  alterados: 'alterados',
-  removidos: 'removidos',
-  origem: 'origem',
-  disparado_por: 'disparado_por',
-  erro_msg: 'erro_msg',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.NcmLogScalarFieldEnum = {
+  id_ncm_log: 'id_ncm_log',
+  id_organizacao_ncm_log: 'id_organizacao_ncm_log',
+  id_produto_ncm_log: 'id_produto_ncm_log',
+  id_usuario_ncm_log: 'id_usuario_ncm_log',
+  data_inicio_ncm_log: 'data_inicio_ncm_log',
+  data_conclusao_ncm_log: 'data_conclusao_ncm_log',
+  status_ncm_log: 'status_ncm_log',
+  total_ncm_log: 'total_ncm_log',
+  adicionados_ncm_log: 'adicionados_ncm_log',
+  alterados_ncm_log: 'alterados_ncm_log',
+  removidos_ncm_log: 'removidos_ncm_log',
+  origem_ncm_log: 'origem_ncm_log',
+  disparado_por_ncm_log: 'disparado_por_ncm_log',
+  mensagem_erro_ncm_log: 'mensagem_erro_ncm_log',
+  data_criacao_ncm_log: 'data_criacao_ncm_log',
+  data_atualizacao_ncm_log: 'data_atualizacao_ncm_log'
 };
 
-exports.Prisma.NcmScheduleConfigScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  ativo: 'ativo',
-  cron_expressao: 'cron_expressao',
-  notificadores: 'notificadores',
-  criado_em: 'criado_em',
-  atualizado_em: 'atualizado_em'
+exports.Prisma.NcmAgendamentoScalarFieldEnum = {
+  id_ncm_agendamento: 'id_ncm_agendamento',
+  id_organizacao_ncm_agendamento: 'id_organizacao_ncm_agendamento',
+  id_produto_ncm_agendamento: 'id_produto_ncm_agendamento',
+  id_usuario_ncm_agendamento: 'id_usuario_ncm_agendamento',
+  ativo_ncm_agendamento: 'ativo_ncm_agendamento',
+  cron_expressao_ncm_agendamento: 'cron_expressao_ncm_agendamento',
+  notificadores_ncm_agendamento: 'notificadores_ncm_agendamento',
+  data_criacao_ncm_agendamento: 'data_criacao_ncm_agendamento',
+  data_atualizacao_ncm_agendamento: 'data_atualizacao_ncm_agendamento'
 };
 
 exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
@@ -923,13 +923,13 @@ exports.AlertaStatus = exports.$Enums.AlertaStatus = {
   ESCALADO: 'ESCALADO'
 };
 
-exports.NCMStatusSincronizacao = exports.$Enums.NCMStatusSincronizacao = {
+exports.NcmStatus = exports.$Enums.NcmStatus = {
   EXECUTANDO: 'EXECUTANDO',
   SUCESSO: 'SUCESSO',
   ERRO: 'ERRO'
 };
 
-exports.NCMOrigemSincronizacao = exports.$Enums.NCMOrigemSincronizacao = {
+exports.NcmOrigem = exports.$Enums.NcmOrigem = {
   JOB: 'JOB',
   MANUAL: 'MANUAL'
 };
@@ -975,8 +975,8 @@ exports.Prisma.ModelName = {
   GabiPersonalizacao: 'GabiPersonalizacao',
   PreferenciaWorkspace: 'PreferenciaWorkspace',
   NcmItem: 'NcmItem',
-  NcmSyncLog: 'NcmSyncLog',
-  NcmScheduleConfig: 'NcmScheduleConfig',
+  NcmLog: 'NcmLog',
+  NcmAgendamento: 'NcmAgendamento',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ExternalContact: 'ExternalContact',
   TenantChannelConfig: 'TenantChannelConfig'

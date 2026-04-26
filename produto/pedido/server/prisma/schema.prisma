@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:10:11.776Z
+// Gerado em: 2026-04-26T00:21:34.835Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -603,16 +603,16 @@ model PedidoValorColunaUsuario {
 }
 
 model KanbanPreferencias {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  user_id      String
-  preferencias Json
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id_kanban_preferencias            String   @id @default(cuid())
+  id_organizacao                    String
+  id_usuario                        String
+  preferencias_kanban_preferencias  Json
+  data_criacao_kanban_preferencias  DateTime @default(now())
+  data_atualizacao_kanban_preferencias DateTime @updatedAt
 
-  @@unique([tenant_id, user_id])
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
+  @@unique([id_organizacao, id_usuario])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
   @@map("kanban_preferencias")
 }
 

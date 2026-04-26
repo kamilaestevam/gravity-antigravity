@@ -574,16 +574,16 @@ model PedidoValorColunaUsuario {
 }
 
 model KanbanPreferencias {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  user_id      String
-  preferencias Json
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id_kanban_preferencias            String   @id @default(cuid())
+  id_organizacao                    String
+  id_usuario                        String
+  preferencias_kanban_preferencias  Json
+  data_criacao_kanban_preferencias  DateTime @default(now())
+  data_atualizacao_kanban_preferencias DateTime @updatedAt
 
-  @@unique([tenant_id, user_id])
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
+  @@unique([id_organizacao, id_usuario])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
   @@map("kanban_preferencias")
 }
 

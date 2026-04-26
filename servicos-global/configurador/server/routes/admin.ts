@@ -88,7 +88,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
         skip,
         take: limit,
         select: {
-          id: true,
+          id_organizacao: true,
           nome_organizacao: true,
           subdominio_organizacao: true,
           status_organizacao: true,
@@ -116,12 +116,14 @@ adminRouter.get('/tenants', async (req, res, next) => {
     // DTO: mapeia Prisma `*_organizacao` (back-relations renomeados) → chaves legadas do contrato
     const tenantsDto = tenants.map((t) => {
       const {
+        id_organizacao,
         _count,
         subscriptions_organizacao,
         companies_organizacao,
         ...rest
       } = t
       return {
+        id: id_organizacao,
         ...rest,
         _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
         subscriptions: subscriptions_organizacao,
@@ -148,7 +150,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: idParsed.data },
+      where: { id_organizacao: idParsed.data },
       include: {
         users_organizacao: {
           select: { id: true, name: true, email: true, role: true, created_at: true },
@@ -178,6 +180,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
     // DTO DDD: Prisma `users_organizacao[].role` → JSON `users[].tipo_usuario`
     // DTO: back-relations Prisma `*_organizacao` → chaves legadas do contrato
     const {
+      id_organizacao,
       users_organizacao,
       companies_organizacao,
       subscriptions_organizacao,
@@ -186,6 +189,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
     } = tenant
     res.json({
       tenant: {
+        id: id_organizacao,
         ...tenantRest,
         users: users_organizacao.map(({ role, ...u }) => ({ ...u, tipo_usuario: role })),
         companies: companies_organizacao,
@@ -219,20 +223,20 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
     }
 
     const existing = await prisma.organizacao.findUnique({
-      where: { id: req.params.id },
+      where: { id_organizacao: req.params.id },
     })
     if (!existing) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
     const tenant = await prisma.organizacao.update({
-      where: { id: req.params.id },
+      where: { id_organizacao: req.params.id },
       data: {
         ...(parsed.data.status_organizacao && { status_organizacao: parsed.data.status_organizacao }),
         ...(parsed.data.nome_organizacao && { nome_organizacao: parsed.data.nome_organizacao.trim() }),
         ...(parsed.data.subdominio_organizacao && { subdominio_organizacao: parsed.data.subdominio_organizacao }),
       },
-      select: { id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true },
+      select: { id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true },
     })
 
     AuditService.log({
@@ -243,7 +247,7 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Organizacao',
-      resource_id: tenant.id,
+      resource_id: tenant.id_organizacao,
       action: 'TENANT_STATUS_CHANGED',
       action_detail: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
       before: { status: existing.status_organizacao },
@@ -251,7 +255,9 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ tenant })
+    // DTO: id_organizacao Prisma → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ tenant: { id: id_organizacao, ...tenantRest } })
   } catch (err) {
     next(err)
   }
@@ -279,7 +285,7 @@ adminRouter.post('/tenants', async (req, res, next) => {
         ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
       },
       select: {
-        id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
+        id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
         _count: { select: { users_organizacao: true, companies_organizacao: true } },
       },
     })
@@ -292,16 +298,17 @@ adminRouter.post('/tenants', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Organizacao',
-      resource_id: tenant.id,
+      resource_id: tenant.id_organizacao,
       action: 'TENANT_CREATED',
       action_detail: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
       after: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO: mapeia _count Prisma → chaves legadas
-    const { _count, ...tenantRest } = tenant
+    // DTO: mapeia _count e id_organizacao → chaves legadas
+    const { id_organizacao, _count, ...tenantRest } = tenant
     const tenantDto = {
+      id: id_organizacao,
       ...tenantRest,
       _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
     }
@@ -1175,9 +1182,9 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 
     // Campos core — sempre existem na migration init
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: user.tenant_id },
+      where: { id_organizacao: user.tenant_id },
       select: {
-        id: true,
+        id_organizacao: true,
         nome_organizacao: true,
         subdominio_organizacao: true,
         cnpj_organizacao: true,
@@ -1196,7 +1203,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     let extras: { segmento_organizacao?: string | null; tipo_empresa_organizacao?: string | null } = {}
     try {
       const row = await prisma.organizacao.findUnique({
-        where: { id: tenant.id },
+        where: { id_organizacao: tenant.id_organizacao },
         select: { segmento_organizacao: true, tipo_empresa_organizacao: true },
       })
       if (row) extras = row
@@ -1204,7 +1211,9 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
       // Colunas segmento_organizacao/tipo_empresa_organizacao ainda não migradas — retorna sem elas
     }
 
-    res.json({ config: { ...tenant, ...extras } })
+    // DTO: id_organizacao → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ config: { id: id_organizacao, ...tenantRest, ...extras } })
   } catch (err) {
     next(err)
   }
@@ -1374,15 +1383,15 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     }
 
     const before = await prisma.organizacao.findUnique({
-      where: { id: user.tenant_id },
+      where: { id_organizacao: user.tenant_id },
       select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
-      where: { id: user.tenant_id },
+      where: { id_organizacao: user.tenant_id },
       data: parsed.data,
       select: {
-        id: true,
+        id_organizacao: true,
         nome_organizacao: true,
         subdominio_organizacao: true,
         cnpj_organizacao: true,
@@ -1402,7 +1411,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'PlatformConfig',
-      resource_id: tenant.id,
+      resource_id: tenant.id_organizacao,
       action: 'PLATFORM_CONFIG_UPDATED',
       action_detail: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
       before: before ?? undefined,
@@ -1410,7 +1419,9 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ config: tenant })
+    // DTO: id_organizacao → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ config: { id: id_organizacao, ...tenantRest } })
   } catch (err) {
     next(err)
   }

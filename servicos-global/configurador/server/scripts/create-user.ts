@@ -26,7 +26,7 @@ async function main() {
     process.exit(0)
   }
 
-  const tenant = await prisma.organizacao.findUnique({ where: { id: tenantId } })
+  const tenant = await prisma.organizacao.findUnique({ where: { id_organizacao: tenantId } })
   if (!tenant) {
     console.error(`Organizacao ${tenantId} não encontrado.`)
     process.exit(1)

@@ -66,7 +66,7 @@ enum APITokenServico {
 // ---------------------------------------------------------------------------
 
 model Organizacao {
-  id                 String       @id @default(cuid()) @map("id_organizacao")
+  id_organizacao     String       @id @default(cuid())
   nome_organizacao         String
   subdominio_organizacao   String       @unique
   status_organizacao       OrganizacaoStatus @default(CONFIGURACAO_PENDENTE)
@@ -121,7 +121,7 @@ model Usuario {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant            Organizacao        @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant            Organizacao        @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
   preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
@@ -160,7 +160,7 @@ model AssinaturaProdutoGravity {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
 
   // Índices obrigatórios
   @@index([tenant_id])
@@ -190,7 +190,7 @@ model UsuarioPermissao {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
   user   Usuario     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
@@ -246,7 +246,7 @@ model Empresa {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant             Organizacao               @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant             Organizacao               @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
   memberships        UsuarioWorkspace[]
   company_products   ProdutoGravityWorkspace[]
   preferred_by_users Usuario[]                 @relation("UserPreferredCompany")
@@ -307,7 +307,7 @@ model ConfiguracaoProduto {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
 
   // Apenas uma config por produto por tenant
   @@unique([tenant_id, product_key])
@@ -335,7 +335,7 @@ model ProdutoGravityWorkspace {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant  Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  tenant  Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
   company Empresa     @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Apenas uma ativação por produto por workspace

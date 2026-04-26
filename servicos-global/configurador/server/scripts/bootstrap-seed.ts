@@ -51,7 +51,7 @@ async function main() {
   let org = await prisma.organizacao.findFirst({ where: { subdominio_organizacao: ORG_SLUG } })
 
   if (org) {
-    console.log(`  ✔ Organizacao já existe: ${org.nome_organizacao} (${org.id})`)
+    console.log(`  ✔ Organizacao já existe: ${org.nome_organizacao} (${org.id_organizacao})`)
   } else {
     org = await prisma.organizacao.create({
       data: {
@@ -60,7 +60,7 @@ async function main() {
         status_organizacao:     'ATIVO',
       },
     })
-    console.log(`  ✔ Organizacao criada: ${org.nome_organizacao} → ${org.id}`)
+    console.log(`  ✔ Organizacao criada: ${org.nome_organizacao} → ${org.id_organizacao}`)
   }
 
   // ── 2. Usuario SUPER_ADMIN ───────────────────────────────────────────────────
@@ -77,7 +77,7 @@ async function main() {
       email,
       name,
       role:          'SUPER_ADMIN',
-      tenant_id:     org.id,
+      tenant_id:     org.id_organizacao,
       clerk_user_id: `bootstrap_${Date.now()}`,
     },
   })

@@ -108,7 +108,7 @@ export const tenantService = {
       const tenant = await prisma.$transaction(async (tx: typeof prisma) => {
         const newTenant = await tx.organizacao.create({
           data: {
-            id: newOrgId,
+            id_organizacao: newOrgId,
             nome_organizacao,
             subdominio_organizacao,
             status_organizacao: 'CONFIGURACAO_PENDENTE',
@@ -119,7 +119,7 @@ export const tenantService = {
 
         await tx.usuario.create({
           data: {
-            tenant_id: newTenant.id,
+            tenant_id: newTenant.id_organizacao,
             clerk_user_id: clerkUserId,
             email: owner.email,
             name: owner.name,
@@ -130,7 +130,7 @@ export const tenantService = {
         const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
         await tx.assinaturaProdutoGravity.create({
           data: {
-            tenant_id: newTenant.id,
+            tenant_id: newTenant.id_organizacao,
             status: 'EM_TESTE',
             trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
@@ -139,7 +139,7 @@ export const tenantService = {
         // Empresa-local (child workspace legado do Configurador — distinto da Empresa SUID em Cadastros).
         await tx.empresa.create({
           data: {
-            tenant_id: newTenant.id,
+            tenant_id: newTenant.id_organizacao,
             name: nome_organizacao,
             status: 'ATIVO',
           },
@@ -173,7 +173,7 @@ export const tenantService = {
    */
   async getTenantById(tenantId: string) {
     return prisma.organizacao.findUnique({
-      where: { id: tenantId },
+      where: { id_organizacao: tenantId },
       include: {
         subscriptions_organizacao: {
           orderBy: { created_at: 'desc' },
@@ -197,7 +197,7 @@ export const tenantService = {
     tipo_empresa_organizacao?: string
   }) {
     return prisma.organizacao.update({
-      where: { id: tenantId },
+      where: { id_organizacao: tenantId },
       data,
     })
   },

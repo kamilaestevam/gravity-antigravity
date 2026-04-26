@@ -118,9 +118,10 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
     // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
-    const { _count, subscriptions_organizacao, ...rest } = tenant
+    const { id_organizacao, _count, subscriptions_organizacao, ...rest } = tenant
     res.json({
       tenant: {
+        id: id_organizacao,
         ...rest,
         _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
         subscriptions: subscriptions_organizacao,
@@ -162,7 +163,9 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
       after: tenant,
     }).catch(() => {})
 
-    res.json({ tenant })
+    // DTO: id_organizacao → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ tenant: { id: id_organizacao, ...tenantRest } })
   } catch (err) {
     next(err)
   }

@@ -136,8 +136,8 @@ const ActivateProductSchema = z.object({
 tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin, async (req, res, next) => {
   try {
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: req.params.tenantId },
-      select: { id: true, nome_organizacao: true },
+      where: { id_organizacao: req.params.tenantId },
+      select: { id_organizacao: true, nome_organizacao: true },
     })
     if (!tenant) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
@@ -148,7 +148,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
       orderBy: { created_at: 'desc' },
     })
 
-    res.json({ tenant_id: tenant.id, tenant_name: tenant.nome_organizacao, products: configs })
+    res.json({ tenant_id: tenant.id_organizacao, tenant_name: tenant.nome_organizacao, products: configs })
   } catch (err) {
     next(err)
   }
@@ -174,7 +174,7 @@ tenantProductsRouter.post(
       }
 
       const tenant = await prisma.organizacao.findUnique({
-        where: { id: req.params.tenantId },
+        where: { id_organizacao: req.params.tenantId },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
@@ -207,7 +207,7 @@ tenantProductsRouter.post(
   async (req, res, next) => {
     try {
       const tenant = await prisma.organizacao.findUnique({
-        where: { id: req.params.tenantId },
+        where: { id_organizacao: req.params.tenantId },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')

@@ -99,8 +99,9 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
     const tenantDto = tenant
       ? (() => {
-          const { _count, subscriptions_organizacao, ...rest } = tenant
+          const { id_organizacao, _count, subscriptions_organizacao, ...rest } = tenant
           return {
+            id: id_organizacao,
             ...rest,
             _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
             subscriptions: subscriptions_organizacao,

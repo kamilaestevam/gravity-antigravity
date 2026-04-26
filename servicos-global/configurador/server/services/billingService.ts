@@ -51,7 +51,7 @@ export const billingService = {
             },
           }),
           prisma.organizacao.update({
-            where: { id: tenantId },
+            where: { id_organizacao: tenantId },
             data: { status_organizacao: 'ATIVO' },
           }),
         ])
@@ -67,7 +67,7 @@ export const billingService = {
 
         await prisma.assinaturaProdutoGravity.updateMany({
           where: {
-            tenant_id: tenantRow.id,
+            tenant_id: tenantRow.id_organizacao,
             stripe_subscription_id: sub.id,
           },
           data: {
@@ -88,11 +88,11 @@ export const billingService = {
 
         await prisma.$transaction([
           prisma.assinaturaProdutoGravity.updateMany({
-            where: { tenant_id: tenantRow.id, stripe_subscription_id: sub.id },
+            where: { tenant_id: tenantRow.id_organizacao, stripe_subscription_id: sub.id },
             data: { status: 'CANCELADA', cancelled_at: new Date() },
           }),
           prisma.organizacao.update({
-            where: { id: tenantRow.id },
+            where: { id_organizacao: tenantRow.id_organizacao },
             data: { status_organizacao: 'SUSPENSO' },
           }),
         ])
@@ -107,7 +107,7 @@ export const billingService = {
         if (!tenantRow) break
 
         await prisma.assinaturaProdutoGravity.updateMany({
-          where: { tenant_id: tenantRow.id },
+          where: { tenant_id: tenantRow.id_organizacao },
           data: { status: 'VENCIDA' },
         })
         break
@@ -139,7 +139,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
 
   const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, nome_organizacao: true, cnpj_organizacao: true },
+    select: { id_organizacao: true, nome_organizacao: true, cnpj_organizacao: true },
   })
   if (!tenant) {
     log.warn('invoice.paid — tenant não encontrado pelo stripe_customer_id', {
@@ -154,7 +154,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     // Sem provider configurado — NF-e é emitida externamente ou adiada
     log.info('invoice.paid — NFS-e skipped (no provider)', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
     })
     return
   }
@@ -162,7 +162,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
   if (!tenant.cnpj_organizacao) {
     log.warn('invoice.paid — NFS-e não emitida: tenant sem CNPJ', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
     })
     return
   }
@@ -188,14 +188,14 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     })
     log.info('nfse emitted', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       nfse_id: result.id,
       nfse_status: result.status,
     })
   } catch (err) {
     log.error('nfse emission failed', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       error: err instanceof Error ? err.message : String(err),
     })
     // Não relança — retry manual via rota dedicada

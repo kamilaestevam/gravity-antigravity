@@ -63,7 +63,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         preferred_company_id: true,
         tenant: {
           select: {
-            id: true,
+            id_organizacao: true,
             nome_organizacao: true,
             subdominio_organizacao: true,
             status_organizacao: true,
@@ -104,7 +104,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       },
       organizacao: usuario.tenant
         ? {
-            id_organizacao: usuario.tenant.id,
+            id_organizacao: usuario.tenant.id_organizacao,
             nome_organizacao: usuario.tenant.nome_organizacao,
             subdominio_organizacao: usuario.tenant.subdominio_organizacao,
             status_organizacao: usuario.tenant.status_organizacao,

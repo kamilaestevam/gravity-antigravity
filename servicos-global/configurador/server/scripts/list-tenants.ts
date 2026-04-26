@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 
 async function main() {
   const tenants = await prisma.organizacao.findMany({
-    select: { id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true },
+    select: { id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true },
     orderBy: { data_criacao_organizacao: 'asc' },
   })
 
@@ -20,7 +20,7 @@ async function main() {
   for (const t of tenants) {
     console.log(`  slug: ${t.subdominio_organizacao}`)
     console.log(`  name: ${t.nome_organizacao}`)
-    console.log(`  id:   ${t.id}`)
+    console.log(`  id:   ${t.id_organizacao}`)
     console.log(`  status: ${t.status_organizacao}`)
     console.log(`  criado: ${t.data_criacao_organizacao.toISOString()}`)
     console.log('')

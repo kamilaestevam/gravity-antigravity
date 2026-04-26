@@ -123,7 +123,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 });
 
 exports.Prisma.OrganizacaoScalarFieldEnum = {
-  id: 'id',
+  id_organizacao: 'id_organizacao',
   nome_organizacao: 'nome_organizacao',
   subdominio_organizacao: 'subdominio_organizacao',
   status_organizacao: 'status_organizacao',

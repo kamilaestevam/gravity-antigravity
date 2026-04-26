@@ -56,7 +56,7 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   // Tenta casar com tenant do Gravity
   const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, nome_organizacao: true },
+    select: { id_organizacao: true, nome_organizacao: true },
   })
 
   // Stripe pode ter customer email direto
@@ -68,12 +68,12 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   }
 
   return {
-    id: tenant?.id ?? stripeCustomerId,
+    id: tenant?.id_organizacao ?? stripeCustomerId,
     name: tenant?.nome_organizacao ?? (typeof inv.customer !== 'string' && inv.customer && 'name' in inv.customer
       ? (inv.customer as Stripe.Customer).name ?? 'Sem nome'
       : 'Órfão (Stripe)'),
     email,
-    tenant_id: tenant?.id ?? null,
+    tenant_id: tenant?.id_organizacao ?? null,
   }
 }
 
@@ -170,7 +170,7 @@ export class StripeProvider implements BillingProvider {
       // passar pro Stripe, impedindo enumeration cross-tenant e evitando que
       // IDs Stripe crus sejam injetados via query string.
       const tenant = await prisma.organizacao.findUnique({
-        where: { id: params.customer_id },
+        where: { id_organizacao: params.customer_id },
         select: { stripe_customer_id: true },
       })
       if (!tenant) {
@@ -235,8 +235,8 @@ export class StripeProvider implements BillingProvider {
   async createInvoice(params: CreateInvoiceParams): Promise<GravityInvoice> {
     // 1. Resolver stripe_customer_id do tenant
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: params.customer_tenant_id },
-      select: { id: true, nome_organizacao: true, stripe_customer_id: true },
+      where: { id_organizacao: params.customer_tenant_id },
+      select: { id_organizacao: true, nome_organizacao: true, stripe_customer_id: true },
     })
 
     if (!tenant) {
@@ -248,14 +248,14 @@ export class StripeProvider implements BillingProvider {
       // Cria customer on-the-fly se o tenant não tinha
       const created = await stripe.customers.create({
         name: tenant.nome_organizacao,
-        metadata: { tenant_id: tenant.id },
+        metadata: { tenant_id: tenant.id_organizacao },
       })
       stripeCustomerId = created.id
       await prisma.organizacao.update({
-        where: { id: tenant.id },
+        where: { id_organizacao: tenant.id_organizacao },
         data: { stripe_customer_id: stripeCustomerId },
       })
-      log.info('stripe customer created', { tenant_id: tenant.id, stripe_customer_id: stripeCustomerId })
+      log.info('stripe customer created', { tenant_id: tenant.id_organizacao, stripe_customer_id: stripeCustomerId })
     }
 
     const currency = params.currency?.toLowerCase() ?? 'brl'
@@ -290,7 +290,7 @@ export class StripeProvider implements BillingProvider {
 
     log.info('invoice created', {
       stripe_invoice_id: finalInvoice.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       amount_due: finalInvoice.amount_due,
       auto_finalized: !!params.auto_finalize,
     })

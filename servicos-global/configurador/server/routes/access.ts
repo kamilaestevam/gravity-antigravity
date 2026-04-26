@@ -52,7 +52,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
 
     // 1. Verifica se o tenant está ativo
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: tenantId },
+      where: { id_organizacao: tenantId },
       select: { status_organizacao: true },
     })
     if (!tenant || tenant.status_organizacao !== 'ATIVO') {

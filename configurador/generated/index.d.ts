@@ -3114,7 +3114,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoMinAggregateOutputType = {
-    id: string | null
+    id_organizacao: string | null
     nome_organizacao: string | null
     subdominio_organizacao: string | null
     status_organizacao: $Enums.OrganizacaoStatus | null
@@ -3131,7 +3131,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoMaxAggregateOutputType = {
-    id: string | null
+    id_organizacao: string | null
     nome_organizacao: string | null
     subdominio_organizacao: string | null
     status_organizacao: $Enums.OrganizacaoStatus | null
@@ -3148,7 +3148,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCountAggregateOutputType = {
-    id: number
+    id_organizacao: number
     nome_organizacao: number
     subdominio_organizacao: number
     status_organizacao: number
@@ -3167,7 +3167,7 @@ export namespace Prisma {
 
 
   export type OrganizacaoMinAggregateInputType = {
-    id?: true
+    id_organizacao?: true
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
@@ -3184,7 +3184,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoMaxAggregateInputType = {
-    id?: true
+    id_organizacao?: true
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
@@ -3201,7 +3201,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCountAggregateInputType = {
-    id?: true
+    id_organizacao?: true
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
@@ -3291,7 +3291,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoGroupByOutputType = {
-    id: string
+    id_organizacao: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao: $Enums.OrganizacaoStatus
@@ -3325,7 +3325,7 @@ export namespace Prisma {
 
 
   export type OrganizacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
+    id_organizacao?: boolean
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
@@ -3349,7 +3349,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["organizacao"]>
 
   export type OrganizacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
+    id_organizacao?: boolean
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
@@ -3366,7 +3366,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["organizacao"]>
 
   export type OrganizacaoSelectScalar = {
-    id?: boolean
+    id_organizacao?: boolean
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
@@ -3404,7 +3404,7 @@ export namespace Prisma {
       ProdutoGravityWorkspace: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
+      id_organizacao: string
       nome_organizacao: string
       subdominio_organizacao: string
       status_organizacao: $Enums.OrganizacaoStatus
@@ -3501,8 +3501,8 @@ export namespace Prisma {
      * // Get first 10 Organizacaos
      * const organizacaos = await prisma.organizacao.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const organizacaoWithIdOnly = await prisma.organizacao.findMany({ select: { id: true } })
+     * // Only select the `id_organizacao`
+     * const organizacaoWithId_organizacaoOnly = await prisma.organizacao.findMany({ select: { id_organizacao: true } })
      * 
      */
     findMany<T extends OrganizacaoFindManyArgs>(args?: SelectSubset<T, OrganizacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findMany">>
@@ -3546,9 +3546,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Organizacaos and only return the `id`
-     * const organizacaoWithIdOnly = await prisma.organizacao.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Organizacaos and only return the `id_organizacao`
+     * const organizacaoWithId_organizacaoOnly = await prisma.organizacao.createManyAndReturn({ 
+     *   select: { id_organizacao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -3817,7 +3817,7 @@ export namespace Prisma {
    * Fields of the Organizacao model
    */ 
   interface OrganizacaoFieldRefs {
-    readonly id: FieldRef<"Organizacao", 'String'>
+    readonly id_organizacao: FieldRef<"Organizacao", 'String'>
     readonly nome_organizacao: FieldRef<"Organizacao", 'String'>
     readonly subdominio_organizacao: FieldRef<"Organizacao", 'String'>
     readonly status_organizacao: FieldRef<"Organizacao", 'OrganizacaoStatus'>
@@ -26418,7 +26418,7 @@ export namespace Prisma {
 
 
   export const OrganizacaoScalarFieldEnum: {
-    id: 'id',
+    id_organizacao: 'id_organizacao',
     nome_organizacao: 'nome_organizacao',
     subdominio_organizacao: 'subdominio_organizacao',
     status_organizacao: 'status_organizacao',
@@ -27116,7 +27116,7 @@ export namespace Prisma {
     AND?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
     OR?: OrganizacaoWhereInput[]
     NOT?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
-    id?: StringFilter<"Organizacao"> | string
+    id_organizacao?: StringFilter<"Organizacao"> | string
     nome_organizacao?: StringFilter<"Organizacao"> | string
     subdominio_organizacao?: StringFilter<"Organizacao"> | string
     status_organizacao?: EnumOrganizacaoStatusFilter<"Organizacao"> | $Enums.OrganizacaoStatus
@@ -27139,7 +27139,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoOrderByWithRelationInput = {
-    id?: SortOrder
+    id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
@@ -27162,7 +27162,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_organizacao?: string
     subdominio_organizacao?: string
     clerk_org_id?: string
     stripe_customer_id?: string
@@ -27185,10 +27185,10 @@ export namespace Prisma {
     companies_organizacao?: EmpresaListRelationFilter
     product_configs_organizacao?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
-  }, "id" | "subdominio_organizacao" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa_organizacao">
+  }, "id_organizacao" | "subdominio_organizacao" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa_organizacao">
 
   export type OrganizacaoOrderByWithAggregationInput = {
-    id?: SortOrder
+    id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
@@ -27211,7 +27211,7 @@ export namespace Prisma {
     AND?: OrganizacaoScalarWhereWithAggregatesInput | OrganizacaoScalarWhereWithAggregatesInput[]
     OR?: OrganizacaoScalarWhereWithAggregatesInput[]
     NOT?: OrganizacaoScalarWhereWithAggregatesInput | OrganizacaoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Organizacao"> | string
+    id_organizacao?: StringWithAggregatesFilter<"Organizacao"> | string
     nome_organizacao?: StringWithAggregatesFilter<"Organizacao"> | string
     subdominio_organizacao?: StringWithAggregatesFilter<"Organizacao"> | string
     status_organizacao?: EnumOrganizacaoStatusWithAggregatesFilter<"Organizacao"> | $Enums.OrganizacaoStatus
@@ -29155,7 +29155,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -29178,7 +29178,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -29201,7 +29201,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -29224,7 +29224,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -29247,7 +29247,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateManyInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -29264,7 +29264,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -29281,7 +29281,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -31631,7 +31631,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCountOrderByAggregateInput = {
-    id?: SortOrder
+    id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
@@ -31648,7 +31648,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoMaxOrderByAggregateInput = {
-    id?: SortOrder
+    id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
@@ -31665,7 +31665,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoMinOrderByAggregateInput = {
-    id?: SortOrder
+    id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
@@ -35028,7 +35028,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutUsers_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35050,7 +35050,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35181,7 +35181,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutUsers_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35203,7 +35203,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35308,7 +35308,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutSubscriptions_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35330,7 +35330,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35368,7 +35368,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutSubscriptions_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35390,7 +35390,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35412,7 +35412,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutUser_permissions_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35434,7 +35434,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35503,7 +35503,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutUser_permissions_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35525,7 +35525,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35584,7 +35584,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutCompanies_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35606,7 +35606,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35738,7 +35738,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutCompanies_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35760,7 +35760,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -35966,7 +35966,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutProduct_configs_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -35988,7 +35988,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -36026,7 +36026,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutProduct_configs_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -36048,7 +36048,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -36070,7 +36070,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoCreateWithoutProdutoGravityWorkspaceInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -36092,7 +36092,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
-    id?: string
+    id_organizacao?: string
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
@@ -36161,7 +36161,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUpdateWithoutProdutoGravityWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
@@ -36183,7 +36183,7 @@ export namespace Prisma {
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus

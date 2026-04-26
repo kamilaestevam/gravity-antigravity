@@ -58,7 +58,7 @@ billingRouter.post('/webhook', async (req, res, next) => {
 billingRouter.get('/invoices', requireAuth, async (req, res, next) => {
   try {
     const tenant = await prisma.organizacao.findUnique({
-      where: { id: req.auth.tenantId },
+      where: { id_organizacao: req.auth.tenantId },
       select: { stripe_customer_id: true },
     })
 

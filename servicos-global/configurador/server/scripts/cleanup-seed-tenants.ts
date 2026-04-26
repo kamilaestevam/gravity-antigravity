@@ -31,8 +31,8 @@ async function main() {
       continue
     }
 
-    await prisma.organizacao.delete({ where: { id: tenant.id } })
-    console.log(`✓  ${slug} deletado (${tenant.id})`)
+    await prisma.organizacao.delete({ where: { id_organizacao: tenant.id_organizacao } })
+    console.log(`✓  ${slug} deletado (${tenant.id_organizacao})`)
   }
 
   console.log('\n✅ Limpeza concluída.')

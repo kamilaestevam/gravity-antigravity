@@ -4814,13 +4814,13 @@ export namespace Prisma {
    */
 
   export type AtividadesDadosCountOutputType = {
-    participantes: number
-    sessoes_timer: number
+    participantes_atividades_dados: number
+    sessoes_timer_atividades_dados: number
   }
 
   export type AtividadesDadosCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    participantes?: boolean | AtividadesDadosCountOutputTypeCountParticipantesArgs
-    sessoes_timer?: boolean | AtividadesDadosCountOutputTypeCountSessoes_timerArgs
+    participantes_atividades_dados?: boolean | AtividadesDadosCountOutputTypeCountParticipantes_atividades_dadosArgs
+    sessoes_timer_atividades_dados?: boolean | AtividadesDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs
   }
 
   // Custom InputTypes
@@ -4837,14 +4837,14 @@ export namespace Prisma {
   /**
    * AtividadesDadosCountOutputType without action
    */
-  export type AtividadesDadosCountOutputTypeCountParticipantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadesDadosCountOutputTypeCountParticipantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AtividadesParticipantesWhereInput
   }
 
   /**
    * AtividadesDadosCountOutputType without action
    */
-  export type AtividadesDadosCountOutputTypeCountSessoes_timerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadesDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AtividadesTempoWhereInput
   }
 
@@ -5101,159 +5101,159 @@ export namespace Prisma {
   }
 
   export type AtividadesDadosAvgAggregateOutputType = {
-    tempo_gasto_minutos: number | null
+    tempo_gasto_minutos_atividades_dados: number | null
   }
 
   export type AtividadesDadosSumAggregateOutputType = {
-    tempo_gasto_minutos: number | null
+    tempo_gasto_minutos_atividades_dados: number | null
   }
 
   export type AtividadesDadosMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    titulo: string | null
-    descricao: string | null
-    tipo: string | null
-    status: string | null
-    prioridade: string | null
-    data_atividade: Date | null
-    data_vencimento: Date | null
-    tempo_gasto_minutos: number | null
-    proximo_passo_titulo: string | null
-    proximo_passo_data: Date | null
-    lembrete_em: Date | null
-    lembrete_email: boolean | null
-    lembrete_whatsapp: boolean | null
-    notificar_ao_atribuir: boolean | null
-    processo_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_dados: string | null
+    id_organizacao_atividades_dados: string | null
+    id_usuario_atividades_dados: string | null
+    titulo_atividades_dados: string | null
+    descricao_atividades_dados: string | null
+    tipo_atividades_dados: string | null
+    status_atividades_dados: string | null
+    prioridade_atividades_dados: string | null
+    data_atividade_atividades_dados: Date | null
+    data_vencimento_atividades_dados: Date | null
+    tempo_gasto_minutos_atividades_dados: number | null
+    proximo_passo_titulo_atividades_dados: string | null
+    proximo_passo_data_atividades_dados: Date | null
+    lembrete_em_atividades_dados: Date | null
+    lembrete_email_atividades_dados: boolean | null
+    lembrete_whatsapp_atividades_dados: boolean | null
+    notificar_ao_atribuir_atividades_dados: boolean | null
+    id_processo_atividades_dados: string | null
+    data_criacao_atividades_dados: Date | null
+    data_atualizacao_atividades_dados: Date | null
   }
 
   export type AtividadesDadosMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    titulo: string | null
-    descricao: string | null
-    tipo: string | null
-    status: string | null
-    prioridade: string | null
-    data_atividade: Date | null
-    data_vencimento: Date | null
-    tempo_gasto_minutos: number | null
-    proximo_passo_titulo: string | null
-    proximo_passo_data: Date | null
-    lembrete_em: Date | null
-    lembrete_email: boolean | null
-    lembrete_whatsapp: boolean | null
-    notificar_ao_atribuir: boolean | null
-    processo_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_dados: string | null
+    id_organizacao_atividades_dados: string | null
+    id_usuario_atividades_dados: string | null
+    titulo_atividades_dados: string | null
+    descricao_atividades_dados: string | null
+    tipo_atividades_dados: string | null
+    status_atividades_dados: string | null
+    prioridade_atividades_dados: string | null
+    data_atividade_atividades_dados: Date | null
+    data_vencimento_atividades_dados: Date | null
+    tempo_gasto_minutos_atividades_dados: number | null
+    proximo_passo_titulo_atividades_dados: string | null
+    proximo_passo_data_atividades_dados: Date | null
+    lembrete_em_atividades_dados: Date | null
+    lembrete_email_atividades_dados: boolean | null
+    lembrete_whatsapp_atividades_dados: boolean | null
+    notificar_ao_atribuir_atividades_dados: boolean | null
+    id_processo_atividades_dados: string | null
+    data_criacao_atividades_dados: Date | null
+    data_atualizacao_atividades_dados: Date | null
   }
 
   export type AtividadesDadosCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    user_id: number
-    titulo: number
-    descricao: number
-    tipo: number
-    status: number
-    prioridade: number
-    data_atividade: number
-    data_vencimento: number
-    tempo_gasto_minutos: number
-    proximo_passo_titulo: number
-    proximo_passo_data: number
-    lembrete_em: number
-    lembrete_email: number
-    lembrete_whatsapp: number
-    notificar_ao_atribuir: number
-    processo_id: number
-    created_at: number
-    updated_at: number
+    id_atividades_dados: number
+    id_organizacao_atividades_dados: number
+    id_usuario_atividades_dados: number
+    titulo_atividades_dados: number
+    descricao_atividades_dados: number
+    tipo_atividades_dados: number
+    status_atividades_dados: number
+    prioridade_atividades_dados: number
+    data_atividade_atividades_dados: number
+    data_vencimento_atividades_dados: number
+    tempo_gasto_minutos_atividades_dados: number
+    proximo_passo_titulo_atividades_dados: number
+    proximo_passo_data_atividades_dados: number
+    lembrete_em_atividades_dados: number
+    lembrete_email_atividades_dados: number
+    lembrete_whatsapp_atividades_dados: number
+    notificar_ao_atribuir_atividades_dados: number
+    id_processo_atividades_dados: number
+    data_criacao_atividades_dados: number
+    data_atualizacao_atividades_dados: number
     _all: number
   }
 
 
   export type AtividadesDadosAvgAggregateInputType = {
-    tempo_gasto_minutos?: true
+    tempo_gasto_minutos_atividades_dados?: true
   }
 
   export type AtividadesDadosSumAggregateInputType = {
-    tempo_gasto_minutos?: true
+    tempo_gasto_minutos_atividades_dados?: true
   }
 
   export type AtividadesDadosMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    tipo?: true
-    status?: true
-    prioridade?: true
-    data_atividade?: true
-    data_vencimento?: true
-    tempo_gasto_minutos?: true
-    proximo_passo_titulo?: true
-    proximo_passo_data?: true
-    lembrete_em?: true
-    lembrete_email?: true
-    lembrete_whatsapp?: true
-    notificar_ao_atribuir?: true
-    processo_id?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_dados?: true
+    id_organizacao_atividades_dados?: true
+    id_usuario_atividades_dados?: true
+    titulo_atividades_dados?: true
+    descricao_atividades_dados?: true
+    tipo_atividades_dados?: true
+    status_atividades_dados?: true
+    prioridade_atividades_dados?: true
+    data_atividade_atividades_dados?: true
+    data_vencimento_atividades_dados?: true
+    tempo_gasto_minutos_atividades_dados?: true
+    proximo_passo_titulo_atividades_dados?: true
+    proximo_passo_data_atividades_dados?: true
+    lembrete_em_atividades_dados?: true
+    lembrete_email_atividades_dados?: true
+    lembrete_whatsapp_atividades_dados?: true
+    notificar_ao_atribuir_atividades_dados?: true
+    id_processo_atividades_dados?: true
+    data_criacao_atividades_dados?: true
+    data_atualizacao_atividades_dados?: true
   }
 
   export type AtividadesDadosMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    tipo?: true
-    status?: true
-    prioridade?: true
-    data_atividade?: true
-    data_vencimento?: true
-    tempo_gasto_minutos?: true
-    proximo_passo_titulo?: true
-    proximo_passo_data?: true
-    lembrete_em?: true
-    lembrete_email?: true
-    lembrete_whatsapp?: true
-    notificar_ao_atribuir?: true
-    processo_id?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_dados?: true
+    id_organizacao_atividades_dados?: true
+    id_usuario_atividades_dados?: true
+    titulo_atividades_dados?: true
+    descricao_atividades_dados?: true
+    tipo_atividades_dados?: true
+    status_atividades_dados?: true
+    prioridade_atividades_dados?: true
+    data_atividade_atividades_dados?: true
+    data_vencimento_atividades_dados?: true
+    tempo_gasto_minutos_atividades_dados?: true
+    proximo_passo_titulo_atividades_dados?: true
+    proximo_passo_data_atividades_dados?: true
+    lembrete_em_atividades_dados?: true
+    lembrete_email_atividades_dados?: true
+    lembrete_whatsapp_atividades_dados?: true
+    notificar_ao_atribuir_atividades_dados?: true
+    id_processo_atividades_dados?: true
+    data_criacao_atividades_dados?: true
+    data_atualizacao_atividades_dados?: true
   }
 
   export type AtividadesDadosCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    tipo?: true
-    status?: true
-    prioridade?: true
-    data_atividade?: true
-    data_vencimento?: true
-    tempo_gasto_minutos?: true
-    proximo_passo_titulo?: true
-    proximo_passo_data?: true
-    lembrete_em?: true
-    lembrete_email?: true
-    lembrete_whatsapp?: true
-    notificar_ao_atribuir?: true
-    processo_id?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_dados?: true
+    id_organizacao_atividades_dados?: true
+    id_usuario_atividades_dados?: true
+    titulo_atividades_dados?: true
+    descricao_atividades_dados?: true
+    tipo_atividades_dados?: true
+    status_atividades_dados?: true
+    prioridade_atividades_dados?: true
+    data_atividade_atividades_dados?: true
+    data_vencimento_atividades_dados?: true
+    tempo_gasto_minutos_atividades_dados?: true
+    proximo_passo_titulo_atividades_dados?: true
+    proximo_passo_data_atividades_dados?: true
+    lembrete_em_atividades_dados?: true
+    lembrete_email_atividades_dados?: true
+    lembrete_whatsapp_atividades_dados?: true
+    notificar_ao_atribuir_atividades_dados?: true
+    id_processo_atividades_dados?: true
+    data_criacao_atividades_dados?: true
+    data_atualizacao_atividades_dados?: true
     _all?: true
   }
 
@@ -5344,26 +5344,26 @@ export namespace Prisma {
   }
 
   export type AtividadesDadosGroupByOutputType = {
-    id: string
-    tenant_id: string
-    user_id: string | null
-    titulo: string
-    descricao: string | null
-    tipo: string
-    status: string
-    prioridade: string | null
-    data_atividade: Date | null
-    data_vencimento: Date | null
-    tempo_gasto_minutos: number
-    proximo_passo_titulo: string | null
-    proximo_passo_data: Date | null
-    lembrete_em: Date | null
-    lembrete_email: boolean
-    lembrete_whatsapp: boolean
-    notificar_ao_atribuir: boolean
-    processo_id: string | null
-    created_at: Date
-    updated_at: Date
+    id_atividades_dados: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados: string | null
+    tipo_atividades_dados: string
+    status_atividades_dados: string
+    prioridade_atividades_dados: string | null
+    data_atividade_atividades_dados: Date | null
+    data_vencimento_atividades_dados: Date | null
+    tempo_gasto_minutos_atividades_dados: number
+    proximo_passo_titulo_atividades_dados: string | null
+    proximo_passo_data_atividades_dados: Date | null
+    lembrete_em_atividades_dados: Date | null
+    lembrete_email_atividades_dados: boolean
+    lembrete_whatsapp_atividades_dados: boolean
+    notificar_ao_atribuir_atividades_dados: boolean
+    id_processo_atividades_dados: string | null
+    data_criacao_atividades_dados: Date
+    data_atualizacao_atividades_dados: Date
     _count: AtividadesDadosCountAggregateOutputType | null
     _avg: AtividadesDadosAvgAggregateOutputType | null
     _sum: AtividadesDadosSumAggregateOutputType | null
@@ -5386,80 +5386,80 @@ export namespace Prisma {
 
 
   export type AtividadesDadosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    status?: boolean
-    prioridade?: boolean
-    data_atividade?: boolean
-    data_vencimento?: boolean
-    tempo_gasto_minutos?: boolean
-    proximo_passo_titulo?: boolean
-    proximo_passo_data?: boolean
-    lembrete_em?: boolean
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    participantes?: boolean | AtividadesDados$participantesArgs<ExtArgs>
-    sessoes_timer?: boolean | AtividadesDados$sessoes_timerArgs<ExtArgs>
+    id_atividades_dados?: boolean
+    id_organizacao_atividades_dados?: boolean
+    id_usuario_atividades_dados?: boolean
+    titulo_atividades_dados?: boolean
+    descricao_atividades_dados?: boolean
+    tipo_atividades_dados?: boolean
+    status_atividades_dados?: boolean
+    prioridade_atividades_dados?: boolean
+    data_atividade_atividades_dados?: boolean
+    data_vencimento_atividades_dados?: boolean
+    tempo_gasto_minutos_atividades_dados?: boolean
+    proximo_passo_titulo_atividades_dados?: boolean
+    proximo_passo_data_atividades_dados?: boolean
+    lembrete_em_atividades_dados?: boolean
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: boolean
+    data_criacao_atividades_dados?: boolean
+    data_atualizacao_atividades_dados?: boolean
+    participantes_atividades_dados?: boolean | AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>
+    sessoes_timer_atividades_dados?: boolean | AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
     _count?: boolean | AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividadesDados"]>
 
   export type AtividadesDadosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    status?: boolean
-    prioridade?: boolean
-    data_atividade?: boolean
-    data_vencimento?: boolean
-    tempo_gasto_minutos?: boolean
-    proximo_passo_titulo?: boolean
-    proximo_passo_data?: boolean
-    lembrete_em?: boolean
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_dados?: boolean
+    id_organizacao_atividades_dados?: boolean
+    id_usuario_atividades_dados?: boolean
+    titulo_atividades_dados?: boolean
+    descricao_atividades_dados?: boolean
+    tipo_atividades_dados?: boolean
+    status_atividades_dados?: boolean
+    prioridade_atividades_dados?: boolean
+    data_atividade_atividades_dados?: boolean
+    data_vencimento_atividades_dados?: boolean
+    tempo_gasto_minutos_atividades_dados?: boolean
+    proximo_passo_titulo_atividades_dados?: boolean
+    proximo_passo_data_atividades_dados?: boolean
+    lembrete_em_atividades_dados?: boolean
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: boolean
+    data_criacao_atividades_dados?: boolean
+    data_atualizacao_atividades_dados?: boolean
   }, ExtArgs["result"]["atividadesDados"]>
 
   export type AtividadesDadosSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    tipo?: boolean
-    status?: boolean
-    prioridade?: boolean
-    data_atividade?: boolean
-    data_vencimento?: boolean
-    tempo_gasto_minutos?: boolean
-    proximo_passo_titulo?: boolean
-    proximo_passo_data?: boolean
-    lembrete_em?: boolean
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_dados?: boolean
+    id_organizacao_atividades_dados?: boolean
+    id_usuario_atividades_dados?: boolean
+    titulo_atividades_dados?: boolean
+    descricao_atividades_dados?: boolean
+    tipo_atividades_dados?: boolean
+    status_atividades_dados?: boolean
+    prioridade_atividades_dados?: boolean
+    data_atividade_atividades_dados?: boolean
+    data_vencimento_atividades_dados?: boolean
+    tempo_gasto_minutos_atividades_dados?: boolean
+    proximo_passo_titulo_atividades_dados?: boolean
+    proximo_passo_data_atividades_dados?: boolean
+    lembrete_em_atividades_dados?: boolean
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: boolean
+    data_criacao_atividades_dados?: boolean
+    data_atualizacao_atividades_dados?: boolean
   }
 
   export type AtividadesDadosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    participantes?: boolean | AtividadesDados$participantesArgs<ExtArgs>
-    sessoes_timer?: boolean | AtividadesDados$sessoes_timerArgs<ExtArgs>
+    participantes_atividades_dados?: boolean | AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>
+    sessoes_timer_atividades_dados?: boolean | AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
     _count?: boolean | AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AtividadesDadosIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5467,30 +5467,30 @@ export namespace Prisma {
   export type $AtividadesDadosPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AtividadesDados"
     objects: {
-      participantes: Prisma.$AtividadesParticipantesPayload<ExtArgs>[]
-      sessoes_timer: Prisma.$AtividadesTempoPayload<ExtArgs>[]
+      participantes_atividades_dados: Prisma.$AtividadesParticipantesPayload<ExtArgs>[]
+      sessoes_timer_atividades_dados: Prisma.$AtividadesTempoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      user_id: string | null
-      titulo: string
-      descricao: string | null
-      tipo: string
-      status: string
-      prioridade: string | null
-      data_atividade: Date | null
-      data_vencimento: Date | null
-      tempo_gasto_minutos: number
-      proximo_passo_titulo: string | null
-      proximo_passo_data: Date | null
-      lembrete_em: Date | null
-      lembrete_email: boolean
-      lembrete_whatsapp: boolean
-      notificar_ao_atribuir: boolean
-      processo_id: string | null
-      created_at: Date
-      updated_at: Date
+      id_atividades_dados: string
+      id_organizacao_atividades_dados: string
+      id_usuario_atividades_dados: string | null
+      titulo_atividades_dados: string
+      descricao_atividades_dados: string | null
+      tipo_atividades_dados: string
+      status_atividades_dados: string
+      prioridade_atividades_dados: string | null
+      data_atividade_atividades_dados: Date | null
+      data_vencimento_atividades_dados: Date | null
+      tempo_gasto_minutos_atividades_dados: number
+      proximo_passo_titulo_atividades_dados: string | null
+      proximo_passo_data_atividades_dados: Date | null
+      lembrete_em_atividades_dados: Date | null
+      lembrete_email_atividades_dados: boolean
+      lembrete_whatsapp_atividades_dados: boolean
+      notificar_ao_atribuir_atividades_dados: boolean
+      id_processo_atividades_dados: string | null
+      data_criacao_atividades_dados: Date
+      data_atualizacao_atividades_dados: Date
     }, ExtArgs["result"]["atividadesDados"]>
     composites: {}
   }
@@ -5574,8 +5574,8 @@ export namespace Prisma {
      * // Get first 10 AtividadesDados
      * const atividadesDados = await prisma.atividadesDados.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const atividadesDadosWithIdOnly = await prisma.atividadesDados.findMany({ select: { id: true } })
+     * // Only select the `id_atividades_dados`
+     * const atividadesDadosWithId_atividades_dadosOnly = await prisma.atividadesDados.findMany({ select: { id_atividades_dados: true } })
      * 
      */
     findMany<T extends AtividadesDadosFindManyArgs>(args?: SelectSubset<T, AtividadesDadosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findMany">>
@@ -5619,9 +5619,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AtividadesDados and only return the `id`
-     * const atividadesDadosWithIdOnly = await prisma.atividadesDados.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AtividadesDados and only return the `id_atividades_dados`
+     * const atividadesDadosWithId_atividades_dadosOnly = await prisma.atividadesDados.createManyAndReturn({ 
+     *   select: { id_atividades_dados: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -5855,8 +5855,8 @@ export namespace Prisma {
    */
   export interface Prisma__AtividadesDadosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    participantes<T extends AtividadesDados$participantesArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$participantesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesParticipantesPayload<ExtArgs>, T, "findMany"> | Null>
-    sessoes_timer<T extends AtividadesDados$sessoes_timerArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$sessoes_timerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesTempoPayload<ExtArgs>, T, "findMany"> | Null>
+    participantes_atividades_dados<T extends AtividadesDados$participantes_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesParticipantesPayload<ExtArgs>, T, "findMany"> | Null>
+    sessoes_timer_atividades_dados<T extends AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesTempoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5886,26 +5886,26 @@ export namespace Prisma {
    * Fields of the AtividadesDados model
    */ 
   interface AtividadesDadosFieldRefs {
-    readonly id: FieldRef<"AtividadesDados", 'String'>
-    readonly tenant_id: FieldRef<"AtividadesDados", 'String'>
-    readonly user_id: FieldRef<"AtividadesDados", 'String'>
-    readonly titulo: FieldRef<"AtividadesDados", 'String'>
-    readonly descricao: FieldRef<"AtividadesDados", 'String'>
-    readonly tipo: FieldRef<"AtividadesDados", 'String'>
-    readonly status: FieldRef<"AtividadesDados", 'String'>
-    readonly prioridade: FieldRef<"AtividadesDados", 'String'>
-    readonly data_atividade: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly data_vencimento: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly tempo_gasto_minutos: FieldRef<"AtividadesDados", 'Int'>
-    readonly proximo_passo_titulo: FieldRef<"AtividadesDados", 'String'>
-    readonly proximo_passo_data: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly lembrete_em: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly lembrete_email: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly lembrete_whatsapp: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly notificar_ao_atribuir: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly processo_id: FieldRef<"AtividadesDados", 'String'>
-    readonly created_at: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly updated_at: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly id_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly id_organizacao_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly id_usuario_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly titulo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly descricao_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly tipo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly status_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly prioridade_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly data_atividade_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly data_vencimento_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly tempo_gasto_minutos_atividades_dados: FieldRef<"AtividadesDados", 'Int'>
+    readonly proximo_passo_titulo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly proximo_passo_data_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly lembrete_em_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly lembrete_email_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
+    readonly lembrete_whatsapp_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
+    readonly notificar_ao_atribuir_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
+    readonly id_processo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
+    readonly data_criacao_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+    readonly data_atualizacao_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
   }
     
 
@@ -6220,9 +6220,9 @@ export namespace Prisma {
   }
 
   /**
-   * AtividadesDados.participantes
+   * AtividadesDados.participantes_atividades_dados
    */
-  export type AtividadesDados$participantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadesDados$participantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the AtividadesParticipantes
      */
@@ -6240,9 +6240,9 @@ export namespace Prisma {
   }
 
   /**
-   * AtividadesDados.sessoes_timer
+   * AtividadesDados.sessoes_timer_atividades_dados
    */
-  export type AtividadesDados$sessoes_timerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the AtividadesTempo
      */
@@ -6285,47 +6285,47 @@ export namespace Prisma {
   }
 
   export type AtividadesParticipantesMinAggregateOutputType = {
-    id: string | null
-    atividade_id: string | null
-    user_id: string | null
-    user_nome: string | null
+    id_atividades_participantes: string | null
+    id_atividades_dados_atividades_participantes: string | null
+    id_usuario_atividades_participantes: string | null
+    nome_usuario_atividades_participantes: string | null
   }
 
   export type AtividadesParticipantesMaxAggregateOutputType = {
-    id: string | null
-    atividade_id: string | null
-    user_id: string | null
-    user_nome: string | null
+    id_atividades_participantes: string | null
+    id_atividades_dados_atividades_participantes: string | null
+    id_usuario_atividades_participantes: string | null
+    nome_usuario_atividades_participantes: string | null
   }
 
   export type AtividadesParticipantesCountAggregateOutputType = {
-    id: number
-    atividade_id: number
-    user_id: number
-    user_nome: number
+    id_atividades_participantes: number
+    id_atividades_dados_atividades_participantes: number
+    id_usuario_atividades_participantes: number
+    nome_usuario_atividades_participantes: number
     _all: number
   }
 
 
   export type AtividadesParticipantesMinAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    user_id?: true
-    user_nome?: true
+    id_atividades_participantes?: true
+    id_atividades_dados_atividades_participantes?: true
+    id_usuario_atividades_participantes?: true
+    nome_usuario_atividades_participantes?: true
   }
 
   export type AtividadesParticipantesMaxAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    user_id?: true
-    user_nome?: true
+    id_atividades_participantes?: true
+    id_atividades_dados_atividades_participantes?: true
+    id_usuario_atividades_participantes?: true
+    nome_usuario_atividades_participantes?: true
   }
 
   export type AtividadesParticipantesCountAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    user_id?: true
-    user_nome?: true
+    id_atividades_participantes?: true
+    id_atividades_dados_atividades_participantes?: true
+    id_usuario_atividades_participantes?: true
+    nome_usuario_atividades_participantes?: true
     _all?: true
   }
 
@@ -6402,10 +6402,10 @@ export namespace Prisma {
   }
 
   export type AtividadesParticipantesGroupByOutputType = {
-    id: string
-    atividade_id: string
-    user_id: string
-    user_nome: string | null
+    id_atividades_participantes: string
+    id_atividades_dados_atividades_participantes: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes: string | null
     _count: AtividadesParticipantesCountAggregateOutputType | null
     _min: AtividadesParticipantesMinAggregateOutputType | null
     _max: AtividadesParticipantesMaxAggregateOutputType | null
@@ -6426,45 +6426,45 @@ export namespace Prisma {
 
 
   export type AtividadesParticipantesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    atividade_id?: boolean
-    user_id?: boolean
-    user_nome?: boolean
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    id_atividades_participantes?: boolean
+    id_atividades_dados_atividades_participantes?: boolean
+    id_usuario_atividades_participantes?: boolean
+    nome_usuario_atividades_participantes?: boolean
+    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividadesParticipantes"]>
 
   export type AtividadesParticipantesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    atividade_id?: boolean
-    user_id?: boolean
-    user_nome?: boolean
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    id_atividades_participantes?: boolean
+    id_atividades_dados_atividades_participantes?: boolean
+    id_usuario_atividades_participantes?: boolean
+    nome_usuario_atividades_participantes?: boolean
+    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividadesParticipantes"]>
 
   export type AtividadesParticipantesSelectScalar = {
-    id?: boolean
-    atividade_id?: boolean
-    user_id?: boolean
-    user_nome?: boolean
+    id_atividades_participantes?: boolean
+    id_atividades_dados_atividades_participantes?: boolean
+    id_usuario_atividades_participantes?: boolean
+    nome_usuario_atividades_participantes?: boolean
   }
 
   export type AtividadesParticipantesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }
   export type AtividadesParticipantesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }
 
   export type $AtividadesParticipantesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AtividadesParticipantes"
     objects: {
-      atividade: Prisma.$AtividadesDadosPayload<ExtArgs>
+      atividade_atividades_participantes: Prisma.$AtividadesDadosPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      atividade_id: string
-      user_id: string
-      user_nome: string | null
+      id_atividades_participantes: string
+      id_atividades_dados_atividades_participantes: string
+      id_usuario_atividades_participantes: string
+      nome_usuario_atividades_participantes: string | null
     }, ExtArgs["result"]["atividadesParticipantes"]>
     composites: {}
   }
@@ -6548,8 +6548,8 @@ export namespace Prisma {
      * // Get first 10 AtividadesParticipantes
      * const atividadesParticipantes = await prisma.atividadesParticipantes.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const atividadesParticipantesWithIdOnly = await prisma.atividadesParticipantes.findMany({ select: { id: true } })
+     * // Only select the `id_atividades_participantes`
+     * const atividadesParticipantesWithId_atividades_participantesOnly = await prisma.atividadesParticipantes.findMany({ select: { id_atividades_participantes: true } })
      * 
      */
     findMany<T extends AtividadesParticipantesFindManyArgs>(args?: SelectSubset<T, AtividadesParticipantesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesParticipantesPayload<ExtArgs>, T, "findMany">>
@@ -6593,9 +6593,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AtividadesParticipantes and only return the `id`
-     * const atividadesParticipantesWithIdOnly = await prisma.atividadesParticipantes.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AtividadesParticipantes and only return the `id_atividades_participantes`
+     * const atividadesParticipantesWithId_atividades_participantesOnly = await prisma.atividadesParticipantes.createManyAndReturn({ 
+     *   select: { id_atividades_participantes: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -6829,7 +6829,7 @@ export namespace Prisma {
    */
   export interface Prisma__AtividadesParticipantesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    atividade<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    atividade_atividades_participantes<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6859,10 +6859,10 @@ export namespace Prisma {
    * Fields of the AtividadesParticipantes model
    */ 
   interface AtividadesParticipantesFieldRefs {
-    readonly id: FieldRef<"AtividadesParticipantes", 'String'>
-    readonly atividade_id: FieldRef<"AtividadesParticipantes", 'String'>
-    readonly user_id: FieldRef<"AtividadesParticipantes", 'String'>
-    readonly user_nome: FieldRef<"AtividadesParticipantes", 'String'>
+    readonly id_atividades_participantes: FieldRef<"AtividadesParticipantes", 'String'>
+    readonly id_atividades_dados_atividades_participantes: FieldRef<"AtividadesParticipantes", 'String'>
+    readonly id_usuario_atividades_participantes: FieldRef<"AtividadesParticipantes", 'String'>
+    readonly nome_usuario_atividades_participantes: FieldRef<"AtividadesParticipantes", 'String'>
   }
     
 
@@ -7208,69 +7208,69 @@ export namespace Prisma {
   }
 
   export type AtividadesTempoAvgAggregateOutputType = {
-    duracao_min: number | null
+    duracao_min_atividades_tempo: number | null
   }
 
   export type AtividadesTempoSumAggregateOutputType = {
-    duracao_min: number | null
+    duracao_min_atividades_tempo: number | null
   }
 
   export type AtividadesTempoMinAggregateOutputType = {
-    id: string | null
-    atividade_id: string | null
-    iniciado_em: Date | null
-    duracao_min: number | null
-    assunto: string | null
+    id_atividades_tempo: string | null
+    id_atividades_dados_atividades_tempo: string | null
+    iniciado_em_atividades_tempo: Date | null
+    duracao_min_atividades_tempo: number | null
+    assunto_atividades_tempo: string | null
   }
 
   export type AtividadesTempoMaxAggregateOutputType = {
-    id: string | null
-    atividade_id: string | null
-    iniciado_em: Date | null
-    duracao_min: number | null
-    assunto: string | null
+    id_atividades_tempo: string | null
+    id_atividades_dados_atividades_tempo: string | null
+    iniciado_em_atividades_tempo: Date | null
+    duracao_min_atividades_tempo: number | null
+    assunto_atividades_tempo: string | null
   }
 
   export type AtividadesTempoCountAggregateOutputType = {
-    id: number
-    atividade_id: number
-    iniciado_em: number
-    duracao_min: number
-    assunto: number
+    id_atividades_tempo: number
+    id_atividades_dados_atividades_tempo: number
+    iniciado_em_atividades_tempo: number
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo: number
     _all: number
   }
 
 
   export type AtividadesTempoAvgAggregateInputType = {
-    duracao_min?: true
+    duracao_min_atividades_tempo?: true
   }
 
   export type AtividadesTempoSumAggregateInputType = {
-    duracao_min?: true
+    duracao_min_atividades_tempo?: true
   }
 
   export type AtividadesTempoMinAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    iniciado_em?: true
-    duracao_min?: true
-    assunto?: true
+    id_atividades_tempo?: true
+    id_atividades_dados_atividades_tempo?: true
+    iniciado_em_atividades_tempo?: true
+    duracao_min_atividades_tempo?: true
+    assunto_atividades_tempo?: true
   }
 
   export type AtividadesTempoMaxAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    iniciado_em?: true
-    duracao_min?: true
-    assunto?: true
+    id_atividades_tempo?: true
+    id_atividades_dados_atividades_tempo?: true
+    iniciado_em_atividades_tempo?: true
+    duracao_min_atividades_tempo?: true
+    assunto_atividades_tempo?: true
   }
 
   export type AtividadesTempoCountAggregateInputType = {
-    id?: true
-    atividade_id?: true
-    iniciado_em?: true
-    duracao_min?: true
-    assunto?: true
+    id_atividades_tempo?: true
+    id_atividades_dados_atividades_tempo?: true
+    iniciado_em_atividades_tempo?: true
+    duracao_min_atividades_tempo?: true
+    assunto_atividades_tempo?: true
     _all?: true
   }
 
@@ -7361,11 +7361,11 @@ export namespace Prisma {
   }
 
   export type AtividadesTempoGroupByOutputType = {
-    id: string
-    atividade_id: string
-    iniciado_em: Date
-    duracao_min: number
-    assunto: string | null
+    id_atividades_tempo: string
+    id_atividades_dados_atividades_tempo: string
+    iniciado_em_atividades_tempo: Date
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo: string | null
     _count: AtividadesTempoCountAggregateOutputType | null
     _avg: AtividadesTempoAvgAggregateOutputType | null
     _sum: AtividadesTempoSumAggregateOutputType | null
@@ -7388,49 +7388,49 @@ export namespace Prisma {
 
 
   export type AtividadesTempoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    atividade_id?: boolean
-    iniciado_em?: boolean
-    duracao_min?: boolean
-    assunto?: boolean
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    id_atividades_tempo?: boolean
+    id_atividades_dados_atividades_tempo?: boolean
+    iniciado_em_atividades_tempo?: boolean
+    duracao_min_atividades_tempo?: boolean
+    assunto_atividades_tempo?: boolean
+    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividadesTempo"]>
 
   export type AtividadesTempoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    atividade_id?: boolean
-    iniciado_em?: boolean
-    duracao_min?: boolean
-    assunto?: boolean
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    id_atividades_tempo?: boolean
+    id_atividades_dados_atividades_tempo?: boolean
+    iniciado_em_atividades_tempo?: boolean
+    duracao_min_atividades_tempo?: boolean
+    assunto_atividades_tempo?: boolean
+    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividadesTempo"]>
 
   export type AtividadesTempoSelectScalar = {
-    id?: boolean
-    atividade_id?: boolean
-    iniciado_em?: boolean
-    duracao_min?: boolean
-    assunto?: boolean
+    id_atividades_tempo?: boolean
+    id_atividades_dados_atividades_tempo?: boolean
+    iniciado_em_atividades_tempo?: boolean
+    duracao_min_atividades_tempo?: boolean
+    assunto_atividades_tempo?: boolean
   }
 
   export type AtividadesTempoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }
   export type AtividadesTempoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
   }
 
   export type $AtividadesTempoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AtividadesTempo"
     objects: {
-      atividade: Prisma.$AtividadesDadosPayload<ExtArgs>
+      atividade_atividades_tempo: Prisma.$AtividadesDadosPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      atividade_id: string
-      iniciado_em: Date
-      duracao_min: number
-      assunto: string | null
+      id_atividades_tempo: string
+      id_atividades_dados_atividades_tempo: string
+      iniciado_em_atividades_tempo: Date
+      duracao_min_atividades_tempo: number
+      assunto_atividades_tempo: string | null
     }, ExtArgs["result"]["atividadesTempo"]>
     composites: {}
   }
@@ -7514,8 +7514,8 @@ export namespace Prisma {
      * // Get first 10 AtividadesTempos
      * const atividadesTempos = await prisma.atividadesTempo.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const atividadesTempoWithIdOnly = await prisma.atividadesTempo.findMany({ select: { id: true } })
+     * // Only select the `id_atividades_tempo`
+     * const atividadesTempoWithId_atividades_tempoOnly = await prisma.atividadesTempo.findMany({ select: { id_atividades_tempo: true } })
      * 
      */
     findMany<T extends AtividadesTempoFindManyArgs>(args?: SelectSubset<T, AtividadesTempoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesTempoPayload<ExtArgs>, T, "findMany">>
@@ -7559,9 +7559,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AtividadesTempos and only return the `id`
-     * const atividadesTempoWithIdOnly = await prisma.atividadesTempo.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AtividadesTempos and only return the `id_atividades_tempo`
+     * const atividadesTempoWithId_atividades_tempoOnly = await prisma.atividadesTempo.createManyAndReturn({ 
+     *   select: { id_atividades_tempo: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -7795,7 +7795,7 @@ export namespace Prisma {
    */
   export interface Prisma__AtividadesTempoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    atividade<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    atividade_atividades_tempo<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7825,11 +7825,11 @@ export namespace Prisma {
    * Fields of the AtividadesTempo model
    */ 
   interface AtividadesTempoFieldRefs {
-    readonly id: FieldRef<"AtividadesTempo", 'String'>
-    readonly atividade_id: FieldRef<"AtividadesTempo", 'String'>
-    readonly iniciado_em: FieldRef<"AtividadesTempo", 'DateTime'>
-    readonly duracao_min: FieldRef<"AtividadesTempo", 'Int'>
-    readonly assunto: FieldRef<"AtividadesTempo", 'String'>
+    readonly id_atividades_tempo: FieldRef<"AtividadesTempo", 'String'>
+    readonly id_atividades_dados_atividades_tempo: FieldRef<"AtividadesTempo", 'String'>
+    readonly iniciado_em_atividades_tempo: FieldRef<"AtividadesTempo", 'DateTime'>
+    readonly duracao_min_atividades_tempo: FieldRef<"AtividadesTempo", 'Int'>
+    readonly assunto_atividades_tempo: FieldRef<"AtividadesTempo", 'String'>
   }
     
 
@@ -50282,47 +50282,47 @@ export namespace Prisma {
 
 
   export const AtividadesDadosScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    user_id: 'user_id',
-    titulo: 'titulo',
-    descricao: 'descricao',
-    tipo: 'tipo',
-    status: 'status',
-    prioridade: 'prioridade',
-    data_atividade: 'data_atividade',
-    data_vencimento: 'data_vencimento',
-    tempo_gasto_minutos: 'tempo_gasto_minutos',
-    proximo_passo_titulo: 'proximo_passo_titulo',
-    proximo_passo_data: 'proximo_passo_data',
-    lembrete_em: 'lembrete_em',
-    lembrete_email: 'lembrete_email',
-    lembrete_whatsapp: 'lembrete_whatsapp',
-    notificar_ao_atribuir: 'notificar_ao_atribuir',
-    processo_id: 'processo_id',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_atividades_dados: 'id_atividades_dados',
+    id_organizacao_atividades_dados: 'id_organizacao_atividades_dados',
+    id_usuario_atividades_dados: 'id_usuario_atividades_dados',
+    titulo_atividades_dados: 'titulo_atividades_dados',
+    descricao_atividades_dados: 'descricao_atividades_dados',
+    tipo_atividades_dados: 'tipo_atividades_dados',
+    status_atividades_dados: 'status_atividades_dados',
+    prioridade_atividades_dados: 'prioridade_atividades_dados',
+    data_atividade_atividades_dados: 'data_atividade_atividades_dados',
+    data_vencimento_atividades_dados: 'data_vencimento_atividades_dados',
+    tempo_gasto_minutos_atividades_dados: 'tempo_gasto_minutos_atividades_dados',
+    proximo_passo_titulo_atividades_dados: 'proximo_passo_titulo_atividades_dados',
+    proximo_passo_data_atividades_dados: 'proximo_passo_data_atividades_dados',
+    lembrete_em_atividades_dados: 'lembrete_em_atividades_dados',
+    lembrete_email_atividades_dados: 'lembrete_email_atividades_dados',
+    lembrete_whatsapp_atividades_dados: 'lembrete_whatsapp_atividades_dados',
+    notificar_ao_atribuir_atividades_dados: 'notificar_ao_atribuir_atividades_dados',
+    id_processo_atividades_dados: 'id_processo_atividades_dados',
+    data_criacao_atividades_dados: 'data_criacao_atividades_dados',
+    data_atualizacao_atividades_dados: 'data_atualizacao_atividades_dados'
   };
 
   export type AtividadesDadosScalarFieldEnum = (typeof AtividadesDadosScalarFieldEnum)[keyof typeof AtividadesDadosScalarFieldEnum]
 
 
   export const AtividadesParticipantesScalarFieldEnum: {
-    id: 'id',
-    atividade_id: 'atividade_id',
-    user_id: 'user_id',
-    user_nome: 'user_nome'
+    id_atividades_participantes: 'id_atividades_participantes',
+    id_atividades_dados_atividades_participantes: 'id_atividades_dados_atividades_participantes',
+    id_usuario_atividades_participantes: 'id_usuario_atividades_participantes',
+    nome_usuario_atividades_participantes: 'nome_usuario_atividades_participantes'
   };
 
   export type AtividadesParticipantesScalarFieldEnum = (typeof AtividadesParticipantesScalarFieldEnum)[keyof typeof AtividadesParticipantesScalarFieldEnum]
 
 
   export const AtividadesTempoScalarFieldEnum: {
-    id: 'id',
-    atividade_id: 'atividade_id',
-    iniciado_em: 'iniciado_em',
-    duracao_min: 'duracao_min',
-    assunto: 'assunto'
+    id_atividades_tempo: 'id_atividades_tempo',
+    id_atividades_dados_atividades_tempo: 'id_atividades_dados_atividades_tempo',
+    iniciado_em_atividades_tempo: 'iniciado_em_atividades_tempo',
+    duracao_min_atividades_tempo: 'duracao_min_atividades_tempo',
+    assunto_atividades_tempo: 'assunto_atividades_tempo'
   };
 
   export type AtividadesTempoScalarFieldEnum = (typeof AtividadesTempoScalarFieldEnum)[keyof typeof AtividadesTempoScalarFieldEnum]
@@ -51417,104 +51417,104 @@ export namespace Prisma {
     AND?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
     OR?: AtividadesDadosWhereInput[]
     NOT?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    id?: StringFilter<"AtividadesDados"> | string
-    tenant_id?: StringFilter<"AtividadesDados"> | string
-    user_id?: StringNullableFilter<"AtividadesDados"> | string | null
-    titulo?: StringFilter<"AtividadesDados"> | string
-    descricao?: StringNullableFilter<"AtividadesDados"> | string | null
-    tipo?: StringFilter<"AtividadesDados"> | string
-    status?: StringFilter<"AtividadesDados"> | string
-    prioridade?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_atividade?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos?: IntFilter<"AtividadesDados"> | number
-    proximo_passo_titulo?: StringNullableFilter<"AtividadesDados"> | string | null
-    proximo_passo_data?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email?: BoolFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp?: BoolFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir?: BoolFilter<"AtividadesDados"> | boolean
-    processo_id?: StringNullableFilter<"AtividadesDados"> | string | null
-    created_at?: DateTimeFilter<"AtividadesDados"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesDados"> | Date | string
-    participantes?: AtividadesParticipantesListRelationFilter
-    sessoes_timer?: AtividadesTempoListRelationFilter
+    id_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    id_organizacao_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    id_usuario_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    titulo_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    descricao_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    tipo_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    status_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    prioridade_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadesDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    id_processo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesListRelationFilter
+    sessoes_timer_atividades_dados?: AtividadesTempoListRelationFilter
   }
 
   export type AtividadesDadosOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrderInput | SortOrder
-    data_atividade?: SortOrderInput | SortOrder
-    data_vencimento?: SortOrderInput | SortOrder
-    tempo_gasto_minutos?: SortOrder
-    proximo_passo_titulo?: SortOrderInput | SortOrder
-    proximo_passo_data?: SortOrderInput | SortOrder
-    lembrete_em?: SortOrderInput | SortOrder
-    lembrete_email?: SortOrder
-    lembrete_whatsapp?: SortOrder
-    notificar_ao_atribuir?: SortOrder
-    processo_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    participantes?: AtividadesParticipantesOrderByRelationAggregateInput
-    sessoes_timer?: AtividadesTempoOrderByRelationAggregateInput
+    id_atividades_dados?: SortOrder
+    id_organizacao_atividades_dados?: SortOrder
+    id_usuario_atividades_dados?: SortOrderInput | SortOrder
+    titulo_atividades_dados?: SortOrder
+    descricao_atividades_dados?: SortOrderInput | SortOrder
+    tipo_atividades_dados?: SortOrder
+    status_atividades_dados?: SortOrder
+    prioridade_atividades_dados?: SortOrderInput | SortOrder
+    data_atividade_atividades_dados?: SortOrderInput | SortOrder
+    data_vencimento_atividades_dados?: SortOrderInput | SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
+    proximo_passo_titulo_atividades_dados?: SortOrderInput | SortOrder
+    proximo_passo_data_atividades_dados?: SortOrderInput | SortOrder
+    lembrete_em_atividades_dados?: SortOrderInput | SortOrder
+    lembrete_email_atividades_dados?: SortOrder
+    lembrete_whatsapp_atividades_dados?: SortOrder
+    notificar_ao_atribuir_atividades_dados?: SortOrder
+    id_processo_atividades_dados?: SortOrderInput | SortOrder
+    data_criacao_atividades_dados?: SortOrder
+    data_atualizacao_atividades_dados?: SortOrder
+    participantes_atividades_dados?: AtividadesParticipantesOrderByRelationAggregateInput
+    sessoes_timer_atividades_dados?: AtividadesTempoOrderByRelationAggregateInput
   }
 
   export type AtividadesDadosWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_atividades_dados?: string
     AND?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
     OR?: AtividadesDadosWhereInput[]
     NOT?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    tenant_id?: StringFilter<"AtividadesDados"> | string
-    user_id?: StringNullableFilter<"AtividadesDados"> | string | null
-    titulo?: StringFilter<"AtividadesDados"> | string
-    descricao?: StringNullableFilter<"AtividadesDados"> | string | null
-    tipo?: StringFilter<"AtividadesDados"> | string
-    status?: StringFilter<"AtividadesDados"> | string
-    prioridade?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_atividade?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos?: IntFilter<"AtividadesDados"> | number
-    proximo_passo_titulo?: StringNullableFilter<"AtividadesDados"> | string | null
-    proximo_passo_data?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email?: BoolFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp?: BoolFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir?: BoolFilter<"AtividadesDados"> | boolean
-    processo_id?: StringNullableFilter<"AtividadesDados"> | string | null
-    created_at?: DateTimeFilter<"AtividadesDados"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesDados"> | Date | string
-    participantes?: AtividadesParticipantesListRelationFilter
-    sessoes_timer?: AtividadesTempoListRelationFilter
-  }, "id">
+    id_organizacao_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    id_usuario_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    titulo_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    descricao_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    tipo_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    status_atividades_dados?: StringFilter<"AtividadesDados"> | string
+    prioridade_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadesDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
+    id_processo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesListRelationFilter
+    sessoes_timer_atividades_dados?: AtividadesTempoListRelationFilter
+  }, "id_atividades_dados">
 
   export type AtividadesDadosOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrderInput | SortOrder
-    data_atividade?: SortOrderInput | SortOrder
-    data_vencimento?: SortOrderInput | SortOrder
-    tempo_gasto_minutos?: SortOrder
-    proximo_passo_titulo?: SortOrderInput | SortOrder
-    proximo_passo_data?: SortOrderInput | SortOrder
-    lembrete_em?: SortOrderInput | SortOrder
-    lembrete_email?: SortOrder
-    lembrete_whatsapp?: SortOrder
-    notificar_ao_atribuir?: SortOrder
-    processo_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_dados?: SortOrder
+    id_organizacao_atividades_dados?: SortOrder
+    id_usuario_atividades_dados?: SortOrderInput | SortOrder
+    titulo_atividades_dados?: SortOrder
+    descricao_atividades_dados?: SortOrderInput | SortOrder
+    tipo_atividades_dados?: SortOrder
+    status_atividades_dados?: SortOrder
+    prioridade_atividades_dados?: SortOrderInput | SortOrder
+    data_atividade_atividades_dados?: SortOrderInput | SortOrder
+    data_vencimento_atividades_dados?: SortOrderInput | SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
+    proximo_passo_titulo_atividades_dados?: SortOrderInput | SortOrder
+    proximo_passo_data_atividades_dados?: SortOrderInput | SortOrder
+    lembrete_em_atividades_dados?: SortOrderInput | SortOrder
+    lembrete_email_atividades_dados?: SortOrder
+    lembrete_whatsapp_atividades_dados?: SortOrder
+    notificar_ao_atribuir_atividades_dados?: SortOrder
+    id_processo_atividades_dados?: SortOrderInput | SortOrder
+    data_criacao_atividades_dados?: SortOrder
+    data_atualizacao_atividades_dados?: SortOrder
     _count?: AtividadesDadosCountOrderByAggregateInput
     _avg?: AtividadesDadosAvgOrderByAggregateInput
     _max?: AtividadesDadosMaxOrderByAggregateInput
@@ -51526,64 +51526,64 @@ export namespace Prisma {
     AND?: AtividadesDadosScalarWhereWithAggregatesInput | AtividadesDadosScalarWhereWithAggregatesInput[]
     OR?: AtividadesDadosScalarWhereWithAggregatesInput[]
     NOT?: AtividadesDadosScalarWhereWithAggregatesInput | AtividadesDadosScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    tenant_id?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    user_id?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    titulo?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    descricao?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    tipo?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    status?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    prioridade?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    data_atividade?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos?: IntWithAggregatesFilter<"AtividadesDados"> | number
-    proximo_passo_titulo?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    proximo_passo_data?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    processo_id?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
+    id_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
+    id_organizacao_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
+    id_usuario_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
+    titulo_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
+    descricao_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
+    tipo_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
+    status_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
+    prioridade_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntWithAggregatesFilter<"AtividadesDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
+    id_processo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
   }
 
   export type AtividadesParticipantesWhereInput = {
     AND?: AtividadesParticipantesWhereInput | AtividadesParticipantesWhereInput[]
     OR?: AtividadesParticipantesWhereInput[]
     NOT?: AtividadesParticipantesWhereInput | AtividadesParticipantesWhereInput[]
-    id?: StringFilter<"AtividadesParticipantes"> | string
-    atividade_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_nome?: StringNullableFilter<"AtividadesParticipantes"> | string | null
-    atividade?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    id_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    id_atividades_dados_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    id_usuario_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    nome_usuario_atividades_participantes?: StringNullableFilter<"AtividadesParticipantes"> | string | null
+    atividade_atividades_participantes?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
   }
 
   export type AtividadesParticipantesOrderByWithRelationInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    user_id?: SortOrder
-    user_nome?: SortOrderInput | SortOrder
-    atividade?: AtividadesDadosOrderByWithRelationInput
+    id_atividades_participantes?: SortOrder
+    id_atividades_dados_atividades_participantes?: SortOrder
+    id_usuario_atividades_participantes?: SortOrder
+    nome_usuario_atividades_participantes?: SortOrderInput | SortOrder
+    atividade_atividades_participantes?: AtividadesDadosOrderByWithRelationInput
   }
 
   export type AtividadesParticipantesWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    atividade_id_user_id?: AtividadesParticipantesAtividade_idUser_idCompoundUniqueInput
+    id_atividades_participantes?: string
+    id_atividades_dados_atividades_participantes_id_usuario_atividades_participantes?: AtividadesParticipantesId_atividades_dados_atividades_participantesId_usuario_atividades_participantesCompoundUniqueInput
     AND?: AtividadesParticipantesWhereInput | AtividadesParticipantesWhereInput[]
     OR?: AtividadesParticipantesWhereInput[]
     NOT?: AtividadesParticipantesWhereInput | AtividadesParticipantesWhereInput[]
-    atividade_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_nome?: StringNullableFilter<"AtividadesParticipantes"> | string | null
-    atividade?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
-  }, "id" | "atividade_id_user_id">
+    id_atividades_dados_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    id_usuario_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    nome_usuario_atividades_participantes?: StringNullableFilter<"AtividadesParticipantes"> | string | null
+    atividade_atividades_participantes?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+  }, "id_atividades_participantes" | "id_atividades_dados_atividades_participantes_id_usuario_atividades_participantes">
 
   export type AtividadesParticipantesOrderByWithAggregationInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    user_id?: SortOrder
-    user_nome?: SortOrderInput | SortOrder
+    id_atividades_participantes?: SortOrder
+    id_atividades_dados_atividades_participantes?: SortOrder
+    id_usuario_atividades_participantes?: SortOrder
+    nome_usuario_atividades_participantes?: SortOrderInput | SortOrder
     _count?: AtividadesParticipantesCountOrderByAggregateInput
     _max?: AtividadesParticipantesMaxOrderByAggregateInput
     _min?: AtividadesParticipantesMinOrderByAggregateInput
@@ -51593,51 +51593,51 @@ export namespace Prisma {
     AND?: AtividadesParticipantesScalarWhereWithAggregatesInput | AtividadesParticipantesScalarWhereWithAggregatesInput[]
     OR?: AtividadesParticipantesScalarWhereWithAggregatesInput[]
     NOT?: AtividadesParticipantesScalarWhereWithAggregatesInput | AtividadesParticipantesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
-    atividade_id?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
-    user_id?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
-    user_nome?: StringNullableWithAggregatesFilter<"AtividadesParticipantes"> | string | null
+    id_atividades_participantes?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
+    id_atividades_dados_atividades_participantes?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
+    id_usuario_atividades_participantes?: StringWithAggregatesFilter<"AtividadesParticipantes"> | string
+    nome_usuario_atividades_participantes?: StringNullableWithAggregatesFilter<"AtividadesParticipantes"> | string | null
   }
 
   export type AtividadesTempoWhereInput = {
     AND?: AtividadesTempoWhereInput | AtividadesTempoWhereInput[]
     OR?: AtividadesTempoWhereInput[]
     NOT?: AtividadesTempoWhereInput | AtividadesTempoWhereInput[]
-    id?: StringFilter<"AtividadesTempo"> | string
-    atividade_id?: StringFilter<"AtividadesTempo"> | string
-    iniciado_em?: DateTimeFilter<"AtividadesTempo"> | Date | string
-    duracao_min?: IntFilter<"AtividadesTempo"> | number
-    assunto?: StringNullableFilter<"AtividadesTempo"> | string | null
-    atividade?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    id_atividades_tempo?: StringFilter<"AtividadesTempo"> | string
+    id_atividades_dados_atividades_tempo?: StringFilter<"AtividadesTempo"> | string
+    iniciado_em_atividades_tempo?: DateTimeFilter<"AtividadesTempo"> | Date | string
+    duracao_min_atividades_tempo?: IntFilter<"AtividadesTempo"> | number
+    assunto_atividades_tempo?: StringNullableFilter<"AtividadesTempo"> | string | null
+    atividade_atividades_tempo?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
   }
 
   export type AtividadesTempoOrderByWithRelationInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    iniciado_em?: SortOrder
-    duracao_min?: SortOrder
-    assunto?: SortOrderInput | SortOrder
-    atividade?: AtividadesDadosOrderByWithRelationInput
+    id_atividades_tempo?: SortOrder
+    id_atividades_dados_atividades_tempo?: SortOrder
+    iniciado_em_atividades_tempo?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
+    assunto_atividades_tempo?: SortOrderInput | SortOrder
+    atividade_atividades_tempo?: AtividadesDadosOrderByWithRelationInput
   }
 
   export type AtividadesTempoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_atividades_tempo?: string
     AND?: AtividadesTempoWhereInput | AtividadesTempoWhereInput[]
     OR?: AtividadesTempoWhereInput[]
     NOT?: AtividadesTempoWhereInput | AtividadesTempoWhereInput[]
-    atividade_id?: StringFilter<"AtividadesTempo"> | string
-    iniciado_em?: DateTimeFilter<"AtividadesTempo"> | Date | string
-    duracao_min?: IntFilter<"AtividadesTempo"> | number
-    assunto?: StringNullableFilter<"AtividadesTempo"> | string | null
-    atividade?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
-  }, "id">
+    id_atividades_dados_atividades_tempo?: StringFilter<"AtividadesTempo"> | string
+    iniciado_em_atividades_tempo?: DateTimeFilter<"AtividadesTempo"> | Date | string
+    duracao_min_atividades_tempo?: IntFilter<"AtividadesTempo"> | number
+    assunto_atividades_tempo?: StringNullableFilter<"AtividadesTempo"> | string | null
+    atividade_atividades_tempo?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+  }, "id_atividades_tempo">
 
   export type AtividadesTempoOrderByWithAggregationInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    iniciado_em?: SortOrder
-    duracao_min?: SortOrder
-    assunto?: SortOrderInput | SortOrder
+    id_atividades_tempo?: SortOrder
+    id_atividades_dados_atividades_tempo?: SortOrder
+    iniciado_em_atividades_tempo?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
+    assunto_atividades_tempo?: SortOrderInput | SortOrder
     _count?: AtividadesTempoCountOrderByAggregateInput
     _avg?: AtividadesTempoAvgOrderByAggregateInput
     _max?: AtividadesTempoMaxOrderByAggregateInput
@@ -51649,11 +51649,11 @@ export namespace Prisma {
     AND?: AtividadesTempoScalarWhereWithAggregatesInput | AtividadesTempoScalarWhereWithAggregatesInput[]
     OR?: AtividadesTempoScalarWhereWithAggregatesInput[]
     NOT?: AtividadesTempoScalarWhereWithAggregatesInput | AtividadesTempoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AtividadesTempo"> | string
-    atividade_id?: StringWithAggregatesFilter<"AtividadesTempo"> | string
-    iniciado_em?: DateTimeWithAggregatesFilter<"AtividadesTempo"> | Date | string
-    duracao_min?: IntWithAggregatesFilter<"AtividadesTempo"> | number
-    assunto?: StringNullableWithAggregatesFilter<"AtividadesTempo"> | string | null
+    id_atividades_tempo?: StringWithAggregatesFilter<"AtividadesTempo"> | string
+    id_atividades_dados_atividades_tempo?: StringWithAggregatesFilter<"AtividadesTempo"> | string
+    iniciado_em_atividades_tempo?: DateTimeWithAggregatesFilter<"AtividadesTempo"> | Date | string
+    duracao_min_atividades_tempo?: IntWithAggregatesFilter<"AtividadesTempo"> | number
+    assunto_atividades_tempo?: StringNullableWithAggregatesFilter<"AtividadesTempo"> | string | null
   }
 
   export type AtividadesCronometroWhereInput = {
@@ -55448,275 +55448,275 @@ export namespace Prisma {
   }
 
   export type AtividadesDadosCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    participantes?: AtividadesParticipantesCreateNestedManyWithoutAtividadeInput
-    sessoes_timer?: AtividadesTempoCreateNestedManyWithoutAtividadeInput
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    participantes_atividades_dados?: AtividadesParticipantesCreateNestedManyWithoutAtividade_atividades_participantesInput
+    sessoes_timer_atividades_dados?: AtividadesTempoCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
   export type AtividadesDadosUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    participantes?: AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividadeInput
-    sessoes_timer?: AtividadesTempoUncheckedCreateNestedManyWithoutAtividadeInput
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividade_atividades_participantesInput
+    sessoes_timer_atividades_dados?: AtividadesTempoUncheckedCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
   export type AtividadesDadosUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    participantes?: AtividadesParticipantesUpdateManyWithoutAtividadeNestedInput
-    sessoes_timer?: AtividadesTempoUpdateManyWithoutAtividadeNestedInput
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUpdateManyWithoutAtividade_atividades_participantesNestedInput
+    sessoes_timer_atividades_dados?: AtividadesTempoUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
   export type AtividadesDadosUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    participantes?: AtividadesParticipantesUncheckedUpdateManyWithoutAtividadeNestedInput
-    sessoes_timer?: AtividadesTempoUncheckedUpdateManyWithoutAtividadeNestedInput
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesNestedInput
+    sessoes_timer_atividades_dados?: AtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
   export type AtividadesDadosCreateManyInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
   }
 
   export type AtividadesDadosUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesDadosUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesParticipantesCreateInput = {
-    id?: string
-    user_id: string
-    user_nome?: string | null
-    atividade: AtividadesDadosCreateNestedOneWithoutParticipantesInput
+    id_atividades_participantes?: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
+    atividade_atividades_participantes: AtividadesDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput
   }
 
   export type AtividadesParticipantesUncheckedCreateInput = {
-    id?: string
-    atividade_id: string
-    user_id: string
-    user_nome?: string | null
+    id_atividades_participantes?: string
+    id_atividades_dados_atividades_participantes: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
   }
 
   export type AtividadesParticipantesUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    atividade?: AtividadesDadosUpdateOneRequiredWithoutParticipantesNestedInput
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
+    atividade_atividades_participantes?: AtividadesDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput
   }
 
   export type AtividadesParticipantesUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    atividade_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_atividades_dados_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesParticipantesCreateManyInput = {
-    id?: string
-    atividade_id: string
-    user_id: string
-    user_nome?: string | null
+    id_atividades_participantes?: string
+    id_atividades_dados_atividades_participantes: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
   }
 
   export type AtividadesParticipantesUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesParticipantesUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    atividade_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_atividades_dados_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesTempoCreateInput = {
-    id?: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
-    atividade: AtividadesDadosCreateNestedOneWithoutSessoes_timerInput
+    id_atividades_tempo?: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
+    atividade_atividades_tempo: AtividadesDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput
   }
 
   export type AtividadesTempoUncheckedCreateInput = {
-    id?: string
-    atividade_id: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
+    id_atividades_tempo?: string
+    id_atividades_dados_atividades_tempo: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
   }
 
   export type AtividadesTempoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
-    atividade?: AtividadesDadosUpdateOneRequiredWithoutSessoes_timerNestedInput
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
+    atividade_atividades_tempo?: AtividadesDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput
   }
 
   export type AtividadesTempoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    atividade_id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    id_atividades_dados_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesTempoCreateManyInput = {
-    id?: string
-    atividade_id: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
+    id_atividades_tempo?: string
+    id_atividades_dados_atividades_tempo: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
   }
 
   export type AtividadesTempoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesTempoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    atividade_id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    id_atividades_dados_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AtividadesCronometroCreateInput = {
@@ -60302,80 +60302,80 @@ export namespace Prisma {
   }
 
   export type AtividadesDadosCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_atividade?: SortOrder
-    data_vencimento?: SortOrder
-    tempo_gasto_minutos?: SortOrder
-    proximo_passo_titulo?: SortOrder
-    proximo_passo_data?: SortOrder
-    lembrete_em?: SortOrder
-    lembrete_email?: SortOrder
-    lembrete_whatsapp?: SortOrder
-    notificar_ao_atribuir?: SortOrder
-    processo_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_dados?: SortOrder
+    id_organizacao_atividades_dados?: SortOrder
+    id_usuario_atividades_dados?: SortOrder
+    titulo_atividades_dados?: SortOrder
+    descricao_atividades_dados?: SortOrder
+    tipo_atividades_dados?: SortOrder
+    status_atividades_dados?: SortOrder
+    prioridade_atividades_dados?: SortOrder
+    data_atividade_atividades_dados?: SortOrder
+    data_vencimento_atividades_dados?: SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
+    proximo_passo_titulo_atividades_dados?: SortOrder
+    proximo_passo_data_atividades_dados?: SortOrder
+    lembrete_em_atividades_dados?: SortOrder
+    lembrete_email_atividades_dados?: SortOrder
+    lembrete_whatsapp_atividades_dados?: SortOrder
+    notificar_ao_atribuir_atividades_dados?: SortOrder
+    id_processo_atividades_dados?: SortOrder
+    data_criacao_atividades_dados?: SortOrder
+    data_atualizacao_atividades_dados?: SortOrder
   }
 
   export type AtividadesDadosAvgOrderByAggregateInput = {
-    tempo_gasto_minutos?: SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
   }
 
   export type AtividadesDadosMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_atividade?: SortOrder
-    data_vencimento?: SortOrder
-    tempo_gasto_minutos?: SortOrder
-    proximo_passo_titulo?: SortOrder
-    proximo_passo_data?: SortOrder
-    lembrete_em?: SortOrder
-    lembrete_email?: SortOrder
-    lembrete_whatsapp?: SortOrder
-    notificar_ao_atribuir?: SortOrder
-    processo_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_dados?: SortOrder
+    id_organizacao_atividades_dados?: SortOrder
+    id_usuario_atividades_dados?: SortOrder
+    titulo_atividades_dados?: SortOrder
+    descricao_atividades_dados?: SortOrder
+    tipo_atividades_dados?: SortOrder
+    status_atividades_dados?: SortOrder
+    prioridade_atividades_dados?: SortOrder
+    data_atividade_atividades_dados?: SortOrder
+    data_vencimento_atividades_dados?: SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
+    proximo_passo_titulo_atividades_dados?: SortOrder
+    proximo_passo_data_atividades_dados?: SortOrder
+    lembrete_em_atividades_dados?: SortOrder
+    lembrete_email_atividades_dados?: SortOrder
+    lembrete_whatsapp_atividades_dados?: SortOrder
+    notificar_ao_atribuir_atividades_dados?: SortOrder
+    id_processo_atividades_dados?: SortOrder
+    data_criacao_atividades_dados?: SortOrder
+    data_atualizacao_atividades_dados?: SortOrder
   }
 
   export type AtividadesDadosMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_atividade?: SortOrder
-    data_vencimento?: SortOrder
-    tempo_gasto_minutos?: SortOrder
-    proximo_passo_titulo?: SortOrder
-    proximo_passo_data?: SortOrder
-    lembrete_em?: SortOrder
-    lembrete_email?: SortOrder
-    lembrete_whatsapp?: SortOrder
-    notificar_ao_atribuir?: SortOrder
-    processo_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_dados?: SortOrder
+    id_organizacao_atividades_dados?: SortOrder
+    id_usuario_atividades_dados?: SortOrder
+    titulo_atividades_dados?: SortOrder
+    descricao_atividades_dados?: SortOrder
+    tipo_atividades_dados?: SortOrder
+    status_atividades_dados?: SortOrder
+    prioridade_atividades_dados?: SortOrder
+    data_atividade_atividades_dados?: SortOrder
+    data_vencimento_atividades_dados?: SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
+    proximo_passo_titulo_atividades_dados?: SortOrder
+    proximo_passo_data_atividades_dados?: SortOrder
+    lembrete_em_atividades_dados?: SortOrder
+    lembrete_email_atividades_dados?: SortOrder
+    lembrete_whatsapp_atividades_dados?: SortOrder
+    notificar_ao_atribuir_atividades_dados?: SortOrder
+    id_processo_atividades_dados?: SortOrder
+    data_criacao_atividades_dados?: SortOrder
+    data_atualizacao_atividades_dados?: SortOrder
   }
 
   export type AtividadesDadosSumOrderByAggregateInput = {
-    tempo_gasto_minutos?: SortOrder
+    tempo_gasto_minutos_atividades_dados?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -60471,62 +60471,62 @@ export namespace Prisma {
     isNot?: AtividadesDadosWhereInput
   }
 
-  export type AtividadesParticipantesAtividade_idUser_idCompoundUniqueInput = {
-    atividade_id: string
-    user_id: string
+  export type AtividadesParticipantesId_atividades_dados_atividades_participantesId_usuario_atividades_participantesCompoundUniqueInput = {
+    id_atividades_dados_atividades_participantes: string
+    id_usuario_atividades_participantes: string
   }
 
   export type AtividadesParticipantesCountOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    user_id?: SortOrder
-    user_nome?: SortOrder
+    id_atividades_participantes?: SortOrder
+    id_atividades_dados_atividades_participantes?: SortOrder
+    id_usuario_atividades_participantes?: SortOrder
+    nome_usuario_atividades_participantes?: SortOrder
   }
 
   export type AtividadesParticipantesMaxOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    user_id?: SortOrder
-    user_nome?: SortOrder
+    id_atividades_participantes?: SortOrder
+    id_atividades_dados_atividades_participantes?: SortOrder
+    id_usuario_atividades_participantes?: SortOrder
+    nome_usuario_atividades_participantes?: SortOrder
   }
 
   export type AtividadesParticipantesMinOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    user_id?: SortOrder
-    user_nome?: SortOrder
+    id_atividades_participantes?: SortOrder
+    id_atividades_dados_atividades_participantes?: SortOrder
+    id_usuario_atividades_participantes?: SortOrder
+    nome_usuario_atividades_participantes?: SortOrder
   }
 
   export type AtividadesTempoCountOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    iniciado_em?: SortOrder
-    duracao_min?: SortOrder
-    assunto?: SortOrder
+    id_atividades_tempo?: SortOrder
+    id_atividades_dados_atividades_tempo?: SortOrder
+    iniciado_em_atividades_tempo?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
+    assunto_atividades_tempo?: SortOrder
   }
 
   export type AtividadesTempoAvgOrderByAggregateInput = {
-    duracao_min?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
   }
 
   export type AtividadesTempoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    iniciado_em?: SortOrder
-    duracao_min?: SortOrder
-    assunto?: SortOrder
+    id_atividades_tempo?: SortOrder
+    id_atividades_dados_atividades_tempo?: SortOrder
+    iniciado_em_atividades_tempo?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
+    assunto_atividades_tempo?: SortOrder
   }
 
   export type AtividadesTempoMinOrderByAggregateInput = {
-    id?: SortOrder
-    atividade_id?: SortOrder
-    iniciado_em?: SortOrder
-    duracao_min?: SortOrder
-    assunto?: SortOrder
+    id_atividades_tempo?: SortOrder
+    id_atividades_dados_atividades_tempo?: SortOrder
+    iniciado_em_atividades_tempo?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
+    assunto_atividades_tempo?: SortOrder
   }
 
   export type AtividadesTempoSumOrderByAggregateInput = {
-    duracao_min?: SortOrder
+    duracao_min_atividades_tempo?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -63195,31 +63195,31 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type AtividadesParticipantesCreateNestedManyWithoutAtividadeInput = {
-    create?: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput> | AtividadesParticipantesCreateWithoutAtividadeInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividadeInput | AtividadesParticipantesCreateOrConnectWithoutAtividadeInput[]
-    createMany?: AtividadesParticipantesCreateManyAtividadeInputEnvelope
+  export type AtividadesParticipantesCreateNestedManyWithoutAtividade_atividades_participantesInput = {
+    create?: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput> | AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
+    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput | AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
+    createMany?: AtividadesParticipantesCreateManyAtividade_atividades_participantesInputEnvelope
     connect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
   }
 
-  export type AtividadesTempoCreateNestedManyWithoutAtividadeInput = {
-    create?: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput> | AtividadesTempoCreateWithoutAtividadeInput[] | AtividadesTempoUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividadeInput | AtividadesTempoCreateOrConnectWithoutAtividadeInput[]
-    createMany?: AtividadesTempoCreateManyAtividadeInputEnvelope
+  export type AtividadesTempoCreateNestedManyWithoutAtividade_atividades_tempoInput = {
+    create?: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput> | AtividadesTempoCreateWithoutAtividade_atividades_tempoInput[] | AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput[]
+    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput | AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput[]
+    createMany?: AtividadesTempoCreateManyAtividade_atividades_tempoInputEnvelope
     connect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
   }
 
-  export type AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividadeInput = {
-    create?: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput> | AtividadesParticipantesCreateWithoutAtividadeInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividadeInput | AtividadesParticipantesCreateOrConnectWithoutAtividadeInput[]
-    createMany?: AtividadesParticipantesCreateManyAtividadeInputEnvelope
+  export type AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividade_atividades_participantesInput = {
+    create?: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput> | AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
+    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput | AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
+    createMany?: AtividadesParticipantesCreateManyAtividade_atividades_participantesInputEnvelope
     connect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
   }
 
-  export type AtividadesTempoUncheckedCreateNestedManyWithoutAtividadeInput = {
-    create?: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput> | AtividadesTempoCreateWithoutAtividadeInput[] | AtividadesTempoUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividadeInput | AtividadesTempoCreateOrConnectWithoutAtividadeInput[]
-    createMany?: AtividadesTempoCreateManyAtividadeInputEnvelope
+  export type AtividadesTempoUncheckedCreateNestedManyWithoutAtividade_atividades_tempoInput = {
+    create?: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput> | AtividadesTempoCreateWithoutAtividade_atividades_tempoInput[] | AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput[]
+    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput | AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput[]
+    createMany?: AtividadesTempoCreateManyAtividade_atividades_tempoInputEnvelope
     connect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
   }
 
@@ -63251,88 +63251,88 @@ export namespace Prisma {
     set?: Date | string
   }
 
-  export type AtividadesParticipantesUpdateManyWithoutAtividadeNestedInput = {
-    create?: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput> | AtividadesParticipantesCreateWithoutAtividadeInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividadeInput | AtividadesParticipantesCreateOrConnectWithoutAtividadeInput[]
-    upsert?: AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividadeInput | AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividadeInput[]
-    createMany?: AtividadesParticipantesCreateManyAtividadeInputEnvelope
+  export type AtividadesParticipantesUpdateManyWithoutAtividade_atividades_participantesNestedInput = {
+    create?: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput> | AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
+    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput | AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
+    upsert?: AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividade_atividades_participantesInput[]
+    createMany?: AtividadesParticipantesCreateManyAtividade_atividades_participantesInputEnvelope
     set?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     disconnect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     delete?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     connect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
-    update?: AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividadeInput | AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividadeInput[]
-    updateMany?: AtividadesParticipantesUpdateManyWithWhereWithoutAtividadeInput | AtividadesParticipantesUpdateManyWithWhereWithoutAtividadeInput[]
+    update?: AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividade_atividades_participantesInput[]
+    updateMany?: AtividadesParticipantesUpdateManyWithWhereWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpdateManyWithWhereWithoutAtividade_atividades_participantesInput[]
     deleteMany?: AtividadesParticipantesScalarWhereInput | AtividadesParticipantesScalarWhereInput[]
   }
 
-  export type AtividadesTempoUpdateManyWithoutAtividadeNestedInput = {
-    create?: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput> | AtividadesTempoCreateWithoutAtividadeInput[] | AtividadesTempoUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividadeInput | AtividadesTempoCreateOrConnectWithoutAtividadeInput[]
-    upsert?: AtividadesTempoUpsertWithWhereUniqueWithoutAtividadeInput | AtividadesTempoUpsertWithWhereUniqueWithoutAtividadeInput[]
-    createMany?: AtividadesTempoCreateManyAtividadeInputEnvelope
+  export type AtividadesTempoUpdateManyWithoutAtividade_atividades_tempoNestedInput = {
+    create?: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput> | AtividadesTempoCreateWithoutAtividade_atividades_tempoInput[] | AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput[]
+    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput | AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput[]
+    upsert?: AtividadesTempoUpsertWithWhereUniqueWithoutAtividade_atividades_tempoInput | AtividadesTempoUpsertWithWhereUniqueWithoutAtividade_atividades_tempoInput[]
+    createMany?: AtividadesTempoCreateManyAtividade_atividades_tempoInputEnvelope
     set?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     disconnect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     delete?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     connect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
-    update?: AtividadesTempoUpdateWithWhereUniqueWithoutAtividadeInput | AtividadesTempoUpdateWithWhereUniqueWithoutAtividadeInput[]
-    updateMany?: AtividadesTempoUpdateManyWithWhereWithoutAtividadeInput | AtividadesTempoUpdateManyWithWhereWithoutAtividadeInput[]
+    update?: AtividadesTempoUpdateWithWhereUniqueWithoutAtividade_atividades_tempoInput | AtividadesTempoUpdateWithWhereUniqueWithoutAtividade_atividades_tempoInput[]
+    updateMany?: AtividadesTempoUpdateManyWithWhereWithoutAtividade_atividades_tempoInput | AtividadesTempoUpdateManyWithWhereWithoutAtividade_atividades_tempoInput[]
     deleteMany?: AtividadesTempoScalarWhereInput | AtividadesTempoScalarWhereInput[]
   }
 
-  export type AtividadesParticipantesUncheckedUpdateManyWithoutAtividadeNestedInput = {
-    create?: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput> | AtividadesParticipantesCreateWithoutAtividadeInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividadeInput | AtividadesParticipantesCreateOrConnectWithoutAtividadeInput[]
-    upsert?: AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividadeInput | AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividadeInput[]
-    createMany?: AtividadesParticipantesCreateManyAtividadeInputEnvelope
+  export type AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesNestedInput = {
+    create?: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput> | AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput[] | AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput[]
+    connectOrCreate?: AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput | AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput[]
+    upsert?: AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividade_atividades_participantesInput[]
+    createMany?: AtividadesParticipantesCreateManyAtividade_atividades_participantesInputEnvelope
     set?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     disconnect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     delete?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
     connect?: AtividadesParticipantesWhereUniqueInput | AtividadesParticipantesWhereUniqueInput[]
-    update?: AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividadeInput | AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividadeInput[]
-    updateMany?: AtividadesParticipantesUpdateManyWithWhereWithoutAtividadeInput | AtividadesParticipantesUpdateManyWithWhereWithoutAtividadeInput[]
+    update?: AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividade_atividades_participantesInput[]
+    updateMany?: AtividadesParticipantesUpdateManyWithWhereWithoutAtividade_atividades_participantesInput | AtividadesParticipantesUpdateManyWithWhereWithoutAtividade_atividades_participantesInput[]
     deleteMany?: AtividadesParticipantesScalarWhereInput | AtividadesParticipantesScalarWhereInput[]
   }
 
-  export type AtividadesTempoUncheckedUpdateManyWithoutAtividadeNestedInput = {
-    create?: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput> | AtividadesTempoCreateWithoutAtividadeInput[] | AtividadesTempoUncheckedCreateWithoutAtividadeInput[]
-    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividadeInput | AtividadesTempoCreateOrConnectWithoutAtividadeInput[]
-    upsert?: AtividadesTempoUpsertWithWhereUniqueWithoutAtividadeInput | AtividadesTempoUpsertWithWhereUniqueWithoutAtividadeInput[]
-    createMany?: AtividadesTempoCreateManyAtividadeInputEnvelope
+  export type AtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoNestedInput = {
+    create?: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput> | AtividadesTempoCreateWithoutAtividade_atividades_tempoInput[] | AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput[]
+    connectOrCreate?: AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput | AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput[]
+    upsert?: AtividadesTempoUpsertWithWhereUniqueWithoutAtividade_atividades_tempoInput | AtividadesTempoUpsertWithWhereUniqueWithoutAtividade_atividades_tempoInput[]
+    createMany?: AtividadesTempoCreateManyAtividade_atividades_tempoInputEnvelope
     set?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     disconnect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     delete?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
     connect?: AtividadesTempoWhereUniqueInput | AtividadesTempoWhereUniqueInput[]
-    update?: AtividadesTempoUpdateWithWhereUniqueWithoutAtividadeInput | AtividadesTempoUpdateWithWhereUniqueWithoutAtividadeInput[]
-    updateMany?: AtividadesTempoUpdateManyWithWhereWithoutAtividadeInput | AtividadesTempoUpdateManyWithWhereWithoutAtividadeInput[]
+    update?: AtividadesTempoUpdateWithWhereUniqueWithoutAtividade_atividades_tempoInput | AtividadesTempoUpdateWithWhereUniqueWithoutAtividade_atividades_tempoInput[]
+    updateMany?: AtividadesTempoUpdateManyWithWhereWithoutAtividade_atividades_tempoInput | AtividadesTempoUpdateManyWithWhereWithoutAtividade_atividades_tempoInput[]
     deleteMany?: AtividadesTempoScalarWhereInput | AtividadesTempoScalarWhereInput[]
   }
 
-  export type AtividadesDadosCreateNestedOneWithoutParticipantesInput = {
-    create?: XOR<AtividadesDadosCreateWithoutParticipantesInput, AtividadesDadosUncheckedCreateWithoutParticipantesInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantesInput
+  export type AtividadesDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput = {
+    create?: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
     connect?: AtividadesDadosWhereUniqueInput
   }
 
-  export type AtividadesDadosUpdateOneRequiredWithoutParticipantesNestedInput = {
-    create?: XOR<AtividadesDadosCreateWithoutParticipantesInput, AtividadesDadosUncheckedCreateWithoutParticipantesInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantesInput
-    upsert?: AtividadesDadosUpsertWithoutParticipantesInput
+  export type AtividadesDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput = {
+    create?: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
+    upsert?: AtividadesDadosUpsertWithoutParticipantes_atividades_dadosInput
     connect?: AtividadesDadosWhereUniqueInput
-    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutParticipantesInput, AtividadesDadosUpdateWithoutParticipantesInput>, AtividadesDadosUncheckedUpdateWithoutParticipantesInput>
+    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput, AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput>, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosCreateNestedOneWithoutSessoes_timerInput = {
-    create?: XOR<AtividadesDadosCreateWithoutSessoes_timerInput, AtividadesDadosUncheckedCreateWithoutSessoes_timerInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timerInput
+  export type AtividadesDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput = {
+    create?: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
     connect?: AtividadesDadosWhereUniqueInput
   }
 
-  export type AtividadesDadosUpdateOneRequiredWithoutSessoes_timerNestedInput = {
-    create?: XOR<AtividadesDadosCreateWithoutSessoes_timerInput, AtividadesDadosUncheckedCreateWithoutSessoes_timerInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timerInput
-    upsert?: AtividadesDadosUpsertWithoutSessoes_timerInput
+  export type AtividadesDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput = {
+    create?: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
+    upsert?: AtividadesDadosUpsertWithoutSessoes_timer_atividades_dadosInput
     connect?: AtividadesDadosWhereUniqueInput
-    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timerInput, AtividadesDadosUpdateWithoutSessoes_timerInput>, AtividadesDadosUncheckedUpdateWithoutSessoes_timerInput>
+    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput>, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -64599,327 +64599,327 @@ export namespace Prisma {
     _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
   }
 
-  export type AtividadesParticipantesCreateWithoutAtividadeInput = {
-    id?: string
-    user_id: string
-    user_nome?: string | null
+  export type AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
   }
 
-  export type AtividadesParticipantesUncheckedCreateWithoutAtividadeInput = {
-    id?: string
-    user_id: string
-    user_nome?: string | null
+  export type AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
   }
 
-  export type AtividadesParticipantesCreateOrConnectWithoutAtividadeInput = {
+  export type AtividadesParticipantesCreateOrConnectWithoutAtividade_atividades_participantesInput = {
     where: AtividadesParticipantesWhereUniqueInput
-    create: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput>
+    create: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput>
   }
 
-  export type AtividadesParticipantesCreateManyAtividadeInputEnvelope = {
-    data: AtividadesParticipantesCreateManyAtividadeInput | AtividadesParticipantesCreateManyAtividadeInput[]
+  export type AtividadesParticipantesCreateManyAtividade_atividades_participantesInputEnvelope = {
+    data: AtividadesParticipantesCreateManyAtividade_atividades_participantesInput | AtividadesParticipantesCreateManyAtividade_atividades_participantesInput[]
     skipDuplicates?: boolean
   }
 
-  export type AtividadesTempoCreateWithoutAtividadeInput = {
-    id?: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
+  export type AtividadesTempoCreateWithoutAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
   }
 
-  export type AtividadesTempoUncheckedCreateWithoutAtividadeInput = {
-    id?: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
+  export type AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
   }
 
-  export type AtividadesTempoCreateOrConnectWithoutAtividadeInput = {
+  export type AtividadesTempoCreateOrConnectWithoutAtividade_atividades_tempoInput = {
     where: AtividadesTempoWhereUniqueInput
-    create: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput>
+    create: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput>
   }
 
-  export type AtividadesTempoCreateManyAtividadeInputEnvelope = {
-    data: AtividadesTempoCreateManyAtividadeInput | AtividadesTempoCreateManyAtividadeInput[]
+  export type AtividadesTempoCreateManyAtividade_atividades_tempoInputEnvelope = {
+    data: AtividadesTempoCreateManyAtividade_atividades_tempoInput | AtividadesTempoCreateManyAtividade_atividades_tempoInput[]
     skipDuplicates?: boolean
   }
 
-  export type AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividadeInput = {
+  export type AtividadesParticipantesUpsertWithWhereUniqueWithoutAtividade_atividades_participantesInput = {
     where: AtividadesParticipantesWhereUniqueInput
-    update: XOR<AtividadesParticipantesUpdateWithoutAtividadeInput, AtividadesParticipantesUncheckedUpdateWithoutAtividadeInput>
-    create: XOR<AtividadesParticipantesCreateWithoutAtividadeInput, AtividadesParticipantesUncheckedCreateWithoutAtividadeInput>
+    update: XOR<AtividadesParticipantesUpdateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedUpdateWithoutAtividade_atividades_participantesInput>
+    create: XOR<AtividadesParticipantesCreateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedCreateWithoutAtividade_atividades_participantesInput>
   }
 
-  export type AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividadeInput = {
+  export type AtividadesParticipantesUpdateWithWhereUniqueWithoutAtividade_atividades_participantesInput = {
     where: AtividadesParticipantesWhereUniqueInput
-    data: XOR<AtividadesParticipantesUpdateWithoutAtividadeInput, AtividadesParticipantesUncheckedUpdateWithoutAtividadeInput>
+    data: XOR<AtividadesParticipantesUpdateWithoutAtividade_atividades_participantesInput, AtividadesParticipantesUncheckedUpdateWithoutAtividade_atividades_participantesInput>
   }
 
-  export type AtividadesParticipantesUpdateManyWithWhereWithoutAtividadeInput = {
+  export type AtividadesParticipantesUpdateManyWithWhereWithoutAtividade_atividades_participantesInput = {
     where: AtividadesParticipantesScalarWhereInput
-    data: XOR<AtividadesParticipantesUpdateManyMutationInput, AtividadesParticipantesUncheckedUpdateManyWithoutAtividadeInput>
+    data: XOR<AtividadesParticipantesUpdateManyMutationInput, AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesInput>
   }
 
   export type AtividadesParticipantesScalarWhereInput = {
     AND?: AtividadesParticipantesScalarWhereInput | AtividadesParticipantesScalarWhereInput[]
     OR?: AtividadesParticipantesScalarWhereInput[]
     NOT?: AtividadesParticipantesScalarWhereInput | AtividadesParticipantesScalarWhereInput[]
-    id?: StringFilter<"AtividadesParticipantes"> | string
-    atividade_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_id?: StringFilter<"AtividadesParticipantes"> | string
-    user_nome?: StringNullableFilter<"AtividadesParticipantes"> | string | null
+    id_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    id_atividades_dados_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    id_usuario_atividades_participantes?: StringFilter<"AtividadesParticipantes"> | string
+    nome_usuario_atividades_participantes?: StringNullableFilter<"AtividadesParticipantes"> | string | null
   }
 
-  export type AtividadesTempoUpsertWithWhereUniqueWithoutAtividadeInput = {
+  export type AtividadesTempoUpsertWithWhereUniqueWithoutAtividade_atividades_tempoInput = {
     where: AtividadesTempoWhereUniqueInput
-    update: XOR<AtividadesTempoUpdateWithoutAtividadeInput, AtividadesTempoUncheckedUpdateWithoutAtividadeInput>
-    create: XOR<AtividadesTempoCreateWithoutAtividadeInput, AtividadesTempoUncheckedCreateWithoutAtividadeInput>
+    update: XOR<AtividadesTempoUpdateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedUpdateWithoutAtividade_atividades_tempoInput>
+    create: XOR<AtividadesTempoCreateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedCreateWithoutAtividade_atividades_tempoInput>
   }
 
-  export type AtividadesTempoUpdateWithWhereUniqueWithoutAtividadeInput = {
+  export type AtividadesTempoUpdateWithWhereUniqueWithoutAtividade_atividades_tempoInput = {
     where: AtividadesTempoWhereUniqueInput
-    data: XOR<AtividadesTempoUpdateWithoutAtividadeInput, AtividadesTempoUncheckedUpdateWithoutAtividadeInput>
+    data: XOR<AtividadesTempoUpdateWithoutAtividade_atividades_tempoInput, AtividadesTempoUncheckedUpdateWithoutAtividade_atividades_tempoInput>
   }
 
-  export type AtividadesTempoUpdateManyWithWhereWithoutAtividadeInput = {
+  export type AtividadesTempoUpdateManyWithWhereWithoutAtividade_atividades_tempoInput = {
     where: AtividadesTempoScalarWhereInput
-    data: XOR<AtividadesTempoUpdateManyMutationInput, AtividadesTempoUncheckedUpdateManyWithoutAtividadeInput>
+    data: XOR<AtividadesTempoUpdateManyMutationInput, AtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoInput>
   }
 
   export type AtividadesTempoScalarWhereInput = {
     AND?: AtividadesTempoScalarWhereInput | AtividadesTempoScalarWhereInput[]
     OR?: AtividadesTempoScalarWhereInput[]
     NOT?: AtividadesTempoScalarWhereInput | AtividadesTempoScalarWhereInput[]
-    id?: StringFilter<"AtividadesTempo"> | string
-    atividade_id?: StringFilter<"AtividadesTempo"> | string
-    iniciado_em?: DateTimeFilter<"AtividadesTempo"> | Date | string
-    duracao_min?: IntFilter<"AtividadesTempo"> | number
-    assunto?: StringNullableFilter<"AtividadesTempo"> | string | null
+    id_atividades_tempo?: StringFilter<"AtividadesTempo"> | string
+    id_atividades_dados_atividades_tempo?: StringFilter<"AtividadesTempo"> | string
+    iniciado_em_atividades_tempo?: DateTimeFilter<"AtividadesTempo"> | Date | string
+    duracao_min_atividades_tempo?: IntFilter<"AtividadesTempo"> | number
+    assunto_atividades_tempo?: StringNullableFilter<"AtividadesTempo"> | string | null
   }
 
-  export type AtividadesDadosCreateWithoutParticipantesInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    sessoes_timer?: AtividadesTempoCreateNestedManyWithoutAtividadeInput
+  export type AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput = {
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    sessoes_timer_atividades_dados?: AtividadesTempoCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosUncheckedCreateWithoutParticipantesInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    sessoes_timer?: AtividadesTempoUncheckedCreateNestedManyWithoutAtividadeInput
+  export type AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput = {
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    sessoes_timer_atividades_dados?: AtividadesTempoUncheckedCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosCreateOrConnectWithoutParticipantesInput = {
+  export type AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput = {
     where: AtividadesDadosWhereUniqueInput
-    create: XOR<AtividadesDadosCreateWithoutParticipantesInput, AtividadesDadosUncheckedCreateWithoutParticipantesInput>
+    create: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpsertWithoutParticipantesInput = {
-    update: XOR<AtividadesDadosUpdateWithoutParticipantesInput, AtividadesDadosUncheckedUpdateWithoutParticipantesInput>
-    create: XOR<AtividadesDadosCreateWithoutParticipantesInput, AtividadesDadosUncheckedCreateWithoutParticipantesInput>
+  export type AtividadesDadosUpsertWithoutParticipantes_atividades_dadosInput = {
+    update: XOR<AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
+    create: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
     where?: AtividadesDadosWhereInput
   }
 
-  export type AtividadesDadosUpdateToOneWithWhereWithoutParticipantesInput = {
+  export type AtividadesDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput = {
     where?: AtividadesDadosWhereInput
-    data: XOR<AtividadesDadosUpdateWithoutParticipantesInput, AtividadesDadosUncheckedUpdateWithoutParticipantesInput>
+    data: XOR<AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpdateWithoutParticipantesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    sessoes_timer?: AtividadesTempoUpdateManyWithoutAtividadeNestedInput
+  export type AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput = {
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessoes_timer_atividades_dados?: AtividadesTempoUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosUncheckedUpdateWithoutParticipantesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    sessoes_timer?: AtividadesTempoUncheckedUpdateManyWithoutAtividadeNestedInput
+  export type AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput = {
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessoes_timer_atividades_dados?: AtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosCreateWithoutSessoes_timerInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    participantes?: AtividadesParticipantesCreateNestedManyWithoutAtividadeInput
+  export type AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput = {
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    participantes_atividades_dados?: AtividadesParticipantesCreateNestedManyWithoutAtividade_atividades_participantesInput
   }
 
-  export type AtividadesDadosUncheckedCreateWithoutSessoes_timerInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    tipo?: string
-    status?: string
-    prioridade?: string | null
-    data_atividade?: Date | string | null
-    data_vencimento?: Date | string | null
-    tempo_gasto_minutos?: number
-    proximo_passo_titulo?: string | null
-    proximo_passo_data?: Date | string | null
-    lembrete_em?: Date | string | null
-    lembrete_email?: boolean
-    lembrete_whatsapp?: boolean
-    notificar_ao_atribuir?: boolean
-    processo_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    participantes?: AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividadeInput
+  export type AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput = {
+    id_atividades_dados?: string
+    id_organizacao_atividades_dados: string
+    id_usuario_atividades_dados?: string | null
+    titulo_atividades_dados: string
+    descricao_atividades_dados?: string | null
+    tipo_atividades_dados?: string
+    status_atividades_dados?: string
+    prioridade_atividades_dados?: string | null
+    data_atividade_atividades_dados?: Date | string | null
+    data_vencimento_atividades_dados?: Date | string | null
+    tempo_gasto_minutos_atividades_dados?: number
+    proximo_passo_titulo_atividades_dados?: string | null
+    proximo_passo_data_atividades_dados?: Date | string | null
+    lembrete_em_atividades_dados?: Date | string | null
+    lembrete_email_atividades_dados?: boolean
+    lembrete_whatsapp_atividades_dados?: boolean
+    notificar_ao_atribuir_atividades_dados?: boolean
+    id_processo_atividades_dados?: string | null
+    data_criacao_atividades_dados?: Date | string
+    data_atualizacao_atividades_dados?: Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUncheckedCreateNestedManyWithoutAtividade_atividades_participantesInput
   }
 
-  export type AtividadesDadosCreateOrConnectWithoutSessoes_timerInput = {
+  export type AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput = {
     where: AtividadesDadosWhereUniqueInput
-    create: XOR<AtividadesDadosCreateWithoutSessoes_timerInput, AtividadesDadosUncheckedCreateWithoutSessoes_timerInput>
+    create: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpsertWithoutSessoes_timerInput = {
-    update: XOR<AtividadesDadosUpdateWithoutSessoes_timerInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timerInput>
-    create: XOR<AtividadesDadosCreateWithoutSessoes_timerInput, AtividadesDadosUncheckedCreateWithoutSessoes_timerInput>
+  export type AtividadesDadosUpsertWithoutSessoes_timer_atividades_dadosInput = {
+    update: XOR<AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
+    create: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
     where?: AtividadesDadosWhereInput
   }
 
-  export type AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timerInput = {
+  export type AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput = {
     where?: AtividadesDadosWhereInput
-    data: XOR<AtividadesDadosUpdateWithoutSessoes_timerInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timerInput>
+    data: XOR<AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpdateWithoutSessoes_timerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    participantes?: AtividadesParticipantesUpdateManyWithoutAtividadeNestedInput
+  export type AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput = {
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUpdateManyWithoutAtividade_atividades_participantesNestedInput
   }
 
-  export type AtividadesDadosUncheckedUpdateWithoutSessoes_timerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
-    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
-    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
-    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
-    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
-    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    participantes?: AtividadesParticipantesUncheckedUpdateManyWithoutAtividadeNestedInput
+  export type AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput = {
+    id_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    descricao_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_atividades_dados?: StringFieldUpdateOperationsInput | string
+    status_atividades_dados?: StringFieldUpdateOperationsInput | string
+    prioridade_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em_atividades_dados?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFieldUpdateOperationsInput | boolean
+    id_processo_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes_atividades_dados?: AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesNestedInput
   }
 
   export type EmailMensagemCreateWithoutThreadInput = {
@@ -66402,56 +66402,56 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AtividadesParticipantesCreateManyAtividadeInput = {
-    id?: string
-    user_id: string
-    user_nome?: string | null
+  export type AtividadesParticipantesCreateManyAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: string
+    id_usuario_atividades_participantes: string
+    nome_usuario_atividades_participantes?: string | null
   }
 
-  export type AtividadesTempoCreateManyAtividadeInput = {
-    id?: string
-    iniciado_em: Date | string
-    duracao_min: number
-    assunto?: string | null
+  export type AtividadesTempoCreateManyAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: string
+    iniciado_em_atividades_tempo: Date | string
+    duracao_min_atividades_tempo: number
+    assunto_atividades_tempo?: string | null
   }
 
-  export type AtividadesParticipantesUpdateWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesParticipantesUpdateWithoutAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type AtividadesParticipantesUncheckedUpdateWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesParticipantesUncheckedUpdateWithoutAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type AtividadesParticipantesUncheckedUpdateManyWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesParticipantesUncheckedUpdateManyWithoutAtividade_atividades_participantesInput = {
+    id_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
+    nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type AtividadesTempoUpdateWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesTempoUpdateWithoutAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type AtividadesTempoUncheckedUpdateWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesTempoUncheckedUpdateWithoutAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type AtividadesTempoUncheckedUpdateManyWithoutAtividadeInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    duracao_min?: IntFieldUpdateOperationsInput | number
-    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  export type AtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoInput = {
+    id_atividades_tempo?: StringFieldUpdateOperationsInput | string
+    iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
+    assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type EmailMensagemCreateManyThreadInput = {

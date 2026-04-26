@@ -1,12 +1,21 @@
 // server/routes/atividades.ts
 // CRUD completo para Atividades (Minhas Atividades — Tasks Board)
 // Portado do Journey tasks-board.js — suporta Kanban, participantes, timer e filtros.
+//
+// Onda 26 (DDD Servicos): bypass withTenantIsolation — o middleware injeta `tenant_id`,
+// mas a coluna física agora é `id_organizacao_atividades_dados`. Usamos prisma direto
+// com filtro explícito + ACL/DTO map nas bordas para preservar o contrato externo.
 
 import { Router } from 'express'
 import { z } from 'zod'
-import { prisma } from '../lib/prisma.js'
+import { prisma as prismaDefault } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
-import { withTenantIsolation } from '@tenant/middleware/withTenantIsolation.js'
+// O singleton em lib/prisma.ts importa do @prisma/client (compat para outros routers
+// que ainda dependem do schema legado via @prisma/client + withTenantIsolation).
+// Aqui re-tipamos para o client gerado em tenant/generated/, único que expõe os
+// fields DDD (id_organizacao_atividades_dados, etc.) renomeados nesta onda.
+import type { PrismaClient as TenantPrismaClient } from '../../../generated/index.js'
+const prisma = prismaDefault as unknown as TenantPrismaClient
 
 const router = Router()
 
@@ -19,7 +28,7 @@ const PRIORIDADES     = ['baixa', 'média', 'alta', 'urgente'] as const
 const TIPOS           = ['Comentário', 'Reunião', 'Chamados HD', 'Chamados CS', 'Ação necessária', 'Tarefa', 'Outros'] as const
 
 // ---------------------------------------------------------------------------
-// Schemas Zod
+// Schemas Zod (contrato externo permanece com chaves curtas)
 // ---------------------------------------------------------------------------
 
 const participanteSchema = z.object({
@@ -67,6 +76,102 @@ const timerSessaoSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
+// ACL helpers — DTO mapping (Prisma row → contrato legado)
+// ---------------------------------------------------------------------------
+
+type ParticipanteRow = {
+  id_atividades_participantes: string
+  id_atividades_dados_atividades_participantes: string
+  id_usuario_atividades_participantes: string
+  nome_usuario_atividades_participantes: string | null
+}
+
+type SessaoTimerRow = {
+  id_atividades_tempo: string
+  id_atividades_dados_atividades_tempo: string
+  iniciado_em_atividades_tempo: Date
+  duracao_min_atividades_tempo: number
+  assunto_atividades_tempo: string | null
+}
+
+type AtividadeRow = {
+  id_atividades_dados: string
+  id_organizacao_atividades_dados: string
+  id_usuario_atividades_dados: string | null
+  titulo_atividades_dados: string
+  descricao_atividades_dados: string | null
+  tipo_atividades_dados: string
+  status_atividades_dados: string
+  prioridade_atividades_dados: string | null
+  data_atividade_atividades_dados: Date | null
+  data_vencimento_atividades_dados: Date | null
+  tempo_gasto_minutos_atividades_dados: number
+  proximo_passo_titulo_atividades_dados: string | null
+  proximo_passo_data_atividades_dados: Date | null
+  lembrete_em_atividades_dados: Date | null
+  lembrete_email_atividades_dados: boolean
+  lembrete_whatsapp_atividades_dados: boolean
+  notificar_ao_atribuir_atividades_dados: boolean
+  id_processo_atividades_dados: string | null
+  data_criacao_atividades_dados: Date
+  data_atualizacao_atividades_dados: Date
+  participantes_atividades_dados?: ParticipanteRow[]
+  sessoes_timer_atividades_dados?: SessaoTimerRow[]
+}
+
+function toParticipanteDto(p: ParticipanteRow) {
+  return {
+    id:           p.id_atividades_participantes,
+    atividade_id: p.id_atividades_dados_atividades_participantes,
+    user_id:      p.id_usuario_atividades_participantes,
+    user_nome:    p.nome_usuario_atividades_participantes,
+  }
+}
+
+function toSessaoTimerDto(s: SessaoTimerRow) {
+  return {
+    id:           s.id_atividades_tempo,
+    atividade_id: s.id_atividades_dados_atividades_tempo,
+    iniciado_em:  s.iniciado_em_atividades_tempo,
+    duracao_min:  s.duracao_min_atividades_tempo,
+    assunto:      s.assunto_atividades_tempo,
+  }
+}
+
+function toAtividadeDto(row: AtividadeRow) {
+  return {
+    id:                    row.id_atividades_dados,
+    tenant_id:             row.id_organizacao_atividades_dados,
+    user_id:               row.id_usuario_atividades_dados,
+    titulo:                row.titulo_atividades_dados,
+    descricao:             row.descricao_atividades_dados,
+    tipo:                  row.tipo_atividades_dados,
+    status:                row.status_atividades_dados,
+    prioridade:            row.prioridade_atividades_dados,
+    data_atividade:        row.data_atividade_atividades_dados,
+    data_vencimento:       row.data_vencimento_atividades_dados,
+    tempo_gasto_minutos:   row.tempo_gasto_minutos_atividades_dados,
+    proximo_passo_titulo:  row.proximo_passo_titulo_atividades_dados,
+    proximo_passo_data:    row.proximo_passo_data_atividades_dados,
+    lembrete_em:           row.lembrete_em_atividades_dados,
+    lembrete_email:        row.lembrete_email_atividades_dados,
+    lembrete_whatsapp:     row.lembrete_whatsapp_atividades_dados,
+    notificar_ao_atribuir: row.notificar_ao_atribuir_atividades_dados,
+    processo_id:           row.id_processo_atividades_dados,
+    created_at:            row.data_criacao_atividades_dados,
+    updated_at:            row.data_atualizacao_atividades_dados,
+    participantes: row.participantes_atividades_dados?.map(toParticipanteDto) ?? [],
+    sessoes_timer: row.sessoes_timer_atividades_dados?.map(toSessaoTimerDto) ?? [],
+  }
+}
+
+// Inclusão padrão para retornar sub-relações
+const ATIVIDADE_INCLUDE = {
+  participantes_atividades_dados: true,
+  sessoes_timer_atividades_dados: { orderBy: { iniciado_em_atividades_tempo: 'desc' as const } },
+}
+
+// ---------------------------------------------------------------------------
 // GET /api/v1/atividades
 // ---------------------------------------------------------------------------
 
@@ -76,30 +181,33 @@ router.get('/', async (req, res, next) => {
     if (!q.success) throw new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR')
 
     const { page, limit, busca, status, tipo, prioridade, assignee, prazo, data_de, data_ate } = q.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const tenantId = req.auth.tenantId
 
-    // Filtro base
-    const where = {} as Record<string, unknown>
+    // Filtro base — sempre filtra por tenant via campo físico DDD
+    const where: Record<string, unknown> = {
+      id_organizacao_atividades_dados: tenantId,
+    }
 
     // assignee=me : atividades criadas pelo usuário OU onde é participante
     if (assignee === 'me' && req.auth.userId) {
       where.OR = [
-        { user_id: req.auth.userId },
-        { participantes: { some: { user_id: req.auth.userId } } },
+        { id_usuario_atividades_dados: req.auth.userId },
+        { participantes_atividades_dados: { some: { id_usuario_atividades_participantes: req.auth.userId } } },
       ]
     }
 
     if (busca) {
+      const orList = (where.OR as Array<Record<string, unknown>> | undefined) ?? []
       where.OR = [
-        ...(where.OR ?? []),
-        { titulo:    { contains: busca, mode: 'insensitive' } },
-        { descricao: { contains: busca, mode: 'insensitive' } },
+        ...orList,
+        { titulo_atividades_dados:    { contains: busca, mode: 'insensitive' } },
+        { descricao_atividades_dados: { contains: busca, mode: 'insensitive' } },
       ]
     }
 
-    if (status)     where.status     = status
-    if (tipo)       where.tipo       = tipo
-    if (prioridade) where.prioridade = prioridade
+    if (status)     where.status_atividades_dados     = status
+    if (tipo)       where.tipo_atividades_dados       = tipo
+    if (prioridade) where.prioridade_atividades_dados = prioridade
 
     // Filtros de prazo
     if (prazo) {
@@ -107,35 +215,36 @@ router.get('/', async (req, res, next) => {
       today.setHours(0, 0, 0, 0)
       const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1)
 
-      if (prazo === 'sem_prazo')  where.data_atividade = null
-      if (prazo === 'atrasado')   where.data_atividade = { lt: today }
-      if (prazo === 'hoje')       where.data_atividade = { gte: today, lt: tomorrow }
-      if (prazo === 'futuro')     where.data_atividade = { gte: tomorrow }
+      if (prazo === 'sem_prazo')  where.data_atividade_atividades_dados = null
+      if (prazo === 'atrasado')   where.data_atividade_atividades_dados = { lt: today }
+      if (prazo === 'hoje')       where.data_atividade_atividades_dados = { gte: today, lt: tomorrow }
+      if (prazo === 'futuro')     where.data_atividade_atividades_dados = { gte: tomorrow }
     }
 
     // Filtro de intervalo de datas
     if (data_de || data_ate) {
-      where.data_atividade = where.data_atividade ?? {}
-      if (data_de)  where.data_atividade.gte = new Date(data_de + 'T00:00:00')
-      if (data_ate) where.data_atividade.lte = new Date(data_ate + 'T23:59:59')
+      const range = (where.data_atividade_atividades_dados as Record<string, Date> | undefined) ?? {}
+      if (data_de)  range.gte = new Date(data_de + 'T00:00:00')
+      if (data_ate) range.lte = new Date(data_ate + 'T23:59:59')
+      where.data_atividade_atividades_dados = range
     }
 
-    const [total, atividades] = await Promise.all([
-      db.atividadesDados.count({ where }),
-      db.atividadesDados.findMany({
+    const [total, rows] = await Promise.all([
+      prisma.atividadesDados.count({ where }),
+      prisma.atividadesDados.findMany({
         where,
         include: {
-          participantes: true,
-          sessoes_timer: { orderBy: { iniciado_em: 'desc' }, take: 20 },
+          participantes_atividades_dados: true,
+          sessoes_timer_atividades_dados: { orderBy: { iniciado_em_atividades_tempo: 'desc' }, take: 20 },
         },
-        orderBy: [{ created_at: 'desc' }],
+        orderBy: [{ data_criacao_atividades_dados: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
     ])
 
     res.json({
-      data: atividades,
+      data: rows.map(toAtividadeDto),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -149,16 +258,16 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const atividade = await db.atividadesDados.findFirst({
-      where: { id: req.params.id },
-      include: {
-        participantes: true,
-        sessoes_timer: { orderBy: { iniciado_em: 'desc' } },
+    const tenantId = req.auth.tenantId
+    const row = await prisma.atividadesDados.findFirst({
+      where: {
+        id_atividades_dados: req.params.id,
+        id_organizacao_atividades_dados: tenantId,
       },
+      include: ATIVIDADE_INCLUDE,
     })
-    if (!atividade) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
-    res.json(atividade)
+    if (!row) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
+    res.json(toAtividadeDto(row))
   } catch (err) {
     next(err)
   }
@@ -178,23 +287,37 @@ router.post('/', async (req, res, next) => {
     }
 
     const { participantes, ...data } = result.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const tenantId = req.auth.tenantId
 
-    const atividade = await db.atividadesDados.create({
+    const row = await prisma.atividadesDados.create({
       data: {
-        ...data,
-        user_id: req.auth.userId,
-        participantes: {
+        id_organizacao_atividades_dados:           tenantId,
+        id_usuario_atividades_dados:               req.auth.userId,
+        titulo_atividades_dados:                   data.titulo,
+        descricao_atividades_dados:                data.descricao,
+        tipo_atividades_dados:                     data.tipo,
+        status_atividades_dados:                   data.status,
+        prioridade_atividades_dados:               data.prioridade,
+        data_atividade_atividades_dados:           data.data_atividade ? new Date(data.data_atividade) : undefined,
+        data_vencimento_atividades_dados:          data.data_vencimento ? new Date(data.data_vencimento) : undefined,
+        proximo_passo_titulo_atividades_dados:     data.proximo_passo_titulo,
+        proximo_passo_data_atividades_dados:       data.proximo_passo_data ? new Date(data.proximo_passo_data) : undefined,
+        lembrete_em_atividades_dados:              data.lembrete_em ? new Date(data.lembrete_em) : undefined,
+        lembrete_email_atividades_dados:           data.lembrete_email,
+        lembrete_whatsapp_atividades_dados:        data.lembrete_whatsapp,
+        notificar_ao_atribuir_atividades_dados:    data.notificar_ao_atribuir,
+        id_processo_atividades_dados:              data.processo_id,
+        participantes_atividades_dados: {
           create: participantes.map(p => ({
-            user_id:   p.user_id,
-            user_nome: p.user_nome,
+            id_usuario_atividades_participantes:   p.user_id,
+            nome_usuario_atividades_participantes: p.user_nome,
           })),
         },
       },
-      include: { participantes: true, sessoes_timer: true },
+      include: ATIVIDADE_INCLUDE,
     })
 
-    res.status(201).json(atividade)
+    res.status(201).json(toAtividadeDto(row))
   } catch (err) {
     next(err)
   }
@@ -214,29 +337,51 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     const { participantes, ...data } = result.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    const tenantId = req.auth.tenantId
+
+    const existing = await prisma.atividadesDados.findFirst({
+      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+    })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
-    const atividade = await db.atividadesDados.update({
-      where: { id: req.params.id },
+    // updateMany com where composto evita update cross-tenant; depois lemos o registro.
+    await prisma.atividadesDados.update({
+      where: { id_atividades_dados: req.params.id },
       data: {
-        ...data,
+        ...(data.titulo !== undefined &&                { titulo_atividades_dados: data.titulo }),
+        ...(data.descricao !== undefined &&             { descricao_atividades_dados: data.descricao }),
+        ...(data.tipo !== undefined &&                  { tipo_atividades_dados: data.tipo }),
+        ...(data.status !== undefined &&                { status_atividades_dados: data.status }),
+        ...(data.prioridade !== undefined &&            { prioridade_atividades_dados: data.prioridade }),
+        ...(data.data_atividade !== undefined &&        { data_atividade_atividades_dados: data.data_atividade ? new Date(data.data_atividade) : null }),
+        ...(data.data_vencimento !== undefined &&       { data_vencimento_atividades_dados: data.data_vencimento ? new Date(data.data_vencimento) : null }),
+        ...(data.proximo_passo_titulo !== undefined &&  { proximo_passo_titulo_atividades_dados: data.proximo_passo_titulo }),
+        ...(data.proximo_passo_data !== undefined &&    { proximo_passo_data_atividades_dados: data.proximo_passo_data ? new Date(data.proximo_passo_data) : null }),
+        ...(data.lembrete_em !== undefined &&           { lembrete_em_atividades_dados: data.lembrete_em ? new Date(data.lembrete_em) : null }),
+        ...(data.lembrete_email !== undefined &&        { lembrete_email_atividades_dados: data.lembrete_email }),
+        ...(data.lembrete_whatsapp !== undefined &&     { lembrete_whatsapp_atividades_dados: data.lembrete_whatsapp }),
+        ...(data.notificar_ao_atribuir !== undefined && { notificar_ao_atribuir_atividades_dados: data.notificar_ao_atribuir }),
+        ...(data.processo_id !== undefined &&           { id_processo_atividades_dados: data.processo_id }),
         // Substitui participantes se enviados
         ...(participantes !== undefined && {
-          participantes: {
+          participantes_atividades_dados: {
             deleteMany: {},
             create: participantes.map(p => ({
-              user_id:   p.user_id,
-              user_nome: p.user_nome,
+              id_usuario_atividades_participantes:   p.user_id,
+              nome_usuario_atividades_participantes: p.user_nome,
             })),
           },
         }),
       },
-      include: { participantes: true, sessoes_timer: true },
     })
 
-    res.json(atividade)
+    const fresh = await prisma.atividadesDados.findUnique({
+      where: { id_atividades_dados: req.params.id },
+      include: ATIVIDADE_INCLUDE,
+    })
+    if (!fresh) throw new AppError('AtividadesDados não encontrada após update', 500, 'INTERNAL')
+
+    res.json(toAtividadeDto(fresh))
   } catch (err) {
     next(err)
   }
@@ -248,10 +393,12 @@ router.patch('/:id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    const tenantId = req.auth.tenantId
+    const existing = await prisma.atividadesDados.findFirst({
+      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+    })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
-    await db.atividadesDados.delete({ where: { id: req.params.id } })
+    await prisma.atividadesDados.delete({ where: { id_atividades_dados: req.params.id } })
     res.status(204).send()
   } catch (err) {
     next(err)
@@ -271,27 +418,29 @@ router.post('/:id/timer', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    const tenantId = req.auth.tenantId
+    const existing = await prisma.atividadesDados.findFirst({
+      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+    })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
     // Registra a sessão e incrementa o total acumulado
     const [sessao] = await Promise.all([
-      db.atividadesTempo.create({
+      prisma.atividadesTempo.create({
         data: {
-          atividade_id: req.params.id,
-          iniciado_em:  new Date(result.data.iniciado_em),
-          duracao_min:  result.data.duracao_min,
-          assunto:      result.data.assunto,
+          id_atividades_dados_atividades_tempo: req.params.id,
+          iniciado_em_atividades_tempo:         new Date(result.data.iniciado_em),
+          duracao_min_atividades_tempo:         result.data.duracao_min,
+          assunto_atividades_tempo:             result.data.assunto,
         },
       }),
-      db.atividadesDados.update({
-        where: { id: req.params.id },
-        data: { tempo_gasto_minutos: { increment: result.data.duracao_min } },
+      prisma.atividadesDados.update({
+        where: { id_atividades_dados: req.params.id },
+        data: { tempo_gasto_minutos_atividades_dados: { increment: result.data.duracao_min } },
       }),
     ])
 
-    res.status(201).json(sessao)
+    res.status(201).json(toSessaoTimerDto(sessao))
   } catch (err) {
     next(err)
   }

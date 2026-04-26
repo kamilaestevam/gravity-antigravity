@@ -123,41 +123,41 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 });
 
 exports.Prisma.AtividadesDadosScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  user_id: 'user_id',
-  titulo: 'titulo',
-  descricao: 'descricao',
-  tipo: 'tipo',
-  status: 'status',
-  prioridade: 'prioridade',
-  data_atividade: 'data_atividade',
-  data_vencimento: 'data_vencimento',
-  tempo_gasto_minutos: 'tempo_gasto_minutos',
-  proximo_passo_titulo: 'proximo_passo_titulo',
-  proximo_passo_data: 'proximo_passo_data',
-  lembrete_em: 'lembrete_em',
-  lembrete_email: 'lembrete_email',
-  lembrete_whatsapp: 'lembrete_whatsapp',
-  notificar_ao_atribuir: 'notificar_ao_atribuir',
-  processo_id: 'processo_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_atividades_dados: 'id_atividades_dados',
+  id_organizacao_atividades_dados: 'id_organizacao_atividades_dados',
+  id_usuario_atividades_dados: 'id_usuario_atividades_dados',
+  titulo_atividades_dados: 'titulo_atividades_dados',
+  descricao_atividades_dados: 'descricao_atividades_dados',
+  tipo_atividades_dados: 'tipo_atividades_dados',
+  status_atividades_dados: 'status_atividades_dados',
+  prioridade_atividades_dados: 'prioridade_atividades_dados',
+  data_atividade_atividades_dados: 'data_atividade_atividades_dados',
+  data_vencimento_atividades_dados: 'data_vencimento_atividades_dados',
+  tempo_gasto_minutos_atividades_dados: 'tempo_gasto_minutos_atividades_dados',
+  proximo_passo_titulo_atividades_dados: 'proximo_passo_titulo_atividades_dados',
+  proximo_passo_data_atividades_dados: 'proximo_passo_data_atividades_dados',
+  lembrete_em_atividades_dados: 'lembrete_em_atividades_dados',
+  lembrete_email_atividades_dados: 'lembrete_email_atividades_dados',
+  lembrete_whatsapp_atividades_dados: 'lembrete_whatsapp_atividades_dados',
+  notificar_ao_atribuir_atividades_dados: 'notificar_ao_atribuir_atividades_dados',
+  id_processo_atividades_dados: 'id_processo_atividades_dados',
+  data_criacao_atividades_dados: 'data_criacao_atividades_dados',
+  data_atualizacao_atividades_dados: 'data_atualizacao_atividades_dados'
 };
 
 exports.Prisma.AtividadesParticipantesScalarFieldEnum = {
-  id: 'id',
-  atividade_id: 'atividade_id',
-  user_id: 'user_id',
-  user_nome: 'user_nome'
+  id_atividades_participantes: 'id_atividades_participantes',
+  id_atividades_dados_atividades_participantes: 'id_atividades_dados_atividades_participantes',
+  id_usuario_atividades_participantes: 'id_usuario_atividades_participantes',
+  nome_usuario_atividades_participantes: 'nome_usuario_atividades_participantes'
 };
 
 exports.Prisma.AtividadesTempoScalarFieldEnum = {
-  id: 'id',
-  atividade_id: 'atividade_id',
-  iniciado_em: 'iniciado_em',
-  duracao_min: 'duracao_min',
-  assunto: 'assunto'
+  id_atividades_tempo: 'id_atividades_tempo',
+  id_atividades_dados_atividades_tempo: 'id_atividades_dados_atividades_tempo',
+  iniciado_em_atividades_tempo: 'iniciado_em_atividades_tempo',
+  duracao_min_atividades_tempo: 'duracao_min_atividades_tempo',
+  assunto_atividades_tempo: 'assunto_atividades_tempo'
 };
 
 exports.Prisma.AtividadesCronometroScalarFieldEnum = {

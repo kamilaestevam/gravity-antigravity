@@ -11,59 +11,59 @@
 // ---------------------------------------------------------------------------
 
 model AtividadesDados {
-  id        String @id @default(cuid())
-  tenant_id String
-  user_id   String? // criador da atividade
+  id_atividades_dados             String  @id @default(cuid())
+  id_organizacao_atividades_dados String
+  id_usuario_atividades_dados     String? // criador da atividade
 
   // Conteúdo
-  titulo    String
-  descricao String?
+  titulo_atividades_dados    String
+  descricao_atividades_dados String?
 
   // Tipo de atividade (igual ao Journey)
   // Valores: "Comentário" | "Reunião" | "Chamados HD" | "Chamados CS" | "Ação necessária" | "Tarefa" | "Outros"
-  tipo String @default("Tarefa")
+  tipo_atividades_dados String @default("Tarefa")
 
   // Status Kanban (colunas do board)
   // Valores: "A Fazer" | "Em Andamento" | "Concluída" | "Cancelada"
-  status String @default("A Fazer")
+  status_atividades_dados String @default("A Fazer")
 
   // Prioridade
   // Valores: "baixa" | "média" | "alta" | "urgente"
-  prioridade String?
+  prioridade_atividades_dados String?
 
   // Temporal
-  data_atividade  DateTime?
-  data_vencimento DateTime?
+  data_atividade_atividades_dados  DateTime?
+  data_vencimento_atividades_dados DateTime?
 
   // Tempo trabalhado (acumulado de todas as sessões)
-  tempo_gasto_minutos Int @default(0)
+  tempo_gasto_minutos_atividades_dados Int @default(0)
 
   // Próximo passo
-  proximo_passo_titulo String?
-  proximo_passo_data   DateTime?
+  proximo_passo_titulo_atividades_dados String?
+  proximo_passo_data_atividades_dados   DateTime?
 
   // Lembrete
-  lembrete_em       DateTime?
-  lembrete_email    Boolean @default(false)
-  lembrete_whatsapp Boolean @default(false)
+  lembrete_em_atividades_dados       DateTime?
+  lembrete_email_atividades_dados    Boolean @default(false)
+  lembrete_whatsapp_atividades_dados Boolean @default(false)
 
   // Notificação ao atribuir
-  notificar_ao_atribuir Boolean @default(false)
+  notificar_ao_atribuir_atividades_dados Boolean @default(false)
 
   // Vínculos opcionais
-  processo_id String? // link opcional a um Processo Comex (para navegar)
+  id_processo_atividades_dados String? // link opcional a um Processo Comex (para navegar)
 
   // Metadados
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_atividades_dados    DateTime @default(now())
+  data_atualizacao_atividades_dados DateTime @updatedAt
 
   // Relações
-  participantes AtividadesParticipantes[]
-  sessoes_timer AtividadesTempo[]
+  participantes_atividades_dados AtividadesParticipantes[]
+  sessoes_timer_atividades_dados AtividadesTempo[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
+  @@index([id_organizacao_atividades_dados], map: "ad_org_idx")
+  @@index([id_organizacao_atividades_dados, id_usuario_atividades_dados], map: "ad_org_user_idx")
+  @@index([id_organizacao_atividades_dados, status_atividades_dados], map: "ad_org_status_idx")
   @@map("atividades_dados")
 }
 
@@ -72,15 +72,15 @@ model AtividadesDados {
 // ---------------------------------------------------------------------------
 
 model AtividadesParticipantes {
-  id           String  @id @default(cuid())
-  atividade_id String
-  user_id      String
-  user_nome    String? // cache de nome para exibição sem JOIN extra
+  id_atividades_participantes              String  @id @default(cuid())
+  id_atividades_dados_atividades_participantes String
+  id_usuario_atividades_participantes      String
+  nome_usuario_atividades_participantes    String? // cache de nome para exibição sem JOIN extra
 
-  atividade AtividadesDados @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
+  atividade_atividades_participantes AtividadesDados @relation(fields: [id_atividades_dados_atividades_participantes], references: [id_atividades_dados], onDelete: Cascade)
 
-  @@unique([atividade_id, user_id])
-  @@index([atividade_id])
+  @@unique([id_atividades_dados_atividades_participantes, id_usuario_atividades_participantes], map: "ap_atv_user_unq")
+  @@index([id_atividades_dados_atividades_participantes], map: "ap_atv_idx")
   @@map("atividades_participantes")
 }
 
@@ -89,14 +89,14 @@ model AtividadesParticipantes {
 // ---------------------------------------------------------------------------
 
 model AtividadesTempo {
-  id           String   @id @default(cuid())
-  atividade_id String
-  iniciado_em  DateTime
-  duracao_min  Int
-  assunto      String?
+  id_atividades_tempo              String   @id @default(cuid())
+  id_atividades_dados_atividades_tempo String
+  iniciado_em_atividades_tempo     DateTime
+  duracao_min_atividades_tempo     Int
+  assunto_atividades_tempo         String?
 
-  atividade AtividadesDados @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
+  atividade_atividades_tempo AtividadesDados @relation(fields: [id_atividades_dados_atividades_tempo], references: [id_atividades_dados], onDelete: Cascade)
 
-  @@index([atividade_id])
+  @@index([id_atividades_dados_atividades_tempo], map: "at_atv_idx")
   @@map("atividades_tempo")
 }

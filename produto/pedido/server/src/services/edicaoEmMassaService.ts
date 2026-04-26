@@ -209,11 +209,11 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     const itensAfetados = pedidos.reduce(
-      (acc: number, p: Record<string, unknown[]>) => acc + ((p.itens as unknown[])?.length ?? 0),
+      (acc: number, p: Record<string, unknown[]>) => acc + ((p.itens_pedido as unknown[])?.length ?? 0),
       0,
     )
 
@@ -230,7 +230,7 @@ export class EdicaoEmMassaService {
       } else {
         const colDdd = legacyKeyToDddPedidoItem(c.campo)
         pedidos.forEach((p: Record<string, unknown>) => {
-          const itens = (p.itens as Record<string, unknown>[]) ?? []
+          const itens = (p.itens_pedido as Record<string, unknown>[]) ?? []
           itens.forEach(item => {
             valores.push(String(item[colDdd] ?? item[c.campo] ?? ''))
           })
@@ -274,7 +274,7 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length === 0) {
@@ -359,7 +359,7 @@ export class EdicaoEmMassaService {
 
           // Aplicar campos de nível item — traduzir chaves legadas para colunas DDD
           if (camposItem.length > 0) {
-            const itens = (pedido.itens as Record<string, unknown>[]) ?? []
+            const itens = (pedido.itens_pedido as Record<string, unknown>[]) ?? []
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               for (const c of camposItem) {

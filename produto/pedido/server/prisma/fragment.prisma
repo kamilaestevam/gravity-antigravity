@@ -123,10 +123,10 @@ model Pedido {
   data_confirmacao_recebimento_original_invoice_pedido        DateTime?
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
-  itens                                                       PedidoItem[]
-  transferencias                                              TrackingItemsTransferidos[]
-  snapshots_empresa                                           PedidoSnapshotEmpresa[]
-  snapshots_ope                                               PedidoSnapshotOpe[]
+  itens_pedido                                                PedidoItem[]
+  transferencias_pedido                                       TrackingItemsTransferidos[]
+  snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
+  snapshots_ope_pedido                                        PedidoSnapshotOpe[]
 
   @@unique([id_organizacao, numero_pedido])
   @@index([id_organizacao])

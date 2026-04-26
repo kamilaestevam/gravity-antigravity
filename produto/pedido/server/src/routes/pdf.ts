@@ -60,7 +60,7 @@ interface PedidoLegacyParaPdf {
 }
 
 function mapearPedidoParaPdfService(pedido: Record<string, unknown>): PedidoLegacyParaPdf {
-  const itens = (pedido.itens ?? []) as Array<Record<string, unknown>>
+  const itens = (pedido.itens_pedido ?? []) as Array<Record<string, unknown>>
   const itensLegado = itens.map((it) => ({
     part_number:                 String(it.part_number_item ?? ''),
     descricao_item:              String(it.descricao_item ?? ''),
@@ -158,7 +158,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
         where: { id_pedido: pedido_id, id_organizacao: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {
@@ -255,7 +255,7 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
         where: { id_pedido: pedido_id, id_organizacao: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {

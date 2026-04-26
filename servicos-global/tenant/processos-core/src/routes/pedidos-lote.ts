@@ -222,7 +222,7 @@ pedidosLoteRouter.post('/cancelar/preview', async (req: Request, res: Response, 
 
     const pedidos = await req.prisma.pedido.findMany({
       where,
-      include: { itens: { select: { quantidade_transferida_pedido: true } } },
+      include: { itens_pedido: { select: { quantidade_transferida_pedido: true } } },
     })
 
     const encontradosMap = new Map(pedidos.map((p) => [p.id, p]))
@@ -248,7 +248,7 @@ pedidosLoteRouter.post('/cancelar/preview', async (req: Request, res: Response, 
       }
 
       // Verificar se algum item tem quantidade transferida > 0
-      const temTransferencia = pedido.itens.some(
+      const temTransferencia = pedido.itens_pedido.some(
         (item) => Number(item.quantidade_transferida_pedido) > 0
       )
 
@@ -293,7 +293,7 @@ pedidosLoteRouter.post('/cancelar/confirmar', async (req: Request, res: Response
 
     const pedidos = await req.prisma.pedido.findMany({
       where,
-      include: { itens: { select: { quantidade_transferida_pedido: true } } },
+      include: { itens_pedido: { select: { quantidade_transferida_pedido: true } } },
     })
 
     const encontradosMap = new Map(pedidos.map((p) => [p.id, p]))
@@ -318,7 +318,7 @@ pedidosLoteRouter.post('/cancelar/confirmar', async (req: Request, res: Response
         continue
       }
 
-      const temTransferencia = pedido.itens.some(
+      const temTransferencia = pedido.itens_pedido.some(
         (item) => Number(item.quantidade_transferida_pedido) > 0
       )
 
@@ -365,7 +365,7 @@ pedidosLoteRouter.post('/exportar', async (req: Request, res: Response, next: Ne
 
     const pedidos = await req.prisma.pedido.findMany({
       where,
-      include: { itens: true },
+      include: { itens_pedido: true },
       orderBy: { data_emissao_pedido: 'desc' },
     })
 

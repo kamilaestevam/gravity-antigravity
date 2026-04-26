@@ -136,7 +136,7 @@ export class DuplicarService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id_pedido: { in: ids }, id_organizacao: tenantId },
-      include: { itens: { select: { id_item: true } } },
+      include: { itens_pedido: { select: { id_item: true } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -152,7 +152,7 @@ export class DuplicarService {
       pedidos: pedidos.map((p: Record<string, unknown>) => ({
         id: p.id_pedido as string,
         numero_pedido: p.numero_pedido as string,
-        total_itens: (p.itens as unknown[]).length,
+        total_itens: (p.itens_pedido as unknown[]).length,
       })),
     }
   }
@@ -169,7 +169,7 @@ export class DuplicarService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id_pedido: { in: payload.ids }, id_organizacao: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length !== payload.ids.length) {
@@ -240,7 +240,7 @@ export class DuplicarService {
           } = pedido
 
           // Clonar itens com contadores de execução zerados
-          const itensClonados = (pedido.itens as Array<Record<string, unknown>>).map((item: Record<string, unknown>) => {
+          const itensClonados = (pedido.itens_pedido as Array<Record<string, unknown>>).map((item: Record<string, unknown>) => {
             const {
               id_item: _iid,
               id_pedido: _pid,
@@ -410,7 +410,7 @@ export class ExcluirService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id_pedido: { in: ids }, id_organizacao: tenantId },
-      include: { itens: { select: { id_item: true } } },
+      include: { itens_pedido: { select: { id_item: true } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -427,7 +427,7 @@ export class ExcluirService {
         permitidos.push({
           id: pedido.id_pedido as string,
           numero_pedido: pedido.numero_pedido as string,
-          total_itens: (pedido.itens as unknown[]).length,
+          total_itens: (pedido.itens_pedido as unknown[]).length,
         })
       } else {
         const statusPermitidosLabel = config.excluir_status_permitidos.join(', ')
@@ -454,7 +454,7 @@ export class ExcluirService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id_pedido: { in: ids }, id_organizacao: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -474,7 +474,7 @@ export class ExcluirService {
       )
     }
 
-    const totalItens = pedidos.reduce((acc: number, p: Record<string, unknown>) => acc + ((p.itens as unknown[] | undefined)?.length ?? 0), 0)
+    const totalItens = pedidos.reduce((acc: number, p: Record<string, unknown>) => acc + ((p.itens_pedido as unknown[] | undefined)?.length ?? 0), 0)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (db as any).$transaction(async (tx0: unknown) => {
@@ -493,8 +493,8 @@ export class ExcluirService {
             dados: JSON.stringify({
               numero_pedido: pedido.numero_pedido,
               status: pedido.status_pedido,
-              total_itens: (pedido.itens as unknown[]).length,
-              itens: (pedido.itens as Array<Record<string, unknown>>).map((i) => ({
+              total_itens: (pedido.itens_pedido as unknown[]).length,
+              itens: (pedido.itens_pedido as Array<Record<string, unknown>>).map((i) => ({
                 id: i.id_item,
                 part_number: i.part_number_item,
                 quantidade_inicial_pedido: i.quantidade_inicial_item,
@@ -537,7 +537,7 @@ export class ExcluirService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
       where: { id_pedido: pedidoId, id_organizacao: tenantId },
-      include: { itens: { select: { id_item: true } } },
+      include: { itens_pedido: { select: { id_item: true } } },
     })
     if (!pedido) {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')

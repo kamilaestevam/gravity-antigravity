@@ -24,7 +24,7 @@ function criarPedido(overrides: Record<string, unknown> = {}) {
     tenant_id: TENANT,
     numero_pedido: 'PO-001',
     detalhes_operacionais: null,
-    itens: [
+    itens_pedido: [
       {
         id: 'item-001',
         tenant_id: TENANT,
@@ -51,7 +51,7 @@ function criarDbMock(pedido = criarPedido()) {
   const itemUpdateMock = vi.fn().mockResolvedValue({ id: 'item-001' })
   const pedidoUpdateMock = vi.fn().mockResolvedValue({ id: 'pedido-001' })
   const pedidoHistoricoCreateManyMock = vi.fn().mockResolvedValue({})
-  const itemFindManyMock = vi.fn().mockResolvedValue(pedido.itens)
+  const itemFindManyMock = vi.fn().mockResolvedValue(pedido.itens_pedido)
 
   const tx: TxMock = {
     pedidoItem: { update: itemUpdateMock, findMany: itemFindManyMock },

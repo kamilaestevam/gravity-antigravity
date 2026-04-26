@@ -236,7 +236,7 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
  */
 export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | null | undefined {
   if (!pedido) return pedido
-  const rawItens = pedido.itens as PedidoItemRaw[] | undefined
+  const rawItens = pedido.itens_pedido as PedidoItemRaw[] | undefined
   const itens = Array.isArray(rawItens) ? rawItens.map(mapItem) : rawItens
   const det = (pedido.detalhes_operacionais_pedido as Record<string, unknown> | null)
     ?? (pedido.detalhes_operacionais as Record<string, unknown> | null)
@@ -438,7 +438,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await db.pedido.findMany({
           where,
-          include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+          include: { itens_pedido: { orderBy: { sequencia_item: 'asc' } } },
           orderBy: [
             { [sortField]: sortDir },
             { id: sortDir },
@@ -472,7 +472,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const [dataRaw, total, totalItens] = await Promise.all([
         db.pedido.findMany({
           where,
-          include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           orderBy: { data_emissao_pedido: 'desc' },
           skip,
           take: limitNum,
@@ -629,7 +629,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {
@@ -768,7 +768,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
             : undefined,
         },
         include: {
-          itens: { orderBy: { sequencia_item_pedido: 'asc' } },
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
           snapshots_empresa: true,
         },
       })
@@ -811,7 +811,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       const updated = await db.pedido.update({
         where: { id: req.params.id },
         data: result.data,
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       res.json(mapPedido(updated))
@@ -892,7 +892,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
       const updated = await db.pedido.update({
         where: { id: req.params.id },
         data: { status: result.data.status },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item: 'asc' } } },
       })
 
       res.json(mapPedido(updated))
@@ -1121,7 +1121,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
         const updatedRecalc = await db.pedido.findFirst({
           where: { id: req.params.id, tenant_id },
-          include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+          include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
         })
         return res.json(mapPedido(updatedRecalc))
       }
@@ -1161,7 +1161,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       const updated = await db.pedido.update({
         where: { id: req.params.id },
         data: dadosUpdate,
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
@@ -1193,7 +1193,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
       const original = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
         include: {
-          itens: { orderBy: { sequencia_item: 'asc' } },
+          itens_pedido: { orderBy: { sequencia_item: 'asc' } },
           snapshots_empresa: true,
         },
       })
@@ -1204,11 +1204,11 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
 
       const novoPedidoId = gerarId('pedi')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itensOriginais = (original.itens ?? []) as any[]
+      const itensOriginais = (original.itens_pedido ?? []) as any[]
       // Fase 4: snapshots duplicados carregam o estado CONGELADO do original.
       // Duplicar não é re-emitir — não re-consulta Cadastros.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const snapshotsOriginais = (original.snapshots_empresa ?? []) as any[]
+      const snapshotsOriginais = (original.snapshots_empresa_pedido ?? []) as any[]
 
       const duplicado = await db.pedido.create({
         data: {
@@ -1280,7 +1280,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
             : undefined,
         },
         include: {
-          itens: { orderBy: { sequencia_item_pedido: 'asc' } },
+          itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
           snapshots_empresa: true,
         },
       })

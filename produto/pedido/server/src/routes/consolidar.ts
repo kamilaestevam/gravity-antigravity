@@ -95,7 +95,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pedidos = await db.pedido.findMany({
         where: { id: { in: ids }, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       }) as any[]
 
       if (pedidos.length < 2) {
@@ -140,7 +140,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       // TODO: tipar com PrismaTypes (estrutura de item consolidado para exibição)
       const itensPorPart: Record<string, Record<string, unknown>> = {}
       for (const pedido of pedidos) {
-        for (const item of pedido.itens) {
+        for (const item of pedido.itens_pedido) {
           const partNumber = item.part_number_item
           if (itensPorPart[partNumber]) {
             itensPorPart[partNumber].quantidade_total = Number(itensPorPart[partNumber].quantidade_total ?? 0) + Number(item.quantidade_atual_item ?? 0);
@@ -206,7 +206,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       // Buscar pedidos originais — filtrado por tenant_id
       const pedidos = await db.pedido.findMany({
         where: { id: { in: ids }, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (pedidos.length < 2) {
@@ -243,7 +243,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       const partNumbersVistos = new Set<string>()
 
       for (const pedido of pedidos) {
-        for (const item of pedido.itens) {
+        for (const item of pedido.itens_pedido) {
           const partNumber = item.part_number_item
           if (fundir_itens_mesmo_part_number && partNumbersVistos.has(partNumber)) {
             const existente = itensMerge.find((i) => i['part_number_item'] === partNumber) as Record<string, number> | undefined
@@ -310,7 +310,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
             create: itensMerge,
           },
         },
-        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+        include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       // 2. Soft delete dos pedidos originais — marcados como deleted_at

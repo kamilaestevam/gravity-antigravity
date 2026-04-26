@@ -72,7 +72,7 @@ function criarPedidoPrisma(overrides: Record<string, unknown> = {}) {
     fabricante_id: null,
     quantidade_total_pedido: 111,
     valor_total_pedido: 1110,
-    itens: [criarItemPrisma()],
+    itens_pedido: [criarItemPrisma()],
     ...overrides,
   }
 }
@@ -97,7 +97,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
 
   const itemCreate = vi.fn().mockResolvedValue(criarItemPrisma({ id: 'pite_novo_001' }))
   const itemUpdate = vi.fn().mockResolvedValue(criarItemPrisma())
-  const itemFindMany = vi.fn().mockResolvedValue(pedidoBase.itens)
+  const itemFindMany = vi.fn().mockResolvedValue(pedidoBase.itens_pedido)
   const itemDelete = vi.fn().mockResolvedValue(undefined)
   const itemFindFirst = vi.fn().mockResolvedValue(criarItemPrisma())
 
@@ -183,7 +183,7 @@ describe('TransferirService.preview', () => {
 
   it('lança NOT_FOUND quando item não está no pedido', async () => {
     const { db } = criarMockDb()
-    db.pedido.findFirst = vi.fn().mockResolvedValue(criarPedidoPrisma({ itens: [] }))
+    db.pedido.findFirst = vi.fn().mockResolvedValue(criarPedidoPrisma({ itens_pedido: [] }))
     const service = new TransferirService()
 
     await expect(service.preview(TENANT, criarPayload(), db)).rejects.toThrow('Item não encontrado no pedido')
@@ -408,7 +408,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
     // Pedido destino sem itens com PART-001
     txBase.pedido.findFirst
       .mockResolvedValueOnce(criarPedidoPrisma()) // origem (primeira chamada no confirmar)
-      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', numero_pedido: 'PO-DEST', itens: [] }))
+      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', numero_pedido: 'PO-DEST', itens_pedido: [] }))
 
     const service = new TransferirService()
     const payload = criarPayload({
@@ -437,7 +437,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
     })
     txBase.pedido.findFirst
       .mockResolvedValueOnce(criarPedidoPrisma())
-      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', itens: [itemDestino] }))
+      .mockResolvedValueOnce(criarPedidoPrisma({ id: 'pedi_destino', itens_pedido: [itemDestino] }))
 
     const service = new TransferirService()
     const payload = criarPayload({

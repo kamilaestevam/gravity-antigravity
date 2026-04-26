@@ -169,7 +169,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
                 numero_proforma: pedidoData.numero_proforma,
                 numero_invoice: pedidoData.numero_invoice,
               },
-              itens: {
+              itens_pedido: {
                 create: pedidoData.itens.map((item, index) => ({
                   id_item: gerarId('pite'),
                   id_organizacao: tenant_id,
@@ -233,7 +233,7 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
       const db = rawDb as any
       pedidos = await db.pedido.findMany({
         where,
-        include: { itens: true },
+        include: { itens_pedido: true },
         orderBy: { data_emissao_pedido: 'desc' },
       })
     })
@@ -248,7 +248,7 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
       ]
 
       const rows = pedidos.flatMap((p: Record<string, unknown>) =>
-        (p.itens as Array<Record<string, unknown>>).map((item) =>
+        (p.itens_pedido as Array<Record<string, unknown>>).map((item) =>
           [
             p.numero_pedido, p.tipo_operacao_pedido, p.status_pedido, p.incoterm_pedido ?? '', p.moeda_pedido,
             p.valor_total_pedido ?? '', p.quantidade_total_pedido ?? '', p.data_emissao_pedido,

@@ -99,11 +99,11 @@ export class TransferirService {
   async preview(tenantId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferPreview> {
     const pedido = await db.pedido.findFirst({
       where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
-    }) as unknown as { numero_pedido: string; itens: Array<Record<string, unknown>> } | null
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+    }) as unknown as { numero_pedido: string; itens_pedido: Array<Record<string, unknown>> } | null
     if (!pedido) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
-    const item = pedido.itens.find((i) => i.id_item === payload.item_id)
+    const item = pedido.itens_pedido.find((i) => i.id_item === payload.item_id)
     if (!item) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
     const saldoAtual = Number(item.quantidade_atual_item)
@@ -162,11 +162,11 @@ export class TransferirService {
   async confirmar(tenantId: string, userId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferResultado> {
     const pedidoOrigem = await db.pedido.findFirst({
       where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
-    }) as unknown as { id_pedido: string; itens: Array<Record<string, unknown>> } & Record<string, unknown> | null
+      include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
+    }) as unknown as { id_pedido: string; itens_pedido: Array<Record<string, unknown>> } & Record<string, unknown> | null
     if (!pedidoOrigem) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
-    const itemOrigem = pedidoOrigem.itens.find((i) => i.id_item === payload.item_id) as Record<string, unknown> | undefined
+    const itemOrigem = pedidoOrigem.itens_pedido.find((i) => i.id_item === payload.item_id) as Record<string, unknown> | undefined
     if (!itemOrigem) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
     await this.validarQuantidade(Number(itemOrigem.quantidade_atual_item), payload.quantidade_origem)
@@ -206,7 +206,7 @@ export class TransferirService {
         } else if (destino.tipo === 'existente' && destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
             where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
-            include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
           if (!pedidoDestino) {
             throw new AppError(`Pedido destino ${destino.pedido_id} não encontrado`, 404, 'NOT_FOUND')
@@ -215,7 +215,7 @@ export class TransferirService {
 
           // Verificar se já existe item com mesmo part_number no destino
           const partTarget = destino.part_number ?? itemOrigem.part_number_item
-          const itemExistente = pedidoDestino.itens.find((i: Record<string, unknown>) => i.part_number_item === partTarget)
+          const itemExistente = pedidoDestino.itens_pedido.find((i: Record<string, unknown>) => i.part_number_item === partTarget)
 
           if (itemExistente) {
             await tx.pedidoItem.update({
@@ -228,7 +228,7 @@ export class TransferirService {
             })
           } else {
             // sequencia = próxima após os itens já existentes no destino
-            const sequenciaDestino = (pedidoDestino.itens?.length ?? 0) + 1
+            const sequenciaDestino = (pedidoDestino.itens_pedido?.length ?? 0) + 1
             const itemData = this.prepararItemDestino(itemOrigem, pedidoDestino.id_pedido, destino, sequenciaDestino)
             await tx.pedidoItem.create({ data: itemData as unknown as Prisma.PedidoItemUncheckedCreateInput })
           }
@@ -314,10 +314,10 @@ export class TransferirService {
         if (destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
             where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
-            include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
+            include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
           if (pedidoDestino) {
-            const itemDestino = pedidoDestino.itens.find((i: Record<string, unknown>) =>
+            const itemDestino = pedidoDestino.itens_pedido.find((i: Record<string, unknown>) =>
               i.part_number_item === (destino.part_number ?? itemOrigem?.part_number_item)
             )
             if (itemDestino) {

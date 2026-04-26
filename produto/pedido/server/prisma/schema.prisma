@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-25T23:59:36.677Z
+// Gerado em: 2026-04-26T00:10:11.776Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -152,10 +152,10 @@ model Pedido {
   data_confirmacao_recebimento_original_invoice_pedido        DateTime?
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
-  itens                                                       PedidoItem[]
-  transferencias                                              TrackingItemsTransferidos[]
-  snapshots_empresa                                           PedidoSnapshotEmpresa[]
-  snapshots_ope                                               PedidoSnapshotOpe[]
+  itens_pedido                                                PedidoItem[]
+  transferencias_pedido                                       TrackingItemsTransferidos[]
+  snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
+  snapshots_ope_pedido                                        PedidoSnapshotOpe[]
 
   @@unique([id_organizacao, numero_pedido])
   @@index([id_organizacao])

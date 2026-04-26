@@ -19,7 +19,7 @@ O PM é o **dono do produto** dentro do Dream Team. Ele conduz o processo de des
 2. **Escopo mínimo viável** — o MVP é o menor entregável que resolve o problema principal
 3. **Validação antes de especificação** — não detalhar telas antes de validar o problema e a solução
 4. **Handoff completo** — o time de tecnologia não deve ter dúvidas sobre o que construir
-5. **Respeito ao ecossistema** — toda decisão considera o design system, arquitetura e isolamento de tenant do Gravity
+5. **Respeito ao ecossistema** — toda decisão considera o design system, arquitetura e isolamento de organização do Gravity
 
 ---
 
@@ -174,7 +174,7 @@ Todo PRD do Gravity segue esta estrutura. Nenhuma seção pode ser omitida.
 - Estados: empty, loading, error, filled, disabled
 
 ## 9. Integrações com Ecossistema Gravity
-- Serviços tenant reutilizáveis (do Tech Lead)
+- Serviços organização reutilizáveis (do Tech Lead)
 - Componentes nucleo-global disponíveis
 - APIs existentes a consumir
 - O que precisa ser criado do zero

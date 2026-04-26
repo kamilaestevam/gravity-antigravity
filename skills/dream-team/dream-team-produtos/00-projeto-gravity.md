@@ -17,7 +17,7 @@ Gravity é uma plataforma SaaS multi-organização que hospeda múltiplos produt
 gravity/
 ├── nucleo-global/           ← Componentes React puros, sem estado/servidor
 ├── servicos-global/
-│   ├── tenant/              ← Serviços 1x por organização (email, dashboard, etc.)
+│   ├── organização/              ← Serviços 1x por organização (email, dashboard, etc.)
 │   ├── produto/             ← Templates reutilizáveis
 │   ├── configurador/        ← Auth (Clerk apenas autenticação), billing (provedor a definir), permissões via Prisma
 │   ├── marketplace/         ← Landing pública (sem auth)
@@ -120,7 +120,7 @@ O `nucleo-global/` contém componentes React **puros** (sem estado global, sem c
 Todo produto usa um arquivo `api.ts` (ou `apiGlobal.ts`) que centraliza chamadas REST. Este arquivo:
 
 1. Configura a base URL do backend
-2. Injeta headers obrigatórios (Authorization, x-correlation-id; o `id_organizacao` é resolvido server-side via SDK `@gravity/tenant-resolver`)
+2. Injeta headers obrigatórios (Authorization, x-id-correlacao; o `id_organizacao` é resolvido server-side via SDK `@gravity/tenant-resolver`)
 3. Trata erros de forma padronizada
 4. Nunca expõe tokens ou dados sensíveis em logs
 
@@ -164,7 +164,7 @@ O Gravity usa **Clerk** como provedor de autenticação. Todo produto integra co
 
 - JWT validado em rotas protegidas via `@clerk/backend`
 - Do token extrai-se apenas `clerk_user_id` — o restante (`id_usuario`, `tipo_usuario`, `id_organizacao`) vem do Prisma
-- Chamadas inter-serviço usam `x-internal-key` (não JWT de usuário)
+- Chamadas inter-serviço usam `x-chave-interna` (não JWT de usuário)
 
 ### Regras
 
@@ -185,7 +185,7 @@ Cada organização tem seus dados **completamente isolados** via **Schema-per-Or
 1. **Todo model Prisma** tem campo `id_organizacao String` obrigatório (mapeado no banco; ver convenção abaixo)
 2. **Toda query** ao banco roda dentro de `withTenant`/`withTenantContext` do SDK `@gravity/tenant-resolver`
 3. **Schema-per-Organização** ativo no PostgreSQL — `SET LOCAL search_path` por requisição
-4. **Middleware do SDK** resolve a organização e expõe `req.tenant.tenantId` (API real do SDK — manter o nome)
+4. **Middleware do SDK** resolve a organização e expõe `req.organizacao.idOrganizacao` (API real do SDK — manter o nome)
 5. Nenhum endpoint retorna dados de outra organização — mesmo para Master/Super Admin (que acessam por contexto explícito, sem `UsuarioWorkspace`)
 6. Produtos NUNCA acessam banco de outro produto
 7. Produtos NUNCA acessam banco do Configurador diretamente
@@ -194,18 +194,21 @@ Cada organização tem seus dados **completamente isolados** via **Schema-per-Or
 
 ### Índices Obrigatórios por Model
 
-> **Convenção de nomenclatura:** o campo Prisma usa `id_organizacao`; quando o schema atual ainda persistir a coluna `tenant_id` no banco, manter `@map("tenant_id")` para compatibilidade. O `schema.prisma` em si é **intocável** (Mandamento 02) — alterações são feitas pelo Coordenador via fragments.
+> **Convenção de nomenclatura (DDD REGRA 2 — paridade Prisma↔PG):** o campo Prisma é exatamente o nome da coluna PG. **`@map` em coluna é PROIBIDO.** O nome do model é PascalCase em PT-BR, com `@@map("snake_case")` apontando para a tabela PG. O `schema.prisma` em si é **intocável** (Mandamento 02) — alterações são feitas pelo Coordenador via fragments.
 
 ```prisma
 model Recurso {
-  id              String   @id @default(cuid())
-  id_organizacao  String   @map("tenant_id")
-  id_usuario      String?  @map("user_id")
+  id_recurso       String   @id @default(cuid())
+  id_organizacao   String
+  id_usuario       String?
   // ... campos
+  data_criacao_recurso     DateTime @default(now())
+  data_atualizacao_recurso DateTime @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
+  @@map("recurso")
 }
 ```
 
@@ -219,7 +222,7 @@ model Recurso {
 - `strict: true` — sem `@ts-ignore`
 - Sem `any` explícito
 - ESModules (`import`/`export`) — nunca `require()`
-- Imports via alias: `@nucleo/`, `@tenant/`, `@produto/`
+- Imports via alias: `@nucleo/`, `@organização/`, `@produto/`
 
 ### Naming
 
@@ -231,7 +234,9 @@ model Recurso {
 | Constantes | UPPER_SNAKE_CASE | `API_URL` |
 | Pastas | kebab-case | `nucleo-global` |
 | Campos Prisma/payload | snake_case DDD | `id_organizacao`, `id_usuario`, `tipo_usuario` |
-| Colunas físicas (quando aplicável) | snake_case | `tenant_id` (via `@map`) |
+| Colunas PG (paridade Prisma↔PG) | snake_case DDD idêntico ao campo Prisma | `id_organizacao`, `id_usuario` (sem `@map` — DDD REGRA 2) |
+| Tabelas PG (Model Prisma PascalCase) | snake_case via `@@map` | `model Pedido { … @@map("pedido") }` |
+| Booleans | adjetivo PT-BR sem prefixo | `ativo`, `gravity_admin`, `excluido` (nunca `is_*`) |
 
 ### Segurança
 
@@ -240,7 +245,7 @@ model Recurso {
 - Sem `console.log` com dados sensíveis
 - Sem variáveis de ambiente hardcoded
 - JWT validado em toda rota protegida
-- `x-internal-key` em toda chamada inter-serviço
+- `x-chave-interna` em toda chamada inter-serviço
 
 ---
 
@@ -250,7 +255,7 @@ model Recurso {
 |:---|:---|:---|
 | **0 — Fundação** | Skeleton, Prisma base, RLS, Marketplace | Tudo da Onda 1 |
 | **1 — Base** | Núcleo UI, Shell, Configurador | Tudo da Onda 2 |
-| **2 — Serviços** | 9 tenant + 3 produto + 1 template | Tudo da Onda 3 |
+| **2 — Serviços** | 9 organização + 3 produto + 1 template | Tudo da Onda 3 |
 | **3 — Integração** | Proxy, Auth Flow, Produtos, DevOps | Plataforma completa |
 
 **Regra:** Onda N+1 só inicia após Onda N validada.

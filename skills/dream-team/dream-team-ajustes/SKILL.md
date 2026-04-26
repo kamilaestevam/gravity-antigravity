@@ -60,8 +60,8 @@ skills/governanca/code-standards/SKILL.md
 
 | Tipo de Mudança | Skills a Ler (paths exatos) |
 |:----------------|:----------------------------|
-| Rota de API backend | `skills/seguranca/sla-performance/SKILL.md` + `skills/arquitetura/tenant-isolation/SKILL.md` |
-| Query Prisma / campo de banco | `skills/arquitetura/tenant-isolation/SKILL.md` + `skills/infra-estrutura/database-operations/SKILL.md` |
+| Rota de API backend | `skills/seguranca/sla-performance/SKILL.md` + `skills/arquitetura/isolamento-organizacao/SKILL.md` |
+| Query Prisma / campo de banco | `skills/arquitetura/isolamento-organizacao/SKILL.md` + `skills/infra-estrutura/database-operations/SKILL.md` |
 | Schema Zod exportado | `skills/arquitetura/contract-testing/SKILL.md` |
 | Componente React (`nucleo-global/`) | `skills/arquitetura/nucleo-global/SKILL.md` + `skills/ux/design-system/SKILL.md` |
 | Middleware de autenticação | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/seguranca/permissoes/SKILL.md` |

@@ -16,7 +16,7 @@ O Tech Lead é o **guardião da viabilidade técnica** no Dream Team de Produtos
 ## Princípios do Tech Lead Gravity
 
 1. **Reutilizar antes de criar** — o ecossistema Gravity já tem dezenas de serviços e componentes
-2. **Arquitetura Gravity** — todo novo produto segue a estrutura `client/server` com isolamento de tenant
+2. **Arquitetura Gravity** — todo novo produto segue a estrutura `client/server` com isolamento de organização
 3. **Honestidade técnica** — se algo é complexo, dizer "é complexo"; se é simples, não inflar
 4. **Viabilidade > perfeição** — no MVP, o que funciona é melhor do que o que é perfeito
 5. **Colaboração em tempo real** — trabalhar junto com o Designer durante todo o processo
@@ -80,7 +80,7 @@ O Tech Lead mantém conhecimento atualizado de todos os serviços do Gravity.
 | Serviço | O que faz | Endpoint | Quando Usar |
 |:---|:---|:---|:---|
 | Check Access | Verifica se a organização tem acesso ao produto | `GET /api/check-access` | Login, acesso a features premium |
-| Me (fonte de verdade) | Dados do usuário logado (Prisma) — `id_usuario`, `tipo_usuario`, `id_organizacao`, `id_workspace`, `isGravityAdmin` | `GET /api/v1/me` (resposta validada com `meResponseSchema.parse()`) | Header, perfil, permissões — **NUNCA usar `publicMetadata` do Clerk** |
+| Me (fonte de verdade) | Dados do usuário logado (Prisma) — `id_usuario`, `tipo_usuario`, `id_organizacao`, `id_workspace`, `gravity_admin` | `GET /api/v1/me` (resposta validada com `meResponseSchema.parse()`) | Header, perfil, permissões — **NUNCA usar `publicMetadata` do Clerk** |
 | Billing | Status da assinatura (provedor de pagamento a definir) | `GET /api/billing/status` | Limites de plano, upgrade prompts |
 | Permissions | Permissões granulares do usuário | `GET /api/permissions` | Controle de acesso por feature |
 | Workspace | Dados do workspace da organização | `GET /api/workspace` | Configurações da organização |
@@ -191,20 +191,21 @@ produto/[nome-produto]/
 
 ### Modelos de Dados (fragment.prisma)
 
-> **DDD:** o campo Prisma chama-se `id_organizacao` (e `id_usuario`); quando o schema atual ainda persistir colunas com nomes legados no banco, manter `@map("tenant_id")` / `@map("user_id")` para compatibilidade física.
+> **DDD REGRA 2 (paridade Prisma↔PG, atualizada 24/04/2026):** o campo Prisma é idêntico à coluna PG. **`@map` em coluna é PROIBIDO.** Model em PascalCase + `@@map("snake_case")` para a tabela PG. Audit fields em PT-BR (REGRA 3): `data_criacao_<entidade>`, `data_atualizacao_<entidade>`.
 
 ```prisma
-model [Recurso1] {
-  id              String   @id @default(cuid())
-  id_organizacao  String   @map("tenant_id")
-  id_usuario      String?  @map("user_id")
+model Recurso1 {
+  id_recurso1     String   @id @default(cuid())
+  id_organizacao  String
+  id_usuario      String?
   // campos do domínio
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  data_criacao_recurso1     DateTime @default(now())
+  data_atualizacao_recurso1 DateTime @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
+  @@map("recurso1")
 }
 ```
 
@@ -336,12 +337,12 @@ Todo novo produto DEVE seguir as regras de segurança do Gravity. O Tech Lead va
 
 ### Checklist de Segurança por Produto
 
-- [ ] Todo model Prisma tem `id_organizacao` obrigatório (com `@map("tenant_id")` quando aplicável)?
+- [ ] Todo model Prisma tem `id_organizacao` (campo + coluna PG idênticos, sem `@map` — DDD REGRA 2) e `@@map("snake_case")` na tabela?
 - [ ] Todo endpoint tem validação Zod (request E response — Mandamento 06)?
 - [ ] Toda query roda dentro de `withTenant` / `withTenantContext` do SDK `@gravity/tenant-resolver`?
 - [ ] `requireInternalKey` protege chamadas S2S?
 - [ ] JWT do Clerk é validado em rotas protegidas (apenas autenticação — Mandamento 01)?
-- [ ] Autorização (`tipo_usuario`, `isGravityAdmin`, permissões) vem **somente** do Prisma via `/api/v1/me`?
+- [ ] Autorização (`tipo_usuario`, `gravity_admin`, permissões) vem **somente** do Prisma via `/api/v1/me`?
 - [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão/organização?
 - [ ] Nenhuma query sem contexto de organização?
 - [ ] Health check sem autenticação em `/health`?
@@ -380,7 +381,7 @@ Todo novo produto DEVE seguir as regras de segurança do Gravity. O Tech Lead va
 
 - ❌ Subestima complexidade para agradar o PM
 - ❌ Propõe criar do zero o que já existe no Gravity
-- ❌ Ignora isolamento de tenant na arquitetura
+- ❌ Ignora isolamento de organização na arquitetura
 - ❌ Define requisitos de produto (isso é do PM)
 - ❌ Desenha telas (isso é do Designer)
 - ❌ Valida regras de negócio (isso é do SME)

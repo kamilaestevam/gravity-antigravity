@@ -125,7 +125,7 @@ Artefatos:
 #### 3.4 Middleware de Segurança
 - JWT validado via `@clerk/backend` (autenticação APENAS — Mandamento 01)?
 - Permissões consultadas via `/api/v1/me` (Prisma) — nunca lendo `publicMetadata.role`?
-- `x-internal-key` validado em chamadas inter-serviço?
+- `x-chave-interna` validado em chamadas inter-serviço?
 - Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver` (PrismaClient direto é PROIBIDO)?
 - Verificar conformidade com `skills/seguranca/seguranca-5-camadas/SKILL.md`
 
@@ -183,7 +183,8 @@ Artefatos:
 
 #### 5.1 Models Prisma Utilizados
 - Quais models são consultados por esta tela?
-- Todos têm `id_organizacao String @map("tenant_id")` (DDD obrigatório — Mandamento 03)?
+- Todos têm `id_organizacao String` com paridade Prisma↔PG (sem `@map` em coluna — DDD REGRA 2, Mandamento 03)?
+- Todos têm `@@map("snake_case")` apontando para a tabela PG (DDD REGRA 2 + REGRA 10)?
 - Todos têm os 3 índices obrigatórios?
   - `@@index([id_organizacao])`
   - `@@index([id_organizacao, id_produto])`
@@ -193,7 +194,7 @@ Artefatos:
 - Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver`?
 - Algum uso de `new PrismaClient()` direto (violação crítica)?
 - `id_organizacao` vem do JWT — nunca do body da requisição?
-- Verificar conformidade com `skills/arquitetura/tenant-isolation/SKILL.md`
+- Verificar conformidade com `skills/arquitetura/isolamento-organizacao/SKILL.md`
 
 #### 5.3 Performance de Queries
 - Queries N+1 identificadas?
@@ -208,7 +209,7 @@ Artefatos:
 Artefatos:
 ```
 [ ] Lista de models acessados
-[ ] Checklist de id_organizacao + @map("tenant_id") (por model)
+[ ] Checklist de id_organizacao com paridade Prisma↔PG e @@map("snake_case") (por model)
 [ ] Checklist de índices (por model)
 [ ] Queries problemáticas identificadas (N+1, campos extras)
 ```
@@ -233,7 +234,7 @@ Seguindo `skills/seguranca/seguranca-5-camadas/SKILL.md`:
 
 #### Camada 3 — Autorização (Prisma como fonte da verdade)
 - Permissões consultadas via `/api/v1/me` + `meResponseSchema.parse()` (Mandamentos 01 + 06)?
-- Decisão baseada em `tipo_usuario` ou `is_gravity_admin` (do Prisma)?
+- Decisão baseada em `tipo_usuario` ou `gravity_admin` (do Prisma; DDD REGRA 5 — booleans sem prefixo `is_`)?
 - Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)?
 - Sem fallback silencioso `(data?.x?.y ?? null) as Role` (Mandamento 08)?
 - Verificar conformidade com `skills/seguranca/permissoes/SKILL.md`
@@ -429,7 +430,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 | Situação | Skill a Acionar Após o Relatório |
 |----------|----------------------------------|
 | Achados CRÍTICO de segurança | `skills/seguranca/seguranca-5-camadas/SKILL.md` + notificar Líder |
-| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/arquitetura/tenant-isolation/SKILL.md` + Coordenador |
+| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/arquitetura/isolamento-organizacao/SKILL.md` + Coordenador |
 | Achados de autorização via `publicMetadata` (anti-padrão) | `skills/governanca/9-mandamentos/SKILL.md` (Mandamento 01) + Coordenador |
 | Achados de schema/model | `skills/arquitetura/schema-composition/SKILL.md` + Coordenador |
 | Ajustes identificados | `skills/dream-team-ajustes/SKILL.md` (executor dos ajustes) |

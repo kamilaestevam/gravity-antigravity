@@ -410,7 +410,7 @@ Então apenas [recursos] da organização "Empresa A" são exibidos
 
 #### CA-006: [Nome — tempo de resposta]
 ```gherkin
-Dado que existem [X] registros de [recurso] para o tenant
+Dado que existem [X] registros de [recurso] para o organização
 Quando o usuário acessa a lista de [recursos]
 Então a lista carrega em menos de [Y] milissegundos
   E a paginação é server-side

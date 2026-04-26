@@ -44,9 +44,9 @@ export const billingService = {
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([
           prisma.assinaturaProdutoGravity.updateMany({
-            where: { tenant_id: tenantId },
+            where: { id_organizacao_assinatura_produto_gravity: tenantId },
             data: {
-              status: 'ATIVA',
+              status_assinatura_produto_gravity: 'ATIVA',
               stripe_subscription_id: session.subscription as string,
             },
           }),
@@ -67,13 +67,13 @@ export const billingService = {
 
         await prisma.assinaturaProdutoGravity.updateMany({
           where: {
-            tenant_id: tenantRow.id_organizacao,
+            id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
             stripe_subscription_id: sub.id,
           },
           data: {
-            status: mapStripeStatus(sub.status),
-            current_period_start: new Date(sub.current_period_start * 1000),
-            current_period_end: new Date(sub.current_period_end * 1000),
+            status_assinatura_produto_gravity: mapStripeStatus(sub.status),
+            data_inicio_periodo_assinatura_produto_gravity: new Date(sub.current_period_start * 1000),
+            data_fim_periodo_assinatura_produto_gravity: new Date(sub.current_period_end * 1000),
           },
         })
         break
@@ -88,8 +88,14 @@ export const billingService = {
 
         await prisma.$transaction([
           prisma.assinaturaProdutoGravity.updateMany({
-            where: { tenant_id: tenantRow.id_organizacao, stripe_subscription_id: sub.id },
-            data: { status: 'CANCELADA', cancelled_at: new Date() },
+            where: {
+              id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
+              stripe_subscription_id: sub.id,
+            },
+            data: {
+              status_assinatura_produto_gravity: 'CANCELADA',
+              data_cancelamento_assinatura_produto_gravity: new Date(),
+            },
           }),
           prisma.organizacao.update({
             where: { id_organizacao: tenantRow.id_organizacao },
@@ -107,8 +113,8 @@ export const billingService = {
         if (!tenantRow) break
 
         await prisma.assinaturaProdutoGravity.updateMany({
-          where: { tenant_id: tenantRow.id_organizacao },
-          data: { status: 'VENCIDA' },
+          where: { id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao },
+          data: { status_assinatura_produto_gravity: 'VENCIDA' },
         })
         break
       }

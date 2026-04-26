@@ -95,9 +95,9 @@ adminRouter.get('/tenants', async (req, res, next) => {
           data_criacao_organizacao: true,
           _count: { select: { users_organizacao: true, companies_organizacao: true } },
           subscriptions_organizacao: {
-            orderBy: { created_at: 'desc' },
+            orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
             take: 1,
-            select: { status: true },
+            select: { status_assinatura_produto_gravity: true },
           },
           companies_organizacao: {
             select: {
@@ -126,7 +126,8 @@ adminRouter.get('/tenants', async (req, res, next) => {
         id: id_organizacao,
         ...rest,
         _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-        subscriptions: subscriptions_organizacao,
+        // DTO: status_assinatura_produto_gravity → status (preserva contrato)
+        subscriptions: subscriptions_organizacao.map((s) => ({ status: s.status_assinatura_produto_gravity })),
         companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
           ...c,
           id: id_workspace,
@@ -169,7 +170,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
           take: 50,
         },
         subscriptions_organizacao: {
-          orderBy: { created_at: 'desc' as const },
+          orderBy: { data_criacao_assinatura_produto_gravity: 'desc' as const },
           take: 1,
         },
         product_configs_organizacao: {
@@ -205,7 +206,20 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
           subdomain: subdominio_workspace,
           status: status_workspace,
         })),
-        subscriptions: subscriptions_organizacao,
+        // DTO: AssinaturaProdutoGravity rename → contrato externo legado
+        subscriptions: subscriptions_organizacao.map((s) => ({
+          id: s.id_assinatura_produto_gravity,
+          tenant_id: s.id_organizacao_assinatura_produto_gravity,
+          status: s.status_assinatura_produto_gravity,
+          stripe_subscription_id: s.stripe_subscription_id,
+          stripe_price_id: s.stripe_price_id,
+          trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
+          current_period_start: s.data_inicio_periodo_assinatura_produto_gravity,
+          current_period_end: s.data_fim_periodo_assinatura_produto_gravity,
+          cancelled_at: s.data_cancelamento_assinatura_produto_gravity,
+          created_at: s.data_criacao_assinatura_produto_gravity,
+          updated_at: s.data_atualizacao_assinatura_produto_gravity,
+        })),
         product_configs: product_configs_organizacao,
       },
     })

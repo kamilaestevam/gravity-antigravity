@@ -143,29 +143,29 @@ model Usuario {
 // ---------------------------------------------------------------------------
 
 model AssinaturaProdutoGravity {
-  id        String             @id @default(cuid())
-  tenant_id String
-  status    StatusAssinaturaProdutoGravity @default(EM_TESTE)
+  id_assinatura_produto_gravity             String                         @id @default(cuid())
+  id_organizacao_assinatura_produto_gravity String
+  status_assinatura_produto_gravity         StatusAssinaturaProdutoGravity @default(EM_TESTE)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
 
-  trial_ends_at        DateTime?
-  current_period_start DateTime?
-  current_period_end   DateTime?
-  cancelled_at         DateTime?
+  data_fim_teste_assinatura_produto_gravity     DateTime?
+  data_inicio_periodo_assinatura_produto_gravity DateTime?
+  data_fim_periodo_assinatura_produto_gravity   DateTime?
+  data_cancelamento_assinatura_produto_gravity  DateTime?
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_assinatura_produto_gravity     DateTime @default(now())
+  data_atualizacao_assinatura_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_assinatura_produto_gravity], references: [id_organizacao], onDelete: Cascade)
 
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, status])
+  // Índices obrigatórios — `map` explícito porque os nomes longos colidem após truncamento PG (63 chars)
+  @@index([id_organizacao_assinatura_produto_gravity], map: "apg_org_idx")
+  @@index([id_organizacao_assinatura_produto_gravity, data_criacao_assinatura_produto_gravity], map: "apg_org_criacao_idx")
+  @@index([id_organizacao_assinatura_produto_gravity, status_assinatura_produto_gravity], map: "apg_org_status_idx")
   @@map("assinatura_produto_gravity")
 }
 

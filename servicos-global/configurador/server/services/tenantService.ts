@@ -130,9 +130,9 @@ export const tenantService = {
         const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
         await tx.assinaturaProdutoGravity.create({
           data: {
-            tenant_id: newTenant.id_organizacao,
-            status: 'EM_TESTE',
-            trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
+            id_organizacao_assinatura_produto_gravity: newTenant.id_organizacao,
+            status_assinatura_produto_gravity: 'EM_TESTE',
+            data_fim_teste_assinatura_produto_gravity: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
         })
 
@@ -176,9 +176,12 @@ export const tenantService = {
       where: { id_organizacao: tenantId },
       include: {
         subscriptions_organizacao: {
-          orderBy: { created_at: 'desc' },
+          orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
           take: 1,
-          select: { status: true, trial_ends_at: true },
+          select: {
+            status_assinatura_produto_gravity: true,
+            data_fim_teste_assinatura_produto_gravity: true,
+          },
         },
         _count: { select: { users_organizacao: true, companies_organizacao: true } },
       },

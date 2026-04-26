@@ -124,7 +124,11 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
         id: id_organizacao,
         ...rest,
         _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-        subscriptions: subscriptions_organizacao,
+        // DTO: AssinaturaProdutoGravity rename → contrato externo legado
+        subscriptions: subscriptions_organizacao.map((s) => ({
+          status: s.status_assinatura_produto_gravity,
+          trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
+        })),
       },
     })
   } catch (err) {

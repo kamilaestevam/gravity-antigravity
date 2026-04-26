@@ -152,17 +152,17 @@ exports.Prisma.UsuarioScalarFieldEnum = {
 };
 
 exports.Prisma.AssinaturaProdutoGravityScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  status: 'status',
+  id_assinatura_produto_gravity: 'id_assinatura_produto_gravity',
+  id_organizacao_assinatura_produto_gravity: 'id_organizacao_assinatura_produto_gravity',
+  status_assinatura_produto_gravity: 'status_assinatura_produto_gravity',
   stripe_subscription_id: 'stripe_subscription_id',
   stripe_price_id: 'stripe_price_id',
-  trial_ends_at: 'trial_ends_at',
-  current_period_start: 'current_period_start',
-  current_period_end: 'current_period_end',
-  cancelled_at: 'cancelled_at',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  data_fim_teste_assinatura_produto_gravity: 'data_fim_teste_assinatura_produto_gravity',
+  data_inicio_periodo_assinatura_produto_gravity: 'data_inicio_periodo_assinatura_produto_gravity',
+  data_fim_periodo_assinatura_produto_gravity: 'data_fim_periodo_assinatura_produto_gravity',
+  data_cancelamento_assinatura_produto_gravity: 'data_cancelamento_assinatura_produto_gravity',
+  data_criacao_assinatura_produto_gravity: 'data_criacao_assinatura_produto_gravity',
+  data_atualizacao_assinatura_produto_gravity: 'data_atualizacao_assinatura_produto_gravity'
 };
 
 exports.Prisma.UsuarioPermissaoScalarFieldEnum = {

@@ -506,12 +506,12 @@ exports.StatusAssinaturaProdutoGravity = exports.$Enums.StatusAssinaturaProdutoG
   INCOMPLETA: 'INCOMPLETA'
 };
 
-exports.EmpresaStatus = exports.$Enums.EmpresaStatus = {
+exports.WorkspaceStatus = exports.$Enums.WorkspaceStatus = {
   ATIVO: 'ATIVO',
   INATIVO: 'INATIVO'
 };
 
-exports.TipoUsuarioEmpresa = exports.$Enums.TipoUsuarioEmpresa = {
+exports.TipoUsuarioWorkspace = exports.$Enums.TipoUsuarioWorkspace = {
   MASTER: 'MASTER',
   PADRAO: 'PADRAO',
   FORNECEDOR: 'FORNECEDOR'

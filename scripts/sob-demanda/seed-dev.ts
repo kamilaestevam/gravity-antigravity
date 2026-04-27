@@ -17,7 +17,7 @@
  *   que controla o acesso do usuário ao workspace específico.
  */
 
-import { PrismaClient, UsuarioTipo, TipoUsuarioEmpresa, OrganizacaoStatus, EmpresaStatus } from '../configurador/generated/index.js'
+import { PrismaClient, UsuarioTipo, TipoUsuarioWorkspace, OrganizacaoStatus, WorkspaceStatus } from '../configurador/generated/index.js'
 
 const DB_URL = process.env.CONFIGURADOR_DATABASE_URL
 
@@ -62,12 +62,12 @@ async function main(): Promise<void> {
   // ─────────────────────────────────────────────────────────────────────────
   const company = await prisma.workspace.upsert({
     where: { subdomain: 'dev-workspace-principal' },
-    update: { status: EmpresaStatus.ATIVO },
+    update: { status: WorkspaceStatus.ATIVO },
     create: {
       tenant_id: tenant.id,
       name: 'Workspace Principal',
       subdomain: 'dev-workspace-principal',
-      status: EmpresaStatus.ATIVO,
+      status: WorkspaceStatus.ATIVO,
     },
   })
 
@@ -114,12 +114,12 @@ async function main(): Promise<void> {
         company_id: company.id,
       },
     },
-    update: { role: TipoUsuarioEmpresa.MASTER, is_active: true },
+    update: { role: TipoUsuarioWorkspace.MASTER, is_active: true },
     create: {
       tenant_id: tenant.id,
       user_id: user.id,
       company_id: company.id,
-      role: TipoUsuarioEmpresa.MASTER,
+      role: TipoUsuarioWorkspace.MASTER,
       is_active: true,
     },
   })

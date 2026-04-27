@@ -42,12 +42,12 @@ enum UsuarioTipo {
   FORNECEDOR // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
-enum EmpresaStatus {
+enum WorkspaceStatus {
   ATIVO
   INATIVO
 }
 
-enum TipoUsuarioEmpresa {
+enum TipoUsuarioWorkspace {
   MASTER // Acesso implícito a todos os workspaces da organização
   PADRAO // Acesso apenas aos workspaces onde foi habilitado
   FORNECEDOR // Acesso externo — permissões granulares obrigatórias
@@ -239,7 +239,7 @@ model Workspace {
   nome_workspace           String
   subdominio_workspace     String?       @unique
   cnpj_workspace           String?
-  status_workspace         EmpresaStatus @default(ATIVO)
+  status_workspace         WorkspaceStatus @default(ATIVO)
 
   // Timestamps
   data_criacao_workspace DateTime @default(now())
@@ -269,7 +269,7 @@ model UsuarioWorkspace {
   id_organizacao_usuario_workspace String
   id_usuario_usuario_workspace     String
   id_workspace_usuario_workspace   String
-  tipo_usuario_workspace           TipoUsuarioEmpresa @default(PADRAO)
+  tipo_usuario_workspace           TipoUsuarioWorkspace @default(PADRAO)
   ativo_usuario_workspace          Boolean            @default(true)
 
   // Timestamps

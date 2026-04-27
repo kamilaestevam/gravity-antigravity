@@ -40,10 +40,11 @@ const CreateEstimativaSchema = z.object({
   documentos: z.array(z.any()).default([]),
 })
 
-async function gerarNumero(prisma: any, tenantId: string, userId: string, operacao: string): Promise<string> {
+async function gerarNumero(_prisma: unknown, tenantId: string, userId: string, operacao: string): Promise<string> {
+  const prisma = _prisma as any
   const ano = new Date().getFullYear()
   const prefixo = operacao === 'IMPORTACAO' ? 'IMP' : 'EXP'
-  const seq = await prisma.sequenciaEstimativa.upsert({
+  const seq = await prisma.simulaCustoSequencia.upsert({
     where: { tenant_id_user_id_ano: { tenant_id: tenantId, user_id: userId, ano } },
     update: { ultimo_numero: { increment: 1 } },
     create: { tenant_id: tenantId, user_id: userId, ano, ultimo_numero: 1 },
@@ -51,7 +52,8 @@ async function gerarNumero(prisma: any, tenantId: string, userId: string, operac
   return `EST-${prefixo}-${String(seq.ultimo_numero).padStart(5, '0')}/${String(ano).slice(-2)}`
 }
 
-function serialize(e: any) {
+function serialize(_e: unknown) {
+  const e = _e as any
   return {
     id: e.id,
     numero: e.numero,
@@ -76,7 +78,7 @@ estimativasRouter.post('/', async (req: TenantRequest, res: Response, next: Next
     const userId = req.headers['x-user-id'] as string
     const numero = await gerarNumero(prisma, tenantId, userId, data.operacao)
 
-    const estimativa = await prisma.estimativa.create({
+    const estimativa = await prisma.simulaCustoEstimativa.create({
       data: {
         user_id: userId, product_id: 'simula-custo', numero,
         referencia: data.referencia ?? null, operacao: data.operacao, tipo_operacao: data.tipo_operacao,
@@ -98,7 +100,7 @@ estimativasRouter.get('/', async (req: TenantRequest, res: Response, next: NextF
   try {
     const prisma = req.prisma!
     const { busca, status, page = '1', limit = '20' } = req.query as Record<string, string>
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (busca) {
       where.OR = [
         { numero: { contains: busca, mode: 'insensitive' } },
@@ -110,12 +112,12 @@ estimativasRouter.get('/', async (req: TenantRequest, res: Response, next: NextF
 
     const skip = (Number(page) - 1) * Number(limit)
     const [data, total] = await Promise.all([
-      prisma.estimativa.findMany({ where, orderBy: { created_at: 'desc' }, skip, take: Number(limit) }),
-      prisma.estimativa.count({ where }),
+      prisma.simulaCustoEstimativa.findMany({ where, orderBy: { created_at: 'desc' }, skip, take: Number(limit) }),
+      prisma.simulaCustoEstimativa.count({ where }),
     ])
 
     res.json({
-      data: data.map((e: any) => ({ ...serialize(e), created_at: e.created_at })),
+      data: data.map((_e: unknown) => { const e = _e as any; return { ...serialize(e), created_at: e.created_at } }),
       pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) },
     })
   } catch (err) { next(err) }
@@ -126,12 +128,12 @@ estimativasRouter.get('/kpis', async (req: TenantRequest, res: Response, next: N
   try {
     const prisma = req.prisma!
     const [total, em_criacao, criadas, arquivadas, aggLC, aggTrib] = await Promise.all([
-      prisma.estimativa.count(),
-      prisma.estimativa.count({ where: { status: 'EM_CRIACAO' } }),
-      prisma.estimativa.count({ where: { status: 'CRIADA' } }),
-      prisma.estimativa.count({ where: { status: 'ARQUIVADA' } }),
-      prisma.estimativa.aggregate({ _avg: { landed_cost_brl: true } }),
-      prisma.estimativa.aggregate({ _sum: { total_tributos: true } }),
+      prisma.simulaCustoEstimativa.count(),
+      prisma.simulaCustoEstimativa.count({ where: { status: 'EM_CRIACAO' } }),
+      prisma.simulaCustoEstimativa.count({ where: { status: 'CRIADA' } }),
+      prisma.simulaCustoEstimativa.count({ where: { status: 'ARQUIVADA' } }),
+      prisma.simulaCustoEstimativa.aggregate({ _avg: { landed_cost_brl: true } }),
+      prisma.simulaCustoEstimativa.aggregate({ _sum: { total_tributos: true } }),
     ])
     res.json({
       total, em_criacao, criadas, arquivadas,
@@ -145,7 +147,7 @@ estimativasRouter.get('/kpis', async (req: TenantRequest, res: Response, next: N
 estimativasRouter.get('/:id', async (req: TenantRequest, res: Response, next: NextFunction) => {
   try {
     const prisma = req.prisma!
-    const e = await prisma.estimativa.findFirst({ where: { id: req.params.id } })
+    const e = await prisma.simulaCustoEstimativa.findFirst({ where: { id: req.params.id } })
     if (!e) return res.status(404).json({ error: 'Estimativa não encontrada' })
     res.json(serialize(e))
   } catch (err) { next(err) }
@@ -157,11 +159,11 @@ estimativasRouter.post('/:id/duplicar', async (req: TenantRequest, res: Response
     const prisma = req.prisma!
     const tenantId = req.tenantId!
     const userId = req.headers['x-user-id'] as string
-    const original = await prisma.estimativa.findFirst({ where: { id: req.params.id } })
+    const original = await prisma.simulaCustoEstimativa.findFirst({ where: { id: req.params.id } })
     if (!original) return res.status(404).json({ error: 'Estimativa original não encontrada' })
 
     const numero = await gerarNumero(prisma, tenantId, userId, original.operacao)
-    const copia = await prisma.estimativa.create({
+    const copia = await prisma.simulaCustoEstimativa.create({
       data: {
         user_id: userId, product_id: 'simula-custo', numero,
         referencia: original.referencia ? `${original.referencia} (cópia)` : null,
@@ -188,7 +190,7 @@ estimativasRouter.patch('/:id/status', async (req: TenantRequest, res: Response,
     if (!['EM_CRIACAO', 'CRIADA', 'ARQUIVADA'].includes(status)) {
       return res.status(400).json({ error: 'Status inválido' })
     }
-    const e = await prisma.estimativa.update({ where: { id: req.params.id }, data: { status } })
+    const e = await prisma.simulaCustoEstimativa.update({ where: { id: req.params.id }, data: { status } })
     res.json(serialize(e))
   } catch (err) { next(err) }
 })

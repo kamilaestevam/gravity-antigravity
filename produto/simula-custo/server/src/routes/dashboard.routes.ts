@@ -47,7 +47,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
     for (const metric of metrics) {
       switch (metric) {
         case 'landed_cost_medio': {
-          const agg = await prisma.estimativa.aggregate({
+          const agg = await prisma.simulaCustoEstimativa.aggregate({
             _avg: { landed_cost_brl: true },
             where: { status: 'CRIADA', created_at: { gte: periodStart } },
           })
@@ -55,14 +55,14 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'estimativas_ativas': {
-          const count = await prisma.estimativa.count({
+          const count = await prisma.simulaCustoEstimativa.count({
             where: { status: 'CRIADA' },
           })
           result.estimativas_ativas = count
           break
         }
         case 'total_tributos_medio': {
-          const agg = await prisma.estimativa.aggregate({
+          const agg = await prisma.simulaCustoEstimativa.aggregate({
             _avg: { total_tributos: true },
             where: { status: 'CRIADA', created_at: { gte: periodStart } },
           })
@@ -70,7 +70,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'tributos_breakdown': {
-          const items = await prisma.tributoEstimativa.groupBy({
+          const items = await prisma.simulaCustoImpostos.groupBy({
             by: ['tipo'],
             _sum: { valor: true },
             where: {
@@ -86,7 +86,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'ptax_media': {
-          const agg = await prisma.estimativa.aggregate({
+          const agg = await prisma.simulaCustoEstimativa.aggregate({
             _avg: { ptax_utilizada: true },
             where: { status: 'CRIADA', created_at: { gte: periodStart } },
           })
@@ -95,7 +95,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.estimativa.findMany({
+          const items = await prisma.simulaCustoEstimativa.findMany({
             where: { created_at: { gte: dozeAtras } },
             select: { created_at: true },
           })

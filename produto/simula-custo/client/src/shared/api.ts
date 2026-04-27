@@ -6,9 +6,9 @@
 import type {
   SimulacaoInput,
   ResultadoFiscal,
-  Estimativa,
+  SimulaCustoEstimativa,
   EstimativasKpis,
-  EstimativaStatus,
+  SimulaCustoEstimativaStatus,
   NcmItem,
   UfItem,
   PaisItem,
@@ -76,14 +76,14 @@ export async function getPaises(): Promise<PaisItem[]> {
 // ─── Estimativas CRUD ────────────────────────────────────────────────────────
 
 export interface EstimativasListParams {
-  status?: EstimativaStatus
+  status?: SimulaCustoEstimativaStatus
   busca?: string
   pagina?: number
   limite?: number
 }
 
 export interface EstimativasListResponse {
-  data: Estimativa[]
+  data: SimulaCustoEstimativa[]
   total: number
   pagina: number
   limite: number
@@ -103,7 +103,7 @@ export async function getEstimativas(params: EstimativasListParams = {}): Promis
   return res.json()
 }
 
-export async function getEstimativa(id: string): Promise<Estimativa> {
+export async function getEstimativa(id: string): Promise<SimulaCustoEstimativa> {
   const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}`, {
     headers: headers(),
   })
@@ -111,7 +111,7 @@ export async function getEstimativa(id: string): Promise<Estimativa> {
   return res.json()
 }
 
-export async function criarEstimativa(input: SimulacaoInput): Promise<Estimativa> {
+export async function criarEstimativa(input: SimulacaoInput): Promise<SimulaCustoEstimativa> {
   const res = await fetch(`${API_BASE}/simula-custo/estimativas`, {
     method: 'POST',
     headers: headers(),
@@ -124,7 +124,7 @@ export async function criarEstimativa(input: SimulacaoInput): Promise<Estimativa
   return res.json()
 }
 
-export async function atualizarEstimativa(id: string, input: Partial<SimulacaoInput>): Promise<Estimativa> {
+export async function atualizarEstimativa(id: string, input: Partial<SimulacaoInput>): Promise<SimulaCustoEstimativa> {
   const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}`, {
     method: 'PATCH',
     headers: headers(),
@@ -137,7 +137,7 @@ export async function atualizarEstimativa(id: string, input: Partial<SimulacaoIn
   return res.json()
 }
 
-export async function atualizarStatusEstimativa(id: string, status: EstimativaStatus): Promise<Estimativa> {
+export async function atualizarStatusEstimativa(id: string, status: SimulaCustoEstimativaStatus): Promise<SimulaCustoEstimativa> {
   const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}/status`, {
     method: 'PATCH',
     headers: headers(),
@@ -150,7 +150,7 @@ export async function atualizarStatusEstimativa(id: string, status: EstimativaSt
   return res.json()
 }
 
-export async function duplicarEstimativa(id: string): Promise<Estimativa> {
+export async function duplicarEstimativa(id: string): Promise<SimulaCustoEstimativa> {
   const res = await fetch(`${API_BASE}/simula-custo/estimativas/${id}/duplicar`, {
     method: 'POST',
     headers: headers(),

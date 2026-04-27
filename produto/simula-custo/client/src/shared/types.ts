@@ -7,47 +7,47 @@
 
 // ─── Enums (espelham fragment.prisma) ────────────────────────────────────────
 
-export type OperacaoTipo = 'IMPORTACAO' | 'EXPORTACAO'
+export type SimulaCustoTipoOperacao = 'IMPORTACAO' | 'EXPORTACAO'
 
-export type TipoOperacaoDetalhe = 'DIRETA' | 'CONTA_ORDEM' | 'ENCOMENDA' | 'COMERCIAL_EXPORTADORA'
+export type SimulaCustoDetalheOperacao = 'DIRETA' | 'CONTA_ORDEM' | 'ENCOMENDA' | 'COMERCIAL_EXPORTADORA'
 
-export type EstimativaStatus = 'EM_CRIACAO' | 'CRIADA' | 'ARQUIVADA'
+export type SimulaCustoEstimativaStatus = 'EM_CRIACAO' | 'CRIADA' | 'ARQUIVADA'
 
-export type TaxaTipo = 'ORIGEM' | 'DESTINO'
+export type SimulaCustoTipoTaxa = 'ORIGEM' | 'DESTINO'
 
-export type CobrancaTipo = 'PROCESSO' | 'CONTAINER' | 'AWB' | 'BL' | 'CRT' | 'KGS' | 'TON' | 'CAIXA' | 'M3'
+export type SimulaCustoTipoCobranca = 'PROCESSO' | 'CONTAINER' | 'AWB' | 'BL' | 'CRT' | 'KGS' | 'TON' | 'CAIXA' | 'M3'
 
-export type TributoTipo = 'II' | 'IPI' | 'PIS' | 'COFINS' | 'ICMS'
+export type SimulaCustoTipoProduto = 'II' | 'IPI' | 'PIS' | 'COFINS' | 'ICMS'
 
-export type DocumentoTipo = 'PEDIDO_COMPRA' | 'PEDIDO_VENDA' | 'PROFORMA' | 'INVOICE' | 'OUTRO'
+export type SimulaCustoTipoDocumento = 'PEDIDO_COMPRA' | 'PEDIDO_VENDA' | 'PROFORMA' | 'INVOICE' | 'OUTRO'
 
 // ─── Labels para UI ──────────────────────────────────────────────────────────
 
-export const OPERACAO_LABELS: Record<OperacaoTipo, string> = {
+export const OPERACAO_LABELS: Record<SimulaCustoTipoOperacao, string> = {
   IMPORTACAO: 'Importação',
   EXPORTACAO: 'Exportação',
 }
 
-export const TIPO_OPERACAO_LABELS: Record<TipoOperacaoDetalhe, string> = {
+export const TIPO_OPERACAO_LABELS: Record<SimulaCustoDetalheOperacao, string> = {
   DIRETA: 'Direta',
   CONTA_ORDEM: 'Conta e Ordem',
   ENCOMENDA: 'Encomenda',
   COMERCIAL_EXPORTADORA: 'Comercial Exportadora',
 }
 
-export const STATUS_LABELS: Record<EstimativaStatus, string> = {
+export const STATUS_LABELS: Record<SimulaCustoEstimativaStatus, string> = {
   EM_CRIACAO: 'Em Criação',
   CRIADA: 'Criada',
   ARQUIVADA: 'Arquivada',
 }
 
-export const STATUS_BADGE: Record<EstimativaStatus, 'warning' | 'success' | 'default'> = {
+export const STATUS_BADGE: Record<SimulaCustoEstimativaStatus, 'warning' | 'success' | 'default'> = {
   EM_CRIACAO: 'warning',
   CRIADA: 'success',
   ARQUIVADA: 'default',
 }
 
-export const DOCUMENTO_LABELS: Record<DocumentoTipo, string> = {
+export const DOCUMENTO_LABELS: Record<SimulaCustoTipoDocumento, string> = {
   PEDIDO_COMPRA: 'Pedido de Compra',
   PEDIDO_VENDA: 'Pedido de Venda',
   PROFORMA: 'Proforma Invoice',
@@ -55,7 +55,7 @@ export const DOCUMENTO_LABELS: Record<DocumentoTipo, string> = {
   OUTRO: 'Outro',
 }
 
-export const COBRANCA_LABELS: Record<CobrancaTipo, string> = {
+export const COBRANCA_LABELS: Record<SimulaCustoTipoCobranca, string> = {
   PROCESSO: 'Por Processo',
   CONTAINER: 'Por Container',
   AWB: 'Por AWB',
@@ -73,7 +73,7 @@ export interface TaxaExtra {
   nome: string
   valor: number
   moeda: string
-  cobranca_por: CobrancaTipo
+  cobranca_por: SimulaCustoTipoCobranca
   valor_minimo: number
 }
 
@@ -81,8 +81,8 @@ export interface SimulacaoInput {
   ncm: string
   paisOrigem: string
   dataFatoGerador: string
-  operacao: OperacaoTipo
-  tipo_operacao: TipoOperacaoDetalhe
+  operacao: SimulaCustoTipoOperacao
+  tipo_operacao: SimulaCustoDetalheOperacao
   incoterm: string
   quantidade: number
   referencia: string
@@ -106,7 +106,7 @@ export interface SimulacaoInput {
 }
 
 export interface DocumentoRef {
-  tipo: DocumentoTipo
+  tipo: SimulaCustoTipoDocumento
   numero: string
 }
 
@@ -138,17 +138,17 @@ export interface ResultadoFiscal {
   source: 'siscomex' | 'gravity-engine' | 'fallback'
 }
 
-// ─── Entidade Banco (alinhada com Estimativa do fragment.prisma) ─────────────
+// ─── Entidade Banco (alinhada com SimulaCustoEstimativa do fragment.prisma) ─────────────
 
-export interface Estimativa {
+export interface SimulaCustoEstimativa {
   id: string
   tenant_id: string
   user_id: string
   numero: string
   referencia: string | null
-  operacao: OperacaoTipo
-  tipo_operacao: TipoOperacaoDetalhe
-  status: EstimativaStatus
+  operacao: SimulaCustoTipoOperacao
+  tipo_operacao: SimulaCustoDetalheOperacao
+  status: SimulaCustoEstimativaStatus
   data_geracao: string
   ncm: string
   ncm_descricao: string | null

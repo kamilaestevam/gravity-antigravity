@@ -49,7 +49,7 @@ import {
   Code,
 } from '@phosphor-icons/react'
 import { getEstimativas, getEstimativasKpis, duplicarEstimativa, atualizarStatusEstimativa } from '../../shared/api'
-import type { Estimativa, EstimativasKpis, EstimativaStatus } from '../../shared/types'
+import type { SimulaCustoEstimativa, EstimativasKpis, SimulaCustoEstimativaStatus } from '../../shared/types'
 import { STATUS_LABELS, STATUS_BADGE, OPERACAO_LABELS } from '../../shared/types'
 import './EstimativasDashboard.css'
 
@@ -85,7 +85,7 @@ export default function EstimativasDashboard() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const [estimativas, setEstimativas] = useState<Estimativa[]>([])
+  const [estimativas, setEstimativas] = useState<SimulaCustoEstimativa[]>([])
   const [kpis, setKpis] = useState<EstimativasKpis>({
     total: 0, em_criacao: 0, criadas: 0, arquivadas: 0,
     landed_cost_medio: 0, total_tributos_acumulado: 0,
@@ -97,7 +97,7 @@ export default function EstimativasDashboard() {
 
   // ─── Colunas da tabela ──────────────────────────────────────────────────
 
-  const colunas: GTColuna<Estimativa>[] = useMemo(() => [
+  const colunas: GTColuna<SimulaCustoEstimativa>[] = useMemo(() => [
     {
       key: 'numero',
       label: t('simulacusto.estimativas.tabela.numero'),
@@ -112,7 +112,7 @@ export default function EstimativasDashboard() {
       tipo: 'badge',
       filtravel: true,
       render: (val) => {
-        const s = val as EstimativaStatus
+        const s = val as SimulaCustoEstimativaStatus
         const variante = STATUS_BADGE[s]
         return (
           <span className={`sc-est-badge sc-est-badge--${variante}`}>
@@ -187,7 +187,7 @@ export default function EstimativasDashboard() {
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const status = abaAtiva === 'TODAS' ? undefined : abaAtiva as EstimativaStatus
+      const status = abaAtiva === 'TODAS' ? undefined : abaAtiva as SimulaCustoEstimativaStatus
       const [listRes, kpisRes] = await Promise.all([
         getEstimativas({ status }),
         getEstimativasKpis(),
@@ -219,7 +219,7 @@ export default function EstimativasDashboard() {
 
   // ─── Ações de linha ──────────────────────────────────────────────────────
 
-  const acoes: GTAcao<Estimativa>[] = useMemo(() => [
+  const acoes: GTAcao<SimulaCustoEstimativa>[] = useMemo(() => [
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
@@ -347,7 +347,7 @@ export default function EstimativasDashboard() {
 
       {/* ─── Tabela Virtualizada ──────────────────────────── */}
       <div className="sc-est-tabela">
-        <TabelaVirtualGlobal<Estimativa>
+        <TabelaVirtualGlobal<SimulaCustoEstimativa>
           dados={dadosFiltrados}
           colunas={colunas}
           itemId={(item) => item.id}

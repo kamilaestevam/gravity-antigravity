@@ -18,10 +18,10 @@ import { postSimulacao, getEstimativa, criarEstimativa, atualizarEstimativa } fr
 import type {
   SimulacaoInput,
   ResultadoFiscal,
-  OperacaoTipo,
-  TipoOperacaoDetalhe,
+  SimulaCustoTipoOperacao,
+  SimulaCustoDetalheOperacao,
   DocumentoRef,
-  DocumentoTipo,
+  SimulaCustoTipoDocumento,
 } from '../../shared/types'
 import {
   OPERACAO_LABELS,
@@ -93,7 +93,8 @@ export default function Estimativas() {
       setResultado(res)
       setModalAberto(false)
       setForm(dados) // Atualiza o form local com o que foi simulado
-    } catch (err: any) {
+    } catch (_err: unknown) {
+      const err = _err as any
       setError(err.message ?? 'Erro ao simular')
     } finally {
       setLoading(false)
@@ -139,7 +140,7 @@ export default function Estimativas() {
   // ─── Documentos ───────────────────────────────────────────────────────────
 
   const addDocumento = () => {
-    update('documentos', [...form.documentos, { tipo: 'INVOICE' as DocumentoTipo, numero: '' }])
+    update('documentos', [...form.documentos, { tipo: 'INVOICE' as SimulaCustoTipoDocumento, numero: '' }])
   }
 
   const updateDocumento = (index: number, field: keyof DocumentoRef, value: string) => {
@@ -229,16 +230,16 @@ export default function Estimativas() {
           <div className="sc-row sc-row--4">
             <div className="sc-field">
               <label>{t('simulacusto.formulario.operacao')}</label>
-              <select value={form.operacao} onChange={e => update('operacao', e.target.value as OperacaoTipo)}>
-                {(Object.keys(OPERACAO_LABELS) as OperacaoTipo[]).map(k => (
+              <select value={form.operacao} onChange={e => update('operacao', e.target.value as SimulaCustoTipoOperacao)}>
+                {(Object.keys(OPERACAO_LABELS) as SimulaCustoTipoOperacao[]).map(k => (
                   <option key={k} value={k}>{OPERACAO_LABELS[k]}</option>
                 ))}
               </select>
             </div>
             <div className="sc-field">
               <label>{t('simulacusto.formulario.modalidade')}</label>
-              <select value={form.tipo_operacao} onChange={e => update('tipo_operacao', e.target.value as TipoOperacaoDetalhe)}>
-                {(Object.keys(TIPO_OPERACAO_LABELS) as TipoOperacaoDetalhe[]).map(k => (
+              <select value={form.tipo_operacao} onChange={e => update('tipo_operacao', e.target.value as SimulaCustoDetalheOperacao)}>
+                {(Object.keys(TIPO_OPERACAO_LABELS) as SimulaCustoDetalheOperacao[]).map(k => (
                   <option key={k} value={k}>{TIPO_OPERACAO_LABELS[k]}</option>
                 ))}
               </select>
@@ -420,7 +421,7 @@ export default function Estimativas() {
               <div className="sc-field">
                 <label>Tipo</label>
                 <select value={doc.tipo} onChange={e => updateDocumento(i, 'tipo', e.target.value)}>
-                  {(Object.keys(DOCUMENTO_LABELS) as DocumentoTipo[]).map(k => (
+                  {(Object.keys(DOCUMENTO_LABELS) as SimulaCustoTipoDocumento[]).map(k => (
                     <option key={k} value={k}>{DOCUMENTO_LABELS[k]}</option>
                   ))}
                 </select>

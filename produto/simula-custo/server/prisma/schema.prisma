@@ -25,30 +25,30 @@ datasource db {
 
 // ─── Enums ──────────────────────────────────────────────────────────────────────
 
-enum OperacaoTipo {
+enum SimulaCustoTipoOperacao {
   IMPORTACAO
   EXPORTACAO
 }
 
-enum TipoOperacaoDetalhe {
+enum SimulaCustoDetalheOperacao {
   DIRETA
   CONTA_ORDEM
   ENCOMENDA
   COMERCIAL_EXPORTADORA
 }
 
-enum EstimativaStatus {
+enum SimulaCustoEstimativaStatus {
   EM_CRIACAO
   CRIADA
   ARQUIVADA
 }
 
-enum TaxaTipo {
+enum SimulaCustoTipoTaxa {
   ORIGEM
   DESTINO
 }
 
-enum CobrancaTipo {
+enum SimulaCustoTipoCobranca {
   PROCESSO
   CONTAINER
   AWB
@@ -60,7 +60,7 @@ enum CobrancaTipo {
   M3
 }
 
-enum TributoTipo {
+enum SimulaCustoTipoProduto {
   II
   IPI
   PIS
@@ -68,7 +68,7 @@ enum TributoTipo {
   ICMS
 }
 
-enum DocumentoTipo {
+enum SimulaCustoTipoDocumento {
   PEDIDO_COMPRA
   PEDIDO_VENDA
   PROFORMA
@@ -78,18 +78,20 @@ enum DocumentoTipo {
 
 // ─── Models ─────────────────────────────────────────────────────────────────────
 
-model Estimativa {
-  id              String            @id @default(cuid())
-  tenant_id       String
-  product_id      String            @default("simula-custo")
-  user_id         String
+model SimulaCustoEstimativa {
+  id              String   @id @default(cuid()) // Formato padrão Gravity: esti_id_000000001/26
+  tenant_id       String   // OBRIGATÓRIO — Nunca nullable
+  company_id      String   // OBRIGATÓRIO (Workspace) — Isola os dados (Prevenção Zero-Trust)
+  product_id      String   @default("simula-custo")
+  user_id         String   // clerk_id do criador
+  processo_id     String?  // Quando a estimativa é "Efetivada", ela se atrela ao Processo Real.
 
   // Dados da Estimativa
   numero          String            // EST-IMP-00001/26 ou manual alfanumérico
   referencia      String?           // Referência interna (até 30 chars)
-  operacao        OperacaoTipo      @default(IMPORTACAO)
-  tipo_operacao   TipoOperacaoDetalhe @default(DIRETA)
-  status          EstimativaStatus  @default(EM_CRIACAO)
+  operacao        SimulaCustoTipoOperacao      @default(IMPORTACAO)
+  tipo_operacao   SimulaCustoDetalheOperacao @default(DIRETA)
+  status          SimulaCustoEstimativaStatus  @default(EM_CRIACAO)
   data_geracao    DateTime          @default(now())
 
   // Aba Produto
@@ -130,10 +132,10 @@ model Estimativa {
   source          String?           // 'siscomex' | 'gravity-engine' | 'fallback'
 
   // Relações
-  taxas_origem    TaxaEstimativa[]  @relation("TaxasOrigem")
-  taxas_destino   TaxaEstimativa[]  @relation("TaxasDestino")
-  tributos        TributoEstimativa[]
-  documentos      DocumentoEstimativa[]
+  taxas_origem    SimulaCustoTaxas[]  @relation("TaxasOrigem")
+  taxas_destino   SimulaCustoTaxas[]  @relation("TaxasDestino")
+  tributos        SimulaCustoImpostos[]
+  documentos      SimulaCustoAnexos[]
 
   // Timestamps
   created_at      DateTime          @default(now())
@@ -141,53 +143,59 @@ model Estimativa {
 
   // Índices obrigatórios (skill: antigravity-tenant-isolation)
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, numero])
   @@index([tenant_id, status])
   @@index([tenant_id, ncm])
+  @@index([processo_id])
   @@map("estimativas_trade")
 }
 
-model TaxaEstimativa {
+model SimulaCustoTaxas {
   id              String      @id @default(cuid())
-  tenant_id       String
+  tenant_id       String      // OBRIGATÓRIO
+  company_id      String      // OBRIGATÓRIO
   product_id      String      @default("simula-custo")
   user_id         String?
 
   estimativa_id   String
-  tipo            TaxaTipo
+  tipo            SimulaCustoTipoTaxa
   nome            String
   moeda           String
-  cobranca_por    CobrancaTipo @default(PROCESSO)
+  cobranca_por    SimulaCustoTipoCobranca @default(PROCESSO)
   valor_minimo    Decimal     @db.Decimal(15, 2) @default(0)
   valor_total     Decimal     @db.Decimal(15, 2)
 
-  estimativa_origem  Estimativa? @relation("TaxasOrigem", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_origem_fk")
-  estimativa_destino Estimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_destino_fk")
+  estimativa_origem  SimulaCustoEstimativa? @relation("TaxasOrigem", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_origem_fk")
+  estimativa_destino SimulaCustoEstimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_destino_fk")
 
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, estimativa_id])
   @@map("taxas_estimativa_trade")
 }
 
-model TributoEstimativa {
+model SimulaCustoImpostos {
   id              String      @id @default(cuid())
   tenant_id       String
   product_id      String      @default("simula-custo")
   user_id         String?
 
   estimativa_id   String
-  tributo         TributoTipo
+  tributo         SimulaCustoTipoProduto
   aliquota        Decimal     @db.Decimal(5, 4)
   base_calculo    Decimal     @db.Decimal(15, 2)
   valor           Decimal     @db.Decimal(15, 2)
   reducao         Decimal?    @db.Decimal(5, 4)
   acordo          String?
 
-  estimativa      Estimativa  @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+  estimativa      SimulaCustoEstimativa  @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -196,17 +204,17 @@ model TributoEstimativa {
   @@map("tributos_estimativa_trade")
 }
 
-model DocumentoEstimativa {
+model SimulaCustoAnexos {
   id              String        @id @default(cuid())
   tenant_id       String
   product_id      String        @default("simula-custo")
   user_id         String?
 
   estimativa_id   String
-  tipo            DocumentoTipo
+  tipo            SimulaCustoTipoDocumento
   numero          String        // Alfanumérico até 30 chars
 
-  estimativa      Estimativa    @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+  estimativa      SimulaCustoEstimativa    @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
 
   created_at      DateTime      @default(now())
 
@@ -219,7 +227,7 @@ model DocumentoEstimativa {
 
 // ─── Cache (sem tenant_id — dados públicos) ─────────────────────────────────────
 
-model CacheAliquota {
+model SimulaCustoNcm {
   ncm             String   @id
   descricao       String?
   aliquota_ii     Decimal  @db.Decimal(5, 4)
@@ -235,7 +243,7 @@ model CacheAliquota {
   @@map("cache_aliquotas_ncm")
 }
 
-model CacheCambio {
+model SimulaCustoCambio {
   id              String   @id @default(cuid())
   moeda           String
   data_referencia DateTime
@@ -250,7 +258,7 @@ model CacheCambio {
 
 // ─── Sequência de Numeração ─────────────────────────────────────────────────────
 
-model SequenciaEstimativa {
+model SimulaCustoSequencia {
   id              String   @id @default(cuid())
   tenant_id       String
   user_id         String

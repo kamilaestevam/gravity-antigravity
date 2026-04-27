@@ -37,13 +37,13 @@ dashboardRouter.get('/kpis', async (req: Request, res: Response, next: NextFunct
 
     // Contagem total e por status
     const [total, finalizadas, rascunhos] = await Promise.all([
-      prisma.estimativa.count(),
-      prisma.estimativa.count({ where: { status: 'criada' } }),
-      prisma.estimativa.count({ where: { status: 'rascunho' } }),
+      prisma.simulaCustoEstimativa.count(),
+      prisma.simulaCustoEstimativa.count({ where: { status: 'criada' } }),
+      prisma.simulaCustoEstimativa.count({ where: { status: 'rascunho' } }),
     ])
 
     // Agregações de Landed Cost
-    const landedCostAgg = await prisma.estimativa.aggregate({
+    const landedCostAgg = await prisma.simulaCustoEstimativa.aggregate({
       _avg:  { landed_cost_brl: true },
       _max:  { landed_cost_brl: true },
       _min:  { landed_cost_brl: true },
@@ -117,7 +117,7 @@ dashboardRouter.get('/recentes', async (req: Request, res: Response, next: NextF
 
     const prisma = tenantReq.prisma
 
-    const raw = await prisma.estimativa.findMany({
+    const raw = await prisma.simulaCustoEstimativa.findMany({
       orderBy: { data_simulacao: 'desc' },
       take: 10,
       select: {

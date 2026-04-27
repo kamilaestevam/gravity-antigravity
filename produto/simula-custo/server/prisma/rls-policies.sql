@@ -5,7 +5,7 @@
 -- Segunda camada de defesa de isolamento de tenant.
 -- A primeira camada e o middleware Prisma (withTenantIsolation).
 --
--- NOTA: CacheAliquota e CacheCambio NAO tem tenant_id (dados publicos).
+-- NOTA: SimulaCustoNcm e SimulaCustoCambio NAO tem tenant_id (dados publicos).
 -- ============================================================
 
 -- ============================================================

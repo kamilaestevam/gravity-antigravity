@@ -1,6 +1,6 @@
 ---
 name: antigravity-resilience-patterns
-description: "Use esta skill para implementar padrões de resiliência. Define degradação graciosa, retry com backoff, dead letter queue, circuit breaker, endpoint de agregação e health check P0. Consultada pelo Backend e DevOps/SRE ao construir comunicação entre serviços."
+description: "Use esta skill para implementar padrões de resiliência. Define degradação graciosa, retry com backoff, dead letter queue, endpoint de agregação e timeouts obrigatórios. Aponta para a SSOT em casos de Health Check (observabilidade) e roadmap futuro (BullMQ, Circuit Breaker). Consultada pelo Backend e DevOps/SRE ao construir comunicação entre serviços."
 ---
 
 # Gravity — Resilience Patterns
@@ -15,21 +15,26 @@ Na arquitetura distribuída do Gravity, serviços falham. A rede falha. O banco 
 
 Quando um serviço da organização está fora do ar, o produto continua funcionando para tudo que é local.
 
-### No Frontend
+### Wrapper de chamada cross-service
 
 ```typescript
-// shared/api.ts — wrapper para chamadas a serviços da organização
-async function fetchOrgService<T>(
+// servicos-global/nucleo/api-client.ts
+// Wrapper para chamadas a serviços da organização.
+// O `logger` vem do createLogger do nucleo-global (ver skill de observabilidade).
+
+async function fetchOrganizacaoService<T>(
   endpoint: string,
+  correlationId: string,
   options?: RequestInit
 ): Promise<T | null> {
   try {
     const response = await fetch(
-      `${TENANT_SERVICES_URL}${endpoint}`,
+      `${ORGANIZACAO_SERVICES_URL}${endpoint}`,
       {
         ...options,
         headers: {
           'x-chave-interna': INTERNAL_KEY,
+          'x-id-correlacao': correlationId,
           ...options?.headers,
         },
         signal: AbortSignal.timeout(5000), // timeout de 5s
@@ -38,14 +43,17 @@ async function fetchOrgService<T>(
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     return await response.json()
   } catch (err) {
-    console.warn(`Serviço da organização indisponível: ${endpoint}`, err)
+    logger.warn('Servico da organizacao indisponivel', { endpoint, error: err })
     return null // degradação graciosa
   }
 }
+```
 
-// Na UI — mostrar fallback
+### Na UI — fallback de degradação
+
+```typescript
 function DashboardPage() {
-  const activities = useOrgQuery('/activities')
+  const activities = useOrganizacaoQuery('/activities')
 
   if (activities === null) {
     return (
@@ -60,24 +68,61 @@ function DashboardPage() {
 }
 ```
 
-### No Backend
+### Endpoint de agregação — padrão Route → Controller → Service
+
+A orquestração com `Promise.allSettled` mora **no Service**. A Route só roteia, o Controller só chama o Service.
 
 ```typescript
-// Endpoint de agregação — Promise.allSettled para não bloquear tudo
-app.get('/api/dashboard', async (req, res) => {
-  const [activities, timers, emails] = await Promise.allSettled([
-    orgAPI.get(`/activities?id_usuario=${req.auth.id_usuario}&id_produto=bid-frete`),
-    orgAPI.get(`/timers?id_usuario=${req.auth.id_usuario}&active=true`),
-    orgAPI.get(`/email?unread=true&limit=5`),
-  ])
+// <produto>/server/src/routes/dashboard.routes.ts
+import { Router } from 'express'
+import { dashboardController } from '../controllers/dashboard.controller'
 
-  res.json({
-    activities: activities.status === 'fulfilled' ? activities.value : null,
-    timers: timers.status === 'fulfilled' ? timers.value : null,
-    emails: emails.status === 'fulfilled' ? emails.value : null,
-    partial: [activities, timers, emails].some(r => r.status === 'rejected'),
-  })
-})
+export const dashboardRoutes = Router()
+dashboardRoutes.get('/dashboard', dashboardController.agregar)
+```
+
+```typescript
+// <produto>/server/src/controllers/dashboard.controller.ts
+import { Request, Response } from 'express'
+import { dashboardService } from '../services/dashboard.service'
+
+export const dashboardController = {
+  async agregar(req: Request, res: Response) {
+    const result = await dashboardService.agregar(req.auth, req.correlationId)
+    res.json(result)
+  },
+}
+```
+
+```typescript
+// <produto>/server/src/services/dashboard.service.ts
+import { organizacaoAPI } from '@gravity/nucleo'
+
+export const dashboardService = {
+  async agregar(auth: AuthContext, correlationId: string) {
+    const [activities, timers, emails] = await Promise.allSettled([
+      organizacaoAPI.get(
+        `/activities?id_usuario=${auth.id_usuario}&id_produto=bid-frete`,
+        { correlationId }
+      ),
+      organizacaoAPI.get(
+        `/timers?id_usuario=${auth.id_usuario}&active=true`,
+        { correlationId }
+      ),
+      organizacaoAPI.get(
+        `/email?unread=true&limit=5`,
+        { correlationId }
+      ),
+    ])
+
+    return {
+      activities: activities.status === 'fulfilled' ? activities.value : null,
+      timers: timers.status === 'fulfilled' ? timers.value : null,
+      emails: emails.status === 'fulfilled' ? emails.value : null,
+      partial: [activities, timers, emails].some(r => r.status === 'rejected'),
+    }
+  },
+}
 ```
 
 > **Regra:** se a tela precisa de dados de múltiplos serviços, use `Promise.allSettled` (não `Promise.all`). Um serviço falhando não deve derrubar os outros.
@@ -112,108 +157,19 @@ async function retryWithBackoff<T>(
 
 ## Padrão 3 — Dead Letter Queue
 
-Quando todos os retries falham, a ação vai para uma tabela de falhas para reprocessamento posterior. Ver skill `antigravity-cross-boundary` para implementação completa com `enqueueOrgAction` e `FailedOrgAction`.
-
-### Evolução: BullMQ (Fase 3)
-
-```typescript
-// Quando escalar para fila real
-import { Queue, Worker } from 'bullmq'
-
-const orgQueue = new Queue('org-actions', { connection: redis })
-
-// Enfileirar
-await orgQueue.add('create-activity', payload, {
-  attempts: 5,
-  backoff: { type: 'exponential', delay: 1000 },
-})
-
-// Processar
-new Worker('org-actions', async (job) => {
-  await orgAPI.post(`/api/org/${job.name}`, job.data)
-}, { connection: redis })
-```
+Quando todos os retries falham, a ação vai para uma tabela de falhas para reprocessamento posterior. Ver skill [`cross-boundary`](../../seguranca/cross-boundary/SKILL.md) para implementação completa com `enqueueOrganizacaoAction` e `FailedOrganizacaoAction`.
 
 ---
 
-## Padrão 4 — Circuit Breaker (Fase 3)
+## Health Check P0
 
-Evitar chamadas repetidas a um serviço que está sabidamente fora do ar:
-
-```typescript
-class CircuitBreaker {
-  private failures = 0
-  private lastFailure = 0
-  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED'
-
-  constructor(
-    private threshold: number = 5,
-    private timeout: number = 30000 // 30s
-  ) {}
-
-  async call<T>(fn: () => Promise<T>): Promise<T> {
-    if (this.state === 'OPEN') {
-      if (Date.now() - this.lastFailure > this.timeout) {
-        this.state = 'HALF_OPEN'
-      } else {
-        throw new Error('Circuit breaker is OPEN')
-      }
-    }
-
-    try {
-      const result = await fn()
-      this.reset()
-      return result
-    } catch (err) {
-      this.failures++
-      this.lastFailure = Date.now()
-      if (this.failures >= this.threshold) {
-        this.state = 'OPEN'
-      }
-      throw err
-    }
-  }
-
-  private reset() {
-    this.failures = 0
-    this.state = 'CLOSED'
-  }
-}
-```
+> ⚠️ **REGRA ABSOLUTA:** O Health Check P0 com verificação de dependências vive em [Observabilidade](../observabilidade/SKILL.md).
 
 ---
 
-## Padrão 5 — Health Check P0
+## Roadmap Futuro
 
-**Regra P0:** se um serviço cair, o responsável é notificado em **menos de 5 minutos**.
-
-```typescript
-// Health check com verificação de dependências
-app.get('/health', async (req, res) => {
-  const checks = {
-    database: false,
-    orgServices: false,
-  }
-
-  try {
-    await prisma.$queryRaw`SELECT 1`
-    checks.database = true
-  } catch {}
-
-  try {
-    const r = await fetch(`${ORG_URL}/health`, { signal: AbortSignal.timeout(2000) })
-    checks.orgServices = r.ok
-  } catch {}
-
-  const healthy = checks.database // DB é obrigatório, serviços da organização é nice-to-have
-  res.status(healthy ? 200 : 503).json({
-    status: healthy ? 'ok' : 'degraded',
-    service: 'bid-frete',
-    checks,
-    timestamp: new Date().toISOString(),
-  })
-})
-```
+> ⚠️ **Roadmap Futuro:** BullMQ e Circuit Breaker serão documentados quando oficialmente implementados na arquitetura.
 
 ---
 
@@ -235,6 +191,7 @@ app.get('/health', async (req, res) => {
 - [ ] `Promise.allSettled` para múltiplas chamadas paralelas?
 - [ ] Retry com backoff para ações cross-boundary?
 - [ ] UI mostra degradação graciosa (não tela de erro)?
-- [ ] Health check verifica dependências críticas?
+- [ ] Health check verifica dependências críticas (ver [Observabilidade](../observabilidade/SKILL.md))?
 - [ ] Dead letter queue para falhas persistentes?
-- [ ] Endpoint de agregação para reduzir chamadas HTTP?
+- [ ] Endpoint de agregação respeitando Route → Controller → Service?
+- [ ] Correlation ID propagado via `x-id-correlacao` em toda chamada cross-service?

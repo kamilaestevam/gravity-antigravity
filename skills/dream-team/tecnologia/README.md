@@ -1,9 +1,14 @@
+---
+name: antigravity-dream-team-tecnologia
+description: Mapa central e inventário de skills da equipe de tecnologia
+---
+
 # Dream Team Tecnologia — Documentação Completa
 
 > **Versão:** 3.0
 > **Data:** Abril 2026
 > **Autor:** Daniel Mendes
-> **Status:** Ativo — pós-reorganização SSOT (Operação Linguagem Ubíqua)
+> **Status:** Ativo — pós-reorganizacao SSOT (Operação Linguagem Ubíqua)
 > **Escopo:** esta é a ÚNICA fonte oficial do Dream Team Tecnologia
 
 ---
@@ -14,9 +19,9 @@ O Dream Team Tecnologia é o **framework completo de governança técnica** da p
 
 Quando ativado (via comando `/dream-team-tecnologia`), o agente AI assume o conhecimento de todo o time técnico e aplica as regras corretas de acordo com o contexto da tarefa.
 
-> **Importante:** As regras universais (9 Mandamentos, DDD, isolamento de organização) aplicam-se a **TODO agente em TODA conversa** — independem desta ativação. O Dream Team apenas concentra os papéis técnicos especializados.
+> **Importante:** As regras universais (9 Mandamentos, DDD, isolamento de organizacao) aplicam-se a **TODO agente em TODA conversa** — independem desta ativação. O Dream Team apenas concentra os papéis técnicos especializados.
 
-> **Pós-reorganização (Abril 2026):** governança virou **Fonte Única de Verdade (SSOT)**. Toda regra absoluta vive em `skills/governanca/lei/` ou `skills/governanca/convencao-tecnica/`. Skills de operação e verticais **referenciam** as regras — nunca as redefinem.
+> **Pós-reorganizacao (Abril 2026):** governança virou **Fonte Única de Verdade (SSOT)**. Toda regra absoluta vive em `skills/governanca/lei/` ou `skills/governanca/convencao-tecnica/`. Skills de operação e verticais **referenciam** as regras — nunca as redefinem.
 
 ### Em uma frase
 
@@ -60,7 +65,7 @@ Sem essas leituras, qualquer entrega será rejeitada pelo QA.
 A plataforma Gravity é um ecossistema SaaS complexo com:
 
 - **Monorepo** com nucleo-global, servicos-global, produtos e testes centralizados
-- **Multi-organização** com isolamento Schema-per-Organização (PostgreSQL schema dedicado por empresa)
+- **Multi-organizacao** com isolamento Schema-per-Organizacao (PostgreSQL schema dedicado por empresa)
 - **Múltiplos bancos** (configurador, serviços compartilhados, cada produto)
 - **Comunicação inter-serviços** via REST com JWT + `x-chave-interna`
 - **Metas de SLA** agressivas (200ms, 50k req, 99,9% uptime)
@@ -100,13 +105,13 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 3 | **Visão Geral** | `skills/governanca/lei/visao-geral/SKILL.md` | Arquitetura geral, ondas, stack |
 | 4 | **DDD Nomenclatura** | `skills/governanca/lei/ddd-nomenclatura/SKILL.md` | **Lei única de nomenclatura** — em conflito com qualquer outro doc, esta prevalece |
 | 5 | Terminal | `skills/governanca/lei/terminal/SKILL.md` | Autorização de comandos autônomos (instalar, build, kill-port) |
-| 6 | Isolamento de Organização | `skills/governanca/lei/isolamento-organizacao/SKILL.md` | Schema-per-Organização — **qualquer acesso a banco** |
-| 7 | SDK Resolvedor de Organização | `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` | `@gravity/tenant-resolver` — `withTenant`, `withTenantContext`, `TenantDatabase` |
+| 6 | Isolamento de Organizacao | `skills/governanca/lei/isolamento-organizacao/SKILL.md` | Schema-per-Organizacao — **qualquer acesso a banco** |
+| 7 | SDK Resolvedor de Organizacao | `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` | `@gravity/tenant-resolver` — `withOrganizacao`, `withOrganizacaoContext`, `TenantDatabase` |
 | 8 | SLA Metas ⭐ | `skills/governanca/lei/sla-metas/SKILL.md` | 200ms p95, 50k req/s, 99,9% uptime, budget de latência |
 | 9 | Cost Budget ⭐ | `skills/governanca/lei/cost-budget/SKILL.md` | Limites mensais, thresholds 70/80/90/95%, bloqueio de scaling em 95% |
 | 10 | Backup Policy ⭐ | `skills/governanca/lei/backup-policy/SKILL.md` | RPO 24h, RTO 1h, backup pré-migration obrigatório, teste mensal |
 
-> ⭐ = nova skill da Fase C1 (reorganização SSOT, Abril 2026)
+> ⭐ = nova skill da Fase C1 (reorganizacao SSOT, Abril 2026)
 
 ### 2. Governança › Convenção Técnica (7) — Como escrever código
 
@@ -114,7 +119,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 |---|:---|:---|:---|
 | 11 | Code Standards | `skills/governanca/convencao-tecnica/code-standards/SKILL.md` | TypeScript strict, Zod, AppError, naming, env vars |
 | 12 | Monorepo | `skills/governanca/convencao-tecnica/monorepo/SKILL.md` | NPM workspaces, aliases, tsconfig, dependências |
-| 13 | Lint Tenant-Safety | `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo `tenant:` |
+| 13 | Lint Tenant-Safety | `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo `organizacao:` |
 | 14 | Database Governance | `skills/governanca/convencao-tecnica/database-governance/SKILL.md` | Paridade Prisma↔PG, Database-per-Service, schema `public` vazio, CUID |
 | 15 | API Design | `skills/governanca/convencao-tecnica/api-design/SKILL.md` | Convenções REST, versionamento, paginação, validação Zod |
 | 16 | Criptografia ⭐ | `skills/governanca/convencao-tecnica/criptografia/SKILL.md` | SHA-256 (tokens), AES-256-GCM (credenciais ERP), HMAC-SHA256 (webhooks) |
@@ -155,9 +160,9 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 |---|:---|:---|:---|
 | 30 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Componentes React puros, sem estado de servidor |
 | 31 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Composição de Prisma fragments por serviço |
-| 32 | Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
+| 32 | Serviços de Organizacao | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organizacao |
 | 33 | Estado | `skills/arquitetura/estado/SKILL.md` | Zustand, Event Bus, cache cliente |
-| 34 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `tenant:` |
+| 34 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `organizacao:` |
 | 35 | Resiliência | `skills/arquitetura/resiliencia/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
 | 36 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
 | 37 | Tradução (i18n) | `skills/arquitetura/traducao/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
@@ -170,7 +175,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 39 | Permissões | `skills/seguranca/permissoes/SKILL.md` | RBAC via `tipo_usuario`, Configurador como fonte da verdade |
 | 40 | Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | JWT inter-serviço, machine tokens, `x-chave-interna` |
 | 41 | Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | Ações cross-banco, BullMQ, DLQ, agregação eventual |
-| 42 | Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | `express-rate-limit` + Redis, limites por organização/rota |
+| 42 | Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | `express-rate-limit` + Redis, limites por organizacao/rota |
 | 43 | Pentest | `skills/seguranca/pentest/SKILL.md` | OWASP Top 10, ferramentas, relatório |
 | 44 | Tier 1 Security | `skills/seguranca/tier1-security/SKILL.md` | Padrões P0 em endpoints críticos |
 
@@ -220,129 +225,29 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 
 ---
 
-## Os 9 Mandamentos — Resumo Operacional
+## Os 9 Mandamentos
 
-Detalhes completos em `skills/governanca/lei/9-mandamentos/SKILL.md`.
-
-| # | Mandamento | Resumo |
-|---|:---|:---|
-| 01 | Isolamento total do Clerk | Clerk só para autenticação. Permissões vêm do banco via `/api/v1/me`. PROIBIDO ler `publicMetadata.role`. |
-| 02 | `schema.prisma` é intocável | Apenas o Coordenador altera, via script. Adeque o código ao schema, não o contrário. |
-| 03 | Adesão estrita ao DDD | `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` (booleans sem `is_` — REGRA 5). Lei única: `skills/governanca/lei/ddd-nomenclatura/SKILL.md`. |
-| 04 | Lógica de Vínculo (O Limbo) | Master e Super Admin têm acesso global, sem depender de `UsuarioWorkspace`. |
-| 05 | Proibido mocks preguiçosos | Sem `useState<T>({} as T)`, sem string vazia para satisfazer compilador. Use `null`/`undefined`. |
-| 06 | Validação Zod obrigatória | Toda resposta de `fetch().json()` passa por `schema.parse()`. |
-| 07 | Sincronia de contratos | Renomear campo de API exige atualizar TODOS os consumidores no MESMO commit. |
-| 08 | Fim dos fallbacks silenciosos | Autorização falha alto. Nunca `(data?.x?.y ?? null) as Role`. |
-| 09 | Schemas Zod são contratos bilaterais | Backend mudou? Zod muda no mesmo commit. Sem `z.any()`/`.passthrough()`. |
+> ⚠️ **REGRA ABSOLUTA:** Os 9 Mandamentos vivem na íntegra em [9 Mandamentos](../../governanca/lei/9-mandamentos/SKILL.md).
 
 ---
 
 ## Metas de SLA
 
-> Fonte canônica: `skills/governanca/lei/sla-metas/SKILL.md` (SSOT).
-
-| Requisito | Meta |
-|:---|:---|
-| Latência máxima (p95) | ≤ 200ms |
-| Requisições simultâneas | 50.000 |
-| Disponibilidade | 99,9% (≤ 8h45min downtime/ano) |
-| Escalabilidade | Auto-scaling com budget controlado |
-| RPO (perda de dados) | ≤ 24 horas |
-| RTO (tempo de recuperação) | ≤ 1 hora |
-
-### Budget de Latência
-
-| Camada | Budget |
-|:---|:---|
-| Rede interna Railway | 5ms |
-| Express middleware chain | 10ms |
-| Validação Zod | 5ms |
-| Query Prisma (DB) | 80ms |
-| Lógica de negócio | 50ms |
-| Serialização response | 5ms |
-| Buffer de segurança | 45ms |
-| **Total** | **200ms** |
+> ⚠️ **REGRA ABSOLUTA:** Metas (200ms p95, 50k req/s, 99,9% uptime, RPO 24h, RTO 1h) e budget de latência por camada vivem em [SLA Metas](../../governanca/lei/sla-metas/SKILL.md).
 
 ---
 
 ## Segurança — 5 Camadas
 
-> Fonte canônica: `skills/seguranca/seguranca-5-camadas/SKILL.md`.
-
-Cada request passa por 5 camadas de proteção independentes:
-
-```
-Request → [1. Rede] → [2. Autenticação] → [3. Autorização] → [4. Isolamento] → [5. Auditoria] → Response
-```
-
-### Camada 1 — Rede
-
-- Comunicação via rede interna Railway (`*.railway.internal`)
-- `x-chave-interna` obrigatório em toda chamada S2S (**Prioridade P1**)
-- Sem exposição pública (exceto marketplace e gateway)
-- HTTPS automático via Railway
-
-### Camada 2 — Autenticação (Clerk APENAS — Mandamento 01)
-
-- Clerk JWT validado **independentemente** em cada serviço
-- Servidor de organização **nunca** confia no produto cegamente
-- JWT expira em 1h; machine tokens para ações assíncronas
-- MFA disponível via Clerk
-- **PROIBIDO** usar Clerk para autorização
-
-### Camada 3 — Autorização (Banco = fonte única da verdade)
-
-- Configurador verifica: organização tem acesso ao produto?
-- Configurador verifica: usuário tem permissão para a ação?
-- RBAC via `tipo_usuario` granulares por produto
-- Verificação via API (`GET /api/v1/me` retorna `tipo_usuario`)
-- Master e Super Admin têm acesso global (Mandamento 04)
-
-### Camada 4 — Isolamento de Dados
-
-- **Schema-per-Organização** no PostgreSQL — schema dedicado por empresa
-- **SDK `@gravity/tenant-resolver`** obrigatório para acesso ao banco (`withTenant`, `withTenantContext`)
-- `PrismaClient` direto é PROIBIDO em código de aplicação
-- `id_organizacao` vem do JWT, **nunca** do body da requisição
-- `id_produto` nullable por design (atividades sem produto são válidas)
-- **3 índices obrigatórios** em todo model — campos Prisma têm paridade total com colunas PG (DDD REGRA 2: **`@map` em coluna é PROIBIDO**). Tabela PG é declarada via `@@map("snake_case")`.
-
-### Camada 5 — Auditoria
-
-- Toda alteração (create, update, delete) registrada no serviço `historico`
-- Logs de auditoria são **imutáveis** (sem DELETE/UPDATE)
-- Tentativas de acesso negado também são logadas
-- Dados sensíveis nunca aparecem nos logs
-- Detalhes: `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md`
+> ⚠️ **REGRA ABSOLUTA:** As 5 camadas (Rede, Autenticação, Autorização, Isolamento, Auditoria) vivem em [Segurança 5 Camadas](../../seguranca/seguranca-5-camadas/SKILL.md). Para regras específicas das camadas: [Mandamento 01 — Isolamento Total do Clerk](../../governanca/lei/9-mandamentos/SKILL.md), [Schema Composition](../../arquitetura/schema-composition/SKILL.md), [Observabilidade Mínima](../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md).
 
 ---
 
 ## Como Usar
 
-### Ativar o Dream Team
+> Slash commands foram desativados em 21/04/2026 (FASE 1 DDD). Ative os agentes passando este README como contexto.
 
-No Claude Code, digite:
-
-```
-/dream-team-tecnologia
-```
-
-Isso carrega as 64 skills e ativa os 11 papéis. O agente passa a aplicar todas as regras automaticamente de acordo com o contexto.
-
-> **Lembrete:** os 9 Mandamentos e o CLAUDE.md raiz já carregam automaticamente em toda conversa, mesmo sem este comando.
-
-### Outros Comandos
-
-| Comando | O que faz |
-|:---|:---|
-| `/dream-team-tecnologia` | Carrega o time completo (64 skills em 11 grupos) |
-| `/dream-team-produtos` | Carrega o time de produtos (11 arquivos, 8 agentes) |
-| `/dream-team-detetive-tela` | Análise forense completa de uma tela |
-| `/lider` | Ativa modo Líder (análise + distribuição) |
-| `/coordenar` | Ativa modo Coordenador (schema + contratos + ondas) |
-| `/qa` | Ativa modo QA (revisão completa pós-entrega) |
-| `/deploy` | Fluxo de deploy/migração |
+> **Lembrete:** os 9 Mandamentos e o CLAUDE.md raiz já carregam automaticamente em toda conversa.
 
 ---
 
@@ -353,9 +258,16 @@ Isso carrega as 64 skills e ativa os 11 papéis. O agente passa a aplicar todas 
 | Origem (Início 2026) | 38 skills cobrindo "como construir" |
 | Análise de gaps | +19 skills (rate limiting, backup/DR, resilience patterns, etc.) |
 | Pós-DDD (Abril 2026) | +9 skills de governança (9-mandamentos, ddd-nomenclatura, database-governance, lint-tenant-safety, monorepo, etc.) |
-| Categorias pausadas | −10 skills (Serviços por Organização, Produtos antigos) |
-| **Reorganização SSOT (Abril 2026)** — Operação Linguagem Ubíqua | Estrutural: 9 grupos no topo + governança subdividida em 3 (lei, convenção técnica, operação). Conteúdo: +5 skills novas em governança (sla-metas, cost-budget, backup-policy, criptografia, observabilidade-minima). Limpeza: −2 duplicatas (database-operations, sla-performance). 14 ponteiros REGRA ABSOLUTA inseridos nas verticais/operação. |
+| Categorias pausadas | −10 skills (Serviços por Organizacao, Produtos antigos) |
+| **Reorganizacao SSOT (Abril 2026)** — Operação Linguagem Ubíqua | Ver detalhes abaixo |
 | **Total ativo atual** | **64 SKILL.md em 11 grupos** |
+
+### Detalhes da Reorganização SSOT (Abril 2026)
+
+- **Estrutural:** 9 grupos no topo + governança subdividida em 3 (lei, convenção técnica, operação).
+- **Conteúdo:** +5 skills novas em governança (`sla-metas`, `cost-budget`, `backup-policy`, `criptografia`, `observabilidade-minima`).
+- **Limpeza:** −2 duplicatas (`database-operations`, `sla-performance`).
+- **SSOT enforcement:** 14 ponteiros `REGRA ABSOLUTA` inseridos nas skills de operação e verticais.
 
 ---
 
@@ -397,9 +309,9 @@ CLAUDE.md                                     ← Mapa completo (carregado autom
 ### Regras Invioláveis (alinhadas aos 9 Mandamentos)
 
 - **TypeScript** strict, sem `any`, sem `@ts-ignore`, ESModules only
-- **Banco**: bancos de produto usam Schema-per-Organização; acesso exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`; `PrismaClient` direto é PROIBIDO; Configurador usa single-schema `public`
+- **Banco**: bancos de produto usam Schema-per-Organizacao; acesso exclusivamente via `withOrganizacao`/`withOrganizacaoContext` do `@gravity/tenant-resolver`; `PrismaClient` direto é PROIBIDO; Configurador usa single-schema `public`
 - **Schema Prisma**: NUNCA alterar `schema.prisma` (Mandamento 02). Apenas o Coordenador, via script
-- **DDD**: usar `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads, propriedades e variáveis (Mandamento 03; REGRA 5 — booleans sem prefixo `is_`). Lei única: `skills/governanca/lei/ddd-nomenclatura/SKILL.md`
+- **DDD**: usar `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads, propriedades e variáveis (Mandamento 03 — DDD; booleans sem prefixo `is_`). Lei única: [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md)
 - **Acesso global**: Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)
 - **Estado React**: nunca `useState<T>({} as T)`, sempre `null`/`undefined` + tratamento (Mandamento 05)
 - **Validação Zod**: toda resposta de `fetch().json()` passa por `schema.parse()` antes do uso (Mandamento 06)
@@ -408,7 +320,7 @@ CLAUDE.md                                     ← Mapa completo (carregado autom
 - **Schemas Zod bilaterais**: backend mudou → Zod do frontend muda no mesmo commit (Mandamento 09)
 - **Autenticação**: Clerk APENAS para autenticação; permissões vêm do Prisma via `GET /api/v1/me` (Mandamento 01)
 - **Segurança**: Zod em toda rota, JWT validado via `@clerk/backend`, `x-chave-interna` em S2S
-- **Cache**: chave começa com `tenant:` (REGRA 4 do linter); detalhes em `skills/arquitetura/cache/SKILL.md`
+- **Cache**: chave começa com `organizacao:` — ver [Lint Tenant-Safety](../../governanca/convencao-tecnica/lint-tenant-safety/SKILL.md) e [Cache](../../arquitetura/cache/SKILL.md)
 - **Criptografia**: SHA-256 (tokens), AES-256-GCM (credenciais), HMAC-SHA256 (webhooks); `skills/governanca/convencao-tecnica/criptografia/SKILL.md`
 - **SLA & Custo**: 200ms p95, 50k req/s, 99,9% uptime; budget mensal com bloqueio em 95%; `skills/governanca/lei/sla-metas/SKILL.md` + `cost-budget/SKILL.md`
 - **Backup**: pré-migration destrutiva é obrigatório; teste de restauração mensal; `skills/governanca/lei/backup-policy/SKILL.md`

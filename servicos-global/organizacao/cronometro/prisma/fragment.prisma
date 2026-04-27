@@ -6,11 +6,11 @@
 // O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// AtividadesCronometro
+// UsuarioHistoricoCronometro
 // Sessão de tempo registrada (concluída ou manual).
 // ---------------------------------------------------------------------------
 
-model AtividadesCronometro {
+model UsuarioHistoricoCronometro {
   id_atividades_cronometro             String  @id @default(cuid())
 
   // Campos de isolamento — obrigatórios
@@ -47,12 +47,12 @@ model AtividadesCronometro {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesTimer
+// UsuarioStatusCronometro
 // Estado do timer em execução (um por usuário).
-// Removido quando a sessão é finalizada — o histórico fica em AtividadesCronometro.
+// Removido quando a sessão é finalizada — o histórico fica em UsuarioHistoricoCronometro.
 // ---------------------------------------------------------------------------
 
-model AtividadesTimer {
+model UsuarioStatusCronometro {
   id_atividades_timer                  String  @id @default(cuid())
 
   // Campos de isolamento
@@ -79,11 +79,11 @@ model AtividadesTimer {
 }
 
 // ---------------------------------------------------------------------------
-// TempoCriacaoRelatorio
+// RelatorioTempoPeriodo
 // Cache de relatórios de tempo pré-computados para performance.
 // ---------------------------------------------------------------------------
 
-model TempoCriacaoRelatorio {
+model RelatorioTempoPeriodo {
   id_tempo_criacao_relatorio             String @id @default(cuid())
 
   id_organizacao_tempo_criacao_relatorio String

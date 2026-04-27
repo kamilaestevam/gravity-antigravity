@@ -426,7 +426,7 @@ router.post('/:id_atividade/cronometro/alternar', async (req, res, next) => {
 
     // Registra a sessão e incrementa o total acumulado
     const [sessao] = await Promise.all([
-      prisma.atividadesTempo.create({
+      prisma.usuariosAtividadesTempo.create({
         data: {
           id_atividades_dados_atividades_tempo: req.params.id_atividade,
           iniciado_em_atividades_tempo:         new Date(result.data.iniciado_em),

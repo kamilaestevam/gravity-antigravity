@@ -29,7 +29,7 @@ tokensRouter.use(tenantIsolation)
 tokensRouter.get('/', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const tokens = await prisma.tokenAPI.findMany({
+    const tokens = await prisma.aPIToken.findMany({
       where: { tenant_id: tenantId, is_revoked: false },
       select: {
         id: true,
@@ -63,7 +63,7 @@ tokensRouter.post('/', async (req, res, next) => {
       expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
     }
 
-    const created = await prisma.tokenAPI.create({
+    const created = await prisma.aPIToken.create({
       data: {
         tenant_id: tenantId,
         name: data.name,
@@ -94,7 +94,7 @@ tokensRouter.delete('/:id_api_token', async (req, res, next) => {
     const tenantId = (req as any).tenantId
     const { id_api_token } = req.params
 
-    const token = await prisma.tokenAPI.findFirst({
+    const token = await prisma.aPIToken.findFirst({
       where: { id: id_api_token, tenant_id: tenantId }
     })
 
@@ -102,7 +102,7 @@ tokensRouter.delete('/:id_api_token', async (req, res, next) => {
       return res.status(404).json({ error: 'Token not found' })
     }
 
-    await prisma.tokenAPI.update({
+    await prisma.aPIToken.update({
       where: { id: id_api_token },
       data: { is_revoked: true, revoked_at: new Date() }
     })

@@ -28,7 +28,7 @@ sincronizacaoRouter.post('/api/v1/sincronizacoes-erp/disparar', async (req, res,
     const body = sincronizarSchema.parse(req.body)
 
     // Criar log de sincronização
-    const log = await prisma.sincronizacaoLog.create({
+    const log = await prisma.erpSincronizacaoLog.create({
       data: {
         tenant_id: body.tenant_id,
         product_id: body.product_id ?? null,
@@ -53,7 +53,7 @@ sincronizacaoRouter.post('/api/v1/sincronizacoes-erp/disparar', async (req, res,
           body.triggered_by
         )
 
-        await prisma.sincronizacaoLog.update({
+        await prisma.erpSincronizacaoLog.update({
           where: { id: log.id },
           data: {
             rows_processed: result.rowsReturned,
@@ -65,7 +65,7 @@ sincronizacaoRouter.post('/api/v1/sincronizacoes-erp/disparar', async (req, res,
         })
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err)
-        await prisma.sincronizacaoLog.update({
+        await prisma.erpSincronizacaoLog.update({
           where: { id: log.id },
           data: {
             status: 'failed',
@@ -104,7 +104,7 @@ sincronizacaoRouter.get('/api/v1/sincronizacoes-erp', async (req, res, next) => 
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const logs = await prisma.sincronizacaoLog.findMany({
+    const logs = await prisma.erpSincronizacaoLog.findMany({
       where: {
         tenant_id,
         ...(product_id ? { product_id } : {}),
@@ -133,7 +133,7 @@ sincronizacaoRouter.get('/api/v1/sincronizacoes-erp/:id_sincronizacao_erp', asyn
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const log = await prisma.sincronizacaoLog.findFirst({
+    const log = await prisma.erpSincronizacaoLog.findFirst({
       where: { id: id_sincronizacao_erp, tenant_id },
     })
 

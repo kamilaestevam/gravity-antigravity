@@ -177,7 +177,7 @@ timersRouter.get('/cronometros/stream', (req: Request, res: Response) => {
   setupSSEConnection(req, res, tenantId, userId)
 
   // Envia estado inicial do timer ativo (se houver)
-  prisma.atividadesTimer
+  prisma.usuarioStatusCronometro
     .findFirst({ where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId } })
     .then((active) => {
       if (active) {
@@ -214,7 +214,7 @@ timersRouter.get('/cronometros/ativo', async (req: Request, res: Response, next:
   try {
     const { tenantId, userId } = req.auth
 
-    const active = await prisma.atividadesTimer.findFirst({
+    const active = await prisma.usuarioStatusCronometro.findFirst({
       where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId },
     })
 
@@ -255,7 +255,7 @@ timersRouter.get('/atividades/:id_atividade/cronometro', async (req: Request, re
 
     const { tenantId, userId } = req.auth
 
-    const sessions = await prisma.atividadesCronometro.findMany({
+    const sessions = await prisma.usuarioHistoricoCronometro.findMany({
       where: {
         id_organizacao_atividades_cronometro: tenantId,
         id_atividade_atividades_cronometro: parsed.data.id_atividade,
@@ -292,7 +292,7 @@ timersRouter.post(
       const now = new Date()
 
       // Pausa qualquer timer ativo existente do usuário
-      const existingActive = await prisma.atividadesTimer.findFirst({
+      const existingActive = await prisma.usuarioStatusCronometro.findFirst({
         where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId },
       })
 
@@ -305,7 +305,7 @@ timersRouter.post(
             })
           }
           // Estava pausado — retoma em vez de iniciar novo
-          const updated = await prisma.atividadesTimer.update({
+          const updated = await prisma.usuarioStatusCronometro.update({
             where: { id_atividades_timer: existingActive.id_atividades_timer },
             data: { data_pausa_atividades_timer: null },
           })
@@ -326,7 +326,7 @@ timersRouter.post(
           existingActive.data_pausa_atividades_timer,
           existingActive.segundos_acumulados_atividades_timer
         )
-        await prisma.atividadesTimer.update({
+        await prisma.usuarioStatusCronometro.update({
           where: { id_atividades_timer: existingActive.id_atividades_timer },
           data: {
             data_pausa_atividades_timer: now,
@@ -344,7 +344,7 @@ timersRouter.post(
       const newActive = await prisma.$transaction(async (tx) => {
         if (existingActive) {
           // Se havia timer ativo em outra atividade, removemos e criamos novo
-          await tx.atividadesTimer.deleteMany({
+          await tx.usuarioStatusCronometro.deleteMany({
             where: {
               id_organizacao_atividades_timer: tenantId,
               id_usuario_atividades_timer: userId,
@@ -352,7 +352,7 @@ timersRouter.post(
           })
         }
 
-        return tx.atividadesTimer.create({
+        return tx.usuarioStatusCronometro.create({
           data: {
             id_organizacao_atividades_timer:      tenantId,
             id_usuario_atividades_timer:          userId,
@@ -391,7 +391,7 @@ timersRouter.post(
       const { tenantId, userId } = req.auth
       const now = new Date()
 
-      const active = await prisma.atividadesTimer.findFirst({
+      const active = await prisma.usuarioStatusCronometro.findFirst({
         where: {
           id_organizacao_atividades_timer: tenantId,
           id_usuario_atividades_timer: userId,
@@ -410,7 +410,7 @@ timersRouter.post(
         active.segundos_acumulados_atividades_timer
       )
 
-      const updated = await prisma.atividadesTimer.update({
+      const updated = await prisma.usuarioStatusCronometro.update({
         where: { id_atividades_timer: active.id_atividades_timer },
         data: {
           data_pausa_atividades_timer:          now,
@@ -445,7 +445,7 @@ timersRouter.post(
       const { tenantId, userId } = req.auth
       const now = new Date()
 
-      const active = await prisma.atividadesTimer.findFirst({
+      const active = await prisma.usuarioStatusCronometro.findFirst({
         where: {
           id_organizacao_atividades_timer: tenantId,
           id_usuario_atividades_timer: userId,
@@ -462,7 +462,7 @@ timersRouter.post(
       )
 
       // Descarta sessões com menos de 1 minuto (exceto manuais)
-      await prisma.atividadesTimer.deleteMany({
+      await prisma.usuarioStatusCronometro.deleteMany({
         where: { id_atividades_timer: active.id_atividades_timer },
       })
 
@@ -482,7 +482,7 @@ timersRouter.post(
       }
 
       // Cria a sessão salva
-      const session = await prisma.atividadesCronometro.create({
+      const session = await prisma.usuarioHistoricoCronometro.create({
         data: {
           id_organizacao_atividades_cronometro:  tenantId,
           id_usuario_atividades_cronometro:      userId,
@@ -530,7 +530,7 @@ timersRouter.post(
       const startedDate = started_at ? new Date(started_at) : new Date()
       const endedDate = new Date(startedDate.getTime() + duration_minutes * 60 * 1000)
 
-      const session = await prisma.atividadesCronometro.create({
+      const session = await prisma.usuarioHistoricoCronometro.create({
         data: {
           id_organizacao_atividades_cronometro:  tenantId,
           id_usuario_atividades_cronometro:      userId,
@@ -571,7 +571,7 @@ timersRouter.patch(
 
       const { tenantId, userId } = req.auth
 
-      const existing = await prisma.atividadesCronometro.findFirst({
+      const existing = await prisma.usuarioHistoricoCronometro.findFirst({
         where: {
           id_atividades_cronometro:             paramParsed.data.id_sessao_cronometro,
           id_organizacao_atividades_cronometro: tenantId,
@@ -580,7 +580,7 @@ timersRouter.patch(
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      const updated = await prisma.atividadesCronometro.update({
+      const updated = await prisma.usuarioHistoricoCronometro.update({
         where: { id_atividades_cronometro: paramParsed.data.id_sessao_cronometro },
         data: {
           ...(bodyParsed.data.subject !== undefined &&      { assunto_atividades_cronometro: bodyParsed.data.subject }),
@@ -611,7 +611,7 @@ timersRouter.delete(
 
       const { tenantId, userId } = req.auth
 
-      const existing = await prisma.atividadesCronometro.findFirst({
+      const existing = await prisma.usuarioHistoricoCronometro.findFirst({
         where: {
           id_atividades_cronometro:             paramParsed.data.id_sessao_cronometro,
           id_organizacao_atividades_cronometro: tenantId,
@@ -620,7 +620,7 @@ timersRouter.delete(
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      await prisma.atividadesCronometro.delete({ where: { id_atividades_cronometro: paramParsed.data.id_sessao_cronometro } })
+      await prisma.usuarioHistoricoCronometro.delete({ where: { id_atividades_cronometro: paramParsed.data.id_sessao_cronometro } })
 
       return res.status(204).send()
     } catch (err) {
@@ -647,7 +647,7 @@ timersRouter.get('/cronometros/relatorio', async (req: Request, res: Response, n
     const effectiveUserId =
       req.auth.role === 'admin' ? user_id ?? userId : userId
 
-    const sessions = await prisma.atividadesCronometro.findMany({
+    const sessions = await prisma.usuarioHistoricoCronometro.findMany({
       where: {
         id_organizacao_atividades_cronometro: tenantId,
         id_usuario_atividades_cronometro:     effectiveUserId,

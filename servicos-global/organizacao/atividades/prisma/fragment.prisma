@@ -58,8 +58,8 @@ model AtividadesDados {
   data_atualizacao_atividades_dados DateTime @updatedAt
 
   // Relações
-  participantes_atividades_dados AtividadesParticipantes[]
-  sessoes_timer_atividades_dados AtividadesTempo[]
+  participantes_atividades_dados UsuariosAtividades[]
+  sessoes_timer_atividades_dados UsuariosAtividadesTempo[]
 
   @@index([id_organizacao_atividades_dados], map: "ad_org_idx")
   @@index([id_organizacao_atividades_dados, id_usuario_atividades_dados], map: "ad_org_user_idx")
@@ -68,10 +68,10 @@ model AtividadesDados {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesParticipantes — usuários atribuídos à atividade (M2M)
+// UsuariosAtividades — usuários atribuídos à atividade (M2M)
 // ---------------------------------------------------------------------------
 
-model AtividadesParticipantes {
+model UsuariosAtividades {
   id_atividades_participantes              String  @id @default(cuid())
   id_atividades_dados_atividades_participantes String
   id_usuario_atividades_participantes      String
@@ -85,10 +85,10 @@ model AtividadesParticipantes {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesTempo — sessões do cronômetro registradas
+// UsuariosAtividadesTempo — sessões do cronômetro registradas
 // ---------------------------------------------------------------------------
 
-model AtividadesTempo {
+model UsuariosAtividadesTempo {
   id_atividades_tempo              String   @id @default(cuid())
   id_atividades_dados_atividades_tempo String
   iniciado_em_atividades_tempo     DateTime

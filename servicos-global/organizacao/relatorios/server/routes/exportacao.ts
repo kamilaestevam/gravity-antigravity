@@ -51,7 +51,7 @@ exportacaoRouter.post('/api/v1/relatorios/:id_relatorio/exportacoes', authMiddle
     const { formato, productId } = parse.data;
 
     // Enfileira job
-    const job = await prisma.exportarJob.create({
+    const job = await prisma.relatorioExportar.create({
       data: {
         id_organizacao_exportar_job: tenantId,
         id_usuario_exportar_job: userId || null,
@@ -81,7 +81,7 @@ exportacaoRouter.get('/api/v1/relatorios/exportacoes/:id_exportacao_relatorio', 
     const { tenantId, userId } = req.auth;
     const { id_exportacao_relatorio } = req.params;
 
-    const job = await prisma.exportarJob.findFirst({
+    const job = await prisma.relatorioExportar.findFirst({
       where: {
         id_exportar_job: id_exportacao_relatorio,
         id_organizacao_exportar_job: tenantId,

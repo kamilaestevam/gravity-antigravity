@@ -25,7 +25,7 @@ webhooksRouter.use(tenantIsolation)
 webhooksRouter.get('/', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const webhooks = await prisma.webhookConfig.findMany({
+    const webhooks = await prisma.webhookConfiguracao.findMany({
       where: { tenant_id: tenantId }
     })
     res.json(webhooks)
@@ -40,7 +40,7 @@ webhooksRouter.post('/', async (req, res, next) => {
     const data = createWebhookSchema.parse(req.body)
     const secret = generateWebhookSecret()
 
-    const webhook = await prisma.webhookConfig.create({
+    const webhook = await prisma.webhookConfiguracao.create({
       data: {
         tenant_id: tenantId,
         url: data.url,
@@ -62,7 +62,7 @@ webhooksRouter.put('/:id_webhook', async (req, res, next) => {
     const { id_webhook } = req.params
     const data = updateWebhookSchema.parse(req.body)
 
-    const webhook = await prisma.webhookConfig.findFirst({
+    const webhook = await prisma.webhookConfiguracao.findFirst({
       where: { id: id_webhook, tenant_id: tenantId }
     })
 
@@ -70,7 +70,7 @@ webhooksRouter.put('/:id_webhook', async (req, res, next) => {
       return res.status(404).json({ error: 'Webhook not found' })
     }
 
-    const updated = await prisma.webhookConfig.update({
+    const updated = await prisma.webhookConfiguracao.update({
       where: { id: id_webhook },
       data
     })
@@ -86,7 +86,7 @@ webhooksRouter.post('/:id_webhook/testar', async (req, res, next) => {
     const tenantId = (req as any).tenantId
     const { id_webhook } = req.params
 
-    const webhook = await prisma.webhookConfig.findFirst({
+    const webhook = await prisma.webhookConfiguracao.findFirst({
       where: { id: id_webhook, tenant_id: tenantId }
     })
 
@@ -154,7 +154,7 @@ webhooksRouter.delete('/:id_webhook', async (req, res, next) => {
     const tenantId = (req as any).tenantId
     const { id_webhook } = req.params
 
-    const webhook = await prisma.webhookConfig.findFirst({
+    const webhook = await prisma.webhookConfiguracao.findFirst({
       where: { id: id_webhook, tenant_id: tenantId }
     })
 
@@ -162,7 +162,7 @@ webhooksRouter.delete('/:id_webhook', async (req, res, next) => {
       return res.status(404).json({ error: 'Webhook not found' })
     }
 
-    await prisma.webhookConfig.delete({
+    await prisma.webhookConfiguracao.delete({
       where: { id: id_webhook }
     })
 

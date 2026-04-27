@@ -48,7 +48,7 @@ conexoesRouter.post('/api/v1/erp-integracoes', async (req, res, next) => {
 
     const credentials_encrypted = encrypt(body.password)
 
-    const conexao = await prisma.conexaoERP.create({
+    const conexao = await prisma.eRPIntegracao.create({
       data: {
         tenant_id: body.tenant_id,
         product_id: body.product_id ?? null,
@@ -94,7 +94,7 @@ conexoesRouter.get('/api/v1/erp-integracoes', async (req, res, next) => {
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const conexoes = await prisma.conexaoERP.findMany({
+    const conexoes = await prisma.eRPIntegracao.findMany({
       where: {
         tenant_id,
         ...(product_id ? { product_id } : {}),
@@ -142,7 +142,7 @@ conexoesRouter.patch('/api/v1/erp-integracoes/:id_erp_integracao', async (req, r
     const body = atualizarConexaoSchema.parse(req.body)
 
     // Verificar que pertence ao tenant
-    const existente = await prisma.conexaoERP.findFirst({
+    const existente = await prisma.eRPIntegracao.findFirst({
       where: { id: id_erp_integracao, tenant_id },
     })
     if (!existente) {
@@ -166,7 +166,7 @@ conexoesRouter.patch('/api/v1/erp-integracoes/:id_erp_integracao', async (req, r
       Object.entries(updateData).filter(([, v]) => v !== undefined)
     )
 
-    const atualizado = await prisma.conexaoERP.update({
+    const atualizado = await prisma.eRPIntegracao.update({
       where: { id: id_erp_integracao },
       data: cleanData,
       select: {
@@ -202,14 +202,14 @@ conexoesRouter.delete('/api/v1/erp-integracoes/:id_erp_integracao', async (req, 
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const existente = await prisma.conexaoERP.findFirst({
+    const existente = await prisma.eRPIntegracao.findFirst({
       where: { id: id_erp_integracao, tenant_id },
     })
     if (!existente) {
       throw new AppError('Conexão não encontrada', 404, 'NOT_FOUND')
     }
 
-    await prisma.conexaoERP.delete({ where: { id: id_erp_integracao } })
+    await prisma.eRPIntegracao.delete({ where: { id: id_erp_integracao } })
 
     res.json({ ok: true, message: 'Conexão removida com sucesso' })
   } catch (err) {

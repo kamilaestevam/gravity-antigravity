@@ -13,7 +13,7 @@ enum TokenValidade {
   CUSTOMIZADO
 }
 
-model TokenAPI {
+model APIToken {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -38,7 +38,7 @@ model TokenAPI {
   @@index([tenant_id, user_id])
 }
 
-model WebhookConfig {
+model WebhookConfiguracao {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -101,7 +101,7 @@ model LogConsumo {
   @@index([token_id])
 }
 
-model ErpConnection {
+model APIIntegracaoERP {
   id                    String   @id @default(cuid())
   tenant_id             String   @unique
   product_id            String?

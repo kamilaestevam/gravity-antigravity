@@ -32,7 +32,7 @@ mapeamentosRouter.post('/api/v1/mapeamentos-erp', async (req, res, next) => {
   try {
     const body = mapeamentoSchema.parse(req.body)
 
-    const mapeamento = await prisma.mapeamentoCampo.create({
+    const mapeamento = await prisma.erpMapeamentoCampo.create({
       data: {
         tenant_id: body.tenant_id,
         product_id: body.product_id ?? null,
@@ -68,7 +68,7 @@ mapeamentosRouter.get('/api/v1/mapeamentos-erp', async (req, res, next) => {
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const mapeamentos = await prisma.mapeamentoCampo.findMany({
+    const mapeamentos = await prisma.erpMapeamentoCampo.findMany({
       where: {
         tenant_id,
         ...(product_id ? { product_id } : {}),
@@ -96,7 +96,7 @@ mapeamentosRouter.patch('/api/v1/mapeamentos-erp/:id_mapeamento_erp', async (req
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const existente = await prisma.mapeamentoCampo.findFirst({
+    const existente = await prisma.erpMapeamentoCampo.findFirst({
       where: { id: id_mapeamento_erp, tenant_id },
     })
     if (!existente) {
@@ -105,7 +105,7 @@ mapeamentosRouter.patch('/api/v1/mapeamentos-erp/:id_mapeamento_erp', async (req
 
     const body = atualizarSchema.parse(req.body)
 
-    const atualizado = await prisma.mapeamentoCampo.update({
+    const atualizado = await prisma.erpMapeamentoCampo.update({
       where: { id: id_mapeamento_erp },
       data: body,
     })
@@ -131,14 +131,14 @@ mapeamentosRouter.delete('/api/v1/mapeamentos-erp/:id_mapeamento_erp', async (re
       throw new AppError('tenant_id é obrigatório', 400, 'MISSING_TENANT_ID')
     }
 
-    const existente = await prisma.mapeamentoCampo.findFirst({
+    const existente = await prisma.erpMapeamentoCampo.findFirst({
       where: { id: id_mapeamento_erp, tenant_id },
     })
     if (!existente) {
       throw new AppError('Mapeamento não encontrado', 404, 'NOT_FOUND')
     }
 
-    await prisma.mapeamentoCampo.delete({ where: { id: id_mapeamento_erp } })
+    await prisma.erpMapeamentoCampo.delete({ where: { id: id_mapeamento_erp } })
 
     res.json({ ok: true, message: 'Mapeamento removido com sucesso' })
   } catch (err) {

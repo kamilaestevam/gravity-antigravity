@@ -4,9 +4,9 @@
 // Composto pelo Coordenador via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// ConexaoERP — credenciais de acesso ao sistema externo, 1 por tenant+produto
+// ERPIntegracao — credenciais de acesso ao sistema externo, 1 por tenant+produto
 // ---------------------------------------------------------------------------
-model ConexaoERP {
+model ERPIntegracao {
   id                    String    @id @default(cuid())
   tenant_id             String
   product_id            String?
@@ -36,9 +36,9 @@ model ConexaoERP {
 }
 
 // ---------------------------------------------------------------------------
-// SincronizacaoLog — histórico de cada sincronização
+// ErpSincronizacaoLog — histórico de cada sincronização
 // ---------------------------------------------------------------------------
-model SincronizacaoLog {
+model ErpSincronizacaoLog {
   id             String   @id @default(cuid())
   tenant_id      String
   product_id     String?
@@ -63,15 +63,15 @@ model SincronizacaoLog {
 }
 
 // ---------------------------------------------------------------------------
-// MapeamentoCampo — mapeamento de campos ERP → campos internos Gravity
+// ErpMapeamentoCampo — mapeamento de campos ERP → campos internos Gravity
 // ---------------------------------------------------------------------------
-model MapeamentoCampo {
+model ErpMapeamentoCampo {
   id              String   @id @default(cuid())
   tenant_id       String
   product_id      String?
   user_id         String?
 
-  conexao_id      String   // referência manual a ConexaoERP.id
+  conexao_id      String   // referência manual a ERPIntegracao.id
   entidade        String   // ex: "GoodsMovementSet", "PurchaseOrderSet"
   campo_erp       String   // ex: "MaterialDocumentItem"
   campo_interno   String   // ex: "item_id"

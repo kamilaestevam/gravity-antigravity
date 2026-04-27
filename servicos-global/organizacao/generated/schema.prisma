@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-27T20:56:39.596Z
+// Gerado em: 2026-04-27T21:03:26.511Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -84,8 +84,8 @@ model AtividadesDados {
   data_atualizacao_atividades_dados DateTime @updatedAt
 
   // Relações
-  participantes_atividades_dados AtividadesParticipantes[]
-  sessoes_timer_atividades_dados AtividadesTempo[]
+  participantes_atividades_dados UsuariosAtividades[]
+  sessoes_timer_atividades_dados UsuariosAtividadesTempo[]
 
   @@index([id_organizacao_atividades_dados], map: "ad_org_idx")
   @@index([id_organizacao_atividades_dados, id_usuario_atividades_dados], map: "ad_org_user_idx")
@@ -94,10 +94,10 @@ model AtividadesDados {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesParticipantes — usuários atribuídos à atividade (M2M)
+// UsuariosAtividades — usuários atribuídos à atividade (M2M)
 // ---------------------------------------------------------------------------
 
-model AtividadesParticipantes {
+model UsuariosAtividades {
   id_atividades_participantes                  String  @id @default(cuid())
   id_atividades_dados_atividades_participantes String
   id_usuario_atividades_participantes          String
@@ -111,10 +111,10 @@ model AtividadesParticipantes {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesTempo — sessões do cronômetro registradas
+// UsuariosAtividadesTempo — sessões do cronômetro registradas
 // ---------------------------------------------------------------------------
 
-model AtividadesTempo {
+model UsuariosAtividadesTempo {
   id_atividades_tempo                  String   @id @default(cuid())
   id_atividades_dados_atividades_tempo String
   iniciado_em_atividades_tempo         DateTime
@@ -136,11 +136,11 @@ model AtividadesTempo {
 // O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// AtividadesCronometro
+// UsuarioHistoricoCronometro
 // Sessão de tempo registrada (concluída ou manual).
 // ---------------------------------------------------------------------------
 
-model AtividadesCronometro {
+model UsuarioHistoricoCronometro {
   id_atividades_cronometro String @id @default(cuid())
 
   // Campos de isolamento — obrigatórios
@@ -177,12 +177,12 @@ model AtividadesCronometro {
 }
 
 // ---------------------------------------------------------------------------
-// AtividadesTimer
+// UsuarioStatusCronometro
 // Estado do timer em execução (um por usuário).
-// Removido quando a sessão é finalizada — o histórico fica em AtividadesCronometro.
+// Removido quando a sessão é finalizada — o histórico fica em UsuarioHistoricoCronometro.
 // ---------------------------------------------------------------------------
 
-model AtividadesTimer {
+model UsuarioStatusCronometro {
   id_atividades_timer String @id @default(cuid())
 
   // Campos de isolamento
@@ -209,11 +209,11 @@ model AtividadesTimer {
 }
 
 // ---------------------------------------------------------------------------
-// TempoCriacaoRelatorio
+// RelatorioTempoPeriodo
 // Cache de relatórios de tempo pré-computados para performance.
 // ---------------------------------------------------------------------------
 
-model TempoCriacaoRelatorio {
+model RelatorioTempoPeriodo {
   id_tempo_criacao_relatorio String @id @default(cuid())
 
   id_organizacao_tempo_criacao_relatorio String
@@ -753,10 +753,10 @@ model DashboardCompartilhar {
 // AGENTE RELATORIOS — ONDA 31 (DDD Servicos)
 
 // ---------------------------------------------------------------------------
-// RelatoriosSalvos — relatórios customizados salvos por usuário
+// RelatoriosSalvosUsuario — relatórios customizados salvos por usuário
 // ---------------------------------------------------------------------------
 
-model RelatoriosSalvos {
+model RelatoriosSalvosUsuario {
   id_relatorios_salvos             String  @id @default(cuid())
   id_organizacao_relatorios_salvos String
   id_produto_relatorios_salvos     String?
@@ -779,10 +779,10 @@ model RelatoriosSalvos {
 }
 
 // ---------------------------------------------------------------------------
-// RelatoriosConfiguracao — agendamento e canais de envio
+// RelatoriosConfiguracaoUsuario — agendamento e canais de envio
 // ---------------------------------------------------------------------------
 
-model RelatoriosConfiguracao {
+model RelatoriosConfiguracaoUsuario {
   id_relatorios_configuracao             String  @id @default(cuid())
   id_organizacao_relatorios_configuracao String
   id_produto_relatorios_configuracao     String?
@@ -804,10 +804,10 @@ model RelatoriosConfiguracao {
 }
 
 // ---------------------------------------------------------------------------
-// ExportarJob — job de exportação assíncrona de relatório
+// RelatorioExportar — job de exportação assíncrona de relatório
 // ---------------------------------------------------------------------------
 
-model ExportarJob {
+model RelatorioExportar {
   id_exportar_job             String  @id @default(cuid())
   id_organizacao_exportar_job String
   id_produto_exportar_job     String?
@@ -1159,10 +1159,10 @@ model UsuarioConfiguracaoAgenda {
 // Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// GabiConversa — conversa principal da Gabi com o usuário
+// GabiConversaCompleta — conversa principal da Gabi com o usuário
 // ---------------------------------------------------------------------------
 
-model GabiConversa {
+model GabiConversaCompleta {
   id_gabi_conversa             String  @id @default(cuid())
   id_organizacao_gabi_conversa String
   id_produto_gabi_conversa     String?
@@ -1173,7 +1173,7 @@ model GabiConversa {
   data_criacao_gabi_conversa     DateTime @default(now())
   data_atualizacao_gabi_conversa DateTime @updatedAt
 
-  mensagens_gabi_conversa GabiMensagem[]
+  mensagens_gabi_conversa GabiMensagemIndividual[]
 
   @@index([id_organizacao_gabi_conversa], map: "gco_org_idx")
   @@index([id_organizacao_gabi_conversa, id_produto_gabi_conversa], map: "gco_org_prd_idx")
@@ -1182,17 +1182,17 @@ model GabiConversa {
 }
 
 // ---------------------------------------------------------------------------
-// GabiMensagem — mensagem individual da conversa
+// GabiMensagemIndividual — mensagem individual da conversa
 // ---------------------------------------------------------------------------
 
-model GabiMensagem {
+model GabiMensagemIndividual {
   id_gabi_mensagem             String  @id @default(cuid())
   id_organizacao_gabi_mensagem String
   id_produto_gabi_mensagem     String?
   id_usuario_gabi_mensagem     String?
 
   id_conversa_gabi_mensagem String
-  conversa_gabi_mensagem    GabiConversa @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
+  conversa_gabi_mensagem    GabiConversaCompleta @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
 
   papel_gabi_mensagem    String // 'user' | 'assistant' | 'system'
   conteudo_gabi_mensagem String  @db.Text
@@ -1262,10 +1262,10 @@ model GabiTokenConsumido {
 }
 
 // ---------------------------------------------------------------------------
-// GabiTokenWorkspace — quota mensal por tenant
+// GabiTokenOrganizacao — quota mensal por tenant
 // ---------------------------------------------------------------------------
 
-model GabiTokenWorkspace {
+model GabiTokenOrganizacao {
   id_gabi_token_workspace             String @id @default(cuid())
   id_organizacao_gabi_token_workspace String
   id_produto_gabi_token_workspace     String
@@ -1284,10 +1284,10 @@ model GabiTokenWorkspace {
 }
 
 // ---------------------------------------------------------------------------
-// GabiPersonalizacao — persona/comportamento Gabi por tenant
+// GabiPersonalizacaoOrganizacao — persona/comportamento Gabi por tenant
 // ---------------------------------------------------------------------------
 
-model GabiPersonalizacao {
+model GabiPersonalizacaoOrganizacao {
   id_gabi_personalizacao             String  @id @default(cuid())
   id_organizacao_gabi_personalizacao String  @unique
   id_produto_gabi_personalizacao     String?
@@ -1351,9 +1351,9 @@ model WorkspacePreferenciaUsuario {
 // servicos-global/tenant/ncm-sync/prisma/fragment.prisma
 // SERVIÇO NCM-SYNC — ONDA 36 (DDD Servicos)
 //
-// NcmItem        — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
-// NcmLog         — histórico de cada sincronização com o Portal Único
-// NcmAgendamento — configuração singleton do job de sincronização
+// NcmItem         — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmLog          — histórico de cada sincronização com o Portal Único
+// NCMAgendamento  — configuração singleton do job de sincronização
 
 // ---------------------------------------------------------------------------
 // NcmItem
@@ -1409,7 +1409,7 @@ model NcmLog {
   data_conclusao_ncm_log DateTime?
 
   // Status (enum PT)
-  status_ncm_log NcmStatus @default(EXECUTANDO)
+  status_ncm_log NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total_ncm_log       Int @default(0)
@@ -1418,7 +1418,7 @@ model NcmLog {
   removidos_ncm_log   Int @default(0)
 
   // Origem do trigger
-  origem_ncm_log        NcmOrigem @default(JOB)
+  origem_ncm_log        NCMOrigemSincronizacao @default(JOB)
   disparado_por_ncm_log String? // user_id se MANUAL
 
   // Erro (apenas em caso de falha)
@@ -1437,12 +1437,12 @@ model NcmLog {
 }
 
 // ---------------------------------------------------------------------------
-// NcmAgendamento — configuração singleton do job de sincronização
+// NCMAgendamento — configuração singleton do job de sincronização
 // id = 'default' — registro único (singleton global)
 // id_organizacao_ncm_agendamento = '__system__' — satisfaz padrão de índices
 // ---------------------------------------------------------------------------
 
-model NcmAgendamento {
+model NCMAgendamento {
   id_ncm_agendamento             String  @id @default("default")
   id_organizacao_ncm_agendamento String  @default("__system__")
   id_produto_ncm_agendamento     String?
@@ -1465,13 +1465,13 @@ model NcmAgendamento {
 // Enums (valores em PT-BR)
 // ---------------------------------------------------------------------------
 
-enum NcmStatus {
+enum NCMStatusSincronizacao {
   EXECUTANDO
   SUCESSO
   ERRO
 }
 
-enum NcmOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }

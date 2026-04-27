@@ -24,7 +24,7 @@ erpRouter.use(tenantIsolation)
 erpRouter.get('/connection', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const connection = await prisma.erpConnection.findUnique({
+    const connection = await prisma.aPIIntegracaoERP.findUnique({
       where: { tenant_id: tenantId }
     })
 
@@ -61,7 +61,7 @@ erpRouter.post('/connection', async (req, res, next) => {
 
     const encrypted = encryptAES(payloadStr, key)
 
-    const updated = await prisma.erpConnection.upsert({
+    const updated = await prisma.aPIIntegracaoERP.upsert({
       where: { tenant_id: tenantId },
       update: {
         protocol: data.protocol,
@@ -87,7 +87,7 @@ erpRouter.post('/connection', async (req, res, next) => {
 erpRouter.post('/connection/test', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const connection = await prisma.erpConnection.findUnique({
+    const connection = await prisma.aPIIntegracaoERP.findUnique({
       where: { tenant_id: tenantId }
     })
 
@@ -112,9 +112,9 @@ erpRouter.post('/connection/test', async (req, res, next) => {
       })
       status = response.status
       message = 'Connected'
-    } catch (e: any) {
+    } catch (e: unknown) {
       status = 500
-      message = e.message
+      message = e instanceof Error ? e.message : String(e)
     }
 
     res.json({ success: true, fakePingStatus: status })
@@ -128,7 +128,7 @@ erpRouter.post('/query', async (req, res, next) => {
     const tenantId = (req as any).tenantId
     const { query } = odataQuerySchema.parse(req.body)
     
-    const connection = await prisma.erpConnection.findUnique({
+    const connection = await prisma.aPIIntegracaoERP.findUnique({
       where: { tenant_id: tenantId }
     })
 
@@ -160,8 +160,9 @@ erpRouter.post('/query', async (req, res, next) => {
         status: resp.status,
         data: responseData
       })
-    } catch (e: any) {
-      res.status(502).json({ error: 'Failed communicating with ERP', details: e.message })
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      res.status(502).json({ error: 'Failed communicating with ERP', details: msg })
     }
   } catch (error) {
     next(error)

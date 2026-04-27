@@ -145,14 +145,14 @@ exports.Prisma.AtividadesDadosScalarFieldEnum = {
   data_atualizacao_atividades_dados: 'data_atualizacao_atividades_dados'
 };
 
-exports.Prisma.AtividadesParticipantesScalarFieldEnum = {
+exports.Prisma.UsuariosAtividadesScalarFieldEnum = {
   id_atividades_participantes: 'id_atividades_participantes',
   id_atividades_dados_atividades_participantes: 'id_atividades_dados_atividades_participantes',
   id_usuario_atividades_participantes: 'id_usuario_atividades_participantes',
   nome_usuario_atividades_participantes: 'nome_usuario_atividades_participantes'
 };
 
-exports.Prisma.AtividadesTempoScalarFieldEnum = {
+exports.Prisma.UsuariosAtividadesTempoScalarFieldEnum = {
   id_atividades_tempo: 'id_atividades_tempo',
   id_atividades_dados_atividades_tempo: 'id_atividades_dados_atividades_tempo',
   iniciado_em_atividades_tempo: 'iniciado_em_atividades_tempo',
@@ -160,7 +160,7 @@ exports.Prisma.AtividadesTempoScalarFieldEnum = {
   assunto_atividades_tempo: 'assunto_atividades_tempo'
 };
 
-exports.Prisma.AtividadesCronometroScalarFieldEnum = {
+exports.Prisma.UsuarioHistoricoCronometroScalarFieldEnum = {
   id_atividades_cronometro: 'id_atividades_cronometro',
   id_organizacao_atividades_cronometro: 'id_organizacao_atividades_cronometro',
   id_produto_atividades_cronometro: 'id_produto_atividades_cronometro',
@@ -178,7 +178,7 @@ exports.Prisma.AtividadesCronometroScalarFieldEnum = {
   data_atualizacao_atividades_cronometro: 'data_atualizacao_atividades_cronometro'
 };
 
-exports.Prisma.AtividadesTimerScalarFieldEnum = {
+exports.Prisma.UsuarioStatusCronometroScalarFieldEnum = {
   id_atividades_timer: 'id_atividades_timer',
   id_organizacao_atividades_timer: 'id_organizacao_atividades_timer',
   id_usuario_atividades_timer: 'id_usuario_atividades_timer',
@@ -190,7 +190,7 @@ exports.Prisma.AtividadesTimerScalarFieldEnum = {
   data_atualizacao_atividades_timer: 'data_atualizacao_atividades_timer'
 };
 
-exports.Prisma.TempoCriacaoRelatorioScalarFieldEnum = {
+exports.Prisma.RelatorioTempoPeriodoScalarFieldEnum = {
   id_tempo_criacao_relatorio: 'id_tempo_criacao_relatorio',
   id_organizacao_tempo_criacao_relatorio: 'id_organizacao_tempo_criacao_relatorio',
   id_usuario_tempo_criacao_relatorio: 'id_usuario_tempo_criacao_relatorio',
@@ -445,7 +445,7 @@ exports.Prisma.DashboardCompartilharScalarFieldEnum = {
   data_criacao_dashboard_compartilhar: 'data_criacao_dashboard_compartilhar'
 };
 
-exports.Prisma.RelatoriosSalvosScalarFieldEnum = {
+exports.Prisma.RelatoriosSalvosUsuarioScalarFieldEnum = {
   id_relatorios_salvos: 'id_relatorios_salvos',
   id_organizacao_relatorios_salvos: 'id_organizacao_relatorios_salvos',
   id_produto_relatorios_salvos: 'id_produto_relatorios_salvos',
@@ -460,7 +460,7 @@ exports.Prisma.RelatoriosSalvosScalarFieldEnum = {
   data_atualizacao_relatorios_salvos: 'data_atualizacao_relatorios_salvos'
 };
 
-exports.Prisma.RelatoriosConfiguracaoScalarFieldEnum = {
+exports.Prisma.RelatoriosConfiguracaoUsuarioScalarFieldEnum = {
   id_relatorios_configuracao: 'id_relatorios_configuracao',
   id_organizacao_relatorios_configuracao: 'id_organizacao_relatorios_configuracao',
   id_produto_relatorios_configuracao: 'id_produto_relatorios_configuracao',
@@ -474,7 +474,7 @@ exports.Prisma.RelatoriosConfiguracaoScalarFieldEnum = {
   data_atualizacao_relatorios_configuracao: 'data_atualizacao_relatorios_configuracao'
 };
 
-exports.Prisma.ExportarJobScalarFieldEnum = {
+exports.Prisma.RelatorioExportarScalarFieldEnum = {
   id_exportar_job: 'id_exportar_job',
   id_organizacao_exportar_job: 'id_organizacao_exportar_job',
   id_produto_exportar_job: 'id_produto_exportar_job',
@@ -642,7 +642,7 @@ exports.Prisma.UsuarioConfiguracaoAgendaScalarFieldEnum = {
   data_atualizacao_config_disponibilidade_agenda: 'data_atualizacao_config_disponibilidade_agenda'
 };
 
-exports.Prisma.GabiConversaScalarFieldEnum = {
+exports.Prisma.GabiConversaCompletaScalarFieldEnum = {
   id_gabi_conversa: 'id_gabi_conversa',
   id_organizacao_gabi_conversa: 'id_organizacao_gabi_conversa',
   id_produto_gabi_conversa: 'id_produto_gabi_conversa',
@@ -652,7 +652,7 @@ exports.Prisma.GabiConversaScalarFieldEnum = {
   data_atualizacao_gabi_conversa: 'data_atualizacao_gabi_conversa'
 };
 
-exports.Prisma.GabiMensagemScalarFieldEnum = {
+exports.Prisma.GabiMensagemIndividualScalarFieldEnum = {
   id_gabi_mensagem: 'id_gabi_mensagem',
   id_organizacao_gabi_mensagem: 'id_organizacao_gabi_mensagem',
   id_produto_gabi_mensagem: 'id_produto_gabi_mensagem',
@@ -694,7 +694,7 @@ exports.Prisma.GabiTokenConsumidoScalarFieldEnum = {
   data_criacao_gabi_token_consumido: 'data_criacao_gabi_token_consumido'
 };
 
-exports.Prisma.GabiTokenWorkspaceScalarFieldEnum = {
+exports.Prisma.GabiTokenOrganizacaoScalarFieldEnum = {
   id_gabi_token_workspace: 'id_gabi_token_workspace',
   id_organizacao_gabi_token_workspace: 'id_organizacao_gabi_token_workspace',
   id_produto_gabi_token_workspace: 'id_produto_gabi_token_workspace',
@@ -704,7 +704,7 @@ exports.Prisma.GabiTokenWorkspaceScalarFieldEnum = {
   data_atualizacao_gabi_token_workspace: 'data_atualizacao_gabi_token_workspace'
 };
 
-exports.Prisma.GabiPersonalizacaoScalarFieldEnum = {
+exports.Prisma.GabiPersonalizacaoOrganizacaoScalarFieldEnum = {
   id_gabi_personalizacao: 'id_gabi_personalizacao',
   id_organizacao_gabi_personalizacao: 'id_organizacao_gabi_personalizacao',
   id_produto_gabi_personalizacao: 'id_produto_gabi_personalizacao',
@@ -763,7 +763,7 @@ exports.Prisma.NcmLogScalarFieldEnum = {
   data_atualizacao_ncm_log: 'data_atualizacao_ncm_log'
 };
 
-exports.Prisma.NcmAgendamentoScalarFieldEnum = {
+exports.Prisma.NCMAgendamentoScalarFieldEnum = {
   id_ncm_agendamento: 'id_ncm_agendamento',
   id_organizacao_ncm_agendamento: 'id_organizacao_ncm_agendamento',
   id_produto_ncm_agendamento: 'id_produto_ncm_agendamento',
@@ -925,24 +925,24 @@ exports.AlertaStatus = exports.$Enums.AlertaStatus = {
   ESCALADO: 'ESCALADO'
 };
 
-exports.NcmStatus = exports.$Enums.NcmStatus = {
+exports.NCMStatusSincronizacao = exports.$Enums.NCMStatusSincronizacao = {
   EXECUTANDO: 'EXECUTANDO',
   SUCESSO: 'SUCESSO',
   ERRO: 'ERRO'
 };
 
-exports.NcmOrigem = exports.$Enums.NcmOrigem = {
+exports.NCMOrigemSincronizacao = exports.$Enums.NCMOrigemSincronizacao = {
   JOB: 'JOB',
   MANUAL: 'MANUAL'
 };
 
 exports.Prisma.ModelName = {
   AtividadesDados: 'AtividadesDados',
-  AtividadesParticipantes: 'AtividadesParticipantes',
-  AtividadesTempo: 'AtividadesTempo',
-  AtividadesCronometro: 'AtividadesCronometro',
-  AtividadesTimer: 'AtividadesTimer',
-  TempoCriacaoRelatorio: 'TempoCriacaoRelatorio',
+  UsuariosAtividades: 'UsuariosAtividades',
+  UsuariosAtividadesTempo: 'UsuariosAtividadesTempo',
+  UsuarioHistoricoCronometro: 'UsuarioHistoricoCronometro',
+  UsuarioStatusCronometro: 'UsuarioStatusCronometro',
+  RelatorioTempoPeriodo: 'RelatorioTempoPeriodo',
   EmailAssuntosParticipantes: 'EmailAssuntosParticipantes',
   EmailMensagem: 'EmailMensagem',
   EmailRegistroEnvio: 'EmailRegistroEnvio',
@@ -957,9 +957,9 @@ exports.Prisma.ModelName = {
   DashboardMetricas: 'DashboardMetricas',
   DashboardAlertas: 'DashboardAlertas',
   DashboardCompartilhar: 'DashboardCompartilhar',
-  RelatoriosSalvos: 'RelatoriosSalvos',
-  RelatoriosConfiguracao: 'RelatoriosConfiguracao',
-  ExportarJob: 'ExportarJob',
+  RelatoriosSalvosUsuario: 'RelatoriosSalvosUsuario',
+  RelatoriosConfiguracaoUsuario: 'RelatoriosConfiguracaoUsuario',
+  RelatorioExportar: 'RelatorioExportar',
   HistoricoLog: 'HistoricoLog',
   RegraAlerta: 'RegraAlerta',
   EventoAlerta: 'EventoAlerta',
@@ -969,16 +969,16 @@ exports.Prisma.ModelName = {
   UsuarioHorarioDisponivel: 'UsuarioHorarioDisponivel',
   UsuarioReservaAgenda: 'UsuarioReservaAgenda',
   UsuarioConfiguracaoAgenda: 'UsuarioConfiguracaoAgenda',
-  GabiConversa: 'GabiConversa',
-  GabiMensagem: 'GabiMensagem',
+  GabiConversaCompleta: 'GabiConversaCompleta',
+  GabiMensagemIndividual: 'GabiMensagemIndividual',
   GabiLogUso: 'GabiLogUso',
   GabiTokenConsumido: 'GabiTokenConsumido',
-  GabiTokenWorkspace: 'GabiTokenWorkspace',
-  GabiPersonalizacao: 'GabiPersonalizacao',
+  GabiTokenOrganizacao: 'GabiTokenOrganizacao',
+  GabiPersonalizacaoOrganizacao: 'GabiPersonalizacaoOrganizacao',
   WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NcmItem: 'NcmItem',
   NcmLog: 'NcmLog',
-  NcmAgendamento: 'NcmAgendamento',
+  NCMAgendamento: 'NCMAgendamento',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',
   ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'

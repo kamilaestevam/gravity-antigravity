@@ -2,10 +2,10 @@
 // AGENTE RELATORIOS — ONDA 31 (DDD Servicos)
 
 // ---------------------------------------------------------------------------
-// RelatoriosSalvos — relatórios customizados salvos por usuário
+// RelatoriosSalvosUsuario — relatórios customizados salvos por usuário
 // ---------------------------------------------------------------------------
 
-model RelatoriosSalvos {
+model RelatoriosSalvosUsuario {
   id_relatorios_salvos             String  @id @default(cuid())
   id_organizacao_relatorios_salvos String
   id_produto_relatorios_salvos     String?
@@ -28,10 +28,10 @@ model RelatoriosSalvos {
 }
 
 // ---------------------------------------------------------------------------
-// RelatoriosConfiguracao — agendamento e canais de envio
+// RelatoriosConfiguracaoUsuario — agendamento e canais de envio
 // ---------------------------------------------------------------------------
 
-model RelatoriosConfiguracao {
+model RelatoriosConfiguracaoUsuario {
   id_relatorios_configuracao             String  @id @default(cuid())
   id_organizacao_relatorios_configuracao String
   id_produto_relatorios_configuracao     String?
@@ -53,10 +53,10 @@ model RelatoriosConfiguracao {
 }
 
 // ---------------------------------------------------------------------------
-// ExportarJob — job de exportação assíncrona de relatório
+// RelatorioExportar — job de exportação assíncrona de relatório
 // ---------------------------------------------------------------------------
 
-model ExportarJob {
+model RelatorioExportar {
   id_exportar_job             String  @id @default(cuid())
   id_organizacao_exportar_job String
   id_produto_exportar_job     String?

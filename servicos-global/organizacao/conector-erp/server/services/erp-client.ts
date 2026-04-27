@@ -29,7 +29,7 @@ export async function executeODataQuery<T = Record<string, unknown>>(
   triggeredBy: string
 ): Promise<ErpQueryResult<T>> {
   // 1. Buscar credenciais
-  const conexao = await prisma.conexaoERP.findFirst({
+  const conexao = await prisma.eRPIntegracao.findFirst({
     where: {
       tenant_id: tenantId,
       product_id: productId ?? undefined,
@@ -88,7 +88,7 @@ export async function executeODataQuery<T = Record<string, unknown>>(
     latencyMs = Date.now() - start
 
     // 3. Atualizar status no banco
-    await prisma.conexaoERP.update({
+    await prisma.eRPIntegracao.update({
       where: { id: conexao.id },
       data: {
         connection_status: 'ok',
@@ -126,7 +126,7 @@ export async function executeODataQuery<T = Record<string, unknown>>(
 
     // 5. Persistir estado do circuit breaker no banco
     const cbState = cb.toJSON()
-    await prisma.conexaoERP.update({
+    await prisma.eRPIntegracao.update({
       where: { id: conexao.id },
       data: {
         connection_status: 'failed',
@@ -162,7 +162,7 @@ export async function testarConexao(
   tenantId: string,
   productId: string | null
 ): Promise<{ ok: boolean; latencyMs: number; version?: string; error?: string }> {
-  const conexao = await prisma.conexaoERP.findFirst({
+  const conexao = await prisma.eRPIntegracao.findFirst({
     where: {
       tenant_id: tenantId,
       product_id: productId ?? undefined,
@@ -183,7 +183,7 @@ export async function testarConexao(
 
     const result = await client.testConnection()
 
-    await prisma.conexaoERP.update({
+    await prisma.eRPIntegracao.update({
       where: { id: conexao.id },
       data: {
         connection_status: result.ok ? 'ok' : 'failed',
@@ -196,7 +196,7 @@ export async function testarConexao(
     if (result.ok) {
       const cbKey = `${tenantId}:${productId ?? 'global'}`
       resetCircuitBreaker(cbKey)
-      await prisma.conexaoERP.update({
+      await prisma.eRPIntegracao.update({
         where: { id: conexao.id },
         data: {
           circuit_failures: 0,
@@ -209,7 +209,7 @@ export async function testarConexao(
     return result
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
-    await prisma.conexaoERP.update({
+    await prisma.eRPIntegracao.update({
       where: { id: conexao.id },
       data: {
         connection_status: 'failed',

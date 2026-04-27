@@ -70,7 +70,7 @@ relatoriosRouter.get('/api/v1/relatorios-salvos', authMiddleware, async (req: Re
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 100));
 
-    const relatorios = await prisma.relatoriosSalvos.findMany({
+    const relatorios = await prisma.relatoriosSalvosUsuario.findMany({
       where,
       orderBy: { data_criacao_relatorios_salvos: 'desc' },
       take: limit,
@@ -93,7 +93,7 @@ relatoriosRouter.post('/api/v1/relatorios-salvos', authMiddleware, async (req: R
       throw new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR');
     }
 
-    const relatorio = await prisma.relatoriosSalvos.create({
+    const relatorio = await prisma.relatoriosSalvosUsuario.create({
       data: {
         id_organizacao_relatorios_salvos: tenantId,
         id_usuario_relatorios_salvos: userId || null,
@@ -119,7 +119,7 @@ relatoriosRouter.get('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddle
     const { tenantId, userId } = req.auth;
     const { id_relatorio_salvo } = req.params;
 
-    const relatorio = await prisma.relatoriosSalvos.findFirst({
+    const relatorio = await prisma.relatoriosSalvosUsuario.findFirst({
       where: {
         id_relatorios_salvos: id_relatorio_salvo,
         id_organizacao_relatorios_salvos: tenantId,
@@ -152,7 +152,7 @@ relatoriosRouter.put('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddle
     }
 
     // Apenas dono pode editar (ou admin, mas simplificando para dono neste contexto)
-    const existente = await prisma.relatoriosSalvos.findFirst({
+    const existente = await prisma.relatoriosSalvosUsuario.findFirst({
       where: {
         id_relatorios_salvos: id_relatorio_salvo,
         id_organizacao_relatorios_salvos: tenantId,
@@ -173,7 +173,7 @@ relatoriosRouter.put('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddle
     if (parse.data.join_type !== undefined) data.tipo_join_relatorios_salvos = parse.data.join_type;
     if (parse.data.is_shared !== undefined) data.compartilhado_relatorios_salvos = parse.data.is_shared;
 
-    const relatorio = await prisma.relatoriosSalvos.update({
+    const relatorio = await prisma.relatoriosSalvosUsuario.update({
       where: { id_relatorios_salvos: id_relatorio_salvo },
       data,
     });
@@ -190,7 +190,7 @@ relatoriosRouter.delete('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMid
     const { tenantId, userId } = req.auth;
     const { id_relatorio_salvo } = req.params;
 
-    const existente = await prisma.relatoriosSalvos.findFirst({
+    const existente = await prisma.relatoriosSalvosUsuario.findFirst({
       where: {
         id_relatorios_salvos: id_relatorio_salvo,
         id_organizacao_relatorios_salvos: tenantId,
@@ -202,7 +202,7 @@ relatoriosRouter.delete('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMid
       throw new AppError('Relatório não encontrado ou sem permissão para deletar', 404, 'NOT_FOUND');
     }
 
-    await prisma.relatoriosSalvos.delete({
+    await prisma.relatoriosSalvosUsuario.delete({
       where: { id_relatorios_salvos: id_relatorio_salvo },
     });
 

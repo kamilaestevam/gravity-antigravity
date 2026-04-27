@@ -4,7 +4,7 @@ export async function processExportJob(jobId: string, _tenantId: string) {
   // Simulate processing time
   setTimeout(async () => {
     try {
-      await prisma.exportarJob.update({
+      await prisma.relatorioExportar.update({
         where: { id_exportar_job: jobId },
         data: {
           status_exportar_job: 'PROCESSING',
@@ -15,7 +15,7 @@ export async function processExportJob(jobId: string, _tenantId: string) {
       // Simulate file generation
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      await prisma.exportarJob.update({
+      await prisma.relatorioExportar.update({
         where: { id_exportar_job: jobId },
         data: {
           status_exportar_job: 'DONE',
@@ -26,7 +26,7 @@ export async function processExportJob(jobId: string, _tenantId: string) {
     } catch (err) {
       console.error(`Error processing job ${jobId}:`, err);
       try {
-        await prisma.exportarJob.update({
+        await prisma.relatorioExportar.update({
           where: { id_exportar_job: jobId },
           data: {
             status_exportar_job: 'FAILED',

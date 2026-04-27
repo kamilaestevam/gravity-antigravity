@@ -3,7 +3,7 @@
 // Skill: antigravity-nf-importacao
 // ============================================
 
-enum StatusNf {
+enum NFImportacaoStatus {
   rascunho
   em_composicao
   pronta
@@ -11,7 +11,7 @@ enum StatusNf {
   cancelada
 }
 
-enum MetodoRateio {
+enum NfImportacaoMetodoRateio {
   PESO_LIQUIDO
   PESO_BRUTO
   VALOR_CIF
@@ -23,7 +23,7 @@ enum MetodoRateio {
   CUSTOMIZADO
 }
 
-enum CanalEntrada {
+enum NfImportacaoTipoCanalEntrada {
   MANUAL
   XML
   SMART_READ
@@ -32,14 +32,14 @@ enum CanalEntrada {
   PROCESSO
 }
 
-enum OrigemDespesa {
+enum NfImportacaoOrigemDespesa {
   MANUAL
   TEMPLATE
   SMART_READ
   PLANILHA
 }
 
-enum FormatoExport {
+enum NfImportacaoTipoFormato {
   XML
   TXT
   CSV
@@ -48,24 +48,24 @@ enum FormatoExport {
   PDF
 }
 
-enum TipoDado {
+enum NfImportacaoTipoDado {
   TEXTO
   NUMERO
   DATA
   DECIMAL
 }
 
-enum Alinhamento {
+enum NfImportacaoTipoAlinhamento {
   ESQUERDA
   DIREITA
   CENTRO
 }
 
 // ============================================
-// 1. NfImportacao — Documento principal
+// 1. NFImportacao — Documento principal
 // ============================================
 
-model NfImportacao {
+model NFImportacao {
   id                    String        @id                     // nfim_id_XXXXXXX/YY
   tenant_id             String
   company_id            String
@@ -98,14 +98,14 @@ model NfImportacao {
   total_nf              Decimal       @db.Decimal(18, 2)
 
   // Canal e precisao
-  canal_entrada         CanalEntrada  @default(MANUAL)
+  canal_entrada         NfImportacaoTipoCanalEntrada  @default(MANUAL)
   casas_decimais_valor  Int           @default(2)
   casas_decimais_qtd    Int           @default(4)
 
   // Status e exportacao
-  status                StatusNf      @default(rascunho)
+  status                NFImportacaoStatus      @default(rascunho)
   data_exportacao       DateTime?
-  formato_exportado     FormatoExport?
+  formato_exportado     NfImportacaoTipoFormato?
 
   // Metadados
   created_by            String
@@ -115,10 +115,10 @@ model NfImportacao {
   updated_at            DateTime      @updatedAt
 
   // Relacoes
-  itens                 NfImportacaoItem[]
-  despesas              NfImportacaoDespesa[]
-  documentos            NfImportacaoDocumento[]
-  historico             NfImportacaoHistorico[]
+  itens                 NFImportacaoItens[]
+  despesas              NFImportacaoDespesas[]
+  documentos            NFImportacaoAnexo[]
+  historico             NFImportacaoHistorico[]
 
   // 3 indices obrigatorios + indices de negocio
   @@index([tenant_id])
@@ -133,10 +133,10 @@ model NfImportacao {
 }
 
 // ============================================
-// 2. NfImportacaoItem — Item da DUIMP / Adicao
+// 2. NFImportacaoItens — Item da DUIMP / Adicao
 // ============================================
 
-model NfImportacaoItem {
+model NFImportacaoItens {
   id                        String    @id                     // nfit_id_XXXXXXX/YY
   tenant_id                 String
   company_id                String
@@ -197,8 +197,8 @@ model NfImportacaoItem {
   updated_at                DateTime  @updatedAt
 
   // Relacoes
-  nf_importacao             NfImportacao  @relation(fields: [nf_importacao_id], references: [id])
-  rateios                   NfImportacaoRateio[]
+  nf_importacao             NFImportacao  @relation(fields: [nf_importacao_id], references: [id])
+  rateios                   NFImportacaoRateio[]
 
   // Indices
   @@index([tenant_id])
@@ -210,10 +210,10 @@ model NfImportacaoItem {
 }
 
 // ============================================
-// 3. NfImportacaoDespesa — Despesa da NF
+// 3. NFImportacaoDespesas — Despesa da NF
 // ============================================
 
-model NfImportacaoDespesa {
+model NFImportacaoDespesas {
   id                    String          @id                   // nfde_id_XXXXXXX/YY
   tenant_id             String
   company_id            String
@@ -228,11 +228,11 @@ model NfImportacaoDespesa {
   data_despesa          DateTime?
 
   // Rateio
-  metodo_rateio         MetodoRateio    @default(VALOR_CIF)
+  metodo_rateio         NfImportacaoMetodoRateio    @default(VALOR_CIF)
   formula_customizada   String?
 
   // Origem e documento
-  origem                OrigemDespesa   @default(MANUAL)
+  origem                NfImportacaoOrigemDespesa   @default(MANUAL)
   documento_id          String?
 
   // Contabilidade
@@ -243,8 +243,8 @@ model NfImportacaoDespesa {
   updated_at            DateTime        @updatedAt
 
   // Relacoes
-  nf_importacao         NfImportacao    @relation(fields: [nf_importacao_id], references: [id])
-  rateios               NfImportacaoRateio[]
+  nf_importacao         NFImportacao    @relation(fields: [nf_importacao_id], references: [id])
+  rateios               NFImportacaoRateio[]
 
   // Indices
   @@index([tenant_id])
@@ -255,10 +255,10 @@ model NfImportacaoDespesa {
 }
 
 // ============================================
-// 4. NfImportacaoRateio — Resultado do rateio
+// 4. NFImportacaoRateio — Resultado do rateio
 // ============================================
 
-model NfImportacaoRateio {
+model NFImportacaoRateio {
   id                    String        @id                     // nfra_id_XXXXXXX/YY
   tenant_id             String
   company_id            String
@@ -268,7 +268,7 @@ model NfImportacaoRateio {
   // Valores calculados
   valor_rateado         Decimal       @db.Decimal(18, 2)
   percentual_rateio     Decimal       @db.Decimal(8, 4)
-  metodo_usado          MetodoRateio
+  metodo_usado          NfImportacaoMetodoRateio
 
   // Flags
   is_override_manual    Boolean       @default(false)
@@ -278,8 +278,8 @@ model NfImportacaoRateio {
   updated_at            DateTime      @updatedAt
 
   // Relacoes
-  despesa               NfImportacaoDespesa @relation(fields: [despesa_id], references: [id])
-  item                  NfImportacaoItem    @relation(fields: [item_id], references: [id])
+  despesa               NFImportacaoDespesas @relation(fields: [despesa_id], references: [id])
+  item                  NFImportacaoItens    @relation(fields: [item_id], references: [id])
 
   // Unicidade: uma despesa so rateia uma vez por item
   @@unique([despesa_id, item_id])
@@ -294,10 +294,10 @@ model NfImportacaoRateio {
 }
 
 // ============================================
-// 5. NfImportacaoDocumento — Documentos anexos
+// 5. NFImportacaoAnexo — Documentos anexos
 // ============================================
 
-model NfImportacaoDocumento {
+model NFImportacaoAnexo {
   id                      String    @id @default(cuid())
   tenant_id               String
   company_id              String
@@ -320,7 +320,7 @@ model NfImportacaoDocumento {
   created_at              DateTime  @default(now())
 
   // Relacoes
-  nf_importacao           NfImportacao @relation(fields: [nf_importacao_id], references: [id])
+  nf_importacao           NFImportacao @relation(fields: [nf_importacao_id], references: [id])
 
   // Indices
   @@index([tenant_id])
@@ -331,10 +331,10 @@ model NfImportacaoDocumento {
 }
 
 // ============================================
-// 6. NfImportacaoHistorico — Trilha de auditoria (append-only)
+// 6. NFImportacaoHistorico — Trilha de auditoria (append-only)
 // ============================================
 
-model NfImportacaoHistorico {
+model NFImportacaoHistorico {
   id                    String    @id @default(cuid())
   tenant_id             String
   company_id            String
@@ -354,7 +354,7 @@ model NfImportacaoHistorico {
   created_at            DateTime  @default(now())
 
   // Relacoes
-  nf_importacao         NfImportacao @relation(fields: [nf_importacao_id], references: [id])
+  nf_importacao         NFImportacao @relation(fields: [nf_importacao_id], references: [id])
 
   // Indices
   @@index([tenant_id])
@@ -366,17 +366,17 @@ model NfImportacaoHistorico {
 }
 
 // ============================================
-// 7. DespesaCatalogo — Catalogo de despesas por empresa
+// 7. NFImportacaoTipoDespesa — Catalogo de despesas por empresa
 // ============================================
 
-model DespesaCatalogo {
+model NFImportacaoTipoDespesa {
   id                    String        @id @default(cuid())
   tenant_id             String
   company_id            String
 
   nome                  String
   descricao             String?
-  metodo_rateio_padrao  MetodoRateio  @default(VALOR_CIF)
+  metodo_rateio_padrao  NfImportacaoMetodoRateio  @default(VALOR_CIF)
   conta_contabil        String?
   centro_custo          String?
   ativo                 Boolean       @default(true)
@@ -394,10 +394,10 @@ model DespesaCatalogo {
 }
 
 // ============================================
-// 8. DespesaTemplate — Template de despesas
+// 8. NFImportacaoTemplates — Template de despesas
 // ============================================
 
-model DespesaTemplate {
+model NFImportacaoTemplates {
   id                    String    @id @default(cuid())
   tenant_id             String
   company_id            String
@@ -412,7 +412,7 @@ model DespesaTemplate {
   updated_at            DateTime  @updatedAt
 
   // Relacoes
-  itens                 DespesaTemplateItem[]
+  itens                 NFImportacaoTemplatesItens[]
 
   @@unique([tenant_id, company_id, nome])
 
@@ -423,10 +423,10 @@ model DespesaTemplate {
 }
 
 // ============================================
-// 9. DespesaTemplateItem — Itens do template
+// 9. NFImportacaoTemplatesItens — Itens do template
 // ============================================
 
-model DespesaTemplateItem {
+model NFImportacaoTemplatesItens {
   id                    String        @id @default(cuid())
   tenant_id             String
   company_id            String
@@ -435,11 +435,11 @@ model DespesaTemplateItem {
   catalogo_despesa_id   String?
   nome                  String
   valor_padrao          Decimal?      @db.Decimal(18, 2)
-  metodo_rateio         MetodoRateio  @default(VALOR_CIF)
+  metodo_rateio         NfImportacaoMetodoRateio  @default(VALOR_CIF)
   ordem                 Int           @default(0)
 
   // Relacoes
-  template              DespesaTemplate @relation(fields: [template_id], references: [id])
+  template              NFImportacaoTemplates @relation(fields: [template_id], references: [id])
 
   // Indices
   @@index([tenant_id])
@@ -449,17 +449,17 @@ model DespesaTemplateItem {
 }
 
 // ============================================
-// 10. ExportLayout — Layout customizado de exportacao
+// 10. NFImportacaoExportarLayout — Layout customizado de exportacao
 // ============================================
 
-model ExportLayout {
+model NFImportacaoExportarLayout {
   id                    String          @id @default(cuid())
   tenant_id             String
   company_id            String
 
   nome                  String
   descricao             String?
-  formato               FormatoExport
+  formato               NfImportacaoTipoFormato
   separador             String?
   codificacao           String          @default("UTF-8")
 
@@ -476,7 +476,7 @@ model ExportLayout {
   updated_at            DateTime        @updatedAt
 
   // Relacoes
-  campos                ExportLayoutCampo[]
+  campos                NFImportacaoLayoutCampos[]
 
   @@unique([tenant_id, company_id, nome])
 
@@ -487,10 +487,10 @@ model ExportLayout {
 }
 
 // ============================================
-// 11. ExportLayoutCampo — Campos do layout
+// 11. NFImportacaoLayoutCampos — Campos do layout
 // ============================================
 
-model ExportLayoutCampo {
+model NFImportacaoLayoutCampos {
   id                    String      @id @default(cuid())
   tenant_id             String
   company_id            String
@@ -499,17 +499,17 @@ model ExportLayoutCampo {
   campo_origem          String
   label                 String
   ordem                 Int
-  tipo_dado             TipoDado    @default(TEXTO)
+  tipo_dado             NfImportacaoTipoDado    @default(TEXTO)
   formato               String?
   tamanho_fixo          Int?
   posicao_inicio        Int?
-  alinhamento           Alinhamento @default(ESQUERDA)
+  alinhamento           NfImportacaoTipoAlinhamento @default(ESQUERDA)
   preenchimento         String?
   valor_padrao          String?
   transformacao         String?
 
   // Relacoes
-  layout                ExportLayout @relation(fields: [layout_id], references: [id])
+  layout                NFImportacaoExportarLayout @relation(fields: [layout_id], references: [id])
 
   @@unique([layout_id, ordem])
 
@@ -520,10 +520,10 @@ model ExportLayoutCampo {
 }
 
 // ============================================
-// 12. FavoritoFiscal — Presets CFOP + CST por NCM
+// 12. NFImportacaoFiscaisFavoritos — Presets CFOP + CST por NCM
 // ============================================
 
-model FavoritoFiscal {
+model NFImportacaoFiscaisFavoritos {
   id                    String    @id @default(cuid())
   tenant_id             String
   company_id            String

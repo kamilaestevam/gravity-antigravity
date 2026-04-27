@@ -54,11 +54,11 @@ async function criarNfFromImport(
   canalEntrada: string,
   dados: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const count = await prisma.nfImportacao.count({ where: { tenant_id: tenantId } })
+  const count = await prisma.nFImportacao.count({ where: { tenant_id: tenantId } })
   const id = gerarId(PREFIXOS.NF, count + 1)
 
   const nf = await prisma.$transaction(async (tx: TxClient) => {
-    const created = await tx.nfImportacao.create({
+    const created = await tx.nFImportacao.create({
       data: {
         id,
         tenant_id: tenantId,
@@ -96,10 +96,10 @@ async function criarNfFromImport(
     // Criar itens se fornecidos
     const itens = (dados.itens as Array<Record<string, unknown>>) ?? []
     if (itens.length > 0) {
-      const itemCount = await tx.nfImportacaoItem.count({ where: { tenant_id: tenantId } })
+      const itemCount = await tx.nFImportacaoItens.count({ where: { tenant_id: tenantId } })
       for (let i = 0; i < itens.length; i++) {
         const item = itens[i]
-        await tx.nfImportacaoItem.create({
+        await tx.nFImportacaoItens.create({
           data: {
             id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
             tenant_id: tenantId,
@@ -137,7 +137,7 @@ async function criarNfFromImport(
       }
     }
 
-    await tx.nfImportacaoHistorico.create({
+    await tx.nFImportacaoHistorico.create({
       data: {
         tenant_id: tenantId,
         company_id: companyId,

@@ -65,7 +65,7 @@ async function findNfEditable(prisma: PrismaClient, nfId: string, tenantId: stri
   const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
   if (companyId) where.company_id = companyId
 
-  const nf = await prisma.nfImportacao.findFirst({ where })
+  const nf = await prisma.nFImportacao.findFirst({ where })
   if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
   if (!EDITABLE_STATUSES.includes(nf.status)) {
     throw new AppError(
@@ -86,10 +86,10 @@ router.get('/:id/itens', async (req: Request, res: Response, next: NextFunction)
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true } })
+    const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const itens = await prisma.nfImportacaoItem.findMany({
+    const itens = await prisma.nFImportacaoItens.findMany({
       where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
       orderBy: { numero_item: 'asc' },
     })
@@ -110,7 +110,7 @@ router.post('/:id/itens', async (req: Request, res: Response, next: NextFunction
     // Auto-incrementar numero_item se nao fornecido
     let numeroItem = body.numero_item
     if (!numeroItem) {
-      const lastItem = await prisma.nfImportacaoItem.findFirst({
+      const lastItem = await prisma.nFImportacaoItens.findFirst({
         where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
         orderBy: { numero_item: 'desc' },
         select: { numero_item: true },
@@ -118,8 +118,8 @@ router.post('/:id/itens', async (req: Request, res: Response, next: NextFunction
       numeroItem = (lastItem?.numero_item ?? 0) + 1
     }
 
-    const count = await prisma.nfImportacaoItem.count({ where: { tenant_id: tenantId } })
-    const item = await prisma.nfImportacaoItem.create({
+    const count = await prisma.nFImportacaoItens.count({ where: { tenant_id: tenantId } })
+    const item = await prisma.nFImportacaoItens.create({
       data: {
         id: gerarId(PREFIXOS.ITEM, count + 1),
         tenant_id: tenantId,
@@ -173,12 +173,12 @@ router.put('/:id/itens/:itemId', async (req: Request, res: Response, next: NextF
 
     await findNfEditable(prisma, req.params.id, tenantId, companyId)
 
-    const existing = await prisma.nfImportacaoItem.findFirst({
+    const existing = await prisma.nFImportacaoItens.findFirst({
       where: { id: req.params.itemId, nf_importacao_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Item nao encontrado', 404, 'NOT_FOUND')
 
-    const item = await prisma.nfImportacaoItem.update({
+    const item = await prisma.nFImportacaoItens.update({
       where: { id: req.params.itemId },
       data: { ...body, updated_by: userId },
     })
@@ -195,12 +195,12 @@ router.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: Ne
 
     await findNfEditable(prisma, req.params.id, tenantId, companyId)
 
-    const existing = await prisma.nfImportacaoItem.findFirst({
+    const existing = await prisma.nFImportacaoItens.findFirst({
       where: { id: req.params.itemId, nf_importacao_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Item nao encontrado', 404, 'NOT_FOUND')
 
-    await prisma.nfImportacaoItem.delete({ where: { id: req.params.itemId } })
+    await prisma.nFImportacaoItens.delete({ where: { id: req.params.itemId } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

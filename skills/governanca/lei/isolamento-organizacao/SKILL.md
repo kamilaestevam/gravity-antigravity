@@ -1,52 +1,52 @@
 ---
 name: antigravity-isolamento-organizacao
-description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organização em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organização + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
+description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organizacao em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organizacao + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
 ---
 
-# Gravity — Isolamento de Organização (Schema-per-Organização)
+# Gravity — Isolamento de Organizacao (Schema-per-Organizacao)
 
 > **Esta skill foi reescrita em 2026-04-17 após o pivô arquitetural Risco Zero.**
 > O modelo anterior (`WHERE id_organizacao = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
-> Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-organização e Configurador como hub central). Os ADRs que documentavam esse pivô foram consolidados nesta skill e em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
+> Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-organizacao e Configurador como hub central). Ver [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md). Detalhes operacionais consolidados em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
 >
-> **Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real registrado), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco) e a API pública atual do SDK ainda expõe `req.organizacao.idOrganizacao`/`withTenantContext(tenantId, ...)` (contrato externo legado, em refatoração para `idOrganizacao`). Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03). Embora a biblioteca tenha nome legado, o parâmetro semântico que trafega é estritamente a Organização (`id_organizacao`).
+> **Notas sobre nomes técnicos preservados:** apenas dois nomes legados continuam por razões físicas — o pacote npm `@gravity/tenant-resolver` (identificador registrado) e o prefixo de schema PostgreSQL `tenant_<cuid>` (objeto físico do banco). A API pública do SDK foi migrada para `withOrganizacao(req, ...)` / `withOrganizacaoContext(idOrganizacao, ...)`. Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03).
 
 ---
 
 ## A Regra Mais Importante do Sistema
 
-**Em todo banco de produto, cada organização vive em seu próprio schema PostgreSQL exclusivo. Nenhum acesso ao banco acontece sem passar pelo SDK `@gravity/tenant-resolver`.**
+**Em todo banco de produto, cada organizacao vive em seu próprio schema PostgreSQL exclusivo. Nenhum acesso ao banco acontece sem passar pelo SDK `@gravity/tenant-resolver`.**
 
 Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é **do PostgreSQL**, não da aplicação. Não há exceção. Não há "só desta vez".
 
 ---
 
-## O Modelo: Schema-per-Organização
+## O Modelo: Schema-per-Organizacao
 
 | Banco | Modelo |
 |---|---|
 | `configurador` | single-schema `public` (fonte de verdade global de identidade) |
-| `pedido`, `processo`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`, `financeiro-comex`, `conector-erp` | **schema-per-organização**: 1 schema por organização, nomeado `tenant_<cuid>` (prefixo real de Postgres) |
-| `servicos-global/organização` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organização** |
+| `pedido`, `processo`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`, `financeiro-comex`, `conector-erp` | **schema-per-organizacao**: 1 schema por organizacao, nomeado `tenant_<cuid>` (prefixo real de Postgres) |
+| `servicos-global/organizacao` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organizacao** |
 
 ---
 
 ## A Única Forma Permitida de Acessar o Banco
 
 ```typescript
-import { withTenant } from '@gravity/tenant-resolver';
+import { withOrganizacao } from '@gravity/tenant-resolver';
 
 app.get('/pedidos', async (req, res) => {
-  const pedidos = await withTenant(req, async (db) => {
+  const pedidos = await withOrganizacao(req, async (db) => {
     // db é o cliente Prisma DENTRO de $transaction com SET LOCAL search_path
-    // Apontando para o schema do organização. COMMIT/ROLLBACK reseta automaticamente.
+    // Apontando para o schema da organizacao. COMMIT/ROLLBACK reseta automaticamente.
     return db.pedido.findMany();
   });
   res.json(pedidos);
 });
 ```
 
-### Por dentro do `withTenant` (referência)
+### Por dentro do `withOrganizacao` (referência)
 
 ```typescript
 return _internalPrisma.$transaction(async (tx) => {
@@ -62,11 +62,11 @@ return _internalPrisma.$transaction(async (tx) => {
 ### Para CRON jobs e workers (sem `req`)
 
 ```typescript
-import { withTenantContext } from '@gravity/tenant-resolver';
+import { withOrganizacaoContext } from '@gravity/tenant-resolver';
 
 // O parâmetro "tenantId" abaixo é o nome real da API pública do SDK.
 // Em payloads e variáveis de aplicação, use idOrganizacao.
-await withTenantContext(idOrganizacao, async (ctx, db) => {
+await withOrganizacaoContext(idOrganizacao, async (ctx, db) => {
   return db.pedido.updateMany({ where: { status: 'PENDENTE' }, data: { ... } });
 });
 ```
@@ -77,10 +77,10 @@ await withTenantContext(idOrganizacao, async (ctx, db) => {
 
 - ❌ `import { PrismaClient } from '@prisma/client'` em qualquer arquivo de produto (linter CI bloqueia)
 - ❌ `new PrismaClient(...)` em qualquer produto
-- ❌ Acesso ao banco fora de `withTenant(...)` ou `withTenantContext(...)`
+- ❌ Acesso ao banco fora de `withOrganizacao(...)` ou `withOrganizacaoContext(...)`
 - ❌ `WHERE id_organizacao = ?` em queries de produto (modelo antigo morto)
 - ❌ Coluna `tenant_id` ou campo Prisma `id_organizacao` em tabelas de produto
-- ❌ Cache (`redis.set`, in-memory) sem prefixo `organização:<id>:`
+- ❌ Cache (`redis.set`, in-memory) sem prefixo `organizacao:<id_organizacao>:`
 - ❌ PgBouncer em modo `session` para banco de produto (modo `transaction` é obrigatório)
 - ❌ `SET search_path` (sem `LOCAL`) — vaza no pool
 - ❌ Provisionar schema "on-demand" no primeiro request — corrida garantida
@@ -89,13 +89,13 @@ await withTenantContext(idOrganizacao, async (ctx, db) => {
 
 ## O Que É Obrigatório
 
-- ✅ Toda rota de produto chama `withTenant(req, async db => ...)`
-- ✅ Toda tarefa de background chama `withTenantContext(idOrganizacao, async (ctx, db) => ...)` (nome do parâmetro do SDK é `tenantId`; passe `idOrganizacao` da aplicação)
+- ✅ Toda rota de produto chama `withOrganizacao(req, async db => ...)`
+- ✅ Toda tarefa de background chama `withOrganizacaoContext(idOrganizacao, async (ctx, db) => ...)` (nome do parâmetro do SDK é `tenantId`; passe `idOrganizacao` da aplicação)
 - ✅ Schema é provisionado pelo worker do evento `TenantProvisioned` (com DLQ + retry)
 - ✅ Migrations rodam via `scripts/ativamente/migrate-all-tenants.ts` (orquestrador — Pivô 2026-04-17)
 - ✅ Cliente Prisma é instanciado só em `packages/tenant-resolver/src/internal-prisma.ts` e **não é exportado**
-- ✅ Teste E2E de isolamento cross-organização em todo produto (`tenant-isolation.e2e.test.ts`)
-- ✅ Validação Zod em toda rota antes do `withTenant`
+- ✅ Teste E2E de isolamento cross-organizacao em todo produto (`tenant-isolation.e2e.test.ts`)
+- ✅ Validação Zod em toda rota antes do `withOrganizacao`
 - ✅ Configurador é a fonte de identidade — frontend lê de `GET /api/v1/me`, **PROIBIDO** ler `publicMetadata.role`/`publicMetadata.tenantId` do Clerk para autorização (Mandamento 01)
 
 ---
@@ -109,7 +109,7 @@ model Pedido {
   id        String @id @default(cuid())
   numero    String
   status    String
-  // SEM campo id_organizacao — o schema É a Organização
+  // SEM campo id_organizacao — o schema É a Organizacao
   // SEM @@index([id_organizacao]) — desnecessário
 
   @@index([status])
@@ -127,13 +127,13 @@ model Organizacao {
   status      OrganizacaoStatus
   // Configurador É a fonte de Organizações. Não carrega coluna de auto-isolamento.
   // O model físico real do schema.prisma do Configurador é INTOCÁVEL (Mandamento 02).
-  // Em payloads/JSON, refira-se ao conceito como "Organização" (id_organizacao).
+  // Em payloads/JSON, refira-se ao conceito como "Organizacao" (id_organizacao).
 }
 ```
 
 ---
 
-## Provisionamento de Nova Organização
+## Provisionamento de Nova Organizacao
 
 Disparado pelo evento `TenantProvisioned` (nome do evento mantido por compatibilidade) emitido pelo Configurador:
 
@@ -150,16 +150,16 @@ Disparado pelo evento `TenantProvisioned` (nome do evento mantido por compatibil
 
 ```typescript
 // produto/pedido/server/tests/tenant-isolation.e2e.test.ts
-it('acesso cross-organização deve falhar — schema da outra organização não está no search_path', async () => {
+it('acesso cross-organizacao deve falhar — schema da outra organizacao não está no search_path', async () => {
   const orgA = await createTestOrganizacao();
   const orgB = await createTestOrganizacao();
 
-  const pedidoB = await withTenantContext(orgB.id, async (_, db) =>
+  const pedidoB = await withOrganizacaoContext(orgB.id, async (_, db) =>
     db.pedido.create({ data: { numero: 'B-001', status: 'NOVO' } })
   );
 
-  // Request com JWT da organização A tentando ler pedido da organização B
-  const result = await withTenantContext(orgA.id, async (_, db) =>
+  // Request com JWT da organizacao A tentando ler pedido da organizacao B
+  const result = await withOrganizacaoContext(orgA.id, async (_, db) =>
     db.pedido.findUnique({ where: { id: pedidoB.id } })
   );
 
@@ -171,21 +171,21 @@ it('crash do handler não polui search_path da próxima request', async () => {
   const orgB = await createTestOrganizacao();
 
   await expect(
-    withTenantContext(orgA.id, async (_, db) => {
+    withOrganizacaoContext(orgA.id, async (_, db) => {
       throw new Error('simulando crash');
     })
   ).rejects.toThrow();
 
   // Próxima request usa pool — search_path tem que estar limpo
-  const result = await withTenantContext(orgB.id, async (_, db) => {
+  const result = await withOrganizacaoContext(orgB.id, async (_, db) => {
     const [{ search_path }] = await db.$queryRaw<{ search_path: string }[]>`
       SHOW search_path
     `;
     return search_path;
   });
 
-  expect(result).toContain(`tenant_${orgB.id.replace(/-/g, '')}`);
-  expect(result).not.toContain(`tenant_${orgA.id.replace(/-/g, '')}`);
+  expect(result).toContain(`tenant_${orgB.id}`);
+  expect(result).not.toContain(`tenant_${orgA.id}`);
 });
 ```
 
@@ -217,8 +217,8 @@ const role = currentUser.publicMetadata.role;  // NUNCA — só fonte de verdade
 
 Rotas administrativas em qualquer produto exigem:
 - JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (vindo de `req.organizacao.roles`)
-- Header `x-target-organização-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
-- Validação dupla pelo SDK: usuário tem permissão **E** organização alvo existe e está ativa
+- Header `x-target-organizacao-id` explícito (não inferido do JWT do admin)
+- Validação dupla pelo SDK: usuário tem permissão **E** organizacao alvo existe e está ativa
 - Log especial com `admin_action: true`, ingerido pela aba "Eventos de Segurança"
 
 ---
@@ -241,11 +241,11 @@ CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_exi
 
 ## Checklist — Antes de Qualquer Acesso ao Banco de Produto
 
-- [ ] Estou usando `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` — não há outra forma?
+- [ ] Estou usando `withOrganizacao(req, ...)` ou `withOrganizacaoContext(idOrganizacao, ...)` — não há outra forma?
 - [ ] O produto tem `@gravity/tenant-resolver` no `package.json` (e **não** `@prisma/client`)?
 - [ ] Estou dentro do callback do SDK ao tocar o banco?
-- [ ] O cache (se houver) está prefixado com `organização:<id>:` (prefixo do SDK) ou `org:<id_organizacao>:`?
-- [ ] O teste de cross-organização está implementado e passando?
+- [ ] O cache (se houver) está prefixado com `organizacao:<id_organizacao>:`?
+- [ ] O teste de cross-organizacao está implementado e passando?
 - [ ] O teste de "crash não polui search_path" está implementado para esse produto?
 - [ ] Schema novo (se aplicável) é criado pelo worker de `TenantProvisioned`?
 - [ ] Migration nova roda via orquestrador `migrate-all-tenants.ts`?

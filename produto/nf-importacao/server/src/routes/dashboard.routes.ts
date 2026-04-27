@@ -47,7 +47,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
     for (const metric of metrics) {
       switch (metric) {
         case 'total_fob': {
-          const agg = await prisma.nfImportacao.aggregate({
+          const agg = await prisma.nFImportacao.aggregate({
             _sum: { total_fob: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -55,7 +55,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'total_cif': {
-          const agg = await prisma.nfImportacao.aggregate({
+          const agg = await prisma.nFImportacao.aggregate({
             _sum: { total_cif: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -63,7 +63,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'total_tributos': {
-          const agg = await prisma.nfImportacao.aggregate({
+          const agg = await prisma.nFImportacao.aggregate({
             _sum: { total_tributos: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -71,7 +71,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'nfs_por_status': {
-          const items = await prisma.nfImportacao.groupBy({
+          const items = await prisma.nFImportacao.groupBy({
             by: ['status'],
             _count: true,
             where: { created_at: { gte: periodStart } },
@@ -80,7 +80,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'tributos_breakdown': {
-          const agg = await prisma.nfImportacao.aggregate({
+          const agg = await prisma.nFImportacao.aggregate({
             _sum: {
               total_ii: true,
               total_ipi: true,
@@ -101,7 +101,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.nfImportacao.findMany({
+          const items = await prisma.nFImportacao.findMany({
             where: { created_at: { gte: dozeAtras } },
             select: { created_at: true },
           })

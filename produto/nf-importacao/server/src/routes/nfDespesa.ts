@@ -66,7 +66,7 @@ async function findNfEditable(prisma: PrismaClient, nfId: string, tenantId: stri
   const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
   if (companyId) where.company_id = companyId
 
-  const nf = await prisma.nfImportacao.findFirst({ where })
+  const nf = await prisma.nFImportacao.findFirst({ where })
   if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
   if (!EDITABLE_STATUSES.includes(nf.status)) {
     throw new AppError(
@@ -87,10 +87,10 @@ router.get('/:id/despesas', async (req: Request, res: Response, next: NextFuncti
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true } })
+    const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const despesas = await prisma.nfImportacaoDespesa.findMany({
+    const despesas = await prisma.nFImportacaoDespesas.findMany({
       where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
       orderBy: { created_at: 'asc' },
       include: {
@@ -111,8 +111,8 @@ router.post('/:id/despesas', async (req: Request, res: Response, next: NextFunct
 
     const nf = await findNfEditable(prisma, req.params.id, tenantId, companyId)
 
-    const count = await prisma.nfImportacaoDespesa.count({ where: { tenant_id: tenantId } })
-    const despesa = await prisma.nfImportacaoDespesa.create({
+    const count = await prisma.nFImportacaoDespesas.count({ where: { tenant_id: tenantId } })
+    const despesa = await prisma.nFImportacaoDespesas.create({
       data: {
         id: gerarId(PREFIXOS.DESPESA, count + 1),
         tenant_id: tenantId,
@@ -162,7 +162,7 @@ router.put('/:id/despesas/:despesaId', async (req: Request, res: Response, next:
 
     await findNfEditable(prisma, req.params.id, tenantId, companyId)
 
-    const existing = await prisma.nfImportacaoDespesa.findFirst({
+    const existing = await prisma.nFImportacaoDespesas.findFirst({
       where: { id: req.params.despesaId, nf_importacao_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
@@ -170,7 +170,7 @@ router.put('/:id/despesas/:despesaId', async (req: Request, res: Response, next:
     const updateData: Record<string, unknown> = { ...body, updated_by: userId }
     if (body.data_documento) updateData.data_documento = new Date(body.data_documento)
 
-    const despesa = await prisma.nfImportacaoDespesa.update({
+    const despesa = await prisma.nFImportacaoDespesas.update({
       where: { id: req.params.despesaId },
       data: updateData,
     })
@@ -187,17 +187,17 @@ router.delete('/:id/despesas/:despesaId', async (req: Request, res: Response, ne
 
     await findNfEditable(prisma, req.params.id, tenantId, companyId)
 
-    const existing = await prisma.nfImportacaoDespesa.findFirst({
+    const existing = await prisma.nFImportacaoDespesas.findFirst({
       where: { id: req.params.despesaId, nf_importacao_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
 
     // Deletar rateios associados primeiro
-    await prisma.nfImportacaoRateio.deleteMany({
+    await prisma.nFImportacaoRateio.deleteMany({
       where: { nf_despesa_id: req.params.despesaId, tenant_id: tenantId },
     })
 
-    await prisma.nfImportacaoDespesa.delete({ where: { id: req.params.despesaId } })
+    await prisma.nFImportacaoDespesas.delete({ where: { id: req.params.despesaId } })
     res.status(204).send()
   } catch (err) { next(err) }
 })
@@ -212,7 +212,7 @@ router.post('/:id/despesas/smart-read', async (req: Request, res: Response, next
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true, status: true } })
+    const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true, status: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
     if (!EDITABLE_STATUSES.includes(nf.status)) {
       throw new AppError('NF nao esta em status editavel', 422, 'NOT_EDITABLE')
@@ -251,11 +251,11 @@ router.post('/:id/despesas/aplicar-template', async (req: Request, res: Response
 
     // Criar despesas a partir dos itens do template
     const despesasCriadas: Array<Record<string, unknown>> = []
-    const despesaCount = await prisma.nfImportacaoDespesa.count({ where: { tenant_id: tenantId } })
+    const despesaCount = await prisma.nFImportacaoDespesas.count({ where: { tenant_id: tenantId } })
 
     for (let i = 0; i < template.itens.length; i++) {
       const templateItem = template.itens[i]
-      const despesa = await prisma.nfImportacaoDespesa.create({
+      const despesa = await prisma.nFImportacaoDespesas.create({
         data: {
           id: gerarId(PREFIXOS.DESPESA, despesaCount + i + 1),
           tenant_id: tenantId,

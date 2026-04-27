@@ -38,10 +38,10 @@ router.get('/:id/documentos', async (req: Request, res: Response, next: NextFunc
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true } })
+    const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const docs = await prisma.nfImportacaoDocumento.findMany({
+    const docs = await prisma.nFImportacaoAnexo.findMany({
       where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
     })
@@ -60,10 +60,10 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where })
+    const nf = await prisma.nFImportacao.findFirst({ where })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const doc = await prisma.nfImportacaoDocumento.create({
+    const doc = await prisma.nFImportacaoAnexo.create({
       data: {
         tenant_id: tenantId,
         company_id: nf.company_id,
@@ -92,15 +92,15 @@ router.delete('/:id/documentos/:docId', async (req: Request, res: Response, next
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true } })
+    const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const doc = await prisma.nfImportacaoDocumento.findFirst({
+    const doc = await prisma.nFImportacaoAnexo.findFirst({
       where: { id: req.params.docId, nf_importacao_id: req.params.id, tenant_id: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 
-    await prisma.nfImportacaoDocumento.delete({ where: { id: req.params.docId } })
+    await prisma.nFImportacaoAnexo.delete({ where: { id: req.params.docId } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

@@ -6,7 +6,7 @@
 // Enums
 // ============================================
 
-export const StatusNf = {
+export const NFImportacaoStatus = {
   RASCUNHO: 'rascunho',
   EM_COMPOSICAO: 'em_composicao',
   PRONTA: 'pronta',
@@ -14,25 +14,25 @@ export const StatusNf = {
   CANCELADA: 'cancelada',
 } as const
 
-export type StatusNf = (typeof StatusNf)[keyof typeof StatusNf]
+export type NFImportacaoStatus = (typeof NFImportacaoStatus)[keyof typeof NFImportacaoStatus]
 
-export const STATUS_LABELS: Record<StatusNf, string> = {
-  [StatusNf.RASCUNHO]: 'Rascunho',
-  [StatusNf.EM_COMPOSICAO]: 'Em Composição',
-  [StatusNf.PRONTA]: 'Pronta',
-  [StatusNf.EXPORTADA]: 'Exportada',
-  [StatusNf.CANCELADA]: 'Cancelada',
+export const STATUS_LABELS: Record<NFImportacaoStatus, string> = {
+  [NFImportacaoStatus.RASCUNHO]: 'Rascunho',
+  [NFImportacaoStatus.EM_COMPOSICAO]: 'Em Composição',
+  [NFImportacaoStatus.PRONTA]: 'Pronta',
+  [NFImportacaoStatus.EXPORTADA]: 'Exportada',
+  [NFImportacaoStatus.CANCELADA]: 'Cancelada',
 }
 
-export const STATUS_COLORS: Record<StatusNf, string> = {
-  [StatusNf.RASCUNHO]: 'gray',
-  [StatusNf.EM_COMPOSICAO]: 'blue',
-  [StatusNf.PRONTA]: 'green',
-  [StatusNf.EXPORTADA]: 'purple',
-  [StatusNf.CANCELADA]: 'red',
+export const STATUS_COLORS: Record<NFImportacaoStatus, string> = {
+  [NFImportacaoStatus.RASCUNHO]: 'gray',
+  [NFImportacaoStatus.EM_COMPOSICAO]: 'blue',
+  [NFImportacaoStatus.PRONTA]: 'green',
+  [NFImportacaoStatus.EXPORTADA]: 'purple',
+  [NFImportacaoStatus.CANCELADA]: 'red',
 }
 
-export const MetodoRateio = {
+export const NfImportacaoMetodoRateio = {
   PESO_LIQUIDO: 'PESO_LIQUIDO',
   PESO_BRUTO: 'PESO_BRUTO',
   VALOR_CIF: 'VALOR_CIF',
@@ -44,21 +44,21 @@ export const MetodoRateio = {
   CUSTOMIZADO: 'CUSTOMIZADO',
 } as const
 
-export type MetodoRateio = (typeof MetodoRateio)[keyof typeof MetodoRateio]
+export type NfImportacaoMetodoRateio = (typeof NfImportacaoMetodoRateio)[keyof typeof NfImportacaoMetodoRateio]
 
-export const METODO_LABELS: Record<MetodoRateio, string> = {
-  [MetodoRateio.PESO_LIQUIDO]: 'Peso Líquido',
-  [MetodoRateio.PESO_BRUTO]: 'Peso Bruto',
-  [MetodoRateio.VALOR_CIF]: 'Valor CIF',
-  [MetodoRateio.VALOR_FOB]: 'Valor FOB',
-  [MetodoRateio.QUANTIDADE]: 'Quantidade',
-  [MetodoRateio.VALOR_II]: 'Valor II',
-  [MetodoRateio.IGUALITARIO]: 'Igualitário',
-  [MetodoRateio.MANUAL]: 'Manual',
-  [MetodoRateio.CUSTOMIZADO]: 'Customizado',
+export const METODO_LABELS: Record<NfImportacaoMetodoRateio, string> = {
+  [NfImportacaoMetodoRateio.PESO_LIQUIDO]: 'Peso Líquido',
+  [NfImportacaoMetodoRateio.PESO_BRUTO]: 'Peso Bruto',
+  [NfImportacaoMetodoRateio.VALOR_CIF]: 'Valor CIF',
+  [NfImportacaoMetodoRateio.VALOR_FOB]: 'Valor FOB',
+  [NfImportacaoMetodoRateio.QUANTIDADE]: 'Quantidade',
+  [NfImportacaoMetodoRateio.VALOR_II]: 'Valor II',
+  [NfImportacaoMetodoRateio.IGUALITARIO]: 'Igualitário',
+  [NfImportacaoMetodoRateio.MANUAL]: 'Manual',
+  [NfImportacaoMetodoRateio.CUSTOMIZADO]: 'Customizado',
 }
 
-export const CanalEntrada = {
+export const NfImportacaoTipoCanalEntrada = {
   MANUAL: 'MANUAL',
   XML: 'XML',
   SMART_READ: 'SMART_READ',
@@ -67,34 +67,34 @@ export const CanalEntrada = {
   PROCESSO: 'PROCESSO',
 } as const
 
-export type CanalEntrada = (typeof CanalEntrada)[keyof typeof CanalEntrada]
+export type NfImportacaoTipoCanalEntrada = (typeof NfImportacaoTipoCanalEntrada)[keyof typeof NfImportacaoTipoCanalEntrada]
 
-export const CANAL_LABELS: Record<CanalEntrada, string> = {
-  [CanalEntrada.MANUAL]: 'Manual',
-  [CanalEntrada.XML]: 'XML',
-  [CanalEntrada.SMART_READ]: 'Smart Read',
-  [CanalEntrada.PORTAL_UNICO]: 'Portal Único',
-  [CanalEntrada.ERP]: 'ERP',
-  [CanalEntrada.PROCESSO]: 'Processo',
+export const CANAL_LABELS: Record<NfImportacaoTipoCanalEntrada, string> = {
+  [NfImportacaoTipoCanalEntrada.MANUAL]: 'Manual',
+  [NfImportacaoTipoCanalEntrada.XML]: 'XML',
+  [NfImportacaoTipoCanalEntrada.SMART_READ]: 'Smart Read',
+  [NfImportacaoTipoCanalEntrada.PORTAL_UNICO]: 'Portal Único',
+  [NfImportacaoTipoCanalEntrada.ERP]: 'ERP',
+  [NfImportacaoTipoCanalEntrada.PROCESSO]: 'Processo',
 }
 
-export const OrigemDespesa = {
+export const NfImportacaoOrigemDespesa = {
   MANUAL: 'MANUAL',
   TEMPLATE: 'TEMPLATE',
   SMART_READ: 'SMART_READ',
   PLANILHA: 'PLANILHA',
 } as const
 
-export type OrigemDespesa = (typeof OrigemDespesa)[keyof typeof OrigemDespesa]
+export type NfImportacaoOrigemDespesa = (typeof NfImportacaoOrigemDespesa)[keyof typeof NfImportacaoOrigemDespesa]
 
-export const ORIGEM_LABELS: Record<OrigemDespesa, string> = {
-  [OrigemDespesa.MANUAL]: 'Manual',
-  [OrigemDespesa.TEMPLATE]: 'Template',
-  [OrigemDespesa.SMART_READ]: 'Smart Read',
-  [OrigemDespesa.PLANILHA]: 'Planilha',
+export const ORIGEM_LABELS: Record<NfImportacaoOrigemDespesa, string> = {
+  [NfImportacaoOrigemDespesa.MANUAL]: 'Manual',
+  [NfImportacaoOrigemDespesa.TEMPLATE]: 'Template',
+  [NfImportacaoOrigemDespesa.SMART_READ]: 'Smart Read',
+  [NfImportacaoOrigemDespesa.PLANILHA]: 'Planilha',
 }
 
-export const FormatoExport = {
+export const NfImportacaoTipoFormato = {
   XML: 'XML',
   TXT: 'TXT',
   CSV: 'CSV',
@@ -103,39 +103,39 @@ export const FormatoExport = {
   PDF: 'PDF',
 } as const
 
-export type FormatoExport = (typeof FormatoExport)[keyof typeof FormatoExport]
+export type NfImportacaoTipoFormato = (typeof NfImportacaoTipoFormato)[keyof typeof NfImportacaoTipoFormato]
 
-export const FORMATO_LABELS: Record<FormatoExport, string> = {
-  [FormatoExport.XML]: 'XML',
-  [FormatoExport.TXT]: 'TXT',
-  [FormatoExport.CSV]: 'CSV',
-  [FormatoExport.EXCEL]: 'Excel',
-  [FormatoExport.JSON]: 'JSON',
-  [FormatoExport.PDF]: 'PDF',
+export const FORMATO_LABELS: Record<NfImportacaoTipoFormato, string> = {
+  [NfImportacaoTipoFormato.XML]: 'XML',
+  [NfImportacaoTipoFormato.TXT]: 'TXT',
+  [NfImportacaoTipoFormato.CSV]: 'CSV',
+  [NfImportacaoTipoFormato.EXCEL]: 'Excel',
+  [NfImportacaoTipoFormato.JSON]: 'JSON',
+  [NfImportacaoTipoFormato.PDF]: 'PDF',
 }
 
-export const TipoDado = {
+export const NfImportacaoTipoDado = {
   TEXTO: 'TEXTO',
   NUMERO: 'NUMERO',
   DATA: 'DATA',
   DECIMAL: 'DECIMAL',
 } as const
 
-export type TipoDado = (typeof TipoDado)[keyof typeof TipoDado]
+export type NfImportacaoTipoDado = (typeof NfImportacaoTipoDado)[keyof typeof NfImportacaoTipoDado]
 
-export const Alinhamento = {
+export const NfImportacaoTipoAlinhamento = {
   ESQUERDA: 'ESQUERDA',
   DIREITA: 'DIREITA',
   CENTRO: 'CENTRO',
 } as const
 
-export type Alinhamento = (typeof Alinhamento)[keyof typeof Alinhamento]
+export type NfImportacaoTipoAlinhamento = (typeof NfImportacaoTipoAlinhamento)[keyof typeof NfImportacaoTipoAlinhamento]
 
 // ============================================
 // Model Interfaces
 // ============================================
 
-export interface NfImportacao {
+export interface NFImportacao {
   id: string
   tenant_id: string
   company_id: string
@@ -164,13 +164,13 @@ export interface NfImportacao {
   total_despesas: string
   total_nf: string
 
-  canal_entrada: CanalEntrada
+  canal_entrada: NfImportacaoTipoCanalEntrada
   casas_decimais_valor: number
   casas_decimais_qtd: number
 
-  status: StatusNf
+  status: NFImportacaoStatus
   data_exportacao: string | null
-  formato_exportado: FormatoExport | null
+  formato_exportado: NfImportacaoTipoFormato | null
 
   created_by: string
   updated_by: string | null
@@ -178,13 +178,13 @@ export interface NfImportacao {
   created_at: string
   updated_at: string
 
-  itens?: NfImportacaoItem[]
-  despesas?: NfImportacaoDespesa[]
-  documentos?: NfImportacaoDocumento[]
-  historico?: NfImportacaoHistorico[]
+  itens?: NFImportacaoItens[]
+  despesas?: NFImportacaoDespesas[]
+  documentos?: NFImportacaoAnexo[]
+  historico?: NFImportacaoHistorico[]
 }
 
-export interface NfImportacaoItem {
+export interface NFImportacaoItens {
   id: string
   tenant_id: string
   company_id: string
@@ -235,10 +235,10 @@ export interface NfImportacaoItem {
   created_at: string
   updated_at: string
 
-  rateios?: NfImportacaoRateio[]
+  rateios?: NFImportacaoRateio[]
 }
 
-export interface NfImportacaoDespesa {
+export interface NFImportacaoDespesas {
   id: string
   tenant_id: string
   company_id: string
@@ -251,10 +251,10 @@ export interface NfImportacaoDespesa {
   cnpj_prestador: string | null
   data_despesa: string | null
 
-  metodo_rateio: MetodoRateio
+  metodo_rateio: NfImportacaoMetodoRateio
   formula_customizada: string | null
 
-  origem: OrigemDespesa
+  origem: NfImportacaoOrigemDespesa
   documento_id: string | null
 
   conta_contabil: string | null
@@ -263,10 +263,10 @@ export interface NfImportacaoDespesa {
   created_at: string
   updated_at: string
 
-  rateios?: NfImportacaoRateio[]
+  rateios?: NFImportacaoRateio[]
 }
 
-export interface NfImportacaoRateio {
+export interface NFImportacaoRateio {
   id: string
   tenant_id: string
   company_id: string
@@ -275,7 +275,7 @@ export interface NfImportacaoRateio {
 
   valor_rateado: string
   percentual_rateio: string
-  metodo_usado: MetodoRateio
+  metodo_usado: NfImportacaoMetodoRateio
 
   is_override_manual: boolean
   is_centavo_restante: boolean
@@ -284,7 +284,7 @@ export interface NfImportacaoRateio {
   updated_at: string
 }
 
-export interface NfImportacaoDocumento {
+export interface NFImportacaoAnexo {
   id: string
   tenant_id: string
   company_id: string
@@ -304,7 +304,7 @@ export interface NfImportacaoDocumento {
   created_at: string
 }
 
-export interface NfImportacaoHistorico {
+export interface NFImportacaoHistorico {
   id: string
   tenant_id: string
   company_id: string
@@ -321,14 +321,14 @@ export interface NfImportacaoHistorico {
   created_at: string
 }
 
-export interface DespesaCatalogo {
+export interface NFImportacaoTipoDespesa {
   id: string
   tenant_id: string
   company_id: string
 
   nome: string
   descricao: string | null
-  metodo_rateio_padrao: MetodoRateio
+  metodo_rateio_padrao: NfImportacaoMetodoRateio
   conta_contabil: string | null
   centro_custo: string | null
   ativo: boolean
@@ -338,7 +338,7 @@ export interface DespesaCatalogo {
   updated_at: string
 }
 
-export interface DespesaTemplate {
+export interface NFImportacaoTemplates {
   id: string
   tenant_id: string
   company_id: string
@@ -352,10 +352,10 @@ export interface DespesaTemplate {
   created_at: string
   updated_at: string
 
-  itens?: DespesaTemplateItem[]
+  itens?: NFImportacaoTemplatesItens[]
 }
 
-export interface DespesaTemplateItem {
+export interface NFImportacaoTemplatesItens {
   id: string
   tenant_id: string
   company_id: string
@@ -364,18 +364,18 @@ export interface DespesaTemplateItem {
   catalogo_despesa_id: string | null
   nome: string
   valor_padrao: string | null
-  metodo_rateio: MetodoRateio
+  metodo_rateio: NfImportacaoMetodoRateio
   ordem: number
 }
 
-export interface ExportLayout {
+export interface NFImportacaoExportarLayout {
   id: string
   tenant_id: string
   company_id: string
 
   nome: string
   descricao: string | null
-  formato: FormatoExport
+  formato: NfImportacaoTipoFormato
   separador: string | null
   codificacao: string
 
@@ -391,10 +391,10 @@ export interface ExportLayout {
   created_at: string
   updated_at: string
 
-  campos?: ExportLayoutCampo[]
+  campos?: NFImportacaoLayoutCampos[]
 }
 
-export interface ExportLayoutCampo {
+export interface NFImportacaoLayoutCampos {
   id: string
   tenant_id: string
   company_id: string
@@ -403,17 +403,17 @@ export interface ExportLayoutCampo {
   campo_origem: string
   label: string
   ordem: number
-  tipo_dado: TipoDado
+  tipo_dado: NfImportacaoTipoDado
   formato: string | null
   tamanho_fixo: number | null
   posicao_inicio: number | null
-  alinhamento: Alinhamento
+  alinhamento: NfImportacaoTipoAlinhamento
   preenchimento: string | null
   valor_padrao: string | null
   transformacao: string | null
 }
 
-export interface FavoritoFiscal {
+export interface NFImportacaoFiscaisFavoritos {
   id: string
   tenant_id: string
   company_id: string
@@ -450,7 +450,7 @@ export interface CreateNfInput {
   local_desembaraco?: string
   via_transporte?: string
   moeda_negociada?: string
-  canal_entrada?: CanalEntrada
+  canal_entrada?: NfImportacaoTipoCanalEntrada
   casas_decimais_valor?: number
   casas_decimais_qtd?: number
 }
@@ -537,9 +537,9 @@ export interface CreateDespesaInput {
   valor_total: string
   cnpj_prestador?: string
   data_despesa?: string
-  metodo_rateio?: MetodoRateio
+  metodo_rateio?: NfImportacaoMetodoRateio
   formula_customizada?: string
-  origem?: OrigemDespesa
+  origem?: NfImportacaoOrigemDespesa
   documento_id?: string
   conta_contabil?: string
   centro_custo?: string
@@ -552,7 +552,7 @@ export interface UpdateDespesaInput {
   valor_total?: string
   cnpj_prestador?: string | null
   data_despesa?: string | null
-  metodo_rateio?: MetodoRateio
+  metodo_rateio?: NfImportacaoMetodoRateio
   formula_customizada?: string | null
   conta_contabil?: string | null
   centro_custo?: string | null
@@ -568,7 +568,7 @@ export interface RateioOverrideInput {
 
 export interface RateioPreviewResult {
   despesa_id: string
-  metodo: MetodoRateio
+  metodo: NfImportacaoMetodoRateio
   itens: Array<{
     item_id: string
     valor_rateado: string
@@ -580,7 +580,7 @@ export interface RateioPreviewResult {
 
 export interface ExportarNfInput {
   nf_importacao_id: string
-  formato: FormatoExport
+  formato: NfImportacaoTipoFormato
   layout_id?: string
 }
 
@@ -588,7 +588,7 @@ export interface CreateCatalogoInput {
   company_id: string
   nome: string
   descricao?: string
-  metodo_rateio_padrao?: MetodoRateio
+  metodo_rateio_padrao?: NfImportacaoMetodoRateio
   conta_contabil?: string
   centro_custo?: string
 }
@@ -602,7 +602,7 @@ export interface CreateTemplateInput {
     catalogo_despesa_id?: string
     nome: string
     valor_padrao?: string
-    metodo_rateio?: MetodoRateio
+    metodo_rateio?: NfImportacaoMetodoRateio
     ordem?: number
   }>
 }
@@ -611,7 +611,7 @@ export interface CreateLayoutInput {
   company_id: string
   nome: string
   descricao?: string
-  formato: FormatoExport
+  formato: NfImportacaoTipoFormato
   separador?: string
   codificacao?: string
   has_header?: boolean
@@ -623,11 +623,11 @@ export interface CreateLayoutInput {
     campo_origem: string
     label: string
     ordem: number
-    tipo_dado?: TipoDado
+    tipo_dado?: NfImportacaoTipoDado
     formato?: string
     tamanho_fixo?: number
     posicao_inicio?: number
-    alinhamento?: Alinhamento
+    alinhamento?: NfImportacaoTipoAlinhamento
     preenchimento?: string
     valor_padrao?: string
     transformacao?: string
@@ -652,10 +652,10 @@ export interface CreateFavoritoInput {
 // List / Filter types
 // ============================================
 
-export interface NfImportacaoFilters {
-  status?: StatusNf
+export interface NFImportacaoFilters {
+  status?: NFImportacaoStatus
   company_id?: string
-  canal_entrada?: CanalEntrada
+  canal_entrada?: NfImportacaoTipoCanalEntrada
   duimp_numero?: string
   processo_id?: string
   data_inicio?: string

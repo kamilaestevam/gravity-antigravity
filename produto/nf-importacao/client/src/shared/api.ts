@@ -5,16 +5,16 @@
  */
 
 import type {
-  NfImportacao,
-  NfImportacaoItem,
-  NfImportacaoDespesa,
-  NfImportacaoRateio,
-  NfImportacaoDocumento,
-  NfImportacaoHistorico,
-  DespesaCatalogo,
-  DespesaTemplate,
-  ExportLayout,
-  FavoritoFiscal,
+  NFImportacao,
+  NFImportacaoItens,
+  NFImportacaoDespesas,
+  NFImportacaoRateio,
+  NFImportacaoAnexo,
+  NFImportacaoHistorico,
+  NFImportacaoTipoDespesa,
+  NFImportacaoTemplates,
+  NFImportacaoExportarLayout,
+  NFImportacaoFiscaisFavoritos,
   RateioPreviewResult,
 } from './types'
 
@@ -51,20 +51,20 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 export const nfApi = {
   listar: (params?: Record<string, string>) => {
     const query = params ? '?' + new URLSearchParams(params).toString() : ''
-    return request<{ data: NfImportacao[]; total: number }>(`/api/v1/nf-importacao${query}`)
+    return request<{ data: NFImportacao[]; total: number }>(`/api/v1/nf-importacao${query}`)
   },
 
   buscarPorId: (id: string) =>
-    request<NfImportacao>(`/api/v1/nf-importacao/${id}`),
+    request<NFImportacao>(`/api/v1/nf-importacao/${id}`),
 
-  criar: (data: Partial<NfImportacao>) =>
-    request<NfImportacao>('/api/v1/nf-importacao', {
+  criar: (data: Partial<NFImportacao>) =>
+    request<NFImportacao>('/api/v1/nf-importacao', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (id: string, data: Partial<NfImportacao>) =>
-    request<NfImportacao>(`/api/v1/nf-importacao/${id}`, {
+  atualizar: (id: string, data: Partial<NFImportacao>) =>
+    request<NFImportacao>(`/api/v1/nf-importacao/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -73,7 +73,7 @@ export const nfApi = {
     request<void>(`/api/v1/nf-importacao/${id}`, { method: 'DELETE' }),
 
   duplicar: (id: string) =>
-    request<NfImportacao>(`/api/v1/nf-importacao/${id}/duplicar`, { method: 'POST' }),
+    request<NFImportacao>(`/api/v1/nf-importacao/${id}/duplicar`, { method: 'POST' }),
 }
 
 // ── Importacao (canais de entrada) ──────────────────────────────────────────
@@ -82,7 +82,7 @@ export const importarApi = {
   xml: (file: File) => {
     const formData = new FormData()
     formData.append('arquivo', file)
-    return request<NfImportacao>('/api/v1/nf-importacao/importar/xml', {
+    return request<NFImportacao>('/api/v1/nf-importacao/importar/xml', {
       method: 'POST',
       headers: {
         'x-tenant-id': context.tenantId,
@@ -96,7 +96,7 @@ export const importarApi = {
   smartRead: (file: File) => {
     const formData = new FormData()
     formData.append('arquivo', file)
-    return request<{ preview: Partial<NfImportacao>; confianca: Record<string, number> }>('/api/v1/nf-importacao/importar/smart-read', {
+    return request<{ preview: Partial<NFImportacao>; confianca: Record<string, number> }>('/api/v1/nf-importacao/importar/smart-read', {
       method: 'POST',
       headers: {
         'x-tenant-id': context.tenantId,
@@ -108,13 +108,13 @@ export const importarApi = {
   },
 
   portalUnico: (duimpNumero: string) =>
-    request<NfImportacao>('/api/v1/nf-importacao/importar/portal-unico', {
+    request<NFImportacao>('/api/v1/nf-importacao/importar/portal-unico', {
       method: 'POST',
       body: JSON.stringify({ duimp_numero: duimpNumero }),
     }),
 
   processo: (processoId: string) =>
-    request<NfImportacao>(`/api/v1/nf-importacao/importar/processo/${processoId}`, {
+    request<NFImportacao>(`/api/v1/nf-importacao/importar/processo/${processoId}`, {
       method: 'POST',
     }),
 }
@@ -123,16 +123,16 @@ export const importarApi = {
 
 export const itemApi = {
   listar: (nfId: string) =>
-    request<NfImportacaoItem[]>(`/api/v1/nf-importacao/${nfId}/itens`),
+    request<NFImportacaoItens[]>(`/api/v1/nf-importacao/${nfId}/itens`),
 
-  adicionar: (nfId: string, data: Partial<NfImportacaoItem>) =>
-    request<NfImportacaoItem>(`/api/v1/nf-importacao/${nfId}/itens`, {
+  adicionar: (nfId: string, data: Partial<NFImportacaoItens>) =>
+    request<NFImportacaoItens>(`/api/v1/nf-importacao/${nfId}/itens`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (nfId: string, itemId: string, data: Partial<NfImportacaoItem>) =>
-    request<NfImportacaoItem>(`/api/v1/nf-importacao/${nfId}/itens/${itemId}`, {
+  atualizar: (nfId: string, itemId: string, data: Partial<NFImportacaoItens>) =>
+    request<NFImportacaoItens>(`/api/v1/nf-importacao/${nfId}/itens/${itemId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -145,16 +145,16 @@ export const itemApi = {
 
 export const despesaApi = {
   listar: (nfId: string) =>
-    request<NfImportacaoDespesa[]>(`/api/v1/nf-importacao/${nfId}/despesas`),
+    request<NFImportacaoDespesas[]>(`/api/v1/nf-importacao/${nfId}/despesas`),
 
-  adicionar: (nfId: string, data: Partial<NfImportacaoDespesa>) =>
-    request<NfImportacaoDespesa>(`/api/v1/nf-importacao/${nfId}/despesas`, {
+  adicionar: (nfId: string, data: Partial<NFImportacaoDespesas>) =>
+    request<NFImportacaoDespesas>(`/api/v1/nf-importacao/${nfId}/despesas`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (nfId: string, despesaId: string, data: Partial<NfImportacaoDespesa>) =>
-    request<NfImportacaoDespesa>(`/api/v1/nf-importacao/${nfId}/despesas/${despesaId}`, {
+  atualizar: (nfId: string, despesaId: string, data: Partial<NFImportacaoDespesas>) =>
+    request<NFImportacaoDespesas>(`/api/v1/nf-importacao/${nfId}/despesas/${despesaId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -165,7 +165,7 @@ export const despesaApi = {
   smartRead: (nfId: string, file: File) => {
     const formData = new FormData()
     formData.append('arquivo', file)
-    return request<NfImportacaoDespesa[]>(`/api/v1/nf-importacao/${nfId}/despesas/smart-read`, {
+    return request<NFImportacaoDespesas[]>(`/api/v1/nf-importacao/${nfId}/despesas/smart-read`, {
       method: 'POST',
       headers: {
         'x-tenant-id': context.tenantId,
@@ -177,7 +177,7 @@ export const despesaApi = {
   },
 
   aplicarTemplate: (nfId: string, templateId: string) =>
-    request<NfImportacaoDespesa[]>(`/api/v1/nf-importacao/${nfId}/despesas/aplicar-template`, {
+    request<NFImportacaoDespesas[]>(`/api/v1/nf-importacao/${nfId}/despesas/aplicar-template`, {
       method: 'POST',
       body: JSON.stringify({ template_id: templateId }),
     }),
@@ -192,12 +192,12 @@ export const rateioApi = {
     }),
 
   aplicar: (nfId: string) =>
-    request<NfImportacaoRateio[]>(`/api/v1/nf-importacao/${nfId}/rateio/aplicar`, {
+    request<NFImportacaoRateio[]>(`/api/v1/nf-importacao/${nfId}/rateio/aplicar`, {
       method: 'POST',
     }),
 
   override: (nfId: string, rateioId: string, valor: number) =>
-    request<NfImportacaoRateio>(`/api/v1/nf-importacao/${nfId}/rateio/${rateioId}`, {
+    request<NFImportacaoRateio>(`/api/v1/nf-importacao/${nfId}/rateio/${rateioId}`, {
       method: 'PUT',
       body: JSON.stringify({ valor_rateado: valor }),
     }),
@@ -223,16 +223,16 @@ export const exportacaoApi = {
 
 export const catalogoApi = {
   listar: () =>
-    request<DespesaCatalogo[]>('/api/v1/nf-importacao/config/despesas'),
+    request<NFImportacaoTipoDespesa[]>('/api/v1/nf-importacao/config/despesas'),
 
-  criar: (data: Partial<DespesaCatalogo>) =>
-    request<DespesaCatalogo>('/api/v1/nf-importacao/config/despesas', {
+  criar: (data: Partial<NFImportacaoTipoDespesa>) =>
+    request<NFImportacaoTipoDespesa>('/api/v1/nf-importacao/config/despesas', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (id: string, data: Partial<DespesaCatalogo>) =>
-    request<DespesaCatalogo>(`/api/v1/nf-importacao/config/despesas/${id}`, {
+  atualizar: (id: string, data: Partial<NFImportacaoTipoDespesa>) =>
+    request<NFImportacaoTipoDespesa>(`/api/v1/nf-importacao/config/despesas/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -245,16 +245,16 @@ export const catalogoApi = {
 
 export const templateApi = {
   listar: () =>
-    request<DespesaTemplate[]>('/api/v1/nf-importacao/config/templates'),
+    request<NFImportacaoTemplates[]>('/api/v1/nf-importacao/config/templates'),
 
-  criar: (data: Partial<DespesaTemplate>) =>
-    request<DespesaTemplate>('/api/v1/nf-importacao/config/templates', {
+  criar: (data: Partial<NFImportacaoTemplates>) =>
+    request<NFImportacaoTemplates>('/api/v1/nf-importacao/config/templates', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (id: string, data: Partial<DespesaTemplate>) =>
-    request<DespesaTemplate>(`/api/v1/nf-importacao/config/templates/${id}`, {
+  atualizar: (id: string, data: Partial<NFImportacaoTemplates>) =>
+    request<NFImportacaoTemplates>(`/api/v1/nf-importacao/config/templates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -267,16 +267,16 @@ export const templateApi = {
 
 export const layoutApi = {
   listar: () =>
-    request<ExportLayout[]>('/api/v1/nf-importacao/config/layouts'),
+    request<NFImportacaoExportarLayout[]>('/api/v1/nf-importacao/config/layouts'),
 
-  criar: (data: Partial<ExportLayout>) =>
-    request<ExportLayout>('/api/v1/nf-importacao/config/layouts', {
+  criar: (data: Partial<NFImportacaoExportarLayout>) =>
+    request<NFImportacaoExportarLayout>('/api/v1/nf-importacao/config/layouts', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (id: string, data: Partial<ExportLayout>) =>
-    request<ExportLayout>(`/api/v1/nf-importacao/config/layouts/${id}`, {
+  atualizar: (id: string, data: Partial<NFImportacaoExportarLayout>) =>
+    request<NFImportacaoExportarLayout>(`/api/v1/nf-importacao/config/layouts/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -289,16 +289,16 @@ export const layoutApi = {
 
 export const favoritoApi = {
   listar: () =>
-    request<FavoritoFiscal[]>('/api/v1/nf-importacao/config/favoritos-fiscais'),
+    request<NFImportacaoFiscaisFavoritos[]>('/api/v1/nf-importacao/config/favoritos-fiscais'),
 
-  criar: (data: Partial<FavoritoFiscal>) =>
-    request<FavoritoFiscal>('/api/v1/nf-importacao/config/favoritos-fiscais', {
+  criar: (data: Partial<NFImportacaoFiscaisFavoritos>) =>
+    request<NFImportacaoFiscaisFavoritos>('/api/v1/nf-importacao/config/favoritos-fiscais', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  atualizar: (id: string, data: Partial<FavoritoFiscal>) =>
-    request<FavoritoFiscal>(`/api/v1/nf-importacao/config/favoritos-fiscais/${id}`, {
+  atualizar: (id: string, data: Partial<NFImportacaoFiscaisFavoritos>) =>
+    request<NFImportacaoFiscaisFavoritos>(`/api/v1/nf-importacao/config/favoritos-fiscais/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
@@ -311,13 +311,13 @@ export const favoritoApi = {
 
 export const documentoApi = {
   listar: (nfId: string) =>
-    request<NfImportacaoDocumento[]>(`/api/v1/nf-importacao/${nfId}/documentos`),
+    request<NFImportacaoAnexo[]>(`/api/v1/nf-importacao/${nfId}/documentos`),
 
   upload: (nfId: string, file: File, tipo: string) => {
     const formData = new FormData()
     formData.append('arquivo', file)
     formData.append('tipo', tipo)
-    return request<NfImportacaoDocumento>(`/api/v1/nf-importacao/${nfId}/documentos`, {
+    return request<NFImportacaoAnexo>(`/api/v1/nf-importacao/${nfId}/documentos`, {
       method: 'POST',
       headers: {
         'x-tenant-id': context.tenantId,
@@ -336,5 +336,5 @@ export const documentoApi = {
 
 export const historicoApi = {
   listar: (nfId: string) =>
-    request<NfImportacaoHistorico[]>(`/api/v1/nf-importacao/${nfId}/historico`),
+    request<NFImportacaoHistorico[]>(`/api/v1/nf-importacao/${nfId}/historico`),
 }

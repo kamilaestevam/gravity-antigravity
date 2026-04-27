@@ -32,7 +32,7 @@ async function findNfForExport(prisma: PrismaClient, nfId: string, tenantId: str
   const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
   if (companyId) where.company_id = companyId
 
-  const nf = await prisma.nfImportacao.findFirst({
+  const nf = await prisma.nFImportacao.findFirst({
     where,
     include: {
       itens: { orderBy: { numero_item: 'asc' } },
@@ -138,7 +138,7 @@ router.post('/:id/exportar', async (req: Request, res: Response, next: NextFunct
     }
 
     // Registrar historico de exportacao
-    await prisma.nfImportacaoHistorico.create({
+    await prisma.nFImportacaoHistorico.create({
       data: {
         tenant_id: tenantId,
         company_id: nf.company_id,
@@ -173,7 +173,7 @@ router.get('/:id/exportar/preview', async (req: Request, res: Response, next: Ne
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({
+    const nf = await prisma.nFImportacao.findFirst({
       where,
       include: {
         itens: { orderBy: { numero_item: 'asc' } },

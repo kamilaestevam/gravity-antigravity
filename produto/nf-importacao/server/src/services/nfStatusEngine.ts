@@ -3,7 +3,7 @@
  *
  * REGRA: Toda transicao de status DEVE passar por este engine.
  * NUNCA fazer update direto no Prisma.
- * Toda transicao gera registro em NfImportacaoHistorico (append-only).
+ * Toda transicao gera registro em NFImportacaoHistorico (append-only).
  *
  * Estados: rascunho, em_composicao, pronta, exportada, cancelada
  * Transicoes:
@@ -83,7 +83,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
   const { nfId, tenantId, tx } = params
 
   // Verificar se existem despesas
-  const despesas = await (tx as Record<string, unknown> & { nfImportacaoDespesa: { findMany: (args: Record<string, unknown>) => Promise<Array<{ id: string }>> } }).nfImportacaoDespesa.findMany({
+  const despesas = await (tx as Record<string, unknown> & { nFImportacaoDespesas: { findMany: (args: Record<string, unknown>) => Promise<Array<{ id: string }>> } }).nFImportacaoDespesas.findMany({
     where: { nf_importacao_id: nfId, tenant_id: tenantId },
     select: { id: true },
   })
@@ -98,7 +98,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
 
   // Verificar se todas as despesas possuem rateios
   for (const despesa of despesas) {
-    const rateioCount = await (tx as Record<string, unknown> & { nfImportacaoRateio: { count: (args: Record<string, unknown>) => Promise<number> } }).nfImportacaoRateio.count({
+    const rateioCount = await (tx as Record<string, unknown> & { nFImportacaoRateio: { count: (args: Record<string, unknown>) => Promise<number> } }).nFImportacaoRateio.count({
       where: { nf_despesa_id: despesa.id, tenant_id: tenantId },
     })
 
@@ -112,7 +112,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
   }
 
   // Verificar se existem itens
-  const itemCount = await (tx as Record<string, unknown> & { nfImportacaoItem: { count: (args: Record<string, unknown>) => Promise<number> } }).nfImportacaoItem.count({
+  const itemCount = await (tx as Record<string, unknown> & { nFImportacaoItens: { count: (args: Record<string, unknown>) => Promise<number> } }).nFImportacaoItens.count({
     where: { nf_importacao_id: nfId, tenant_id: tenantId },
   })
 
@@ -129,7 +129,7 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
   const { prisma, nfId, tenantId, companyId, statusNovo, userId, userNome, descricao, dadosExtras } = params
 
   return prisma.$transaction(async (tx: TxClient) => {
-    const nf = await (tx as Record<string, unknown> & { nfImportacao: { findFirst: (args: Record<string, unknown>) => Promise<{ id: string; status: string } | null> } }).nfImportacao.findFirst({
+    const nf = await (tx as Record<string, unknown> & { nFImportacao: { findFirst: (args: Record<string, unknown>) => Promise<{ id: string; status: string } | null> } }).nFImportacao.findFirst({
       where: { id: nfId, tenant_id: tenantId, company_id: companyId },
     })
 
@@ -168,13 +168,13 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
       updateData.data_cancelamento = new Date()
     }
 
-    await (tx as Record<string, unknown> & { nfImportacao: { update: (args: Record<string, unknown>) => Promise<unknown> } }).nfImportacao.update({
+    await (tx as Record<string, unknown> & { nFImportacao: { update: (args: Record<string, unknown>) => Promise<unknown> } }).nFImportacao.update({
       where: { id: nfId },
       data: updateData,
     })
 
     // Historico append-only
-    await (tx as Record<string, unknown> & { nfImportacaoHistorico: { create: (args: Record<string, unknown>) => Promise<unknown> } }).nfImportacaoHistorico.create({
+    await (tx as Record<string, unknown> & { nFImportacaoHistorico: { create: (args: Record<string, unknown>) => Promise<unknown> } }).nFImportacaoHistorico.create({
       data: {
         tenant_id: tenantId,
         company_id: companyId,

@@ -180,7 +180,7 @@ async function carregarDadosNf(
   despesas: NfDespesaRaw[]
   rateios: NfRateioRaw[]
 }> {
-  const nf = await prisma.nfImportacao.findFirst({
+  const nf = await prisma.nFImportacao.findFirst({
     where: { id: nfId, tenant_id: tenantId, company_id: companyId },
   }) as NfImportacaoRaw | null
 
@@ -189,16 +189,16 @@ async function carregarDadosNf(
   }
 
   const [itens, despesas, rateios] = await Promise.all([
-    prisma.nfImportacaoItem.findMany({
+    prisma.nFImportacaoItens.findMany({
       where: { nf_importacao_id: nfId, tenant_id: tenantId },
       orderBy: { numero_item: 'asc' },
     }) as Promise<NfItemRaw[]>,
 
-    prisma.nfImportacaoDespesa.findMany({
+    prisma.nFImportacaoDespesas.findMany({
       where: { nf_importacao_id: nfId, tenant_id: tenantId },
     }) as Promise<NfDespesaRaw[]>,
 
-    prisma.nfImportacaoRateio.findMany({
+    prisma.nFImportacaoRateio.findMany({
       where: {
         tenant_id: tenantId,
         nf_despesa: {
@@ -221,7 +221,7 @@ async function resolverLayout(
   tenantId: string,
   companyId: string
 ): Promise<LayoutConfig> {
-  const layout = await prisma.exportLayout.findFirst({
+  const layout = await prisma.nFImportacaoExportarLayout.findFirst({
     where: { id: layoutId, tenant_id: tenantId, company_id: companyId },
   }) as ExportLayoutRaw | null
 
@@ -229,7 +229,7 @@ async function resolverLayout(
     throw new AppError('Layout de exportacao nao encontrado', 404, 'LAYOUT_NOT_FOUND')
   }
 
-  const campos = await prisma.exportLayoutCampo.findMany({
+  const campos = await prisma.nFImportacaoLayoutCampos.findMany({
     where: { export_layout_id: layoutId, tenant_id: tenantId },
     orderBy: { ordem: 'asc' },
   }) as ExportLayoutCampoRaw[]

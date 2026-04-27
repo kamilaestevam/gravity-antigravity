@@ -46,7 +46,7 @@ async function buscarNfValidada(
   nfId: string,
   tenantId: string
 ): Promise<{ id: string; status: string }> {
-  const nf = await prisma.nfImportacao.findFirst({
+  const nf = await prisma.nFImportacao.findFirst({
     where: { id: nfId, tenant_id: tenantId },
     select: { id: true, status: true },
   })
@@ -75,11 +75,11 @@ async function buscarDespesasEItens(
   tenantId: string
 ): Promise<{ despesas: DespesaComItens[]; itens: ItemRateio[] }> {
   const [despesas, itensRaw] = await Promise.all([
-    prisma.nfImportacaoDespesa.findMany({
+    prisma.nFImportacaoDespesas.findMany({
       where: { nf_importacao_id: nfId, tenant_id: tenantId },
       select: { id: true, tipo: true, valor_total: true, metodo_rateio: true },
     }),
-    prisma.nfImportacaoItem.findMany({
+    prisma.nFImportacaoItens.findMany({
       where: { nf_importacao_id: nfId, tenant_id: tenantId },
       select: {
         id: true,
@@ -171,7 +171,7 @@ export async function aplicarRateio(
 
   return prisma.$transaction(async (tx: TxClient) => {
     // Deleta rateios antigos da NF inteira
-    await tx.nfImportacaoRateio.deleteMany({
+    await tx.nFImportacaoRateio.deleteMany({
       where: {
         nf_despesa_id: { in: despesas.map((d) => d.id) },
         tenant_id: tenantId,
@@ -197,7 +197,7 @@ export async function aplicarRateio(
 
       // Criar rateios
       for (const itemRateio of resultado.itens) {
-        await tx.nfImportacaoRateio.create({
+        await tx.nFImportacaoRateio.create({
           data: {
             tenant_id: tenantId,
             product_id: 'nf-importacao',
@@ -237,7 +237,7 @@ export async function overrideManual(
     throw new AppError('Valor do rateio nao pode ser negativo', 422, 'NEGATIVE_VALUE')
   }
 
-  const rateio = await prisma.nfImportacaoRateio.findFirst({
+  const rateio = await prisma.nFImportacaoRateio.findFirst({
     where: { id: rateioId, tenant_id: tenantId },
     include: {
       nf_despesa: {
@@ -255,7 +255,7 @@ export async function overrideManual(
   }
 
   // Validar que a NF esta em_composicao
-  const nf = await prisma.nfImportacao.findFirst({
+  const nf = await prisma.nFImportacao.findFirst({
     where: {
       id: (rateio as Record<string, unknown> & { nf_despesa: { nf_importacao_id: string; valor_total: number } }).nf_despesa.nf_importacao_id,
       tenant_id: tenantId,
@@ -276,7 +276,7 @@ export async function overrideManual(
     ? Math.round(((novoValor / despesaTotal) * 100 + Number.EPSILON) * 100) / 100
     : 0
 
-  await prisma.nfImportacaoRateio.update({
+  await prisma.nFImportacaoRateio.update({
     where: { id: rateioId },
     data: {
       valor_rateado: novoValor,

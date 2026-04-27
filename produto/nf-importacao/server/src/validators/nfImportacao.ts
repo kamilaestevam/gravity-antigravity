@@ -94,7 +94,7 @@ const cstField = z.string().regex(
 )
 
 // ============================================
-// NfImportacao — Create / Update
+// NFImportacao — Create / Update
 // ============================================
 
 export const createNfSchema = z.object({
@@ -126,7 +126,7 @@ export const updateNfSchema = z.object({
 }).strict()
 
 // ============================================
-// NfImportacaoItem — Create / Update
+// NFImportacaoItens — Create / Update
 // ============================================
 
 export const createItemSchema = z.object({
@@ -191,7 +191,7 @@ export const updateItemSchema = z.object({
 }).strict()
 
 // ============================================
-// NfImportacaoDespesa — Create / Update
+// NFImportacaoDespesas — Create / Update
 // ============================================
 
 export const createDespesaSchema = z.object({
@@ -255,7 +255,7 @@ export const exportarSchema = z.object({
 })
 
 // ============================================
-// DespesaCatalogo — Create
+// NFImportacaoTipoDespesa — Create
 // ============================================
 
 export const createCatalogoSchema = z.object({
@@ -277,7 +277,7 @@ export const updateCatalogoSchema = z.object({
 }).strict()
 
 // ============================================
-// DespesaTemplate — Create
+// NFImportacaoTemplates — Create
 // ============================================
 
 export const createTemplateSchema = z.object({
@@ -314,7 +314,7 @@ export const updateTemplateSchema = z.object({
 }).strict()
 
 // ============================================
-// ExportLayout — Create
+// NFImportacaoExportarLayout — Create
 // ============================================
 
 export const createLayoutSchema = z.object({
@@ -377,7 +377,7 @@ export const updateLayoutSchema = z.object({
 }).strict()
 
 // ============================================
-// FavoritoFiscal — Create
+// NFImportacaoFiscaisFavoritos — Create
 // ============================================
 
 export const createFavoritoSchema = z.object({

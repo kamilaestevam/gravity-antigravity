@@ -26,13 +26,13 @@ router.get('/:id/historico', async (req: Request, res: Response, next: NextFunct
     const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const nf = await prisma.nfImportacao.findFirst({
+    const nf = await prisma.nFImportacao.findFirst({
       where,
       select: { id: true },
     })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
-    const historico = await prisma.nfImportacaoHistorico.findMany({
+    const historico = await prisma.nFImportacaoHistorico.findMany({
       where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
       take: 100,

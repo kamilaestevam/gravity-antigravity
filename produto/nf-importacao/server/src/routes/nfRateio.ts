@@ -33,7 +33,7 @@ async function validateNfAccess(prisma: PrismaClient, nfId: string, tenantId: st
   const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
   if (companyId) where.company_id = companyId
 
-  const nf = await prisma.nfImportacao.findFirst({ where, select: { id: true } })
+  const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
   if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
   return nf
 }
@@ -74,7 +74,7 @@ router.put('/:id/rateio/:rateioId', async (req: Request, res: Response, next: Ne
     await validateNfAccess(prisma, req.params.id, tenantId, companyId)
 
     // Validar que o rateio pertence a uma despesa desta NF
-    const rateio = await prisma.nfImportacaoRateio.findFirst({
+    const rateio = await prisma.nFImportacaoRateio.findFirst({
       where: { id: req.params.rateioId, tenant_id: tenantId },
       include: {
         nf_despesa: {

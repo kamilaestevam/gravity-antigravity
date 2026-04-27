@@ -513,7 +513,7 @@ exports.Prisma.HistoricoLogScalarFieldEnum = {
   data_criacao_historico_log: 'data_criacao_historico_log'
 };
 
-exports.Prisma.RegraAlertaScalarFieldEnum = {
+exports.Prisma.AlertaRegraScalarFieldEnum = {
   id_regra_alerta: 'id_regra_alerta',
   id_organizacao_regra_alerta: 'id_organizacao_regra_alerta',
   id_produto_regra_alerta: 'id_produto_regra_alerta',
@@ -537,7 +537,7 @@ exports.Prisma.RegraAlertaScalarFieldEnum = {
   data_atualizacao_regra_alerta: 'data_atualizacao_regra_alerta'
 };
 
-exports.Prisma.EventoAlertaScalarFieldEnum = {
+exports.Prisma.AlertaDataScalarFieldEnum = {
   id_evento_alerta: 'id_evento_alerta',
   id_organizacao_evento_alerta: 'id_organizacao_evento_alerta',
   id_produto_evento_alerta: 'id_produto_evento_alerta',
@@ -558,7 +558,7 @@ exports.Prisma.EventoAlertaScalarFieldEnum = {
   data_criacao_evento_alerta: 'data_criacao_evento_alerta'
 };
 
-exports.Prisma.NotificacaoAlertaScalarFieldEnum = {
+exports.Prisma.AlertaRegistroScalarFieldEnum = {
   id_notificacao_alerta: 'id_notificacao_alerta',
   id_organizacao_notificacao_alerta: 'id_organizacao_notificacao_alerta',
   id_produto_notificacao_alerta: 'id_produto_notificacao_alerta',
@@ -961,9 +961,9 @@ exports.Prisma.ModelName = {
   RelatoriosConfiguracaoUsuario: 'RelatoriosConfiguracaoUsuario',
   RelatorioExportar: 'RelatorioExportar',
   HistoricoLog: 'HistoricoLog',
-  RegraAlerta: 'RegraAlerta',
-  EventoAlerta: 'EventoAlerta',
-  NotificacaoAlerta: 'NotificacaoAlerta',
+  AlertaRegra: 'AlertaRegra',
+  AlertaData: 'AlertaData',
+  AlertaRegistro: 'AlertaRegistro',
   ExportarResultado: 'ExportarResultado',
   UsuarioAgenda: 'UsuarioAgenda',
   UsuarioHorarioDisponivel: 'UsuarioHorarioDisponivel',

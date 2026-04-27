@@ -77,7 +77,7 @@ async function main() {
   console.log('Criando regras de alerta padrão...')
 
   for (const rule of DEFAULT_RULES) {
-    const exists = await prisma.regraAlerta.findFirst({
+    const exists = await prisma.alertaRegra.findFirst({
       where: { name: rule.name, tenant_id: null },
     })
 
@@ -86,7 +86,7 @@ async function main() {
       continue
     }
 
-    await prisma.regraAlerta.create({
+    await prisma.alertaRegra.create({
       data: {
         tenant_id: null,
         name: rule.name,

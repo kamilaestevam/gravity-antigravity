@@ -10,7 +10,7 @@ export const AlertEngine = {
    * Chamado de forma assíncrona pelo worker — nunca bloqueia.
    */
   async check(log: AuditLogInput, logId: string): Promise<void> {
-    const rules = await prisma.regraAlerta.findMany({
+    const rules = await prisma.alertaRegra.findMany({
       where: {
         enabled: true,
         OR: [
@@ -26,7 +26,7 @@ export const AlertEngine = {
   },
 
   async evaluateRule(
-    rule: Awaited<ReturnType<typeof prisma.regraAlerta.findFirst>> & object,
+    rule: Awaited<ReturnType<typeof prisma.alertaRegra.findFirst>> & object,
     log: AuditLogInput,
     logId: string
   ): Promise<void> {
@@ -67,7 +67,7 @@ export const AlertEngine = {
         take: 50,
       })
 
-      const alertEvent = await prisma.eventoAlerta.create({
+      const alertEvent = await prisma.alertaData.create({
         data: {
           tenant_id: log.tenant_id,
           rule_id: rule.id,
@@ -86,7 +86,7 @@ export const AlertEngine = {
       await NotificationDispatcher.dispatch(rule, alertEvent)
     } else {
       // Regra sem threshold — dispara sempre que o filtro bate (ex: cross-tenant)
-      const alertEvent = await prisma.eventoAlerta.create({
+      const alertEvent = await prisma.alertaData.create({
         data: {
           tenant_id: log.tenant_id,
           rule_id: rule.id,

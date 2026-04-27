@@ -18,7 +18,7 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
     const status = req.query.status as string | undefined
     const limit = Math.min(Number(req.query.limit ?? 50), 100)
 
-    const alerts = await prisma.eventoAlerta.findMany({
+    const alerts = await prisma.alertaData.findMany({
       where: {
         ...(isGravityAdmin ? {} : { tenant_id }),
         ...(status ? { status: status as any } : {}),
@@ -45,12 +45,12 @@ export async function updateAlert(req: Request, res: Response, next: NextFunctio
 
     const user = extractAuthUser(req)
 
-    const alert = await prisma.eventoAlerta.findFirst({
+    const alert = await prisma.alertaData.findFirst({
       where: { id: req.params.id, tenant_id },
     })
     if (!alert) throw AppError.notFound('Alerta')
 
-    const updated = await prisma.eventoAlerta.update({
+    const updated = await prisma.alertaData.update({
       where: { id: req.params.id },
       data: {
         status: parsed.data.status,
@@ -75,7 +75,7 @@ export async function listRules(req: Request, res: Response, next: NextFunction)
     const user = extractAuthUser(req)
     const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 
-    const rules = await prisma.regraAlerta.findMany({
+    const rules = await prisma.alertaRegra.findMany({
       where: isGravityAdmin
         ? {}
         : { OR: [{ tenant_id }, { tenant_id: null }] },
@@ -100,7 +100,7 @@ export async function createRule(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 
-    const rule = await prisma.regraAlerta.create({
+    const rule = await prisma.alertaRegra.create({
       data: {
         ...parsed.data,
         tenant_id: isGravityAdmin ? null : tenant_id,
@@ -125,7 +125,7 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 
-    const existing = await prisma.regraAlerta.findFirst({
+    const existing = await prisma.alertaRegra.findFirst({
       where: {
         id: req.params.id,
         ...(isGravityAdmin ? {} : { tenant_id }),
@@ -133,7 +133,7 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
     })
     if (!existing) throw AppError.notFound('Regra de alerta')
 
-    const updated = await prisma.regraAlerta.update({
+    const updated = await prisma.alertaRegra.update({
       where: { id: req.params.id },
       data: parsed.data,
     })
@@ -153,7 +153,7 @@ export async function deleteRule(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 
-    const existing = await prisma.regraAlerta.findFirst({
+    const existing = await prisma.alertaRegra.findFirst({
       where: {
         id: req.params.id,
         ...(isGravityAdmin ? {} : { tenant_id }),
@@ -161,7 +161,7 @@ export async function deleteRule(req: Request, res: Response, next: NextFunction
     })
     if (!existing) throw AppError.notFound('Regra de alerta')
 
-    await prisma.regraAlerta.delete({ where: { id: req.params.id } })
+    await prisma.alertaRegra.delete({ where: { id: req.params.id } })
 
     res.status(204).send()
   } catch (error) {

@@ -67,10 +67,10 @@ model HistoricoLog {
 }
 
 // ---------------------------------------------------------------------------
-// RegraAlerta — definição de regra que dispara alertas
+// AlertaRegra — definição de regra que dispara alertas
 // ---------------------------------------------------------------------------
 
-model RegraAlerta {
+model AlertaRegra {
   id_regra_alerta             String   @id @default(cuid())
   id_organizacao_regra_alerta String?
   id_produto_regra_alerta     String?
@@ -99,7 +99,7 @@ model RegraAlerta {
   data_criacao_regra_alerta     DateTime @default(now())
   data_atualizacao_regra_alerta DateTime @updatedAt
 
-  eventos_regra_alerta          EventoAlerta[]
+  eventos_regra_alerta          AlertaData[]
 
   @@index([id_organizacao_regra_alerta], map: "ra_org_idx")
   @@index([id_organizacao_regra_alerta, id_produto_regra_alerta], map: "ra_org_prd_idx")
@@ -109,17 +109,17 @@ model RegraAlerta {
 }
 
 // ---------------------------------------------------------------------------
-// EventoAlerta — disparos de regra
+// AlertaData — disparos de regra
 // ---------------------------------------------------------------------------
 
-model EventoAlerta {
+model AlertaData {
   id_evento_alerta             String  @id @default(cuid())
   id_organizacao_evento_alerta String
   id_produto_evento_alerta     String?
   id_usuario_evento_alerta     String?
 
   id_regra_evento_alerta       String
-  regra_evento_alerta          RegraAlerta @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
+  regra_evento_alerta          AlertaRegra @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
 
   tipo_ator_evento_alerta      AcaoExecutadaPor
   id_ator_evento_alerta        String
@@ -137,7 +137,7 @@ model EventoAlerta {
 
   data_criacao_evento_alerta   DateTime @default(now())
 
-  notificacoes_evento_alerta   NotificacaoAlerta[]
+  notificacoes_evento_alerta   AlertaRegistro[]
 
   @@index([id_organizacao_evento_alerta], map: "ea_org_idx")
   @@index([id_organizacao_evento_alerta, id_produto_evento_alerta], map: "ea_org_prd_idx")
@@ -148,17 +148,17 @@ model EventoAlerta {
 }
 
 // ---------------------------------------------------------------------------
-// NotificacaoAlerta — registro de envio por canal
+// AlertaRegistro — registro de envio por canal
 // ---------------------------------------------------------------------------
 
-model NotificacaoAlerta {
+model AlertaRegistro {
   id_notificacao_alerta             String   @id @default(cuid())
   id_organizacao_notificacao_alerta String
   id_produto_notificacao_alerta     String?
   id_usuario_notificacao_alerta     String?
 
   id_evento_notificacao_alerta      String
-  evento_notificacao_alerta         EventoAlerta @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
+  evento_notificacao_alerta         AlertaData @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
 
   canal_notificacao_alerta          String
   destinatario_notificacao_alerta   String

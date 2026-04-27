@@ -9,8 +9,8 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
 
 const RETRY_DELAYS_MS = [5_000, 15_000, 45_000]
 
-type AlertRule = Awaited<ReturnType<typeof prisma.regraAlerta.findFirst>>
-type AlertEvent = Awaited<ReturnType<typeof prisma.eventoAlerta.findFirst>>
+type AlertRule = Awaited<ReturnType<typeof prisma.alertaRegra.findFirst>>
+type AlertEvent = Awaited<ReturnType<typeof prisma.alertaData.findFirst>>
 
 export const NotificationDispatcher = {
   /**

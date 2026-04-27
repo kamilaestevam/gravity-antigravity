@@ -115,7 +115,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         if (params.por_pagina) qs.set('por_pagina', String(params.por_pagina))
         if (params.busca) qs.set('busca', params.busca)
         if (params.pais) qs.set('pais', params.pais)
-        return chamar('GET', `/api/v1/cadastros/empresas?${qs.toString()}`, listaEmpresasSchema, {
+        return chamar('GET', `/api/v1/empresas?${qs.toString()}`, listaEmpresasSchema, {
           idOrganizacao: params.id_organizacao,
         })
       },
@@ -124,13 +124,13 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         const chave = `${idOrganizacao}:${suid}`
         const cacheado = cacheEmpresa.get(chave)
         if (cacheado) return cacheado
-        const empresa = await chamar('GET', `/api/v1/cadastros/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
+        const empresa = await chamar('GET', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
         cacheEmpresa.set(chave, empresa)
         return empresa
       },
 
       criar: async (dados) => {
-        const empresa = await chamar('POST', '/api/v1/cadastros/empresas', empresaSchema, {
+        const empresa = await chamar('POST', '/api/v1/empresas', empresaSchema, {
           body: dados,
           idOrganizacao: dados.id_organizacao,
         })
@@ -139,7 +139,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       },
 
       atualizar: async (suid, idOrganizacao, dados) => {
-        const empresa = await chamar('PUT', `/api/v1/cadastros/empresas/${encodeURIComponent(suid)}`, empresaSchema, {
+        const empresa = await chamar('PUT', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, {
           body: dados,
           idOrganizacao,
         })
@@ -148,13 +148,13 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       },
 
       desativar: async (suid, idOrganizacao) => {
-        const empresa = await chamar('DELETE', `/api/v1/cadastros/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
+        const empresa = await chamar('DELETE', `/api/v1/empresas/${encodeURIComponent(suid)}`, empresaSchema, { idOrganizacao })
         cacheEmpresa.invalidate(`${idOrganizacao}:${suid}`)
         return empresa
       },
 
       previewImpacto: async (suid, idOrganizacao) => {
-        return chamar('GET', `/api/v1/cadastros/empresas/${encodeURIComponent(suid)}/preview-impacto`, previewImpactoSchema, { idOrganizacao })
+        return chamar('GET', `/api/v1/empresas/${encodeURIComponent(suid)}/preview-impacto`, previewImpactoSchema, { idOrganizacao })
       },
     },
 
@@ -162,33 +162,33 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       listar: async () => {
         const cacheado = cacheCatalogos.get('moedas') as { itens: Moeda[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/cadastros/moedas', listaMoedasSchema)
+        const lista = await chamar('GET', '/api/v1/moedas', listaMoedasSchema)
         cacheCatalogos.set('moedas', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/moedas/${encodeURIComponent(codigo)}`, moedaSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/moedas/${encodeURIComponent(codigo)}`, moedaSchema),
     },
 
     unidades: {
       listar: async () => {
         const cacheado = cacheCatalogos.get('unidades') as { itens: Unidade[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/cadastros/unidades', listaUnidadesSchema)
+        const lista = await chamar('GET', '/api/v1/unidades', listaUnidadesSchema)
         cacheCatalogos.set('unidades', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/unidades/${encodeURIComponent(codigo)}`, unidadeSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/unidades/${encodeURIComponent(codigo)}`, unidadeSchema),
     },
 
     ncm: {
       listar: async () => {
         const cacheado = cacheCatalogos.get('ncm') as { itens: NCM[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/cadastros/ncm', listaNcmSchema)
+        const lista = await chamar('GET', '/api/v1/ncm', listaNcmSchema)
         cacheCatalogos.set('ncm', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/ncm/${encodeURIComponent(codigo)}`, ncmSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/ncm/${encodeURIComponent(codigo)}`, ncmSchema),
     },
 
     ope: {
@@ -196,7 +196,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         const chave = `${idOrganizacao}:${suid}`
         const cacheado = cacheOpe.get(chave)
         if (cacheado) return cacheado
-        const ope = await chamar('GET', `/api/v1/cadastros/ope/${encodeURIComponent(suid)}`, opeSchema, { idOrganizacao })
+        const ope = await chamar('GET', `/api/v1/operacoes-comex/${encodeURIComponent(suid)}`, opeSchema, { idOrganizacao })
         cacheOpe.set(chave, ope)
         return ope
       },

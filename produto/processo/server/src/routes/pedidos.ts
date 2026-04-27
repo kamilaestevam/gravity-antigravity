@@ -46,38 +46,38 @@ async function proxyToCore(
   }
 }
 
-// GET    /                    Listar pedidos
+// GET    /                    Listar processos
 pedidosRouter.get('/', (req, res, next) => proxyToCore(req, res, next, '/'))
 
-// GET    /:id                 Detalhe do pedido
-pedidosRouter.get('/:id', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}`))
+// GET    /:id_processo                 Detalhe do processo
+pedidosRouter.get('/:id_processo', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}`))
 
-// POST   /                    Criar pedido
+// POST   /                    Criar processo
 pedidosRouter.post('/', (req, res, next) => proxyToCore(req, res, next, '/'))
 
-// PUT    /:id                 Atualizar pedido
-pedidosRouter.put('/:id', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}`))
+// PUT    /:id_processo                 Atualizar processo
+pedidosRouter.put('/:id_processo', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}`))
 
-// DELETE /:id                 Deletar pedido
-pedidosRouter.delete('/:id', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}`))
+// DELETE /:id_processo                 Deletar processo
+pedidosRouter.delete('/:id_processo', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}`))
 
-// PATCH  /:id/status          Transição de status
-pedidosRouter.patch('/:id/status', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/status`))
+// PATCH  /:id_processo/status          Transição de status
+pedidosRouter.patch('/:id_processo/status', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/status`))
 
-// POST   /:id/duplicar        Duplicar pedido
-pedidosRouter.post('/:id/duplicar', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/duplicar`))
+// POST   /:id_processo/duplicar        Duplicar processo
+pedidosRouter.post('/:id_processo/duplicar', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/duplicar`))
 
-// POST   /:id/itens           Adicionar item
-pedidosRouter.post('/:id/itens', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/itens`))
+// POST   /:id_processo/itens           Adicionar item
+pedidosRouter.post('/:id_processo/itens', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/itens`))
 
-// PUT    /:id/itens/:itemId   Atualizar item
-pedidosRouter.put('/:id/itens/:itemId', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/itens/${req.params.itemId}`))
+// PUT    /:id_processo/itens/:id_item_processo   Atualizar item
+pedidosRouter.put('/:id_processo/itens/:id_item_processo', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/itens/${req.params.id_item_processo}`))
 
-// DELETE /:id/itens/:itemId   Remover item
-pedidosRouter.delete('/:id/itens/:itemId', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/itens/${req.params.itemId}`))
+// DELETE /:id_processo/itens/:id_item_processo   Remover item
+pedidosRouter.delete('/:id_processo/itens/:id_item_processo', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/itens/${req.params.id_item_processo}`))
 
-// PATCH  /:id/itens/:itemId/cancelar  Cancelar quantidade
-pedidosRouter.patch('/:id/itens/:itemId/cancelar', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/itens/${req.params.itemId}/cancelar`))
+// PATCH  /:id_processo/itens/:id_item_processo/cancelar  Cancelar quantidade
+pedidosRouter.patch('/:id_processo/itens/:id_item_processo/cancelar', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/itens/${req.params.id_item_processo}/cancelar`))
 
-// PATCH  /:id/itens/:itemId/pronta    Atualizar quantidade pronta
-pedidosRouter.patch('/:id/itens/:itemId/pronta', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id}/itens/${req.params.itemId}/pronta`))
+// PATCH  /:id_processo/itens/:id_item_processo/marcar-pronta    Atualizar quantidade pronta
+pedidosRouter.patch('/:id_processo/itens/:id_item_processo/marcar-pronta', (req, res, next) => proxyToCore(req, res, next, `/${req.params.id_processo}/itens/${req.params.id_item_processo}/pronta`))

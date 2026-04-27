@@ -60,7 +60,7 @@ const USER_C      = 'user-recip-003'
 // App completo com a ordem correta de middlewares (espelha index.ts)
 function buildFullApp() {
   const app = express()
-  app.use('/api/webhooks/resend', webhookResendRoutes) // express.raw() interno — antes do json()
+  app.use('/api/v1/notificacoes/webhook-resend', webhookResendRoutes) // express.raw() interno — antes do json()
   app.use(express.json())
   app.use('/api/v1/notificacoes', apiRoutes)
   app.use(errorHandler)
@@ -112,7 +112,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
@@ -145,7 +145,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
@@ -175,7 +175,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
@@ -199,7 +199,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
@@ -218,7 +218,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({ user_ids: [USER_A] }) // message ausente
@@ -257,7 +257,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const fetchMock = fetch as ReturnType<typeof vi.fn>
       expect(fetchMock).toHaveBeenCalledOnce()
       const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(url).toContain('/api/v1/email/enviar')
+      expect(url).toContain('/api/v1/envios-email')
       expect((options.headers as Record<string, string>)['x-internal-key']).toBe('test-internal-key')
       expect((options.headers as Record<string, string>)['x-tenant-id']).toBe(TENANT_ID)
     })
@@ -310,7 +310,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const { payload, headers } = signWebhookPayload(wh, 'email.delivered', externalId)
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -329,7 +329,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const { payload, headers } = signWebhookPayload(wh, 'email.bounced', externalId)
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -347,7 +347,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const { payload, headers } = signWebhookPayload(wh, 'email.delivered', 'id-que-nao-existe')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -361,7 +361,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .send(JSON.stringify({ type: 'email.delivered', data: { email_id: 'forged' } }))
 
@@ -376,7 +376,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const app = buildFullApp()
 
       const sendRes = await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
@@ -392,7 +392,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       // Etapa 2 — Resend confirma entrega via webhook com o external_id do email
       const { payload, headers } = signWebhookPayload(wh, 'email.delivered', externalId)
       const webhookRes = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)

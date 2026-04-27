@@ -78,7 +78,7 @@ export function EtapaMapeamento({
   const [camposSistema, setCamposSistema] = useState<{ valor: string; rotulo: string }[]>(CAMPOS_SISTEMA_FALLBACK)
 
   useEffect(() => {
-    fetch('/api/v1/pedidos/smart-import/campos', {
+    fetch('/api/v1/pedidos/importacoes-inteligentes/campos', {
       headers: { 'x-tenant-id': '', 'x-internal-key': '' },
     })
       .then(r => r.ok ? r.json() : null)

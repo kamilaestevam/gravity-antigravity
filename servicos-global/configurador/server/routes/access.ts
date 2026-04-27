@@ -1,7 +1,11 @@
 // server/routes/access.ts
-// Verificação de permissões entre serviços (S2S)
-// GET  /api/internal/check-access   — produtos usam para verificar permissão
-// POST /api/internal/service-token  — emite machine token (Fluxo 2 S2S)
+// Verificação de permissões entre serviços (S2S) — montado em /api/v1/internal
+// GET  /api/v1/internal/permissoes-acesso/verificar             — verificar permissão
+// GET  /api/v1/internal/permissoes-acesso/produtos-permitidos   — produtos permitidos
+// GET  /api/v1/internal/organizacao-produtos                    — listar produtos da organização
+// POST /api/v1/internal/organizacao-produtos/ativar             — ativar produto S2S
+// POST /api/v1/internal/organizacao-produtos/desativar          — desativar produto S2S
+// PATCH /api/v1/internal/produtos-gravity/:id_produto_gravity/status — toggle status
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -32,12 +36,12 @@ const ProductPermissionsSchema = z.object({
 })
 
 /**
- * GET /api/internal/check-access
- * Chamado por produtos para verificar se o tenant tem acesso a um produto
+ * GET /api/v1/internal/permissoes-acesso/verificar
+ * Chamado por produtos para verificar se a organização tem acesso a um produto
  * e se o usuário tem permissão para uma ação específica (opcional)
  * Requer: x-internal-key no header
  */
-accessRouter.get('/check-access', async (req, res, next) => {
+accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
   try {
     const parsed = CheckAccessSchema.safeParse(req.query)
     if (!parsed.success) {
@@ -93,11 +97,11 @@ accessRouter.get('/check-access', async (req, res, next) => {
 })
 
 /**
- * GET /api/internal/tenant-products
- * Retorna TODOS os produtos habilitados para um tenant.
+ * GET /api/v1/internal/organizacao-produtos
+ * Retorna TODOS os produtos habilitados para uma organização.
  * Usado pelo Shell para filtrar o sidebar dinamicamente.
  */
-accessRouter.get('/tenant-products', async (req, res, next) => {
+accessRouter.get('/organizacao-produtos', async (req, res, next) => {
   try {
     const tenantId = req.query.tenantId as string
     if (!tenantId) {
@@ -119,11 +123,11 @@ accessRouter.get('/tenant-products', async (req, res, next) => {
 })
 
 /**
- * POST /api/internal/tenant-products/activate
- * Ativa um produto para um tenant via S2S (sem Clerk auth)
+ * POST /api/v1/internal/organizacao-produtos/ativar
+ * Ativa um produto para uma organização via S2S (sem Clerk auth)
  * Usado por testes E2E e serviços internos
  */
-accessRouter.post('/tenant-products/activate', async (req, res, next) => {
+accessRouter.post('/organizacao-produtos/ativar', async (req, res, next) => {
   try {
     const { tenantId, productKey, config: productConfig } = req.body
     if (!tenantId || !productKey) {
@@ -144,10 +148,10 @@ accessRouter.post('/tenant-products/activate', async (req, res, next) => {
 })
 
 /**
- * POST /api/internal/tenant-products/deactivate
- * Desativa um produto para um tenant via S2S (sem Clerk auth)
+ * POST /api/v1/internal/organizacao-produtos/desativar
+ * Desativa um produto para uma organização via S2S (sem Clerk auth)
  */
-accessRouter.post('/tenant-products/deactivate', async (req, res, next) => {
+accessRouter.post('/organizacao-produtos/desativar', async (req, res, next) => {
   try {
     const { tenantId, productKey } = req.body
     if (!tenantId || !productKey) {
@@ -163,11 +167,11 @@ accessRouter.post('/tenant-products/deactivate', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/internal/catalog-products/:slug/status
+ * PATCH /api/v1/internal/produtos-gravity/:id_produto_gravity/status
  * Toggle status de um produto no catálogo via S2S
  * Usado por testes E2E
  */
-accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
+accessRouter.patch('/produtos-gravity/:id_produto_gravity/status', async (req, res, next) => {
   try {
     const { status } = req.body
     const validStatuses = ['ATIVO', 'SUSPENSO', 'EM_BREVE', 'LEGADO', 'INATIVO']
@@ -176,7 +180,7 @@ accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
     }
 
     const product = await prisma.catalogProduct.findFirst({
-      where: { slug: req.params.slug },
+      where: { slug: req.params.id_produto_gravity },
     })
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
@@ -194,10 +198,10 @@ accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
 })
 
 /**
- * GET /api/internal/product-permissions
- * Busca definições de permissão configuradas para um produto no tenant
+ * GET /api/v1/internal/permissoes-acesso/produtos-permitidos
+ * Busca definições de permissão configuradas para um produto na organização
  */
-accessRouter.get('/product-permissions', async (req, res, next) => {
+accessRouter.get('/permissoes-acesso/produtos-permitidos', async (req, res, next) => {
   try {
     const parsed = ProductPermissionsSchema.safeParse(req.query)
     if (!parsed.success) {

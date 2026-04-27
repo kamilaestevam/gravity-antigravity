@@ -176,7 +176,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
           {t('pedido.importar.nao_sabe_formato')}
         </span>
         <a
-          href="/api/v1/pedidos/smart-import/template"
+          href="/api/v1/pedidos/importacoes-inteligentes/template"
           download="template-importacao-pedidos.xlsx"
           style={{
             display: 'inline-flex',

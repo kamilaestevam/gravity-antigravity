@@ -192,7 +192,7 @@ export const emailIntegration = {
     anexos?: Array<{ nome: string; url: string }>
   }) {
     try {
-      await axios.post(`${EMAIL_URL}/api/v1/email/enviar`, {
+      await axios.post(`${EMAIL_URL}/api/v1/envios-email`, {
         ...data,
         product_id: 'bid-cambio',
       }, {

@@ -3,10 +3,10 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
 
-export const configRouter = Router()
+export const configRouter = Router({ mergeParams: true })
 
 const configSchema = z.object({
-  agenda_id: z.string().min(1),
+  agenda_id: z.string().min(1).optional(),
   horarioInicio: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato inválido. Use HH:mm'),
   horarioFim: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato inválido. Use HH:mm'),
   duracaoSlot: z.number().int().positive(),
@@ -50,13 +50,17 @@ configRouter.post('/', async (req, res, next) => {
   try {
     const data = configSchema.parse(req.body)
     const { tenantId, userId } = req.auth
+    const id_agenda = ((req.params as { id_agenda?: string }).id_agenda) ?? data.agenda_id
+    if (!id_agenda) {
+      throw new AppError('id_agenda obrigatório', 400)
+    }
 
     const config = await prisma.configDisponibilidadeAgenda.create({
       data: {
         id_organizacao_config_disponibilidade_agenda: tenantId,
         id_usuario_config_disponibilidade_agenda: userId || null,
         id_produto_config_disponibilidade_agenda: data.product_id ?? null,
-        id_agenda_config_disponibilidade_agenda: data.agenda_id,
+        id_agenda_config_disponibilidade_agenda: id_agenda,
         horario_inicio_config_disponibilidade_agenda: data.horarioInicio,
         horario_fim_config_disponibilidade_agenda: data.horarioFim,
         duracao_slot_config_disponibilidade_agenda: data.duracaoSlot,
@@ -70,14 +74,14 @@ configRouter.post('/', async (req, res, next) => {
   }
 })
 
-configRouter.get('/agenda/:agenda_id', async (req, res, next) => {
+configRouter.get('/', async (req, res, next) => {
   try {
-    const { agenda_id } = req.params
+    const { id_agenda } = req.params as { id_agenda: string }
     const { tenantId } = req.auth
 
     const config = await prisma.configDisponibilidadeAgenda.findFirst({
       where: {
-        id_agenda_config_disponibilidade_agenda: agenda_id,
+        id_agenda_config_disponibilidade_agenda: id_agenda,
         id_organizacao_config_disponibilidade_agenda: tenantId,
       },
     })
@@ -90,15 +94,15 @@ configRouter.get('/agenda/:agenda_id', async (req, res, next) => {
   }
 })
 
-configRouter.put('/:id', async (req, res, next) => {
+configRouter.put('/:id_configuracao_disponibilidade', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_configuracao_disponibilidade } = req.params as { id_configuracao_disponibilidade: string }
     const data = configSchema.partial().parse(req.body)
     const { tenantId } = req.auth
 
     const existing = await prisma.configDisponibilidadeAgenda.findFirst({
       where: {
-        id_config_disponibilidade_agenda: id,
+        id_config_disponibilidade_agenda: id_configuracao_disponibilidade,
         id_organizacao_config_disponibilidade_agenda: tenantId,
       },
     })
@@ -116,7 +120,7 @@ configRouter.put('/:id', async (req, res, next) => {
     if (data.product_id !== undefined) update.id_produto_config_disponibilidade_agenda = data.product_id
 
     const config = await prisma.configDisponibilidadeAgenda.update({
-      where: { id_config_disponibilidade_agenda: id },
+      where: { id_config_disponibilidade_agenda: id_configuracao_disponibilidade },
       data: update,
     })
     res.json(toConfigDto(config))
@@ -125,14 +129,14 @@ configRouter.put('/:id', async (req, res, next) => {
   }
 })
 
-configRouter.delete('/:id', async (req, res, next) => {
+configRouter.delete('/:id_configuracao_disponibilidade', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_configuracao_disponibilidade } = req.params as { id_configuracao_disponibilidade: string }
     const { tenantId } = req.auth
 
     const existing = await prisma.configDisponibilidadeAgenda.findFirst({
       where: {
-        id_config_disponibilidade_agenda: id,
+        id_config_disponibilidade_agenda: id_configuracao_disponibilidade,
         id_organizacao_config_disponibilidade_agenda: tenantId,
       },
     })
@@ -141,7 +145,7 @@ configRouter.delete('/:id', async (req, res, next) => {
     }
 
     await prisma.configDisponibilidadeAgenda.delete({
-      where: { id_config_disponibilidade_agenda: id },
+      where: { id_config_disponibilidade_agenda: id_configuracao_disponibilidade },
     })
     res.status(204).send()
   } catch (error) {

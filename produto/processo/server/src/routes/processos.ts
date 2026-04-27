@@ -53,7 +53,7 @@ processosRouter.get('/', async (req: Request, res: Response) => {
     const tipo = req.query.tipo as string | undefined
     const search = req.query.search as string | undefined
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (status) where.status = status
     if (tipo) where.tipo = tipo
     if (search) {
@@ -94,16 +94,16 @@ processosRouter.get('/', async (req: Request, res: Response) => {
 })
 
 /**
- * GET /api/v1/processos/:id
+ * GET /api/v1/processos/:id_processo
  * Detalhe completo do processo com todas as relacoes.
  */
-processosRouter.get('/:id', async (req: Request, res: Response) => {
+processosRouter.get('/:id_processo', async (req: Request, res: Response) => {
   try {
     const prisma = (req as any).prisma
-    const { id } = req.params
+    const { id_processo } = req.params
 
     const processo = await prisma.processo.findFirst({
-      where: { id },
+      where: { id: id_processo },
       include: {
         etapas: { orderBy: { data_prevista: 'asc' } },
         pedidos: {
@@ -159,10 +159,10 @@ processosRouter.post('/', async (req: Request, res: Response) => {
 })
 
 /**
- * PATCH /api/v1/processos/:id
+ * PATCH /api/v1/processos/:id_processo
  * Atualiza processo existente.
  */
-processosRouter.patch('/:id', async (req: Request, res: Response) => {
+processosRouter.patch('/:id_processo', async (req: Request, res: Response) => {
   const parsed = UpdateProcessoSchema.safeParse(req.body)
 
   if (!parsed.success) {
@@ -171,16 +171,16 @@ processosRouter.patch('/:id', async (req: Request, res: Response) => {
 
   try {
     const prisma = (req as any).prisma
-    const { id } = req.params
+    const { id_processo } = req.params
 
     // Verifica se existe (tenant isolado)
-    const existing = await prisma.processo.findFirst({ where: { id } })
+    const existing = await prisma.processo.findFirst({ where: { id: id_processo } })
     if (!existing) {
       return res.status(404).json({ error: 'Processo nao encontrado' })
     }
 
     const processo = await prisma.processo.update({
-      where: { id },
+      where: { id: id_processo },
       data: parsed.data,
     })
 

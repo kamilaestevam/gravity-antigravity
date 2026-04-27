@@ -192,11 +192,11 @@ describe('GET /api/v1/me — erros de banco', () => {
 })
 
 // ─── ME-012 — GET /preferences SUPPLIER ──────────────────────────────────────
-describe('GET /api/v1/me/preferences — SUPPLIER guard', () => {
+describe('GET /api/v1/me/preferencias — SUPPLIER guard', () => {
   it('ME-012: SUPPLIER → retorna { data: { preferredCompanyId: null } } sem chamar o banco', async () => {
     injectAuth({ userId: 'usr_supplier', tenantId: 'ten_contract_01', role: 'SUPPLIER' })
 
-    const res = await request(app).get('/api/v1/me/preferences')
+    const res = await request(app).get('/api/v1/me/preferencias')
 
     expect(res.status).toBe(200)
     expect(res.body.data.preferredCompanyId).toBeNull()
@@ -205,12 +205,12 @@ describe('GET /api/v1/me/preferences — SUPPLIER guard', () => {
 })
 
 // ─── ME-013 / ME-014 — PUT /preferences ──────────────────────────────────────
-describe('PUT /api/v1/me/preferences — autorização e validação', () => {
+describe('PUT /api/v1/me/preferencias — autorização e validação', () => {
   it('ME-013: SUPPLIER → 403 FORBIDDEN', async () => {
     injectAuth({ userId: 'usr_supplier', tenantId: 'ten_contract_01', role: 'SUPPLIER' })
 
     const res = await request(app)
-      .put('/api/v1/me/preferences')
+      .put('/api/v1/me/preferencias')
       .send({ preferredCompanyId: 'cjld2cjxh0000qzrmn831i7rn' })
 
     expect(res.status).toBe(403)
@@ -221,7 +221,7 @@ describe('PUT /api/v1/me/preferences — autorização e validação', () => {
     injectAuth({ userId: 'usr_master', tenantId: 'ten_contract_01', role: 'MASTER' })
 
     const res = await request(app)
-      .put('/api/v1/me/preferences')
+      .put('/api/v1/me/preferencias')
       .send({ preferredCompanyId: 'nao-um-cuid' })
 
     expect(res.status).toBe(400)
@@ -230,14 +230,14 @@ describe('PUT /api/v1/me/preferences — autorização e validação', () => {
 })
 
 // ─── ME-015 — GET /preferences fallback silencioso ───────────────────────────
-describe('GET /api/v1/me/preferences — fallback silencioso (membership revogada)', () => {
+describe('GET /api/v1/me/preferencias — fallback silencioso (membership revogada)', () => {
   it('ME-015: preferred_company_id inválido (membership revogada) → null + usuario.update chamado', async () => {
     injectAuth({ userId: 'usr_contract_01', tenantId: 'ten_contract_01', role: 'MASTER' })
     mockFindUnique.mockResolvedValue({ preferred_company_id: 'cjld2cjxh0000qzrmn831i7rn' })
     mockWsFindFirst.mockResolvedValue(null)
     mockUsuarioUpdate.mockResolvedValue({})
 
-    const res = await request(app).get('/api/v1/me/preferences')
+    const res = await request(app).get('/api/v1/me/preferencias')
 
     expect(res.status).toBe(200)
     expect(res.body.data.preferredCompanyId).toBeNull()

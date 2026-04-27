@@ -144,13 +144,13 @@ describe('notificacoes — isolamento cross-tenant', () => {
   // B — Modificação cross-tenant
   // ══════════════════════════════════════════════════════════════════════════
   describe('B — Modificação: Tenant A não pode alterar notificações do Tenant B', () => {
-    it('PUT /:id/read com ID do Tenant B → 404 (where filtra por tenant_A, count = 0)', async () => {
+    it('PUT /:id_notificacao/marcar-lida com ID do Tenant B → 404 (where filtra por tenant_A, count = 0)', async () => {
       // Simula que o ID existe, mas não pertence ao TENANT_A
       mockUpdateMany.mockResolvedValueOnce({ count: 0 })
       const app = buildApp()
 
       const res = await request(app)
-        .put(`/api/v1/notificacoes/${NOTIF_B1_ID}/read`)
+        .put(`/api/v1/notificacoes/${NOTIF_B1_ID}/marcar-lida`)
         .set(headersFor(TENANT_A, USER_A1))
 
       expect(res.status).toBe(404)
@@ -181,7 +181,7 @@ describe('notificacoes — isolamento cross-tenant', () => {
 
     it('PUT read sem auth → 401, updateMany nunca chamado', async () => {
       const app = buildApp()
-      const res = await request(app).put(`/api/v1/notificacoes/${NOTIF_B1_ID}/read`)
+      const res = await request(app).put(`/api/v1/notificacoes/${NOTIF_B1_ID}/marcar-lida`)
 
       expect(res.status).toBe(401)
       expect(mockUpdateMany).not.toHaveBeenCalled()
@@ -206,12 +206,12 @@ describe('notificacoes — isolamento cross-tenant', () => {
       expect(dataArg.user_id).toBe(USER_A1)
     })
 
-    it('POST /send: notificações criadas com tenant_A, não com tenant_B', async () => {
+    it('POST /enviar: notificações criadas com tenant_A, não com tenant_B', async () => {
       mockCreateMany.mockResolvedValueOnce({ count: 1 })
       const app = buildApp()
 
       await request(app)
-        .post('/api/v1/notificacoes/send')
+        .post('/api/v1/notificacoes/enviar')
         .set(headersFor(TENANT_A, USER_A1))
         .set('Content-Type', 'application/json')
         .send({

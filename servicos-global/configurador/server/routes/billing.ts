@@ -1,7 +1,7 @@
 // server/routes/billing.ts
 // Assinaturas, checkout e webhook do Stripe
-// POST /api/v1/financeiro/webhook   — recebe eventos do Stripe (raw body)
-// GET  /api/v1/financeiro/invoices  — histórico de faturas do tenant
+// POST /api/v1/faturas/webhook-stripe — recebe eventos do Stripe (raw body)
+// GET  /api/v1/faturas               — histórico de faturas do tenant
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
@@ -13,11 +13,11 @@ import { AppError } from '../lib/appError.js'
 export const billingRouter = Router()
 
 /**
- * POST /api/v1/financeiro/webhook
+ * POST /api/v1/faturas/webhook-stripe
  * Endpoint para receber eventos do Stripe
  * Body: raw (buffer) — registrado ANTES do express.json() no index.ts
  */
-billingRouter.post('/webhook', async (req, res, next) => {
+billingRouter.post('/webhook-stripe', async (req, res, next) => {
   try {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
     if (!webhookSecret) {
@@ -52,10 +52,10 @@ billingRouter.post('/webhook', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/financeiro/invoices
+ * GET /api/v1/faturas
  * Retorna histórico de faturas do Stripe para o tenant autenticado
  */
-billingRouter.get('/invoices', requireAuth, async (req, res, next) => {
+billingRouter.get('/', requireAuth, async (req, res, next) => {
   try {
     const tenant = await prisma.organizacao.findUnique({
       where: { id_organizacao: req.auth.tenantId },

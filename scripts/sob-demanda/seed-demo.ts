@@ -37,7 +37,7 @@ async function main() {
   // 2. Seed produtos
   console.log('\n── Seed do Catálogo ──')
   try {
-    const res = await fetch(`${BASE}/api/admin/produtos-gravity/seed`, {
+    const res = await fetch(`${BASE}/api/v1/admin/produtos-gravity/seed`, {
       method: 'POST',
       headers: HEADERS,
     })
@@ -53,7 +53,7 @@ async function main() {
 
   // 3. Listar produtos (verificação)
   try {
-    const res = await fetch(`${BASE}/api/v1/catalog/products`)
+    const res = await fetch(`${BASE}/api/v1/catalogo/produtos`)
     const { products } = await res.json()
     console.log(`\n── Catálogo Público (${products.length} produtos) ──`)
     for (const p of products) {
@@ -67,7 +67,7 @@ async function main() {
   console.log('\n── Tenant Demo ──')
   let tenantId: string | null = null
   try {
-    const res = await fetch(`${BASE}/api/v1/tenants`, {
+    const res = await fetch(`${BASE}/api/v1/organizacoes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -86,7 +86,7 @@ async function main() {
     } else if (res.status === 409) {
       console.log('⚠ Tenant "demo-corp" já existe')
       // Buscar o existente
-      const listRes = await fetch(`${BASE}/api/admin/tenants?search=demo-corp`, { headers: HEADERS })
+      const listRes = await fetch(`${BASE}/api/v1/admin/organizacoes?search=demo-corp`, { headers: HEADERS })
       if (listRes.ok) {
         const { tenants } = await listRes.json()
         if (tenants.length > 0) {
@@ -109,7 +109,7 @@ async function main() {
     for (const productKey of productsToActivate) {
       try {
         const res = await fetch(
-          `${BASE}/api/admin/tenants/${tenantId}/products/${productKey}/activate`,
+          `${BASE}/api/v1/admin/organizacoes/${tenantId}/produtos/${productKey}/ativar`,
           { method: 'POST', headers: HEADERS, body: '{}' }
         )
         if (res.ok) {
@@ -126,7 +126,7 @@ async function main() {
     console.log('\n── Verificação ──')
     try {
       const res = await fetch(
-        `${BASE}/api/internal/tenant-products?tenantId=${tenantId}`,
+        `${BASE}/api/v1/internal/organizacao-produtos?tenantId=${tenantId}`,
         { headers: HEADERS }
       )
       const data = await res.json()

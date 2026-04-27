@@ -95,7 +95,7 @@ export function AdminLayout() {
     async function loadAdminProducts() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/admin/products', {
+        const res = await fetch('/api/v1/admin/produtos-gravity', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {

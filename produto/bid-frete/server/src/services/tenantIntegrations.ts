@@ -293,7 +293,7 @@ export const gabiIntegration = {
         data.respostas.map((r, i) => `${i + 1}. ${r.fornecedor}: USD ${r.valor_total} | ${r.transit_time} dias | Rating ${r.rating}/5`).join('\n') +
         `\n\nQual a melhor opção custo-benefício? Considere preço, prazo e confiabilidade.`
 
-      const response = await axios.post(`${GABI_URL}/api/v1/gabi/chat`, {
+      const response = await axios.post(`${GABI_URL}/api/v1/gabi/chats`, {
         message: prompt,
         context: 'bid-frete-analise',
         product_id: 'bid-frete',

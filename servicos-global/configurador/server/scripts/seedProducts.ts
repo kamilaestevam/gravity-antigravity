@@ -2,7 +2,7 @@
  * server/scripts/seedProducts.ts
  * CLI de seed do catálogo master de produtos.
  *
- * Substitui a antiga rota HTTP POST /api/admin/products/seed — seed é
+ * Substitui a antiga rota HTTP POST /api/v1/admin/produtos-gravity/seed — seed é
  * operação de infraestrutura e não deve ser exposta via HTTP em produção.
  *
  * Uso:

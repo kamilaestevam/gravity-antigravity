@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
 import { AgendamentoService } from '../../src/services/AgendamentoService.js'
 
-export const reservaRouter = Router()
+export const reservaRouter = Router({ mergeParams: true })
 
 const reservaSchema = z.object({
   slot_id: z.string().min(1),
@@ -107,14 +107,14 @@ reservaRouter.get('/', async (req, res, next) => {
   }
 })
 
-reservaRouter.get('/usuario/:usuario_id', async (req, res, next) => {
+reservaRouter.get('/usuario/:id_usuario', async (req, res, next) => {
   try {
-    const { usuario_id } = req.params
+    const { id_usuario } = req.params as { id_usuario: string }
     const { tenantId } = req.auth
 
     const reservas = await prisma.reservaAgenda.findMany({
       where: {
-        id_reservante_reserva_agenda: usuario_id,
+        id_reservante_reserva_agenda: id_usuario,
         id_organizacao_reserva_agenda: tenantId,
       },
       include: { horario_reserva_agenda: true },
@@ -125,9 +125,9 @@ reservaRouter.get('/usuario/:usuario_id', async (req, res, next) => {
   }
 })
 
-reservaRouter.patch('/:id/status', async (req, res, next) => {
+reservaRouter.patch('/:id_reserva/status', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_reserva } = req.params as { id_reserva: string }
     const { status } = z
       .object({ status: z.enum(['confirmado', 'cancelado', 'pendente']) })
       .parse(req.body)
@@ -135,7 +135,7 @@ reservaRouter.patch('/:id/status', async (req, res, next) => {
 
     const existing = await prisma.reservaAgenda.findFirst({
       where: {
-        id_reserva_agenda: id,
+        id_reserva_agenda: id_reserva,
         id_organizacao_reserva_agenda: tenantId,
       },
     })
@@ -144,7 +144,7 @@ reservaRouter.patch('/:id/status', async (req, res, next) => {
     }
 
     const reserva = await prisma.reservaAgenda.update({
-      where: { id_reserva_agenda: id },
+      where: { id_reserva_agenda: id_reserva },
       data: { status_reserva_agenda: status },
     })
     res.json(toReservaDto(reserva))
@@ -153,14 +153,14 @@ reservaRouter.patch('/:id/status', async (req, res, next) => {
   }
 })
 
-reservaRouter.delete('/:id', async (req, res, next) => {
+reservaRouter.delete('/:id_reserva', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_reserva } = req.params as { id_reserva: string }
     const { tenantId } = req.auth
 
     const existing = await prisma.reservaAgenda.findFirst({
       where: {
-        id_reserva_agenda: id,
+        id_reserva_agenda: id_reserva,
         id_organizacao_reserva_agenda: tenantId,
       },
     })
@@ -168,7 +168,7 @@ reservaRouter.delete('/:id', async (req, res, next) => {
       throw new AppError('Reserva não encontrada', 404)
     }
 
-    await prisma.reservaAgenda.delete({ where: { id_reserva_agenda: id } })
+    await prisma.reservaAgenda.delete({ where: { id_reserva_agenda: id_reserva } })
     res.status(204).send()
   } catch (error) {
     next(error)

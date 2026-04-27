@@ -88,11 +88,11 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:suid', async (req, res, next) => {
+router.get('/:id_operacao_comex', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const ope = await prisma.ope.findFirst({
-      where: { suid_ope: req.params.suid, id_organizacao_ope: idOrganizacao },
+      where: { suid_ope: req.params.id_operacao_comex, id_organizacao_ope: idOrganizacao },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
     res.status(200).json(toOpeDto(ope))
@@ -114,16 +114,16 @@ router.get('/portal-unico/:codigo_portal_unico', async (req, res, next) => {
   }
 })
 
-router.get('/:suid/eventos', async (req, res, next) => {
+router.get('/:id_operacao_comex/eventos', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const ope = await prisma.ope.findFirst({
-      where: { suid_ope: req.params.suid, id_organizacao_ope: idOrganizacao },
+      where: { suid_ope: req.params.id_operacao_comex, id_organizacao_ope: idOrganizacao },
       select: { suid_ope: true },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
     const eventos = await prisma.opeHistoricoStatus.findMany({
-      where: { suid_ope_historico_status: req.params.suid },
+      where: { suid_ope_historico_status: req.params.id_operacao_comex },
       orderBy: { registrado_em_ope_historico_status: 'desc' },
       take: 100,
     })

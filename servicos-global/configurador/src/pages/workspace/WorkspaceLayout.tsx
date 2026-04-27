@@ -103,7 +103,7 @@ export function WorkspaceLayout() {
     async function fetchTipoEmpresa() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/organizacao/me', {
+        const res = await fetch('/api/v1/organizacoes/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {

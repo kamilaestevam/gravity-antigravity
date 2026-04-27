@@ -85,8 +85,8 @@ const updateWidgetSchema = z.object({
   config: z.unknown().optional(),
 })
 
-// POST /query — executa query de widget via DashboardQueryEngine
-widgetRouter.post('/query', async (req, res, next) => {
+// POST /widgets/executar-query — executa query de widget via DashboardQueryEngine
+widgetRouter.post('/widgets/executar-query', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { spec } = queryBodySchema.parse(req.body)
@@ -108,8 +108,8 @@ widgetRouter.post('/query', async (req, res, next) => {
   }
 })
 
-// POST / — salva widget no config (adiciona a DashboardCriar)
-widgetRouter.post('/', async (req, res, next) => {
+// POST /widgets — salva widget no config (adiciona a DashboardCriar)
+widgetRouter.post('/widgets', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const body = createWidgetSchema.parse(req.body)
@@ -145,8 +145,8 @@ widgetRouter.post('/', async (req, res, next) => {
   }
 })
 
-// PUT /:id — atualiza config do widget (position, title, chart_type, config)
-widgetRouter.put('/:id', async (req, res, next) => {
+// PUT /widgets/:id — atualiza config do widget (position, title, chart_type, config)
+widgetRouter.put('/widgets/:id', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { id } = req.params
@@ -188,8 +188,8 @@ widgetRouter.put('/:id', async (req, res, next) => {
   }
 })
 
-// DELETE /:id — remove widget do dashboard
-widgetRouter.delete('/:id', async (req, res, next) => {
+// DELETE /widgets/:id — remove widget do dashboard
+widgetRouter.delete('/widgets/:id', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { id } = req.params

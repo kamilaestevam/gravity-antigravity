@@ -68,10 +68,10 @@ conversasRouter.get('/api/v1/gabi/conversas', async (req, res, next) => {
   }
 })
 
-conversasRouter.delete('/api/v1/gabi/conversas/:id', async (req, res, next) => {
+conversasRouter.delete('/api/v1/gabi/conversas/:id_conversa_gabi', async (req, res, next) => {
   try {
     const { tenantId } = req.auth
-    const { id } = req.params
+    const { id_conversa_gabi: id } = req.params
 
     const conversa = await prisma.gabiConversa.findUnique({
       where: { id_gabi_conversa: id },

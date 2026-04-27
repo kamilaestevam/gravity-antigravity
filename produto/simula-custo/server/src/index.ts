@@ -88,7 +88,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // ─── 5. Master Data — SEM autenticação (NCM, UFs, Países são dados públicos) ──
-app.use('/api/v1/master-data', masterDataRouter)
+app.use('/api/v1/simula-custo', masterDataRouter)
 
 // ─── 6. requireInternalKey — protege todas as rotas abaixo ────────────────────
 //    Skill: antigravity-autenticacao-s2s
@@ -113,14 +113,15 @@ app.use(createProductAuditPlugin({
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },
-  // /api/v1/master-data é público e sem tenant — ignorar
-  ignoreRoutes: ['/api/v1/master-data'],
+  // Rotas públicas de master data (paises, unidades-federativas, ncm/buscar)
+  // são servidas sob /api/v1/simula-custo e não possuem tenant — ignorar
+  ignoreRoutes: ['/api/v1/simula-custo/paises', '/api/v1/simula-custo/unidades-federativas', '/api/v1/simula-custo/ncm/buscar'],
 }))
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
 app.use('/api/v1/simula-custo', simulateRouter)
 app.use('/api/v1/simula-custo/estimativas', estimativasRouter)
-app.use('/api/v1/dashboard', dashboardRouter)
+app.use('/api/v1/simula-custo/dashboard', dashboardRouter)
 app.use('/api/v1/simula-custo/dashboard', dashboardWidgetsRouter)
 
 // ─── 9. SPA Fallback (serve o client React para qualquer rota não-API) ─────────

@@ -91,7 +91,7 @@ export default defineConfig({
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
-      '/api/v1/analytics/pedido': {
+      '/api/v1/pedidos/analytics': {
         target: 'http://localhost:8030',
         changeOrigin: true,
         configure(proxy) {

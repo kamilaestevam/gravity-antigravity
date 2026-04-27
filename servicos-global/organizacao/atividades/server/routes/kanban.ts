@@ -49,7 +49,7 @@ const reorderSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/kanban
+// GET /api/v1/colunas-kanban
 // ---------------------------------------------------------------------------
 
 router.get('/', async (req, res, next) => {
@@ -99,13 +99,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/kanban/:id
+// GET /api/v1/colunas-kanban/:id_coluna_kanban
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id_coluna_kanban', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const card = await db.kanbanCard.findFirst({ where: { id: req.params.id } })
+    const card = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!card) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
     res.json(card)
   } catch (err) {
@@ -114,7 +114,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/kanban
+// POST /api/v1/colunas-kanban
 // ---------------------------------------------------------------------------
 
 router.post('/', async (req, res, next) => {
@@ -141,10 +141,10 @@ router.post('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/kanban/:id
+// PATCH /api/v1/colunas-kanban/:id_coluna_kanban
 // ---------------------------------------------------------------------------
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id_coluna_kanban', async (req, res, next) => {
   try {
     const result = updateKanbanCardSchema.safeParse(req.body)
     if (!result.success) {
@@ -158,11 +158,11 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id } })
+    const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!existing) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
 
     const card = await db.kanbanCard.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_coluna_kanban },
       data: result.data,
     })
     res.json(card)
@@ -172,11 +172,11 @@ router.patch('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/kanban/reorder
+// POST /api/v1/colunas-kanban/reordenar
 // Reordena múltiplos cards em lote (drag-and-drop).
 // ---------------------------------------------------------------------------
 
-router.post('/reorder', async (req, res, next) => {
+router.post('/reordenar', async (req, res, next) => {
   try {
     const result = reorderSchema.safeParse(req.body)
     if (!result.success) {
@@ -208,16 +208,16 @@ router.post('/reorder', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/kanban/:id
+// DELETE /api/v1/colunas-kanban/:id_coluna_kanban
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id_coluna_kanban', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id } })
+    const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!existing) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
 
-    await db.kanbanCard.delete({ where: { id: req.params.id } })
+    await db.kanbanCard.delete({ where: { id: req.params.id_coluna_kanban } })
     res.status(204).send()
   } catch (err) {
     next(err)

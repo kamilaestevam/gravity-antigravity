@@ -81,7 +81,7 @@ async function callGabi(
   userId: string,
 ): Promise<string | null> {
   try {
-    const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/chat`, {
+    const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/chats`, {
       method: 'POST',
       headers: {
         'Content-Type':   'application/json',

@@ -86,7 +86,7 @@ export function Core() {
     async function fetchTipoEmpresa() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/organizacao/me', {
+        const res = await fetch('/api/v1/organizacoes/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -117,7 +117,7 @@ export function Core() {
     async function loadProducts() {
       try {
         const token = await getToken()
-        const res = await fetch(`/api/v1/companies/${companyId}/products`, {
+        const res = await fetch(`/api/v1/workspaces/${companyId}/produtos`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {

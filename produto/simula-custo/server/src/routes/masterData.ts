@@ -1,6 +1,6 @@
 /**
- * masterData.ts — Route GET /api/v1/master-data
- * Endpoints para busca de NCMs, Países e UFs.
+ * masterData.ts — Rotas GET /api/v1/simula-custo (master data público)
+ * Endpoints para busca de NCMs, Países e Unidades Federativas.
  * Skill: antigravity-criar-produto (Passo 7)
  */
 
@@ -83,9 +83,9 @@ const ISO_COUNTRIES = [
 ].sort((a, b) => a.nome.localeCompare(b.nome, 'pt'))
 
 /**
- * GET /api/v1/master-data/ncm/search?q={termo}
+ * GET /api/v1/simula-custo/ncm/buscar?q={termo}
  */
-masterDataRouter.get('/ncm/search', async (req: Request, res: Response) => {
+masterDataRouter.get('/ncm/buscar', async (req: Request, res: Response) => {
   const query = String(req.query.q || '')
   if (query.length < 3) return res.json([])
 
@@ -103,15 +103,15 @@ masterDataRouter.get('/ncm/search', async (req: Request, res: Response) => {
 })
 
 /**
- * GET /api/v1/master-data/countries
+ * GET /api/v1/simula-custo/paises
  */
-masterDataRouter.get('/countries', (_req, res) => {
+masterDataRouter.get('/paises', (_req, res) => {
   res.json(ISO_COUNTRIES)
 })
 
 /**
- * GET /api/v1/master-data/ufs
+ * GET /api/v1/simula-custo/unidades-federativas
  */
-masterDataRouter.get('/ufs', (_req, res) => {
+masterDataRouter.get('/unidades-federativas', (_req, res) => {
   res.json(BRAZIL_UFS)
 })

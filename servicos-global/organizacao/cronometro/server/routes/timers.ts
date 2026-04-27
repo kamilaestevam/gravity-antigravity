@@ -4,6 +4,12 @@
 //
 // Onda 27 (DDD Servicos): bypass withTenantIsolation — colunas físicas agora
 // usam id_organizacao_<table>. Filtragem explícita + ACL/DTO map nas bordas.
+//
+// Onda API-1 (DDD nomes de rota): paths em PT-BR sob dois grupos lógicos:
+//   - /api/v1/atividades/:id_atividade/cronometro/...   (sub-recurso da atividade)
+//   - /api/v1/cronometros/...                            (recursos top-level)
+// O router é montado em '/api/v1' (ver index.ts/routes.ts) e usa paths absolutos
+// internamente para suportar os dois grupos a partir de um único Router.
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -19,11 +25,11 @@ const prisma = prismaDefault as unknown as TenantPrismaClient
 // ---------------------------------------------------------------------------
 
 const ParamActivityId = z.object({
-  activity_id: z.string().min(1, 'activity_id é obrigatório'),
+  id_atividade: z.string().min(1, 'id_atividade é obrigatório'),
 })
 
 const ParamSessionId = z.object({
-  id: z.string().min(1, 'id da sessão é obrigatório'),
+  id_sessao_cronometro: z.string().min(1, 'id_sessao_cronometro é obrigatório'),
 })
 
 const ManualEntrySchema = z.object({
@@ -162,11 +168,11 @@ export const timersRouter = Router()
 timersRouter.use(requireAuth)
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/timers/stream
+// GET /api/v1/cronometros/stream
 // SSE — stream de eventos do timer em tempo real para o usuário autenticado.
 // ---------------------------------------------------------------------------
 
-timersRouter.get('/stream', (req: Request, res: Response) => {
+timersRouter.get('/cronometros/stream', (req: Request, res: Response) => {
   const { tenantId, userId } = req.auth
   setupSSEConnection(req, res, tenantId, userId)
 
@@ -200,11 +206,11 @@ timersRouter.get('/stream', (req: Request, res: Response) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/timers/active
+// GET /api/v1/cronometros/ativo
 // Retorna o timer ativo do usuário autenticado (se houver).
 // ---------------------------------------------------------------------------
 
-timersRouter.get('/active', async (req: Request, res: Response, next: NextFunction) => {
+timersRouter.get('/cronometros/ativo', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth
 
@@ -238,11 +244,11 @@ timersRouter.get('/active', async (req: Request, res: Response, next: NextFuncti
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/timers/:activity_id
+// GET /api/v1/atividades/:id_atividade/cronometro
 // Lista sessões de uma atividade.
 // ---------------------------------------------------------------------------
 
-timersRouter.get('/:activity_id', async (req: Request, res: Response, next: NextFunction) => {
+timersRouter.get('/atividades/:id_atividade/cronometro', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = ParamActivityId.safeParse(req.params)
     if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
@@ -252,7 +258,7 @@ timersRouter.get('/:activity_id', async (req: Request, res: Response, next: Next
     const sessions = await prisma.atividadesCronometro.findMany({
       where: {
         id_organizacao_atividades_cronometro: tenantId,
-        id_atividade_atividades_cronometro: parsed.data.activity_id,
+        id_atividade_atividades_cronometro: parsed.data.id_atividade,
         id_usuario_atividades_cronometro: userId,
       },
       orderBy: { data_inicio_atividades_cronometro: 'desc' },
@@ -270,13 +276,13 @@ timersRouter.get('/:activity_id', async (req: Request, res: Response, next: Next
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/timers/:activity_id/start
+// POST /api/v1/atividades/:id_atividade/cronometro/iniciar
 // Inicia o timer para uma atividade.
 // Pausa automaticamente qualquer timer ativo de outra atividade.
 // ---------------------------------------------------------------------------
 
 timersRouter.post(
-  '/:activity_id/start',
+  '/atividades/:id_atividade/cronometro/iniciar',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = ParamActivityId.safeParse(req.params)
@@ -291,7 +297,7 @@ timersRouter.post(
       })
 
       if (existingActive) {
-        if (existingActive.id_atividade_atividades_timer === parsed.data.activity_id) {
+        if (existingActive.id_atividade_atividades_timer === parsed.data.id_atividade) {
           // Timer já ativo nesta atividade — retorna estado atual
           if (!existingActive.data_pausa_atividades_timer) {
             return res.status(409).json({
@@ -304,7 +310,7 @@ timersRouter.post(
             data: { data_pausa_atividades_timer: null },
           })
           emitTimerEvent(tenantId, userId, 'timer:resumed', {
-            activity_id: parsed.data.activity_id,
+            activity_id: parsed.data.id_atividade,
             elapsed_seconds: calcElapsedSeconds(
               updated.data_inicio_atividades_timer,
               null,
@@ -350,7 +356,7 @@ timersRouter.post(
           data: {
             id_organizacao_atividades_timer:      tenantId,
             id_usuario_atividades_timer:          userId,
-            id_atividade_atividades_timer:        parsed.data.activity_id,
+            id_atividade_atividades_timer:        parsed.data.id_atividade,
             data_inicio_atividades_timer:         now,
             data_pausa_atividades_timer:          null,
             segundos_acumulados_atividades_timer: 0,
@@ -359,7 +365,7 @@ timersRouter.post(
       })
 
       emitTimerEvent(tenantId, userId, 'timer:started', {
-        activity_id: parsed.data.activity_id,
+        activity_id: parsed.data.id_atividade,
         started_at: now,
       })
 
@@ -371,12 +377,12 @@ timersRouter.post(
 )
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/timers/:activity_id/pause
+// POST /api/v1/atividades/:id_atividade/cronometro/pausar
 // Pausa o timer ativo.
 // ---------------------------------------------------------------------------
 
 timersRouter.post(
-  '/:activity_id/pause',
+  '/atividades/:id_atividade/cronometro/pausar',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = ParamActivityId.safeParse(req.params)
@@ -389,7 +395,7 @@ timersRouter.post(
         where: {
           id_organizacao_atividades_timer: tenantId,
           id_usuario_atividades_timer: userId,
-          id_atividade_atividades_timer: parsed.data.activity_id,
+          id_atividade_atividades_timer: parsed.data.id_atividade,
         },
       })
 
@@ -413,7 +419,7 @@ timersRouter.post(
       })
 
       emitTimerEvent(tenantId, userId, 'timer:paused', {
-        activity_id: parsed.data.activity_id,
+        activity_id: parsed.data.id_atividade,
         elapsed_seconds: elapsed,
       })
 
@@ -425,12 +431,12 @@ timersRouter.post(
 )
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/timers/:activity_id/stop
+// POST /api/v1/atividades/:id_atividade/cronometro/parar
 // Para e salva a sessão. Descarta se < 1 minuto.
 // ---------------------------------------------------------------------------
 
 timersRouter.post(
-  '/:activity_id/stop',
+  '/atividades/:id_atividade/cronometro/parar',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = ParamActivityId.safeParse(req.params)
@@ -443,7 +449,7 @@ timersRouter.post(
         where: {
           id_organizacao_atividades_timer: tenantId,
           id_usuario_atividades_timer: userId,
-          id_atividade_atividades_timer: parsed.data.activity_id,
+          id_atividade_atividades_timer: parsed.data.id_atividade,
         },
       })
 
@@ -464,7 +470,7 @@ timersRouter.post(
 
       if (durationMinutes < 1) {
         emitTimerEvent(tenantId, userId, 'timer:stopped', {
-          activity_id: parsed.data.activity_id,
+          activity_id: parsed.data.id_atividade,
           duration_minutes: 0,
           discarded: true,
         })
@@ -480,7 +486,7 @@ timersRouter.post(
         data: {
           id_organizacao_atividades_cronometro:  tenantId,
           id_usuario_atividades_cronometro:      userId,
-          id_atividade_atividades_cronometro:    parsed.data.activity_id,
+          id_atividade_atividades_cronometro:    parsed.data.id_atividade,
           id_produto_atividades_cronometro:      (req.body as { product_id?: string }).product_id ?? null,
           data_inicio_atividades_cronometro:     active.data_inicio_atividades_timer,
           data_fim_atividades_cronometro:        now,
@@ -490,7 +496,7 @@ timersRouter.post(
       })
 
       emitTimerEvent(tenantId, userId, 'timer:stopped', {
-        activity_id: parsed.data.activity_id,
+        activity_id: parsed.data.id_atividade,
         duration_minutes: durationMinutes,
         session_id: session.id_atividades_cronometro,
       })
@@ -503,12 +509,12 @@ timersRouter.post(
 )
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/timers/:activity_id/manual
+// POST /api/v1/atividades/:id_atividade/cronometro/lancar-manual
 // Lança tempo manualmente. Assunto obrigatório.
 // ---------------------------------------------------------------------------
 
 timersRouter.post(
-  '/:activity_id/manual',
+  '/atividades/:id_atividade/cronometro/lancar-manual',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const paramParsed = ParamActivityId.safeParse(req.params)
@@ -528,7 +534,7 @@ timersRouter.post(
         data: {
           id_organizacao_atividades_cronometro:  tenantId,
           id_usuario_atividades_cronometro:      userId,
-          id_atividade_atividades_cronometro:    paramParsed.data.activity_id,
+          id_atividade_atividades_cronometro:    paramParsed.data.id_atividade,
           id_produto_atividades_cronometro:      product_id ?? null,
           data_inicio_atividades_cronometro:     startedDate,
           data_fim_atividades_cronometro:        endedDate,
@@ -549,12 +555,12 @@ timersRouter.post(
 )
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/timers/sessions/:id
+// PATCH /api/v1/cronometros/sessoes/:id_sessao_cronometro
 // Edita assunto / vínculo de uma sessão existente.
 // ---------------------------------------------------------------------------
 
 timersRouter.patch(
-  '/sessions/:id',
+  '/cronometros/sessoes/:id_sessao_cronometro',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const paramParsed = ParamSessionId.safeParse(req.params)
@@ -567,7 +573,7 @@ timersRouter.patch(
 
       const existing = await prisma.atividadesCronometro.findFirst({
         where: {
-          id_atividades_cronometro:             paramParsed.data.id,
+          id_atividades_cronometro:             paramParsed.data.id_sessao_cronometro,
           id_organizacao_atividades_cronometro: tenantId,
           id_usuario_atividades_cronometro:     userId,
         },
@@ -575,7 +581,7 @@ timersRouter.patch(
       if (!existing) throw AppError.notFound('Sessão')
 
       const updated = await prisma.atividadesCronometro.update({
-        where: { id_atividades_cronometro: paramParsed.data.id },
+        where: { id_atividades_cronometro: paramParsed.data.id_sessao_cronometro },
         data: {
           ...(bodyParsed.data.subject !== undefined &&      { assunto_atividades_cronometro: bodyParsed.data.subject }),
           ...(bodyParsed.data.linked_type !== undefined &&  { tipo_vinculo_atividades_cronometro: bodyParsed.data.linked_type }),
@@ -592,12 +598,12 @@ timersRouter.patch(
 )
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/timers/sessions/:id
+// DELETE /api/v1/cronometros/sessoes/:id_sessao_cronometro
 // Deleta uma sessão.
 // ---------------------------------------------------------------------------
 
 timersRouter.delete(
-  '/sessions/:id',
+  '/cronometros/sessoes/:id_sessao_cronometro',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const paramParsed = ParamSessionId.safeParse(req.params)
@@ -607,14 +613,14 @@ timersRouter.delete(
 
       const existing = await prisma.atividadesCronometro.findFirst({
         where: {
-          id_atividades_cronometro:             paramParsed.data.id,
+          id_atividades_cronometro:             paramParsed.data.id_sessao_cronometro,
           id_organizacao_atividades_cronometro: tenantId,
           id_usuario_atividades_cronometro:     userId,
         },
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      await prisma.atividadesCronometro.delete({ where: { id_atividades_cronometro: paramParsed.data.id } })
+      await prisma.atividadesCronometro.delete({ where: { id_atividades_cronometro: paramParsed.data.id_sessao_cronometro } })
 
       return res.status(204).send()
     } catch (err) {
@@ -624,12 +630,12 @@ timersRouter.delete(
 )
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/timers/report
+// GET /api/v1/cronometros/relatorio
 // Relatório de horas por período, cliente e projeto.
 // NÃO duplica lógica do serviço relatorios — apenas agrega dados de sessões.
 // ---------------------------------------------------------------------------
 
-timersRouter.get('/report', async (req: Request, res: Response, next: NextFunction) => {
+timersRouter.get('/cronometros/relatorio', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const queryParsed = ReportQuerySchema.safeParse(req.query)
     if (!queryParsed.success) throw AppError.validation(queryParsed.error.errors[0].message)

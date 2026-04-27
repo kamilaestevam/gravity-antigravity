@@ -9,6 +9,7 @@ import { timersRouter } from './routes/timers.js'
 
 const router = Router()
 
-router.use('/api/v1/timers', timersRouter)
+// Onda API-1: paths absolutos no router (atividades/:id_atividade/cronometro/* + cronometros/*)
+router.use('/api/v1', timersRouter)
 
 export { router as cronometroServiceRouter }

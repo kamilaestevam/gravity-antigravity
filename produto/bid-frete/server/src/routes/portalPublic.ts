@@ -3,8 +3,8 @@
  * Acesso via token de resposta (sem login, sem internal key)
  * Para fornecedores que recebem email/whatsapp e respondem pelo link
  *
- * GET  /cotacao/:token     Ver detalhes da cotacao via token
- * POST /responder/:token   Responder cotacao via token
+ * GET  /:token_acesso             Ver detalhes da cotacao via token
+ * POST /:token_acesso/responder   Responder cotacao via token
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -33,11 +33,11 @@ const ResponderPublicSchema = z.object({
   })).optional(),
 })
 
-// GET /cotacao/:token — Ver cotacao via link publico
-router.get('/cotacao/:token', async (req: Request, res: Response, next: NextFunction) => {
+// GET /:token_acesso — Ver cotacao via link publico
+router.get('/:token_acesso', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const bidRequest = await prisma.bidRequest.findFirst({
-      where: { token_resposta: req.params.token } as any,
+      where: { token_resposta: req.params.token_acesso } as any,
       include: {
         cotacao: {
           select: {
@@ -76,14 +76,14 @@ router.get('/cotacao/:token', async (req: Request, res: Response, next: NextFunc
   }
 })
 
-// POST /responder/:token — Responder via link publico
-router.post('/responder/:token', async (req: Request, res: Response, next: NextFunction) => {
+// POST /:token_acesso/responder — Responder via link publico
+router.post('/:token_acesso/responder', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = ResponderPublicSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
     const bidRequest = await prisma.bidRequest.findFirst({
-      where: { token_resposta: req.params.token } as any,
+      where: { token_resposta: req.params.token_acesso } as any,
     } as any)
 
     if (!bidRequest) throw new AppError('Link invalido', 404)

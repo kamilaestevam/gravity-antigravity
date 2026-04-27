@@ -13,11 +13,11 @@ import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsSe
 export const hubRouter = Router()
 
 /**
- * GET /api/v1/hub/catalog
+ * GET /api/v1/hub/catalogo
  * Catálogo global de produtos — público, sem auth.
  * Qualquer usuário autenticado ou não pode ver o que existe na plataforma.
  */
-hubRouter.get('/catalog', async (_req, res, next) => {
+hubRouter.get('/catalogo', async (_req, res, next) => {
   try {
     const rows = await prisma.produtoGravity.findMany({
       select: {

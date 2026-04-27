@@ -1,6 +1,6 @@
 // server/routes/products.ts
-// GET /api/v1/products — Catálogo público de produtos (leitura)
-// CRUD exclusivo de admin via /api/admin/products (adminProducts.ts)
+// GET /api/v1/produtos — Catálogo público de produtos (leitura)
+// CRUD exclusivo de admin via /api/v1/admin/produtos-gravity (adminProducts.ts)
 
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
@@ -8,7 +8,7 @@ import { prisma } from '../lib/prisma.js'
 export const productsRouter = Router()
 
 /**
- * GET /api/v1/products
+ * GET /api/v1/produtos
  * Retorna produtos ATIVO e EM_BREVE — mesma fonte que o Admin (tabela ProdutoGravity)
  */
 productsRouter.get('/', async (_req, res) => {

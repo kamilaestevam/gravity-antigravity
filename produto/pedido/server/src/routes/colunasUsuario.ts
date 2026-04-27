@@ -4,13 +4,14 @@
  * Rota base: /api/v1/pedidos/colunas-usuario
  *
  * Endpoints:
- *   GET    /                   — listar colunas (filtra por visibilidade)
- *   POST   /                   — criar coluna
- *   PUT    /:id                — atualizar coluna (não muda tipo)
- *   DELETE /:id                — soft delete
- *   POST   /reordenar          — reordenar colunas em $transaction
- *   POST   /valores            — upsert de valores
- *   GET    /valores            — listar valores de um pedido/item
+ *   GET    /                                — listar colunas (filtra por visibilidade)
+ *   POST   /                                — criar coluna
+ *   PUT    /:id_coluna_usuario              — atualizar coluna (não muda tipo)
+ *   DELETE /:id_coluna_usuario              — soft delete
+ *   POST   /reordenar                       — reordenar colunas em $transaction
+ *   POST   /valores                         — upsert de valores
+ *   GET    /valores                         — listar valores de um pedido/item
+ *   POST   /analisar-via-gabi               — análise semântica via Gemini
  *
  * Segurança:
  *   - Zod valida toda entrada antes de tocar o banco
@@ -185,9 +186,9 @@ colunasUsuarioRouter.get('/valores', async (req: Request, res: Response, next: N
   }
 })
 
-// ── PUT /:id — atualizar coluna ───────────────────────────────────────────────
+// ── PUT /:id_coluna_usuario — atualizar coluna ────────────────────────────────
 
-colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+colunasUsuarioRouter.put('/:id_coluna_usuario', async (req: Request, res: Response, next: NextFunction) => {
   // Bloqueia tentativa de mudar tipo via corpo
   if ('tipo' in req.body) {
     return res.status(400).json({
@@ -215,7 +216,7 @@ colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextF
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const coluna = await service.atualizar(tenantId, req.params.id, parse.data, db)
+      const coluna = await service.atualizar(tenantId, req.params.id_coluna_usuario, parse.data, db)
       res.json(coluna)
     })
   } catch (err) {
@@ -223,12 +224,12 @@ colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextF
   }
 })
 
-// ── POST /gabi-analise — análise semântica via Gemini (GEMINI_GABI_ENABLED) ───
+// ── POST /analisar-via-gabi — análise semântica via Gemini (GEMINI_GABI_ENABLED) ─
 //
 // Quando GEMINI_GABI_ENABLED=false (padrão), retorna { gemini: false } e o
 // frontend usa a análise determinística local como fallback transparente.
 
-colunasUsuarioRouter.post('/gabi-analise', async (req: Request, res: Response, next: NextFunction) => {
+colunasUsuarioRouter.post('/analisar-via-gabi', async (req: Request, res: Response, next: NextFunction) => {
   const parse = GabiAnaliseSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({ message: 'Dados inválidos', details: parse.error.flatten() })
@@ -248,16 +249,16 @@ colunasUsuarioRouter.post('/gabi-analise', async (req: Request, res: Response, n
   }
 })
 
-// ── DELETE /:id — soft delete ─────────────────────────────────────────────────
+// ── DELETE /:id_coluna_usuario — soft delete ──────────────────────────────────
 
-colunasUsuarioRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+colunasUsuarioRouter.delete('/:id_coluna_usuario', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      await service.excluir(tenantId, req.params.id, db)
+      await service.excluir(tenantId, req.params.id_coluna_usuario, db)
       res.status(204).send()
     })
   } catch (err) {

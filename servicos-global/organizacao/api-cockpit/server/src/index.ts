@@ -40,8 +40,8 @@ app.get('/health', (req, res) => {
 app.use(rateLimitPresets.internal())
 
 // Routes
-// app.use('/api/v1/cockpit/tokens', tokensRouter)
-// app.use('/api/v1/cockpit/webhooks', webhooksRouter)
+// app.use('/api/v1/api-tokens', tokensRouter)
+// app.use('/api/v1/webhooks', webhooksRouter)
 // app.use('/api/v1/erp', erpRouter)
 app.use('/api/v1/cockpit/docs', requireInternalKey, docsRouter)
 app.use('/api/v1/cockpit/observability', observabilityRouter)

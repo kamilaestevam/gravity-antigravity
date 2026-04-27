@@ -28,7 +28,7 @@ interface ShareResult {
 // URLs dos serviços externos (contracts.json)
 // ---------------------------------------------------------------------------
 
-const EMAIL_URL = 'http://localhost:8022/api/v1/email/enviar'
+const EMAIL_URL = 'http://localhost:8022/api/v1/envios-email'
 const WHATSAPP_URL = 'http://localhost:3001/api/v1/whatsapp/enviar'
 
 // ---------------------------------------------------------------------------

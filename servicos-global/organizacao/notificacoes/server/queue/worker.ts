@@ -33,7 +33,7 @@ export async function dispatchEmail(payload: EmailJobPayload): Promise<void> {
   const timeout = setTimeout(() => controller.abort(), 10_000)
 
   try {
-    const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/email/enviar`, {
+    const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/envios-email`, {
       method: 'POST',
       signal: controller.signal,
       headers: {

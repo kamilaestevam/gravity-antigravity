@@ -99,9 +99,9 @@ export default function CadastrosGlobaisAdmin() {
     setErro(null)
     try {
       const [resMoedas, resUnidades, resNcm] = await Promise.all([
-        fetch('/api/v1/cadastros/moedas').then(r => r.json()),
-        fetch('/api/v1/cadastros/unidades').then(r => r.json()),
-        fetch('/api/v1/cadastros/ncm').then(r => r.json()),
+        fetch('/api/v1/moedas').then(r => r.json()),
+        fetch('/api/v1/unidades').then(r => r.json()),
+        fetch('/api/v1/ncm').then(r => r.json()),
       ])
       setMoedas(listaMoedasSchema.parse(resMoedas).itens)
       setUnidades(listaUnidadesSchema.parse(resUnidades).itens)

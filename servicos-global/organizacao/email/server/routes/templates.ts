@@ -1,9 +1,9 @@
 // server/routes/templates.ts
 // CRUD completo de templates de email editáveis por tenant.
-// GET    /api/v1/email/templates
-// POST   /api/v1/email/templates
-// PUT    /api/v1/email/templates/:id
-// DELETE /api/v1/email/templates/:id
+// GET    /api/v1/templates-email
+// POST   /api/v1/templates-email
+// PUT    /api/v1/templates-email/:id_template_email
+// DELETE /api/v1/templates-email/:id_template_email
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -30,7 +30,7 @@ const templateUpdateSchema = templateSchema.partial()
 // ---- Listar templates -------------------------------------------------------
 
 templatesRouter.get(
-  '/api/v1/email/templates',
+  '/api/v1/templates-email',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
     const { tenantId } = req.auth
@@ -47,7 +47,7 @@ templatesRouter.get(
 // ---- Criar template ---------------------------------------------------------
 
 templatesRouter.post(
-  '/api/v1/email/templates',
+  '/api/v1/templates-email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const parse = templateSchema.safeParse(req.body)
@@ -90,10 +90,10 @@ templatesRouter.post(
 // ---- Atualizar template -----------------------------------------------------
 
 templatesRouter.put(
-  '/api/v1/email/templates/:id',
+  '/api/v1/templates-email/:id_template_email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_template_email } = req.params
     const { tenantId } = req.auth
 
     const parse = templateUpdateSchema.safeParse(req.body)
@@ -103,7 +103,7 @@ templatesRouter.put(
 
     const existing = await prisma.templateEmail.findFirst({
       where: {
-        id_template_email: id,
+        id_template_email: id_template_email,
         id_organizacao_template_email: tenantId,
       },
     })
@@ -117,7 +117,7 @@ templatesRouter.put(
         where: {
           id_organizacao_template_email: tenantId,
           slug_template_email: parse.data.slug,
-          NOT: { id_template_email: id },
+          NOT: { id_template_email: id_template_email },
         },
       })
       if (slugConflict) {
@@ -136,7 +136,7 @@ templatesRouter.put(
     if (parse.data.ativo !== undefined) data.ativo_template_email = parse.data.ativo
 
     const updated = await prisma.templateEmail.update({
-      where: { id_template_email: id },
+      where: { id_template_email: id_template_email },
       data,
     })
 
@@ -147,15 +147,15 @@ templatesRouter.put(
 // ---- Deletar template -------------------------------------------------------
 
 templatesRouter.delete(
-  '/api/v1/email/templates/:id',
+  '/api/v1/templates-email/:id_template_email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_template_email } = req.params
     const { tenantId } = req.auth
 
     const existing = await prisma.templateEmail.findFirst({
       where: {
-        id_template_email: id,
+        id_template_email: id_template_email,
         id_organizacao_template_email: tenantId,
       },
     })
@@ -163,7 +163,7 @@ templatesRouter.delete(
       return next(new AppError('Template não encontrado', 404, 'TEMPLATE_NOT_FOUND'))
     }
 
-    await prisma.templateEmail.delete({ where: { id_template_email: id } })
+    await prisma.templateEmail.delete({ where: { id_template_email: id_template_email } })
 
     res.status(204).send()
   }

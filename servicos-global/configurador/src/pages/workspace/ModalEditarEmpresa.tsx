@@ -287,8 +287,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       }
 
       const url = modoEdicao
-        ? `/api/v1/cadastros/empresas/${empresa!.suid}`
-        : '/api/v1/cadastros/empresas'
+        ? `/api/v1/empresas/${empresa!.suid}`
+        : '/api/v1/empresas'
       const res = await fetch(url, {
         method: modoEdicao ? 'PUT' : 'POST',
         headers,

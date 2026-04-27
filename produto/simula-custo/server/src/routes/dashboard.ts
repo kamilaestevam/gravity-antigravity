@@ -1,5 +1,5 @@
 /**
- * dashboard.ts — Rotas GET /api/v1/dashboard/kpis e /api/v1/dashboard/recentes
+ * dashboard.ts — Rotas GET /api/v1/simula-custo/dashboard/kpis e /api/v1/simula-custo/dashboard/recentes
  * Adaptado de: servicos-global/tenant/dashboard/server/routes.ts
  *
  * Usa req.prisma (injetado pelo tenantIsolationMiddleware) — tenant_id já filtrado.
@@ -23,7 +23,7 @@ export const dashboardRouter = Router()
 // ─── Tipagem do req enriquecido pelo tenantIsolationMiddleware ─────────────────
 type TenantRequest = Request & { prisma: PrismaClient; tenantId: string }
 
-// ─── GET /api/v1/dashboard/kpis ───────────────────────────────────────────────
+// ─── GET /api/v1/simula-custo/dashboard/kpis ──────────────────────────────────
 dashboardRouter.get('/kpis', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantReq = req as TenantRequest
@@ -106,7 +106,7 @@ dashboardRouter.get('/kpis', async (req: Request, res: Response, next: NextFunct
   }
 })
 
-// ─── GET /api/v1/dashboard/recentes ──────────────────────────────────────────
+// ─── GET /api/v1/simula-custo/dashboard/recentes ─────────────────────────────
 dashboardRouter.get('/recentes', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantReq = req as TenantRequest

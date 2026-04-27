@@ -74,7 +74,7 @@ export function useDashboardLayout({
     previousLayoutRef.current = { ...pendingLayout }
 
     try {
-      const res = await fetch(`/api/v1/dashboard/configs/${configId}`, {
+      const res = await fetch(`/api/v1/dashboards/configs/${configId}`, {
         method: 'PUT',
         headers: getTenantHeaders(),
         body: JSON.stringify({ layout: updatedLayout }),

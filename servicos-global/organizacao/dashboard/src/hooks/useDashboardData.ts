@@ -54,7 +54,7 @@ export function useDashboardData({
     setWidgetError(widgetId, null)
 
     try {
-      const res = await fetch('/api/v1/dashboard/widgets/query', {
+      const res = await fetch('/api/v1/dashboards/widgets/executar-query', {
         method: 'POST',
         headers: getTenantHeaders(),
         body: JSON.stringify({ spec: querySpec }),

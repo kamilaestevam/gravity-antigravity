@@ -17,6 +17,6 @@ router.use('/api/v1/empresas',   empresasRouter)
 router.use('/api/v1/contatos',   contatosRouter)
 router.use('/api/v1/atividades', atividadesRouter)
 router.use('/api/v1/pipelines',  pipelinesRouter)
-router.use('/api/v1/kanban',     kanbanRouter)
+router.use('/api/v1/colunas-kanban', kanbanRouter)
 
 export { router as atividadesServiceRouter }

@@ -45,8 +45,8 @@ const listAlertQuerySchema = z.object({
     }),
 })
 
-// GET / — lista alertas do usuário
-alertRouter.get('/', async (req, res, next) => {
+// GET /alerts — lista alertas do usuário
+alertRouter.get('/alerts', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { dashboard_id, is_active } = listAlertQuerySchema.parse(req.query)
@@ -74,8 +74,8 @@ alertRouter.get('/', async (req, res, next) => {
   }
 })
 
-// POST / — cria alerta
-alertRouter.post('/', async (req, res, next) => {
+// POST /alerts — cria alerta
+alertRouter.post('/alerts', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const body = createAlertSchema.parse(req.body)
@@ -112,8 +112,8 @@ alertRouter.post('/', async (req, res, next) => {
   }
 })
 
-// PUT /:id — atualiza alerta
-alertRouter.put('/:id', async (req, res, next) => {
+// PUT /alerts/:id — atualiza alerta
+alertRouter.put('/alerts/:id', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { id } = req.params
@@ -148,8 +148,8 @@ alertRouter.put('/:id', async (req, res, next) => {
   }
 })
 
-// DELETE /:id — deleta alerta
-alertRouter.delete('/:id', async (req, res, next) => {
+// DELETE /alerts/:id — deleta alerta
+alertRouter.delete('/alerts/:id', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { id } = req.params
@@ -170,11 +170,12 @@ alertRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
-// POST /:id/test — testa alerta manualmente
-alertRouter.post('/:id/test', async (req, res, next) => {
+// POST /alertas/:id_alerta_dashboard/testar — testa alerta manualmente
+alertRouter.post('/alertas/:id_alerta_dashboard/testar', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
-    const { id } = req.params
+    const { id_alerta_dashboard } = req.params
+    const id = id_alerta_dashboard
 
     const alert = await req.prisma!.dashboardAlert.findFirst({
       where: { id, user_id: userId },

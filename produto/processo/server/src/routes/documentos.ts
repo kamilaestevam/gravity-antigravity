@@ -23,16 +23,16 @@ const CreateDocumentoSchema = z.object({
 })
 
 /**
- * GET /api/v1/documentos/processo/:processoId
+ * GET /api/v1/processos/:id_processo/documentos
  * Lista documentos de um processo.
  */
-documentosRouter.get('/processo/:processoId', async (req: Request, res: Response) => {
+documentosRouter.get('/processos/:id_processo/documentos', async (req: Request, res: Response) => {
   try {
     const prisma = (req as any).prisma
-    const { processoId } = req.params
+    const { id_processo } = req.params
     const categoria = req.query.categoria as string | undefined
 
-    const where: any = { processo_id: processoId }
+    const where: Record<string, unknown> = { processo_id: id_processo }
     if (categoria) where.categoria = categoria
 
     const data = await prisma.documento.findMany({
@@ -48,10 +48,10 @@ documentosRouter.get('/processo/:processoId', async (req: Request, res: Response
 })
 
 /**
- * POST /api/v1/documentos
+ * POST /api/v1/documentos-processo
  * Registra metadados de um documento.
  */
-documentosRouter.post('/', async (req: Request, res: Response) => {
+documentosRouter.post('/documentos-processo', async (req: Request, res: Response) => {
   const parsed = CreateDocumentoSchema.safeParse(req.body)
 
   if (!parsed.success) {
@@ -77,21 +77,21 @@ documentosRouter.post('/', async (req: Request, res: Response) => {
 })
 
 /**
- * DELETE /api/v1/documentos/:id
+ * DELETE /api/v1/documentos-processo/:id_documento_processo
  * Remove documento.
  */
-documentosRouter.delete('/:id', async (req: Request, res: Response) => {
+documentosRouter.delete('/documentos-processo/:id_documento_processo', async (req: Request, res: Response) => {
   try {
     const prisma = (req as any).prisma
-    const { id } = req.params
+    const { id_documento_processo } = req.params
 
     // Verifica se existe (tenant isolado)
-    const existing = await prisma.documento.findFirst({ where: { id } })
+    const existing = await prisma.documento.findFirst({ where: { id: id_documento_processo } })
     if (!existing) {
       return res.status(404).json({ error: 'Documento nao encontrado' })
     }
 
-    await prisma.documento.delete({ where: { id } })
+    await prisma.documento.delete({ where: { id: id_documento_processo } })
 
     res.json({ success: true, message: 'Documento removido' })
   } catch (err: unknown) {

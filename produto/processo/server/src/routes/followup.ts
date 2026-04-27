@@ -22,17 +22,17 @@ const CreateFollowUpSchema = z.object({
 })
 
 /**
- * GET /api/v1/follow-up/processo/:processoId
+ * GET /api/v1/processos/:id_processo/follow-ups
  * Lista follow-ups de um processo com filtros opcionais.
  */
-followUpRouter.get('/processo/:processoId', async (req: Request, res: Response) => {
+followUpRouter.get('/processos/:id_processo/follow-ups', async (req: Request, res: Response) => {
   try {
     const prisma = (req as any).prisma
-    const { processoId } = req.params
+    const { id_processo } = req.params
     const tipo = req.query.tipo as string | undefined
     const categoria = req.query.categoria as string | undefined
 
-    const where: any = { processo_id: processoId }
+    const where: Record<string, unknown> = { processo_id: id_processo }
     if (tipo) where.tipo = tipo
     if (categoria) where.categoria = categoria
 
@@ -49,10 +49,10 @@ followUpRouter.get('/processo/:processoId', async (req: Request, res: Response) 
 })
 
 /**
- * POST /api/v1/follow-up
+ * POST /api/v1/follow-ups-processo
  * Cria nova entrada de follow-up.
  */
-followUpRouter.post('/', async (req: Request, res: Response) => {
+followUpRouter.post('/follow-ups-processo', async (req: Request, res: Response) => {
   const parsed = CreateFollowUpSchema.safeParse(req.body)
 
   if (!parsed.success) {

@@ -13,7 +13,7 @@ const acaoSchema = z.object({
   conversationSnapshot: z.string().min(1)
 })
 
-acoesRouter.post('/api/v1/gabi/acoes', async (req, res, next) => {
+acoesRouter.post('/api/v1/gabi/acoes/executar', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth
     const { action, resource, payload, confirmed, conversationSnapshot } = acaoSchema.parse(req.body)

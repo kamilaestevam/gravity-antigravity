@@ -1,11 +1,11 @@
 /**
  * consolidar.ts — Rotas de consolidação de pedidos
  *
- * Rota base: /api/v1/pedidos/consolidar
+ * Rota base: /api/v1/pedidos/consolidacoes
  *
  * Endpoints:
- *   POST /api/v1/pedidos/consolidar/preview   — retorna divergências e sugestões
- *   POST /api/v1/pedidos/consolidar/confirmar — executa o merge real
+ *   POST /api/v1/pedidos/consolidacoes/preview   — retorna divergências e sugestões
+ *   POST /api/v1/pedidos/consolidacoes/confirmar — executa o merge real
  *
  * Regras de negócio:
  *   - Mínimo de 2 pedidos para consolidar

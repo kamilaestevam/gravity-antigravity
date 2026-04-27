@@ -1,6 +1,7 @@
 // server/routes/conexoes.ts
-// CRUD de conexões ERP — POST /conexoes, GET /conexoes, PATCH /conexoes/:id,
-// DELETE /conexoes/:id, POST /conexoes/testar.
+// CRUD de integrações ERP — POST /erp-integracoes, GET /erp-integracoes,
+// PATCH /erp-integracoes/:id_erp_integracao, DELETE /erp-integracoes/:id_erp_integracao,
+// POST /erp-integracoes/testar-conexao.
 //
 // SEGURANÇA: credenciais NUNCA retornadas em GET — só confirmação de existência.
 
@@ -39,9 +40,9 @@ const atualizarConexaoSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/erp/conexoes — criar nova conexão
+// POST /api/v1/erp-integracoes — criar nova conexão
 // ---------------------------------------------------------------------------
-conexoesRouter.post('/api/v1/erp/conexoes', async (req, res, next) => {
+conexoesRouter.post('/api/v1/erp-integracoes', async (req, res, next) => {
   try {
     const body = criarConexaoSchema.parse(req.body)
 
@@ -83,9 +84,9 @@ conexoesRouter.post('/api/v1/erp/conexoes', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/erp/conexoes — listar conexões do tenant
+// GET /api/v1/erp-integracoes — listar conexões do tenant
 // ---------------------------------------------------------------------------
-conexoesRouter.get('/api/v1/erp/conexoes', async (req, res, next) => {
+conexoesRouter.get('/api/v1/erp-integracoes', async (req, res, next) => {
   try {
     const { tenant_id, product_id } = req.query as Record<string, string>
 
@@ -127,11 +128,11 @@ conexoesRouter.get('/api/v1/erp/conexoes', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/erp/conexoes/:id — atualizar conexão
+// PATCH /api/v1/erp-integracoes/:id_erp_integracao — atualizar conexão
 // ---------------------------------------------------------------------------
-conexoesRouter.patch('/api/v1/erp/conexoes/:id', async (req, res, next) => {
+conexoesRouter.patch('/api/v1/erp-integracoes/:id_erp_integracao', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_erp_integracao } = req.params
     const { tenant_id } = req.query as { tenant_id: string }
 
     if (!tenant_id) {
@@ -142,7 +143,7 @@ conexoesRouter.patch('/api/v1/erp/conexoes/:id', async (req, res, next) => {
 
     // Verificar que pertence ao tenant
     const existente = await prisma.conexaoERP.findFirst({
-      where: { id, tenant_id },
+      where: { id: id_erp_integracao, tenant_id },
     })
     if (!existente) {
       throw new AppError('Conexão não encontrada', 404, 'NOT_FOUND')
@@ -166,7 +167,7 @@ conexoesRouter.patch('/api/v1/erp/conexoes/:id', async (req, res, next) => {
     )
 
     const atualizado = await prisma.conexaoERP.update({
-      where: { id },
+      where: { id: id_erp_integracao },
       data: cleanData,
       select: {
         id: true,
@@ -190,11 +191,11 @@ conexoesRouter.patch('/api/v1/erp/conexoes/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/erp/conexoes/:id — remover conexão
+// DELETE /api/v1/erp-integracoes/:id_erp_integracao — remover conexão
 // ---------------------------------------------------------------------------
-conexoesRouter.delete('/api/v1/erp/conexoes/:id', async (req, res, next) => {
+conexoesRouter.delete('/api/v1/erp-integracoes/:id_erp_integracao', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_erp_integracao } = req.params
     const { tenant_id } = req.query as { tenant_id: string }
 
     if (!tenant_id) {
@@ -202,13 +203,13 @@ conexoesRouter.delete('/api/v1/erp/conexoes/:id', async (req, res, next) => {
     }
 
     const existente = await prisma.conexaoERP.findFirst({
-      where: { id, tenant_id },
+      where: { id: id_erp_integracao, tenant_id },
     })
     if (!existente) {
       throw new AppError('Conexão não encontrada', 404, 'NOT_FOUND')
     }
 
-    await prisma.conexaoERP.delete({ where: { id } })
+    await prisma.conexaoERP.delete({ where: { id: id_erp_integracao } })
 
     res.json({ ok: true, message: 'Conexão removida com sucesso' })
   } catch (err) {
@@ -217,9 +218,9 @@ conexoesRouter.delete('/api/v1/erp/conexoes/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/erp/conexoes/testar — testar conectividade
+// POST /api/v1/erp-integracoes/testar-conexao — testar conectividade
 // ---------------------------------------------------------------------------
-conexoesRouter.post('/api/v1/erp/conexoes/testar', async (req, res, next) => {
+conexoesRouter.post('/api/v1/erp-integracoes/testar-conexao', async (req, res, next) => {
   try {
     const schema = z.object({
       tenant_id: z.string().min(1),

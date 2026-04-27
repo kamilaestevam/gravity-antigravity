@@ -1,11 +1,11 @@
 /**
- * lote.ts — Operações em lote sobre pedidos
+ * lote.ts — Operações em lote sobre pedidos (alteração de status)
  *
- * Rota base: /api/v1/pedidos/lote
+ * Rota base: /api/v1/pedidos/alteracoes-status-lote
  *
  * Endpoints:
- *   POST /status/preview   — simula mudança de status, retorna afetados/bloqueados
- *   POST /status/confirmar — aplica mudança de status em lote
+ *   POST /preview   — simula mudança de status, retorna afetados/bloqueados
+ *   POST /confirmar — aplica mudança de status em lote
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -27,9 +27,9 @@ const StatusConfirmarSchema = z.object({
   status_novo: z.enum(STATUS_VALIDOS),
 })
 
-// ── POST /status/preview ──────────────────────────────────────────────────────
+// ── POST /preview ─────────────────────────────────────────────────────────────
 
-loteRouter.post('/status/preview', async (req: Request, res: Response, next: NextFunction) => {
+loteRouter.post('/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = StatusPreviewSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -64,9 +64,9 @@ loteRouter.post('/status/preview', async (req: Request, res: Response, next: Nex
   }
 })
 
-// ── POST /status/confirmar ────────────────────────────────────────────────────
+// ── POST /confirmar ───────────────────────────────────────────────────────────
 
-loteRouter.post('/status/confirmar', async (req: Request, res: Response, next: NextFunction) => {
+loteRouter.post('/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = StatusConfirmarSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({

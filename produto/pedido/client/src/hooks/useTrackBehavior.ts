@@ -9,7 +9,7 @@
  *  - Widgets clicados (widget_clicked) — chamado manualmente
  *  - Insights clicados (insight_clicked) — chamado manualmente
  *
- * Fire-and-forget: POST para /behavior/track sem bloquear a UX.
+ * Fire-and-forget: POST para /eventos-comportamento sem bloquear a UX.
  * Falha silenciosa: erro de rede não propaga para o usuário.
  */
 
@@ -36,7 +36,7 @@ interface BehaviorPayload {
 async function sendEvent(event: BehaviorEventType, payload: BehaviorPayload): Promise<void> {
   try {
     const ctx = getApiContext()
-    await fetch('/api/v1/pedidos/behavior/track', {
+    await fetch('/api/v1/pedidos/eventos-comportamento', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

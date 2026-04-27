@@ -1,6 +1,6 @@
 // server/routes/threads.ts
-// GET /api/v1/email/threads — lista threads com filtros e paginação
-// GET /api/v1/email/threads/:id — detalhe de uma thread com mensagens
+// GET /api/v1/threads-email — lista threads com filtros e paginação
+// GET /api/v1/threads-email/:id_thread_email — detalhe de uma thread com mensagens
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -21,7 +21,7 @@ const listarSchema = z.object({
 })
 
 threadsRouter.get(
-  '/api/v1/email/threads',
+  '/api/v1/threads-email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const parse = listarSchema.safeParse(req.query)
@@ -59,15 +59,15 @@ threadsRouter.get(
 // ---- Detalhe de thread com mensagens ---------------------------------------
 
 threadsRouter.get(
-  '/api/v1/email/threads/:id',
+  '/api/v1/threads-email/:id_thread_email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_thread_email } = req.params
     const { tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
-        id_email_assuntos_participantes: id,
+        id_email_assuntos_participantes: id_thread_email,
         id_organizacao_email_assuntos_participantes: tenantId,
       },
       include: {
@@ -97,10 +97,10 @@ const statusSchema = z.object({
 })
 
 threadsRouter.patch(
-  '/api/v1/email/threads/:id/status',
+  '/api/v1/threads-email/:id_thread_email/status',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_thread_email } = req.params
     const { tenantId } = req.auth
 
     const parse = statusSchema.safeParse(req.body)
@@ -110,7 +110,7 @@ threadsRouter.patch(
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
-        id_email_assuntos_participantes: id,
+        id_email_assuntos_participantes: id_thread_email,
         id_organizacao_email_assuntos_participantes: tenantId,
       },
     })
@@ -120,7 +120,7 @@ threadsRouter.patch(
     }
 
     const updated = await prisma.emailAssuntosParticipantes.update({
-      where: { id_email_assuntos_participantes: id },
+      where: { id_email_assuntos_participantes: id_thread_email },
       data: { status_email_assuntos_participantes: parse.data.status },
     })
 

@@ -4,9 +4,9 @@
  * Rota base: /api/v1/pedidos/dashboard/widgets
  *
  * Endpoints:
- *   GET    /api/v1/pedidos/dashboard/widgets          — lista widgets do tenant
- *   PUT    /api/v1/pedidos/dashboard/widgets          — salva configuração completa
- *   DELETE /api/v1/pedidos/dashboard/widgets/:id      — remove widget
+ *   GET    /api/v1/pedidos/dashboard/widgets                                — lista widgets do tenant
+ *   PUT    /api/v1/pedidos/dashboard/widgets                                — salva configuração completa
+ *   DELETE /api/v1/pedidos/dashboard/widgets/:id_widget_dashboard_pedido    — remove widget
  *
  * Autenticação: x-internal-key + x-tenant-id (via shell)
  * Skill: skills/servicos/dashboard/SKILL.md
@@ -138,9 +138,9 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
 })
 
 // ── DELETE — remove widget individual ────────────────────────────────────────
-dashboardWidgetsRouter.delete('/:widgetId', async (req: Request, res: Response) => {
-  const { widgetId } = req.params
-  if (!widgetId) return res.status(400).json({ error: 'widgetId obrigatorio' })
+dashboardWidgetsRouter.delete('/:id_widget_dashboard_pedido', async (req: Request, res: Response) => {
+  const { id_widget_dashboard_pedido: widgetId } = req.params
+  if (!widgetId) return res.status(400).json({ error: 'id_widget_dashboard_pedido obrigatorio' })
 
   try {
     await withOrganizacao(req, async (rawDb) => {

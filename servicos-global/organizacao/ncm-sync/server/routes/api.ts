@@ -1,14 +1,25 @@
 /**
  * ncm-sync/server/routes/api.ts — Rotas REST do serviço NCM
  *
- * Montado em: /api/v1/ncm
+ * Montado em: /api/v1 (via routes.ts)
  *
- * GET  /buscar?q=...           — Busca local por código ou descrição (autocomplete)
- * GET  /validar/:codigo        — Valida NCM pontual (cache local + Portal Único fallback)
- * GET  /sync/status            — Status da última sincronização
- * GET  /sync/historico         — Histórico de syncs com paginação
- * POST /sync                   — Força sync manual (Admin only)
- * GET  /invalidos              — Lista NCMs do Pedido marcados como inválidos
+ * Onda API-1 (DDD): paths em PT espalhados por 3 prefixos sob /api/v1:
+ *   • /api/v1/ncm/...                          — operações NCM (busca, validação, inválidos)
+ *   • /api/v1/sincronizacoes-ncm/...           — sincronizações (status, histórico, disparar)
+ *   • /api/v1/admin/sincronizacoes-ncm/...     — operações admin (S2S via x-internal-key)
+ *
+ * GET  /ncm/buscar?q=...                                     — Busca local (autocomplete)
+ * GET  /ncm/:id_ncm/validar                                  — Valida NCM (cache + Portal Único)
+ * GET  /ncm/invalidos                                        — NCMs do Pedido inválidos
+ * GET  /sincronizacoes-ncm/status                            — Status da última sync (tenant)
+ * GET  /sincronizacoes-ncm/historico                         — Histórico de syncs (tenant)
+ * POST /sincronizacoes-ncm/disparar                          — Dispara sync manual
+ * GET  /admin/sincronizacoes-ncm/status                      — Status agregado (S2S)
+ * GET  /admin/sincronizacoes-ncm/historico                   — Histórico cross-tenant (S2S)
+ * POST /admin/sincronizacoes-ncm/sincronizar/:id_organizacao — Sync forçado por org (S2S)
+ * GET  /admin/sincronizacoes-ncm/agendamento                 — Lê configuração do agendamento
+ * PUT  /admin/sincronizacoes-ncm/agendamento                 — Salva configuração + reagenda
+ * POST /admin/sincronizacoes-ncm/agendamento/executar        — Execução manual imediata
  *
  * Onda 36 — DDD: campos físicos seguem sufixo _ncm_item / _ncm_log /
  * _ncm_agendamento. Camada DTO/ACL preserva contrato público histórico
@@ -64,7 +75,7 @@ const buscarSchema = z.object({
   limite: z.coerce.number().int().min(1).max(50).default(20),
 })
 
-apiRoutes.get('/buscar', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/ncm/buscar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
@@ -90,18 +101,18 @@ apiRoutes.get('/buscar', async (req: Request, res: Response, next: NextFunction)
   }
 })
 
-// ── GET /validar/:codigo ──────────────────────────────────────────────────────
+// ── GET /ncm/:id_ncm/validar ──────────────────────────────────────────────────
 
 const codigoSchema = z.string().regex(/^\d{8}$/, 'NCM deve ter 8 dígitos numéricos')
 
-apiRoutes.get('/validar/:codigo', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/ncm/:id_ncm/validar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
 
-    const codigoParsed = codigoSchema.safeParse(req.params.codigo)
+    const codigoParsed = codigoSchema.safeParse(req.params.id_ncm)
     if (!codigoParsed.success) {
-      return res.json({ valido: false, codigo: req.params.codigo, descricao: null,
+      return res.json({ valido: false, codigo: req.params.id_ncm, descricao: null,
         motivo: 'Formato inválido — NCM deve ter exatamente 8 dígitos' })
     }
 
@@ -151,9 +162,9 @@ apiRoutes.get('/validar/:codigo', async (req: Request, res: Response, next: Next
   }
 })
 
-// ── GET /sync/status ──────────────────────────────────────────────────────────
+// ── GET /sincronizacoes-ncm/status ────────────────────────────────────────────
 
-apiRoutes.get('/sync/status', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/sincronizacoes-ncm/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
@@ -165,14 +176,14 @@ apiRoutes.get('/sync/status', async (req: Request, res: Response, next: NextFunc
   }
 })
 
-// ── GET /sync/historico ───────────────────────────────────────────────────────
+// ── GET /sincronizacoes-ncm/historico ─────────────────────────────────────────
 
 const historicoSchema = z.object({
   pagina:   z.coerce.number().int().min(1).default(1),
   por_page: z.coerce.number().int().min(1).max(100).default(20),
 })
 
-apiRoutes.get('/sync/historico', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/sincronizacoes-ncm/historico', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
@@ -202,9 +213,9 @@ apiRoutes.get('/sync/historico', async (req: Request, res: Response, next: NextF
   }
 })
 
-// ── POST /sync — Force sync manual ───────────────────────────────────────────
+// ── POST /sincronizacoes-ncm/disparar — Force sync manual ────────────────────
 
-apiRoutes.post('/sync', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.post('/sincronizacoes-ncm/disparar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
@@ -250,11 +261,11 @@ apiRoutes.post('/sync', async (req: Request, res: Response, next: NextFunction) 
   }
 })
 
-// ── GET /admin/status — Aggregate status (internal key) ──────────────────────
+// ── GET /admin/sincronizacoes-ncm/status — Aggregate status (internal key) ───
 
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
 
-apiRoutes.get('/admin/status', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/admin/sincronizacoes-ncm/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
@@ -301,9 +312,9 @@ apiRoutes.get('/admin/status', async (req: Request, res: Response, next: NextFun
   }
 })
 
-// ── GET /admin/historico — All syncs across tenants (internal key) ────────────
+// ── GET /admin/sincronizacoes-ncm/historico — All syncs across tenants (S2S) ─
 
-apiRoutes.get('/admin/historico', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/admin/sincronizacoes-ncm/historico', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
@@ -334,17 +345,17 @@ apiRoutes.get('/admin/historico', async (req: Request, res: Response, next: Next
   }
 })
 
-// ── POST /admin/sync/:tenantId — Force sync for tenant (internal key) ─────────
+// ── POST /admin/sincronizacoes-ncm/sincronizar/:id_organizacao (S2S) ─────────
 
-apiRoutes.post('/admin/sync/:tenantId', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.post('/admin/sincronizacoes-ncm/sincronizar/:id_organizacao', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
       throw new AppError('Não autorizado', 403, 'FORBIDDEN')
     }
 
-    const tenantId = req.params.tenantId
-    if (!tenantId) throw new AppError('tenantId obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.params.id_organizacao
+    if (!tenantId) throw new AppError('id_organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const emAndamento = await prisma.ncmLog.findFirst({
       where:   {
@@ -369,9 +380,9 @@ apiRoutes.post('/admin/sync/:tenantId', async (req: Request, res: Response, next
   }
 })
 
-// ── GET /admin/schedule — Ler configuração do agendamento ────────────────────
+// ── GET /admin/sincronizacoes-ncm/agendamento — Ler configuração ─────────────
 
-apiRoutes.get('/admin/schedule', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/admin/sincronizacoes-ncm/agendamento', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
@@ -400,7 +411,7 @@ apiRoutes.get('/admin/schedule', async (req: Request, res: Response, next: NextF
   }
 })
 
-// ── PUT /admin/schedule — Salvar configuração e re-agendar job ────────────────
+// ── PUT /admin/sincronizacoes-ncm/agendamento — Salvar config + reagendar ────
 
 const scheduleBodySchema = z.object({
   ativo:          z.boolean(),
@@ -414,7 +425,7 @@ const scheduleBodySchema = z.object({
   })).default([]),
 })
 
-apiRoutes.put('/admin/schedule', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.put('/admin/sincronizacoes-ncm/agendamento', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
@@ -461,13 +472,13 @@ apiRoutes.put('/admin/schedule', async (req: Request, res: Response, next: NextF
   }
 })
 
-// ── POST /admin/schedule/execute — Execução manual imediata ──────────────────
+// ── POST /admin/sincronizacoes-ncm/agendamento/executar ──────────────────────
 
 const executeBodySchema = z.object({
   tenant_id: z.string().optional(), // se omitido: executa para todos os tenants
 })
 
-apiRoutes.post('/admin/schedule/execute', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.post('/admin/sincronizacoes-ncm/agendamento/executar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const key = req.headers['x-internal-key'] as string | undefined
     if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
@@ -528,14 +539,14 @@ apiRoutes.post('/admin/schedule/execute', async (req: Request, res: Response, ne
   }
 })
 
-// ── GET /invalidos — NCMs inválidos no Pedido ─────────────────────────────────
+// ── GET /ncm/invalidos — NCMs inválidos no Pedido ────────────────────────────
 
 const invalidosSchema = z.object({
   produto_id: z.string().optional(),
   limite:     z.coerce.number().int().min(1).max(200).default(50),
 })
 
-apiRoutes.get('/invalidos', async (req: Request, res: Response, next: NextFunction) => {
+apiRoutes.get('/ncm/invalidos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['x-tenant-id'] as string
     if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')

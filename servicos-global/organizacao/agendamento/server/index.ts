@@ -55,10 +55,10 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use('/api/v1/agenda', agendaRouter)
-app.use('/api/v1/slot', slotRouter)
-app.use('/api/v1/reserva', reservaRouter)
-app.use('/api/v1/config', configRouter)
+app.use('/api/v1/agendas', agendaRouter)
+app.use('/api/v1/agendas/:id_agenda/configuracao-disponibilidade', configRouter)
+app.use('/api/v1/agendas/:id_agenda/horarios-disponiveis', slotRouter)
+app.use('/api/v1/agendas/:id_agenda/reservas', reservaRouter)
 
 app.get('/health', (_req, res) => {
   res.json({

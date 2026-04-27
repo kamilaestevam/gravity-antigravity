@@ -1,11 +1,11 @@
 /**
  * credenciais.ts — CRUD de credenciais do Portal Unico Siscomex
  *
- * GET    /api/v1/credenciais              — Listar credenciais do tenant/company
- * POST   /api/v1/credenciais              — Criar credencial (certificado ou OAuth2)
- * PUT    /api/v1/credenciais/:id          — Atualizar credencial
- * DELETE /api/v1/credenciais/:id          — Revogar credencial
- * POST   /api/v1/credenciais/:id/testar   — Testar autenticacao
+ * GET    /api/v1/credenciais-portal-unico                                          — Listar credenciais do tenant/company
+ * POST   /api/v1/credenciais-portal-unico                                          — Criar credencial (certificado ou OAuth2)
+ * PUT    /api/v1/credenciais-portal-unico/:id_credencial_portal_unico              — Atualizar credencial
+ * DELETE /api/v1/credenciais-portal-unico/:id_credencial_portal_unico              — Revogar credencial
+ * POST   /api/v1/credenciais-portal-unico/:id_credencial_portal_unico/testar       — Testar autenticacao
  *
  * Certificados .pfx e senhas sao criptografados com AES-256-GCM.
  * JWT do Portal NUNCA persiste no banco — so cache em memoria.
@@ -154,12 +154,12 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
 // ── PUT /:id — Atualizar credencial ──────────────────────────────────────────
 
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id_credencial_portal_unico', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma } = ctx(req)
 
     const existing = await prisma.siscomexCredencial.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')
@@ -196,7 +196,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     await prisma.siscomexCredencial.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_credencial_portal_unico },
       data: updateData,
     })
 
@@ -204,24 +204,24 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     const auth = new PortalUnicoAuth(prisma)
     auth.invalidateCache(tenantId, existing.company_id)
 
-    res.json({ sucesso: true, id: req.params.id })
+    res.json({ sucesso: true, id: req.params.id_credencial_portal_unico })
   } catch (err) { next(err) }
 })
 
 // ── DELETE /:id — Revogar credencial ─────────────────────────────────────────
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_credencial_portal_unico', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.siscomexCredencial.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')
 
     await prisma.siscomexCredencial.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_credencial_portal_unico },
       data: { status: 'revogado' },
     })
 
@@ -235,12 +235,12 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 
 // ── POST /:id/testar — Testar autenticacao ───────────────────────────────────
 
-router.post('/:id/testar', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_credencial_portal_unico/testar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.siscomexCredencial.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')

@@ -25,7 +25,7 @@ async function executarSync(motivo: string) {
 
   for (const moeda of MOEDAS_SUPORTADAS) {
     try {
-      const { data } = await axios.get(`${BID_CAMBIO_URL}/api/v1/master-data/ptax`, {
+      const { data } = await axios.get(`${BID_CAMBIO_URL}/api/v1/cotacoes-ptax`, {
         params: { moeda },
         timeout: 12000,
       })

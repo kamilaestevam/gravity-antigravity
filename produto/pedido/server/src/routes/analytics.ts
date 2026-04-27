@@ -1,15 +1,15 @@
 /**
  * analytics.ts — Endpoint de integração nativa Power BI / BI externo
  *
- * Rota base: /api/v1/analytics/pedido
+ * Rota base: /api/v1/pedidos/analytics
  *
  * Endpoints:
- *   GET  /api/v1/analytics/pedido/metadata        — catálogo de campos (OData $metadata)
- *   GET  /api/v1/analytics/pedido/kpis            — KPIs agregados do período
- *   GET  /api/v1/analytics/pedido/trend           — série temporal (campo + granularidade)
- *   GET  /api/v1/analytics/pedido/distribution    — distribuição por status/campo categórico
- *   GET  /api/v1/analytics/pedido/items           — dados de itens agregados
- *   GET  /api/v1/analytics/pedido/raw             — dados brutos paginados (refresh Power BI)
+ *   GET  /api/v1/pedidos/analytics/metadados        — catálogo de campos (OData $metadata)
+ *   GET  /api/v1/pedidos/analytics/kpis             — KPIs agregados do período
+ *   GET  /api/v1/pedidos/analytics/tendencia        — série temporal (campo + granularidade)
+ *   GET  /api/v1/pedidos/analytics/distribuicao     — distribuição por status/campo categórico
+ *   GET  /api/v1/pedidos/analytics/itens            — dados de itens agregados
+ *   GET  /api/v1/pedidos/analytics/dataset-bruto    — dados brutos paginados (refresh Power BI)
  *
  * Formato de resposta: OData JSON v4 compatível (Power BI aceita nativamente)
  * Autenticação: Bearer <ANALYTICS_API_KEY> + x-tenant-id header
@@ -46,9 +46,9 @@ function periodToDateRange(period: string): { from: Date; to: Date } {
 
 // ── OData metadata ($metadata) ────────────────────────────────────────────────
 // Descreve o schema para o Power BI configurar tipos corretamente
-analyticsRouter.get('/metadata', (_req: Request, res: Response) => {
+analyticsRouter.get('/metadados', (_req: Request, res: Response) => {
   res.json({
-    '@odata.context': '/api/v1/analytics/pedido/$metadata',
+    '@odata.context': '/api/v1/pedidos/analytics/$metadata',
     '@odata.version': '4.0',
     'EntitySets': [
       {
@@ -154,7 +154,7 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
       )
 
       res.json({
-        '@odata.context': '/api/v1/analytics/pedido/$metadata#KPIs',
+        '@odata.context': '/api/v1/pedidos/analytics/$metadata#KPIs',
         period,
         date_range: { from: from.toISOString(), to: to.toISOString() },
         value: {
@@ -194,7 +194,7 @@ const TrendQuerySchema = z.object({
   granularity:  z.enum(['day', 'week', 'month']).default('month'),
 })
 
-analyticsRouter.get('/trend', async (req: Request, res: Response) => {
+analyticsRouter.get('/tendencia', async (req: Request, res: Response) => {
   const parse = TrendQuerySchema.safeParse(req.query)
   if (!parse.success) return res.status(400).json({ error: parse.error.flatten() })
 
@@ -247,7 +247,7 @@ analyticsRouter.get('/trend', async (req: Request, res: Response) => {
       }
 
       res.json({
-        '@odata.context': '/api/v1/analytics/pedido/$metadata#Trend',
+        '@odata.context': '/api/v1/pedidos/analytics/$metadata#Trend',
         period,
         granularity,
         'value@odata.count': Object.keys(buckets).length,
@@ -266,7 +266,7 @@ const DistributionQuerySchema = z.object({
   field:  z.enum(['status']).default('status'),
 })
 
-analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
+analyticsRouter.get('/distribuicao', async (req: Request, res: Response) => {
   const parse = DistributionQuerySchema.safeParse(req.query)
   if (!parse.success) return res.status(400).json({ error: parse.error.flatten() })
 
@@ -293,7 +293,7 @@ analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
       }
 
       res.json({
-        '@odata.context': '/api/v1/analytics/pedido/$metadata#Distribution',
+        '@odata.context': '/api/v1/pedidos/analytics/$metadata#Distribution',
         period,
         'value@odata.count': Object.keys(groups).length,
         value: Object.values(groups),
@@ -306,7 +306,7 @@ analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
 })
 
 // ── Dados de itens agregados ───────────────────────────────────────────────────
-analyticsRouter.get('/items', async (req: Request, res: Response) => {
+analyticsRouter.get('/itens', async (req: Request, res: Response) => {
   const period = (req.query.period as string) ?? '30d'
   const { from, to } = periodToDateRange(period)
 
@@ -331,7 +331,7 @@ analyticsRouter.get('/items', async (req: Request, res: Response) => {
       })
 
       res.json({
-        '@odata.context': '/api/v1/analytics/pedido/$metadata#ItensPedido',
+        '@odata.context': '/api/v1/pedidos/analytics/$metadata#ItensPedido',
         period,
         'value@odata.count': itens.length,
         value: itens,
@@ -350,7 +350,7 @@ const RawQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(10000).default(1000),
 })
 
-analyticsRouter.get('/raw', async (req: Request, res: Response) => {
+analyticsRouter.get('/dataset-bruto', async (req: Request, res: Response) => {
   const parse = RawQuerySchema.safeParse(req.query)
   if (!parse.success) return res.status(400).json({ error: parse.error.flatten() })
 
@@ -395,11 +395,11 @@ analyticsRouter.get('/raw', async (req: Request, res: Response) => {
 
       const totalPages = Math.ceil(total / pageSize)
       const nextLink = page < totalPages
-        ? `/api/v1/analytics/pedido/raw?period=${period}&page=${page + 1}&pageSize=${pageSize}`
+        ? `/api/v1/pedidos/analytics/dataset-bruto?period=${period}&page=${page + 1}&pageSize=${pageSize}`
         : undefined
 
       res.json({
-        '@odata.context':  '/api/v1/analytics/pedido/$metadata#Pedidos',
+        '@odata.context':  '/api/v1/pedidos/analytics/$metadata#Pedidos',
         '@odata.count':    total,
         '@odata.nextLink': nextLink,
         value: pedidos,

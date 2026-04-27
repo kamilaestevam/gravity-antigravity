@@ -1,6 +1,6 @@
 // server/routes/sincronizacao.ts
-// POST /api/v1/erp/sincronizar — disparar sincronização
-// GET  /api/v1/erp/sincronizacoes — listar logs de sincronização
+// POST /api/v1/sincronizacoes-erp/disparar — disparar sincronização
+// GET  /api/v1/sincronizacoes-erp — listar logs de sincronização
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -21,9 +21,9 @@ const sincronizarSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/erp/sincronizar — executar sincronização OData
+// POST /api/v1/sincronizacoes-erp/disparar — executar sincronização OData
 // ---------------------------------------------------------------------------
-sincronizacaoRouter.post('/api/v1/erp/sincronizar', async (req, res, next) => {
+sincronizacaoRouter.post('/api/v1/sincronizacoes-erp/disparar', async (req, res, next) => {
   try {
     const body = sincronizarSchema.parse(req.body)
 
@@ -93,9 +93,9 @@ sincronizacaoRouter.post('/api/v1/erp/sincronizar', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/erp/sincronizacoes — listar logs com filtros
+// GET /api/v1/sincronizacoes-erp — listar logs com filtros
 // ---------------------------------------------------------------------------
-sincronizacaoRouter.get('/api/v1/erp/sincronizacoes', async (req, res, next) => {
+sincronizacaoRouter.get('/api/v1/sincronizacoes-erp', async (req, res, next) => {
   try {
     const { tenant_id, product_id, status, limit = '20', offset = '0' } =
       req.query as Record<string, string>
@@ -122,11 +122,11 @@ sincronizacaoRouter.get('/api/v1/erp/sincronizacoes', async (req, res, next) => 
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/erp/sincronizacoes/:id — detalhe de uma sincronização
+// GET /api/v1/sincronizacoes-erp/:id_sincronizacao_erp — detalhe de uma sincronização
 // ---------------------------------------------------------------------------
-sincronizacaoRouter.get('/api/v1/erp/sincronizacoes/:id', async (req, res, next) => {
+sincronizacaoRouter.get('/api/v1/sincronizacoes-erp/:id_sincronizacao_erp', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_sincronizacao_erp } = req.params
     const { tenant_id } = req.query as { tenant_id: string }
 
     if (!tenant_id) {
@@ -134,7 +134,7 @@ sincronizacaoRouter.get('/api/v1/erp/sincronizacoes/:id', async (req, res, next)
     }
 
     const log = await prisma.sincronizacaoLog.findFirst({
-      where: { id, tenant_id },
+      where: { id: id_sincronizacao_erp, tenant_id },
     })
 
     if (!log) {

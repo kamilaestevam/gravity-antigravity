@@ -27,7 +27,7 @@ app.use(cors())
 // o HMAC). Por isso, a rota é montada ANTES do express.json() global. O
 // express.raw() aplicado dentro de webhookResendRoutes captura o stream antes que
 // o parser JSON tente consumi-lo.
-app.use('/api/webhooks/resend', webhookResendRoutes)
+app.use('/api/v1/notificacoes/webhook-resend', webhookResendRoutes)
 
 // JSON global — aplica-se a todas as rotas abaixo desta linha
 app.use(express.json())
@@ -39,7 +39,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'notificacoes
 app.use('/api/v1/notificacoes', apiRoutes)
 
 // Rotas S2S internas (x-internal-key)
-app.use('/api/v1/notificacoes/internal', internalRoutes)
+app.use('/api/v1/internal/notificacoes', internalRoutes)
 
 // Error Handler
 app.use(errorHandler)

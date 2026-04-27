@@ -2,8 +2,8 @@
 // Rotas do usuário autenticado (self).
 //
 // GET  /api/v1/me                → contexto completo: user + tenant + workspaces + produtos
-// GET  /api/v1/me/preferences    → { preferredCompanyId: string | null }
-// PUT  /api/v1/me/preferences    → atualiza workspace preferido (skip pós-login)
+// GET  /api/v1/me/preferencias   → { preferredCompanyId: string | null }
+// PUT  /api/v1/me/preferencias   → atualiza workspace preferido (skip pós-login)
 
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
@@ -190,7 +190,7 @@ async function isPreferredCompanyValid(
 }
 
 /**
- * GET /api/v1/me/preferences
+ * GET /api/v1/me/preferencias
  * Retorna o workspace preferido do usuário.
  *
  * Regras:
@@ -199,7 +199,7 @@ async function isPreferredCompanyValid(
  *     acesso, ou inativa), o campo é limpo silenciosamente no banco e o
  *     endpoint retorna null (fallback silencioso).
  */
-meRouter.get('/preferences', async (req, res, next) => {
+meRouter.get('/preferencias', async (req, res, next) => {
   try {
     // Fornecedor nunca tem preferido
     if (req.auth.role === 'FORNECEDOR') {
@@ -243,7 +243,7 @@ meRouter.get('/preferences', async (req, res, next) => {
 })
 
 /**
- * PUT /api/v1/me/preferences
+ * PUT /api/v1/me/preferencias
  * Atualiza ou remove o workspace preferido do usuário.
  *
  * Body: { preferredCompanyId: string | null }
@@ -255,7 +255,7 @@ meRouter.get('/preferences', async (req, res, next) => {
  *   - Só pode marcar company onde tem membership ATIVA.
  *   - Workspace deve pertencer ao mesmo tenant (cross-tenant bloqueado).
  */
-meRouter.put('/preferences', async (req, res, next) => {
+meRouter.put('/preferencias', async (req, res, next) => {
   try {
     // Camada 3 — Autorização: fornecedor não pode marcar preferido
     if (req.auth.role === 'FORNECEDOR') {

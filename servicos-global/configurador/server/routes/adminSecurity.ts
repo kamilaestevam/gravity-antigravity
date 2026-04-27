@@ -1,16 +1,16 @@
 // server/routes/adminSecurity.ts
 // Rotas do painel de Seguranca — gravity_admin only + rota interna S2S
 //
-// Admin (/api/admin/security/*) — requireAuth + requireGravityAdmin:
-//   GET  /overview   — consolidado (stats + health + ratelimit + secrets) em 1 request
-//   GET  /events     — eventos de seguranca (paginado, filtros)
-//   GET  /stats      — contadores agregados
-//   GET  /health     — health check agregado de todos os servicos
-//   GET  /ratelimit  — metricas de rate limiting ativas
-//   GET  /secrets    — status de rotacao de secrets
+// Admin (/api/v1/admin/eventos-seguranca/*) — requireAuth + requireGravityAdmin:
+//   GET  /visao-geral   — consolidado (stats + health + ratelimit + secrets) em 1 request
+//   GET  /              — eventos de seguranca (paginado, filtros)
+//   GET  /estatisticas  — contadores agregados
+//   GET  /health        — health check agregado de todos os servicos
+//   GET  /rate-limit    — metricas de rate limiting ativas
+//   GET  /segredos      — status de rotacao de secrets
 //
-// Internal (/api/internal/security/*) — requireInternalKey:
-//   POST /events     — registrar evento (chamado pelo securityAuditLogger do historico-global)
+// Internal (/api/v1/internal/eventos-seguranca/*) — requireInternalKey:
+//   POST /              — registrar evento (chamado pelo securityAuditLogger do historico-global)
 
 import { Router, type Request } from 'express'
 import { z } from 'zod'
@@ -251,10 +251,10 @@ function auditPanelAccess(req: Request, action: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// GET /overview — dados consolidados (uma request em vez de 5)
+// GET /visao-geral — dados consolidados (uma request em vez de 5)
 // ---------------------------------------------------------------------------
 
-adminSecurityRouter.get('/overview', async (req, res, next) => {
+adminSecurityRouter.get('/visao-geral', async (req, res, next) => {
   try {
     const [stats, health, ratelimit] = await Promise.all([
       fetchStats(),
@@ -272,7 +272,7 @@ adminSecurityRouter.get('/overview', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /events — listar eventos de seguranca
+// GET / — listar eventos de seguranca
 // ---------------------------------------------------------------------------
 
 const EventsQuerySchema = z.object({
@@ -283,7 +283,7 @@ const EventsQuerySchema = z.object({
   offset: z.coerce.number().min(0).default(0),
 })
 
-adminSecurityRouter.get('/events', async (req, res, next) => {
+adminSecurityRouter.get('/', async (req, res, next) => {
   try {
     const query = EventsQuerySchema.parse(req.query)
 
@@ -331,10 +331,10 @@ adminSecurityRouter.get('/events', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /stats — contadores agregados (ultimas 24h)
+// GET /estatisticas — contadores agregados (ultimas 24h)
 // ---------------------------------------------------------------------------
 
-adminSecurityRouter.get('/stats', async (_req, res, next) => {
+adminSecurityRouter.get('/estatisticas', async (_req, res, next) => {
   try {
     const stats = await fetchStats()
     res.json(stats)
@@ -344,10 +344,10 @@ adminSecurityRouter.get('/stats', async (_req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /ratelimit — metricas de rate limiting
+// GET /rate-limit — metricas de rate limiting
 // ---------------------------------------------------------------------------
 
-adminSecurityRouter.get('/ratelimit', async (_req, res, next) => {
+adminSecurityRouter.get('/rate-limit', async (_req, res, next) => {
   try {
     res.json(await fetchRateLimitMetrics())
   } catch (err) {
@@ -368,10 +368,10 @@ adminSecurityRouter.get('/health', async (_req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /secrets — status de rotacao de secrets
+// GET /segredos — status de rotacao de secrets
 // ---------------------------------------------------------------------------
 
-adminSecurityRouter.get('/secrets', (_req, res) => {
+adminSecurityRouter.get('/segredos', (_req, res) => {
   res.json(fetchSecretsSnapshot())
 })
 
@@ -385,7 +385,7 @@ adminSecurityRouter.get('/secrets', (_req, res) => {
 // compliance LGPD/SOC2 quebrado silenciosamente.
 //
 // Movida para `adminSecurityInternalRouter` abaixo, montada em
-// /api/internal/security/events com requireInternalKey.
+// /api/v1/internal/eventos-seguranca com requireInternalKey.
 // ---------------------------------------------------------------------------
 
 const CreateEventSchema = z.object({
@@ -404,7 +404,7 @@ const CreateEventSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
-adminSecurityInternalRouter.post('/events', requireInternalKey, async (req, res, next) => {
+adminSecurityInternalRouter.post('/', requireInternalKey, async (req, res, next) => {
   try {
     const data = CreateEventSchema.parse(req.body)
     // Prisma espera `InputJsonValue` para `metadata`; o Zod gera `Record<string, unknown>`.

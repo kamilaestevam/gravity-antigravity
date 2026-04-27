@@ -1,7 +1,7 @@
 /**
  * behaviorTracking.ts — Rota de rastreamento de comportamento do usuário
  *
- * POST /api/v1/pedidos/behavior/track
+ * POST /api/v1/pedidos/eventos-comportamento
  *
  * Registra eventos de interação do usuário para personalização dos GABI Insights (Fase 2).
  * Fire-and-forget do ponto de vista do cliente — retorna 204 imediatamente.
@@ -16,7 +16,7 @@ import { BehaviorEventSchema, trackBehaviorEvent } from '../services/behaviorTra
 export const behaviorTrackingRouter = Router()
 
 behaviorTrackingRouter.post(
-  '/api/v1/pedidos/behavior/track',
+  '/api/v1/pedidos/eventos-comportamento',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = BehaviorEventSchema.safeParse(req.body)

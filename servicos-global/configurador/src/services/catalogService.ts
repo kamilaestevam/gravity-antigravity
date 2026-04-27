@@ -6,7 +6,27 @@
 
 import { ProdutoCatalogo, NegociacaoEspecial } from '../types/entidades'
 
-const API_URL = '/api/v1/products'
+const API_URL = '/api/v1/produtos'
+
+// Shape do row de GlobalProduct vindo do backend (após response.json() — manter tolerante)
+type GlobalProductRaw = {
+  id: string
+  name: string
+  description?: string | null
+  slug: string
+  status: string
+  type_billing?: string | null
+  setup_price?: number | string | null
+  currency?: string | null
+  unit_price?: number | string | null
+  min_price?: number | string | null
+  total_price?: number | string | null
+  limit_users?: string | null
+  base_users?: number | null
+  help_desk_hours?: number | null
+  backend_module?: string | null
+  pricing_tiers?: string | unknown
+}
 
 export const catalogService = {
   // --- Produtos ---
@@ -17,7 +37,8 @@ export const catalogService = {
       const data = await response.json()
       
       // Adaptador para o formato do Frontend (Mapeia GlobalProduct do Prisma -> ProdutoCatalogo do UI)
-      return data.products.map((p: any) => ({
+      // p herda tipo de data.products (que vem como any de response.json())
+      return data.products.map((p: GlobalProductRaw) => ({
         id: p.id,
         nome: p.name,
         descricao: p.description || '',

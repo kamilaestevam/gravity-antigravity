@@ -154,7 +154,8 @@ const checkAuth = (req: Request, _res: Response, next: NextFunction) => {
 apiRoutes.use(checkAuth)
 
 // ─── Schemas Zod ─────────────────────────────────────────────────────────────
-const idParamSchema = z.object({ id: z.string().min(1) })
+const idNotificacaoParamSchema = z.object({ id_notificacao: z.string().min(1) })
+const idContatoParamSchema = z.object({ id_contato_notificacao: z.string().min(1) })
 const listQuerySchema = z.object({
   cursor: z.string().optional(),
   take: z.coerce.number().int().min(1).max(100).optional(),
@@ -264,14 +265,14 @@ apiRoutes.get('/stream', (req, res) => {
   req.on('error', cleanup)
 })
 
-// ─── PUT /:id/read ───────────────────────────────────────────────────────────
-apiRoutes.put('/:id/read', async (req, res, next) => {
+// ─── PUT /:id_notificacao/marcar-lida ────────────────────────────────────────
+apiRoutes.put('/:id_notificacao/marcar-lida', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
-    const { id } = idParamSchema.parse(req.params)
+    const { id_notificacao } = idNotificacaoParamSchema.parse(req.params)
     const result = await prisma.notificacoesTituloCorpo.updateMany({
       where: {
-        id_notificacoes_titulo_corpo:             id,
+        id_notificacoes_titulo_corpo:             id_notificacao,
         id_organizacao_notificacoes_titulo_corpo: tenant_id,
         id_usuario_notificacoes_titulo_corpo:     user_id,
       },
@@ -286,8 +287,8 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
   }
 })
 
-// ─── PUT /read-all ───────────────────────────────────────────────────────────
-apiRoutes.put('/read-all', async (req, res, next) => {
+// ─── PUT /marcar-todas-lidas ─────────────────────────────────────────────────
+apiRoutes.put('/marcar-todas-lidas', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     await prisma.notificacoesTituloCorpo.updateMany({
@@ -304,7 +305,7 @@ apiRoutes.put('/read-all', async (req, res, next) => {
   }
 })
 
-// ─── POST /send ─────────────────────────────────────────────────────────────
+// ─── POST /enviar ───────────────────────────────────────────────────────────
 const sendBodySchema = z.object({
   user_ids: z.array(z.string().min(1)).min(1).max(20),
   message: z.string().min(1).max(2000),
@@ -316,7 +317,7 @@ const sendBodySchema = z.object({
   recipient_emails: z.array(z.string().email()).max(20).optional(),
 })
 
-apiRoutes.post('/send', async (req, res, next) => {
+apiRoutes.post('/enviar', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     const body = sendBodySchema.parse(req.body)
@@ -398,15 +399,15 @@ apiRoutes.post('/send', async (req, res, next) => {
   }
 })
 
-// ─── DELETE /:id ─────────────────────────────────────────────────────────────
-apiRoutes.delete('/:id', async (req, res, next) => {
+// ─── DELETE /:id_notificacao ─────────────────────────────────────────────────
+apiRoutes.delete('/:id_notificacao', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
-    const { id } = idParamSchema.parse(req.params)
+    const { id_notificacao } = idNotificacaoParamSchema.parse(req.params)
 
     const result = await prisma.notificacoesTituloCorpo.deleteMany({
       where: {
-        id_notificacoes_titulo_corpo:             id,
+        id_notificacoes_titulo_corpo:             id_notificacao,
         id_organizacao_notificacoes_titulo_corpo: tenant_id,
         id_usuario_notificacoes_titulo_corpo:     user_id,
       },
@@ -426,7 +427,7 @@ apiRoutes.delete('/:id', async (req, res, next) => {
 // CONFIGURAÇÃO DE CANAIS
 // ════════════════════════════════════════════════════════════════════════════
 
-apiRoutes.get('/config', async (req, res, next) => {
+apiRoutes.get('/configuracao', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const config = await prisma.configuracaoCanalTenant.findUnique({
@@ -449,7 +450,7 @@ const channelConfigBodySchema = z.object({
   whatsapp_enabled: z.boolean().optional(),
 })
 
-apiRoutes.patch('/config', async (req, res, next) => {
+apiRoutes.patch('/configuracao', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     if ((req as Request & { auth?: { role?: string } }).auth?.role !== 'MASTER') {
@@ -502,7 +503,7 @@ const contactBodySchema = z.object({
   notes: z.string().max(500).optional(),
 })
 
-apiRoutes.get('/contacts', async (req, res, next) => {
+apiRoutes.get('/contatos', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const contacts = await prisma.contatoExterno.findMany({
@@ -524,7 +525,7 @@ apiRoutes.get('/contacts', async (req, res, next) => {
   }
 })
 
-apiRoutes.post('/contacts', async (req, res, next) => {
+apiRoutes.post('/contatos', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     const body = contactBodySchema.parse(req.body)
@@ -548,17 +549,17 @@ apiRoutes.post('/contacts', async (req, res, next) => {
   }
 })
 
-apiRoutes.patch('/contacts/:id', async (req, res, next) => {
+apiRoutes.patch('/contatos/:id_contato_notificacao', async (req, res, next) => {
   try {
     const { tenant_id } = req
-    const { id } = idParamSchema.parse(req.params)
+    const { id_contato_notificacao } = idContatoParamSchema.parse(req.params)
     const body = contactBodySchema.partial().parse(req.body)
     const existing = await prisma.contatoExterno.findFirst({
-      where: { id_contato_externo: id, id_organizacao_contato_externo: tenant_id },
+      where: { id_contato_externo: id_contato_notificacao, id_organizacao_contato_externo: tenant_id },
     })
     if (!existing) throw new AppError('Contato não encontrado', 404)
     const updated = await prisma.contatoExterno.update({
-      where: { id_contato_externo: id },
+      where: { id_contato_externo: id_contato_notificacao },
       data: {
         ...(body.name           !== undefined && { nome_contato_externo:              body.name }),
         ...(body.email          !== undefined && { email_contato_externo:             body.email          || null }),
@@ -577,12 +578,12 @@ apiRoutes.patch('/contacts/:id', async (req, res, next) => {
   }
 })
 
-apiRoutes.delete('/contacts/:id', async (req, res, next) => {
+apiRoutes.delete('/contatos/:id_contato_notificacao', async (req, res, next) => {
   try {
     const { tenant_id } = req
-    const { id } = idParamSchema.parse(req.params)
+    const { id_contato_notificacao } = idContatoParamSchema.parse(req.params)
     const result = await prisma.contatoExterno.deleteMany({
-      where: { id_contato_externo: id, id_organizacao_contato_externo: tenant_id },
+      where: { id_contato_externo: id_contato_notificacao, id_organizacao_contato_externo: tenant_id },
     })
     if (result.count === 0) throw new AppError('Contato não encontrado', 404)
     res.json({ status: 'success' })

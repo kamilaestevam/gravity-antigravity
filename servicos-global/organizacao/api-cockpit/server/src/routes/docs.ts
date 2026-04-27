@@ -10,7 +10,7 @@ const registry = new OpenAPIRegistry()
 
 registry.registerPath({
   method: 'get',
-  path: '/api/v1/cockpit/tokens',
+  path: '/api/v1/api-tokens',
   summary: 'List API Tokens',
   description: 'Retrieve all API tokens for the current tenant.',
   responses: {

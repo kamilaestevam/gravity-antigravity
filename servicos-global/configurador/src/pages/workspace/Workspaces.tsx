@@ -57,7 +57,7 @@ export function Workspaces() {
       try {
         setCarregando(true)
         const headers = await getAuthHeaders()
-        const res = await fetch('/api/v1/organizacao/companies', { headers })
+        const res = await fetch('/api/v1/organizacoes/me/workspaces', { headers })
         if (res.ok) {
           const { companies } = await res.json()
           setWorkspaces(companies.map((c: Record<string, unknown>) => ({
@@ -108,7 +108,7 @@ export function Workspaces() {
   async function handleAdd(dados: { nome: string; subdominio: string }) {
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch('/api/v1/organizacao/companies', {
+      const res = await fetch('/api/v1/organizacoes/me/workspaces', {
         method: 'POST',
         headers,
         body: JSON.stringify({ name: dados.nome, subdomain: dados.subdominio }),
@@ -148,7 +148,7 @@ export function Workspaces() {
       if (dados.subdominio) body.subdomain = dados.subdominio
       if (dados.cnpj) body.cnpj = dados.cnpj
 
-      const res = await fetch(`/api/v1/organizacao/companies/${empresaEditando.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${empresaEditando.id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify(body),
@@ -173,7 +173,7 @@ export function Workspaces() {
     const novoStatus = linha.status === 'Ativa' ? 'INATIVO' : 'ATIVO'
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacao/companies/${linha.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${linha.id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({ status: novoStatus }),
@@ -200,7 +200,7 @@ export function Workspaces() {
     if (!confirm(`Tem certeza que deseja excluir "${linha.nome}"? Esta ação não pode ser desfeita.`)) return
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacao/companies/${linha.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${linha.id}`, {
         method: 'DELETE',
         headers,
       })

@@ -92,7 +92,7 @@ export function Cronometro({
   tenantId,
   userId,
   productId,
-  apiBase = '/api/v1/timers',
+  apiBase = '/api/v1',
 }: CronometroProps) {
   const { t } = useTranslation()
 
@@ -118,7 +118,7 @@ export function Cronometro({
   // ---------------------------------------------------------------------------
 
   const loadSessions = useCallback(async () => {
-    const res = await apiFetch(`${apiBase}/${activityId}`, 'GET', tenantId, userId)
+    const res = await apiFetch(`${apiBase}/atividades/${activityId}/cronometro`, 'GET', tenantId, userId)
     if (!res.ok) return
     const data = await res.json() as { sessions: TimerSession[]; total_minutes: number }
     setSessions(data.sessions)
@@ -127,7 +127,7 @@ export function Cronometro({
 
   // Carrega timer ativo
   const loadActive = useCallback(async () => {
-    const res = await apiFetch(`${apiBase}/active`, 'GET', tenantId, userId)
+    const res = await apiFetch(`${apiBase}/cronometros/ativo`, 'GET', tenantId, userId)
     if (!res.ok) return
     const data = await res.json() as ActiveTimer
     if (data.active && data.activity_id === activityId) {
@@ -143,7 +143,7 @@ export function Cronometro({
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    const sse = new EventSource(`${apiBase}/stream`, {
+    const sse = new EventSource(`${apiBase}/cronometros/stream`, {
       // Adicionar headers via URL params (SSE não suporta custom headers diretamente)
       // Em produção, o gateway inject via cookie ou query param assinado
     })
@@ -212,7 +212,7 @@ export function Cronometro({
   // ---------------------------------------------------------------------------
 
   const handleStart = async () => {
-    const res = await apiFetch(`${apiBase}/${activityId}/start`, 'POST', tenantId, userId)
+    const res = await apiFetch(`${apiBase}/atividades/${activityId}/cronometro/iniciar`, 'POST', tenantId, userId)
     if (!res.ok) return
     const data = await res.json() as { timer: ActiveTimer }
     setActiveTimer({ active: true, activity_id: activityId, elapsed_seconds: 0, is_paused: false })
@@ -222,18 +222,18 @@ export function Cronometro({
   }
 
   const handlePause = async () => {
-    await apiFetch(`${apiBase}/${activityId}/pause`, 'POST', tenantId, userId)
+    await apiFetch(`${apiBase}/atividades/${activityId}/cronometro/pausar`, 'POST', tenantId, userId)
     setActiveTimer((prev) => ({ ...prev, is_paused: true }))
     window.dispatchEvent(new CustomEvent('timer:paused', { detail: { activity_id: activityId, user_id: userId, duration: elapsedSeconds } }))
   }
 
   const handleResume = async () => {
-    await apiFetch(`${apiBase}/${activityId}/start`, 'POST', tenantId, userId)
+    await apiFetch(`${apiBase}/atividades/${activityId}/cronometro/iniciar`, 'POST', tenantId, userId)
     setActiveTimer((prev) => ({ ...prev, is_paused: false }))
   }
 
   const handleStop = async () => {
-    const res = await apiFetch(`${apiBase}/${activityId}/stop`, 'POST', tenantId, userId)
+    const res = await apiFetch(`${apiBase}/atividades/${activityId}/cronometro/parar`, 'POST', tenantId, userId)
     if (!res.ok) return
     const data = await res.json() as { duration_minutes: number; discarded?: boolean }
     setActiveTimer({ active: false })
@@ -259,7 +259,7 @@ export function Cronometro({
       return
     }
 
-    const res = await apiFetch(`${apiBase}/${activityId}/manual`, 'POST', tenantId, userId, {
+    const res = await apiFetch(`${apiBase}/atividades/${activityId}/cronometro/lancar-manual`, 'POST', tenantId, userId, {
       duration_minutes: minutes,
       subject: manualSubject.trim(),
       product_id: productId,
@@ -281,7 +281,7 @@ export function Cronometro({
   // ---------------------------------------------------------------------------
 
   const handlePatchSubject = async (sessionId: string, subject: string) => {
-    await apiFetch(`${apiBase}/sessions/${sessionId}`, 'PATCH', tenantId, userId, { subject })
+    await apiFetch(`${apiBase}/cronometros/sessoes/${sessionId}`, 'PATCH', tenantId, userId, { subject })
     setSessions((prev) =>
       prev.map((s) => (s.id === sessionId ? { ...s, subject } : s))
     )
@@ -293,7 +293,7 @@ export function Cronometro({
 
   const handleDelete = async (sessionId: string) => {
     if (!window.confirm(t('cronometro.confirmar_remover'))) return
-    await apiFetch(`${apiBase}/sessions/${sessionId}`, 'DELETE', tenantId, userId)
+    await apiFetch(`${apiBase}/cronometros/sessoes/${sessionId}`, 'DELETE', tenantId, userId)
     await loadSessions()
   }
 

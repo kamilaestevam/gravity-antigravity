@@ -6,17 +6,18 @@
  * Cada serviço exporta apenas seu router — este arquivo os monta.
  *
  * Serviços:
- *   /api/v1/atividades      — CRM, tarefas, pipelines
- *   /api/v1/cronometro      — timer de sessões (via /api/v1/timers)
- *   /api/v1/email           — inbox unificada (Resend)
- *   /api/v1/gabi            — assistente IA (Gemini)
- *   /api/v1/dashboard       — widgets e KPIs consolidados
- *   /api/v1/relatorios      — relatórios customizados
- *   /api/v1/historico       — audit trail imutável
- *   /api/v1/notificacoes    — alertas multi-canal
- *   /api/v1/agendamento     — calendário por usuário
- *   /api/v1/preferencias    — preferências do usuário
- *   /api/v1/whatsapp        — Meta Cloud API
+ *   /api/v1/atividades              — CRM, tarefas, pipelines
+ *   /api/v1/atividades/:id/cronometro — timer de sessões
+ *   /api/v1/cronometros             — sessões individuais de cronômetro
+ *   /api/v1/threads-email           — inbox unificada (Resend)
+ *   /api/v1/gabi                    — assistente IA (Gemini)
+ *   /api/v1/dashboards              — widgets e KPIs consolidados
+ *   /api/v1/relatorios              — relatórios customizados
+ *   /api/v1/historico               — audit trail imutável
+ *   /api/v1/notificacoes            — alertas multi-canal
+ *   /api/v1/agendas                 — calendário por usuário
+ *   /api/v1/preferencias            — preferências do usuário
+ *   /api/v1/whatsapp                — Meta Cloud API
  *   /health                 — health check geral
  */
 
@@ -75,7 +76,7 @@ app.use(cors({
 }))
 
 // ── 2a. Raw body para webhook Resend (deve vir ANTES do express.json()) ───────
-app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))
+app.use('/api/v1/envios-email/webhook-provedor', express.raw({ type: 'application/json' }))
 
 // ── 3. Body Parser ────────────────────────────────────────────────────────────
 app.use(express.json())

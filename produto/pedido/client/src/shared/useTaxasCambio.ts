@@ -18,7 +18,7 @@ let _promise: Promise<TaxasVenda> | null = null
 async function fetchTaxas(): Promise<TaxasVenda> {
   if (_promise) return _promise
 
-  _promise = fetch('/api/v1/taxa-cambio')
+  _promise = fetch('/api/v1/taxas-cambio')
     .then(r => r.ok ? r.json() : null)
     .then((json: { por_moeda?: Record<string, Array<{ venda: string | number }>> } | null) => {
       const t: TaxasVenda = { BRL: 1 }

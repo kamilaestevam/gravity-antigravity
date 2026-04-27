@@ -75,7 +75,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Main router
 // ---------------------------------------------------------------------------
 
-app.use('/api/v1/dashboard', dashboardRouter)
+app.use('/api/v1/dashboards', dashboardRouter)
 
 // ---------------------------------------------------------------------------
 // Global Error Handler

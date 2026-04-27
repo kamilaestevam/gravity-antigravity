@@ -22,8 +22,8 @@ const FieldHelpBodySchema = z.object({
   contextoAdicional: z.string().max(1000).optional(),
 })
 
-// POST /api/v1/pedidos/gabi/field-help
-gabiProxyRouter.post('/api/v1/pedidos/gabi/field-help', async (req: Request, res: Response, next: NextFunction) => {
+// POST /api/v1/pedidos/gabi/ajuda-campo
+gabiProxyRouter.post('/api/v1/pedidos/gabi/ajuda-campo', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = FieldHelpBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -34,7 +34,7 @@ gabiProxyRouter.post('/api/v1/pedidos/gabi/field-help', async (req: Request, res
     const tenantId = (req as any).tenantId as string
     const userId   = (req as any).userId as string ?? 'anonymous'
 
-    const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/field-help`, {
+    const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/ajuda-campo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -85,13 +85,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/contatos/:id
+// GET /api/v1/contatos/:id_contato
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id_contato', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const contato = await db.contato.findFirst({ where: { id: req.params.id } })
+    const contato = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!contato) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
     res.json(contato)
   } catch (err) {
@@ -127,10 +127,10 @@ router.post('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/contatos/:id
+// PATCH /api/v1/contatos/:id_contato
 // ---------------------------------------------------------------------------
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id_contato', async (req, res, next) => {
   try {
     const result = updateContatoSchema.safeParse(req.body)
     if (!result.success) {
@@ -144,11 +144,11 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.contato.findFirst({ where: { id: req.params.id } })
+    const existing = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!existing) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
 
     const contato = await db.contato.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_contato },
       data: result.data,
     })
     res.json(contato)
@@ -158,16 +158,16 @@ router.patch('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/contatos/:id
+// DELETE /api/v1/contatos/:id_contato
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id_contato', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.contato.findFirst({ where: { id: req.params.id } })
+    const existing = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!existing) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
 
-    await db.contato.delete({ where: { id: req.params.id } })
+    await db.contato.delete({ where: { id: req.params.id_contato } })
     res.status(204).send()
   } catch (err) {
     next(err)

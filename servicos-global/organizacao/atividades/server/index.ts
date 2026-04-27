@@ -75,7 +75,7 @@ app.use('/api/v1/empresas', empresasRouter)
 app.use('/api/v1/contatos', contatosRouter)
 app.use('/api/v1/atividades', atividadesRouter)
 app.use('/api/v1/pipelines', pipelinesRouter)
-app.use('/api/v1/kanban', kanbanRouter)
+app.use('/api/v1/colunas-kanban', kanbanRouter)
 
 // ---------------------------------------------------------------------------
 // 6. Error handler — sempre o último

@@ -96,7 +96,7 @@ interface EventsResponse {
 }
 
 /**
- * Resposta consolidada do /api/admin/seguranca-admin/overview — elimina 5 requests
+ * Resposta consolidada do /api/v1/admin/eventos-seguranca/overview — elimina 5 requests
  * em paralelo por tick de polling. O endpoint /events continua separado porque
  * depende dos filtros da UI e é pesado demais para bundlar no overview.
  */
@@ -109,7 +109,7 @@ interface OverviewResponse {
 
 // ─── API helper ───────────────────────────────────────────────────────────
 
-const API_BASE = '/api/admin/seguranca-admin'
+const API_BASE = '/api/v1/admin/eventos-seguranca'
 
 class SecurityApiError extends Error {
   constructor(message: string, readonly status: number, readonly path: string) {

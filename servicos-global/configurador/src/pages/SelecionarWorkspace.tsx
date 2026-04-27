@@ -303,7 +303,7 @@ export function SelecionarWorkspace() {
    * Toggle do workspace preferido (substitui favoritos múltiplos).
    * Único por usuário — marcar B quando A era preferido desmarca A automaticamente.
    * Clicar no preferido atual desmarca (volta para null).
-   * Persiste no backend via PUT /api/v1/me/preferences.
+   * Persiste no backend via PUT /api/v1/me/preferencias.
    */
   const togglePreferred = useCallback(async (e: React.MouseEvent, wsId: string) => {
     e.stopPropagation()
@@ -316,7 +316,7 @@ export function SelecionarWorkspace() {
     try {
       const token = await getToken()
       if (!token) throw new Error('no_token')
-      const res = await fetch('/api/v1/me/preferences', {
+      const res = await fetch('/api/v1/me/preferencias', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -368,7 +368,7 @@ export function SelecionarWorkspace() {
 
         // Se auth falhar, ainda carrega o catálogo público para mostrar produtos disponíveis
         if (!res.ok) {
-          const catRes = await fetch('/api/v1/hub/catalog').catch(() => null)
+          const catRes = await fetch('/api/v1/hub/catalogo').catch(() => null)
           if (catRes?.ok) {
             const catData = await catRes.json()
             const catalogo: ProdutoCatalogo[] = (catData.catalog ?? []).map(
@@ -494,7 +494,7 @@ export function SelecionarWorkspace() {
                   // Fire-and-forget: promove no backend
                   const token2 = await getToken()
                   if (token2) {
-                    fetch('/api/v1/me/preferences', {
+                    fetch('/api/v1/me/preferencias', {
                       method: 'PUT',
                       headers: {
                         'Content-Type': 'application/json',

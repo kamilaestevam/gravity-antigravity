@@ -1,8 +1,8 @@
 // server/routes/companyProducts.ts
-// Gestão de produtos habilitados por workspace (Workspace)
-// GET    /api/v1/companies/:companyId/products              — Listar produtos do workspace
-// POST   /api/v1/companies/:companyId/products              — Ativar produto no workspace
-// DELETE /api/v1/companies/:companyId/products/:productKey  — Desativar produto no workspace
+// Gestão de produtos habilitados por workspace
+// GET    /api/v1/workspaces/:id_workspace/produtos                       — Listar produtos do workspace
+// POST   /api/v1/workspaces/:id_workspace/produtos                       — Ativar produto no workspace
+// DELETE /api/v1/workspaces/:id_workspace/produtos/:id_produto_gravity   — Desativar produto no workspace
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -17,12 +17,12 @@ const EnableProductSchema = z.object({
 })
 
 /**
- * GET /api/v1/companies/:companyId/products
+ * GET /api/v1/workspaces/:id_workspace/produtos
  * Lista produtos habilitados no workspace
  */
 companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const { companyId } = req.params
+    const { id_workspace: companyId } = req.params
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.empresa.findFirst({
@@ -101,12 +101,12 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/companies/:companyId/products
- * Ativa um produto no workspace (o tenant já precisa ter contratado o produto)
+ * POST /api/v1/workspaces/:id_workspace/produtos
+ * Ativa um produto no workspace (a organização já precisa ter contratado o produto)
  */
 companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
   try {
-    const { companyId } = req.params
+    const { id_workspace: companyId } = req.params
     const parsed = EnableProductSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError('product_key é obrigatório', 400, 'VALIDATION_ERROR')
@@ -176,12 +176,12 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/companies/:companyId/products/:productKey
+ * DELETE /api/v1/workspaces/:id_workspace/produtos/:id_produto_gravity
  * Desativa um produto no workspace (soft delete)
  */
-companyProductsRouter.delete('/:productKey', requireAuth, async (req, res, next) => {
+companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, res, next) => {
   try {
-    const { companyId, productKey } = req.params
+    const { id_workspace: companyId, id_produto_gravity: productKey } = req.params
 
     await prisma.produtoGravityWorkspace.updateMany({
       where: {

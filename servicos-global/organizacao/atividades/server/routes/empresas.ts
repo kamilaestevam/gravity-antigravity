@@ -85,13 +85,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/empresas/:id
+// GET /api/v1/empresas/:id_empresa
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id_empresa', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const empresa = await db.empresa.findFirst({ where: { id: req.params.id } })
+    const empresa = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!empresa) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     res.json(empresa)
   } catch (err) {
@@ -127,10 +127,10 @@ router.post('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/empresas/:id
+// PATCH /api/v1/empresas/:id_empresa
 // ---------------------------------------------------------------------------
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id_empresa', async (req, res, next) => {
   try {
     const result = updateEmpresaSchema.safeParse(req.body)
     if (!result.success) {
@@ -144,11 +144,11 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.empresa.findFirst({ where: { id: req.params.id } })
+    const existing = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!existing) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
 
     const empresa = await db.empresa.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_empresa },
       data: result.data,
     })
     res.json(empresa)
@@ -158,16 +158,16 @@ router.patch('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/empresas/:id
+// DELETE /api/v1/empresas/:id_empresa
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id_empresa', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.empresa.findFirst({ where: { id: req.params.id } })
+    const existing = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!existing) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
 
-    await db.empresa.delete({ where: { id: req.params.id } })
+    await db.empresa.delete({ where: { id: req.params.id_empresa } })
     res.status(204).send()
   } catch (err) {
     next(err)

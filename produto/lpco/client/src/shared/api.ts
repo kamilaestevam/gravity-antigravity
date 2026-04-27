@@ -166,7 +166,7 @@ export const smartReadApi = {
 export const simuladorApi = {
   simular: (ncm: string, operacao: 'IMPORTACAO' | 'EXPORTACAO') =>
     request<{ orgaos: Array<{ sigla: string; modelo: string; obrigatorio: boolean }> }>(
-      `/api/v1/simulador-ta?ncm=${ncm}&operacao=${operacao}`
+      `/api/v1/simulacoes-tratamento-administrativo?ncm=${ncm}&operacao=${operacao}`
     ),
 }
 
@@ -217,27 +217,27 @@ interface CredencialResumo {
 export const credenciaisApi = {
   listar: (companyId?: string) => {
     const query = companyId ? `?company_id=${companyId}` : ''
-    return request<{ data: CredencialResumo[] }>(`/api/v1/credenciais${query}`)
+    return request<{ data: CredencialResumo[] }>(`/api/v1/credenciais-portal-unico${query}`)
   },
 
   criar: (data: Record<string, unknown>) =>
-    request<{ id: string; tipo_auth: string; status: string }>('/api/v1/credenciais', {
+    request<{ id: string; tipo_auth: string; status: string }>('/api/v1/credenciais-portal-unico', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   atualizar: (id: string, data: Record<string, unknown>) =>
-    request<{ sucesso: boolean }>(`/api/v1/credenciais/${id}`, {
+    request<{ sucesso: boolean }>(`/api/v1/credenciais-portal-unico/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   revogar: (id: string) =>
-    request<{ sucesso: boolean }>(`/api/v1/credenciais/${id}`, { method: 'DELETE' }),
+    request<{ sucesso: boolean }>(`/api/v1/credenciais-portal-unico/${id}`, { method: 'DELETE' }),
 
   testar: (id: string) =>
     request<{ sucesso: boolean; metodo?: string; pode_escrita?: boolean; erro?: string }>(
-      `/api/v1/credenciais/${id}/testar`,
+      `/api/v1/credenciais-portal-unico/${id}/testar`,
       { method: 'POST' }
     ),
 }

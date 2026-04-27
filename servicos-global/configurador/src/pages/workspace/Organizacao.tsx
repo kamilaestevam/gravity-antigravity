@@ -133,8 +133,8 @@ export function Organizacao() {
 
         // Busca tenant e companies em paralelo
         const [tenantRes, companiesRes] = await Promise.all([
-          fetch('/api/v1/organizacao/me', { headers }),
-          fetch('/api/v1/organizacao/companies', { headers }),
+          fetch('/api/v1/organizacoes/me', { headers }),
+          fetch('/api/v1/organizacoes/me/workspaces', { headers }),
         ])
 
         if (tenantRes.ok) {
@@ -221,7 +221,7 @@ export function Organizacao() {
         } catch { /* sem token */ }
       }
 
-      const res = await fetch('/api/v1/organizacao/me', {
+      const res = await fetch('/api/v1/organizacoes/me', {
         method: 'PATCH',
         headers,
         body: JSON.stringify({

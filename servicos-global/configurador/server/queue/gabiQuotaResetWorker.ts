@@ -1,5 +1,5 @@
 // server/queue/gabiQuotaResetWorker.ts
-// Worker pg-boss: chama POST /api/v1/gabi/internal/quota-reset no dia 1 de cada mês
+// Worker pg-boss: chama POST /api/v1/internal/gabi/quota/resetar no dia 1 de cada mês
 // Zera tokens_usados das quotas do mês anterior
 
 import { getBoss } from '../../../tenant/historico-global/server/queue/pg-boss.js'
@@ -15,7 +15,7 @@ export async function startGabiQuotaResetWorker(): Promise<void> {
     { teamSize: 1, teamConcurrency: 1 },
     async () => {
       try {
-        const response = await fetch(`${GABI_SERVICE_URL}/api/v1/gabi/internal/quota-reset`, {
+        const response = await fetch(`${GABI_SERVICE_URL}/api/v1/internal/gabi/quota/resetar`, {
           method: 'POST',
           headers: {
             'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',

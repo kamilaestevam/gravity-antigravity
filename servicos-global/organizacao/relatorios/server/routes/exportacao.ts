@@ -38,10 +38,10 @@ function toExportJobDto(j: {
 }
 
 // ---- Iniciar Exportação (Assíncrono) ----
-exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+exportacaoRouter.post('/api/v1/relatorios/:id_relatorio/exportacoes', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth;
-    const { report_id } = req.params;
+    const { id_relatorio } = req.params;
 
     const parse = createExportSchema.safeParse(req.body);
     if (!parse.success) {
@@ -56,7 +56,7 @@ exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, as
         id_organizacao_exportar_job: tenantId,
         id_usuario_exportar_job: userId || null,
         id_produto_exportar_job: productId || null,
-        id_relatorio_exportar_job: report_id,
+        id_relatorio_exportar_job: id_relatorio,
         formato_exportar_job: formato,
         status_exportar_job: 'PENDING',
       },
@@ -76,14 +76,14 @@ exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, as
 });
 
 // ---- Consultar Status da Exportação ----
-exportacaoRouter.get('/api/v1/relatorios/export/:jobId', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+exportacaoRouter.get('/api/v1/relatorios/exportacoes/:id_exportacao_relatorio', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth;
-    const { jobId } = req.params;
+    const { id_exportacao_relatorio } = req.params;
 
     const job = await prisma.exportarJob.findFirst({
       where: {
-        id_exportar_job: jobId,
+        id_exportar_job: id_exportacao_relatorio,
         id_organizacao_exportar_job: tenantId,
         id_usuario_exportar_job: userId,
       },

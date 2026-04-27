@@ -89,13 +89,13 @@ tokensRouter.post('/', async (req, res, next) => {
   }
 })
 
-tokensRouter.delete('/:id', async (req, res, next) => {
+tokensRouter.delete('/:id_api_token', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const { id } = req.params
+    const { id_api_token } = req.params
 
     const token = await prisma.tokenAPI.findFirst({
-      where: { id, tenant_id: tenantId }
+      where: { id: id_api_token, tenant_id: tenantId }
     })
 
     if (!token) {
@@ -103,7 +103,7 @@ tokensRouter.delete('/:id', async (req, res, next) => {
     }
 
     await prisma.tokenAPI.update({
-      where: { id },
+      where: { id: id_api_token },
       data: { is_revoked: true, revoked_at: new Date() }
     })
 

@@ -34,7 +34,8 @@ app.use((req, _res, next) => {
 // Rotas
 // ---------------------------------------------------------------------------
 
-app.use('/api/v1/timers', timersRouter)
+// Onda API-1: paths absolutos no router (atividades/:id_atividade/cronometro/* + cronometros/*)
+app.use('/api/v1', timersRouter)
 
 // ---------------------------------------------------------------------------
 // Health check — monitorado pelo UptimeRobot a cada 5 minutos
@@ -62,7 +63,7 @@ app.use(errorHandler)
 app.listen(PORT, () => {
   console.log(`[CRONOMETRO] Serviço rodando na porta ${PORT}`)
   console.log(`[CRONOMETRO] Health check: http://localhost:${PORT}/health`)
-  console.log(`[CRONOMETRO] SSE stream:  http://localhost:${PORT}/api/v1/timers/stream`)
+  console.log(`[CRONOMETRO] SSE stream:  http://localhost:${PORT}/api/v1/cronometros/stream`)
 })
 
 export { app }

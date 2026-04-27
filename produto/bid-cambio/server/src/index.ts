@@ -87,7 +87,8 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // --- 5. Master Data — SEM autenticacao (moedas, PTAX sao dados publicos) ---
-app.use('/api/v1/master-data', masterDataRouter)
+// DDD: rotas tornam-se top-level (moedas, tipos-liquidacao, metodos-vencimento, cotacoes-ptax)
+app.use('/api/v1', masterDataRouter)
 
 // --- 6. Portal Publico da Corretora — SEM internal key (usa token de resposta) ---
 app.use('/api/v1/bid-cambio/portal/public', portalPublicRouter)

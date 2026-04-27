@@ -5,10 +5,10 @@
  * Rotas internas (caminhos absolutos, sem prefixo):
  *   GET/POST /api/v1/gabi/conversas
  *   GET/POST /api/v1/gabi/mensagens
- *   POST     /api/v1/gabi/chat
- *   POST     /api/v1/gabi/acoes
- *   GET      /api/v1/gabi/usage
- *   GET      /api/v1/gabi/field-help
+ *   POST     /api/v1/gabi/chats
+ *   POST     /api/v1/gabi/acoes/executar
+ *   GET      /api/v1/gabi/uso
+ *   POST     /api/v1/gabi/ajuda-campo
  */
 
 import { Router } from 'express'

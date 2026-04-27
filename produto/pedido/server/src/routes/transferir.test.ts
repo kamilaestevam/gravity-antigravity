@@ -105,7 +105,7 @@ const CONFIRMAR_RESULT = {
 // ── Testes funcionais via handler direto ──────────────────────────────────────
 // Importar os handlers diretamente para testar sem servidor HTTP completo
 
-describe('POST /transferir/preview — validação Zod', () => {
+describe('POST /transferencias/preview — validação Zod', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockPreview.mockResolvedValue(PREVIEW_RESULT)
@@ -201,7 +201,7 @@ describe('POST /transferir/preview — validação Zod', () => {
   })
 })
 
-describe('POST /transferir/confirmar — validação Zod', () => {
+describe('POST /transferencias/confirmar — validação Zod', () => {
   it('aceita numero_pedido_novo opcional', async () => {
     const { z } = await import('zod')
     const ConfirmarSchema = z.object({

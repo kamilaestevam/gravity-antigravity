@@ -66,7 +66,7 @@ app.use(errorHandler)
 app.listen(PORT, () => {
   console.log(`[CONECTOR_ERP] ✅ Rodando na porta ${PORT}`)
   console.log(`[CONECTOR_ERP]    Health: http://localhost:${PORT}/health`)
-  console.log(`[CONECTOR_ERP]    API:    http://localhost:${PORT}/api/v1/erp`)
+  console.log(`[CONECTOR_ERP]    API:    http://localhost:${PORT}/api/v1`)
 })
 
 export default app

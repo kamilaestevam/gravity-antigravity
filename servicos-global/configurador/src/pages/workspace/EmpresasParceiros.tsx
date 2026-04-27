@@ -164,7 +164,7 @@ export function EmpresasParceiros() {
     try {
       setCarregando(true)
       const headers = await getAuthHeaders(idOrganizacao)
-      const res = await fetch('/api/v1/cadastros/empresas?pagina=1&por_pagina=200', { headers })
+      const res = await fetch('/api/v1/empresas?pagina=1&por_pagina=200', { headers })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
         addNotification({
@@ -197,11 +197,11 @@ export function EmpresasParceiros() {
       const headers = await getAuthHeaders(idOrganizacao)
       // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo: true }.
       const res = empresa.ativo
-        ? await fetch(`/api/v1/cadastros/empresas/${empresa.suid}`, {
+        ? await fetch(`/api/v1/empresas/${empresa.suid}`, {
             method: 'DELETE',
             headers,
           })
-        : await fetch(`/api/v1/cadastros/empresas/${empresa.suid}`, {
+        : await fetch(`/api/v1/empresas/${empresa.suid}`, {
             method: 'PUT',
             headers,
             body: JSON.stringify({ ativo: true }),

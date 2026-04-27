@@ -1,9 +1,9 @@
 // server/routes/tenantProducts.ts
-// Ativação/desativação de produtos por tenant — gravity_admin only
-// Montado em /api/admin/tenants pelo index.ts
-// Ex: POST /api/admin/tenants/:tenantId/products/:productKey/activate
+// Ativação/desativação de produtos por organização — gravity_admin only
+// Montado em /api/v1/admin/organizacoes pelo index.ts
+// Ex: POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/ativar
 //
-// Gestão de produtos contratados por um tenant (self-service)
+// Self-service (montado em /api/v1/assinaturas — fora de escopo da API-1):
 // POST /api/v1/assinaturas/subscribe  — Contratar produto
 // GET  /api/v1/assinaturas            — Listar produtos contratados
 // DELETE /api/v1/assinaturas/:key     — Cancelar produto
@@ -68,10 +68,11 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/assinaturas/subscribe
- * Contrata um produto do catálogo para o tenant autenticado
+ * POST /api/v1/admin/organizacoes/assinar-produto
+ * (Self-service em /api/v1/assinaturas/assinar-produto — mesma rota, dois mounts)
+ * Contrata um produto do catálogo para a organização autenticada
  */
-tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
+tenantProductsRouter.post('/assinar-produto', requireAuth, async (req, res, next) => {
   try {
     const parsed = SubscribeSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -119,15 +120,16 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/assinaturas/:key
- * Cancela (desativa) um produto do tenant
+ * DELETE /api/v1/admin/organizacoes/:id_organizacao
+ * (Self-service em /api/v1/assinaturas/:id_organizacao — mesma rota, dois mounts)
+ * Cancela (desativa) um produto da organização
  */
-tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {
+tenantProductsRouter.delete('/:id_organizacao', requireAuth, async (req, res, next) => {
   try {
     await prisma.configuracaoProduto.updateMany({
       where: {
         id_organizacao_config_produto_gravity: req.auth.tenantId,
-        chave_produto_config_produto_gravity: req.params.key,
+        chave_produto_config_produto_gravity: req.params.id_organizacao,
       },
       data: { ativo_config_produto_gravity: false },
     })
@@ -144,13 +146,14 @@ const ActivateProductSchema = z.object({
 })
 
 /**
- * GET /api/admin/tenants/:tenantId/products
- * Lista produtos ativados para um tenant específico
+ * GET /api/v1/admin/organizacoes/:id_organizacao/produtos
+ * Lista produtos ativados para uma organização específica
  */
-tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin, async (req, res, next) => {
+tenantProductsRouter.get('/:id_organizacao/produtos', requireAuth, requireGravityAdmin, async (req, res, next) => {
   try {
+    const { id_organizacao: tenantId } = req.params
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: req.params.tenantId },
+      where: { id_organizacao: tenantId },
       select: { id_organizacao: true, nome_organizacao: true },
     })
     if (!tenant) {
@@ -158,7 +161,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
     }
 
     const configs = await prisma.configuracaoProduto.findMany({
-      where: { id_organizacao_config_produto_gravity: req.params.tenantId },
+      where: { id_organizacao_config_produto_gravity: tenantId },
       orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
@@ -180,11 +183,11 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
 })
 
 /**
- * POST /api/admin/tenants/:tenantId/products/:productKey/activate
- * Ativa um produto para um tenant
+ * POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/ativar
+ * Ativa um produto para uma organização
  */
 tenantProductsRouter.post(
-  '/:tenantId/products/:productKey/activate',
+  '/:id_organizacao/produtos/:id_produto_gravity/ativar',
   requireAuth,
   requireGravityAdmin,
   async (req, res, next) => {
@@ -198,21 +201,23 @@ tenantProductsRouter.post(
         )
       }
 
+      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+
       const tenant = await prisma.organizacao.findUnique({
-        where: { id_organizacao: req.params.tenantId },
+        where: { id_organizacao: tenantId },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       const config = await productConfigService.upsertConfig(
-        req.params.tenantId,
-        req.params.productKey,
+        tenantId,
+        productKey,
         parsed.data.config,
         true
       )
 
-      console.info(`[admin] produto ativado tenant_id=${req.params.tenantId} product_key=${req.params.productKey}`)
+      console.info(`[admin] produto ativado tenant_id=${tenantId} product_key=${productKey}`)
 
       res.json({ activated: true, config })
     } catch (err) {
@@ -222,28 +227,30 @@ tenantProductsRouter.post(
 )
 
 /**
- * POST /api/admin/tenants/:tenantId/products/:productKey/deactivate
- * Desativa um produto para um tenant
+ * POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/desativar
+ * Desativa um produto para uma organização
  */
 tenantProductsRouter.post(
-  '/:tenantId/products/:productKey/deactivate',
+  '/:id_organizacao/produtos/:id_produto_gravity/desativar',
   requireAuth,
   requireGravityAdmin,
   async (req, res, next) => {
     try {
+      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+
       const tenant = await prisma.organizacao.findUnique({
-        where: { id_organizacao: req.params.tenantId },
+        where: { id_organizacao: tenantId },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       await productConfigService.disableProduct(
-        req.params.tenantId,
-        req.params.productKey
+        tenantId,
+        productKey
       )
 
-      console.info(`[admin] produto desativado tenant_id=${req.params.tenantId} product_key=${req.params.productKey}`)
+      console.info(`[admin] produto desativado tenant_id=${tenantId} product_key=${productKey}`)
 
       res.json({ deactivated: true })
     } catch (err) {

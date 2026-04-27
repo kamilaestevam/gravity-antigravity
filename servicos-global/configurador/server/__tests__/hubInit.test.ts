@@ -114,11 +114,11 @@ beforeEach(() => {
   ])
 })
 
-// ─── GET /api/v1/hub/catalog ────────────────────────────────────────────────
+// ─── GET /api/v1/hub/catalogo ────────────────────────────────────────────────
 
-describe('GET /api/v1/hub/catalog', () => {
+describe('GET /api/v1/hub/catalogo', () => {
   it('retorna 200 com catalog vazio', async () => {
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('catalog')
     expect(Array.isArray(res.body.catalog)).toBe(true)
@@ -132,7 +132,7 @@ describe('GET /api/v1/hub/catalog', () => {
     ]
     prismaMock.produtoGravity.findMany.mockResolvedValue(mockCatalog)
 
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
     expect(res.body.catalog).toHaveLength(2)
     expect(res.body.catalog[0].slug).toBe('bid-cambio')
@@ -140,12 +140,12 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('não requer autenticação', async () => {
     // catalog é público — deve funcionar mesmo sem auth
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
   })
 
   it('chama prisma.produtoGravity.findMany com select correto', async () => {
-    await request.get('/api/v1/hub/catalog')
+    await request.get('/api/v1/hub/catalogo')
     expect(prismaMock.produtoGravity.findMany).toHaveBeenCalledWith({
       select: {
         id_produto_gravity: true,
@@ -160,7 +160,7 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('retorna 500 quando prisma falha', async () => {
     prismaMock.produtoGravity.findMany.mockRejectedValueOnce(new Error('DB connection lost'))
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(500)
   })
 })

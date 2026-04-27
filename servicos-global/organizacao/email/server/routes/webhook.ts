@@ -1,5 +1,5 @@
 // server/routes/webhook.ts
-// POST /api/v1/email/webhook — recebe inbound de emails via Resend Webhooks.
+// POST /api/v1/envios-email/webhook-provedor — recebe inbound de emails via Resend Webhooks.
 //
 // Pipeline:
 //  1) Valida assinatura HMAC com RESEND_WEBHOOK_SECRET
@@ -49,7 +49,7 @@ function extractDedupKeyFromAddress(address: string): string | null {
 // O servidor deve montar esta rota ANTES do json() middleware.
 
 webhookRouter.post(
-  '/api/v1/email/webhook',
+  '/api/v1/envios-email/webhook-provedor',
   async (req: Request, res: Response, next: NextFunction) => {
     const secret = process.env.RESEND_WEBHOOK_SECRET
     if (!secret) {

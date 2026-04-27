@@ -526,7 +526,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/products",
+        "rota": "/api/v1/admin/organizacoes/:id_organizacao/produtos",
         "status": 200
       },
       "resultadoEsperado": "API retorna 200",
@@ -629,7 +629,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/products/subscribe",
+        "rota": "/api/v1/admin/organizacoes/assinar-produto",
         "status": 201
       },
       "resultadoEsperado": "API retorna 201",

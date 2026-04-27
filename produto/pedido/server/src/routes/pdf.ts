@@ -1,11 +1,12 @@
 /**
  * pdf.ts — Rotas de Geração de PDF do Pedido
  *
- * Rota base: /api/v1/pedidos/pdf
+ * Rota base: /api/v1/pedidos/relatorios-pdf
  *
  * Endpoints:
- *   GET  /api/v1/pedidos/pdf/templates   — Lista templates disponíveis do tenant
- *   POST /api/v1/pedidos/pdf/gerar       — Gera PDF e salva como anexo
+ *   GET  /api/v1/pedidos/relatorios-pdf/templates           — Lista templates disponíveis do tenant
+ *   POST /api/v1/pedidos/relatorios-pdf/gerar               — Gera PDF e salva como anexo
+ *   POST /api/v1/pedidos/relatorios-pdf/documentos/gerar    — Gera documento por idioma/tipo
  *
  * Fluxo do POST /gerar:
  *   1. Buscar pedido + itens com tenant_id

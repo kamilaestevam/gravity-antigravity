@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
 
-export const agendaRouter = Router()
+export const agendaRouter = Router({ mergeParams: true })
 
 const agendaSchema = z.object({
   nome: z.string().min(1),
@@ -71,12 +71,12 @@ agendaRouter.get('/', async (req, res, next) => {
   }
 })
 
-agendaRouter.get('/:id', async (req, res, next) => {
+agendaRouter.get('/:id_agenda', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_agenda } = req.params
     const { tenantId } = req.auth
     const agenda = await prisma.agendaUsuario.findFirst({
-      where: { id_agenda_usuario: id, id_organizacao_agenda_usuario: tenantId },
+      where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },
     })
     if (!agenda) {
       throw new AppError('Agenda não encontrada', 404)
@@ -87,14 +87,14 @@ agendaRouter.get('/:id', async (req, res, next) => {
   }
 })
 
-agendaRouter.put('/:id', async (req, res, next) => {
+agendaRouter.put('/:id_agenda', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_agenda } = req.params
     const data = agendaSchema.partial().parse(req.body)
     const { tenantId } = req.auth
 
     const existing = await prisma.agendaUsuario.findFirst({
-      where: { id_agenda_usuario: id, id_organizacao_agenda_usuario: tenantId },
+      where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },
     })
     if (!existing) {
       throw new AppError('Agenda não encontrada', 404)
@@ -107,7 +107,7 @@ agendaRouter.put('/:id', async (req, res, next) => {
     if (data.product_id !== undefined) update.id_produto_agenda_usuario = data.product_id
 
     const agenda = await prisma.agendaUsuario.update({
-      where: { id_agenda_usuario: id },
+      where: { id_agenda_usuario: id_agenda },
       data: update,
     })
     res.json(toAgendaDto(agenda))
@@ -116,19 +116,19 @@ agendaRouter.put('/:id', async (req, res, next) => {
   }
 })
 
-agendaRouter.delete('/:id', async (req, res, next) => {
+agendaRouter.delete('/:id_agenda', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_agenda } = req.params
     const { tenantId } = req.auth
 
     const existing = await prisma.agendaUsuario.findFirst({
-      where: { id_agenda_usuario: id, id_organizacao_agenda_usuario: tenantId },
+      where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },
     })
     if (!existing) {
       throw new AppError('Agenda não encontrada', 404)
     }
 
-    await prisma.agendaUsuario.delete({ where: { id_agenda_usuario: id } })
+    await prisma.agendaUsuario.delete({ where: { id_agenda_usuario: id_agenda } })
     res.status(204).send()
   } catch (error) {
     next(error)

@@ -1,16 +1,17 @@
 // server/routes/admin.ts
-// Rotas exclusivas para gravity_admin — gestão de todos os tenants da plataforma
-// GET   /api/v1/admin/tenants       — listar todos os tenants
-// GET   /api/v1/admin/tenants/:id   — detalhes de um tenant
-// PATCH /api/v1/admin/tenants/:id   — atualizar status
-// GET   /api/v1/admin/stats         — estatísticas globais da plataforma
-// GET   /api/v1/admin/usuarios-globais         — listar todos os usuários de todos os tenants
-// GET   /api/v1/admin/financeiro-admin/invoices — listar faturas globais
-// GET   /api/v1/admin/deploy       — listar histórico de deploys
-// GET   /api/v1/admin/testes-gerais/logs     — listar logs de testes
-// POST  /api/v1/admin/testes-gerais/logs     — registrar resultados de um run de testes
-// GET   /api/v1/admin/visao-geral — dados da plataforma (Visão Geral Admin)
-// PUT   /api/v1/admin/visao-geral — atualizar dados da plataforma
+// Rotas exclusivas para gravity_admin — gestão de todas as organizações da plataforma
+// Montado em /api/v1/admin pelo index.ts
+// GET   /api/v1/admin/organizacoes                     — listar todas as organizações
+// GET   /api/v1/admin/organizacoes/:id_organizacao     — detalhes de uma organização
+// PATCH /api/v1/admin/organizacoes/:id_organizacao     — atualizar status
+// GET   /api/v1/admin/estatisticas-plataforma          — estatísticas globais da plataforma
+// GET   /api/v1/admin/usuarios-globais                 — listar todos os usuários
+// GET   /api/v1/admin/faturas                          — listar faturas globais
+// GET   /api/v1/admin/deploys                          — listar histórico de deploys
+// GET   /api/v1/admin/analises-erro                    — listar análises de erro de testes
+// POST  /api/v1/admin/analises-erro                    — registrar resultados de um run de testes
+// GET   /api/v1/admin/painel-visao-geral               — dados da plataforma (Visão Geral Admin)
+// PUT   /api/v1/admin/painel-visao-geral               — atualizar dados da plataforma
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -40,9 +41,9 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 
 // Rate limit extra-restritivo nas rotas de billing — operações financeiras
 // (create/void/send) disparam calls ao Stripe que têm rate limit próprio,
-// e o /admin/financeiro-admin/invoices pode ser usado para enumerar tenants via
-// customer_id. O preset admin (60 req/min por tenant:IP) evita flood.
-adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
+// e o /faturas pode ser usado para enumerar organizações via customer_id.
+// O preset admin (60 req/min por tenant:IP) evita flood.
+adminRouter.use('/faturas', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
   status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
@@ -63,10 +64,10 @@ const UpdateWorkspaceSchema = z.object({
 })
 
 /**
- * GET /api/admin/tenants
- * Lista todos os tenants da plataforma com paginação
+ * GET /api/v1/admin/organizacoes
+ * Lista todas as organizações da plataforma com paginação
  */
-adminRouter.get('/tenants', async (req, res, next) => {
+adminRouter.get('/organizacoes', async (req, res, next) => {
   try {
     const page = Number(req.query.page ?? 1)
     const limit = Number(req.query.limit ?? 20)
@@ -148,12 +149,12 @@ adminRouter.get('/tenants', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/tenants/:id
- * Detalhes completos de um tenant específico
+ * GET /api/v1/admin/organizacoes/:id_organizacao
+ * Detalhes completos de uma organização específica
  */
-adminRouter.get('/tenants/:id', async (req, res, next) => {
+adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
-    const idParsed = z.string().min(1).safeParse(req.params.id)
+    const idParsed = z.string().min(1).safeParse(req.params.id_organizacao)
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
     const tenant = await prisma.organizacao.findUnique({
@@ -238,10 +239,10 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/admin/tenants/:id
- * Atualiza status ou plano de um tenant (operação administrativa)
+ * PATCH /api/v1/admin/organizacoes/:id_organizacao
+ * Atualiza status ou plano de uma organização (operação administrativa)
  */
-adminRouter.patch('/tenants/:id', async (req, res, next) => {
+adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
     const parsed = UpdateTenantSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -252,20 +253,20 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       )
     }
 
-    // Impede que admin suspenda/cancele o próprio tenant HQ
-    if (req.params.id === req.auth.tenantId) {
-      throw new AppError('Não é possível alterar o status do próprio tenant HQ', 403, 'FORBIDDEN')
+    // Impede que admin suspenda/cancele a própria organização HQ
+    if (req.params.id_organizacao === req.auth.tenantId) {
+      throw new AppError('Não é possível alterar o status da própria organização HQ', 403, 'FORBIDDEN')
     }
 
     const existing = await prisma.organizacao.findUnique({
-      where: { id_organizacao: req.params.id },
+      where: { id_organizacao: req.params.id_organizacao },
     })
     if (!existing) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
     const tenant = await prisma.organizacao.update({
-      where: { id_organizacao: req.params.id },
+      where: { id_organizacao: req.params.id_organizacao },
       data: {
         ...(parsed.data.status_organizacao && { status_organizacao: parsed.data.status_organizacao }),
         ...(parsed.data.nome_organizacao && { nome_organizacao: parsed.data.nome_organizacao.trim() }),
@@ -299,10 +300,10 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/tenants
- * Cria uma nova organização (tenant) na plataforma
+ * POST /api/v1/admin/organizacoes
+ * Cria uma nova organização na plataforma
  */
-adminRouter.post('/tenants', async (req, res, next) => {
+adminRouter.post('/organizacoes', async (req, res, next) => {
   try {
     const parsed = CreateTenantSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -355,12 +356,12 @@ adminRouter.post('/tenants', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/admin/workspaces/:id
- * Atualiza status de um workspace (company) — operação administrativa
+ * PATCH /api/v1/admin/workspaces/:id_workspace
+ * Atualiza status de um workspace — operação administrativa
  */
-adminRouter.patch('/workspaces/:id', async (req, res, next) => {
+adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
   try {
-    const idParsed = z.string().min(1).safeParse(req.params.id)
+    const idParsed = z.string().min(1).safeParse(req.params.id_workspace)
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
     const parsed = UpdateWorkspaceSchema.safeParse(req.body)
@@ -410,10 +411,10 @@ adminRouter.patch('/workspaces/:id', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/stats
+ * GET /api/v1/admin/estatisticas-plataforma
  * Estatísticas globais da plataforma para o painel admin
  */
-adminRouter.get('/stats', async (_req, res, next) => {
+adminRouter.get('/estatisticas-plataforma', async (_req, res, next) => {
   try {
     const [
       totalTenants,
@@ -441,7 +442,7 @@ adminRouter.get('/stats', async (_req, res, next) => {
 })
 
 /**
- * GET /api/admin/usuarios-globais
+ * GET /api/v1/admin/usuarios-globais
  * Lista todos os usuários de todos os tenants da plataforma (gravity_admin)
  */
 const ListUsersQuerySchema = z.object({
@@ -576,10 +577,10 @@ const VoidInvoiceBodySchema = z.object({
 })
 
 /**
- * GET /api/admin/financeiro-admin/invoices
- * Lista invoices via BillingProvider (Stripe por padrão).
+ * GET /api/v1/admin/faturas
+ * Lista faturas via BillingProvider (Stripe por padrão).
  */
-adminRouter.get('/financeiro-admin/invoices', async (req, res, next) => {
+adminRouter.get('/faturas', async (req, res, next) => {
   try {
     const parsed = ListInvoicesQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -603,12 +604,12 @@ adminRouter.get('/financeiro-admin/invoices', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/financeiro-admin/invoices/:id
+ * GET /api/v1/admin/faturas/:id_fatura
  */
-adminRouter.get('/financeiro-admin/invoices/:id', async (req, res, next) => {
+adminRouter.get('/faturas/:id_fatura', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
-    const invoice = await provider.getInvoice(req.params.id)
+    const invoice = await provider.getInvoice(req.params.id_fatura)
     if (!invoice) {
       throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
     }
@@ -619,10 +620,10 @@ adminRouter.get('/financeiro-admin/invoices/:id', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices
+ * POST /api/v1/admin/faturas
  * Cria uma fatura manual via provider (Stripe).
  */
-adminRouter.post('/financeiro-admin/invoices', async (req, res, next) => {
+adminRouter.post('/faturas', async (req, res, next) => {
   try {
     const parsed = CreateInvoiceBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -656,10 +657,10 @@ adminRouter.post('/financeiro-admin/invoices', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices/:id/void
+ * POST /api/v1/admin/faturas/:id_fatura/anular
  * Anula uma fatura. Stripe: void_invoice. Manual: soft-delete.
  */
-adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) => {
+adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
   try {
     const parsed = VoidInvoiceBodySchema.safeParse(req.body ?? {})
     if (!parsed.success) {
@@ -667,7 +668,7 @@ adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) =
     }
 
     const provider = getBillingProvider()
-    const invoice = await provider.voidInvoice({ id: req.params.id, reason: parsed.data.reason })
+    const invoice = await provider.voidInvoice({ id: req.params.id_fatura, reason: parsed.data.reason })
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -692,13 +693,13 @@ adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) =
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices/:id/send
+ * POST /api/v1/admin/faturas/:id_fatura/enviar
  * Envia a fatura ao cliente (email).
  */
-adminRouter.post('/financeiro-admin/invoices/:id/send', async (req, res, next) => {
+adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
-    const invoice = await provider.sendInvoice(req.params.id)
+    const invoice = await provider.sendInvoice(req.params.id_fatura)
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -748,10 +749,10 @@ const CreateDeployBodySchema = z.object({
 })
 
 /**
- * GET /api/admin/deploy
+ * GET /api/v1/admin/registros-deploy
  * Lista histórico de deploys com paginação + filtros.
  */
-adminRouter.get('/deploy', async (req, res, next) => {
+adminRouter.get('/registros-deploy', async (req, res, next) => {
   try {
     const parsed = ListDeploysQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -766,10 +767,10 @@ adminRouter.get('/deploy', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/deploy
+ * POST /api/v1/admin/registros-deploy
  * Registra um deploy manualmente. deployed_by vem do req.auth (snapshot do admin).
  */
-adminRouter.post('/deploy', async (req, res, next) => {
+adminRouter.post('/registros-deploy', async (req, res, next) => {
   try {
     const parsed = CreateDeployBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -797,28 +798,28 @@ adminRouter.post('/deploy', async (req, res, next) => {
 })
 
 /**
- * DELETE /api/admin/deploy/:id
+ * DELETE /api/v1/admin/registros-deploy/:id_deploy
  * Remove um registro de deploy (audit mantido via logEvent do frontend).
  */
-adminRouter.delete('/deploy/:id', async (req, res, next) => {
+adminRouter.delete('/registros-deploy/:id_deploy', async (req, res, next) => {
   try {
-    const existing = await deployLogService.getById(req.params.id)
+    const existing = await deployLogService.getById(req.params.id_deploy)
     if (!existing) {
       throw new AppError('Deploy não encontrado', 404, 'NOT_FOUND')
     }
-    await deployLogService.delete(req.params.id)
-    res.json({ deleted: true, id: req.params.id })
+    await deployLogService.delete(req.params.id_deploy)
+    res.json({ deleted: true, id: req.params.id_deploy })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * GET /api/admin/testes-gerais/plans
+ * GET /api/v1/admin/testes-gerais/planos
  * Lista os planos de teste disponíveis, opcionalmente filtrados por produto.
  * Query: ?product=configurador
  */
-adminRouter.get('/testes-gerais/plans', (_req, res, next) => {
+adminRouter.get('/testes-gerais/planos', (_req, res, next) => {
   try {
     const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'testes-e2e', 'test-plans-registry.json')
     let plans: unknown[] = []
@@ -840,7 +841,7 @@ adminRouter.get('/testes-gerais/plans', (_req, res, next) => {
 })
 
 /**
- * GET /api/admin/testes-gerais/logs
+ * GET /api/v1/admin/testes-gerais/logs
  * Lista logs de testes — lê da tabela Testes se existir;
  * fallback: lê todos os arquivos JSON em data/test-logs/
  */
@@ -941,7 +942,7 @@ function buildSafeTestEnv(): Record<string, string> {
 }
 
 /**
- * POST /api/admin/testes-gerais/run
+ * POST /api/v1/admin/testes-gerais/executar
  * Dispara os testes Playwright em background e persiste os resultados.
  * Retorna imediatamente com { started: true }.
  * Requer SUPER_ADMIN: dispara spawn pesado com acesso ao monorepo.
@@ -951,7 +952,7 @@ const RunTestsSchema = z.object({
   planos:  z.array(z.string().max(100)).optional(),
 })
 
-adminRouter.post('/testes-gerais/run', async (req, res, next) => {
+adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
   try {
     // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
     // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
@@ -1104,15 +1105,15 @@ adminRouter.post('/testes-gerais/run', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/testes-gerais/run/status
+ * GET /api/v1/admin/testes-gerais/executar/status
  * Verifica se há um run em andamento.
  */
-adminRouter.get('/testes-gerais/run/status', (_req, res) => {
+adminRouter.get('/testes-gerais/executar/status', (_req, res) => {
   res.json({ running: pwRunning })
 })
 
 /**
- * POST /api/admin/testes-gerais/logs
+ * POST /api/v1/admin/testes-gerais/logs
  * Registra resultados de um run de testes (Playwright, Vitest, etc.)
  * Tenta salvar no banco; se Testes não existir, salva em arquivo JSON local.
  */
@@ -1215,7 +1216,7 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/visao-geral
+ * GET /api/v1/admin/visao-geral
  * Dados da plataforma para a Visão Geral Admin (tenant HQ do gravity_admin)
  */
 adminRouter.get('/visao-geral', async (req, res, next) => {
@@ -1276,7 +1277,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 })
 
 /**
- * PUT /api/admin/visao-geral
+ * PUT /api/v1/admin/visao-geral
  * Atualiza dados cadastrais da plataforma (tenant HQ)
  */
 const PlatformConfigSchema = z.object({
@@ -1289,7 +1290,7 @@ const PlatformConfigSchema = z.object({
 })
 
 /**
- * POST /api/admin/usuarios-globais/:userId/promote
+ * POST /api/v1/admin/usuarios-globais/:id_usuario/promover
  * Promove um usuário para SUPER_ADMIN ou ADMIN.
  * Apenas SUPER_ADMIN pode chamar este endpoint.
  */
@@ -1297,7 +1298,7 @@ const PromoteSchema = z.object({
   role: z.enum(['SUPER_ADMIN', 'ADMIN']),
 })
 
-adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => {
+adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next) => {
   try {
     // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
     if (req.auth.role !== 'SUPER_ADMIN') {
@@ -1314,12 +1315,12 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
     }
 
     // Impede auto-promoção/alteração
-    if (req.params.userId === req.auth.userId) {
+    if (req.params.id_usuario === req.auth.userId) {
       throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
     }
 
     const user = await prisma.usuario.findUnique({
-      where: { id_usuario: req.params.userId },
+      where: { id_usuario: req.params.id_usuario },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
     })
     if (!user || user.id_organizacao_usuario !== req.auth.tenantId) {
@@ -1327,13 +1328,13 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
     }
 
     const updated = await prisma.usuario.update({
-      where: { id_usuario: req.params.userId },
+      where: { id_usuario: req.params.id_usuario },
       data: { tipo_usuario: parsed.data.role },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
-      targetUserId: req.params.userId,
+      targetUserId: req.params.id_usuario,
       oldRole: user.tipo_usuario,
       newRole: updated.tipo_usuario,
     }).catch(() => { /* fire-and-forget */ })
@@ -1347,7 +1348,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 })
 
 /**
- * POST /api/admin/usuarios-globais/invite
+ * POST /api/v1/admin/usuarios-globais/convidar
  * Convida um usuário com role de plataforma (SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER).
  * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
  * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
@@ -1358,7 +1359,7 @@ const AdminInviteSchema = z.object({
   role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
-adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
+adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
   try {
     const parsed = AdminInviteSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -1500,11 +1501,11 @@ const GeneratePlanSchema = z.object({
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/generate
+ * POST /api/v1/admin/testes-gerais/planos/gerar
  * Gera um plano de teste 20/20 para uma tela via Gemini.
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/plans/generate', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar planos', 403, 'FORBIDDEN')
@@ -1539,7 +1540,7 @@ adminRouter.post('/testes-gerais/plans/generate', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/:id/expand
+ * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/expandir
  * Expande um plano existente preservando passos humano-original.
  * Requer SUPER_ADMIN.
  */
@@ -1547,7 +1548,7 @@ const ExpandPlanSchema = z.object({
   componenteFilePath: z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode expandir planos', 403, 'FORBIDDEN')
@@ -1567,7 +1568,7 @@ adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
     const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
-    const entry = registry.planos.find(p => p.id === req.params.id)
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
     if (!entry) {
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
@@ -1601,10 +1602,10 @@ adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/:id/generate-spec
+ * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/gerar-spec
  * Gera arquivo .spec.ts a partir do plano JSON.
  */
-adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/:id_plano_teste/gerar-spec', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
@@ -1618,7 +1619,7 @@ adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next
     const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
-    const entry = registry.planos.find(p => p.id === req.params.id)
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
     if (!entry) {
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
@@ -1634,7 +1635,7 @@ adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/extract-testids
+ * POST /api/v1/admin/testes-gerais/planos/extrair-testids
  * Extrai data-testid de um componente e gera mapeamento.
  */
 const ExtractTestidsSchema = z.object({
@@ -1643,7 +1644,7 @@ const ExtractTestidsSchema = z.object({
   sublocal:           z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/plans/extract-testids', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/extrair-testids', async (req, res, next) => {
   try {
     const parsed = ExtractTestidsSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -1665,17 +1666,17 @@ adminRouter.post('/testes-gerais/plans/extract-testids', async (req, res, next) 
 // ─── Test Logs — Gemini Re-analysis ─────────────────────────────────────────
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/reanalyze
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/reanalisar
  * Re-analisa uma falha com Gemini (forceRefresh: true, bypassa cache).
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
@@ -1692,7 +1693,7 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
       forceRefresh:    true,
     })
 
-    updateLogEntryAnalysis(req.params.id, analysis)
+    updateLogEntryAnalysis(req.params.id_log_teste, analysis)
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -1702,7 +1703,7 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
-      resource_id: req.params.id,
+      resource_id: req.params.id_log_teste,
       action: 'TEST_LOG_REANALYZED',
       action_detail: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
       status: 'SUCCESS',
@@ -1715,17 +1716,17 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
 })
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/apply-fix
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/aplicar-correcao
  * Aplica o codigoDiff sugerido pelo Gemini no arquivo fonte.
  * Requer SUPER_ADMIN. Gemini é sugestor, humano valida antes de aplicar.
  */
-adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
@@ -1762,7 +1763,7 @@ adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => 
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
-      resource_id: req.params.id,
+      resource_id: req.params.id_log_teste,
       action: 'TEST_FIX_APPLIED',
       action_detail: `Diff aplicado em ${diff.arquivo}`,
       before: { old: diff.old.slice(0, 200) },
@@ -1777,27 +1778,27 @@ adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => 
 })
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/reject
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/rejeitar
  * Marca a análise como ruim (feedback loop para melhorar o prompt).
  */
 const RejectSchema = z.object({
   motivo: z.string().min(10).max(500),
 })
 
-adminRouter.post('/testes-gerais/logs/:id/reject', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, next) => {
   try {
     const parsed = RejectSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Motivo é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
 
     // Marca no log que a análise foi rejeitada
-    updateLogEntryField(req.params.id, 'ai_rejected', {
+    updateLogEntryField(req.params.id_log_teste, 'ai_rejected', {
       rejeitadoEm: new Date().toISOString(),
       rejeitadoPor: req.auth.userId,
       motivo: parsed.data.motivo,
@@ -1811,7 +1812,7 @@ adminRouter.post('/testes-gerais/logs/:id/reject', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
-      resource_id: req.params.id,
+      resource_id: req.params.id_log_teste,
       action: 'TEST_ANALYSIS_REJECTED',
       action_detail: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
       status: 'SUCCESS',
@@ -1908,10 +1909,10 @@ const CreateScheduleSchema = z.object({
 const UpdateScheduleSchema = CreateScheduleSchema.partial()
 
 /**
- * GET /api/admin/testes-gerais/schedules
+ * GET /api/v1/admin/testes-gerais/agendamentos
  * Lista todos os agendamentos de testes.
  */
-adminRouter.get('/testes-gerais/schedules', async (_req, res, next) => {
+adminRouter.get('/testes-gerais/agendamentos', async (_req, res, next) => {
   try {
     let schedules: unknown[] = []
     try {
@@ -1928,10 +1929,10 @@ adminRouter.get('/testes-gerais/schedules', async (_req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/schedules
+ * POST /api/v1/admin/testes-gerais/agendamentos
  * Cria um novo agendamento de testes.
  */
-adminRouter.post('/testes-gerais/schedules', async (req, res, next) => {
+adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode criar agendamentos', 403, 'FORBIDDEN')
@@ -1982,10 +1983,10 @@ adminRouter.post('/testes-gerais/schedules', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/admin/testes-gerais/schedules/:id
+ * PATCH /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
  * Atualiza um agendamento existente.
  */
-adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
+adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamentos', 403, 'FORBIDDEN')
@@ -2011,7 +2012,7 @@ adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
         })
       }
       schedule = await (prisma as any).testSchedule?.update?.({
-        where: { id: req.params.id },
+        where: { id: req.params.id_agendamento_teste },
         data: updateData,
       })
     } catch {
@@ -2025,10 +2026,10 @@ adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
 })
 
 /**
- * DELETE /api/admin/testes-gerais/schedules/:id
+ * DELETE /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
  * Remove um agendamento.
  */
-adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
+adminRouter.delete('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode remover agendamentos', 403, 'FORBIDDEN')
@@ -2036,13 +2037,13 @@ adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
 
     try {
       await (prisma as any).testSchedule?.delete?.({
-        where: { id: req.params.id },
+        where: { id: req.params.id_agendamento_teste },
       })
     } catch {
       throw new AppError('Schedule não encontrado', 404, 'NOT_FOUND')
     }
 
-    res.json({ deleted: true, id: req.params.id })
+    res.json({ deleted: true, id: req.params.id_agendamento_teste })
   } catch (err) {
     next(err)
   }
@@ -2051,10 +2052,10 @@ adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
 // ─── Gemini Metrics ─────────────────────────────────────────────────────────
 
 /**
- * GET /api/admin/testes-gerais/gemini-metrics
+ * GET /api/v1/admin/testes-gerais/metricas-gemini
  * Agrega métricas de custo, latência, confiança do Gemini analyzer.
  */
-adminRouter.get('/testes-gerais/gemini-metrics', async (_req, res, next) => {
+adminRouter.get('/testes-gerais/metricas-gemini', async (_req, res, next) => {
   try {
     const cacheMetrics = getGeminiMetrics()
 
@@ -2125,7 +2126,7 @@ const RunPentestSchema = z.object({
 })
 
 /**
- * POST /api/admin/testes-gerais/pentest
+ * POST /api/v1/admin/testes-gerais/pentest
  * Dispara container ZAP contra URL alvo.
  * Requer SUPER_ADMIN.
  */

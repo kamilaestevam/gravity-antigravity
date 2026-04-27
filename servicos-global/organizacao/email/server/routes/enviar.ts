@@ -1,5 +1,5 @@
 // server/routes/enviar.ts
-// POST /api/v1/email/enviar — envia um email imediatamente ou via template.
+// POST /api/v1/envios-email — envia um email imediatamente ou via template.
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -24,7 +24,7 @@ const enviarSchema = z.object({
 )
 
 enviarRouter.post(
-  '/api/v1/email/enviar',
+  '/api/v1/envios-email',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const parse = enviarSchema.safeParse(req.body)

@@ -79,14 +79,14 @@
 // ─── Fluxo esperado após ativação ───────────────────────────────────────────
 //
 //   1. Admin Gravity clica "Lançar Fatura" na tela
-//   2. POST /api/admin/financeiro-admin/invoices → createInvoice()
+//   2. POST /api/v1/admin/faturas → createInvoice()
 //   3. ContaAzulProvider.createInvoice:
 //      a. Acha ou cria o cliente no Conta Azul (via CNPJ do tenant)
 //      b. Cria a venda com o item
 //      c. Opcional: finaliza (gera boleto/link de pagamento)
 //   4. Cliente recebe email com link de pagamento
 //   5. Cliente paga
-//   6. Conta Azul envia webhook pra Gravity (POST /api/v1/billing/webhook/conta-azul)
+//   6. Conta Azul envia webhook pra Gravity (POST /api/v1/faturas/webhook-conta-azul)
 //   7. Webhook handler detecta tipo "sale_paid" e dispara emissão de NF-e
 //   8. NF-e fica disponível no Conta Azul e é puxada pelo getInvoice() seguinte
 //

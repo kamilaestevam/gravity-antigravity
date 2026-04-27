@@ -85,7 +85,7 @@ beforeAll(() => {
   app.use(express.json())
 
   // Simula middleware de auth (já mockado no setup.ts)
-  app.use('/api/admin', adminRouter)
+  app.use('/api/v1/admin', adminRouter)
 
   // Error handler
   app.use((err: { statusCode?: number; code?: string; message: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -103,9 +103,9 @@ beforeEach(() => {
 
 // ─── GET /admin/testes-gerais/logs ───────────────────────────────────────────
 
-describe('GET /api/admin/testes-gerais/logs', () => {
+describe('GET /api/v1/admin/testes-gerais/logs', () => {
   it('retorna 200 com array de logs', async () => {
-    const res = await request.get('/api/admin/testes-gerais/logs')
+    const res = await request.get('/api/v1/admin/testes-gerais/logs')
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('logs')
     expect(Array.isArray(res.body.logs)).toBe(true)
@@ -114,10 +114,10 @@ describe('GET /api/admin/testes-gerais/logs', () => {
 
 // ─── POST /admin/testes-gerais/logs ──────────────────────────────────────────
 
-describe('POST /api/admin/testes-gerais/logs', () => {
+describe('POST /api/v1/admin/testes-gerais/logs', () => {
   it('aceita batch válido e retorna 201', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/logs')
+      .post('/api/v1/admin/testes-gerais/logs')
       .send({
         entries: [{
           type: 'E2E',
@@ -134,14 +134,14 @@ describe('POST /api/admin/testes-gerais/logs', () => {
 
   it('rejeita payload sem entries', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/logs')
+      .post('/api/v1/admin/testes-gerais/logs')
       .send({})
     expect(res.status).toBe(400)
   })
 
   it('rejeita resultado inválido', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/logs')
+      .post('/api/v1/admin/testes-gerais/logs')
       .send({
         entries: [{
           type: 'E2E',
@@ -157,10 +157,10 @@ describe('POST /api/admin/testes-gerais/logs', () => {
 
 // ─── POST /admin/testes-gerais/plans/generate ───────────────────────────────
 
-describe('POST /api/admin/testes-gerais/plans/generate', () => {
+describe('POST /api/v1/admin/testes-gerais/planos/gerar', () => {
   it('gera plano e retorna 201', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/plans/generate')
+      .post('/api/v1/admin/testes-gerais/planos/gerar')
       .send({
         escopo: 'CONFIG',
         sublocal: 'TestGeracao',
@@ -176,7 +176,7 @@ describe('POST /api/admin/testes-gerais/plans/generate', () => {
 
   it('rejeita payload incompleto', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/plans/generate')
+      .post('/api/v1/admin/testes-gerais/planos/gerar')
       .send({ escopo: 'CONFIG' })
     expect(res.status).toBe(400)
   })
@@ -184,10 +184,10 @@ describe('POST /api/admin/testes-gerais/plans/generate', () => {
 
 // ─── POST /admin/testes-gerais/plans/extract-testids ────────────────────────
 
-describe('POST /api/admin/testes-gerais/plans/extract-testids', () => {
+describe('POST /api/v1/admin/testes-gerais/planos/extrair-testids', () => {
   it('extrai testids e retorna mapeamento', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/plans/extract-testids')
+      .post('/api/v1/admin/testes-gerais/planos/extrair-testids')
       .send({
         componenteFilePath: 'src/pages/Org.tsx',
         escopo: 'CONFIG',
@@ -200,20 +200,20 @@ describe('POST /api/admin/testes-gerais/plans/extract-testids', () => {
 
   it('rejeita sem componenteFilePath', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/plans/extract-testids')
+      .post('/api/v1/admin/testes-gerais/planos/extrair-testids')
       .send({ escopo: 'CONFIG' })
     expect(res.status).toBe(400)
   })
 })
 
-// ─── POST /admin/testes-gerais/logs/:id/reanalyze ───────────────────────────
+// ─── POST /admin/testes-gerais/logs/:id/reanalisar ───────────────────────────
 
-describe('POST /api/admin/testes-gerais/logs/:id/reanalyze', () => {
+describe('POST /api/v1/admin/testes-gerais/logs/:id/reanalisar', () => {
   it('retorna 404 quando log entry não existe', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
 
     const res = await request
-      .post('/api/admin/testes-gerais/logs/inexistente/reanalyze')
+      .post('/api/v1/admin/testes-gerais/logs/inexistente/reanalisar')
     expect(res.status).toBe(404)
   })
 
@@ -225,26 +225,26 @@ describe('POST /api/admin/testes-gerais/logs/:id/reanalyze', () => {
     ]))
 
     const res = await request
-      .post('/api/admin/testes-gerais/logs/log-123/reanalyze')
+      .post('/api/v1/admin/testes-gerais/logs/log-123/reanalisar')
     expect(res.status).toBe(200)
     expect(res.body.analysis).toBeDefined()
     expect(res.body.analysis.categoria).toBe('TESTE_DESATUALIZADO')
   })
 })
 
-// ─── POST /admin/testes-gerais/logs/:id/reject ──────────────────────────────
+// ─── POST /admin/testes-gerais/logs/:id/rejeitar ──────────────────────────────
 
-describe('POST /api/admin/testes-gerais/logs/:id/reject', () => {
+describe('POST /api/v1/admin/testes-gerais/logs/:id/rejeitar', () => {
   it('rejeita sem motivo', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/logs/log-123/reject')
+      .post('/api/v1/admin/testes-gerais/logs/log-123/rejeitar')
       .send({})
     expect(res.status).toBe(400)
   })
 
   it('rejeita motivo curto demais', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/logs/log-123/reject')
+      .post('/api/v1/admin/testes-gerais/logs/log-123/rejeitar')
       .send({ motivo: 'curto' })
     expect(res.status).toBe(400)
   })
@@ -253,7 +253,7 @@ describe('POST /api/admin/testes-gerais/logs/:id/reject', () => {
     vi.mocked(existsSync).mockReturnValue(false)
 
     const res = await request
-      .post('/api/admin/testes-gerais/logs/inexistente/reject')
+      .post('/api/v1/admin/testes-gerais/logs/inexistente/rejeitar')
       .send({ motivo: 'A análise está incorreta, o bug é no backend não no front' })
     expect(res.status).toBe(404)
   })
@@ -266,7 +266,7 @@ describe('POST /api/admin/testes-gerais/logs/:id/reject', () => {
     ]))
 
     const res = await request
-      .post('/api/admin/testes-gerais/logs/log-456/reject')
+      .post('/api/v1/admin/testes-gerais/logs/log-456/rejeitar')
       .send({ motivo: 'A análise está incorreta, o bug é no backend não no frontend' })
     expect(res.status).toBe(200)
     expect(res.body.rejected).toBe(true)
@@ -275,9 +275,9 @@ describe('POST /api/admin/testes-gerais/logs/:id/reject', () => {
 
 // ─── GET /admin/testes-gerais/gemini-metrics ────────────────────────────────
 
-describe('GET /api/admin/testes-gerais/gemini-metrics', () => {
+describe('GET /api/v1/admin/testes-gerais/metricas-gemini', () => {
   it('retorna métricas de cache e diárias', async () => {
-    const res = await request.get('/api/admin/testes-gerais/gemini-metrics')
+    const res = await request.get('/api/v1/admin/testes-gerais/metricas-gemini')
     expect(res.status).toBe(200)
     expect(res.body.cache).toBeDefined()
     expect(res.body.cache.cacheSize).toBe(5)
@@ -289,16 +289,16 @@ describe('GET /api/admin/testes-gerais/gemini-metrics', () => {
 
 // ─── CRUD /admin/testes-gerais/schedules ────────────────────────────────────
 
-describe('CRUD /api/admin/testes-gerais/schedules', () => {
+describe('CRUD /api/v1/admin/testes-gerais/agendamentos', () => {
   it('GET lista schedules (vazio)', async () => {
-    const res = await request.get('/api/admin/testes-gerais/schedules')
+    const res = await request.get('/api/v1/admin/testes-gerais/agendamentos')
     expect(res.status).toBe(200)
     expect(res.body.schedules).toBeDefined()
   })
 
   it('POST cria schedule e retorna 201', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/schedules')
+      .post('/api/v1/admin/testes-gerais/agendamentos')
       .send({
         name: 'Diário 3h',
         cron: '0 3 * * *',
@@ -312,7 +312,7 @@ describe('CRUD /api/admin/testes-gerais/schedules', () => {
 
   it('POST rejeita sem name', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/schedules')
+      .post('/api/v1/admin/testes-gerais/agendamentos')
       .send({ cron: '0 3 * * *' })
     expect(res.status).toBe(400)
   })
@@ -320,10 +320,10 @@ describe('CRUD /api/admin/testes-gerais/schedules', () => {
 
 // ─── POST /admin/testes-gerais/pentest ──────────────────────────────────────
 
-describe('POST /api/admin/testes-gerais/pentest', () => {
+describe('POST /api/v1/admin/testes-gerais/pentest', () => {
   it('aceita URL válida e retorna started', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/pentest')
+      .post('/api/v1/admin/testes-gerais/pentest')
       .send({ targetUrl: 'https://app.gravity.test', scanType: 'baseline' })
     expect(res.status).toBe(200)
     expect(res.body.started).toBe(true)
@@ -332,14 +332,14 @@ describe('POST /api/admin/testes-gerais/pentest', () => {
 
   it('rejeita URL inválida', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/pentest')
+      .post('/api/v1/admin/testes-gerais/pentest')
       .send({ targetUrl: 'nao-e-url' })
     expect(res.status).toBe(400)
   })
 
   it('rejeita scanType inválido', async () => {
     const res = await request
-      .post('/api/admin/testes-gerais/pentest')
+      .post('/api/v1/admin/testes-gerais/pentest')
       .send({ targetUrl: 'https://app.test', scanType: 'ultra' })
     expect(res.status).toBe(400)
   })
@@ -347,9 +347,9 @@ describe('POST /api/admin/testes-gerais/pentest', () => {
 
 // ─── GET /admin/testes-gerais/plans ─────────────────────────────────────────
 
-describe('GET /api/admin/testes-gerais/plans', () => {
+describe('GET /api/v1/admin/testes-gerais/planos', () => {
   it('retorna lista de planos', async () => {
-    const res = await request.get('/api/admin/testes-gerais/plans')
+    const res = await request.get('/api/v1/admin/testes-gerais/planos')
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('plans')
   })

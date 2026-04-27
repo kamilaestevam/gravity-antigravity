@@ -1,11 +1,11 @@
 /**
  * dashboardPaineis.ts — Painéis de dashboard por usuário
  *
- * GET    /api/v1/pedidos/dashboard/paineis             — lista painéis do usuário
- * POST   /api/v1/pedidos/dashboard/paineis             — cria novo painel
- * PUT    /api/v1/pedidos/dashboard/paineis/reordenar   — reordena painéis
- * PUT    /api/v1/pedidos/dashboard/paineis/:id         — atualiza painel (patch)
- * DELETE /api/v1/pedidos/dashboard/paineis/:id         — deleta painel
+ * GET    /api/v1/pedidos/dashboard/paineis                                — lista painéis do usuário
+ * POST   /api/v1/pedidos/dashboard/paineis                                — cria novo painel
+ * PUT    /api/v1/pedidos/dashboard/paineis/reordenar                      — reordena painéis
+ * PUT    /api/v1/pedidos/dashboard/paineis/:id_painel_dashboard_pedido    — atualiza painel (patch)
+ * DELETE /api/v1/pedidos/dashboard/paineis/:id_painel_dashboard_pedido    — deleta painel
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -172,9 +172,9 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Respo
   }
 })
 
-// ── PUT /paineis/:id ──────────────────────────────────────────────────────────
+// ── PUT /paineis/:id_painel_dashboard_pedido ─────────────────────────────────
 
-dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.put('/paineis/:id_painel_dashboard_pedido', async (req: Request, res: Response, next: NextFunction) => {
   const parsed = AtualizarPainelSchema.safeParse(req.body)
   if (!parsed.success) {
     return next(new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR'))
@@ -187,7 +187,7 @@ dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, n
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
-      const { id }   = req.params
+      const { id_painel_dashboard_pedido: id } = req.params
 
       const painel = await db.pedidoDashboardPainel.findFirst({
         where: { id_dashboard_painel: id, id_organizacao: tenant_id, id_usuario: user_id },
@@ -206,9 +206,9 @@ dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, n
   }
 })
 
-// ── DELETE /paineis/:id ───────────────────────────────────────────────────────
+// ── DELETE /paineis/:id_painel_dashboard_pedido ──────────────────────────────
 
-dashboardPaineisRouter.delete('/paineis/:id', async (req: Request, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.delete('/paineis/:id_painel_dashboard_pedido', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -216,7 +216,7 @@ dashboardPaineisRouter.delete('/paineis/:id', async (req: Request, res: Response
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
-      const { id }   = req.params
+      const { id_painel_dashboard_pedido: id } = req.params
 
       const total = await db.pedidoDashboardPainel.count({
         where: { id_organizacao: tenant_id, id_usuario: user_id },

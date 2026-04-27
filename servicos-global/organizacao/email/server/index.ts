@@ -26,7 +26,7 @@ app.use(helmet())
 // ---------------------------------------------------------------------------
 // Webhook deve receber body bruto para validação HMAC — registrar antes do json()
 // ---------------------------------------------------------------------------
-app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))
+app.use('/api/v1/envios-email/webhook-provedor', express.raw({ type: 'application/json' }))
 
 // ---------------------------------------------------------------------------
 // Middlewares globais

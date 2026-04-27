@@ -22,7 +22,7 @@ export default defineConfig({
   server: {
     port: 5010,
     proxy: {
-      '/api/v1/dashboard': {
+      '/api/v1/dashboards': {
         target: 'http://localhost:3001',
         changeOrigin: true,
       },

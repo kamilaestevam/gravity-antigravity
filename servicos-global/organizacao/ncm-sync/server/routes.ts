@@ -11,6 +11,6 @@ import { apiRoutes } from './routes/api.js'
 
 const router = Router()
 
-router.use('/api/v1/ncm', apiRoutes)
+router.use('/api/v1', apiRoutes)
 
 export { router as ncmSyncServiceRouter }

@@ -52,14 +52,14 @@ async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
   })
 
   // 2. Persistir na tabela SecurityEvent do Configurador (fire-and-forget)
-  // Usa a rota INTERNA /api/internal/security/events que valida x-internal-key.
-  // A rota /api/admin/seguranca-admin/events (antiga) estava atrás de requireAuth+
+  // Usa a rota INTERNA /api/v1/internal/eventos-seguranca que valida x-internal-key.
+  // A rota /api/v1/admin/eventos-seguranca (admin) está atrás de requireAuth+
   // requireGravityAdmin e caía em 401 para esta chamada S2S, quebrando o
   // audit trail silenciosamente.
   if (CONFIGURADOR_URL) {
     const ipFromMetadata = typeof event.metadata?.ip === 'string' ? event.metadata.ip : undefined
     const endpointFromMetadata = typeof event.metadata?.endpoint === 'string' ? event.metadata.endpoint : undefined
-    fetch(`${CONFIGURADOR_URL}/api/internal/security/events`, {
+    fetch(`${CONFIGURADOR_URL}/api/v1/internal/eventos-seguranca`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

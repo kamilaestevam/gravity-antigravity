@@ -4,12 +4,12 @@
  * Rota base: /api/v1/pedidos
  *
  * Endpoints:
- *   POST /duplicar/preview   — retorna config e pedidos que serão duplicados
- *   POST /duplicar/confirmar — executa duplicação em $transaction
- *   POST /duplicar/itens     — clona itens dentro do mesmo pedido
- *   POST /excluir/preview    — separa pedidos permitidos e bloqueados por status
- *   POST /excluir/confirmar  — hard delete com audit trail ANTES
- *   POST /excluir/itens      — exclui itens e aplica regra pedido-sem-item
+ *   POST /duplicacoes/preview   — retorna config e pedidos que serão duplicados
+ *   POST /duplicacoes/confirmar — executa duplicação em $transaction
+ *   POST /duplicacoes/itens     — clona itens dentro do mesmo pedido
+ *   POST /exclusoes/preview     — separa pedidos permitidos e bloqueados por status
+ *   POST /exclusoes/confirmar   — hard delete com audit trail ANTES
+ *   POST /exclusoes/itens       — exclui itens e aplica regra pedido-sem-item
  *
  * Regras:
  *   - Zod valida entrada em todas as rotas
@@ -58,7 +58,7 @@ const ExcluirItensSchema = z.object({
 
 // ── POST /duplicar/preview ────────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/duplicar/preview', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/duplicacoes/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarPreviewSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -82,7 +82,7 @@ duplicarExcluirRouter.post('/duplicar/preview', async (req: Request, res: Respon
 
 // ── POST /duplicar/confirmar ──────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/duplicar/confirmar', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/duplicacoes/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarConfirmarSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -110,7 +110,7 @@ duplicarExcluirRouter.post('/duplicar/confirmar', async (req: Request, res: Resp
 
 // ── POST /duplicar/itens ──────────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/duplicar/itens', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/duplicacoes/itens', async (req: Request, res: Response, next: NextFunction) => {
   const parse = DuplicarItensSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -136,7 +136,7 @@ duplicarExcluirRouter.post('/duplicar/itens', async (req: Request, res: Response
 
 // ── POST /excluir/preview ─────────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/excluir/preview', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/exclusoes/preview', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirPreviewSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -160,7 +160,7 @@ duplicarExcluirRouter.post('/excluir/preview', async (req: Request, res: Respons
 
 // ── POST /excluir/confirmar ───────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/excluir/confirmar', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/exclusoes/confirmar', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirConfirmarSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({
@@ -186,7 +186,7 @@ duplicarExcluirRouter.post('/excluir/confirmar', async (req: Request, res: Respo
 
 // ── POST /excluir/itens ───────────────────────────────────────────────────────
 
-duplicarExcluirRouter.post('/excluir/itens', async (req: Request, res: Response, next: NextFunction) => {
+duplicarExcluirRouter.post('/exclusoes/itens', async (req: Request, res: Response, next: NextFunction) => {
   const parse = ExcluirItensSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({

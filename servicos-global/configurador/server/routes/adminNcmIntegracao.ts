@@ -1,13 +1,13 @@
 // server/routes/adminNcmIntegracao.ts
 // Rotas de NCM Integração — chama ncm-sync engine diretamente (sem HTTP)
-// Montado em /api/admin/ncm-integracao pelo index.ts
+// Montado em /api/v1/admin/integracao-ncm pelo index.ts
 //
-// GET    /                    — status geral
-// GET    /historico           — logs de sincronização com paginação
-// POST   /sync/:tenantId      — dispara sync manual para um tenant
-// GET    /schedule            — configuração do agendamento
-// PUT    /schedule            — atualizar agendamento (cron, notificadores)
-// POST   /schedule/execute    — executar para todos os tenants (ou um específico)
+// GET    /                              — status geral
+// GET    /historico                     — logs de sincronização com paginação
+// POST   /sincronizar/:id_organizacao   — dispara sync manual para uma organização
+// GET    /agendamento                   — configuração do agendamento
+// PUT    /agendamento                   — atualizar agendamento (cron, notificadores)
+// POST   /agendamento/executar          — executar para todas as organizações (ou uma específica)
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -92,15 +92,15 @@ adminNcmIntegracaoRouter.get('/historico', async (req, res, next) => {
   }
 })
 
-// ─── POST /sync/:tenantId — Sync manual de um tenant ────────────────────────
+// ─── POST /sincronizar/:id_organizacao — Sync manual de uma organização ─────
 
-adminNcmIntegracaoRouter.post('/sync/:tenantId', async (req, res, next) => {
+adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode disparar sync', 403, 'FORBIDDEN')
     }
 
-    const { tenantId } = req.params
+    const { id_organizacao: tenantId } = req.params
     const startMs = Date.now()
 
     const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
@@ -141,9 +141,9 @@ adminNcmIntegracaoRouter.post('/sync/:tenantId', async (req, res, next) => {
   }
 })
 
-// ─── GET /schedule — Configuração do agendamento ─────────────────────────────
+// ─── GET /agendamento — Configuração do agendamento ─────────────────────────
 
-adminNcmIntegracaoRouter.get('/schedule', async (_req, res, next) => {
+adminNcmIntegracaoRouter.get('/agendamento', async (_req, res, next) => {
   try {
     const config = await tenantPrisma.ncmScheduleConfig.findUnique({ where: { id: 'default' } })
 
@@ -159,7 +159,7 @@ adminNcmIntegracaoRouter.get('/schedule', async (_req, res, next) => {
   }
 })
 
-// ─── PUT /schedule — Atualizar agendamento ───────────────────────────────────
+// ─── PUT /agendamento — Atualizar agendamento ───────────────────────────────
 
 const NotificadorSchema = z.object({
   id:       z.string(),
@@ -175,7 +175,7 @@ const SaveScheduleSchema = z.object({
   notificadores:  z.array(NotificadorSchema).max(20),
 })
 
-adminNcmIntegracaoRouter.put('/schedule', async (req, res, next) => {
+adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamento', 403, 'FORBIDDEN')
@@ -222,13 +222,13 @@ adminNcmIntegracaoRouter.put('/schedule', async (req, res, next) => {
   }
 })
 
-// ─── POST /schedule/execute — Executar para todos os tenants ─────────────────
+// ─── POST /agendamento/executar — Executar para todas as organizações ──────
 
 const ExecuteSchema = z.object({
   tenant_id: z.string().optional(),
 })
 
-adminNcmIntegracaoRouter.post('/schedule/execute', async (req, res, next) => {
+adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode executar sync', 403, 'FORBIDDEN')

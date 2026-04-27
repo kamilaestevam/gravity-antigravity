@@ -2,7 +2,7 @@
  * behaviorTracking.test.ts — Testes funcionais da rota de comportamento
  *
  * Cobre:
- *   POST /api/v1/pedidos/behavior/track
+ *   POST /api/v1/pedidos/eventos-comportamento
  *     - payload válido → 204
  *     - payload malformado → 204 (silencioso, não bloqueia UX)
  *     - event inválido → 204 (silencioso)
@@ -66,7 +66,7 @@ async function invocarHandler(
 
 // ── Testes ────────────────────────────────────────────────────────────────────
 
-describe('POST /behavior/track', () => {
+describe('POST /eventos-comportamento', () => {
   it('retorna 204 para payload filter_applied válido', async () => {
     const req = criarReq({ body: { event: 'filter_applied', payload: { filter_field: 'status', filter_value: 'atrasado' } } })
     const { res, status, end } = criarRes()

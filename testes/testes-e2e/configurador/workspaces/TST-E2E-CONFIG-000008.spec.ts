@@ -79,7 +79,7 @@ test.describe('TST-E2E-CONFIG-000008 — Workspaces', () => {
 
   test('18. Verificar dados dos workspaces carregados', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/companies e verificar status 200
+    // TODO: interceptar /api/v1/organizacoes/me/workspaces e verificar status 200
   })
 
   test('19. Verificar contagem de usuarios por workspace', async ({ page }) => {
@@ -141,7 +141,7 @@ test.describe('TST-E2E-CONFIG-000008 — Workspaces', () => {
 
   test('33. Verificar PATCH via API', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/companies e verificar status 200
+    // TODO: interceptar /api/v1/organizacoes/me/workspaces e verificar status 200
   })
 
   test('34. Verificar edicao persiste apos F5', async ({ page }) => {
@@ -167,7 +167,7 @@ test.describe('TST-E2E-CONFIG-000008 — Workspaces', () => {
 
   test('39. Verificar POST via API', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/companies e verificar status 201
+    // TODO: interceptar /api/v1/organizacoes/me/workspaces e verificar status 201
   })
 
   test('40. Verificar novo workspace na tabela', async ({ page }) => {
@@ -192,7 +192,7 @@ test.describe('TST-E2E-CONFIG-000008 — Workspaces', () => {
 
   test('45. Verificar DELETE via API', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/companies e verificar status 200
+    // TODO: interceptar /api/v1/organizacoes/me/workspaces e verificar status 200
   })
 
   test('46. Verificar workspace sumiu da tabela', async ({ page }) => {

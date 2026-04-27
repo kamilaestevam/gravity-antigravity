@@ -15,7 +15,7 @@ const chatSchema = z.object({
 })
 
 // Requisicao sincrona (usada pelo widget)
-chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
+chatRouter.post('/api/v1/gabi/chats', async (req, res, next) => {
   try {
     const { conversationId, message: rawMessage, page } = chatSchema.parse(req.body)
     const message = sanitizeUserInput(rawMessage)
@@ -90,7 +90,7 @@ function extractSuggestions(text: string): { cleanText: string; suggestions: str
 }
 
 // SSE Streaming
-chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
+chatRouter.get('/api/v1/gabi/chats/stream', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')

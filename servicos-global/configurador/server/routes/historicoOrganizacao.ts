@@ -72,7 +72,7 @@ historicoOrganizacaoRouter.get(
         return next(new AppError('tenant_id obrigatório', 401, 'UNAUTHORIZED'))
       }
 
-      const fetchUrl = `${internalBaseUrl}/api/admin/historico-global/logs?${params.toString()}`
+      const fetchUrl = `${internalBaseUrl}/api/v1/admin/historico-global/logs?${params.toString()}`
       const response = await fetch(fetchUrl, {
         headers: {
           'x-internal-key': internalKey,

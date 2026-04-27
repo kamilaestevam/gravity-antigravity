@@ -1,9 +1,9 @@
 // server/routes/fila.ts
 // Gerenciamento da fila de envio de emails.
-// GET  /api/v1/email/fila              — lista fila com status e próxima tentativa
-// POST /api/v1/email/fila/:id/cancelar — cancela um item da fila
-// POST /api/v1/email/fila/pausar       — pausa toda a fila do tenant
-// POST /api/v1/email/fila/retomar      — retoma a fila do tenant
+// GET  /api/v1/envios-email/fila                     — lista fila com status e próxima tentativa
+// POST /api/v1/envios-email/fila/:id_envio/cancelar  — cancela um item da fila
+// POST /api/v1/envios-email/fila/pausar              — pausa toda a fila do tenant
+// POST /api/v1/envios-email/fila/retomar             — retoma a fila do tenant
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -23,7 +23,7 @@ const listarFilaSchema = z.object({
 // ---- Listar fila ------------------------------------------------------------
 
 filaRouter.get(
-  '/api/v1/email/fila',
+  '/api/v1/envios-email/fila',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const parse = listarFilaSchema.safeParse(req.query)
@@ -77,15 +77,15 @@ filaRouter.get(
 // ---- Cancelar item da fila --------------------------------------------------
 
 filaRouter.post(
-  '/api/v1/email/fila/:id/cancelar',
+  '/api/v1/envios-email/fila/:id_envio/cancelar',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_envio } = req.params
     const { tenantId } = req.auth
 
     const item = await prisma.emailFilaEnvio.findFirst({
       where: {
-        id_email_fila_envio: id,
+        id_email_fila_envio: id_envio,
         id_organizacao_email_fila_envio: tenantId,
       },
     })
@@ -106,7 +106,7 @@ filaRouter.post(
     }
 
     const updated = await prisma.emailFilaEnvio.update({
-      where: { id_email_fila_envio: id },
+      where: { id_email_fila_envio: id_envio },
       data: { status_email_fila_envio: 'CANCELADO' },
     })
 
@@ -118,7 +118,7 @@ filaRouter.post(
 // Implementação: seta proxima_tentativa_em para data distante como sinal de pausa.
 
 filaRouter.post(
-  '/api/v1/email/fila/pausar',
+  '/api/v1/envios-email/fila/pausar',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
     const { tenantId } = req.auth
@@ -139,7 +139,7 @@ filaRouter.post(
 // ---- Retomar fila -----------------------------------------------------------
 
 filaRouter.post(
-  '/api/v1/email/fila/retomar',
+  '/api/v1/envios-email/fila/retomar',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
     const { tenantId } = req.auth

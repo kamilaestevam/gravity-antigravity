@@ -22,14 +22,14 @@ export type { BuildEcosystemNodesOptions } from '@nucleo/localizador-global'
 
 // ── Tipos de dados da API ─────────────────────────────────────────────────────
 
-/** Produto retornado por GET /api/v1/companies/:id/products */
+/** Produto retornado por GET /api/v1/workspaces/:id_workspace/produtos */
 export interface CompanyProductItem {
   product_key: string
   is_active: boolean
   catalog?: { name: string; slug: string } | null
 }
 
-/** Produto retornado por GET /api/admin/products */
+/** Produto retornado por GET /api/v1/admin/produtos-gravity */
 export interface AdminProductItem {
   slug: string
   name: string
@@ -40,7 +40,7 @@ export interface AdminProductItem {
 
 /**
  * Constrói nós de produto para telas de tenant (Core, produto).
- * Usa a resposta de /api/v1/companies/:id/products:
+ * Usa a resposta de /api/v1/workspaces/:id_workspace/produtos:
  *   - is_active = true  → accessible
  *   - is_active = false → locked
  */
@@ -68,7 +68,7 @@ export function buildTenantProductNodes(
 
 /**
  * Constrói nós de produto para o painel Admin.
- * Usa a resposta de /api/admin/products:
+ * Usa a resposta de /api/v1/admin/produtos-gravity:
  *   - ATIVO   → accessible
  *   - demais   → locked
  */

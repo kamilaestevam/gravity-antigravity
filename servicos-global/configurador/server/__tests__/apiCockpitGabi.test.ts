@@ -51,7 +51,7 @@ beforeAll(async () => {
 
   app = express()
   app.use(express.json())
-  app.use('/api/admin/api-cockpit', apiCockpitAdminRouter)
+  app.use('/api/v1/admin', apiCockpitAdminRouter)
 
   interface HttpError extends Error { statusCode?: number; code?: string }
   app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
@@ -69,9 +69,9 @@ beforeEach(() => {
   fetchMock.mockRejectedValue(new Error('gabi unavailable'))
 })
 
-// ─── GET /api/admin/api-cockpit/gabi-usage ──────────────────────────────────
+// ─── GET /api/v1/admin/uso-gabi ──────────────────────────────────
 
-describe('GET /api/admin/api-cockpit/gabi-usage', () => {
+describe('GET /api/v1/admin/uso-gabi', () => {
   it('retorna 200 com dados de usage quando gabi responde', async () => {
     fetchMock.mockImplementation(async (url: string) => {
       if (typeof url === 'string' && url.includes('gabi/usage')) {
@@ -94,7 +94,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
       throw new Error('not found')
     })
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage')
+    const res = await request.get('/api/v1/admin/uso-gabi')
     expect(res.status).toBe(200)
     expect(res.body.month).toBe('2026-04')
     expect(res.body.total_calls).toBe(150)
@@ -123,7 +123,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
       throw new Error('not found')
     })
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage?month=2026-03')
+    const res = await request.get('/api/v1/admin/uso-gabi?month=2026-03')
     expect(res.status).toBe(200)
     expect(res.body.month).toBe('2026-03')
   })
@@ -131,7 +131,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
   it('retorna zeros quando gabi está indisponível (resilience)', async () => {
     fetchMock.mockRejectedValue(new Error('connection refused'))
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage')
+    const res = await request.get('/api/v1/admin/uso-gabi')
     expect(res.status).toBe(200)
     expect(res.body.total_calls).toBe(0)
     expect(res.body.total_cost_usd).toBe(0)
@@ -144,7 +144,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
       status: 503,
     })
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage')
+    const res = await request.get('/api/v1/admin/uso-gabi')
     expect(res.status).toBe(200)
     expect(res.body.total_calls).toBe(0)
     expect(res.body).toHaveProperty('error')
@@ -165,7 +165,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
       }),
     })
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage')
+    const res = await request.get('/api/v1/admin/uso-gabi')
     expect(res.status).toBe(200)
     // error is passed through from gabi
     expect(res.body).toHaveProperty('error')
@@ -185,7 +185,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
       }),
     })
 
-    await request.get('/api/admin/api-cockpit/gabi-usage')
+    await request.get('/api/v1/admin/uso-gabi')
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('gabi/usage'),
       expect.objectContaining({
@@ -197,9 +197,9 @@ describe('GET /api/admin/api-cockpit/gabi-usage', () => {
   })
 })
 
-// ─── GET /api/admin/api-cockpit/gabi-usage/history ──────────────────────────
+// ─── GET /api/v1/admin/uso-gabi/historico ──────────────────────────
 
-describe('GET /api/admin/api-cockpit/gabi-usage/history', () => {
+describe('GET /api/v1/admin/uso-gabi/historico', () => {
   it('retorna 200 com histórico quando gabi responde', async () => {
     fetchMock.mockImplementation(async (url: string) => {
       if (typeof url === 'string' && url.includes('gabi/usage/history')) {
@@ -217,7 +217,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage/history', () => {
       throw new Error('not found')
     })
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage/history')
+    const res = await request.get('/api/v1/admin/uso-gabi/historico')
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('history')
     expect(res.body.history).toHaveProperty('2026-04')
@@ -227,7 +227,7 @@ describe('GET /api/admin/api-cockpit/gabi-usage/history', () => {
   it('retorna history vazio quando gabi está indisponível (resilience)', async () => {
     fetchMock.mockRejectedValue(new Error('timeout'))
 
-    const res = await request.get('/api/admin/api-cockpit/gabi-usage/history')
+    const res = await request.get('/api/v1/admin/uso-gabi/historico')
     expect(res.status).toBe(200)
     expect(res.body.history).toEqual({})
     expect(res.body).toHaveProperty('error')
@@ -239,21 +239,21 @@ describe('GET /api/admin/api-cockpit/gabi-usage/history', () => {
 describe('Existing admin cockpit routes', () => {
   it('GET /services retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/admin/api-cockpit/services')
+    const res = await request.get('/api/v1/admin/servicos-api')
     expect(res.status).toBe(200)
     expect(res.body.services).toEqual([])
   })
 
   it('GET /logs retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/admin/api-cockpit/logs')
+    const res = await request.get('/api/v1/admin/logs-api')
     expect(res.status).toBe(200)
     expect(res.body.logs).toEqual([])
   })
 
   it('GET /stats retorna fallback resiliente', async () => {
     fetchMock.mockRejectedValue(new Error('cockpit down'))
-    const res = await request.get('/api/admin/api-cockpit/stats')
+    const res = await request.get('/api/v1/admin/estatisticas-api')
     expect(res.status).toBe(200)
     expect(res.body.requisicoes_24h).toBe(0)
   })

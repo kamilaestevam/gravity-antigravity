@@ -56,9 +56,9 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:codigo', async (req, res, next) => {
+router.get('/:id_ncm', async (req, res, next) => {
   try {
-    const ncm = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.codigo } })
+    const ncm = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.id_ncm } })
     if (!ncm) throw AppError.naoEncontrado('NCM')
     res.status(200).json(ncm)
   } catch (err) {
@@ -66,10 +66,10 @@ router.get('/:codigo', async (req, res, next) => {
   }
 })
 
-router.put('/:codigo', async (req, res, next) => {
+router.put('/:id_ncm', async (req, res, next) => {
   try {
     const dados = atualizarNCMSchema.parse(req.body)
-    const existente = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.codigo } })
+    const existente = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.id_ncm } })
     if (!existente) throw AppError.naoEncontrado('NCM')
     const atualizado = await prisma.ncm.update({
       where: { codigo_ncm: existente.codigo_ncm },
@@ -86,9 +86,9 @@ router.put('/:codigo', async (req, res, next) => {
   }
 })
 
-router.delete('/:codigo', async (req, res, next) => {
+router.delete('/:id_ncm', async (req, res, next) => {
   try {
-    const existente = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.codigo } })
+    const existente = await prisma.ncm.findUnique({ where: { codigo_ncm: req.params.id_ncm } })
     if (!existente) throw AppError.naoEncontrado('NCM')
     const desativado = await prisma.ncm.update({
       where: { codigo_ncm: existente.codigo_ncm },

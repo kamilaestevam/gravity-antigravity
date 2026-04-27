@@ -38,9 +38,9 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:codigo', async (req, res, next) => {
+router.get('/:id_moeda', async (req, res, next) => {
   try {
-    const moeda = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
+    const moeda = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.id_moeda } })
     if (!moeda) throw AppError.naoEncontrado('Moeda')
     res.status(200).json(moeda)
   } catch (err) {
@@ -48,10 +48,10 @@ router.get('/:codigo', async (req, res, next) => {
   }
 })
 
-router.put('/:codigo', async (req, res, next) => {
+router.put('/:id_moeda', async (req, res, next) => {
   try {
     const dados = atualizarMoedaSchema.parse(req.body)
-    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
+    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.id_moeda } })
     if (!existente) throw AppError.naoEncontrado('Moeda')
     const atualizada = await prisma.moeda.update({
       where: { codigo_moeda: existente.codigo_moeda },
@@ -63,9 +63,9 @@ router.put('/:codigo', async (req, res, next) => {
   }
 })
 
-router.delete('/:codigo', async (req, res, next) => {
+router.delete('/:id_moeda', async (req, res, next) => {
   try {
-    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
+    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.id_moeda } })
     if (!existente) throw AppError.naoEncontrado('Moeda')
     const desativada = await prisma.moeda.update({
       where: { codigo_moeda: existente.codigo_moeda },

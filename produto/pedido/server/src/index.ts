@@ -11,7 +11,7 @@
  *
  * Rotas de features (produto/pedido/server):
  *   /api/v1/pedidos/dashboard/widgets   — persistência de configuração de widgets
- *   /api/v1/analytics/pedido/*          — integração Power BI (OData v4)
+ *   /api/v1/pedidos/analytics/*         — integração Power BI (OData v4)
  *   /health                             — healthcheck
  */
 
@@ -100,10 +100,10 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use(requireInternalKey)
 
 // ── 5. Analytics — Power BI integration (auth própria dentro do router) ──────
-app.use('/api/v1/analytics/pedido', analyticsRouter)
+app.use('/api/v1/pedidos/analytics', analyticsRouter)
 
 // ── 5.1. Taxa de câmbio — proxy público para o Configurador ──────────────────
-app.use('/api/v1/taxa-cambio', taxaCambioRouter)
+app.use('/api/v1/taxas-cambio', taxaCambioRouter)
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
 app.use(resolverOrganizacao({
@@ -131,31 +131,31 @@ app.use(createProductAuditPlugin({
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
 // Ordem: rotas estáticas específicas ANTES das genéricas (evita conflitos com /:id)
-app.use('/api/v1/pedidos/openapi.json',      openapiRouter)
-app.use('/api/v1/pedidos/init',              initRouter)           // GET /init — agrega pedidos+status+prefs+colunas em 1 request
-app.use('/api/v1/pedidos/dashboard/widgets', dashboardWidgetsRouter)
-app.use('/api/v1/pedidos/dashboard',         dashboardPaineisRouter)
-app.use('/api/v1/pedidos/dashboard',         dashboardDataRouter)
-app.use('/api/v1/pedidos/consolidar',        consolidarRouter)
-app.use('/api/v1/pedidos/transferir',        transferirRouter)
-app.use('/api/v1/pedidos/edicao-em-massa',   edicaoEmMassaRouter)
-app.use('/api/v1/pedidos/smart-import',      smartImportRouter)
-app.use('/api/v1/pedidos/colunas-usuario',   colunasUsuarioRouter)
+app.use('/api/v1/pedidos/openapi.json',                openapiRouter)
+app.use('/api/v1/pedidos/inicializacao',               initRouter)           // GET /inicializacao — agrega pedidos+status+prefs+colunas em 1 request
+app.use('/api/v1/pedidos/dashboard/widgets',           dashboardWidgetsRouter)
+app.use('/api/v1/pedidos/dashboard',                   dashboardPaineisRouter)
+app.use('/api/v1/pedidos/dashboard',                   dashboardDataRouter)
+app.use('/api/v1/pedidos/consolidacoes',               consolidarRouter)
+app.use('/api/v1/pedidos/edicoes-em-massa',            edicaoEmMassaRouter)
+app.use('/api/v1/pedidos/importacoes-inteligentes',    smartImportRouter)
+app.use('/api/v1/pedidos/colunas-usuario',             colunasUsuarioRouter)
 app.use(gabiProxyRouter)
 app.use(behaviorTrackingRouter)
-app.use('/api/v1/pedidos/anexos',            anexosRouter)
-app.use('/api/v1/pedidos/pdf',               pdfRouter)
-app.use('/api/v1/pedidos/lote',              loteRouter)
-app.use('/api/v1/pedidos/kanban',            kanbanPreferenciasRouter)
-app.use('/api/v1/pedidos/configuracoes',     casasDecimaisRouter)
-app.use('/api/v1/pedidos/configuracoes',     saldoFormulaRouter)
-app.use('/api/v1/pedidos/config',            pedidosConfigRouter)
-app.use('/api/v1/pedidos',                   importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
-app.use('/api/v1/pedidos',                   duplicarExcluirRouter)
+app.use('/api/v1/pedidos/anexos',                      anexosRouter)
+app.use('/api/v1/pedidos/relatorios-pdf',              pdfRouter)
+app.use('/api/v1/pedidos/alteracoes-status-lote',      loteRouter)
+app.use('/api/v1/pedidos/kanban',                      kanbanPreferenciasRouter)
+app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)
+app.use('/api/v1/pedidos/configuracoes',               saldoFormulaRouter)
+app.use('/api/v1/pedidos/config',                      pedidosConfigRouter)
+app.use('/api/v1/pedidos',                             importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
+app.use('/api/v1/pedidos',                             duplicarExcluirRouter)
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
-app.use('/api/v1/pedidos',                   pedidosRouter)      // GET /, POST /, GET /:id, PUT /:id, DELETE /:id, etc.
+app.use('/api/v1/pedidos',                             pedidosRouter)      // GET /, POST /, GET /:id, PUT /:id, DELETE /:id, etc.
 // Parâmetros dinâmicos após todos os estáticos
-app.use('/api/v1/pedidos/:id/transferencias', transferirHistoricoRouter)
+app.use('/api/v1/pedidos/:id_pedido/transferencias',   transferirRouter)
+app.use('/api/v1/pedidos/:id_pedido/transferencias',   transferirHistoricoRouter)
 
 // ── 9. 404 catch-all ─────────────────────────────────────────────────────────
 app.use((_req: Request, res: Response) => {
@@ -192,6 +192,6 @@ if (!process.env.INTERNAL_SERVICE_KEY) {
 
 app.listen(PORT, () => {
   console.log(`[Pedido] Servidor rodando na porta ${PORT}`)
-  console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/analytics/pedido`)
+  console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/pedidos/analytics`)
   console.log(`[Pedido] Health: http://localhost:${PORT}/health`)
 })

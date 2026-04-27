@@ -84,10 +84,10 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // --- 5. Master Data — SEM autenticacao (portos, NCMs, incoterms sao dados publicos) ---
-app.use('/api/v1/master-data', rateLimitPresets.public(), masterDataRouter)
+app.use('/api/v1', rateLimitPresets.public(), masterDataRouter)
 
 // --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---
-app.use('/api/v1/bid-frete/portal/public', rateLimitPresets.public(), portalPublicRouter)
+app.use('/api/v1/cotacoes-publicas', rateLimitPresets.public(), portalPublicRouter)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)

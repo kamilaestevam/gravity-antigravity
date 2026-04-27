@@ -22,12 +22,13 @@ const createShareSchema = z.object({
   include_snapshot: z.boolean().default(false),
 })
 
-// GET /public/:token — rota PÚBLICA (sem auth)
-shareRouter.get('/public/:token', async (req, res, next) => {
+// GET /publicos/:token_acesso — rota PÚBLICA (sem auth)
+shareRouter.get('/publicos/:token_acesso', async (req, res, next) => {
   try {
     // req.prisma pode não estar disponível aqui pois não há tenant no contexto público
     // O sharingEngine lida com a busca pelo token usando o prisma global
-    const { token } = req.params
+    const { token_acesso } = req.params
+    const token = token_acesso
 
     const share = await sharingEngine.findByToken(token)
 
@@ -61,8 +62,8 @@ shareRouter.get('/public/:token', async (req, res, next) => {
   }
 })
 
-// POST / — cria compartilhamento
-shareRouter.post('/', async (req, res, next) => {
+// POST /share — cria compartilhamento
+shareRouter.post('/share', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const body = createShareSchema.parse(req.body)
@@ -114,8 +115,8 @@ shareRouter.post('/', async (req, res, next) => {
   }
 })
 
-// GET / — lista shares do usuário
-shareRouter.get('/', async (req, res, next) => {
+// GET /share — lista shares do usuário
+shareRouter.get('/share', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
 
@@ -130,8 +131,8 @@ shareRouter.get('/', async (req, res, next) => {
   }
 })
 
-// DELETE /:id — revoga share
-shareRouter.delete('/:id', async (req, res, next) => {
+// DELETE /share/:id — revoga share
+shareRouter.delete('/share/:id', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { id } = req.params

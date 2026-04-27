@@ -119,8 +119,8 @@ app.use('/api/v1/lpcos', lpcoVinculoRouter)
 app.use('/api/v1/lpcos', lpcoDocumentoRouter)
 app.use('/api/v1/lpcos', lpcoHistoricoRouter)
 app.use('/api/v1/lpcos', lpcoPortalRouter)
-app.use('/api/v1/credenciais', credenciaisRouter)
-app.use('/api/v1/simulador-ta', simuladorTARouter)
+app.use('/api/v1/credenciais-portal-unico', credenciaisRouter)
+app.use('/api/v1/simulacoes-tratamento-administrativo', simuladorTARouter)
 app.use('/api/v1/lpcos/dashboard', dashboardWidgetsRouter)
 
 // --- 9. SPA Fallback (producao) ---

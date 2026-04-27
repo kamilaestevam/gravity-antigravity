@@ -1,12 +1,16 @@
 /**
  * smartImport.ts — Rotas de importacao inteligente de pedidos
  *
- * Rota base: /api/v1/pedidos/smart-import
+ * Rota base: /api/v1/pedidos/importacoes-inteligentes
  *
  * Endpoints:
- *   POST /api/v1/pedidos/smart-import/analisar      — upload multipart, parse, mock IA
- *   POST /api/v1/pedidos/smart-import/confirmar     — aplicar decisoes, criar/atualizar pedidos
- *   GET  /api/v1/pedidos/smart-import/mapeamento/:hash — mapeamento salvo por hash
+ *   POST /api/v1/pedidos/importacoes-inteligentes/analisar                              — upload multipart, parse, mock IA
+ *   POST /api/v1/pedidos/importacoes-inteligentes/confirmar                             — aplicar decisoes, criar/atualizar pedidos
+ *   GET  /api/v1/pedidos/importacoes-inteligentes/mapeamentos/:hash_mapeamento          — mapeamento salvo por hash
+ *   POST /api/v1/pedidos/importacoes-inteligentes/mapeamentos                           — salva mapeamento
+ *   POST /api/v1/pedidos/importacoes-inteligentes/reverter                              — rollback de importacao
+ *   GET  /api/v1/pedidos/importacoes-inteligentes/template                              — planilha modelo
+ *   GET  /api/v1/pedidos/importacoes-inteligentes/campos                                — campos do sistema
  *
  * Seguranca:
  *   - Validacao de extensao e tamanho (max 10MB) via multer
@@ -225,10 +229,10 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   }
 })
 
-// ── GET /mapeamento/:hash ──────────────────────────────────────────────────────
+// ── GET /mapeamentos/:hash_mapeamento ─────────────────────────────────────────
 
-smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, next: NextFunction) => {
-  const hash = req.params.hash
+smartImportRouter.get('/mapeamentos/:hash_mapeamento', async (req: Request, res: Response, next: NextFunction) => {
+  const hash = req.params.hash_mapeamento
 
   if (!hash || hash.length < 4) {
     return res.status(400).json({
@@ -297,14 +301,14 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
   }
 })
 
-// ── POST /mapeamento/salvar ────────────────────────────────────────────────────
+// ── POST /mapeamentos ──────────────────────────────────────────────────────────
 
 const SalvarMapeamentoSchema = z.object({
   hash_colunas: z.string().min(4),
   mapeamento:   z.array(ColunaMapeadaSchema),
 })
 
-smartImportRouter.post('/mapeamento/salvar', async (req: Request, res: Response, next: NextFunction) => {
+smartImportRouter.post('/mapeamentos', async (req: Request, res: Response, next: NextFunction) => {
   const parse = SalvarMapeamentoSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({

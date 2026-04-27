@@ -42,9 +42,9 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:codigo', async (req, res, next) => {
+router.get('/:id_unidade', async (req, res, next) => {
   try {
-    const unidade = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
+    const unidade = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.id_unidade } })
     if (!unidade) throw AppError.naoEncontrado('Unidade')
     res.status(200).json(unidade)
   } catch (err) {
@@ -52,10 +52,10 @@ router.get('/:codigo', async (req, res, next) => {
   }
 })
 
-router.put('/:codigo', async (req, res, next) => {
+router.put('/:id_unidade', async (req, res, next) => {
   try {
     const dados = atualizarUnidadeSchema.parse(req.body)
-    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
+    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.id_unidade } })
     if (!existente) throw AppError.naoEncontrado('Unidade')
     const atualizada = await prisma.unidade.update({
       where: { codigo_unidade: existente.codigo_unidade },
@@ -67,9 +67,9 @@ router.put('/:codigo', async (req, res, next) => {
   }
 })
 
-router.delete('/:codigo', async (req, res, next) => {
+router.delete('/:id_unidade', async (req, res, next) => {
   try {
-    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
+    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.id_unidade } })
     if (!existente) throw AppError.naoEncontrado('Unidade')
     const desativada = await prisma.unidade.update({
       where: { codigo_unidade: existente.codigo_unidade },

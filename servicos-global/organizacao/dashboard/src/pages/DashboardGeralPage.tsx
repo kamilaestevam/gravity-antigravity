@@ -221,7 +221,7 @@ function QueryBuilderModal({ configId, onClose, onSaved }: QueryBuilderModalProp
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch('/api/v1/dashboard/widgets', {
+      const res = await fetch('/api/v1/dashboards/widgets', {
         method: 'POST',
         headers: getTenantHeaders(),
         body: JSON.stringify({
@@ -449,7 +449,7 @@ export function DashboardGeralPage() {
     setLoadingConfig(true)
     setConfigError(null)
     try {
-      const res = await fetch('/api/v1/dashboard/configs?mode=GENERAL', {
+      const res = await fetch('/api/v1/dashboards/configs?mode=GENERAL', {
         headers: getTenantHeaders(),
       })
       if (!res.ok) {
@@ -703,7 +703,7 @@ export function DashboardGeralPage() {
 
   async function criarConfigEAbrirBuilder() {
     try {
-      const res = await fetch('/api/v1/dashboard/configs', {
+      const res = await fetch('/api/v1/dashboards/configs', {
         method: 'POST',
         headers: getTenantHeaders(),
         body: JSON.stringify({

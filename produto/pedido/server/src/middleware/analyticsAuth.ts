@@ -1,7 +1,7 @@
 /**
  * analyticsAuth.ts — Autenticação para o endpoint Power BI
  *
- * O Power BI acessa /api/v1/analytics/pedido via Bearer token
+ * O Power BI acessa /api/v1/pedidos/analytics via Bearer token
  * (API Key gerada no Cockpit do tenant).
  * Não usa x-internal-key pois é acesso externo autenticado.
  */

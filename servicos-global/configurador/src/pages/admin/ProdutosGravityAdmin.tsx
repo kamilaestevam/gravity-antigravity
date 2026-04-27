@@ -1210,7 +1210,7 @@ export function ProdutosGravityAdmin() {
                             // — NÃO envia x-internal-key vazio, que era um bug de segurança latente.
                             const token = await getToken()
                             if (!token) return
-                            const resp = await fetch(`/api/v1/gabi/admin/products/${produtoEditando.id}/tokens/stats`, {
+                            const resp = await fetch(`/api/v1/gabi/admin/produtos/${produtoEditando.id}/tokens/estatisticas`, {
                               headers: { Authorization: `Bearer ${token}` },
                             })
                             if (resp.ok) {

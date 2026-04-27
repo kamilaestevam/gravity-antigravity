@@ -119,7 +119,7 @@ masterDataRouter.get('/moedas', (_req: Request, res: Response) => {
   res.json(MOEDAS)
 })
 
-masterDataRouter.get('/liquidacoes', (_req: Request, res: Response) => {
+masterDataRouter.get('/tipos-liquidacao', (_req: Request, res: Response) => {
   res.json(LIQUIDACOES)
 })
 
@@ -128,10 +128,10 @@ masterDataRouter.get('/metodos-vencimento', (_req: Request, res: Response) => {
 })
 
 /**
- * GET /api/v1/master-data/ptax?moeda=USD
+ * GET /api/v1/cotacoes-ptax?moeda=USD
  * Retorna PTAX do dia (ou ultimo dia util) com cache de 5 min
  */
-masterDataRouter.get('/ptax', async (req: Request, res: Response) => {
+masterDataRouter.get('/cotacoes-ptax', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'
 
   try {
@@ -167,10 +167,10 @@ masterDataRouter.get('/ptax', async (req: Request, res: Response) => {
 })
 
 /**
- * GET /api/v1/master-data/ptax/historico?moeda=USD&dias=30
+ * GET /api/v1/cotacoes-ptax/historico?moeda=USD&dias=30
  * Retorna historico de PTAX dos ultimos N dias
  */
-masterDataRouter.get('/ptax/historico', async (req: Request, res: Response) => {
+masterDataRouter.get('/cotacoes-ptax/historico', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'
   const dias = Math.min(parseInt(req.query.dias as string) || 30, 90)
 

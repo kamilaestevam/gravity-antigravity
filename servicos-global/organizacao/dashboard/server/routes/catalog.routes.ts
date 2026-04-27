@@ -28,8 +28,8 @@ const suggestQuerySchema = z.object({
   operation: z.string().min(1),
 })
 
-// GET /fields — retorna campos do Data Catalog filtrados pelas permissões do usuário
-catalogRouter.get('/fields', async (req, res, next) => {
+// GET /campos — retorna campos do Data Catalog filtrados pelas permissões do usuário
+catalogRouter.get('/campos', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
     const { product_id } = fieldsQuerySchema.parse(req.query)
@@ -56,7 +56,7 @@ catalogRouter.get('/fields', async (req, res, next) => {
   }
 })
 
-// GET /widgets — retorna widgets pré-construídos disponíveis para o usuário
+// GET /widgets — retorna widgets pré-construídos disponíveis para o usuário (catálogo)
 catalogRouter.get('/widgets', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!
@@ -78,8 +78,8 @@ catalogRouter.get('/widgets', async (req, res, next) => {
   }
 })
 
-// GET /suggest — sugere tipos de gráfico para campos selecionados
-catalogRouter.get('/suggest', async (req, res, next) => {
+// GET /sugestoes — sugere tipos de gráfico para campos selecionados
+catalogRouter.get('/sugestoes', async (req, res, next) => {
   try {
     const { fields: fieldsRaw, operation } = suggestQuerySchema.parse(req.query)
 

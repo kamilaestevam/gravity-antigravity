@@ -1,9 +1,9 @@
 // server/routes/users.ts
-// Gestão de usuários e permissões no tenant
-// GET  /api/v1/usuarios          — listar usuários do tenant
-// POST /api/v1/usuarios/invite   — convidar usuário
-// POST /api/v1/usuarios/:id/memberships — habilitar em empresa filha
-// PATCH /api/v1/usuarios/:id/role — definir role
+// Gestão de usuários e permissões na organização
+// GET  /api/v1/usuarios                              — listar usuários da organização
+// POST /api/v1/usuarios/convidar                     — convidar usuário
+// POST /api/v1/usuarios/:id_usuario/vinculos         — habilitar em workspace
+// PATCH /api/v1/usuarios/:id_usuario/patente         — definir patente
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -94,10 +94,10 @@ usersRouter.get('/', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/usuarios/invite
- * Convida um usuário para o tenant — dispara e-mail via Clerk
+ * POST /api/v1/usuarios/convidar
+ * Convida um usuário para a organização — dispara e-mail via Clerk
  */
-usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = InviteUserSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -189,10 +189,10 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/usuarios/:id/memberships
- * Habilita usuário em uma empresa filha com um papel específico
+ * POST /api/v1/usuarios/:id_usuario/vinculos
+ * Habilita usuário em um workspace com um papel específico
  */
-usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = MembershipSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -204,7 +204,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     }
 
     const { companyId, role } = parsed.data
-    const userId = req.params.id
+    const userId = req.params.id_usuario
 
     // Garante que o usuário pertence ao mesmo tenant
     const user = await prisma.usuario.findFirst({
@@ -304,10 +304,10 @@ async function substituirWorkspacesAtomicamente(
 }
 
 /**
- * PUT /api/v1/usuarios/:id/workspaces
+ * PUT /api/v1/usuarios/:id_usuario/workspaces
  * Substitui atomicamente os workspaces vinculados a um usuário STANDARD/SUPPLIER
  */
-usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => {
+usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = UpdateWorkspacesSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -315,7 +315,7 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
     }
 
     const { workspaces: workspaceIds } = parsed.data
-    const userId = req.params.id
+    const userId = req.params.id_usuario
 
     const user = await prisma.usuario.findFirst({
       where: { id_usuario: userId, id_organizacao_usuario: req.auth.tenantId },
@@ -357,10 +357,10 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
 })
 
 /**
- * PATCH /api/v1/usuarios/:id/role
- * Atualiza o role de um usuário no tenant
+ * PATCH /api/v1/usuarios/:id_usuario/patente
+ * Atualiza a patente de um usuário na organização
  */
-usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
+usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, next) => {
   try {
     const RoleSchema = z.object({
       role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
@@ -371,7 +371,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
     }
 
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario: req.params.id, id_organizacao_usuario: req.auth.tenantId },
+      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.tenantId },
       select: { id_usuario: true, clerk_user_id: true, tipo_usuario: true },
     })
     if (!user) {
@@ -379,13 +379,13 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
     }
 
     const updated = await prisma.usuario.update({
-      where: { id_usuario: req.params.id, id_organizacao_usuario: req.auth.tenantId },
+      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.tenantId },
       data: { tipo_usuario: parsed.data.role },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
-      targetUserId: req.params.id,
+      targetUserId: req.params.id_usuario,
       oldRole: user.tipo_usuario,
       newRole: parsed.data.role,
     }).catch(() => {})

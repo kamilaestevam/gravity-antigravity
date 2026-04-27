@@ -282,7 +282,7 @@ export const pedidoInitApi = {
     if (params.limit)  q.set('limit', String(params.limit))
     if (params.status) q.set('status', params.status)
     if (params.busca)  q.set('busca', params.busca)
-    return request<PedidoInitResponse>(`/api/v1/pedidos/init?${q}`).catch(err => {
+    return request<PedidoInitResponse>(`/api/v1/pedidos/inicializacao?${q}`).catch(err => {
       if (import.meta.env.DEV) {
         // DEV sem backend: retorna mock combinado
         return {
@@ -343,7 +343,7 @@ export const pedidoConfigApi = {
 
 export const pedidoLoteApi = {
   mudarStatusConfirmar: (ids: string[], novoStatus: string) =>
-    request<{ sucesso: number; erros: { id: string; motivo: string }[] }>('/api/v1/pedidos/lote/status/confirmar', {
+    request<{ sucesso: number; erros: { id: string; motivo: string }[] }>('/api/v1/pedidos/alteracoes-status-lote/confirmar', {
       method: 'POST',
       body: JSON.stringify({ ids, status_novo: novoStatus }),
     }),
@@ -385,7 +385,7 @@ export const importacaoApi = {
 export const pedidoConsolidarApi = {
   /** Retorna divergências de campos e sugestões de merge para os ids selecionados */
   preview: (ids: string[]) =>
-    request<ConsolidacaoPreview>('/api/v1/pedidos/consolidar/preview', {
+    request<ConsolidacaoPreview>('/api/v1/pedidos/consolidacoes/preview', {
       method: 'POST',
       body: JSON.stringify({ ids }),
     }).catch(err => {
@@ -395,7 +395,7 @@ export const pedidoConsolidarApi = {
 
   /** Executa o merge e retorna o pedido consolidado criado */
   confirmar: (payload: ConsolidacaoPayload) =>
-    request<Pedido>('/api/v1/pedidos/consolidar/confirmar', {
+    request<Pedido>('/api/v1/pedidos/consolidacoes/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -529,14 +529,14 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
 export const pedidoTransferirApi = {
   /** Pré-visualização — retorna impacto sem alterar o banco */
   preview: (payload: Omit<TransferPayload, 'numero_pedido_novo'>) =>
-    request<TransferPreview>('/api/v1/pedidos/transferir/preview', {
+    request<TransferPreview>(`/api/v1/pedidos/${payload.pedido_id}/transferencias/preview`, {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
 
   /** Confirmação — executa a transferência */
   confirmar: (payload: TransferPayload) =>
-    request<TransferResultado>('/api/v1/pedidos/transferir/confirmar', {
+    request<TransferResultado>(`/api/v1/pedidos/${payload.pedido_id}/transferencias/confirmar`, {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
@@ -546,8 +546,8 @@ export const pedidoTransferirApi = {
     request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
 
   /** Reverter uma transferência específica */
-  reverter: (transfer_id: string) =>
-    request<TransferResultado>(`/api/v1/pedidos/transferir/${transfer_id}/reverter`, {
+  reverter: (pedido_id: string, transfer_id: string) =>
+    request<TransferResultado>(`/api/v1/pedidos/${pedido_id}/transferencias/${transfer_id}/reverter`, {
       method: 'POST',
     }),
 }
@@ -626,7 +626,7 @@ function mockTransferirReverter(transfer_id: string): TransferResultado {
 export const pedidoEdicaoMassaApi = {
   /** Preview — mostra impacto antes de confirmar */
   preview: (payload: EdicaoMassaPayload) =>
-    request<EdicaoMassaPreview>('/api/v1/pedidos/edicao-em-massa/preview', {
+    request<EdicaoMassaPreview>('/api/v1/pedidos/edicoes-em-massa/preview', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -639,7 +639,7 @@ export const pedidoEdicaoMassaApi = {
 
   /** Confirmar — executa a edição em massa */
   confirmar: (payload: EdicaoMassaPayload) =>
-    request<EdicaoMassaResultado>('/api/v1/pedidos/edicao-em-massa/confirmar', {
+    request<EdicaoMassaResultado>('/api/v1/pedidos/edicoes-em-massa/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -780,7 +780,7 @@ export const smartImportApi = {
     const formData = new FormData()
     formData.append('arquivo', arquivo)
     // Omitir Content-Type — browser define boundary automaticamente
-    return fetch('/api/v1/pedidos/smart-import/analisar', {
+    return fetch('/api/v1/pedidos/importacoes-inteligentes/analisar', {
       method: 'POST',
       headers: {
         'x-tenant-id': context.tenantId,
@@ -804,7 +804,7 @@ export const smartImportApi = {
 
   /** Confirmar importacao com decisoes do usuario */
   confirmar: (payload: SmartImportConfirmar) =>
-    request<SmartImportResultado>('/api/v1/pedidos/smart-import/confirmar', {
+    request<SmartImportResultado>('/api/v1/pedidos/importacoes-inteligentes/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -814,7 +814,7 @@ export const smartImportApi = {
 
   /** Buscar mapeamento salvo para hash de colunas */
   mapeamentoSalvo: (hashColunas: string) =>
-    request<ColunaMapeada[] | null>(`/api/v1/pedidos/smart-import/mapeamento/${hashColunas}`),
+    request<ColunaMapeada[] | null>(`/api/v1/pedidos/importacoes-inteligentes/mapeamentos/${hashColunas}`),
 }
 
 // ── Mocks DEV para Smart Import ───────────────────────────────────────────────
@@ -1042,7 +1042,7 @@ export const pedidoDuplicarApi = {
     request<{
       config: { numero_auto: boolean; copiar_datas: boolean; status_inicial: string }
       pedidos: { id: string; numero_pedido: string; total_itens: number }[]
-    }>('/api/v1/pedidos/duplicar/preview', {
+    }>('/api/v1/pedidos/duplicacoes/preview', {
       method: 'POST',
       body: JSON.stringify({ ids }),
     }).catch(err => {
@@ -1052,7 +1052,7 @@ export const pedidoDuplicarApi = {
 
   /** Confirmar duplicação de um ou mais pedidos */
   confirmar: (payload: DuplicarPayload) =>
-    request<DuplicarResultado>('/api/v1/pedidos/duplicar/confirmar', {
+    request<DuplicarResultado>('/api/v1/pedidos/duplicacoes/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1062,7 +1062,7 @@ export const pedidoDuplicarApi = {
 
   /** Duplicar itens dentro de um pedido */
   duplicarItens: (payload: DuplicarItemPayload) =>
-    request<DuplicarResultado>('/api/v1/pedidos/duplicar/itens', {
+    request<DuplicarResultado>('/api/v1/pedidos/duplicacoes/itens', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1122,7 +1122,7 @@ function mockDuplicarItens(payload: DuplicarItemPayload): DuplicarResultado {
 export const pedidoExcluirApi = {
   /** Preview: quais pedidos podem ser excluídos, quais estão bloqueados */
   preview: (ids: string[]) =>
-    request<ExcluirPreview>('/api/v1/pedidos/excluir/preview', {
+    request<ExcluirPreview>('/api/v1/pedidos/exclusoes/preview', {
       method: 'POST',
       body: JSON.stringify({ ids }),
     }).catch(err => {
@@ -1132,7 +1132,7 @@ export const pedidoExcluirApi = {
 
   /** Confirmar exclusão definitiva dos pedidos permitidos */
   confirmar: (ids: string[]) =>
-    request<ExcluirResultado>('/api/v1/pedidos/excluir/confirmar', {
+    request<ExcluirResultado>('/api/v1/pedidos/exclusoes/confirmar', {
       method: 'POST',
       body: JSON.stringify({ ids }),
     }).catch(err => {
@@ -1142,7 +1142,7 @@ export const pedidoExcluirApi = {
 
   /** Excluir itens de um pedido */
   excluirItens: (pedido_id: string, item_ids: string[]) =>
-    request<ExcluirResultado>('/api/v1/pedidos/excluir/itens', {
+    request<ExcluirResultado>('/api/v1/pedidos/exclusoes/itens', {
       method: 'POST',
       body: JSON.stringify({ pedido_id, item_ids }),
     }).catch(err => {
@@ -1328,13 +1328,13 @@ export interface PdfTemplate {
 
 export const pdfApi = {
   listarTemplates: () =>
-    request<{ data: PdfTemplate[] }>('/api/v1/pedidos/pdf/templates').catch(err => {
+    request<{ data: PdfTemplate[] }>('/api/v1/pedidos/relatorios-pdf/templates').catch(err => {
       if (import.meta.env.DEV) return { data: mockPdfTemplatesLocal() }
       throw err
     }),
 
   gerar: (payload: GerarPdfPayload) =>
-    request<GerarPdfResultado>('/api/v1/pedidos/pdf/gerar', {
+    request<GerarPdfResultado>('/api/v1/pedidos/relatorios-pdf/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1343,7 +1343,7 @@ export const pdfApi = {
     }),
 
   criarTemplate: (data: { nome: string; conteudo: string }) =>
-    request<PdfTemplate>('/api/v1/pedidos/pdf/templates', {
+    request<PdfTemplate>('/api/v1/pedidos/relatorios-pdf/templates', {
       method: 'POST',
       body: JSON.stringify(data),
     }).catch(err => {
@@ -1360,7 +1360,7 @@ export const pdfApi = {
     }),
 
   atualizarTemplate: (id: string, data: { nome: string; conteudo: string }) =>
-    request<PdfTemplate>(`/api/v1/pedidos/pdf/templates/${id}`, {
+    request<PdfTemplate>(`/api/v1/pedidos/relatorios-pdf/templates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }).catch(err => {
@@ -1371,7 +1371,7 @@ export const pdfApi = {
     }),
 
   deletarTemplate: (id: string) =>
-    request<void>(`/api/v1/pedidos/pdf/templates/${id}`, { method: 'DELETE' }).catch(err => {
+    request<void>(`/api/v1/pedidos/relatorios-pdf/templates/${id}`, { method: 'DELETE' }).catch(err => {
       if (import.meta.env.DEV) return
       throw err
     }),
@@ -1381,7 +1381,7 @@ export const pdfApi = {
 
 export const gerarDocumentoApi = {
   gerar: (payload: GerarDocumentoPayload) =>
-    request<GerarPdfResultado>('/api/v1/pedidos/pdf/documentos/gerar', {
+    request<GerarPdfResultado>('/api/v1/pedidos/relatorios-pdf/documentos/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1668,7 +1668,7 @@ export const colunasUsuarioApi = {
   ): Promise<{ gemini: false } | { gemini: true; titulo: string; texto: string; sugestao?: string }> => {
     try {
       const res = await request<{ gemini: boolean; titulo?: string; texto?: string; sugestao?: string }>(
-        '/api/v1/pedidos/colunas-usuario/gabi-analise',
+        '/api/v1/pedidos/colunas-usuario/analisar-via-gabi',
         { method: 'POST', body: JSON.stringify({ expressao, campos }) },
       )
       if (res.gemini && res.titulo && res.texto) {
@@ -1787,12 +1787,12 @@ export const dashboardApi = {
 
   trend: (period: string, granularity = 'month') =>
     request<DashboardTrendResponse>(
-      `/api/v1/pedidos/dashboard/trend?period=${encodeURIComponent(period)}&granularity=${granularity}`,
+      `/api/v1/pedidos/dashboard/tendencia?period=${encodeURIComponent(period)}&granularity=${granularity}`,
     ),
 
   distribution: (period: string) =>
     request<DashboardDistributionResponse>(
-      `/api/v1/pedidos/dashboard/distribution?period=${encodeURIComponent(period)}`,
+      `/api/v1/pedidos/dashboard/distribuicao?period=${encodeURIComponent(period)}`,
     ),
 
   /** Fase 1+2+3 — insights ranqueados por role + comportamento + LLM */
@@ -1811,7 +1811,7 @@ export const dashboardApi = {
       total_verificados: number
       sem_sync:          boolean
       ultima_sync:       string | null
-    }>('/api/v1/pedidos/dashboard/ncm-status'),
+    }>('/api/v1/pedidos/dashboard/status-ncm'),
 }
 
 // ── Dashboard Painéis ─────────────────────────────────────────────────────────

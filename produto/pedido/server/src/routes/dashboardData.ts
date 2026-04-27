@@ -5,8 +5,9 @@
  *
  * Endpoints:
  *   GET /api/v1/pedidos/dashboard/kpis          — KPIs agregados do período
- *   GET /api/v1/pedidos/dashboard/trend         — série temporal (mensal)
- *   GET /api/v1/pedidos/dashboard/distribution  — distribuição por status
+ *   GET /api/v1/pedidos/dashboard/tendencia     — série temporal (mensal)
+ *   GET /api/v1/pedidos/dashboard/distribuicao  — distribuição por status
+ *   GET /api/v1/pedidos/dashboard/status-ncm    — itens com NCM inválido
  *
  * Autenticação: x-internal-key + x-tenant-id (via middleware global)
  *
@@ -264,7 +265,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
 })
 
 // ── Série temporal ────────────────────────────────────────────────────────────
-dashboardDataRouter.get('/trend', async (req: Request, res: Response) => {
+dashboardDataRouter.get('/tendencia', async (req: Request, res: Response) => {
   const period      = (req.query.period as string)      ?? '12m'
   const granularity = (req.query.granularity as string) ?? 'month'
   const { from, to } = periodToDateRange(period)
@@ -443,10 +444,10 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
 })
 
 // ── Status NCM — itens com NCM inválido ───────────────────────────────────────
-// GET /api/v1/pedidos/dashboard/ncm-status
+// GET /api/v1/pedidos/dashboard/status-ncm
 // Consulta o serviço NCM tenant para saber quais NCMs usados nos itens são inválidos.
 // Falha silenciosa: se o serviço NCM estiver offline, retorna sem_sync=true.
-dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
+dashboardDataRouter.get('/status-ncm', async (req: Request, res: Response) => {
   const tenantId  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
   const TENANT_SVC = process.env.TENANT_SERVICE_URL ?? 'http://localhost:3001'
   const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
@@ -526,7 +527,7 @@ dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
 })
 
 // ── Distribuição por status ────────────────────────────────────────────────────
-dashboardDataRouter.get('/distribution', async (req: Request, res: Response) => {
+dashboardDataRouter.get('/distribuicao', async (req: Request, res: Response) => {
   const period = (req.query.period as string) ?? '30d'
   const { from, to } = periodToDateRange(period)
 

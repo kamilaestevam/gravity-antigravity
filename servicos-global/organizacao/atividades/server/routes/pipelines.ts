@@ -95,13 +95,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/pipelines/:id
+// GET /api/v1/pipelines/:id_pipeline
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id_pipeline', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const pipeline = await db.pipeline.findFirst({ where: { id: req.params.id } })
+    const pipeline = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!pipeline) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
     res.json(pipeline)
   } catch (err) {
@@ -137,10 +137,10 @@ router.post('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/pipelines/:id
+// PATCH /api/v1/pipelines/:id_pipeline
 // ---------------------------------------------------------------------------
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id_pipeline', async (req, res, next) => {
   try {
     const result = updatePipelineSchema.safeParse(req.body)
     if (!result.success) {
@@ -154,11 +154,11 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.pipeline.findFirst({ where: { id: req.params.id } })
+    const existing = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!existing) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
 
     const pipeline = await db.pipeline.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_pipeline },
       data: result.data,
     })
     res.json(pipeline)
@@ -168,16 +168,16 @@ router.patch('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/pipelines/:id
+// DELETE /api/v1/pipelines/:id_pipeline
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id_pipeline', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.pipeline.findFirst({ where: { id: req.params.id } })
+    const existing = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!existing) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
 
-    await db.pipeline.delete({ where: { id: req.params.id } })
+    await db.pipeline.delete({ where: { id: req.params.id_pipeline } })
     res.status(204).send()
   } catch (err) {
     next(err)

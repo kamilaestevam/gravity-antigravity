@@ -49,7 +49,7 @@ function extractBearerToken(authHeader: string | undefined): string | null {
  */
 async function validateTokenWithCockpit(token: string): Promise<ValidateTokenResponse> {
   const response = await fetch(
-    `${API_COCKPIT_URL}/api/v1/cockpit/tokens/validate`,
+    `${API_COCKPIT_URL}/api/v1/api-tokens/validate`,
     {
       method: 'GET',
       headers: {

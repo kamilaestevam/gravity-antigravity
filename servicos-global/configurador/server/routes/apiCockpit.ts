@@ -4,16 +4,17 @@
  * Proxy entre o frontend (workspace + admin) e o servico api-cockpit.
  * O frontend NAO fala diretamente com o api-cockpit; passa pelo Configurador.
  *
- * Rotas workspace (qualquer usuario autenticado):
+ * Rotas workspace (qualquer usuario autenticado — montadas em /api/v1/api-cockpit):
  *   GET /api/v1/api-cockpit/services    — Health check dos servicos
  *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por tenant)
  *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por tenant)
  *
- * Rotas admin (gravity_admin):
- *   GET /api/admin/api-cockpit/services  — Health check (todos)
- *   GET /api/admin/api-cockpit/logs      — Logs (todos os tenants)
- *   GET /api/admin/api-cockpit/stats     — KPIs (globais)
- *   GET /api/admin/api-cockpit/gabi-usage — Custos GABI IA agregados (todos os tenants)
+ * Rotas admin (gravity_admin — montadas em /api/v1/admin):
+ *   GET /api/v1/admin/servicos-api          — Health check (todos)
+ *   GET /api/v1/admin/logs-api              — Logs (todas as organizações)
+ *   GET /api/v1/admin/estatisticas-api      — KPIs (globais)
+ *   GET /api/v1/admin/uso-gabi              — Custos GABI IA agregados
+ *   GET /api/v1/admin/uso-gabi/historico    — Histórico de uso GABI (6 meses)
  */
 
 import { Router } from 'express'
@@ -106,7 +107,7 @@ apiCockpitRouter.get('/stats', async (_req, res) => {
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
-apiCockpitAdminRouter.get('/services', async (_req, res) => {
+apiCockpitAdminRouter.get('/servicos-api', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/services')
     res.json(data)
@@ -115,7 +116,7 @@ apiCockpitAdminRouter.get('/services', async (_req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/logs', async (req, res) => {
+apiCockpitAdminRouter.get('/logs-api', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
       tenant_id: (req.query.tenant_id as string) || '',
@@ -129,7 +130,7 @@ apiCockpitAdminRouter.get('/logs', async (req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/stats', async (_req, res) => {
+apiCockpitAdminRouter.get('/estatisticas-api', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/stats')
     res.json(data)
@@ -141,15 +142,15 @@ apiCockpitAdminRouter.get('/stats', async (_req, res) => {
 // ─── GABI Usage — custos de IA agregados (admin global) ─────────────────
 
 /**
- * GET /api/admin/api-cockpit/gabi-usage
- * Proxy para GET /api/v1/gabi/usage do serviço Gabi (tenant super-server).
+ * GET /api/v1/admin/uso-gabi
+ * Proxy para GET /api/v1/gabi/uso do serviço Gabi (tenant super-server).
  * Quando tenant_id não é informado, retorna uso global (sem filtro).
  */
-apiCockpitAdminRouter.get('/gabi-usage', async (req, res) => {
+apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
   try {
     const month = (req.query.month as string) || ''
     const tenantId = (req.query.tenant_id as string) || ''
-    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/usage`)
+    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso`)
     if (month) url.searchParams.set('month', month)
     if (tenantId) url.searchParams.set('tenant_id', tenantId)
 
@@ -180,13 +181,13 @@ apiCockpitAdminRouter.get('/gabi-usage', async (req, res) => {
 })
 
 /**
- * GET /api/admin/api-cockpit/gabi-usage/history
- * Proxy para GET /api/v1/gabi/usage/history — últimos 6 meses.
+ * GET /api/v1/admin/uso-gabi/historico
+ * Proxy para GET /api/v1/gabi/uso/historico — últimos 6 meses.
  */
-apiCockpitAdminRouter.get('/gabi-usage/history', async (req, res) => {
+apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
   try {
     const tenantId = (req.query.tenant_id as string) || ''
-    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/usage/history`)
+    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso/historico`)
     if (tenantId) url.searchParams.set('tenant_id', tenantId)
 
     const response = await fetch(url.toString(), {

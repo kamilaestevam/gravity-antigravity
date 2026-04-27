@@ -58,7 +58,7 @@ export const Dashboard: React.FC = () => {
     setLoading(true)
     setErro(null)
     try {
-      const res = await fetch('/api/v1/dashboard/kpis?tenant_id=tenant-1')
+      const res = await fetch('/api/v1/dashboards/kpis?tenant_id=tenant-1')
       if (!res.ok) throw new Error(`Status: ${res.status}`)
       const { data } = await res.json()
       setKpis(data)

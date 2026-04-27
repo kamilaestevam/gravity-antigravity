@@ -1,7 +1,7 @@
 /**
  * init.ts — Endpoint de inicialização da Lista de Pedidos
  *
- * GET /api/v1/pedidos/init
+ * GET /api/v1/pedidos/inicializacao
  *
  * Agrega em 1 request as 4 queries que a tela ListaPedidos precisa ao montar:
  *   1. Primeira página de pedidos (cursor keyset, limit 100)
@@ -34,7 +34,7 @@ export const initRouter = Router()
 
 const colunasService = new ColunasUsuarioService()
 
-// GET /init
+// GET /inicializacao
 initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {

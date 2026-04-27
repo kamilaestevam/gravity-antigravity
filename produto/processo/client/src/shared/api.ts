@@ -148,7 +148,7 @@ export async function uploadDocumento(
 }
 
 export async function deleteDocumento(tenantId: string, id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/documentos/${id}`, {
+  const res = await fetch(`${API_BASE}/documentos-processo/${id}`, {
     method: 'DELETE',
     headers: headers(tenantId),
   })

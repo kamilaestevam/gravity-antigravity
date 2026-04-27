@@ -64,7 +64,7 @@ export function useDashboardSSE({
     function connect(): void {
       if (destroyedRef.current) return
 
-      const es = new EventSource(`/api/v1/dashboard/stream/${dashboardId}`)
+      const es = new EventSource(`/api/v1/dashboards/${dashboardId}/stream`)
       eventSourceRef.current = es
 
       es.onopen = () => {

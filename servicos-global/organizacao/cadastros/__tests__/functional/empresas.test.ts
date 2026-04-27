@@ -42,7 +42,7 @@ afterAll(async () => {
 describe('POST /empresas', () => {
   it('cria empresa BR válida', async () => {
     const res = await request(app)
-      .post('/api/v1/cadastros/empresas')
+      .post('/api/v1/empresas')
       .set(headers)
       .send(payloadEmpresaBR())
     expect(res.status).toBe(201)
@@ -52,7 +52,7 @@ describe('POST /empresas', () => {
 
   it('rejeita 401 sem chave interna', async () => {
     const res = await request(app)
-      .post('/api/v1/cadastros/empresas')
+      .post('/api/v1/empresas')
       .send(payloadEmpresaBR())
     expect(res.status).toBe(401)
   })
@@ -60,7 +60,7 @@ describe('POST /empresas', () => {
   it('rejeita 422 quando CNPJ ausente em pais=BR', async () => {
     const { cnpj_empresa: _drop, ...semCnpj } = payloadEmpresaBR()
     const res = await request(app)
-      .post('/api/v1/cadastros/empresas')
+      .post('/api/v1/empresas')
       .set(headers)
       .send(semCnpj)
     expect(res.status).toBe(422)
@@ -69,7 +69,7 @@ describe('POST /empresas', () => {
   it('gera SUID automaticamente quando não fornecido', async () => {
     const { suid_empresa: _drop, ...semSuid } = payloadEmpresaBR()
     const res = await request(app)
-      .post('/api/v1/cadastros/empresas')
+      .post('/api/v1/empresas')
       .set(headers)
       .send({
         ...semSuid,
@@ -86,18 +86,18 @@ describe('POST /empresas', () => {
 
 describe('GET /empresas', () => {
   it('lista apenas empresas do tenant solicitante', async () => {
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(`${PREFIXO_SUID_TESTE}A1`))
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send({ ...payloadEmpresaBR(`${PREFIXO_SUID_TESTE}B1`), id_organizacao: TENANT_B })
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(`${PREFIXO_SUID_TESTE}A1`))
+    await request(app).post('/api/v1/empresas').set(headers).send({ ...payloadEmpresaBR(`${PREFIXO_SUID_TESTE}B1`), id_organizacao: TENANT_B })
 
     const res = await request(app)
-      .get('/api/v1/cadastros/empresas')
+      .get('/api/v1/empresas')
       .set({ ...headers, 'x-organizacao-id': TENANT_A })
     expect(res.status).toBe(200)
     expect(res.body.itens.every((e: { id_organizacao: string }) => e.id_organizacao === TENANT_A)).toBe(true)
   })
 
   it('exige id_organizacao (header ou query)', async () => {
-    const res = await request(app).get('/api/v1/cadastros/empresas').set(headers)
+    const res = await request(app).get('/api/v1/empresas').set(headers)
     expect(res.status).toBe(400)
   })
 })
@@ -105,20 +105,20 @@ describe('GET /empresas', () => {
 describe('GET /empresas/:suid (cross-tenant)', () => {
   it('retorna 404 quando outro tenant tenta acessar', async () => {
     const suid_empresa = `${PREFIXO_SUID_TESTE}cross1`
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
 
     const res = await request(app)
-      .get(`/api/v1/cadastros/empresas/${suid_empresa}`)
+      .get(`/api/v1/empresas/${suid_empresa}`)
       .set({ ...headers, 'x-organizacao-id': TENANT_B })
     expect(res.status).toBe(404)
   })
 
   it('retorna 200 para o tenant dono', async () => {
     const suid_empresa = `${PREFIXO_SUID_TESTE}own1`
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
 
     const res = await request(app)
-      .get(`/api/v1/cadastros/empresas/${suid_empresa}`)
+      .get(`/api/v1/empresas/${suid_empresa}`)
       .set({ ...headers, 'x-organizacao-id': TENANT_A })
     expect(res.status).toBe(200)
     expect(res.body.suid_empresa).toBe(suid_empresa)
@@ -128,10 +128,10 @@ describe('GET /empresas/:suid (cross-tenant)', () => {
 describe('PUT /empresas/:suid', () => {
   it('atualiza nome da empresa', async () => {
     const suid_empresa = `${PREFIXO_SUID_TESTE}upd1`
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
 
     const res = await request(app)
-      .put(`/api/v1/cadastros/empresas/${suid_empresa}`)
+      .put(`/api/v1/empresas/${suid_empresa}`)
       .set({ ...headers, 'x-organizacao-id': TENANT_A })
       .send({ nome_empresa: 'Empresa Renomeada' })
     expect(res.status).toBe(200)
@@ -140,10 +140,10 @@ describe('PUT /empresas/:suid', () => {
 
   it('404 ao tentar atualizar SUID alheio', async () => {
     const suid_empresa = `${PREFIXO_SUID_TESTE}cross-upd`
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
 
     const res = await request(app)
-      .put(`/api/v1/cadastros/empresas/${suid_empresa}`)
+      .put(`/api/v1/empresas/${suid_empresa}`)
       .set({ ...headers, 'x-organizacao-id': TENANT_B })
       .send({ nome_empresa: 'Hack' })
     expect(res.status).toBe(404)
@@ -153,10 +153,10 @@ describe('PUT /empresas/:suid', () => {
 describe('DELETE /empresas/:suid', () => {
   it('aplica soft delete (ativo=false)', async () => {
     const suid_empresa = `${PREFIXO_SUID_TESTE}del1`
-    await request(app).post('/api/v1/cadastros/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
+    await request(app).post('/api/v1/empresas').set(headers).send(payloadEmpresaBR(suid_empresa))
 
     const res = await request(app)
-      .delete(`/api/v1/cadastros/empresas/${suid_empresa}`)
+      .delete(`/api/v1/empresas/${suid_empresa}`)
       .set({ ...headers, 'x-organizacao-id': TENANT_A })
     expect(res.status).toBe(200)
     expect(res.body.ativo_empresa).toBe(false)

@@ -1,5 +1,5 @@
 // server/middleware/fieldHelpRateLimit.ts
-// Rate limit simples para POST /api/v1/gabi/field-help
+// Rate limit simples para POST /api/v1/gabi/ajuda-campo
 // Limite: 30 chamadas / minuto por tenant (sliding window, in-memory)
 // In-memory é suficiente aqui — o limite de tokens no banco é a proteção real.
 

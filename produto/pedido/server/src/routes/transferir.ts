@@ -1,13 +1,13 @@
 /**
  * transferir.ts — Rotas de transferência de pedidos
  *
- * Rota base: /api/v1/pedidos/transferir
+ * Rota base: /api/v1/pedidos/:id_pedido/transferencias
  *
  * Endpoints:
- *   POST /api/v1/pedidos/transferir/preview         — pré-visualiza impacto sem alterar banco
- *   POST /api/v1/pedidos/transferir/confirmar       — executa a transferência em $transaction
- *   GET  /api/v1/pedidos/:id/transferencias         — histórico de transferências do pedido
- *   POST /api/v1/pedidos/transferir/:id/reverter    — reverte uma transferência anterior
+ *   POST /api/v1/pedidos/:id_pedido/transferencias/preview                              — pré-visualiza impacto sem alterar banco
+ *   POST /api/v1/pedidos/:id_pedido/transferencias/confirmar                            — executa a transferência em $transaction
+ *   GET  /api/v1/pedidos/:id_pedido/transferencias                                      — histórico de transferências do pedido
+ *   POST /api/v1/pedidos/:id_pedido/transferencias/:id_transferencia_pedido/reverter    — reverte uma transferência anterior
  *
  * Regras de segurança:
  *   - tenant_id injetado pelo tenantIsolationMiddleware em todas as queries
@@ -21,7 +21,7 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 import { TransferirService, AppError } from '../services/transferirService.js'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
 
-export const transferirRouter = Router()
+export const transferirRouter = Router({ mergeParams: true })
 export const transferirHistoricoRouter = Router({ mergeParams: true })
 
 const service = new TransferirService()
@@ -167,13 +167,13 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
   }
 })
 
-// ── POST /transferir/:transfer_id/reverter ───────────────────────────────────
+// ── POST /:id_transferencia_pedido/reverter ──────────────────────────────────
 
-transferirRouter.post('/:transfer_id/reverter', async (req: Request, res: Response, next: NextFunction) => {
-  const { transfer_id } = req.params
+transferirRouter.post('/:id_transferencia_pedido/reverter', async (req: Request, res: Response, next: NextFunction) => {
+  const { id_transferencia_pedido: transfer_id } = req.params
   if (!transfer_id || transfer_id.trim().length === 0) {
     return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: 'transfer_id é obrigatório' },
+      error: { code: 'VALIDATION_ERROR', message: 'id_transferencia_pedido é obrigatório' },
     })
   }
 
@@ -193,12 +193,12 @@ transferirRouter.post('/:transfer_id/reverter', async (req: Request, res: Respon
   }
 })
 
-// ── GET /pedidos/:id/transferencias — registrado no router separado ──────────
+// ── GET /pedidos/:id_pedido/transferencias — registrado no router separado ──
 
 transferirHistoricoRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  const pedidoId = req.params.id
+  const pedidoId = req.params.id_pedido
   if (!pedidoId) {
-    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'pedido_id é obrigatório' } })
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'id_pedido é obrigatório' } })
   }
 
   try {

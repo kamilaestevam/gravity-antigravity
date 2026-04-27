@@ -75,7 +75,7 @@ export function Assinaturas() {
         const [allProducts, subRes, companiesRes] = await Promise.all([
           catalogService.getProdutos(),
           fetch('/api/v1/assinaturas', { headers }).catch(() => null),
-          fetch('/api/v1/organizacao/companies', { headers }).catch(() => null),
+          fetch('/api/v1/organizacoes/me/workspaces', { headers }).catch(() => null),
         ])
 
         // Carregar workspaces reais
@@ -140,7 +140,7 @@ export function Assinaturas() {
       const headers = await getAuthHeaders()
       if (isActivating) {
         // Reativar: subscribe novamente
-        const res = await fetch('/api/v1/assinaturas/subscribe', {
+        const res = await fetch('/api/v1/assinaturas/assinar-produto', {
           method: 'POST', headers,
           body: JSON.stringify({ product_key: p.id }),
         })
@@ -199,7 +199,7 @@ export function Assinaturas() {
   async function handleAssinar(slug: string, nome: string) {
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch('/api/v1/assinaturas/subscribe', {
+      const res = await fetch('/api/v1/assinaturas/assinar-produto', {
         method: 'POST', headers,
         body: JSON.stringify({ product_key: slug }),
       })

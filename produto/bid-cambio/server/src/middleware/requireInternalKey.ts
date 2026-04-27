@@ -12,7 +12,14 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 export function requireInternalKey(req: Request, res: Response, next: NextFunction) {
-  if (req.path === '/health' || req.path.startsWith('/api/v1/master-data')) return next()
+  // Master-data público: rotas DDD top-level (moedas, tipos-liquidacao, metodos-vencimento, cotacoes-ptax)
+  if (req.path === '/health') return next()
+  if (
+    req.path.startsWith('/api/v1/moedas') ||
+    req.path.startsWith('/api/v1/tipos-liquidacao') ||
+    req.path.startsWith('/api/v1/metodos-vencimento') ||
+    req.path.startsWith('/api/v1/cotacoes-ptax')
+  ) return next()
   if (req.path.startsWith('/api/v1/bid-cambio/portal/public')) return next()
 
   const key = req.headers['x-internal-key'] as string | undefined

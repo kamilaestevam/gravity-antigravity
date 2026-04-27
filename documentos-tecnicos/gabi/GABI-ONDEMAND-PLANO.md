@@ -105,7 +105,7 @@ T-01-02/T-01-03 sequenciais. T-01-04 e T-01-05/T-01-06 paralelos entre si após 
 |----|--------|-------------|-------------|
 | T-03-01 | Criar `token-reset-worker.ts` — pg-boss, zera `tokens_usados`, cron `0 0 1 * * America/Sao_Paulo` | Backend + DevOps/SRE | Onda 1 |
 | T-03-02 | Registrar `startTokenResetWorker()` no startup do Configurador | Backend | T-03-01 |
-| T-03-03 | Criar `GET /api/admin/products/:id/tokens/stats` — consumo agregado de todos os tenants do produto | Backend | Onda 1 |
+| T-03-03 | Criar `GET /api/v1/admin/produtos-gravity/:id_produto_gravity/tokens/estatisticas` — consumo agregado de todos os tenants do produto | Backend | Onda 1 |
 | T-03-04 | Atualizar `productCatalogService.ts` — incluir `gabi_quota_mensal` no CRUD | Backend | T-01-05 |
 | T-03-05 | Registrar `adminProductTokensRouter` no `server/index.ts` do Configurador | Backend | T-03-03 |
 | T-03-06 | Testes do worker: reset zera corretamente, idempotência, cron expression | QA | T-03-01 |
@@ -140,7 +140,7 @@ T-04-02 e T-04-03 paralelos. T-04-04 depende de T-04-02, T-04-05 depende de T-04
 |----|--------|-------------|-------------|
 | T-05-01 | Adicionar aba `tokens` entre `help_desk` e `negociacao` em `ProdutosAdmin.tsx` | Frontend | Onda 3, T-04-07 |
 | T-05-02 | Seção 1: campo "Token padrão mensal por tenant", validação Zod mín 0 | Frontend | T-05-01 |
-| T-05-03 | Seção 2: donut SVG ~64px animado, tooltip % + tokens + dias para renovar, dados de `GET /api/admin/products/:id/tokens/stats` | Frontend | T-05-01, T-03-03 |
+| T-05-03 | Seção 2: donut SVG ~64px animado, tooltip % + tokens + dias para renovar, dados de `GET /api/v1/admin/produtos-gravity/:id_produto_gravity/tokens/estatisticas` | Frontend | T-05-01, T-03-03 |
 | T-05-04 | Seção 3: radio do comportamento ao estourar, checkboxes de alertas em 80%/90%/100% | Frontend | T-05-01 |
 | T-05-05 | Atualizar serviço frontend do Configurador: incluir `gabi_quota_mensal` no payload de criação/atualização | Frontend | T-03-04 |
 | T-05-06 | Adicionar chaves i18n: `ptBR.ts` e `en.ts` do Configurador | Frontend | T-05-04 |

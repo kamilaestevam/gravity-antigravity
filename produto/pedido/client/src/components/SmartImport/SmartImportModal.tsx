@@ -188,8 +188,8 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
       const formData = new FormData()
       formData.append('arquivo', arquivo)
       const url = nomePlanilha
-        ? `/api/v1/pedidos/smart-import/analisar?sheet=${encodeURIComponent(nomePlanilha)}`
-        : '/api/v1/pedidos/smart-import/analisar'
+        ? `/api/v1/pedidos/importacoes-inteligentes/analisar?sheet=${encodeURIComponent(nomePlanilha)}`
+        : '/api/v1/pedidos/importacoes-inteligentes/analisar'
 
       const tenantId =
         sessionStorage.getItem('gravity_tenant_id') ||

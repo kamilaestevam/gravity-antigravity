@@ -1,9 +1,9 @@
 /**
  * taxaCambio.ts — Proxy para o serviço de taxas de câmbio do Configurador
  *
- * GET  /api/v1/taxa-cambio           → configurador: taxas mais recentes (do DB)
- * GET  /api/v1/taxa-cambio/historico → configurador: histórico por moeda
- * POST /api/v1/taxa-cambio/sync      → configurador: sincroniza PTAX do BCB
+ * GET  /api/v1/taxas-cambio              → configurador: taxas mais recentes (do DB)
+ * GET  /api/v1/taxas-cambio/historico    → configurador: histórico por moeda
+ * POST /api/v1/taxas-cambio/sincronizar  → configurador: sincroniza PTAX do BCB
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -31,7 +31,7 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
   }
 })
 
-taxaCambioRouter.post('/sync', async (_req: Request, res: Response, next: NextFunction) => {
+taxaCambioRouter.post('/sincronizar', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const r = await fetch(`${CONFIGURADOR_URL}/api/v1/taxa-cambio/sync`, { method: 'POST', signal: AbortSignal.timeout(60000) })
     res.status(r.status).json(await r.json())

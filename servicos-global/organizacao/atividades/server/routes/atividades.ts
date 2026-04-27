@@ -253,15 +253,15 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/atividades/:id
+// GET /api/v1/atividades/:id_atividade
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id_atividade', async (req, res, next) => {
   try {
     const tenantId = req.auth.tenantId
     const row = await prisma.atividadesDados.findFirst({
       where: {
-        id_atividades_dados: req.params.id,
+        id_atividades_dados: req.params.id_atividade,
         id_organizacao_atividades_dados: tenantId,
       },
       include: ATIVIDADE_INCLUDE,
@@ -324,10 +324,10 @@ router.post('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/atividades/:id
+// PATCH /api/v1/atividades/:id_atividade
 // ---------------------------------------------------------------------------
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id_atividade', async (req, res, next) => {
   try {
     const result = updateSchema.safeParse(req.body)
     if (!result.success) {
@@ -340,13 +340,13 @@ router.patch('/:id', async (req, res, next) => {
     const tenantId = req.auth.tenantId
 
     const existing = await prisma.atividadesDados.findFirst({
-      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+      where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
     })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
     // updateMany com where composto evita update cross-tenant; depois lemos o registro.
     await prisma.atividadesDados.update({
-      where: { id_atividades_dados: req.params.id },
+      where: { id_atividades_dados: req.params.id_atividade },
       data: {
         ...(data.titulo !== undefined &&                { titulo_atividades_dados: data.titulo }),
         ...(data.descricao !== undefined &&             { descricao_atividades_dados: data.descricao }),
@@ -376,7 +376,7 @@ router.patch('/:id', async (req, res, next) => {
     })
 
     const fresh = await prisma.atividadesDados.findUnique({
-      where: { id_atividades_dados: req.params.id },
+      where: { id_atividades_dados: req.params.id_atividade },
       include: ATIVIDADE_INCLUDE,
     })
     if (!fresh) throw new AppError('AtividadesDados não encontrada após update', 500, 'INTERNAL')
@@ -388,17 +388,17 @@ router.patch('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/atividades/:id
+// DELETE /api/v1/atividades/:id_atividade
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id_atividade', async (req, res, next) => {
   try {
     const tenantId = req.auth.tenantId
     const existing = await prisma.atividadesDados.findFirst({
-      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+      where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
     })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
-    await prisma.atividadesDados.delete({ where: { id_atividades_dados: req.params.id } })
+    await prisma.atividadesDados.delete({ where: { id_atividades_dados: req.params.id_atividade } })
     res.status(204).send()
   } catch (err) {
     next(err)
@@ -406,10 +406,10 @@ router.delete('/:id', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/atividades/:id/timer — registra sessão de tempo
+// POST /api/v1/atividades/:id_atividade/cronometro/alternar — registra sessão de tempo
 // ---------------------------------------------------------------------------
 
-router.post('/:id/timer', async (req, res, next) => {
+router.post('/:id_atividade/cronometro/alternar', async (req, res, next) => {
   try {
     const result = timerSessaoSchema.safeParse(req.body)
     if (!result.success) {
@@ -420,7 +420,7 @@ router.post('/:id/timer', async (req, res, next) => {
 
     const tenantId = req.auth.tenantId
     const existing = await prisma.atividadesDados.findFirst({
-      where: { id_atividades_dados: req.params.id, id_organizacao_atividades_dados: tenantId },
+      where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
     })
     if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
@@ -428,14 +428,14 @@ router.post('/:id/timer', async (req, res, next) => {
     const [sessao] = await Promise.all([
       prisma.atividadesTempo.create({
         data: {
-          id_atividades_dados_atividades_tempo: req.params.id,
+          id_atividades_dados_atividades_tempo: req.params.id_atividade,
           iniciado_em_atividades_tempo:         new Date(result.data.iniciado_em),
           duracao_min_atividades_tempo:         result.data.duracao_min,
           assunto_atividades_tempo:             result.data.assunto,
         },
       }),
       prisma.atividadesDados.update({
-        where: { id_atividades_dados: req.params.id },
+        where: { id_atividades_dados: req.params.id_atividade },
         data: { tempo_gasto_minutos_atividades_dados: { increment: result.data.duracao_min } },
       }),
     ])

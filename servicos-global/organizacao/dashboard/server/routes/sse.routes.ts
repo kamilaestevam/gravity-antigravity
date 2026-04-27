@@ -12,13 +12,13 @@ declare module 'express-serve-static-core' {
 
 const sseRouter = Router()
 
-// GET /:dashboardId — estabelece conexão SSE para um dashboard específico
-sseRouter.get('/:dashboardId', (req, res) => {
+// GET /:id_dashboard/stream — estabelece conexão SSE para um dashboard específico
+sseRouter.get('/:id_dashboard/stream', (req, res) => {
   const { tenantId, userId } = req.auth!
-  const { dashboardId } = req.params
-  const clientId = `${tenantId}:${userId}:${dashboardId}:${Date.now()}`
+  const { id_dashboard } = req.params
+  const clientId = `${tenantId}:${userId}:${id_dashboard}:${Date.now()}`
 
-  sseHandler.addClient(clientId, tenantId, userId, dashboardId, res)
+  sseHandler.addClient(clientId, tenantId, userId, id_dashboard, res)
 
   req.on('close', () => {
     sseHandler.removeClient(clientId)

@@ -44,7 +44,7 @@ export const bidEngine = {
       where: { id: { in: fornecedor_ids }, status: 'ATIVO' },
     })
 
-    const results: any[] = []
+    const results: Array<{ fornecedor_id: string; canal: string; bid_request_id: string }> = []
 
     for (const fornecedor of fornecedores) {
       // Verificar tabela de preco padrao (cotacao automatica)
@@ -80,10 +80,11 @@ export const bidEngine = {
             where: { id: bidRequest.id },
             data: { status: 'ENVIADO', enviado_em: new Date() },
           })
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : String(err)
           await (prisma as any).bidRequest.update({
             where: { id: bidRequest.id },
-            data: { status: 'ERRO_ENVIO', erro_envio: err.message },
+            data: { status: 'ERRO_ENVIO', erro_envio: errorMessage },
           })
         }
 
@@ -108,7 +109,10 @@ export const bidEngine = {
   /**
    * Verifica se fornecedor tem tabela de precos compativel com a cotacao
    */
-  async verificarTabelaPadrao(prisma: PrismaClient, cotacao: any, fornecedor: any) {
+  async verificarTabelaPadrao(prisma: PrismaClient, _cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>) {
+    // Cast interno: Cotacao/Fornecedor têm shape dinâmico vindo do Prisma
+    const cotacao = _cotacao as any
+    const fornecedor = _fornecedor as any
     const agora = new Date()
 
     const tabela = await (prisma as any).tabelaPreco.findFirst({
@@ -130,7 +134,10 @@ export const bidEngine = {
   /**
    * Gera BidResponse automatica a partir da tabela de precos
    */
-  async gerarRespostaAutomatica(prisma: PrismaClient, cotacao: any, fornecedor: any, tabela: any) {
+  async gerarRespostaAutomatica(prisma: PrismaClient, _cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, _tabela: Record<string, unknown>) {
+    const cotacao = _cotacao as any
+    const fornecedor = _fornecedor as any
+    const tabela = _tabela as any
     // Buscar o bidRequest correspondente
     const bidRequest = await (prisma as any).bidRequest.findFirst({
       where: { cotacao_id: cotacao.id, fornecedor_id: fornecedor.id },
@@ -169,7 +176,9 @@ export const bidEngine = {
   /**
    * Dispara email via tenant/email (Resend)
    */
-  async dispararEmail(cotacao: any, fornecedor: any, token: string, tenantId: string) {
+  async dispararEmail(_cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, token: string, tenantId: string) {
+    const cotacao = _cotacao as any
+    const fornecedor = _fornecedor as any
     const linkResposta = `${APP_URL}/portal/responder/${token}`
 
     const body = {
@@ -195,7 +204,7 @@ export const bidEngine = {
       `,
     }
 
-    await axios.post(`${EMAIL_SERVICE_URL}/api/v1/email/enviar`, body, {
+    await axios.post(`${EMAIL_SERVICE_URL}/api/v1/envios-email`, body, {
       headers: {
         'x-internal-key': INTERNAL_KEY,
         'x-tenant-id': tenantId,
@@ -210,7 +219,9 @@ export const bidEngine = {
   /**
    * Dispara WhatsApp via tenant/whatsapp (Meta Cloud API)
    */
-  async dispararWhatsApp(cotacao: any, fornecedor: any, token: string, tenantId: string) {
+  async dispararWhatsApp(_cotacao: Record<string, unknown>, _fornecedor: Record<string, unknown>, token: string, tenantId: string) {
+    const cotacao = _cotacao as any
+    const fornecedor = _fornecedor as any
     if (!fornecedor.whatsapp) return
 
     const linkResposta = `${APP_URL}/portal/responder/${token}`

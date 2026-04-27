@@ -48,7 +48,7 @@ interface RouteError extends Error {
 // Cada teste pode controlar o secret via process.env antes de chamar buildApp().
 function buildApp() {
   const app = express()
-  app.use('/api/webhooks/resend', webhookResendRoutes)
+  app.use('/api/v1/notificacoes/webhook-resend', webhookResendRoutes)
   app.use((err: RouteError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: err.message })
   })
@@ -92,7 +92,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
     it('retorna 401 quando não há headers svix (payload forjado sem assinatura)', async () => {
       const app = buildApp()
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .send(JSON.stringify({ type: 'email.delivered', data: { email_id: 'forge-001' } }))
 
@@ -104,7 +104,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
     it('retorna 401 com assinatura forjada (HMAC inválido)', async () => {
       const app = buildApp()
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set('svix-id', 'msg-forged-001')
         .set('svix-timestamp', String(Math.floor(Date.now() / 1000)))
@@ -121,7 +121,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivered', 'replay-001', oldTimestamp)
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -138,7 +138,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wrongWh, 'email.delivered', 'wrong-secret-001')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -155,7 +155,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivered', 'ok-email-001')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -173,7 +173,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.bounced', 'ok-email-002')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -190,7 +190,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.complained', 'ok-email-003')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -207,7 +207,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.failed', 'ok-email-004')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -224,7 +224,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivery_delayed', 'ok-email-005')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -241,7 +241,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.sent', 'ok-email-006')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -262,7 +262,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivered', 'inexistente-001')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -283,7 +283,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       }
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(rawPayload)
@@ -298,7 +298,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivered', 'db-fail-001')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -313,7 +313,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       const { payload, headers } = signPayload(wh, 'email.delivered', 'no-secret-001')
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(payload)
@@ -333,7 +333,7 @@ describe('webhook-resend — Fase 1: testes unitários', () => {
       }
 
       const res = await request(app)
-        .post('/api/webhooks/resend')
+        .post('/api/v1/notificacoes/webhook-resend')
         .set('Content-Type', 'application/json')
         .set(headers)
         .send(rawPayload)

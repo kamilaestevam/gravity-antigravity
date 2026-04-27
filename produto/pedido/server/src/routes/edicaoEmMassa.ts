@@ -1,11 +1,11 @@
 /**
  * edicaoEmMassa.ts — Rotas de edição em massa de pedidos
  *
- * Rota base: /api/v1/pedidos/edicao-em-massa
+ * Rota base: /api/v1/pedidos/edicoes-em-massa
  *
  * Endpoints:
- *   POST /api/v1/pedidos/edicao-em-massa/preview   — retorna impacto sem alterar o banco
- *   POST /api/v1/pedidos/edicao-em-massa/confirmar — executa a edição em $transaction
+ *   POST /api/v1/pedidos/edicoes-em-massa/preview   — retorna impacto sem alterar o banco
+ *   POST /api/v1/pedidos/edicoes-em-massa/confirmar — executa a edição em $transaction
  *
  * Regras de negócio:
  *   - Campos calculados (CAMPOS_BLOQUEADOS_*) são rejeitados server-side

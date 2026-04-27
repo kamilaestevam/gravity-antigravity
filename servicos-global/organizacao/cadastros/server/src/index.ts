@@ -34,11 +34,11 @@ app.use((req, _res, next) => {
   next()
 })
 
-app.use('/api/v1/cadastros/empresas', empresasRouter)
-app.use('/api/v1/cadastros/moedas', moedasRouter)
-app.use('/api/v1/cadastros/unidades', unidadesRouter)
-app.use('/api/v1/cadastros/ncm', ncmRouter)
-app.use('/api/v1/cadastros/ope', opeRouter)
+app.use('/api/v1/empresas', empresasRouter)
+app.use('/api/v1/moedas', moedasRouter)
+app.use('/api/v1/unidades', unidadesRouter)
+app.use('/api/v1/ncm', ncmRouter)
+app.use('/api/v1/operacoes-comex', opeRouter)
 
 app.get('/health', (_req, res) => {
   res.status(200).json({

@@ -87,7 +87,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
     setErroReversao(null)
     try {
       const tenantId = sessionStorage.getItem('gravity_tenant_id') ?? ''
-      const res = await fetch('/api/v1/pedidos/smart-import/reverter', {
+      const res = await fetch('/api/v1/pedidos/importacoes-inteligentes/reverter', {
         method: 'POST',
         headers: {
           'Content-Type':   'application/json',

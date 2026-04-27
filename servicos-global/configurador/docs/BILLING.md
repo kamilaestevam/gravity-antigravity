@@ -37,7 +37,7 @@ outro gateway. Ela só conhece o contrato `GravityInvoice` e chama métodos do
          │ adminBillingApi.*
          ▼
 ┌────────────────────┐
-│  admin.ts routes   │  ← /api/admin/billing/invoices/*
+│  admin.ts routes   │  ← /api/v1/admin/faturas/*
 └────────┬───────────┘
          │ getBillingProvider()
          ▼
@@ -118,7 +118,7 @@ Gravity, mas a implementação real está bloqueada pelos pré-requisitos abaixo
       https://developers.contaazul.com/
 - [ ] Obter `client_id` + `client_secret`
 - [ ] Definir `redirect_uri` da aplicação (ex:
-      `https://configurador.gravity.com.br/api/v1/billing/conta-azul/oauth-callback`)
+      `https://configurador.gravity.com.br/api/v1/faturas/conta-azul/oauth-callback`)
 - [ ] Implementar endpoint callback OAuth no Gravity
       (`server/routes/billing.ts`)
 - [ ] Executar o fluxo OAuth2 Authorization Code **uma vez** manualmente:
@@ -139,7 +139,7 @@ NFSE_PROVIDER=conta_azul
 
 CONTA_AZUL_CLIENT_ID=
 CONTA_AZUL_CLIENT_SECRET=
-CONTA_AZUL_REDIRECT_URI=https://configurador.gravity.com.br/api/v1/billing/conta-azul/oauth-callback
+CONTA_AZUL_REDIRECT_URI=https://configurador.gravity.com.br/api/v1/faturas/conta-azul/oauth-callback
 CONTA_AZUL_REFRESH_TOKEN=                # obtido no fluxo OAuth, depois migrar pra DB
 CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 ```
@@ -172,12 +172,12 @@ CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 **Fluxo esperado após ativação:**
 
 1. Admin clica "Lançar Fatura" na tela `/admin/financeiro`
-2. `POST /api/admin/billing/invoices` → `ContaAzulProvider.createInvoice`
+2. `POST /api/v1/admin/faturas` → `ContaAzulProvider.createInvoice`
 3. Provider acha ou cria o Cliente no Conta Azul (via CNPJ do tenant)
 4. Cria a Venda com `emitir_nfse: true`
 5. Conta Azul envia email ao cliente com link de pagamento
 6. Cliente paga (boleto/Pix/cartão)
-7. Conta Azul envia webhook pra `POST /api/v1/billing/webhook/conta-azul`
+7. Conta Azul envia webhook pra `POST /api/v1/faturas/webhook-conta-azul`
 8. Webhook handler detecta `sale_paid` e a NFS-e **já foi emitida junto**
 9. Status da invoice muda pra `PAID` e `documents` ganha `nfe_url`
 
@@ -370,10 +370,10 @@ NFEIO_COMPANY_ID=
 ## Fluxo completo esperado (após ativação)
 
 1. Admin Gravity abre `/admin/financeiro`
-2. Tela chama `GET /api/admin/billing/invoices` → `billingProvider.listInvoices()`
+2. Tela chama `GET /api/v1/admin/faturas` → `billingProvider.listInvoices()`
 3. Tela renderiza invoices reais (Stripe v1, depois Itaú/Santander)
 4. Admin clica "Lançar Fatura" → preenche tenant/descrição/valor/vencimento
-5. `POST /api/admin/billing/invoices` → `billingProvider.createInvoice()`
+5. `POST /api/v1/admin/faturas` → `billingProvider.createInvoice()`
 6. Stripe cria invoice + envia email ao cliente
 7. Cliente paga via link hosted
 8. Stripe envia webhook `invoice.paid` → `billingService.handleInvoicePaid`

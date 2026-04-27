@@ -116,14 +116,15 @@ app.use(createProductAuditPlugin({
 
 // --- 8. Rotas do Produto ------------------------------------------------------
 app.use('/api/v1/processos', processosRouter)
-app.use('/api/v1/follow-up', followUpRouter)
-app.use('/api/v1/documentos', documentosRouter)
+// followup e documentos: rotas com paths absolutos internos (mistura de prefixos
+// /follow-ups-processo, /documentos-processo e /processos/:id_processo/...)
+app.use('/api/v1', followUpRouter)
+app.use('/api/v1', documentosRouter)
 app.use('/api/v1/pedidos', pedidosRouter)
 app.use('/api/v1/pedidos', importacaoRouter)
 app.use('/api/v1/pedidos/config', pedidosConfigRouter)
 app.use('/api/v1/pedidos/lote', pedidosLoteRouter)
 app.use('/api/v1/processos/dashboard', dashboardWidgetsRouter)
-app.use('/api/v1/pedidos/dashboard', dashboardWidgetsRouter)
 
 // --- 9. SPA Fallback (serve o client React para qualquer rota nao-API) --------
 app.get('*', (_req: Request, res: Response) => {

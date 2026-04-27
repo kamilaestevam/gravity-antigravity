@@ -1,9 +1,9 @@
 // server/routes/tenants.ts
-// Gestão de tenants e empresas filhas
-// POST /api/v1/organizacao       — criar tenant (onboarding)
-// GET  /api/v1/organizacao/me    — dados do tenant atual
-// GET  /api/v1/organizacao/companies — listar empresas filhas
-// POST /api/v1/organizacao/companies — criar empresa filha
+// Gestão de organizações e workspaces
+// POST /api/v1/organizacoes              — criar organização (onboarding)
+// GET  /api/v1/organizacoes/me           — dados da organização atual
+// GET  /api/v1/organizacoes/me/workspaces — listar workspaces
+// POST /api/v1/organizacoes/me/workspaces — criar workspace
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -82,8 +82,8 @@ const UpdateCompanySchema = z.object({
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
- * POST /api/v1/organizacao
- * Cria um novo tenant + usuário owner durante o onboarding
+ * POST /api/v1/organizacoes
+ * Cria uma nova organização + usuário owner durante o onboarding
  * Público — chamado logo após o checkout do Stripe
  */
 tenantsRouter.post('/', async (req, res, next) => {
@@ -108,8 +108,8 @@ tenantsRouter.post('/', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/organizacao/me
- * Retorna dados do tenant do usuário autenticado
+ * GET /api/v1/organizacoes/me
+ * Retorna dados da organização do usuário autenticado
  */
 tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
@@ -137,8 +137,8 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
 })
 
 /**
- * PATCH /api/v1/organizacao/me
- * Atualiza dados cadastrais do tenant autenticado
+ * PATCH /api/v1/organizacoes/me
+ * Atualiza dados cadastrais da organização autenticada
  */
 tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
   try {
@@ -176,10 +176,10 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/organizacao/companies
- * Lista empresas filhas do tenant autenticado
+ * GET /api/v1/organizacoes/me/workspaces
+ * Lista workspaces da organização autenticada
  */
-tenantsRouter.get('/companies', requireAuth, async (req, res, next) => {
+tenantsRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
   try {
     const companies = await tenantService.getCompanies(req.auth.tenantId)
     res.json({ companies })
@@ -189,10 +189,10 @@ tenantsRouter.get('/companies', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/organizacao/companies
- * Cria uma empresa filha no tenant autenticado
+ * POST /api/v1/organizacoes/me/workspaces
+ * Cria um workspace na organização autenticada
  */
-tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
+tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
   try {
     const parsed = CreateCompanySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -227,10 +227,10 @@ tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
 })
 
 /**
- * PATCH /api/v1/organizacao/companies/:id
- * Atualiza uma empresa filha (nome, subdomain, cnpj, status)
+ * PATCH /api/v1/organizacoes/me/workspaces/:id_workspace
+ * Atualiza um workspace (nome, subdomain, cnpj, status)
  */
-tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
+tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
   try {
     const parsed = UpdateCompanySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -242,7 +242,7 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
     }
     const company = await tenantService.updateCompany(
       req.auth.tenantId,
-      req.params.id,
+      req.params.id_workspace,
       parsed.data
     )
 
@@ -253,7 +253,7 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
       actor_name: req.auth.userId,
       module: 'configuracao',
       resource_type: 'Empresa Filha',
-      resource_id: req.params.id,
+      resource_id: req.params.id_workspace,
       action: 'UPDATE',
       action_detail: `Atualizou empresa filha: ${Object.keys(parsed.data).join(', ')}`,
       after: company,
@@ -266,12 +266,12 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/organizacao/companies/:id
- * Remove uma empresa filha do tenant autenticado
+ * DELETE /api/v1/organizacoes/me/workspaces/:id_workspace
+ * Remove um workspace da organização autenticada
  */
-tenantsRouter.delete('/companies/:id', requireAuth, async (req, res, next) => {
+tenantsRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
   try {
-    await tenantService.deleteCompany(req.auth.tenantId, req.params.id)
+    await tenantService.deleteCompany(req.auth.tenantId, req.params.id_workspace)
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -280,9 +280,9 @@ tenantsRouter.delete('/companies/:id', requireAuth, async (req, res, next) => {
       actor_name: req.auth.userId,
       module: 'configuracao',
       resource_type: 'Empresa Filha',
-      resource_id: req.params.id,
+      resource_id: req.params.id_workspace,
       action: 'DELETE',
-      action_detail: `Removeu empresa filha ${req.params.id}`,
+      action_detail: `Removeu empresa filha ${req.params.id_workspace}`,
     }).catch(() => {})
 
     res.status(204).end()

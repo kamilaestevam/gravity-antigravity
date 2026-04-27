@@ -185,7 +185,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/smart-import/analisar': {
+    '/api/v1/pedidos/importacoes-inteligentes/analisar': {
       post: {
         summary: 'Analisar documento para importação inteligente',
         description: 'Extrai automaticamente dados de pedido a partir de um documento (PDF, XML, texto). Retorna sugestões para revisão antes de confirmar.',
@@ -202,7 +202,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/smart-import/confirmar': {
+    '/api/v1/pedidos/importacoes-inteligentes/confirmar': {
       post: {
         summary: 'Confirmar importação inteligente',
         description: 'Persiste os pedidos extraídos e revisados pelo usuário após análise do Smart Import.',
@@ -229,7 +229,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/consolidar/preview': {
+    '/api/v1/pedidos/consolidacoes/preview': {
       post: {
         summary: 'Preview de consolidação',
         description: 'Calcula o impacto de consolidar múltiplos pedidos em um único. Retorna dados do consolidado antes de confirmar.',
@@ -246,7 +246,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/consolidar/confirmar': {
+    '/api/v1/pedidos/consolidacoes/confirmar': {
       post: {
         summary: 'Confirmar consolidação',
         description: 'Executa a consolidação dos pedidos selecionados, criando um único pedido consolidado.',
@@ -263,7 +263,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/transferir/preview': {
+    '/api/v1/pedidos/{id_pedido}/transferencias/preview': {
       post: {
         summary: 'Preview de transferência',
         description: 'Calcula o impacto de transferir pedidos para outro tenant. Retorna validações antes de confirmar.',
@@ -280,7 +280,7 @@ const PEDIDO_OPENAPI_SPEC = {
         },
       },
     },
-    '/api/v1/pedidos/transferir/confirmar': {
+    '/api/v1/pedidos/{id_pedido}/transferencias/confirmar': {
       post: {
         summary: 'Confirmar transferência',
         description: 'Executa a transferência dos pedidos para o tenant de destino.',

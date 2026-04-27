@@ -59,7 +59,7 @@ export const NotificationDispatcher = {
       async () => {
         if (!NOTIFICACOES_SERVICE_URL) return
 
-        await fetch(`${NOTIFICACOES_SERVICE_URL}/api/v1/notificacoes/internal`, {
+        await fetch(`${NOTIFICACOES_SERVICE_URL}/api/v1/internal/notificacoes`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

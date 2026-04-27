@@ -1,6 +1,6 @@
 // server/routes/alertas.ts
-// GET  /api/v1/erp/alertas — listar alertas inteligentes com filtros
-// PATCH /api/v1/erp/alertas/:id/dismiss — dispensar alerta
+// GET  /api/v1/alertas-erp — listar alertas inteligentes com filtros
+// PATCH /api/v1/alertas-erp/:id_alerta_erp/resolver — dispensar alerta
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -14,9 +14,9 @@ const dismissSchema = z.object({
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/erp/alertas — listar alertas ativos/dispensados
+// GET /api/v1/alertas-erp — listar alertas ativos/dispensados
 // ---------------------------------------------------------------------------
-alertasRouter.get('/api/v1/erp/alertas', async (req, res, next) => {
+alertasRouter.get('/api/v1/alertas-erp', async (req, res, next) => {
   try {
     const {
       tenant_id,
@@ -52,9 +52,9 @@ alertasRouter.get('/api/v1/erp/alertas', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/erp/alertas — criar alerta (usado internamente)
+// POST /api/v1/alertas-erp — criar alerta (usado internamente)
 // ---------------------------------------------------------------------------
-alertasRouter.post('/api/v1/erp/alertas', async (req, res, next) => {
+alertasRouter.post('/api/v1/alertas-erp', async (req, res, next) => {
   try {
     const schema = z.object({
       tenant_id: z.string().min(1),
@@ -96,13 +96,13 @@ alertasRouter.post('/api/v1/erp/alertas', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/erp/alertas/:id/dismiss — dispensar alerta
+// PATCH /api/v1/alertas-erp/:id_alerta_erp/resolver — dispensar alerta
 // ---------------------------------------------------------------------------
 alertasRouter.patch(
-  '/api/v1/erp/alertas/:id/dismiss',
+  '/api/v1/alertas-erp/:id_alerta_erp/resolver',
   async (req, res, next) => {
     try {
-      const { id } = req.params
+      const { id_alerta_erp } = req.params
       const { tenant_id } = req.query as { tenant_id: string }
 
       if (!tenant_id) {
@@ -112,14 +112,14 @@ alertasRouter.patch(
       const body = dismissSchema.parse(req.body)
 
       const alerta = await prisma.erpAlerta.findFirst({
-        where: { id, tenant_id },
+        where: { id: id_alerta_erp, tenant_id },
       })
       if (!alerta) {
         throw new AppError('Alerta não encontrado', 404, 'NOT_FOUND')
       }
 
       const atualizado = await prisma.erpAlerta.update({
-        where: { id },
+        where: { id: id_alerta_erp },
         data: {
           dismissed: true,
           dismissed_at: new Date(),

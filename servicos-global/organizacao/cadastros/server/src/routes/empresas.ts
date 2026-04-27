@@ -8,8 +8,8 @@
  *
  * - Toda query filtra por `id_organizacao_empresa` (Tenant Isolation).
  * - 404 ao buscar SUID alheio (não 403 — não vazamos existência).
- * - Soft delete via `ativo_empresa = false` (DELETE /empresas/:suid).
- * - Hard delete (DELETE /empresas/:suid/compensacao) — exclusivo para
+ * - Soft delete via `ativo_empresa = false` (DELETE /empresas/:id_empresa).
+ * - Hard delete (DELETE /empresas/:id_empresa/compensacao) — exclusivo para
  *   compensação de saga inter-serviço quando a criação da Organizacao no
  *   Configurador falha após a Empresa ter sido criada aqui.
  * - SUID gerado por `gerarSuid()` no formato `${PAIS}-${SLUG}-${SEQ_5}`.
@@ -168,13 +168,13 @@ router.get('/', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /empresas/:suid — busca uma
+// GET /empresas/:id_empresa — busca uma
 // ---------------------------------------------------------------------------
-router.get('/:suid', async (req, res, next) => {
+router.get('/:id_empresa', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const empresa = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
+      where: { suid_empresa: req.params.id_empresa, id_organizacao_empresa: idOrganizacao },
     })
     if (!empresa) throw AppError.naoEncontrado('Empresa')
     res.status(200).json(toEmpresaDto(empresa))
@@ -184,17 +184,17 @@ router.get('/:suid', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /empresas/:suid/preview-impacto
+// GET /empresas/:id_empresa/preview-impacto
 // ---------------------------------------------------------------------------
-router.get('/:suid/preview-impacto', async (req, res, next) => {
+router.get('/:id_empresa/preview-impacto', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existe = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
+      where: { suid_empresa: req.params.id_empresa, id_organizacao_empresa: idOrganizacao },
       select: { suid_empresa: true },
     })
     if (!existe) throw AppError.naoEncontrado('Empresa')
-    const resultado = await consultarImpacto(req.params.suid, idOrganizacao)
+    const resultado = await consultarImpacto(req.params.id_empresa, idOrganizacao)
     res.status(200).json(resultado)
   } catch (err) {
     next(err)
@@ -202,16 +202,16 @@ router.get('/:suid/preview-impacto', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PUT /empresas/:suid — atualiza
+// PUT /empresas/:id_empresa — atualiza
 // ---------------------------------------------------------------------------
-router.put('/:suid', async (req, res, next) => {
+router.put('/:id_empresa', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const dados = atualizarEmpresaSchema.parse(req.body)
 
     // Busca primeiro pra garantir tenant ownership (404 se alheio).
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
+      where: { suid_empresa: req.params.id_empresa, id_organizacao_empresa: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
 
@@ -248,20 +248,20 @@ router.put('/:suid', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /empresas/:suid/compensacao — hard delete para saga
+// DELETE /empresas/:id_empresa/compensacao — hard delete para saga
 //
 // Rota EXCLUSIVA para compensação quando a criação da Organizacao no
 // Configurador falha após a Empresa ter sido criada aqui. Remove o registro
 // fisicamente para não deixar "empresa fantasma" no cadastro.
 //
 // NÃO usar para uso normal — a rota canônica de exclusão continua sendo
-// DELETE /empresas/:suid (soft delete).
+// DELETE /empresas/:id_empresa (soft delete).
 // ---------------------------------------------------------------------------
-router.delete('/:suid/compensacao', async (req, res, next) => {
+router.delete('/:id_empresa/compensacao', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
+      where: { suid_empresa: req.params.id_empresa, id_organizacao_empresa: idOrganizacao },
       select: { suid_empresa: true },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
@@ -274,13 +274,13 @@ router.delete('/:suid/compensacao', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /empresas/:suid — soft delete (ativo=false)
+// DELETE /empresas/:id_empresa — soft delete (ativo=false)
 // ---------------------------------------------------------------------------
-router.delete('/:suid', async (req, res, next) => {
+router.delete('/:id_empresa', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
+      where: { suid_empresa: req.params.id_empresa, id_organizacao_empresa: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
 

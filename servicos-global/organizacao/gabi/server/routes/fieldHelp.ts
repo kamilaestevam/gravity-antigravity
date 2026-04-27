@@ -1,6 +1,6 @@
 // server/routes/fieldHelp.ts
-// POST /api/v1/gabi/field-help — explicação contextual de campo (on-demand, consome tokens)
-// GET  /api/v1/gabi/quota      — status da quota do tenant no mês atual
+// POST /api/v1/gabi/ajuda-campo — explicação contextual de campo (on-demand, consome tokens)
+// GET  /api/v1/gabi/quota         — status da quota do tenant no mês atual
 
 import { Router, type Request } from 'express'
 import { z } from 'zod'
@@ -12,10 +12,10 @@ import { fieldHelpRateLimit } from '../middleware/fieldHelpRateLimit.js'
 
 export const fieldHelpRouter = Router()
 
-// ── POST /api/v1/gabi/internal/quota-reset (internal — no tenant auth) ───────
+// ── POST /api/v1/internal/gabi/quota/resetar (internal — no tenant auth) ─────
 // Chamado pelo configurador no dia 1 de cada mês via pg-boss
 
-fieldHelpRouter.post('/api/v1/gabi/internal/quota-reset', async (req, res, next) => {
+fieldHelpRouter.post('/api/v1/internal/gabi/quota/resetar', async (req, res, next) => {
   try {
     const internalKey = req.headers['x-internal-key']
     if (!internalKey || internalKey !== process.env.INTERNAL_API_KEY) {
@@ -37,17 +37,17 @@ fieldHelpRouter.post('/api/v1/gabi/internal/quota-reset', async (req, res, next)
   }
 })
 
-// ── GET /api/v1/gabi/admin/products/:productId/tokens/stats ──────────────────
+// ── GET /api/v1/gabi/admin/produtos/:id_produto_gravity/tokens/estatisticas ──
 // Agrega consumo de todos os tenants para um produto — usado pela aba Tokens do Admin
 
-fieldHelpRouter.get('/api/v1/gabi/admin/products/:productId/tokens/stats', async (req, res, next) => {
+fieldHelpRouter.get('/api/v1/gabi/admin/produtos/:id_produto_gravity/tokens/estatisticas', async (req, res, next) => {
   try {
     const internalKey = req.headers['x-internal-key']
     if (!internalKey || internalKey !== process.env.INTERNAL_API_KEY) {
       throw new AppError('Chave interna inválida', 401, 'UNAUTHORIZED')
     }
 
-    const { productId } = req.params
+    const { id_produto_gravity: productId } = req.params
     const now = new Date()
     const mesRef = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
@@ -125,9 +125,9 @@ function getQuotaMensalFromHeaders(req: Request): number {
   return DEFAULT_QUOTA
 }
 
-// ── POST /api/v1/gabi/field-help ─────────────────────────────────────────────
+// ── POST /api/v1/gabi/ajuda-campo ────────────────────────────────────────────
 
-fieldHelpRouter.post('/api/v1/gabi/field-help', fieldHelpRateLimit, async (req, res, next) => {
+fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth
     const productId = (req.headers['x-product-id'] as string | undefined) ?? 'unknown'

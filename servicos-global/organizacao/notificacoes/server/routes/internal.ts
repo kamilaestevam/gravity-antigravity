@@ -34,7 +34,7 @@ const internalCreateSchema = z.object({
 
 export type InternalNotificationPayload = z.infer<typeof internalCreateSchema>
 
-// ─── POST /api/v1/notificacoes/internal ──────────────────────────────────────
+// ─── POST /api/v1/internal/notificacoes ──────────────────────────────────────
 internalRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = internalCreateSchema.parse(req.body)

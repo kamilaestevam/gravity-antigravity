@@ -4,10 +4,10 @@
  * Rota base: /api/v1/pedidos/anexos
  *
  * Endpoints:
- *   POST   /api/v1/pedidos/anexos               — Upload de arquivo (multipart)
- *   GET    /api/v1/pedidos/anexos                — Listar por vínculo + vinculo_id
- *   GET    /api/v1/pedidos/anexos/:id/download   — Download do arquivo
- *   DELETE /api/v1/pedidos/anexos/:id            — Excluir anexo
+ *   POST   /api/v1/pedidos/anexos                              — Upload de arquivo (multipart)
+ *   GET    /api/v1/pedidos/anexos                              — Listar por vínculo + vinculo_id
+ *   GET    /api/v1/pedidos/anexos/:id_anexo_pedido/download    — Download do arquivo
+ *   DELETE /api/v1/pedidos/anexos/:id_anexo_pedido             — Excluir anexo
  *
  * Regras de negócio:
  *   - Máximo 25MB por arquivo
@@ -76,7 +76,7 @@ const UploadBodySchema = z.object({
 })
 
 const IdParamSchema = z.object({
-  id: z.string().min(1),
+  id_anexo_pedido: z.string().min(1),
 })
 
 // ── POST /anexos — Upload ─────────────────────────────────────────────────────
@@ -212,9 +212,9 @@ anexosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =>
   }
 })
 
-// ── GET /anexos/:id/download — Download ──────────────────────────────────────
+// ── GET /anexos/:id_anexo_pedido/download — Download ────────────────────────
 
-anexosRouter.get('/:id/download', async (req: Request, res: Response, next: NextFunction) => {
+anexosRouter.get('/:id_anexo_pedido/download', async (req: Request, res: Response, next: NextFunction) => {
   const paramParse = IdParamSchema.safeParse(req.params)
   if (!paramParse.success) {
     return next(new AppError('ID inválido', 400, 'VALIDATION_ERROR'))
@@ -226,7 +226,7 @@ anexosRouter.get('/:id/download', async (req: Request, res: Response, next: Next
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const { id } = paramParse.data
+      const { id_anexo_pedido: id } = paramParse.data
 
       const anexo = await db.pedidoAnexo.findFirst({
         where: { id, tenant_id: tenantId },
@@ -254,9 +254,9 @@ anexosRouter.get('/:id/download', async (req: Request, res: Response, next: Next
   }
 })
 
-// ── DELETE /anexos/:id — Excluir ──────────────────────────────────────────────
+// ── DELETE /anexos/:id_anexo_pedido — Excluir ────────────────────────────────
 
-anexosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+anexosRouter.delete('/:id_anexo_pedido', async (req: Request, res: Response, next: NextFunction) => {
   const paramParse = IdParamSchema.safeParse(req.params)
   if (!paramParse.success) {
     return next(new AppError('ID inválido', 400, 'VALIDATION_ERROR'))
@@ -271,7 +271,7 @@ anexosRouter.delete('/:id', async (req: Request, res: Response, next: NextFuncti
       const userId   = ctx.idUsuario ?? ''
       const userRoles = ctx.tiposUsuario ?? []
 
-      const { id } = paramParse.data
+      const { id_anexo_pedido: id } = paramParse.data
 
       const anexo = await db.pedidoAnexo.findFirst({
         where: { id, tenant_id: tenantId },

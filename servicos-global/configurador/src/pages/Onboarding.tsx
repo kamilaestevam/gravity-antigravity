@@ -87,7 +87,7 @@ export function Onboarding() {
         cnpj_organizacao: cnpj,
       }
 
-      const res = await fetch('/api/v1/organizacao', {
+      const res = await fetch('/api/v1/organizacoes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

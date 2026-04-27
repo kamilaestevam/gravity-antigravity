@@ -1,6 +1,6 @@
 // server/routes/mensagens.ts
-// GET  /api/v1/email/threads/:id/mensagens — lista mensagens de uma thread
-// POST /api/v1/email/threads/:id/responder — resposta manual humana
+// GET  /api/v1/threads-email/:id_thread_email/mensagens — lista mensagens de uma thread
+// POST /api/v1/threads-email/:id_thread_email/mensagens — resposta manual humana
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
@@ -15,15 +15,15 @@ export const mensagensRouter = Router()
 // ---- Listar mensagens da thread -------------------------------------------
 
 mensagensRouter.get(
-  '/api/v1/email/threads/:id/mensagens',
+  '/api/v1/threads-email/:id_thread_email/mensagens',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_thread_email } = req.params
     const { tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
-        id_email_assuntos_participantes: id,
+        id_email_assuntos_participantes: id_thread_email,
         id_organizacao_email_assuntos_participantes: tenantId,
       },
       select: { id_email_assuntos_participantes: true },
@@ -35,7 +35,7 @@ mensagensRouter.get(
 
     const mensagens = await prisma.emailMensagem.findMany({
       where: {
-        id_thread_email_mensagem: id,
+        id_thread_email_mensagem: id_thread_email,
         id_organizacao_email_mensagem: tenantId,
       },
       orderBy: { data_envio_email_mensagem: 'asc' },
@@ -53,10 +53,10 @@ const responderSchema = z.object({
 })
 
 mensagensRouter.post(
-  '/api/v1/email/threads/:id/responder',
+  '/api/v1/threads-email/:id_thread_email/mensagens',
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params
+    const { id_thread_email } = req.params
     const { tenantId, userId } = req.auth
 
     const parse = responderSchema.safeParse(req.body)
@@ -69,7 +69,7 @@ mensagensRouter.post(
     // Buscar thread e última mensagem inbound para extrair destinatário
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
-        id_email_assuntos_participantes: id,
+        id_email_assuntos_participantes: id_thread_email,
         id_organizacao_email_assuntos_participantes: tenantId,
       },
       include: {
@@ -108,7 +108,7 @@ mensagensRouter.post(
       data: {
         id_organizacao_email_mensagem: tenantId,
         id_usuario_email_mensagem: userId,
-        id_thread_email_mensagem: id,
+        id_thread_email_mensagem: id_thread_email,
         direcao_email_mensagem: 'ENVIADO',
         remetente_email_mensagem: process.env.EMAIL_FROM ?? 'Gravity <no-reply@resend.dev>',
         destinatario_email_mensagem: lastInbound.remetente_email_mensagem,
@@ -123,7 +123,7 @@ mensagensRouter.post(
 
     // Atualizar contador e ultimo_contato da thread
     await prisma.emailAssuntosParticipantes.update({
-      where: { id_email_assuntos_participantes: id },
+      where: { id_email_assuntos_participantes: id_thread_email },
       data: {
         contagem_mensagens_email_assuntos_participantes: { increment: 1 },
         ultimo_contato_email_assuntos_participantes: new Date(),

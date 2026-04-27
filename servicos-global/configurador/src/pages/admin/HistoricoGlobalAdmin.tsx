@@ -262,7 +262,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    apiFetch('/api/admin/historico-global/alerts?status=PENDING')
+    apiFetch('/api/v1/admin/historico-global/alerts?status=PENDING')
       .then((r) => r.json())
       .then((d) => setAlertas(d.data ?? []))
       .catch(() => {})
@@ -271,7 +271,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
 
   async function marcarRevisado(id: string) {
     try {
-      await apiFetch(`/api/admin/historico-global/alerts/${id}`, {
+      await apiFetch(`/api/v1/admin/historico-global/alerts/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'REVIEWED' }),
@@ -351,7 +351,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={async () => {
-                  await apiFetch(`/api/admin/historico-global/alerts/${alerta.id}`, {
+                  await apiFetch(`/api/v1/admin/historico-global/alerts/${alerta.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'ESCALATED' }),
@@ -410,7 +410,7 @@ export function HistoricoGlobalAdmin() {
     try {
       setLoading(true)
       setErroCarregar(null)
-      const res = await apiFetch(`/api/admin/historico-global/logs?${buildQuery()}`, { signal })
+      const res = await apiFetch(`/api/v1/admin/historico-global/logs?${buildQuery()}`, { signal })
       if (!res.ok) {
         const body = await res.text().catch(() => '')
         throw new Error(`${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ''}`)
@@ -439,7 +439,7 @@ export function HistoricoGlobalAdmin() {
   // Polling de alertas pendentes a cada 30s (além do carregamento inicial)
   useEffect(() => {
     const fetchAlertas = () => {
-      apiFetch('/api/admin/historico-global/alerts?status=PENDING&limit=1')
+      apiFetch('/api/v1/admin/historico-global/alerts?status=PENDING&limit=1')
         .then((r) => r.json())
         .then((d) => setAlertasPendentes(d.data?.length ?? 0))
         .catch(() => { /* silencioso — indicador não-crítico */ })
@@ -453,7 +453,7 @@ export function HistoricoGlobalAdmin() {
     if (!nextCursor) return
     setLoadingMore(true)
     try {
-      const res = await apiFetch(`/api/admin/historico-global/logs?${buildQuery(nextCursor)}`)
+      const res = await apiFetch(`/api/v1/admin/historico-global/logs?${buildQuery(nextCursor)}`)
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       const result = await res.json()
       setLogs((prev) => [...prev, ...(result.data ?? [])])
@@ -473,7 +473,7 @@ export function HistoricoGlobalAdmin() {
       if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
       params.set('format', format)
 
-      const res = await apiFetch(`/api/admin/historico-global/logs/export?${params}`)
+      const res = await apiFetch(`/api/v1/admin/historico-global/logs/export?${params}`)
 
       if (res.status === 202) {
         addNotification({ type: 'info', message: 'Exportação em background iniciada. O download estará disponível em breve.' })

@@ -86,7 +86,7 @@ test.describe('TST-E2E-CONFIG-000004 — Assinaturas', () => {
 
   test('20. Verificar dados corretos via API', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/products e verificar status 200
+    // TODO: interceptar /api/v1/admin/organizacoes/:id_organizacao/produtos e verificar status 200
   })
 
   test('21. Editar assinatura (abrir modal)', async ({ page }) => {
@@ -111,7 +111,7 @@ test.describe('TST-E2E-CONFIG-000004 — Assinaturas', () => {
 
   test('26. Verificar POST /subscribe chamado', async ({ page }) => {
     // verificacao pura
-    // TODO: interceptar /api/v1/tenants/products/subscribe e verificar status 201
+    // TODO: interceptar /api/v1/admin/organizacoes/assinar-produto e verificar status 201
   })
 
   test('27. Verificar novo produto na tabela', async ({ page }) => {

@@ -65,7 +65,7 @@ const STATUS_LABEL: Record<string, string> = {
   Suspensa: 'Suspensa',
 }
 
-const API = '/api/admin'
+const API = '/api/v1/admin'
 
 // ─── Helper: mapeia status do backend para pt-BR ──────────────────────────────
 

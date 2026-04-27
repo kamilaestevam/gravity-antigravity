@@ -56,19 +56,19 @@ export async function postSimulacao(input: SimulacaoInput): Promise<ResultadoFis
 
 export async function searchNcm(query: string): Promise<NcmItem[]> {
   if (query.length < 3) return []
-  const res = await fetch(`${API_BASE}/master-data/ncm/search?q=${encodeURIComponent(query)}`)
+  const res = await fetch(`${API_BASE}/simula-custo/ncm/buscar?q=${encodeURIComponent(query)}`)
   if (!res.ok) return []
   return res.json()
 }
 
 export async function getUfs(): Promise<UfItem[]> {
-  const res = await fetch(`${API_BASE}/master-data/ufs`)
+  const res = await fetch(`${API_BASE}/simula-custo/unidades-federativas`)
   if (!res.ok) return []
   return res.json()
 }
 
 export async function getPaises(): Promise<PaisItem[]> {
-  const res = await fetch(`${API_BASE}/master-data/countries`)
+  const res = await fetch(`${API_BASE}/simula-custo/paises`)
   if (!res.ok) return []
   return res.json()
 }

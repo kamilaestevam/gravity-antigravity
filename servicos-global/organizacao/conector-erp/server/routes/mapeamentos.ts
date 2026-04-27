@@ -26,9 +26,9 @@ const mapeamentoSchema = z.object({
 const atualizarSchema = mapeamentoSchema.partial().omit({ tenant_id: true })
 
 // ---------------------------------------------------------------------------
-// POST /api/v1/erp/mapeamentos
+// POST /api/v1/mapeamentos-erp
 // ---------------------------------------------------------------------------
-mapeamentosRouter.post('/api/v1/erp/mapeamentos', async (req, res, next) => {
+mapeamentosRouter.post('/api/v1/mapeamentos-erp', async (req, res, next) => {
   try {
     const body = mapeamentoSchema.parse(req.body)
 
@@ -57,9 +57,9 @@ mapeamentosRouter.post('/api/v1/erp/mapeamentos', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// GET /api/v1/erp/mapeamentos — listar por tenant/produto/conexão
+// GET /api/v1/mapeamentos-erp — listar por tenant/produto/conexão
 // ---------------------------------------------------------------------------
-mapeamentosRouter.get('/api/v1/erp/mapeamentos', async (req, res, next) => {
+mapeamentosRouter.get('/api/v1/mapeamentos-erp', async (req, res, next) => {
   try {
     const { tenant_id, product_id, conexao_id, entidade } =
       req.query as Record<string, string>
@@ -85,11 +85,11 @@ mapeamentosRouter.get('/api/v1/erp/mapeamentos', async (req, res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// PATCH /api/v1/erp/mapeamentos/:id
+// PATCH /api/v1/mapeamentos-erp/:id_mapeamento_erp
 // ---------------------------------------------------------------------------
-mapeamentosRouter.patch('/api/v1/erp/mapeamentos/:id', async (req, res, next) => {
+mapeamentosRouter.patch('/api/v1/mapeamentos-erp/:id_mapeamento_erp', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_mapeamento_erp } = req.params
     const { tenant_id } = req.query as { tenant_id: string }
 
     if (!tenant_id) {
@@ -97,7 +97,7 @@ mapeamentosRouter.patch('/api/v1/erp/mapeamentos/:id', async (req, res, next) =>
     }
 
     const existente = await prisma.mapeamentoCampo.findFirst({
-      where: { id, tenant_id },
+      where: { id: id_mapeamento_erp, tenant_id },
     })
     if (!existente) {
       throw new AppError('Mapeamento não encontrado', 404, 'NOT_FOUND')
@@ -106,7 +106,7 @@ mapeamentosRouter.patch('/api/v1/erp/mapeamentos/:id', async (req, res, next) =>
     const body = atualizarSchema.parse(req.body)
 
     const atualizado = await prisma.mapeamentoCampo.update({
-      where: { id },
+      where: { id: id_mapeamento_erp },
       data: body,
     })
 
@@ -120,11 +120,11 @@ mapeamentosRouter.patch('/api/v1/erp/mapeamentos/:id', async (req, res, next) =>
 })
 
 // ---------------------------------------------------------------------------
-// DELETE /api/v1/erp/mapeamentos/:id
+// DELETE /api/v1/mapeamentos-erp/:id_mapeamento_erp
 // ---------------------------------------------------------------------------
-mapeamentosRouter.delete('/api/v1/erp/mapeamentos/:id', async (req, res, next) => {
+mapeamentosRouter.delete('/api/v1/mapeamentos-erp/:id_mapeamento_erp', async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { id_mapeamento_erp } = req.params
     const { tenant_id } = req.query as { tenant_id: string }
 
     if (!tenant_id) {
@@ -132,13 +132,13 @@ mapeamentosRouter.delete('/api/v1/erp/mapeamentos/:id', async (req, res, next) =
     }
 
     const existente = await prisma.mapeamentoCampo.findFirst({
-      where: { id, tenant_id },
+      where: { id: id_mapeamento_erp, tenant_id },
     })
     if (!existente) {
       throw new AppError('Mapeamento não encontrado', 404, 'NOT_FOUND')
     }
 
-    await prisma.mapeamentoCampo.delete({ where: { id } })
+    await prisma.mapeamentoCampo.delete({ where: { id: id_mapeamento_erp } })
 
     res.json({ ok: true, message: 'Mapeamento removido com sucesso' })
   } catch (err) {

@@ -261,16 +261,16 @@ async function seedData() {
   ${C.cyan}# Seed manual (após iniciar o servidor):${C.reset}
 
   # 1. Seed do catálogo de produtos
-  curl -X POST ${BASE}/api/admin/produtos-gravity/seed \\
+  curl -X POST ${BASE}/api/v1/admin/produtos-gravity/seed \\
     -H "x-internal-key: ${DEV_INTERNAL_KEY}"
 
   # 2. Criar tenant demo
-  curl -X POST ${BASE}/api/v1/tenants \\
+  curl -X POST ${BASE}/api/v1/organizacoes \\
     -H "Content-Type: application/json" \\
     -d '{"name":"Demo Corp","slug":"demo-corp","clerkUserId":"user_demo","ownerEmail":"admin@demo.com","ownerName":"Admin Demo"}'
 
   # 3. Ativar SimulaCusto para o tenant (use o id retornado no passo 2)
-  curl -X POST ${BASE}/api/admin/tenants/{TENANT_ID}/products/simula-custo/activate \\
+  curl -X POST ${BASE}/api/v1/admin/organizacoes/{TENANT_ID}/produtos/simula-custo/ativar \\
     -H "x-internal-key: ${DEV_INTERNAL_KEY}" \\
     -H "Content-Type: application/json" \\
     -d '{}'
@@ -284,7 +284,7 @@ async function seedData() {
   log('Fazendo seed do catálogo de produtos...')
   try {
     // O seed via API requer auth admin, então vamos usar o Prisma diretamente
-    const seedRes = await fetch(`${BASE}/api/admin/produtos-gravity/seed`, {
+    const seedRes = await fetch(`${BASE}/api/v1/admin/produtos-gravity/seed`, {
       method: 'POST',
       headers: HEADERS,
     })
@@ -306,7 +306,7 @@ async function seedData() {
   // 5b. Criar tenant demo (via API pública de onboarding)
   log('Criando tenant demo...')
   try {
-    const tenantRes = await fetch(`${BASE}/api/v1/tenants`, {
+    const tenantRes = await fetch(`${BASE}/api/v1/organizacoes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -326,7 +326,7 @@ async function seedData() {
       log('Ativando SimulaCusto para Demo Corp...')
       try {
         const activateRes = await fetch(
-          `${BASE}/api/admin/tenants/${tenant.id}/products/simula-custo/activate`,
+          `${BASE}/api/v1/admin/organizacoes/${tenant.id}/produtos/simula-custo/ativar`,
           {
             method: 'POST',
             headers: HEADERS,
@@ -345,7 +345,7 @@ async function seedData() {
       // 5d. Ativar BID Frete também
       try {
         await fetch(
-          `${BASE}/api/admin/tenants/${tenant.id}/products/bid-frete/activate`,
+          `${BASE}/api/v1/admin/organizacoes/${tenant.id}/produtos/bid-frete/ativar`,
           { method: 'POST', headers: HEADERS, body: JSON.stringify({}) }
         )
         ok('BID Frete ativado para Demo Corp')

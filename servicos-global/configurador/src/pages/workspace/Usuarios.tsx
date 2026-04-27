@@ -160,7 +160,7 @@ export function Usuarios() {
 
         const [usersRes, companiesRes] = await Promise.all([
           fetch('/api/v1/usuarios', { headers }),
-          fetch('/api/v1/organizacao/companies', { headers }),
+          fetch('/api/v1/organizacoes/me/workspaces', { headers }),
         ])
 
         if (usersRes.ok) {
@@ -227,7 +227,7 @@ export function Usuarios() {
       const workspacesPayload = (fTipo === 'Standard' || fTipo === 'Fornecedor')
         ? (fTodosWorkspaces ? 'all' : fWorkspacesSelecionados)
         : undefined
-      const res = await fetch('/api/v1/usuarios/invite', {
+      const res = await fetch('/api/v1/usuarios/convidar', {
         method: 'POST',
         headers,
         body: JSON.stringify({

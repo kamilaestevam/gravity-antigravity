@@ -267,7 +267,7 @@ describe('AssercaoSchema', () => {
   })
 
   it('aceita apiResponse', () => {
-    expect(AssercaoSchema.safeParse({ tipo: 'apiResponse', rota: '/api/v1/users', status: 200 }).success).toBe(true)
+    expect(AssercaoSchema.safeParse({ tipo: 'apiResponse', rota: '/api/v1/usuarios', status: 200 }).success).toBe(true)
   })
 })
 

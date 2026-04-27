@@ -5,15 +5,15 @@
  * ATENÇÃO — webhook raw body:
  * O webhook Resend precisa de corpo bruto para validação HMAC.
  * No super-servidor, adicionar ANTES do express.json() global:
- *   app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))
+ *   app.use('/api/v1/envios-email/webhook-provedor', express.raw({ type: 'application/json' }))
  *
  * Rotas internas (caminhos absolutos, sem prefixo):
- *   POST /api/v1/email/enviar
- *   GET/POST /api/v1/email/threads
- *   GET/POST /api/v1/email/mensagens
- *   GET/POST /api/v1/email/templates
- *   GET /api/v1/email/fila
- *   POST /api/v1/email/webhook  ← raw body
+ *   POST /api/v1/envios-email
+ *   GET/PATCH /api/v1/threads-email
+ *   GET/POST /api/v1/threads-email/:id_thread_email/mensagens
+ *   GET/POST/PUT/DELETE /api/v1/templates-email
+ *   GET /api/v1/envios-email/fila
+ *   POST /api/v1/envios-email/webhook-provedor  ← raw body
  */
 
 import { Router } from 'express'

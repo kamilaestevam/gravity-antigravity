@@ -69,7 +69,7 @@ export function useHistoricoLogger() {
       user_id: user.id,
     }
 
-    fetch('/api/admin/historico-global/logs', {
+    fetch('/api/v1/admin/historico-global/logs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

@@ -9,15 +9,15 @@ import { shareRouter } from './routes/share.routes.js'
 const router = Router()
 
 router.use('/configs', configRouter)
-router.use('/widgets', widgetRouter)
-router.use('/catalog', catalogRouter)
-router.use('/stream', sseRouter)
-router.use('/alerts', alertRouter)
-router.use('/share', shareRouter)
+router.use('/', widgetRouter)
+router.use('/catalogo', catalogRouter)
+router.use('/', sseRouter)
+router.use('/', alertRouter)
+router.use('/', shareRouter)
 
 export { router as dashboardRouter }
 
 // ── Super-servidor: router com prefixo absoluto ───────────────────────────────
 const serviceRouter = Router()
-serviceRouter.use('/api/v1/dashboard', router)
+serviceRouter.use('/api/v1/dashboards', router)
 export { serviceRouter as dashboardServiceRouter }

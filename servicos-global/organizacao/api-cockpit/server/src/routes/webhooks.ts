@@ -56,14 +56,14 @@ webhooksRouter.post('/', async (req, res, next) => {
   }
 })
 
-webhooksRouter.put('/:id', async (req, res, next) => {
+webhooksRouter.put('/:id_webhook', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const { id } = req.params
+    const { id_webhook } = req.params
     const data = updateWebhookSchema.parse(req.body)
 
     const webhook = await prisma.webhookConfig.findFirst({
-      where: { id, tenant_id: tenantId }
+      where: { id: id_webhook, tenant_id: tenantId }
     })
 
     if (!webhook) {
@@ -71,7 +71,7 @@ webhooksRouter.put('/:id', async (req, res, next) => {
     }
 
     const updated = await prisma.webhookConfig.update({
-      where: { id },
+      where: { id: id_webhook },
       data
     })
 
@@ -81,13 +81,13 @@ webhooksRouter.put('/:id', async (req, res, next) => {
   }
 })
 
-webhooksRouter.post('/:id/test', async (req, res, next) => {
+webhooksRouter.post('/:id_webhook/testar', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const { id } = req.params
+    const { id_webhook } = req.params
 
     const webhook = await prisma.webhookConfig.findFirst({
-      where: { id, tenant_id: tenantId }
+      where: { id: id_webhook, tenant_id: tenantId }
     })
 
     if (!webhook) {
@@ -117,9 +117,9 @@ webhooksRouter.post('/:id/test', async (req, res, next) => {
         body: payload
       })
       status = response.status
-    } catch (e: any) {
+    } catch (e: unknown) {
       status = 500
-      errorMsg = e.message
+      errorMsg = e instanceof Error ? e.message : String(e)
     }
 
     const latency_ms = Date.now() - start
@@ -149,13 +149,13 @@ webhooksRouter.post('/:id/test', async (req, res, next) => {
   }
 })
 
-webhooksRouter.delete('/:id', async (req, res, next) => {
+webhooksRouter.delete('/:id_webhook', async (req, res, next) => {
   try {
     const tenantId = (req as any).tenantId
-    const { id } = req.params
+    const { id_webhook } = req.params
 
     const webhook = await prisma.webhookConfig.findFirst({
-      where: { id, tenant_id: tenantId }
+      where: { id: id_webhook, tenant_id: tenantId }
     })
 
     if (!webhook) {
@@ -163,7 +163,7 @@ webhooksRouter.delete('/:id', async (req, res, next) => {
     }
 
     await prisma.webhookConfig.delete({
-      where: { id }
+      where: { id: id_webhook }
     })
 
     res.status(204).send()

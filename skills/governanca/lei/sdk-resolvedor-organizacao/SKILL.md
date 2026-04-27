@@ -1,26 +1,25 @@
 ---
 name: antigravity-sdk-resolvedor-organizacao
-description: "Use esta skill sempre que precisar acessar banco de dados de produto ou serviço-organização, configurar middleware de organização, escrever worker/CRON multi-tenant, ou consumir a identidade/cache do organização. Define o contrato público de @gravity/tenant-resolver — o ÚNICO caminho permitido para tocar o banco após o pivô Schema-per-Organização. Implementação validada Sprint 1 (2026-04-18): 71/71 testes passando."
+description: "Use esta skill sempre que precisar acessar banco de dados de produto ou serviço-organizacao, configurar middleware de organizacao, escrever worker/CRON multi-organizacao, ou consumir a identidade/cache da organizacao. Define o contrato público de @gravity/resolver-organizacao — o ÚNICO caminho permitido para tocar o banco após o pivô Schema-per-Organizacao."
 ---
 
-# Gravity — SDK `@gravity/tenant-resolver`
+# Gravity — SDK `@gravity/resolver-organizacao`
 
-> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
-> Referência completa: [`documentos-tecnicos/sdk/tenant-resolver.md`](../../../documentos-tecnicos/sdk/tenant-resolver.md)
+> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) (Schema-per-Organizacao) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) (Contrato do SDK). Os filenames dos ADRs são históricos e não são renomeados.
 >
-> **Nota DDD (Mandamento 03):** embora a biblioteca tenha nome legado (`@gravity/tenant-resolver`) e a sua API pública atual ainda exponha campos com nome `tenantId`/`schemaName`, o **parâmetro semântico que trafega é estritamente a Organização** (`id_organizacao`/`idOrganizacao`). Em código de aplicação, alimente sempre as chamadas com a variável `idOrganizacao` (DDD); funções legadas internas que ainda recebem `tenantId` devem ser refatoradas para aceitar `idOrganizacao` no roadmap. Os identificadores reais preservados (nome do pacote, prefixo de schema PostgreSQL `tenant_<cuid>`, header `x-organização-id`) são objetos físicos/contratos externos que não são renomeados sem ciclo de migração coordenado.
+> **Pacote real (v0.2.0):** `@gravity/resolver-organizacao` em `packages/resolver-organizacao/`. A nomenclatura DDD foi aplicada na API pública: funções, types, campos de interface, campos de config e códigos de erro estão todos em PT-BR sem acentos. Os únicos nomes legados que permanecem por razões físicas são o prefixo `tenant_<cuid>` no schema PostgreSQL e a coluna física legada `tenant_id` (em remoção, ver Roadmap).
 
 ---
 
 ## Por Que Este SDK Existe
 
-Após o pivô Schema-per-Organização, **acessar o banco direto via Prisma é proibido**. O SDK é o **único caminho** de qualquer código de produto/serviço para o banco. Ele garante:
+Após o pivô Schema-per-Organizacao, **acessar o banco direto via Prisma é proibido**. O SDK é o **único caminho** de qualquer código de produto/serviço para o banco. Ele garante:
 
-1. `SET LOCAL search_path TO "tenant_<id>", public` aplicado dentro de `$transaction` — **garantia do Postgres, não da aplicação**
-2. Tipagem `TenantDatabase` que remove métodos perigosos (`$transaction`, `$connect`, etc.)
-3. Identidade da Organização via Configurador (`GET /api/internal/users/:idUsuario`), nunca do `publicMetadata` do Clerk (Mandamento 01)
-4. Cache in-memory com TTL (dual index: por idUsuario + por idOrganizacao — internamente o SDK ainda chama esses índices de `userId`/`tenantId` enquanto a API pública não é renomeada)
-5. Observabilidade: log de erro + span por `withTenant`
+1. `SET LOCAL search_path TO "tenant_<cuid>", public` aplicado dentro de `$transaction` — **garantia do Postgres, não da aplicação**
+2. Tipagem `BancoOrganizacao` que remove métodos perigosos (`$transaction`, `$connect`, etc.)
+3. Identidade da Organizacao via Configurador (`GET /api/internal/users/:idUsuario`), nunca do `publicMetadata` do Clerk (Mandamento 01)
+4. Cache in-memory com TTL (índices por `idUsuario` e por `idOrganizacao`)
+5. Observabilidade: log de erro + span por chamada do wrapper
 
 > **Regra inviolável:** `import { PrismaClient }` em código de aplicação = bloqueio no CI. Use o SDK.
 
@@ -30,42 +29,41 @@ Após o pivô Schema-per-Organização, **acessar o banco direto via Prisma é p
 
 ```typescript
 import {
-  tenantResolver,              // Express RequestHandler factory (1× por servidor)
-  withTenant,                  // Wrapper para handlers Express
-  withTenantContext,           // Wrapper para CRONs/workers (sem req)
-  AppError,                    // Erro tipado { statusCode, code, message }
-  type TenantContext,          // { tenantId, schemaName, workspaceId?, userId, roles, correlationId }
-  type TenantDatabase,         // Prisma.TransactionClient sem métodos de engine
-  type ResolverConfig,         // Config do tenantResolver()
-  type ProductKey,             // 'pedido' | 'processo' | 'simula-custo' | ...
-  type PrismaTransactionClient,// Alias legacy de TenantDatabase
-} from '@gravity/tenant-resolver'
+  resolverOrganizacao,           // Express RequestHandler factory (1× por servidor)
+  withOrganizacao,               // Wrapper para handlers Express
+  withOrganizacaoContext,        // Wrapper para CRONs/workers (sem req)
+  AppError,                      // Erro tipado { statusCode, code, message }
+  type ContextoOrganizacao,      // { idOrganizacao, nomeSchema, idWorkspace?, idUsuario, tiposUsuario, idCorrelacao }
+  type BancoOrganizacao,         // Prisma.TransactionClient sem métodos de engine
+  type ConfigResolverOrganizacao,// Config do resolverOrganizacao()
+  type ChaveProduto,             // 'pedido' | 'processo' | 'simula-custo' | ...
+} from '@gravity/resolver-organizacao'
 ```
 
 ### Não é exportado (proibido fora do SDK)
 
 - `PrismaClient` / `_internalPrisma` — singleton privado
-- `buildSchemaName` — uso interno; não construir schemaName manual fora do SDK
-- `TenantCache`, `createConfiguradorClient` — implementação interna
+- `buildSchemaName` — uso interno; não construir nome de schema manual fora do SDK
+- `CacheOrganizacao`, `createConfiguradorClient` — implementação interna
 
 ---
 
-## Bootstrap — `tenantResolver(config): RequestHandler`
+## Bootstrap — `resolverOrganizacao(config): RequestHandler`
 
 Retorna **diretamente** um `RequestHandler` Express. Instanciar **1 vez no boot**.
 
 ```typescript
 // produto/pedido/server/index.ts
 import express from 'express'
-import { tenantResolver } from '@gravity/tenant-resolver'
+import { resolverOrganizacao } from '@gravity/resolver-organizacao'
 
 const app = express()
 
 app.use(express.json())
-app.use(tenantResolver({                              // ← retorna RequestHandler diretamente
-  productKey:          'pedido',
-  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,  // ← campo correto: configuradorBaseUrl
-  internalKey:         process.env.INTERNAL_SERVICE_KEY!,
+app.use(resolverOrganizacao({
+  chaveProduto:        'pedido',
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  chaveInterna:        process.env.INTERNAL_SERVICE_KEY!,
   clerkSecretKey:      process.env.CLERK_SECRET_KEY,
   cacheTtlMs:          60_000,
 }))
@@ -73,29 +71,29 @@ app.use(tenantResolver({                              // ← retorna RequestHand
 app.listen(process.env.PORT)
 ```
 
-> **Atenção ao nome:** `configuradorBaseUrl` (não `configuradorUrl`).
+> **Atenção aos nomes exatos:** `chaveProduto`, `chaveInterna`, `configuradorBaseUrl`. Qualquer outra grafia → erro de tipo no boot.
 
-### Config completa (`ResolverConfig`)
+### Config completa (`ConfigResolverOrganizacao`)
 
 | Campo | Tipo | Obrigatório | Default |
 |:---|:---|:---:|:---|
-| `productKey` | `ProductKey` | ✅ | — |
+| `chaveProduto` | `ChaveProduto` | ✅ | — |
 | `configuradorBaseUrl` | `string` (URL) | ✅ | — |
-| `internalKey` | `string` (≥16 chars) | ✅ | — |
+| `chaveInterna` | `string` (≥16 chars) | ✅ | — |
 | `clerkSecretKey` | `string` | — | `process.env.CLERK_SECRET_KEY` |
 | `cacheTtlMs` | `number` | — | `60_000` |
+| `redisUrl` | `string` | — | sem default; ausência → cache in-memory + event-bus desabilitado |
 | `configuradorTimeoutMs` | `number` | — | `5_000` |
 | `configuradorRetries` | `1-5` | — | `3` |
-| `redisUrl` | `string` | — | Sprint 2; sem efeito em Sprint 1 |
 
-`tenantResolver()` valida a config **sincronamente** no boot — lança `Error` antes do servidor iniciar se faltar campo obrigatório.
+`resolverOrganizacao()` valida a config **sincronamente** no boot — lança `Error` antes do servidor iniciar se faltar campo obrigatório.
 
 ---
 
-## Uso #1 — `withTenant(req, fn)` — Handlers Express
+## Uso #1 — `withOrganizacao(req, fn)` — Handlers Express
 
 ```typescript
-import { withTenant, AppError } from '@gravity/tenant-resolver'
+import { withOrganizacao, AppError } from '@gravity/resolver-organizacao'
 import { z } from 'zod'
 
 const QuerySchema = z.object({
@@ -106,9 +104,9 @@ app.get('/pedidos', async (req, res, next) => {
   try {
     const { limit } = QuerySchema.parse(req.query)
 
-    const pedidos = await withTenant(req, async (db) => {
-      // db: TenantDatabase — search_path JÁ aplicado, dentro de $transaction
-      return db.pedido.findMany({ take: limit, orderBy: { created_at: 'desc' } })
+    const pedidos = await withOrganizacao(req, async (db) => {
+      // db: BancoOrganizacao — search_path JÁ aplicado, dentro de $transaction
+      return db.pedido.findMany({ take: limit, orderBy: { data_criacao_pedido: 'desc' } })
     })
 
     res.json(pedidos)
@@ -117,46 +115,42 @@ app.get('/pedidos', async (req, res, next) => {
 ```
 
 **Erros possíveis:**
-- `TENANT_MISSING` (500) — `req.organizacao` não populado (middleware não rodou)
-- `INVALID_TENANT_ID` (400) — schemaName fora do regex (defense-in-depth antes do SQL)
+- `ORGANIZACAO_MISSING` (500) — `req.organizacao` não populado (middleware não rodou)
+- `INVALID_ORGANIZACAO_ID` (400) — `nomeSchema` fora do regex (defense-in-depth antes do SQL)
 
 ---
 
-## Uso #2 — `withTenantContext(idOrganizacao, fn)` — CRONs / Workers
-
-> O nome da função (`withTenantContext`) e do primeiro parâmetro na assinatura atual da API (`tenantId`) são preservados como contrato externo do SDK. Em código de aplicação, **passe sempre a variável `idOrganizacao`** (DDD).
+## Uso #2 — `withOrganizacaoContext(idOrganizacao, fn)` — CRONs / Workers
 
 ```typescript
-import { withTenantContext } from '@gravity/tenant-resolver'
+import { withOrganizacaoContext } from '@gravity/resolver-organizacao'
 
 // BullMQ worker
 queue.process('emitir-nota', async (job) => {
   const { idOrganizacao } = job.data
 
-  await withTenantContext(idOrganizacao, async (ctx, db) => {
-    // ctx: TenantContext { tenantId, schemaName, roles, correlationId, ... }
-    //      (campos do contexto ainda usam nomes legados na API pública atual; em
-    //      aplicação trate-os como Organização: ctx.tenantId === idOrganizacao)
-    // db:  TenantDatabase com search_path aplicado
-    await db.nota.update({ where: { id: job.data.notaId }, data: { status: 'EMITIDA' } })
+  await withOrganizacaoContext(idOrganizacao, async (ctx, db) => {
+    // ctx: ContextoOrganizacao { idOrganizacao, nomeSchema, idWorkspace?, idUsuario, tiposUsuario, idCorrelacao }
+    // db:  BancoOrganizacao com search_path aplicado
+    await db.nota.update({ where: { id: job.data.idNota }, data: { status: 'EMITIDA' } })
   })
 })
 ```
 
-**Defense-in-depth adicional:** após resolver via Configurador, `withTenantContext` confirma que o `schemaName` retornado bate com o esperado para o `idOrganizacao` informado. Se divergir → `TENANT_SCHEMA_MISMATCH` (500 — código do SDK preservado).
+**Defense-in-depth adicional:** após resolver via Configurador, `withOrganizacaoContext` confirma que o `nomeSchema` retornado bate com o esperado para o `idOrganizacao` informado. Se divergir → `ORGANIZACAO_SCHEMA_MISMATCH` (500).
 
-### Cuidados em loops multi-organização
+### Cuidados em loops multi-organizacao
 
 ```typescript
-// ✅ CORRETO — transação isolada por Organização
+// ✅ CORRETO — transação isolada por Organizacao
 for (const organizacao of organizacoesAtivas) {
-  await withTenantContext(organizacao.id_organizacao, async (ctx, db) => {
+  await withOrganizacaoContext(organizacao.id_organizacao, async (ctx, db) => {
     await db.pedido.updateMany({ data: { processado: true } })
   })
 }
 
-// ❌ ERRADO — 1 única transação, search_path da Organização [0] contamina todas
-await withTenantContext(organizacoesAtivas[0].id_organizacao, async (ctx, db) => {
+// ❌ ERRADO — 1 única transação, search_path da Organizacao [0] contamina todas
+await withOrganizacaoContext(organizacoesAtivas[0].id_organizacao, async (ctx, db) => {
   for (const organizacao of organizacoesAtivas) {   // BUG!
     await db.pedido.updateMany({ data: { processado: true } })
   }
@@ -165,7 +159,7 @@ await withTenantContext(organizacoesAtivas[0].id_organizacao, async (ctx, db) =>
 
 ---
 
-## Tipo `TenantDatabase` — Referência Rápida
+## Tipo `BancoOrganizacao` — Referência Rápida
 
 | O que roda | Disponível? |
 |:---|:---:|
@@ -179,21 +173,20 @@ await withTenantContext(organizacoesAtivas[0].id_organizacao, async (ctx, db) =>
 
 ---
 
-## `TenantContext` — Campos Reais
-
-> A interface `TenantContext` é o **contrato externo atual** do SDK; os nomes dos campos (`tenantId`, `workspaceId`, `userId`) são legados e estão no roadmap para serem renomeados para `idOrganizacao`/`idWorkspace`/`idUsuario`. Em código de aplicação, **trate semanticamente** esses campos como Organização/Workspace/Usuário (DDD).
+## `ContextoOrganizacao` — Campos Reais
 
 ```typescript
-interface TenantContext {
-  idOrganizacao: string    // CUID da Organização — req.organizacao.idOrganizacao (semântica: idOrganizacao)
-  schemaName:    string    // "tenant_<32hex>" — schema PostgreSQL real, não usar diretamente
-  workspaceId?:  string    // Workspace ativo (opcional — semântica: idWorkspace)
-  userId:        string    // SUID do usuário Clerk (semântica: idUsuario)
-  roles:         string[]  // Ex: ['PEDIDO_READ', 'PEDIDO_WRITE']
-  correlationId: string    // SUID por request — propagar em logs
+interface ContextoOrganizacao {
+  idOrganizacao: string    // CUID da Organizacao — req.organizacao.idOrganizacao
+  nomeSchema:    string    // "tenant_<32hex>" — schema PostgreSQL real, não usar diretamente
+  idWorkspace?:  string    // Workspace ativo (opcional)
+  idUsuario:     string    // SUID do usuário Clerk
+  tiposUsuario:  string[]  // Ex: ['PEDIDO_READ', 'PEDIDO_WRITE']
+  idCorrelacao:  string    // ULID por request — propagar em logs
 }
-// NÃO HÁ: permissions, email (versão 0.1.0)
 ```
+
+> O campo `nomeSchema` recebe o valor `tenant_<cuid>` — o prefixo `tenant_` é o **nome físico real** do schema PostgreSQL e permanece por razões de migração de dados (não é renomeado sem ciclo coordenado).
 
 ---
 
@@ -202,15 +195,12 @@ interface TenantContext {
 | Código | HTTP | Origem |
 |:---|:---:|:---|
 | `UNAUTHENTICATED` | 401 | Token ausente/inválido/expirado |
-| `TENANT_MISSING` | 500 | `req.organizacao` (semântica: contexto da Organização) não populado pelo middleware |
-| `TENANT_NOT_FOUND` | 404 | Configurador retorna 404 para a Organização solicitada |
-| `TENANT_INACTIVE` | 403 | Organização `suspended` ou `deleted` |
-| `TENANT_SCHEMA_MISMATCH` | 500 | schemaName diverge do `idOrganizacao` (spoofing detectado) |
-| `INVALID_TENANT_ID` | 400 | CUID da Organização inválido ou schemaName fora do regex |
+| `ORGANIZACAO_MISSING` | 500 | `req.organizacao` não populado pelo middleware |
+| `ORGANIZACAO_NOT_FOUND` | 404 | Configurador retorna 404 para a Organizacao solicitada |
+| `ORGANIZACAO_INACTIVE` | 403 | Organizacao `suspended` ou `deleted` |
+| `ORGANIZACAO_SCHEMA_MISMATCH` | 500 | `nomeSchema` diverge do `idOrganizacao` (spoofing detectado) |
+| `INVALID_ORGANIZACAO_ID` | 400 | CUID da Organizacao inválido ou `nomeSchema` fora do regex |
 | `CONFIGURADOR_UNAVAILABLE` | 503 | Configurador offline após retries |
-| `CONFIGURADOR_INVALID_RESPONSE` | 503 | Resposta não valida Zod |
-
-> Os nomes dos códigos de erro (`TENANT_*`) são preservados como contrato do SDK. O significado semântico é sempre **Organização**.
 
 ---
 
@@ -220,19 +210,19 @@ interface TenantContext {
 |:---|:---|:---|
 | `DATABASE_URL` | Lida pelo SDK internamente | Sem `?schema=` — SDK usa `SET LOCAL` |
 | `CONFIGURATOR_URL` | Passa via `configuradorBaseUrl` | SDK não lê env direto |
-| `INTERNAL_SERVICE_KEY` | Passa via `internalKey` | ≥ 16 chars |
+| `INTERNAL_SERVICE_KEY` | Passa via `chaveInterna` | ≥ 16 chars |
 | `CLERK_SECRET_KEY` | Default de `clerkSecretKey` | Pode passar explícito |
 
 ---
 
 ## Testes no Pacote SDK
 
-Os testes do SDK ficam **dentro do pacote** (`packages/tenant-resolver/tests/`), não na raiz `testes/`. É a única exceção à regra de testes centralizados — pacotes publicáveis têm seus próprios testes.
+Os testes do SDK ficam **dentro do pacote** (`packages/resolver-organizacao/tests/`), não na raiz `testes/`. É a única exceção à regra de testes centralizados — pacotes publicáveis têm seus próprios testes.
 
 ```bash
-cd packages/tenant-resolver
+cd packages/resolver-organizacao
 
-npm test            # unit + integration (71 testes, sem banco)
+npm test            # unit + integration (sem banco)
 npm run test:e2e    # E2E (requer DATABASE_URL real)
 npm run test:all    # tudo
 ```
@@ -241,20 +231,20 @@ npm run test:all    # tudo
 
 ---
 
-## Testes Cross-Organização Obrigatórios em Produtos
+## Testes Cross-Organizacao Obrigatórios em Produtos
 
 Todo produto que consome o SDK deve ter ao menos:
 
 ```typescript
 // Em qualquer arquivo de testes do produto
-it('Organização A não vê dados da Organização B', async () => {
+it('Organizacao A não vê dados da Organizacao B', async () => {
   const id = randomUUID()
 
-  await withTenantContext(orgB.id_organizacao, async (_ctx, db) => {
+  await withOrganizacaoContext(orgB.id_organizacao, async (_ctx, db) => {
     await db.minhaTabelaPrincipal.create({ data: { id, valor: 'segredo-B' } })
   })
 
-  const result = await withTenantContext(orgA.id_organizacao, async (_ctx, db) => {
+  const result = await withOrganizacaoContext(orgA.id_organizacao, async (_ctx, db) => {
     return db.minhaTabelaPrincipal.findUnique({ where: { id } })
   })
 
@@ -263,16 +253,16 @@ it('Organização A não vê dados da Organização B', async () => {
 
 it('crash não polui search_path da próxima request', async () => {
   await expect(
-    withTenantContext(orgA.id_organizacao, async () => { throw new Error('crash') })
+    withOrganizacaoContext(orgA.id_organizacao, async () => { throw new Error('crash') })
   ).rejects.toThrow()
 
-  const path = await withTenantContext(orgB.id_organizacao, async (_ctx, db) => {
+  const path = await withOrganizacaoContext(orgB.id_organizacao, async (_ctx, db) => {
     const [row] = await db.$queryRaw<{ search_path: string }[]>`SHOW search_path`
     return row!.search_path
   })
 
-  expect(path).toContain(orgB.schemaName)
-  expect(path).not.toContain(orgA.schemaName)
+  expect(path).toContain(orgB.nomeSchema)
+  expect(path).not.toContain(orgA.nomeSchema)
 })
 ```
 
@@ -285,32 +275,24 @@ it('crash não polui search_path da próxima request', async () => {
 import { PrismaClient } from '@prisma/client'
 new PrismaClient()
 
-// ❌ Nome errado do campo de config
-tenantResolver({ configuradorUrl: '...' })   // campo é configuradorBaseUrl
+// ❌ Campo errado do contexto — use idOrganizacao
+req.organizacao.id              // ERRADO
+req.organizacao.idOrganizacao   // CORRETO
 
-// ❌ Chamada errada do middleware
-const resolver = tenantResolver(config)
-app.use(resolver.middleware())  // ERRADO — tenantResolver já retorna RequestHandler
-// CORRETO:
-app.use(tenantResolver(config))
-
-// ❌ TenantContext.id (nome antigo)
-req.organizacao.id              // ERRADO — campo do contrato externo é tenantId (semântica: idOrganizacao)
-req.organizacao.idOrganizacao        // CORRETO (em aplicação, trate como idOrganizacao)
-
-// ❌ $transaction aninhado dentro de withTenant
-await withTenant(req, async (db) => {
+// ❌ $transaction aninhado dentro de withOrganizacao
+await withOrganizacao(req, async (db) => {
   await db.$transaction(async (tx) => { ... })  // PROIBIDO
+})
 
 // ❌ identidade do Clerk (Mandamento 01 — Clerk só serve para autenticação)
-session.publicMetadata.tenantId  // NUNCA — use req.organizacao.idOrganizacao (semântica: idOrganizacao)
+session.publicMetadata.tenantId   // NUNCA — campo legado do Clerk; use req.organizacao.idOrganizacao
 
 // ❌ SET search_path manual — linter bloqueia
 await db.$executeRawUnsafe('SET search_path TO meu_schema')
 
 // ❌ db reutilizado fora do callback
 let db
-await withTenant(req, async (_db) => { db = _db })
+await withOrganizacao(req, async (_db) => { db = _db })
 await db.pedido.findMany()   // transação já fechou
 ```
 
@@ -318,13 +300,14 @@ await db.pedido.findMany()   // transação já fechou
 
 ## Checklist — Antes de Mergear Código com o SDK
 
-- [ ] `tenantResolver()` chamado 1× no boot, retorno direto com `app.use()`?
-- [ ] `configuradorBaseUrl` (não `configuradorUrl`) na config?
-- [ ] Todo acesso a banco via `withTenant` ou `withTenantContext`?
+- [ ] `resolverOrganizacao()` chamado 1× no boot, retorno direto com `app.use()`?
+- [ ] Config usa nomes corretos: `chaveProduto`, `configuradorBaseUrl`, `chaveInterna`?
+- [ ] Todo acesso a banco via `withOrganizacao` ou `withOrganizacaoContext`?
 - [ ] Nenhum `import { PrismaClient }` no diff?
-- [ ] `req.organizacao.idOrganizacao` (não `req.organizacao.id`) — semântica: `idOrganizacao`?
+- [ ] Import vem de `@gravity/resolver-organizacao` (pacote v0.2)?
+- [ ] `req.organizacao.idOrganizacao` (não `req.organizacao.id`)?
 - [ ] Nenhum `db.$transaction` aninhado dentro do callback?
-- [ ] Testes anti-cross-organização presentes para as tabelas do produto?
+- [ ] Testes anti-cross-organizacao presentes para as tabelas do produto?
 - [ ] Error handler global trata `instanceof AppError`?
 - [ ] `vitest@2` no `package.json` do pacote (não herdar `vitest@4` do root)?
 
@@ -334,7 +317,8 @@ await db.pedido.findMany()   // transação já fechou
 
 | Sprint | O que muda no SDK |
 |:---|:---|
-| **Sprint 1** ✅ | Implementação completa: middleware, withTenant, withTenantContext, cache, errors, 71 testes |
-| **Sprint 2** | BullMQ real; Redis distribuído; `tenantCache(req.organizacao)` helper para chaves de produtos |
-| **Sprint 3** | `produto/pedido` e demais migrados do modelo antigo para `withTenant` |
-| **Sprint 4** | Remoção do campo Prisma `id_organizacao` (e da coluna física legada `tenant_id`) dos models |
+| **Sprint 1** ✅ | Implementação completa do SDK (v0.1): middleware, wrappers, cache, errors, 71 testes — pacote inicial sob nome legado |
+| **Sprint 2** ✅ | Migração DDD da API pública — pacote renomeado para `@gravity/resolver-organizacao` (v0.2): funções, types, campos de interface, config e error codes em PT-BR |
+| **Sprint 3** | BullMQ real; Redis distribuído; helper `cacheOrganizacao(req.organizacao)` para chaves de produtos |
+| **Sprint 4** | Migração de `produto/*` legados (que ainda usam `WHERE id_organizacao = ?` e RLS) para `withOrganizacao` |
+| **Sprint 5** | Remoção da coluna física legada `tenant_id` (já não há mais campo Prisma `id_organizacao` em models de produto) |

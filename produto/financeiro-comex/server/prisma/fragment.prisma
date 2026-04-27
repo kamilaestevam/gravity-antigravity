@@ -3,12 +3,12 @@
 // Produto: financeiro-comex | Porta: 8029
 // ============================================================
 
-enum TipoOperacaoFinanceiro {
+enum FinanceiroTipoOperacao {
   IMPORTACAO
   EXPORTACAO
 }
 
-enum MoedaFinanceiro {
+enum FinanceiroMoeda {
   BRL
   USD
   EUR
@@ -19,13 +19,13 @@ enum MoedaFinanceiro {
   UYU
 }
 
-enum StatusPagamento {
+enum FinanceiroPagamentoStatus {
   PENDENTE
   AGENDADO
   PAGO
 }
 
-enum CanalEntradaFinanceiro {
+enum FinanceiroLancamentoTipo {
   MANUAL
   XML_DUIMP
   PORTAL_UNICO
@@ -34,7 +34,7 @@ enum CanalEntradaFinanceiro {
   EMAIL
 }
 
-enum TipoDocumentoFinanceiro {
+enum FinanceiroTipoDocumento {
   BOLETO
   NOTA_FISCAL
   DEMONSTRATIVO
@@ -43,7 +43,7 @@ enum TipoDocumentoFinanceiro {
   OUTRO
 }
 
-enum TipoFornecedorFinanceiro {
+enum FinanceiroTipoFornecedor {
   AGENTE_DE_CARGA
   ARMADOR
   CIA_AEREA
@@ -60,7 +60,7 @@ enum TipoFornecedorFinanceiro {
   OUTRO
 }
 
-enum GrupoCusto {
+enum FinanceiroGrupoCusto {
   IMPOSTOS_FEDERAIS
   CUSTO_OPERACIONAL
 }
@@ -71,7 +71,7 @@ model FinanceiroProcesso {
   tenant_id        String
   company_id       String
   processo_id      String   @unique
-  tipo_operacao    TipoOperacaoFinanceiro
+  tipo_operacao    FinanceiroTipoOperacao
   referencia       String?
 
   total_brl        Decimal  @default(0) @db.Decimal(18, 4)
@@ -106,32 +106,32 @@ model FinanceiroLancamento {
 
   categoria_id     String
   categoria_nome   String
-  grupo_custo      GrupoCusto
+  grupo_custo      FinanceiroGrupoCusto
 
-  moeda            MoedaFinanceiro
+  moeda            FinanceiroMoeda
   taxa_cambio      Decimal  @db.Decimal(10, 7)
   valor            Decimal  @db.Decimal(18, 4)
   valor_brl        Decimal  @db.Decimal(18, 4)
 
   fornecedor_id    String?
   fornecedor_nome  String?
-  tipo_fornecedor  TipoFornecedorFinanceiro?
+  tipo_fornecedor  FinanceiroTipoFornecedor?
 
   condicao_id      String?
   condicao_descricao String?
   data_pagamento   DateTime?
   data_vencimento  DateTime?
-  status_pagamento StatusPagamento @default(PENDENTE)
+  status_pagamento FinanceiroPagamentoStatus @default(PENDENTE)
   observacao       String?
 
   despesa_aduaneira Boolean  @default(false)
   despesa_nf        Boolean  @default(false)
   espelho_nf        Boolean  @default(true)
 
-  tipo_documento   TipoDocumentoFinanceiro?
+  tipo_documento   FinanceiroTipoDocumento?
   numero_documento String?
 
-  canal_entrada    CanalEntradaFinanceiro @default(MANUAL)
+  canal_entrada    FinanceiroLancamentoTipo @default(MANUAL)
   icms_origem_portal Boolean @default(false)
 
   created_at       DateTime @default(now())
@@ -156,8 +156,8 @@ model FinanceiroCategorias {
 
   codigo           String
   nome             String
-  grupo_custo      GrupoCusto
-  tipo_operacao    TipoOperacaoFinanceiro?
+  grupo_custo      FinanceiroGrupoCusto
+  tipo_operacao    FinanceiroTipoOperacao?
   conta_contabil   String?
   centro_custo     String?
   ativo            Boolean  @default(true)
@@ -227,7 +227,7 @@ model FinanceiroNumerarioDespesa {
   numerario_id     String
 
   descricao        String
-  moeda            MoedaFinanceiro
+  moeda            FinanceiroMoeda
   taxa_cambio      Decimal  @db.Decimal(10, 7)
   valor            Decimal  @db.Decimal(18, 4)
   valor_brl        Decimal  @db.Decimal(18, 4)

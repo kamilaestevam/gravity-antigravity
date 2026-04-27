@@ -55,7 +55,7 @@ fieldHelpRouter.get('/api/v1/gabi/admin/produtos/:id_produto_gravity/tokens/esta
     const prismaClient = prismaModule.default
 
     // Agrega por tenant para o mês atual
-    const quotas = await prismaClient.gabiTokenWorkspace.findMany({
+    const quotas = await prismaClient.gabiTokenOrganizacao.findMany({
       where: {
         id_produto_gabi_token_workspace: productId,
         mes_ref_gabi_token_workspace: mesRef,

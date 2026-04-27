@@ -5,10 +5,10 @@
 // Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// GabiConversa — conversa principal da Gabi com o usuário
+// GabiConversaCompleta — conversa principal da Gabi com o usuário
 // ---------------------------------------------------------------------------
 
-model GabiConversa {
+model GabiConversaCompleta {
   id_gabi_conversa             String  @id @default(cuid())
   id_organizacao_gabi_conversa String
   id_produto_gabi_conversa     String?
@@ -19,7 +19,7 @@ model GabiConversa {
   data_criacao_gabi_conversa     DateTime @default(now())
   data_atualizacao_gabi_conversa DateTime @updatedAt
 
-  mensagens_gabi_conversa  GabiMensagem[]
+  mensagens_gabi_conversa  GabiMensagemIndividual[]
 
   @@index([id_organizacao_gabi_conversa], map: "gco_org_idx")
   @@index([id_organizacao_gabi_conversa, id_produto_gabi_conversa], map: "gco_org_prd_idx")
@@ -28,17 +28,17 @@ model GabiConversa {
 }
 
 // ---------------------------------------------------------------------------
-// GabiMensagem — mensagem individual da conversa
+// GabiMensagemIndividual — mensagem individual da conversa
 // ---------------------------------------------------------------------------
 
-model GabiMensagem {
+model GabiMensagemIndividual {
   id_gabi_mensagem             String  @id @default(cuid())
   id_organizacao_gabi_mensagem String
   id_produto_gabi_mensagem     String?
   id_usuario_gabi_mensagem     String?
 
   id_conversa_gabi_mensagem    String
-  conversa_gabi_mensagem       GabiConversa @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
+  conversa_gabi_mensagem       GabiConversaCompleta @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
 
   papel_gabi_mensagem          String   // 'user' | 'assistant' | 'system'
   conteudo_gabi_mensagem       String   @db.Text
@@ -108,10 +108,10 @@ model GabiTokenConsumido {
 }
 
 // ---------------------------------------------------------------------------
-// GabiTokenWorkspace — quota mensal por tenant
+// GabiTokenOrganizacao — quota mensal por tenant
 // ---------------------------------------------------------------------------
 
-model GabiTokenWorkspace {
+model GabiTokenOrganizacao {
   id_gabi_token_workspace             String   @id @default(cuid())
   id_organizacao_gabi_token_workspace String
   id_produto_gabi_token_workspace     String
@@ -130,10 +130,10 @@ model GabiTokenWorkspace {
 }
 
 // ---------------------------------------------------------------------------
-// GabiPersonalizacao — persona/comportamento Gabi por tenant
+// GabiPersonalizacaoOrganizacao — persona/comportamento Gabi por tenant
 // ---------------------------------------------------------------------------
 
-model GabiPersonalizacao {
+model GabiPersonalizacaoOrganizacao {
   id_gabi_personalizacao             String   @id @default(cuid())
   id_organizacao_gabi_personalizacao String   @unique
   id_produto_gabi_personalizacao     String?

@@ -38,7 +38,7 @@ mensagensRouter.get('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async 
     const { tenantId } = req.auth
     const { id_conversa_gabi: conversationId } = req.params
 
-    const conversa = await prisma.gabiConversa.findFirst({
+    const conversa = await prisma.gabiConversaCompleta.findFirst({
       where: {
         id_gabi_conversa: conversationId,
         id_organizacao_gabi_conversa: tenantId,
@@ -48,7 +48,7 @@ mensagensRouter.get('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async 
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagens = await prisma.gabiMensagem.findMany({
+    const mensagens = await prisma.gabiMensagemIndividual.findMany({
       where: {
         id_conversa_gabi_mensagem: conversationId,
         id_organizacao_gabi_mensagem: tenantId,
@@ -73,7 +73,7 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async
     const { id_conversa_gabi: conversationId } = req.params
     const { role, content } = createMensagemSchema.parse(req.body)
 
-    const conversa = await prisma.gabiConversa.findFirst({
+    const conversa = await prisma.gabiConversaCompleta.findFirst({
       where: {
         id_gabi_conversa: conversationId,
         id_organizacao_gabi_conversa: tenantId,
@@ -83,7 +83,7 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagem = await prisma.gabiMensagem.create({
+    const mensagem = await prisma.gabiMensagemIndividual.create({
       data: {
         id_organizacao_gabi_mensagem: tenantId,
         id_usuario_gabi_mensagem: userId || null,
@@ -94,7 +94,7 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async
     })
 
     // Atualiza o data_atualizacao da conversa
-    await prisma.gabiConversa.update({
+    await prisma.gabiConversaCompleta.update({
       where: { id_gabi_conversa: conversationId },
       data: { data_atualizacao_gabi_conversa: new Date() },
     })

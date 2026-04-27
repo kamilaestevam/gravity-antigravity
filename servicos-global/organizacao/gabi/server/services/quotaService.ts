@@ -29,7 +29,7 @@ export async function checkQuota(
 ): Promise<QuotaStatus> {
   const mes_ref = mesAtual()
 
-  const quota = await prisma.gabiTokenWorkspace.upsert({
+  const quota = await prisma.gabiTokenOrganizacao.upsert({
     where: {
       id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace: {
         id_organizacao_gabi_token_workspace: tenantId,
@@ -92,7 +92,7 @@ export async function registerTokens(params: {
   })
 
   // Incrementa contador na quota (upsert garante que o registro exista)
-  await prisma.gabiTokenWorkspace.upsert({
+  await prisma.gabiTokenOrganizacao.upsert({
     where: {
       id_organizacao_gabi_token_workspace_id_produto_gabi_token_workspace_mes_ref_gabi_token_workspace: {
         id_organizacao_gabi_token_workspace: tenantId,
@@ -129,7 +129,7 @@ export async function getQuotaInfo(
  * Zera tokens_usados para todos os registros do mês anterior.
  */
 export async function resetQuotaMensal(mesRef: string): Promise<number> {
-  const result = await prisma.gabiTokenWorkspace.updateMany({
+  const result = await prisma.gabiTokenOrganizacao.updateMany({
     where: { mes_ref_gabi_token_workspace: mesRef },
     data: { tokens_usados_gabi_token_workspace: 0 },
   })

@@ -1,5 +1,5 @@
 ---
-name: antigravity-resilience-patterns
+name: antigravity-resiliencia
 description: "Use esta skill para implementar padrões de resiliência. Define degradação graciosa, retry com backoff, dead letter queue, endpoint de agregação e timeouts obrigatórios. Aponta para a SSOT em casos de Health Check (observabilidade) e roadmap futuro (BullMQ, Circuit Breaker). Consultada pelo Backend e DevOps/SRE ao construir comunicação entre serviços."
 ---
 
@@ -16,6 +16,8 @@ Na arquitetura distribuída do Gravity, serviços falham. A rede falha. O banco 
 Quando um serviço da organização está fora do ar, o produto continua funcionando para tudo que é local.
 
 ### Wrapper de chamada cross-service
+
+> 🚨 **ALERTA DE SEGURANÇA (S2S APENAS):** O wrapper abaixo e o uso do header `x-internal-key` são ESTRITAMENTE para comunicação Backend-to-Backend (Server-to-Server) dentro da rede interna. NUNCA copies este padrão para código frontend (React/Browser). O frontend comunica com os serviços APENAS via JWT do Clerk passando pelo proxy do Configurador.
 
 ```typescript
 // servicos-global/nucleo/api-client.ts

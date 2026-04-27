@@ -303,7 +303,7 @@ const meResponseSchema = z.object({
 | Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Zustand, Event Bus, cache cliente |
 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação por evento, prefixo `organizacao:` (REGRA 4 do linter) |
-| Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
+| Resiliência | `skills/arquitetura/resiliencia/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
 | Tradução (i18n) | `skills/arquitetura/traducao/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
 

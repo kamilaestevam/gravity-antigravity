@@ -65,7 +65,7 @@ skills/governanca/convencao-tecnica/code-standards/SKILL.md
 | Schema Zod exportado | `skills/testes/contract-testing/SKILL.md` |
 | Componente React (`nucleo-global/`) | `skills/arquitetura/nucleo-global/SKILL.md` + `skills/ux/design-system/SKILL.md` |
 | Middleware de autenticação | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/seguranca/permissoes/SKILL.md` |
-| Chamada entre serviços (S2S) | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/arquitetura/resilience-patterns/SKILL.md` |
+| Chamada entre serviços (S2S) | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/arquitetura/resiliencia/SKILL.md` |
 | CSS compartilhado / design tokens | `skills/ux/design-system/SKILL.md` + `skills/ux/acessibilidade/SKILL.md` |
 | Migration Prisma | `skills/processos/deploy/SKILL.md` + `skills/governanca/convencao-tecnica/database-governance/SKILL.md` |
 | `shared/types.ts` | `skills/testes/contract-testing/SKILL.md` |

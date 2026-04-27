@@ -1,6 +1,6 @@
 ---
 name: antigravity-dream-team-traducao
-description: "Consulte esta skill antes de criar/modificar qualquer texto visivel ao usuario — labels, placeholders, tooltips, mensagens de erro, notificacoes, toasts. Define a arquitetura de internacionalizacao, convencoes de keys, pipeline de traducao automatica, lazy loading, formatadores locale-aware, higiene de git e regras inviolaveis para garantir cobertura 100% em PT/EN/ES."
+description: "Consulte esta skill antes de criar/modificar qualquer texto visível ao usuário — labels, placeholders, tooltips, mensagens de erro, notificações, toasts. Define a arquitetura de internacionalização, convenções de keys, pipeline de tradução automática, lazy loading, formatadores locale-aware, higiene de git e regras invioláveis para garantir cobertura 100% em PT/EN/ES."
 ---
 
 # Gravity — Internacionalização e Tradução (i18n)
@@ -106,7 +106,7 @@ Cada domínio tem seu namespace no JSON. Keys usam `snake_case` separadas por po
 
 ### Namespaces Existentes
 
-`comum`, `acoes`, `shell`, `tabela`, `calendario`, `campo`, `botoes`, `usuario`, `login`, `auth`, `modal`, `feedback`, `hub`, `store`, `sw`, `waitlist`, `contato`, `marketplace`, `admin`, `workspace`, `pedido`, `simulacusto`, `bidfrete`, `bidcambio`, `processo`, `lpco`, `nf_importacao`, `email_modulo`, `historico`, `cronometro`, `gabi`, `whatsapp`, `tenant_dashboard`, `atividades`
+`comum`, `acoes`, `shell`, `tabela`, `calendario`, `campo`, `botoes`, `usuario`, `login`, `auth`, `modal`, `feedback`, `hub`, `store`, `sw`, `waitlist`, `contato`, `marketplace`, `admin`, `workspace`, `pedido`, `simulacusto`, `bidfrete`, `bidcambio`, `processo`, `lpco`, `nf_importacao`, `email_modulo`, `historico`, `cronometro`, `gabi`, `whatsapp`, `organizacao_dashboard`, `atividades`
 
 ### Namespace Excluído de Tradução
 
@@ -155,8 +155,8 @@ function MeuComponente() {
 ### 3. Gerar traduções EN/ES
 
 ```bash
-npx tsx scripts/ativamente/translate.ts        # traduz chaves faltantes via Gemini
-npx tsx scripts/ativamente/translate.ts --dry-run  # lista sem traduzir (preview)
+npm run translate                  # traduz chaves faltantes via Gemini
+npm run translate -- --dry-run     # lista sem traduzir (preview)
 ```
 
 ### 4. Commit os 3 arquivos
@@ -366,7 +366,7 @@ const colunas = [
 <TooltipGlobal descricao="Número de referência do pedido">
 ```
 
-> **Regra Tooltip:** Máx 90 caracteres. Validar que traduções EN/ES não estouram esse limite.
+> **Regra Tooltip:** O limite de 90 caracteres é definido em [Tooltip](../../ux/tooltip/SKILL.md). Aqui apenas reforçamos: validar que traduções EN/ES não estouram esse limite.
 
 ### Aria-Labels e Acessibilidade
 
@@ -405,7 +405,7 @@ const systemPrompt = 'Você é um assistente...'
 Todo componente que formata número, moeda, data ou percentual DEVE usar o hook `useLocale()` em vez de chamar formatadores diretamente com `pt-BR` hardcoded.
 
 ```tsx
-import { useLocale } from '@nucleo/Utilidades/localization/useLocale'
+import { useLocale } from '@nucleo/Utilidades/Localization/useLocale'
 
 function MeuComponente() {
   const { formatarMoeda, formatarData, formatarNumero } = useLocale()
@@ -447,7 +447,7 @@ const loadLocale = async (lang: string) => {
 
 | Métrica | Sem lazy loading | Com lazy loading |
 |---------|-----------------|-----------------|
-| Bundle inicial (gzip) | ~120 KB (7 idiomas) | ~45 KB (1 idioma) |
+| Bundle inicial (gzip) | ~120 KB (todos eager — histórico, pré-arquivamento de zh/de/it/ar) | ~45 KB (1 idioma) |
 | Troca de idioma | Instantânea | ~50ms (fetch async) |
 
 ---
@@ -457,8 +457,8 @@ const loadLocale = async (lang: string) => {
 ### Comando
 
 ```bash
-npx tsx scripts/ativamente/translate.ts            # traduz faltantes
-npx tsx scripts/ativamente/translate.ts --dry-run  # preview sem chamar API
+npm run translate                  # traduz faltantes
+npm run translate -- --dry-run     # preview sem chamar API
 ```
 
 ### Como Funciona
@@ -591,7 +591,7 @@ fix(i18n): corrige paridade de keys faltantes em en/es
 9. `useTranslation()` dentro de loop, condicional ou função aninhada
 10. `git add .` ou `git add -A` em commits de i18n
 11. Traduzir jargões COMEX sem aprovação explícita
-12. Usar `t()` em bloco onde existe variável local `t` (callback, desestruturação) — shadowinG silencioso
+12. Usar `t()` em bloco onde existe variável local `t` (callback, desestruturação) — shadowing silencioso
 13. `t(key)` direto em dados do banco sem `{ defaultValue: original }`
 14. Editar um arquivo de locale sem validar o JSON antes de passar ao próximo
 15. Iniciar edições sem ler as skills obrigatórias — contexto de sessão anterior não substitui leitura
@@ -709,8 +709,8 @@ it('label usa t() em vez de string hardcoded', () => {
 | Adicionar texto novo | Key no `pt.json` + `t('ns.key')` + `npm run translate` |
 | Formatar moeda/data | `useLocale().formatarMoeda(v)` |
 | Trocar idioma via UI | LanguageSwitcherGlobal (já integrado no Shell) |
-| Traduzir automaticamente | `npx tsx scripts/ativamente/translate.ts` |
-| Verificar cobertura | `npx tsx scripts/ativamente/translate.ts --dry-run` |
+| Traduzir automaticamente | `npm run translate` |
+| Verificar cobertura | `npm run translate -- --dry-run` |
 | Constante com labels | Objeto com keys i18n + `t(KEY)` no render |
 | Colunas de tabela | `useMemo(() => [...], [t])` dentro do componente |
 | Tooltip | `<TooltipGlobal descricao={t('ns.tooltip_key')}>` |

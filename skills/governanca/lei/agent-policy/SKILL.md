@@ -46,8 +46,8 @@ Cada agente só escreve dentro da sua pasta autorizada. Nenhum agente modifica c
 | Camada | Quem pode modificar | Quem nunca modifica |
 |:---|:---|:---|
 | `nucleo-global/` | Agente 1A (Onda 2) | Qualquer agente das Ondas 3 e 4 |
-| `servicos-global/organização/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
-| `servicos-global/organização/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
+| `servicos-global/organizacao/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
+| `servicos-global/organizacao/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
 | `servicos-global/produto/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
 | `servicos-global/marketplace/` | Agente Marketplace (Onda 1) | Qualquer outro agente |
 | `servicos-global/configurador/` | Agente Configurador (Onda 2) | Qualquer outro agente |
@@ -63,10 +63,10 @@ Cada agente só escreve dentro da sua pasta autorizada. Nenhum agente modifica c
 import { TabelaGlobal } from '@nucleo/tabela-global'
 
 // ✅ permitido — consumir serviços via API REST
-const response = await fetch('/api/organização/activities')
+const response = await fetch('/api/organizacao/activities')
 
-// ❌ proibido — serviço de organização importando outro serviço de organização
-import { something } from '@organização/email' // dentro de @organização/atividades
+// ❌ proibido — serviço de organizacao importando outro serviço de organizacao
+import { something } from '@organizacao/email' // dentro de @organizacao/atividades — proibido mesmo via alias real
 
 // ❌ proibido — produto acessando banco de outro produto
 import { prisma } from '../../bid-frete/server/prisma'
@@ -79,10 +79,10 @@ import { prisma } from '../../bid-frete/server/prisma'
 
 ## Regras de Comunicação entre Serviços
 
-- Todo produto acessa serviços de organização via proxy (`/api/organização/[servico]`)
+- Todo produto acessa serviços de organizacao via proxy (`/api/organizacao/[servico]`)
 - Nenhum produto acessa o banco do Configurador diretamente — usa `GET /api/check-access`
 - Nenhum produto acessa o banco de outro produto
-- Serviços de organização **nunca importam código** de outro serviço de organização
+- Serviços de organizacao **nunca importam código** de outro serviço de organizacao
 - Serviços comunicam-se **apenas via API REST** (ou eventos se houver barramento)
 - Somente o `nucleo-global` pode exportar tipos e constantes compartilhadas
 
@@ -96,7 +96,7 @@ import { prisma } from '../../bid-frete/server/prisma'
 |:---|:---|:---|
 | Onda 1 | Esqueleto do monorepo, schemas Prisma base, Marketplace | Nenhum |
 | Onda 2 | Núcleo UI, Shell, Configurador | Onda 1 concluída |
-| Onda 3 | Serviços de organização, serviços de produto, produto | Onda 2 concluída |
+| Onda 3 | Serviços de organizacao, serviços de produto, produto | Onda 2 concluída |
 | Onda 4 | Proxy, Auth Flow, DevOps | Onda 3 concluída |
 
 ### Regra de bloqueio
@@ -107,10 +107,10 @@ Se um agente perceber que está tentando usar algo que ainda não foi construíd
 
 ---
 
-## Regras de Schema (Schema-per-Organização — DDD)
+## Regras de Schema (Schema-per-Organizacao — DDD)
 
-- Cada banco de produto opera em **Schema-per-Organização**: 1 schema PostgreSQL por organização. Models de produto **NÃO** têm coluna de identificador de organização (o schema **é** a organização).
-- Configurador permanece single-schema `public` (fonte de verdade global de identidade — Organização, Workspace, Usuário).
+- Cada banco de produto opera em **Schema-per-Organizacao**: 1 schema PostgreSQL por organizacao. Models de produto **NÃO** têm coluna de identificador de organizacao (o schema **é** a organizacao).
+- Configurador permanece single-schema `public` (fonte de verdade global de identidade — Organizacao, Workspace, Usuário).
 - Todo agente de produto escreve **apenas** o schema do seu produto (sem fragments globais).
 - **Nenhum agente** edita o `schema.prisma` manualmente (Mandamento 02 — schema é INTOCÁVEL). Alterações de schema disparam migration que roda em N schemas via `scripts/ativamente/migrate-all-tenants.ts`.
 - Provisionamento de schema novo é responsabilidade do worker do evento `OrganizacaoProvisionada` — não do agente que escreve a feature.
@@ -126,15 +126,15 @@ Todo agente que escreve código garante:
 - Nenhuma variável de ambiente hardcoded
 - JWT validado em toda rota protegida via `@clerk/backend` — **Clerk APENAS para autenticação** (Mandamento 01)
 - `x-chave-interna` presente em toda chamada entre serviços
-- **Acesso ao banco de produto exclusivamente via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
-- Toda chave de cache prefixada por `organização:<id>:` (ou `organização:_global:` com justificativa) — o nome do SDK é mantido por compatibilidade técnica
+- **Acesso ao banco de produto exclusivamente via `withOrganizacao(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
+- Toda chave de cache prefixada por `organizacao:<id>:` (ou `organizacao:_global:` com justificativa)
 - **Autorização vem do Prisma via `GET /api/v1/me`** — PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões (Mandamento 01)
-- Identidade da organização vem do JWT validado pelo SDK — **nunca** do body da requisição
+- Identidade da organizacao vem do JWT validado pelo SDK — **nunca** do body da requisição
 - Sem fallbacks silenciosos em autorização: `tipo_usuario` ausente → falhar alto (Mandamento 08)
 - Toda resposta de `fetch().json()` passa por `schema.parse()` Zod antes do uso (Mandamento 06)
 
 > Consultar `antigravity-9-mandamentos` para as regras absolutas e não-negociáveis.
-> Consultar `antigravity-isolamento-organizacao` para as regras completas de Isolamento de Organização.
+> Consultar `antigravity-isolamento-organizacao` para as regras completas de Isolamento de Organizacao.
 > Consultar `antigravity-code-standards` para os padrões completos de código.
 > Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
 
@@ -157,7 +157,7 @@ O Usuário concedeu **autorização global** para a execução de comandos. O ag
 
 Somente os casos abaixo **devem** pedir aprovação:
 
-1. **Destruição Irreversível**: `rm -rf` em pastas de código-fonte (`nucleo-global`, `servicos-global`) ou deleção de banco de dados real.
+1. **Destruição Irreversível**: `rm -rf` em pastas de código-fonte (`nucleo-global`, `servicos-global`, `produto`, `skills`, `documentos-tecnicos`, `scripts`, `testes`) ou deleção de banco de dados real.
 2. **Deploy Real**: Comandos que alteram ambientes de produção explicitamente.
 3. **Escrita Critica em DB**: `prisma db push` ou `migrate` em banco de dados compartilhado.
 4. **Push Remoto**: `git push` (a menos que solicitado explicitamente no comando anterior).
@@ -176,7 +176,7 @@ O agente **para tudo e notifica o Líder** quando:
 - Um pré-requisito da onda anterior não está pronto
 - Há conflito de naming ou sobreposição de escopo com outro agente
 - Uma decisão de produto precisa ser tomada (o que construir, como funciona)
-- Há dúvida sobre segurança ou Isolamento de Organização
+- Há dúvida sobre segurança ou Isolamento de Organizacao
 
 **Nunca assume. Nunca inventa. Nunca avança com dúvida.**
 
@@ -219,11 +219,11 @@ O agente notifica o **Coordenador** (não o Líder) quando:
 | Tipo de tarefa | Skills a consultar |
 |:---|:---|
 | Qualquer código | `antigravity-agent-policy` + `antigravity-code-standards` |
-| Componente do núcleo | `+ antigravity-global-ui` |
-| Serviço de organização | `+ antigravity-organização-routing` + `antigravity-cross-boundary` |
+| Componente do núcleo | `+ antigravity-nucleo-global` |
+| Serviço de organizacao | `+ antigravity-servicos-organizacao` + `antigravity-cross-boundary` |
 | Produto | `+ antigravity-marketplace` + `antigravity-configurador` + skill do produto |
-| Schema Prisma | `+ antigravity-coordenador` + `antigravity-organização-routing` |
-| Auth entre serviços | `+ antigravity-auth-cross` |
+| Schema Prisma | `+ antigravity-coordenador` + `antigravity-servicos-organizacao` + `antigravity-schema-composition` |
+| Auth entre serviços | `+ antigravity-autenticacao-s2s` |
 | Ações cross-boundary | `+ antigravity-cross-boundary` |
 | Deploy | `+ antigravity-deploy` |
 

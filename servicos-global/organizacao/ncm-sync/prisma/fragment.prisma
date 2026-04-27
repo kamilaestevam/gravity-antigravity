@@ -1,9 +1,9 @@
 // servicos-global/tenant/ncm-sync/prisma/fragment.prisma
 // SERVIÇO NCM-SYNC — ONDA 36 (DDD Servicos)
 //
-// NcmItem        — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
-// NcmLog         — histórico de cada sincronização com o Portal Único
-// NcmAgendamento — configuração singleton do job de sincronização
+// NcmItem         — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmLog          — histórico de cada sincronização com o Portal Único
+// NCMAgendamento  — configuração singleton do job de sincronização
 
 // ---------------------------------------------------------------------------
 // NcmItem
@@ -59,7 +59,7 @@ model NcmLog {
   data_conclusao_ncm_log DateTime?
 
   // Status (enum PT)
-  status_ncm_log         NcmStatus @default(EXECUTANDO)
+  status_ncm_log         NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total_ncm_log        Int @default(0)
@@ -68,7 +68,7 @@ model NcmLog {
   removidos_ncm_log    Int @default(0)
 
   // Origem do trigger
-  origem_ncm_log        NcmOrigem @default(JOB)
+  origem_ncm_log        NCMOrigemSincronizacao @default(JOB)
   disparado_por_ncm_log String?   // user_id se MANUAL
 
   // Erro (apenas em caso de falha)
@@ -87,12 +87,12 @@ model NcmLog {
 }
 
 // ---------------------------------------------------------------------------
-// NcmAgendamento — configuração singleton do job de sincronização
+// NCMAgendamento — configuração singleton do job de sincronização
 // id = 'default' — registro único (singleton global)
 // id_organizacao_ncm_agendamento = '__system__' — satisfaz padrão de índices
 // ---------------------------------------------------------------------------
 
-model NcmAgendamento {
+model NCMAgendamento {
   id_ncm_agendamento             String   @id @default("default")
   id_organizacao_ncm_agendamento String   @default("__system__")
   id_produto_ncm_agendamento     String?
@@ -115,13 +115,13 @@ model NcmAgendamento {
 // Enums (valores em PT-BR)
 // ---------------------------------------------------------------------------
 
-enum NcmStatus {
+enum NCMStatusSincronizacao {
   EXECUTANDO
   SUCESSO
   ERRO
 }
 
-enum NcmOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }

@@ -389,7 +389,7 @@ apiRoutes.get('/admin/sincronizacoes-ncm/agendamento', async (req: Request, res:
       throw new AppError('Não autorizado', 403, 'FORBIDDEN')
     }
 
-    const config = await prisma.ncmAgendamento.findUnique({
+    const config = await prisma.nCMAgendamento.findUnique({
       where: { id_ncm_agendamento: 'default' },
     })
 
@@ -442,7 +442,7 @@ apiRoutes.put('/admin/sincronizacoes-ncm/agendamento', async (req: Request, res:
 
     const { ativo, cron_expressao, notificadores } = parsed.data
 
-    const config = await prisma.ncmAgendamento.upsert({
+    const config = await prisma.nCMAgendamento.upsert({
       where:  { id_ncm_agendamento: 'default' },
       create: {
         id_ncm_agendamento: 'default',

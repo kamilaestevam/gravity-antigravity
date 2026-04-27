@@ -105,7 +105,7 @@ export async function initNcmSync(): Promise<void> {
   // Carregar configuração salva no banco (se existir)
   let configDb: { ativo_ncm_agendamento: boolean; cron_expressao_ncm_agendamento: string } | null = null
   try {
-    configDb = await prisma.ncmAgendamento.findUnique({
+    configDb = await prisma.nCMAgendamento.findUnique({
       where: { id_ncm_agendamento: 'default' },
       select: {
         ativo_ncm_agendamento: true,

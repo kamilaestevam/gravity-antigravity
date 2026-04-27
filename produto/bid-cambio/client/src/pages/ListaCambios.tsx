@@ -31,10 +31,10 @@ import {
 
 import { listarCambios, getCambiosTotais, agendarParcelas } from '../shared/api'
 import type {
-  ParcelaCambio,
-  MoedaCambio,
-  StatusCotacaoCambio,
-  StatusParcela,
+  CambioParcelas,
+  CambioMoeda,
+  CambioCotacaoStatus,
+  CambioParcelaStatus,
 } from '../shared/types'
 import {
   STATUS_COTACAO_LABELS,
@@ -81,7 +81,7 @@ interface ColumnDef {
   label: string
   visible: boolean
   width: number
-  render: (item: CotacaoCambio) => React.ReactNode
+  render: (item: CambioCotacoes) => React.ReactNode
 }
 
 function buildColumns(t: (key: string) => string): ColumnDef[] {
@@ -208,7 +208,7 @@ const TABS: { key: FilterTab; labelKey: string }[] = [
 
 export default function ListaCambios() {
   const { t } = useTranslation()
-  const [cambios, setCambios] = useState<CotacaoCambio[]>([])
+  const [cambios, setCambios] = useState<CambioCotacoes[]>([])
   const [totais, setTotais] = useState<TotaisCambio | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

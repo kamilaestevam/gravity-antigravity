@@ -25,11 +25,11 @@ import {
 
 import { getCotacaoDetalhe } from '../shared/api'
 import type {
-  CotacaoCambio,
-  BidRequestCambio,
+  CambioCotacoes,
+  CambioCotacoesPedidos,
   BidResponseCambio,
-  StatusCotacaoCambio,
-  StatusBidRequestCambio,
+  CambioCotacaoStatus,
+  CambioStatusCotacoes,
   StatusBidResponseCambio,
 } from '../shared/types'
 import {
@@ -110,7 +110,7 @@ interface DetalheCotacaoProps {
 
 export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativo }: DetalheCotacaoProps) {
   const { t } = useTranslation()
-  const [cotacao, setCotacao] = useState<CotacaoCambio | null>(null)
+  const [cotacao, setCotacao] = useState<CambioCotacoes | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

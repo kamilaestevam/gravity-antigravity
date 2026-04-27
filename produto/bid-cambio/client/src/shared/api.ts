@@ -4,19 +4,19 @@
  */
 
 import type {
-  ParcelaCambio,
-  CotacaoCambio,
-  Corretora,
+  CambioParcelas,
+  CambioCotacoes,
+  CambioCorretoras,
   BidResponseCambio,
-  PreferenciaCambio,
-  PreferenciaGridCambio,
-  AvaliacaoCorretora,
+  CambioPreferenciaUsuario,
+  CambioPreferenciaGrid,
+  CambioCorretorasAvaliacoes,
   Pagination,
   PaginatedResponse,
   DashboardKPIs,
-  StatusParcela,
-  StatusCotacaoCambio,
-  MoedaCambio,
+  CambioParcelaStatus,
+  CambioCotacaoStatus,
+  CambioMoeda,
 } from './types'
 
 // --- Config ---
@@ -62,16 +62,16 @@ export async function getDashboard() {
 export async function getDashboardVencimentos(dias = 30) {
   const res = await fetch(`${API_BASE}/bid-cambio/dashboard/vencimentos?dias=${dias}`, { headers: getHeaders() })
   return handleResponse<{
-    proximos_vencimentos: { data: ParcelaCambio[]; total: number; dias_consulta: number }
-    vencidos: { data: ParcelaCambio[]; total: number }
-    por_moeda: Array<{ moeda: MoedaCambio; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>
+    proximos_vencimentos: { data: CambioParcelas[]; total: number; dias_consulta: number }
+    vencidos: { data: CambioParcelas[]; total: number }
+    por_moeda: Array<{ moeda: CambioMoeda; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>
   }>(res)
 }
 
 // --- Cambios (Pilar 1 — Parcelas) ---
 
 export interface CambiosListParams {
-  status?: StatusParcela
+  status?: CambioParcelaStatus
   moeda?: string
   data_vencimento_inicio?: string
   data_vencimento_fim?: string
@@ -88,18 +88,18 @@ export async function listarCambios(params: CambiosListParams = {}) {
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/cambios?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<ParcelaCambio>>(res)
+  return handleResponse<PaginatedResponse<CambioParcelas>>(res)
 }
 
 export async function getCambioDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/cambios/${id}`, { headers: getHeaders() })
-  return handleResponse<ParcelaCambio>(res)
+  return handleResponse<CambioParcelas>(res)
 }
 
 export async function getCambiosTotais(status?: string) {
   const query = status ? `?status=${status}` : ''
   const res = await fetch(`${API_BASE}/bid-cambio/cambios/totais${query}`, { headers: getHeaders() })
-  return handleResponse<Array<{ moeda: MoedaCambio; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>>(res)
+  return handleResponse<Array<{ moeda: CambioMoeda; _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }; _count: number }>>(res)
 }
 
 export async function agendarParcelas(parcela_ids: string[], data_agendamento: string) {
@@ -139,7 +139,7 @@ export async function retornarParaPendente(parcela_id: string) {
 // --- Cotacoes (Pilar 2 — Marketplace) ---
 
 export interface CotacoesListParams {
-  status?: StatusCotacaoCambio
+  status?: CambioCotacaoStatus
   page?: number
   limit?: number
 }
@@ -150,11 +150,11 @@ export async function listarCotacoes(params: CotacoesListParams = {}) {
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/cotacoes?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<CotacaoCambio>>(res)
+  return handleResponse<PaginatedResponse<CambioCotacoes>>(res)
 }
 
 export async function criarCotacao(input: {
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   valor: number
   tipo_operacao: string
   modalidade?: string
@@ -169,12 +169,12 @@ export async function criarCotacao(input: {
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<CotacaoCambio>(res)
+  return handleResponse<CambioCotacoes>(res)
 }
 
 export async function getCotacaoDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/cotacoes/${id}`, { headers: getHeaders() })
-  return handleResponse<CotacaoCambio>(res)
+  return handleResponse<CambioCotacoes>(res)
 }
 
 // --- Bids (Disparo) ---
@@ -249,12 +249,12 @@ export async function listarCorretoras(params: CorretorasListParams = {}) {
   if (params.page) query.set('page', String(params.page))
   if (params.limit) query.set('limit', String(params.limit))
   const res = await fetch(`${API_BASE}/bid-cambio/corretoras?${query}`, { headers: getHeaders() })
-  return handleResponse<PaginatedResponse<Corretora>>(res)
+  return handleResponse<PaginatedResponse<CambioCorretoras>>(res)
 }
 
 export async function getCorretoraDetalhe(id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/corretoras/${id}`, { headers: getHeaders() })
-  return handleResponse<Corretora>(res)
+  return handleResponse<CambioCorretoras>(res)
 }
 
 export async function criarCorretora(input: {
@@ -274,7 +274,7 @@ export async function criarCorretora(input: {
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<Corretora>(res)
+  return handleResponse<CambioCorretoras>(res)
 }
 
 // --- Avaliacoes ---
@@ -293,33 +293,33 @@ export async function criarAvaliacao(input: {
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<AvaliacaoCorretora>(res)
+  return handleResponse<CambioCorretorasAvaliacoes>(res)
 }
 
 export async function getAvaliacoesCorretora(corretoraId: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/avaliacoes/corretora/${corretoraId}`, { headers: getHeaders() })
-  return handleResponse<{ corretora: unknown; medias: Record<string, number | null>; avaliacoes: PaginatedResponse<AvaliacaoCorretora> }>(res)
+  return handleResponse<{ corretora: unknown; medias: Record<string, number | null>; avaliacoes: PaginatedResponse<CambioCorretorasAvaliacoes> }>(res)
 }
 
 // --- Preferencias ---
 
 export async function getPreferencias() {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias`, { headers: getHeaders() })
-  return handleResponse<PreferenciaCambio>(res)
+  return handleResponse<CambioPreferenciaUsuario>(res)
 }
 
-export async function atualizarPreferencias(input: Partial<PreferenciaCambio>) {
+export async function atualizarPreferencias(input: Partial<CambioPreferenciaUsuario>) {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias`, {
     method: 'PUT',
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<PreferenciaCambio>(res)
+  return handleResponse<CambioPreferenciaUsuario>(res)
 }
 
 export async function getPreferenciasGrid(grid_id: string) {
   const res = await fetch(`${API_BASE}/bid-cambio/preferencias/grid?grid_id=${grid_id}`, { headers: getHeaders() })
-  return handleResponse<PreferenciaGridCambio>(res)
+  return handleResponse<CambioPreferenciaGrid>(res)
 }
 
 export async function salvarPreferenciasGrid(input: {
@@ -333,5 +333,5 @@ export async function salvarPreferenciasGrid(input: {
     headers: getHeaders(),
     body: JSON.stringify(input),
   })
-  return handleResponse<PreferenciaGridCambio>(res)
+  return handleResponse<CambioPreferenciaGrid>(res)
 }

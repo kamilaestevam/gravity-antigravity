@@ -6,17 +6,17 @@
 
 // --- Enums (espelham fragment.prisma) ---
 
-export type TipoOperacaoCambio = 'IMPORTACAO' | 'EXPORTACAO'
+export type CambioTipoOperacao = 'IMPORTACAO' | 'EXPORTACAO'
 
-export type ModalidadeCambio = 'PRONTO' | 'FUTURO'
+export type CambioModalidade = 'PRONTO' | 'FUTURO'
 
-export type LiquidacaoCambio = 'D0' | 'D1' | 'D2'
+export type CambioLiquidacao = 'D0' | 'D1' | 'D2'
 
-export type MoedaCambio = 'USD' | 'EUR' | 'GBP' | 'CHF' | 'BRL' | 'CNY' | 'JPY'
+export type CambioMoeda = 'USD' | 'EUR' | 'GBP' | 'CHF' | 'BRL' | 'CNY' | 'JPY'
 
-export type StatusParcela = 'PENDENTE' | 'AGENDADO' | 'PAGO'
+export type CambioParcelaStatus = 'PENDENTE' | 'AGENDADO' | 'PAGO'
 
-export type StatusCotacaoCambio =
+export type CambioCotacaoStatus =
   | 'RASCUNHO'
   | 'ENVIADA_CORRETORAS'
   | 'EM_COTACAO'
@@ -26,9 +26,9 @@ export type StatusCotacaoCambio =
   | 'CANCELADA'
   | 'EXPIRADA'
 
-export type CanalDisparoCambio = 'EMAIL' | 'PORTAL'
+export type CambioDisparoCanal = 'EMAIL' | 'PORTAL'
 
-export type StatusBidRequestCambio =
+export type CambioStatusCotacoes =
   | 'PENDENTE'
   | 'ENVIADO'
   | 'VISUALIZADO'
@@ -45,11 +45,11 @@ export type StatusBidResponseCambio =
   | 'APROVADA'
   | 'REPROVADA'
 
-export type TipoCorretora = 'CORRETORA_CAMBIO' | 'BANCO_COMERCIAL' | 'BANCO_CAMBIO' | 'FINTECH'
+export type CambioCorretoraTipo = 'CORRETORA_CAMBIO' | 'BANCO_COMERCIAL' | 'BANCO_CAMBIO' | 'FINTECH'
 
-export type StatusCorretora = 'ATIVA' | 'INATIVA' | 'BLOQUEADA'
+export type CambioCorretoraStatus = 'ATIVA' | 'INATIVA' | 'BLOQUEADA'
 
-export type MetodoVencimento =
+export type CambioBaseVencimento =
   | 'DATA_EMBARQUE'
   | 'DATA_CHEGADA'
   | 'DATA_REGISTRO_DI'
@@ -60,23 +60,23 @@ export type MetodoVencimento =
 
 // --- Labels para UI ---
 
-export const OPERACAO_CAMBIO_LABELS: Record<TipoOperacaoCambio, string> = {
+export const OPERACAO_CAMBIO_LABELS: Record<CambioTipoOperacao, string> = {
   IMPORTACAO: 'Importacao',
   EXPORTACAO: 'Exportacao',
 }
 
-export const MODALIDADE_CAMBIO_LABELS: Record<ModalidadeCambio, string> = {
+export const MODALIDADE_CAMBIO_LABELS: Record<CambioModalidade, string> = {
   PRONTO: 'Pronto',
   FUTURO: 'Futuro',
 }
 
-export const LIQUIDACAO_LABELS: Record<LiquidacaoCambio, string> = {
+export const LIQUIDACAO_LABELS: Record<CambioLiquidacao, string> = {
   D0: 'D+0',
   D1: 'D+1',
   D2: 'D+2',
 }
 
-export const MOEDA_CAMBIO_LABELS: Record<MoedaCambio, string> = {
+export const MOEDA_CAMBIO_LABELS: Record<CambioMoeda, string> = {
   USD: 'Dolar Americano',
   EUR: 'Euro',
   GBP: 'Libra Esterlina',
@@ -86,7 +86,7 @@ export const MOEDA_CAMBIO_LABELS: Record<MoedaCambio, string> = {
   JPY: 'Iene Japones',
 }
 
-export const MOEDA_SIMBOLO: Record<MoedaCambio, string> = {
+export const MOEDA_SIMBOLO: Record<CambioMoeda, string> = {
   USD: 'US$',
   EUR: '€',
   GBP: '£',
@@ -96,13 +96,13 @@ export const MOEDA_SIMBOLO: Record<MoedaCambio, string> = {
   JPY: '¥',
 }
 
-export const STATUS_PARCELA_LABELS: Record<StatusParcela, string> = {
+export const STATUS_PARCELA_LABELS: Record<CambioParcelaStatus, string> = {
   PENDENTE: 'Pendente',
   AGENDADO: 'Agendado',
   PAGO: 'Pago',
 }
 
-export const STATUS_COTACAO_LABELS: Record<StatusCotacaoCambio, string> = {
+export const STATUS_COTACAO_LABELS: Record<CambioCotacaoStatus, string> = {
   RASCUNHO: 'Rascunho',
   ENVIADA_CORRETORAS: 'Enviada as corretoras',
   EM_COTACAO: 'Em cotacao',
@@ -113,12 +113,12 @@ export const STATUS_COTACAO_LABELS: Record<StatusCotacaoCambio, string> = {
   EXPIRADA: 'Expirada',
 }
 
-export const CANAL_CAMBIO_LABELS: Record<CanalDisparoCambio, string> = {
+export const CANAL_CAMBIO_LABELS: Record<CambioDisparoCanal, string> = {
   EMAIL: 'Email',
   PORTAL: 'Portal',
 }
 
-export const STATUS_BID_REQUEST_LABELS: Record<StatusBidRequestCambio, string> = {
+export const STATUS_BID_REQUEST_LABELS: Record<CambioStatusCotacoes, string> = {
   PENDENTE: 'Pendente',
   ENVIADO: 'Enviado',
   VISUALIZADO: 'Visualizado',
@@ -137,20 +137,20 @@ export const STATUS_BID_RESPONSE_LABELS: Record<StatusBidResponseCambio, string>
   REPROVADA: 'Reprovada',
 }
 
-export const TIPO_CORRETORA_LABELS: Record<TipoCorretora, string> = {
+export const TIPO_CORRETORA_LABELS: Record<CambioCorretoraTipo, string> = {
   CORRETORA_CAMBIO: 'Corretora de Cambio',
   BANCO_COMERCIAL: 'Banco Comercial',
   BANCO_CAMBIO: 'Banco de Cambio',
   FINTECH: 'Fintech',
 }
 
-export const STATUS_CORRETORA_LABELS: Record<StatusCorretora, string> = {
+export const STATUS_CORRETORA_LABELS: Record<CambioCorretoraStatus, string> = {
   ATIVA: 'Ativa',
   INATIVA: 'Inativa',
   BLOQUEADA: 'Bloqueada',
 }
 
-export const METODO_VENCIMENTO_LABELS: Record<MetodoVencimento, string> = {
+export const METODO_VENCIMENTO_LABELS: Record<CambioBaseVencimento, string> = {
   DATA_EMBARQUE: 'Data de Embarque',
   DATA_CHEGADA: 'Data de Chegada',
   DATA_REGISTRO_DI: 'Registro da DI',
@@ -162,13 +162,13 @@ export const METODO_VENCIMENTO_LABELS: Record<MetodoVencimento, string> = {
 
 // --- Badge Colors ---
 
-export const STATUS_PARCELA_BADGE: Record<StatusParcela, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
+export const STATUS_PARCELA_BADGE: Record<CambioParcelaStatus, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
   PENDENTE: 'warning',
   AGENDADO: 'info',
   PAGO: 'success',
 }
 
-export const STATUS_COTACAO_BADGE: Record<StatusCotacaoCambio, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
+export const STATUS_COTACAO_BADGE: Record<CambioCotacaoStatus, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
   RASCUNHO: 'default',
   ENVIADA_CORRETORAS: 'info',
   EM_COTACAO: 'info',
@@ -179,7 +179,7 @@ export const STATUS_COTACAO_BADGE: Record<StatusCotacaoCambio, 'info' | 'warning
   EXPIRADA: 'default',
 }
 
-export const STATUS_CORRETORA_BADGE: Record<StatusCorretora, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
+export const STATUS_CORRETORA_BADGE: Record<CambioCorretoraStatus, 'info' | 'warning' | 'success' | 'danger' | 'default'> = {
   ATIVA: 'success',
   INATIVA: 'default',
   BLOQUEADA: 'danger',
@@ -197,7 +197,7 @@ export const STATUS_BID_RESPONSE_BADGE: Record<StatusBidResponseCambio, 'info' |
 
 // --- Entidades (alinhadas com fragment.prisma) ---
 
-export interface ParcelaCambio {
+export interface CambioParcelas {
   id: string
   tenant_id: string
   product_id: string
@@ -211,7 +211,7 @@ export interface ParcelaCambio {
   numero_contrato_cambio: string | null
   numero_transmissao_di: string | null
   referencia_cliente: string | null
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   cambio_total: number
   porcentagem_parcela: number
   valor_a_pagar: number
@@ -220,24 +220,24 @@ export interface ParcelaCambio {
   valor_pago_brl: number | null
   numero_parcela: number
   total_parcelas: number
-  status: StatusParcela
+  status: CambioParcelaStatus
   data_vencimento: string | null
   data_agendamento: string | null
   data_pagamento: string | null
   data_vencimento_original: string | null
-  metodo_vencimento: MetodoVencimento | null
+  metodo_vencimento: CambioBaseVencimento | null
   prazo_dias: number | null
   taxa_fechamento: number | null
   banco_corretora: string | null
   condicao_pagamento: string | null
   cotacao_cambio_id: string | null
   bid_response_id: string | null
-  anexos?: AnexoCambio[]
+  anexos?: CambioAnexo[]
   created_at: string
   updated_at: string
 }
 
-export interface AnexoCambio {
+export interface CambioAnexo {
   id: string
   tenant_id: string
   parcela_id: string
@@ -249,39 +249,39 @@ export interface AnexoCambio {
   created_at: string
 }
 
-export interface CotacaoCambio {
+export interface CambioCotacoes {
   id: string
   tenant_id: string
   product_id: string
   user_id: string
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   valor: number
-  tipo_operacao: TipoOperacaoCambio
-  modalidade: ModalidadeCambio
-  liquidacao: LiquidacaoCambio
+  tipo_operacao: CambioTipoOperacao
+  modalidade: CambioModalidade
+  liquidacao: CambioLiquidacao
   referencia_processo: string | null
   numero_pedido: string | null
   exportador: string | null
-  status: StatusCotacaoCambio
+  status: CambioCotacaoStatus
   ptax_referencia: number | null
   ptax_data: string | null
   data_expiracao: string | null
   economia_brl: number | null
   economia_percentual: number | null
-  bid_requests?: BidRequestCambio[]
+  bid_requests?: CambioCotacoesPedidos[]
   bid_responses?: BidResponseCambio[]
   created_at: string
   updated_at: string
 }
 
-export interface BidRequestCambio {
+export interface CambioCotacoesPedidos {
   id: string
   tenant_id: string
   cotacao_id: string
   corretora_id: string
-  corretora?: Corretora
-  canal: CanalDisparoCambio
-  status: StatusBidRequestCambio
+  corretora?: CambioCorretoras
+  canal: CambioDisparoCanal
+  status: CambioStatusCotacoes
   token_publico: string | null
   token_expiracao: string | null
   enviado_em: string | null
@@ -297,14 +297,14 @@ export interface BidResponseCambio {
   tenant_id: string
   cotacao_id: string
   corretora_id: string
-  corretora?: Corretora
+  corretora?: CambioCorretoras
   bid_request_id: string
   taxa_oferecida: number
   spread: number
   valor_total_brl: number
   iof_percentual: number
   iof_valor: number
-  liquidacao_proposta: LiquidacaoCambio
+  liquidacao_proposta: CambioLiquidacao
   validade_minutos: number
   validade_ate: string
   condicoes: string | null
@@ -313,7 +313,7 @@ export interface BidResponseCambio {
   updated_at: string
 }
 
-export interface Corretora {
+export interface CambioCorretoras {
   id: string
   tenant_id: string
   product_id: string
@@ -321,22 +321,22 @@ export interface Corretora {
   razao_social: string
   nome_fantasia: string | null
   cnpj: string | null
-  tipo: TipoCorretora
-  status: StatusCorretora
+  tipo: CambioCorretoraTipo
+  status: CambioCorretoraStatus
   email: string
   telefone: string | null
   contato_nome: string | null
   contato_cargo: string | null
   portal_habilitado: boolean
   moedas_operadas: string | null
-  bid_requests?: BidRequestCambio[]
+  bid_requests?: CambioCotacoesPedidos[]
   bid_responses?: BidResponseCambio[]
-  avaliacoes?: AvaliacaoCorretora[]
+  avaliacoes?: CambioCorretorasAvaliacoes[]
   created_at: string
   updated_at: string
 }
 
-export interface AvaliacaoCorretora {
+export interface CambioCorretorasAvaliacoes {
   id: string
   tenant_id: string
   user_id: string
@@ -350,7 +350,7 @@ export interface AvaliacaoCorretora {
   created_at: string
 }
 
-export interface RatingCorretora {
+export interface CambioCorretoraClassificao {
   id: string
   corretora_email: string
   taxa_resposta: number
@@ -367,13 +367,13 @@ export interface RatingCorretora {
   updated_at: string
 }
 
-export interface SavingCambio {
+export interface CambioGanho {
   id: string
   tenant_id: string
   cotacao_id: string
   corretora_id: string
   valor_operacao: number
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   taxa_aprovada: number
   taxa_media_respostas: number
   ptax_referencia: number
@@ -382,7 +382,7 @@ export interface SavingCambio {
   created_at: string
 }
 
-export interface PreferenciaCambio {
+export interface CambioPreferenciaUsuario {
   id: string
   tenant_id: string
   product_id: string
@@ -394,7 +394,7 @@ export interface PreferenciaCambio {
   updated_at: string
 }
 
-export interface PreferenciaGridCambio {
+export interface CambioPreferenciaGrid {
   id: string
   tenant_id: string
   user_id: string
@@ -423,7 +423,7 @@ export interface PaginatedResponse<T> {
 
 export interface DashboardKPIs {
   totais_por_moeda: Array<{
-    moeda: MoedaCambio
+    moeda: CambioMoeda
     _sum: { valor_a_pagar: number; valor_a_pagar_brl: number }
     _count: number
   }>
@@ -432,5 +432,5 @@ export interface DashboardKPIs {
   economia_total_brl: number
   economia_media_percentual: number
   corretoras_ativas: number
-  parcelas_vencendo: Array<ParcelaCambio>
+  parcelas_vencendo: Array<CambioParcelas>
 }

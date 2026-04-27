@@ -1,6 +1,6 @@
 /**
  * preferencias.ts — Rotas de Preferencias do Tenant e Usuario
- * Configuracoes de tenant (PreferenciaCambio) e grid do usuario (PreferenciaGridCambio)
+ * Configuracoes de tenant (CambioPreferenciaUsuario) e grid do usuario (CambioPreferenciaGrid)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'

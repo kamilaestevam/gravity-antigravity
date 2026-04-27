@@ -23,7 +23,7 @@ import {
   DollarSign,
 } from 'lucide-react'
 
-import type { ParcelaCambio, MoedaCambio } from '../shared/types'
+import type { CambioParcelas, CambioMoeda } from '../shared/types'
 import { STATUS_PARCELA_LABELS } from '../shared/types'
 
 // ─── Formatacao ────────────────────────────────────────────────────────────
@@ -42,8 +42,8 @@ const dataBR = (iso: string | null | undefined) =>
 interface ModalPagamentoProps {
   open: boolean
   onClose: () => void
-  parcelas: ParcelaCambio[]
-  moeda: MoedaCambio
+  parcelas: CambioParcelas[]
+  moeda: CambioMoeda
   onSave: (data: PagamentoData) => Promise<void>
   disabled?: boolean
 }

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 
 import { getPreferencias, atualizarPreferencias } from '../shared/api'
-import type { PreferenciaCambio } from '../shared/types'
+import type { CambioPreferenciaUsuario } from '../shared/types'
 
 // ─── Toggle Switch ─────────────────────────────────────────────────────────
 

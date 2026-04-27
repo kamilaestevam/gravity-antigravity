@@ -17,9 +17,9 @@ import {
   Settings,
 } from 'lucide-react'
 import type {
-  MoedaCambio,
-  TipoOperacaoCambio,
-  LiquidacaoCambio,
+  CambioMoeda,
+  CambioTipoOperacao,
+  CambioLiquidacao,
 } from '../../shared/types'
 import {
   MOEDA_CAMBIO_LABELS,
@@ -33,10 +33,10 @@ interface CotacaoPendente {
   id: string
   bid_request_id: string
   comprador_label: string
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   valor_moeda_estrangeira: number
-  tipo_operacao: TipoOperacaoCambio
-  liquidacao: LiquidacaoCambio
+  tipo_operacao: CambioTipoOperacao
+  liquidacao: CambioLiquidacao
   recebido_em: string
   validade: string | null
 }
@@ -183,7 +183,7 @@ const s = {
   } as React.CSSProperties,
 } as const
 
-const MOEDAS_FILTRO: MoedaCambio[] = ['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY']
+const MOEDAS_FILTRO: CambioMoeda[] = ['USD', 'EUR', 'GBP', 'CHF', 'CNY', 'JPY']
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -196,7 +196,7 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
   const { t } = useTranslation()
   const [cotacoes, setCotacoes] = useState<CotacaoPendente[]>([])
   const [pageState, setPageState] = useState<PageState>('loading')
-  const [filtroMoeda, setFiltroMoeda] = useState<MoedaCambio | ''>('')
+  const [filtroMoeda, setFiltroMoeda] = useState<CambioMoeda | ''>('')
   const [sortField, setSortField] = useState<SortField>('recebido_em')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
@@ -318,7 +318,7 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
         <select
           style={s.select}
           value={filtroMoeda}
-          onChange={(e) => setFiltroMoeda(e.target.value as MoedaCambio | '')}
+          onChange={(e) => setFiltroMoeda(e.target.value as CambioMoeda | '')}
         >
           <option value="">{t('bidcambio.portal.cotacoes_pendentes.todas_moedas')}</option>
           {MOEDAS_FILTRO.map((m) => (

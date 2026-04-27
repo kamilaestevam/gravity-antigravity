@@ -17,9 +17,9 @@ import {
   Send,
 } from 'lucide-react'
 import type {
-  MoedaCambio,
-  TipoOperacaoCambio,
-  LiquidacaoCambio,
+  CambioMoeda,
+  CambioTipoOperacao,
+  CambioLiquidacao,
 } from '../../shared/types'
 import {
   MOEDA_CAMBIO_LABELS,
@@ -32,10 +32,10 @@ import {
 interface CotacaoPublica {
   id: string
   cotacao_id: string
-  moeda: MoedaCambio
+  moeda: CambioMoeda
   valor_moeda_estrangeira: number
-  tipo_operacao: TipoOperacaoCambio
-  liquidacao: LiquidacaoCambio
+  tipo_operacao: CambioTipoOperacao
+  liquidacao: CambioLiquidacao
   prazo_resposta: string | null
   taxa_ptax_referencia: number | null
   corretora_nome: string
@@ -45,7 +45,7 @@ interface FormState {
   taxa_oferecida: string
   iof_percentual: string
   validade_minutos: string
-  liquidacao_proposta: LiquidacaoCambio
+  liquidacao_proposta: CambioLiquidacao
   observacoes: string
 }
 

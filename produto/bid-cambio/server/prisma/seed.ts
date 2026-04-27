@@ -63,9 +63,9 @@ async function seedCorretoras() {
     },
   ]
 
-  const created = await prisma.corretora.createMany({ data: corretoras as any })
+  const created = await prisma.cambioCorretoras.createMany({ data: corretoras as any })
   console.log(`[seed] ${created.count} corretoras criadas`)
-  return prisma.corretora.findMany({ where: { tenant_id: DEMO_TENANT_ID } })
+  return prisma.cambioCorretoras.findMany({ where: { tenant_id: DEMO_TENANT_ID } })
 }
 
 async function seedParcelas() {
@@ -171,12 +171,12 @@ async function seedParcelas() {
     },
   ]
 
-  const created = await prisma.parcelaCambio.createMany({ data: parcelas as any })
+  const created = await prisma.cambioParcelas.createMany({ data: parcelas as any })
   console.log(`[seed] ${created.count} parcelas criadas`)
 }
 
 async function seedPreferencias() {
-  await prisma.preferenciaCambio.upsert({
+  await prisma.cambioPreferenciaUsuario.upsert({
     where: { tenant_id: DEMO_TENANT_ID },
     update: {},
     create: {

@@ -21,12 +21,12 @@ import {
 
 import { criarCotacao, dispararBids, listarCorretoras } from '../shared/api'
 import type {
-  Corretora,
-  TipoOperacaoCambio,
-  ModalidadeCambio,
-  LiquidacaoCambio,
-  MoedaCambio,
-  CotacaoCambio,
+  CambioCorretoras,
+  CambioTipoOperacao,
+  CambioModalidade,
+  CambioLiquidacao,
+  CambioMoeda,
+  CambioCotacoes,
 } from '../shared/types'
 import {
   OPERACAO_CAMBIO_LABELS,
@@ -113,11 +113,11 @@ const gridRow3: React.CSSProperties = {
 export default function NovaCotacao() {
   const { t } = useTranslation()
   // ── Form state ──
-  const [moeda, setMoeda] = useState<MoedaCambio>('USD')
+  const [moeda, setMoeda] = useState<CambioMoeda>('USD')
   const [valor, setValor] = useState<string>('')
-  const [tipoOperacao, setTipoOperacao] = useState<TipoOperacaoCambio>('IMPORTACAO')
-  const [modalidade, setModalidade] = useState<ModalidadeCambio>('PRONTO')
-  const [liquidacao, setLiquidacao] = useState<LiquidacaoCambio>('D0')
+  const [tipoOperacao, setTipoOperacao] = useState<CambioTipoOperacao>('IMPORTACAO')
+  const [modalidade, setModalidade] = useState<CambioModalidade>('PRONTO')
+  const [liquidacao, setLiquidacao] = useState<CambioLiquidacao>('D0')
   const [referenciaProcesso, setReferenciaProcesso] = useState('')
   const [numeroPedido, setNumeroPedido] = useState('')
   const [exportador, setExportador] = useState('')
@@ -126,7 +126,7 @@ export default function NovaCotacao() {
   const [totalParcelas, setTotalParcelas] = useState(1)
 
   // ── Corretoras ──
-  const [corretoras, setCorretoras] = useState<Corretora[]>([])
+  const [corretoras, setCorretoras] = useState<CambioCorretoras[]>([])
   const [loadingCorretoras, setLoadingCorretoras] = useState(true)
   const [selectedCorretoras, setSelectedCorretoras] = useState<Set<string>>(new Set())
 
@@ -134,7 +134,7 @@ export default function NovaCotacao() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [createdCotacao, setCreatedCotacao] = useState<CotacaoCambio | null>(null)
+  const [createdCotacao, setCreatedCotacao] = useState<CambioCotacoes | null>(null)
   const [disabled, setDisabled] = useState(false)
 
   // ── Load corretoras ──
@@ -268,11 +268,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.moeda')}</label>
             <select
               value={moeda}
-              onChange={(e) => setMoeda(e.target.value as MoedaCambio)}
+              onChange={(e) => setMoeda(e.target.value as CambioMoeda)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(MOEDA_CAMBIO_LABELS) as [MoedaCambio, string][]).map(([key, label]) => (
+              {(Object.entries(MOEDA_CAMBIO_LABELS) as [CambioMoeda, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{key} - {label}</option>
               ))}
             </select>
@@ -297,11 +297,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.tipo_operacao')}</label>
             <select
               value={tipoOperacao}
-              onChange={(e) => setTipoOperacao(e.target.value as TipoOperacaoCambio)}
+              onChange={(e) => setTipoOperacao(e.target.value as CambioTipoOperacao)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(OPERACAO_CAMBIO_LABELS) as [TipoOperacaoCambio, string][]).map(([key, label]) => (
+              {(Object.entries(OPERACAO_CAMBIO_LABELS) as [CambioTipoOperacao, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -310,11 +310,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.modalidade')}</label>
             <select
               value={modalidade}
-              onChange={(e) => setModalidade(e.target.value as ModalidadeCambio)}
+              onChange={(e) => setModalidade(e.target.value as CambioModalidade)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(MODALIDADE_CAMBIO_LABELS) as [ModalidadeCambio, string][]).map(([key, label]) => (
+              {(Object.entries(MODALIDADE_CAMBIO_LABELS) as [CambioModalidade, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -323,11 +323,11 @@ export default function NovaCotacao() {
             <label style={labelStyle}>{t('bidcambio.nova_cotacao.liquidacao')}</label>
             <select
               value={liquidacao}
-              onChange={(e) => setLiquidacao(e.target.value as LiquidacaoCambio)}
+              onChange={(e) => setLiquidacao(e.target.value as CambioLiquidacao)}
               style={selectStyle}
               disabled={disabled}
             >
-              {(Object.entries(LIQUIDACAO_LABELS) as [LiquidacaoCambio, string][]).map(([key, label]) => (
+              {(Object.entries(LIQUIDACAO_LABELS) as [CambioLiquidacao, string][]).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>

@@ -1,6 +1,6 @@
 /**
  * vencimentoEngine.ts — Motor de Calculo de Datas de Vencimento
- * Implementa os 7 metodos de calculo (MetodoVencimento enum).
+ * Implementa os 7 metodos de calculo (CambioBaseVencimento enum).
  *
  * RN-107: Usa "Data Carga Pronta"; se vazia, fallback para "Data Esperada da Prontidao"
  */
@@ -15,7 +15,7 @@ interface DatasProcesso {
   data_entrega?: Date | null
 }
 
-type MetodoVencimento =
+type CambioBaseVencimento =
   | 'DATA_EMBARQUE'
   | 'DATA_CHEGADA'
   | 'DATA_REGISTRO_DI'
@@ -29,7 +29,7 @@ type MetodoVencimento =
  * Retorna null se a data-base nao estiver disponivel ainda
  */
 export function calcularDataVencimento(
-  metodo: MetodoVencimento,
+  metodo: CambioBaseVencimento,
   prazoDias: number,
   datas: DatasProcesso,
   dataFixa?: Date | null,
@@ -75,7 +75,7 @@ export function calcularDataVencimento(
 export function recalcularVencimentosParcelas(
   parcelas: Array<{
     id: string
-    metodo_vencimento: MetodoVencimento | null
+    metodo_vencimento: CambioBaseVencimento | null
     prazo_dias: number | null
     status: string
   }>,

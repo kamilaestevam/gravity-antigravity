@@ -23,9 +23,9 @@ import {
 
 import { listarCorretoras } from '../shared/api'
 import type {
-  Corretora,
-  TipoCorretora,
-  StatusCorretora,
+  CambioCorretoras,
+  CambioCorretoraTipo,
+  CambioCorretoraStatus,
 } from '../shared/types'
 import {
   TIPO_CORRETORA_LABELS,
@@ -47,7 +47,7 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default function Corretoras() {
   const { t } = useTranslation()
-  const [corretoras, setCorretoras] = useState<Corretora[]>([])
+  const [corretoras, setCorretoras] = useState<CambioCorretoras[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [busca, setBusca] = useState('')
@@ -205,13 +205,13 @@ export default function Corretoras() {
         </div>
         <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} style={selectStyle}>
           <option value="">{t('comum.todos_tipos')}</option>
-          {(Object.entries(TIPO_CORRETORA_LABELS) as [TipoCorretora, string][]).map(([key, label]) => (
+          {(Object.entries(TIPO_CORRETORA_LABELS) as [CambioCorretoraTipo, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </select>
         <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} style={selectStyle}>
           <option value="">{t('comum.todos_status')}</option>
-          {(Object.entries(STATUS_CORRETORA_LABELS) as [StatusCorretora, string][]).map(([key, label]) => (
+          {(Object.entries(STATUS_CORRETORA_LABELS) as [CambioCorretoraStatus, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </select>

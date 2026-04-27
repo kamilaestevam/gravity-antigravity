@@ -29,7 +29,7 @@ import {
 
 import { getCorretoraDetalhe } from '../shared/api'
 import type {
-  Corretora,
+  CambioCorretoras,
 } from '../shared/types'
 import {
   TIPO_CORRETORA_LABELS,
@@ -97,7 +97,7 @@ interface DetalheCorretoraProps {
 
 export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorretoraProps) {
   const { t } = useTranslation()
-  const [corretora, setCorretora] = useState<Corretora | null>(null)
+  const [corretora, setCorretora] = useState<CambioCorretoras | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

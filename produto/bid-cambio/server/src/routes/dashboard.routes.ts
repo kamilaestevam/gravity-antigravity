@@ -47,7 +47,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
     for (const metric of metrics) {
       switch (metric) {
         case 'saving_total': {
-          const agg = await prisma.savingCambio.aggregate({
+          const agg = await prisma.cambioGanho.aggregate({
             _sum: { economia_brl: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -55,7 +55,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'valor_operado': {
-          const agg = await prisma.parcelaCambio.aggregate({
+          const agg = await prisma.cambioParcelas.aggregate({
             _sum: { valor_a_pagar_brl: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -63,7 +63,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'cotacoes_status': {
-          const items = await prisma.cotacaoCambio.groupBy({
+          const items = await prisma.cambioCotacoes.groupBy({
             by: ['status'],
             _count: true,
             where: { created_at: { gte: periodStart } },
@@ -72,15 +72,15 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'taxa_resposta': {
-          const total = await prisma.bidRequestCambio.count({ where: { created_at: { gte: periodStart } } })
-          const respondidos = await prisma.bidRequestCambio.count({
+          const total = await prisma.cambioCotacoesPedidos.count({ where: { created_at: { gte: periodStart } } })
+          const respondidos = await prisma.cambioCotacoesPedidos.count({
             where: { created_at: { gte: periodStart }, status: 'RESPONDIDO' },
           })
           result.taxa_resposta = total > 0 ? Math.round((respondidos / total) * 100 * 100) / 100 : 0
           break
         }
         case 'economia_percentual': {
-          const agg = await prisma.savingCambio.aggregate({
+          const agg = await prisma.cambioGanho.aggregate({
             _avg: { economia_percentual: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -89,7 +89,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.cotacaoCambio.findMany({
+          const items = await prisma.cambioCotacoes.findMany({
             where: { created_at: { gte: dozeAtras } },
             select: { created_at: true },
           })

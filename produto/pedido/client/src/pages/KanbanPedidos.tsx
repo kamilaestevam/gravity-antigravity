@@ -32,7 +32,7 @@ import {
   Bell,
 } from '@phosphor-icons/react'
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
-import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
+import type { Pedido, PedidoStatus, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
 import { computarColunasKanban, IS_READ_ONLY_MAP, COLUNAS_FALLBACK_SHAPE } from '../shared/kanbanUtils'
 export { computarColunasKanban, IS_READ_ONLY_MAP }
@@ -484,7 +484,7 @@ export default function KanbanPedidos() {
 
   async function handleMover(itemId: string, novaColunaKey: string) {
     setPedidos(prev =>
-      prev.map(p => p.id === itemId ? { ...p, status: novaColunaKey as StatusPedido } : p),
+      prev.map(p => p.id === itemId ? { ...p, status: novaColunaKey as PedidoStatus } : p),
     )
     await pedidoApi.alterarStatus(itemId, novaColunaKey)
     window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'kanban' } }))

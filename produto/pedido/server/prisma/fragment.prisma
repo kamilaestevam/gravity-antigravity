@@ -377,7 +377,7 @@ model ContainerProcessoGravity {
   @@map("container_processo")
 }
 
-model PedidoStatus {
+model PedidoStatusConfig {
   id_pedido_status                  String   @id @default(cuid())
   id_organizacao                    String
   id_workspace                      String?
@@ -792,7 +792,7 @@ model PedidoCadastroSincronizador {
 // Enums de proteção estrutural
 // ============================================================================
 
-enum StatusPedido {
+enum PedidoStatus {
   draft
   aberto
   em_andamento

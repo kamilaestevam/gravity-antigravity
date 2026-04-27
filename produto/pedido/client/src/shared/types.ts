@@ -6,9 +6,9 @@
 
 // ── Status do Pedido ──────────────────────────────────────────────────────────
 
-export type StatusPedido = 'draft' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
+export type PedidoStatus = 'draft' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
 
-export const STATUS_PEDIDO_LABELS: Record<StatusPedido, string> = {
+export const STATUS_PEDIDO_LABELS: Record<PedidoStatus, string> = {
   draft:         'Rascunho',
   aberto:        'Aberto',
   em_andamento:  'Em Andamento',
@@ -269,7 +269,7 @@ export interface Pedido {
   company_id: string
   tipo_operacao: TipoOperacao
   numero_pedido: string
-  status: StatusPedido
+  status: PedidoStatus
 
   // Exportador
   importacao_exportador_id: string | null

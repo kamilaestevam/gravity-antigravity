@@ -10,7 +10,7 @@
  *
  *   Linhas → Papéis de Empresa (Importador, Exportador, Fabricante, Agente,
  *            Despachante, Armador) — mesmas 6 flags do cadastro Empresa.
- *   Colunas → Status do Pedido (tabela dinâmica PedidoStatus do tenant).
+ *   Colunas → Status do Pedido (tabela dinâmica PedidoStatusConfig do tenant).
  *   Célula  → toggle (SwitchGlobal). ON = "atualizar snapshot", OFF = "congelar".
  *
  * Persistência (MVP)

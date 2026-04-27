@@ -15,7 +15,7 @@ import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-org
 export const loteRouter = Router()
 
 const STATUS_VALIDOS = ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'] as const
-type StatusPedido = typeof STATUS_VALIDOS[number]
+type PedidoStatus = typeof STATUS_VALIDOS[number]
 
 const StatusPreviewSchema = z.object({
   ids:        z.array(z.string().min(1)).min(1, 'Selecione ao menos 1 pedido'),

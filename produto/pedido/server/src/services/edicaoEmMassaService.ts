@@ -351,7 +351,7 @@ export class EdicaoEmMassaService {
               dadosPedido.detalhes_operacionais = detalhesUpdate
             }
 
-            await tx.pedido.update({
+            await tx.pedidoColunasGerais.update({
               where: { id_pedido: pedidoId },
               data: dadosPedido,
             })
@@ -485,7 +485,7 @@ export class EdicaoEmMassaService {
       0,
     )
 
-    await tx.pedido.update({
+    await tx.pedidoColunasGerais.update({
       where: { id_pedido: pedidoId },
       data: {
         quantidade_total_pedido: quantidadeInicialTotal,

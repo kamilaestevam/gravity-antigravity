@@ -99,7 +99,7 @@ export class ColunasUsuarioService {
     const prisma = db as any
 
     // 1. Limite de 50 colunas
-    const total = await prisma.colunaUsuarioPedido.count({
+    const total = await prisma.pedidoListaColunaUsuario.count({
       where: { id_organizacao: tenantId, ativo_coluna_usuario_pedido: true },
     })
     if (total >= 50) {
@@ -107,7 +107,7 @@ export class ColunasUsuarioService {
     }
 
     // 2. Nome único por tenant
-    const nomeExistente = await prisma.colunaUsuarioPedido.findFirst({
+    const nomeExistente = await prisma.pedidoListaColunaUsuario.findFirst({
       where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo_coluna_usuario_pedido: true },
     })
     if (nomeExistente) {
@@ -118,7 +118,7 @@ export class ColunasUsuarioService {
     const chave = slugifyNome(input.nome)
 
     // Verificar unicidade da chave também
-    const chaveExistente = await prisma.colunaUsuarioPedido.findFirst({
+    const chaveExistente = await prisma.pedidoListaColunaUsuario.findFirst({
       where: { id_organizacao: tenantId, chave_coluna_usuario_pedido: chave },
     })
     if (chaveExistente) {
@@ -130,14 +130,14 @@ export class ColunasUsuarioService {
     }
 
     // 4. Calcular próxima ordem
-    const maxOrdem = await prisma.colunaUsuarioPedido.aggregate({
+    const maxOrdem = await prisma.pedidoListaColunaUsuario.aggregate({
       where: { id_organizacao: tenantId },
       _max: { ordem_coluna_usuario_pedido: true },
     })
     const novaOrdem = (maxOrdem._max.ordem_coluna_usuario_pedido ?? 0) + 1
 
     // 5. Criar
-    const created = await prisma.colunaUsuarioPedido.create({
+    const created = await prisma.pedidoListaColunaUsuario.create({
       data: {
         id_organizacao:                    tenantId,
         nome_coluna_usuario_pedido:        input.nome,
@@ -163,7 +163,7 @@ export class ColunasUsuarioService {
   async listar(tenantId: string, userId: string, userRoles: string[], db: Record<string, unknown>) {
     const prisma = db as any
 
-    const colunas = await prisma.colunaUsuarioPedido.findMany({
+    const colunas = await prisma.pedidoListaColunaUsuario.findMany({
       where: { id_organizacao: tenantId, ativo_coluna_usuario_pedido: true },
       orderBy: { ordem_coluna_usuario_pedido: 'asc' },
     })
@@ -194,7 +194,7 @@ export class ColunasUsuarioService {
   ) {
     const prisma = db as any
 
-    const coluna = await prisma.colunaUsuarioPedido.findFirst({
+    const coluna = await prisma.pedidoListaColunaUsuario.findFirst({
       where: { id_coluna_usuario_pedido: id, id_organizacao: tenantId },
     })
     if (!coluna) {
@@ -203,7 +203,7 @@ export class ColunasUsuarioService {
 
     // Valida nome único (se mudou)
     if (input.nome && input.nome !== coluna.nome_coluna_usuario_pedido) {
-      const nomeExistente = await prisma.colunaUsuarioPedido.findFirst({
+      const nomeExistente = await prisma.pedidoListaColunaUsuario.findFirst({
         where: { id_organizacao: tenantId, nome_coluna_usuario_pedido: input.nome, ativo_coluna_usuario_pedido: true, id_coluna_usuario_pedido: { not: id } },
       })
       if (nomeExistente) {
@@ -211,7 +211,7 @@ export class ColunasUsuarioService {
       }
     }
 
-    const updated = await prisma.colunaUsuarioPedido.update({
+    const updated = await prisma.pedidoListaColunaUsuario.update({
       where: { id_coluna_usuario_pedido: id },
       data: {
         nome_coluna_usuario_pedido:        input.nome,
@@ -232,14 +232,14 @@ export class ColunasUsuarioService {
   async excluir(tenantId: string, id: string, db: Record<string, unknown>) {
     const prisma = db as any
 
-    const coluna = await prisma.colunaUsuarioPedido.findFirst({
+    const coluna = await prisma.pedidoListaColunaUsuario.findFirst({
       where: { id_coluna_usuario_pedido: id, id_organizacao: tenantId },
     })
     if (!coluna) {
       throw new AppError('Coluna não encontrada.', 404, 'NOT_FOUND')
     }
 
-    await prisma.colunaUsuarioPedido.update({
+    await prisma.pedidoListaColunaUsuario.update({
       where: { id_coluna_usuario_pedido: id },
       data: { ativo_coluna_usuario_pedido: false },
     })
@@ -252,7 +252,7 @@ export class ColunasUsuarioService {
 
     await prisma.$transaction(
       ids.map((id, idx) =>
-        prisma.colunaUsuarioPedido.updateMany({
+        prisma.pedidoListaColunaUsuario.updateMany({
           where: { id_coluna_usuario_pedido: id, id_organizacao: tenantId },
           data: { ordem_coluna_usuario_pedido: idx + 1 },
         }),
@@ -267,7 +267,7 @@ export class ColunasUsuarioService {
 
     await prisma.$transaction(
       Object.entries(input.valores).map(([coluna_id, valor]) =>
-        prisma.pedidoValorColunaUsuario.upsert({
+        prisma.pedidoListaColunaUsuarioValor.upsert({
           where: {
             id_organizacao_id_coluna_usuario_pedido_id_vinculo_valor_coluna_usuario_pedido: {
               id_organizacao:                         tenantId,
@@ -305,7 +305,7 @@ export class ColunasUsuarioService {
       vinculo_valor_coluna_usuario_pedido:    string
       id_vinculo_valor_coluna_usuario_pedido: string
       valor_coluna_usuario_pedido:            string
-    }> = await prisma.pedidoValorColunaUsuario.findMany({
+    }> = await prisma.pedidoListaColunaUsuarioValor.findMany({
       where: {
         id_organizacao:                      tenantId,
         vinculo_valor_coluna_usuario_pedido: vinculo,

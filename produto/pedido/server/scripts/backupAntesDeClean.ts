@@ -21,7 +21,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export async function fazerBackup(prisma: PrismaClient, tenantId: string): Promise<string | null> {
-  const pedidos = await prisma.pedido.findMany({
+  const pedidos = await prisma.pedidoColunasGerais.findMany({
     where: { tenant_id: tenantId },
     include: { itens: true },
   })

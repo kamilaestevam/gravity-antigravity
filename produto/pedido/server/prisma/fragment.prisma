@@ -12,7 +12,7 @@
 // PedidoSnapshotOpe, PedidoConfigAtualizacaoCadastros) já adotam DDD.
 // ============================================================================
 
-model Pedido {
+model PedidoColunasGerais {
   id_pedido                                                   String                      @id
   id_organizacao                                              String
   id_workspace                                                String
@@ -124,9 +124,9 @@ model Pedido {
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
   itens_pedido                                                PedidoItem[]
-  transferencias_pedido                                       TrackingItemsTransferidos[]
+  transferencias_pedido                                       PedidoListaItensTransfericosRastreio[]
   snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
-  snapshots_ope_pedido                                        PedidoSnapshotOpe[]
+  snapshots_ope_pedido                                        PedidoOpeSnapshot[]
 
   @@unique([id_organizacao, numero_pedido])
   @@index([id_organizacao])
@@ -177,8 +177,8 @@ model PedidoItem {
   dados_extras_importacao_item     Json?
   data_criacao_item                DateTime       @default(now())
   data_atualizacao_item            DateTime       @updatedAt
-  pedido_item                      Pedido         @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
-  embarques_efetivos_pedido_item   ProcessoItem[]
+  pedido_item                      PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  embarques_efetivos_pedido_item   LogisticaProcessoGravity[]
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
@@ -186,7 +186,7 @@ model PedidoItem {
   @@map("pedido_itens")
 }
 
-model Processo {
+model ProcessoGravity {
   id_processo                                   String              @id
   id_organizacao                                String
   id_workspace                                  String
@@ -299,9 +299,9 @@ model Processo {
   detalhes_financeiros_processo                 Json?
   data_criacao_processo                         DateTime            @default(now())
   data_atualizacao_processo                     DateTime            @updatedAt
-  containers_processo                           ProcessoContainer[]
-  faturas_processo                              ProcessoFatura[]
-  itens_processo_processo                       ProcessoItem[]
+  containers_processo                           ContainerProcessoGravity[]
+  faturas_processo                              PedidoProcessoGravity[]
+  itens_processo_processo                       LogisticaProcessoGravity[]
 
   @@index([id_organizacao])
   @@index([id_workspace])
@@ -309,7 +309,7 @@ model Processo {
   @@map("tabela_processos")
 }
 
-model ProcessoFatura {
+model PedidoProcessoGravity {
   id_processo_fatura            String    @id
   id_organizacao                String
   id_workspace                  String
@@ -321,14 +321,14 @@ model ProcessoFatura {
   valor_pago_processo_fatura    Decimal   @default(0) @db.Decimal(18, 6)
   data_vencimento_processo_fatura  DateTime?
   status_pagamento_processo_fatura String @default("pendente")
-  processo_processo_fatura      Processo  @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
+  processo_processo_fatura      ProcessoGravity @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
 
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_processo])
   @@map("fatura_processo")
 }
 
-model ProcessoItem {
+model LogisticaProcessoGravity {
   id_processo_item                       String      @id
   id_organizacao                         String
   id_workspace                           String
@@ -347,7 +347,7 @@ model ProcessoItem {
   peso_bruto_unitario_processo_item      Decimal?    @db.Decimal(18, 6)
   detalhes_do_produto_processo_item      Json?
   pedido_item_processo_item              PedidoItem? @relation(fields: [id_pedido_item], references: [id_item])
-  processo_processo_item                 Processo    @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
+  processo_processo_item                 ProcessoGravity @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
 
   @@index([id_organizacao, id_workspace])
   @@index([id_processo])
@@ -355,7 +355,7 @@ model ProcessoItem {
   @@map("logistica_processo")
 }
 
-model ProcessoContainer {
+model ContainerProcessoGravity {
   id_processo_container                          String    @id
   id_organizacao                                 String
   id_workspace                                   String
@@ -370,7 +370,7 @@ model ProcessoContainer {
   data_devolucao_prevista_processo_container     DateTime?
   data_devolucao_real_processo_container         DateTime?
   local_devolucao_processo_container             String?
-  processo_processo_container                    Processo  @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
+  processo_processo_container                    ProcessoGravity @relation(fields: [id_processo], references: [id_processo], onDelete: Cascade)
 
   @@index([id_organizacao, id_workspace])
   @@index([id_processo])
@@ -397,7 +397,7 @@ model PedidoStatus {
   @@map("status_pedido")
 }
 
-model PedidoColuna {
+model PedidoColunas {
   id_pedido_coluna             String   @id @default(cuid())
   id_organizacao               String
   id_workspace                 String?
@@ -419,7 +419,7 @@ model PedidoColuna {
   @@map("pedido_colunas")
 }
 
-model PedidoPreferenciaUsuario {
+model PedidoListaColunasPreferencia {
   id_pedido_colunas_preferencia_usuario       String   @id @default(cuid())
   id_organizacao                              String
   id_workspace                                String?
@@ -434,7 +434,7 @@ model PedidoPreferenciaUsuario {
   @@map("preferencia_coluna_pedido")
 }
 
-model PedidoPreferenciaPadrao {
+model PedidoListaColunasPadrao {
   id_pedido_preferencia_padrao                String   @id @default(cuid())
   id_organizacao                              String   @unique
   id_workspace                                String?
@@ -446,7 +446,7 @@ model PedidoPreferenciaPadrao {
   @@map("preferencia_padrao_pedido")
 }
 
-model AprendizadoImportacaoDados {
+model PedidoImportarAprendizadoIA {
   id_aprendizado_importacao_dados           String   @id @default(cuid())
   id_organizacao                            String
   id_produto_gravity                        String?
@@ -488,7 +488,7 @@ model PedidoAnexo {
   @@map("anexo_pedido")
 }
 
-model PedidoTemplate {
+model PedidoTemplatePDF {
   id_template_pedido               String   @id @default(cuid())
   id_organizacao                   String
   id_produto_gravity               String?
@@ -503,7 +503,7 @@ model PedidoTemplate {
   @@map("template_pedido_pdf")
 }
 
-model TrackingItemsTransferidos {
+model PedidoListaItensTransfericosRastreio {
   id_tracking_items_transferidos       String    @id @default(cuid())
   id_organizacao                       String
   id_produto_gravity                   String?
@@ -517,7 +517,7 @@ model TrackingItemsTransferidos {
   revertido_por_tracking_items_transferidos String?
   data_criacao_tracking_items_transferidos  DateTime  @default(now())
   criado_por_tracking_items_transferidos    String
-  pedido_origem               Pedido    @relation(fields: [id_pedido_origem], references: [id_pedido])
+  pedido_origem               PedidoColunasGerais @relation(fields: [id_pedido_origem], references: [id_pedido])
 
   // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
   data_transferencia_quantidade_tracking_items_transferidos DateTime?
@@ -528,7 +528,7 @@ model TrackingItemsTransferidos {
   @@map("tracking_items_transferidos")
 }
 
-model ColunaUsuarioPedido {
+model PedidoListaColunaUsuario {
   id_coluna_usuario_pedido          String                     @id @default(cuid())
   id_organizacao                    String
   id_produto_gravity                String?
@@ -547,7 +547,7 @@ model ColunaUsuarioPedido {
   criado_por_coluna_usuario_pedido   String
   data_criacao_coluna_usuario_pedido DateTime                   @default(now())
   data_atualizacao_coluna_usuario_pedido DateTime               @updatedAt
-  valores_coluna_usuario_pedido      PedidoValorColunaUsuario[] @relation("ColunaValores")
+  valores_coluna_usuario_pedido      PedidoListaColunaUsuarioValor[] @relation("ColunaValores")
 
   @@unique([id_organizacao, chave_coluna_usuario_pedido])
   @@index([id_organizacao])
@@ -556,7 +556,7 @@ model ColunaUsuarioPedido {
   @@map("coluna_usuario_pedido")
 }
 
-model PedidoValorColunaUsuario {
+model PedidoListaColunaUsuarioValor {
   id_valor_coluna_usuario_pedido            String              @id @default(cuid())
   id_organizacao                            String
   id_produto_gravity                        String?
@@ -564,7 +564,7 @@ model PedidoValorColunaUsuario {
   vinculo_valor_coluna_usuario_pedido       String
   id_vinculo_valor_coluna_usuario_pedido    String
   valor_coluna_usuario_pedido               String
-  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation("ColunaValores", fields: [id_coluna_usuario_pedido], references: [id_coluna_usuario_pedido])
+  coluna_valor_coluna_usuario_pedido        PedidoListaColunaUsuario @relation("ColunaValores", fields: [id_coluna_usuario_pedido], references: [id_coluna_usuario_pedido])
 
   @@unique([id_organizacao, id_coluna_usuario_pedido, id_vinculo_valor_coluna_usuario_pedido])
   @@index([id_organizacao])
@@ -712,7 +712,7 @@ model PedidoSnapshotEmpresa {
   congelado_em          DateTime @default(now())
   motivo_congelamento   String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
 
-  pedido                Pedido   @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])
@@ -723,7 +723,7 @@ model PedidoSnapshotEmpresa {
 
 /// Snapshot congelado da OPE (Operação) vinculada ao pedido,
 /// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
-model PedidoSnapshotOpe {
+model PedidoOpeSnapshot {
   id_pedido_snapshot_ope                String   @id @default(cuid())
   id_organizacao_pedido_snapshot_ope    String
   id_workspace_pedido_snapshot_ope      String?
@@ -749,7 +749,7 @@ model PedidoSnapshotOpe {
   congelado_em_pedido_snapshot_ope        DateTime @default(now())
   motivo_congelamento_pedido_snapshot_ope String
 
-  acesso_pedido_snapshot_ope Pedido @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
+  acesso_pedido_snapshot_ope PedidoColunasGerais @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao_pedido_snapshot_ope])
   @@index([id_organizacao_pedido_snapshot_ope, id_pedido_pedido_snapshot_ope])
@@ -759,7 +759,7 @@ model PedidoSnapshotOpe {
 
 /// Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
 /// Usado pelo fluxo "atualização represada" e pelo banner retroativo (FASE 06E).
-model PedidoConfigAtualizacaoCadastros {
+model PedidoCadastroSincronizador {
   id_politica_snapshot_cadastros String   @id @default(cuid())
   id_organizacao           String
   id_workspace             String
@@ -802,12 +802,12 @@ enum StatusPedido {
   cancelado
 }
 
-enum TipoOperacao {
+enum PedidoTipoOperacao {
   importacao
   exportacao
 }
 
-enum MoedaPedido {
+enum PedidoMoeda {
   USD
   EUR
   CNY
@@ -816,7 +816,7 @@ enum MoedaPedido {
   BRL
 }
 
-enum IncotermPedido {
+enum PedidoIncoterm {
   FOB
   CIF
   EXW
@@ -830,7 +830,7 @@ enum IncotermPedido {
   FAS
 }
 
-enum UnidadeComercializada {
+enum PedidoUnidadeComercializada {
   UNID
   KG
   TON

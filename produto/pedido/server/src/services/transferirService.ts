@@ -204,7 +204,7 @@ export class TransferirService {
           const itemData = this.prepararItemDestino(itemOrigem, novoPedido.id_pedido, destino, 1)
           await tx.pedidoItem.create({ data: itemData as unknown as Prisma.PedidoItemUncheckedCreateInput })
         } else if (destino.tipo === 'existente' && destino.pedido_id) {
-          const pedidoDestino = await tx.pedido.findFirst({
+          const pedidoDestino = await tx.pedidoColunasGerais.findFirst({
             where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
             include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
@@ -315,7 +315,7 @@ export class TransferirService {
       // Remover quantidade dos destinos
       for (const destino of destinos) {
         if (destino.pedido_id) {
-          const pedidoDestino = await tx.pedido.findFirst({
+          const pedidoDestino = await tx.pedidoColunasGerais.findFirst({
             where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
             include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
@@ -400,7 +400,7 @@ export class TransferirService {
   }
 
   private async criarPedidoDestino(tenantId: string, numero: string, base: Record<string, unknown>, tx: Tx) {
-    return tx.pedido.create({
+    return tx.pedidoColunasGerais.create({
       data: {
         id_pedido: this.gerarId('pedi'),
         id_organizacao: tenantId,
@@ -458,7 +458,7 @@ export class TransferirService {
 
     const qtdAtualTotal = itens.reduce((acc: number, i: Record<string, unknown>) => acc + Number(i.quantidade_atual_item ?? 0), 0)
 
-    await tx.pedido.update({
+    await tx.pedidoColunasGerais.update({
       where: { id_pedido: pedidoId },
       data: { quantidade_total_pedido: qtdAtualTotal },
     })
@@ -489,7 +489,7 @@ export class TransferirService {
 
     if (todosZero) {
       // Config: encerrar pedido quando qty = 0
-      await tx.pedido.update({
+      await tx.pedidoColunasGerais.update({
         where: { id_pedido: pedidoId },
         data: { status_pedido: 'consolidado' },
       })

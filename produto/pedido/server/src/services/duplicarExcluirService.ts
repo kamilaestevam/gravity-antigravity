@@ -201,14 +201,14 @@ export class DuplicarService {
           // Definir número do pedido duplicado
           let numeroPedido: string
           if (config.duplicar_numero_auto) {
-            const total = await tx.pedido.count({ where: { id_organizacao: tenantId } })
+            const total = await tx.pedidoColunasGerais.count({ where: { id_organizacao: tenantId } })
             numeroPedido = gerarNumeroPedido(total + 1)
           } else {
             numeroPedido = payload.numeros![pedido.id_pedido as string]
           }
 
           // Verificar se número já existe
-          const numeroExistente = await tx.pedido.findFirst({
+          const numeroExistente = await tx.pedidoColunasGerais.findFirst({
             where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
           })
           if (numeroExistente) {
@@ -264,7 +264,7 @@ export class DuplicarService {
             }
           })
 
-          const novoPedido = await tx.pedido.create({
+          const novoPedido = await tx.pedidoColunasGerais.create({
             data: {
               ...camposBase,
               ...datas,
@@ -512,7 +512,7 @@ export class ExcluirService {
         where: { id_pedido: { in: ids }, id_organizacao: tenantId },
       })
 
-      await tx.pedido.deleteMany({
+      await tx.pedidoColunasGerais.deleteMany({
         where: { id_pedido: { in: ids }, id_organizacao: tenantId },
       })
     })
@@ -615,7 +615,7 @@ export class ExcluirService {
           // Best-effort se tabela não existir
         })
 
-        await tx.pedido.delete({
+        await tx.pedidoColunasGerais.delete({
           where: { id_pedido: pedidoId },
         })
 

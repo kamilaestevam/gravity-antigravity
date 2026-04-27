@@ -557,7 +557,7 @@ async function gerarCenariosEdge(
     }
   }
 
-  await prisma.pedido.createMany({ data: pedidos as any, skipDuplicates: true })
+  await prisma.pedidoColunasGerais.createMany({ data: pedidos as any, skipDuplicates: true })
   await prisma.pedidoItem.createMany({ data: itens as any, skipDuplicates: true })
 
   return { pedidosCreated: pedidos.length, itensCreated: itens.length }
@@ -584,7 +584,7 @@ async function main() {
 
   // Idempotência — não duplica dados se já existem e não é --clean
   if (!clean) {
-    const existentes = await prisma.pedido.count({ where: { tenant_id: tenantId } })
+    const existentes = await prisma.pedidoColunasGerais.count({ where: { tenant_id: tenantId } })
     if (existentes > 0) {
       console.error(`❌ Tenant "${tenantId}" já possui ${existentes} pedidos.`)
       console.error(`   Use --clean para apagar antes de regenerar, ou rode em outro tenant.`)
@@ -640,14 +640,14 @@ async function main() {
       index++
 
       if (bufPedidos.length >= BATCH) {
-        await prisma.pedido.createMany({ data: bufPedidos as any, skipDuplicates: true })
+        await prisma.pedidoColunasGerais.createMany({ data: bufPedidos as any, skipDuplicates: true })
         await prisma.pedidoItem.createMany({ data: bufItens as any, skipDuplicates: true })
         bufPedidos = []
         bufItens = []
       }
     }
     if (bufPedidos.length > 0) {
-      await prisma.pedido.createMany({ data: bufPedidos as any, skipDuplicates: true })
+      await prisma.pedidoColunasGerais.createMany({ data: bufPedidos as any, skipDuplicates: true })
       await prisma.pedidoItem.createMany({ data: bufItens as any, skipDuplicates: true })
     }
 

@@ -1,11 +1,11 @@
 ---
 name: antigravity-dream-team-detetive-tela
-description: "Análise forense completa de uma tela existente no Gravity: frontend, backend, rotas, APIs, banco, segurança, performance e UX. Produz relatório estruturado para o dream-team-tecnologia com todos os ajustes necessários priorizados."
+description: "Análise forense completa de uma tela existente no Gravity: frontend, backend, rotas, APIs, banco, segurança, performance e UX. Produz relatório estruturado para o Líder (tomada de decisão) e dream-team/ajustes (execução) com todos os ajustes necessários priorizados."
 ---
 
 # Dream Team — Detetive de Tela
 
-> **Papel:** Detetive forense que analisa uma tela do Gravity de ponta a ponta — front, back, rotas, APIs, banco, estado, segurança, performance e UX — e entrega relatório completo ao dream-team-tecnologia.
+> **Papel:** Detetive forense que analisa uma tela do Gravity de ponta a ponta — front, back, rotas, APIs, banco, estado, segurança, performance e UX — e entrega relatório completo ao Líder (decisão) e à skill `dream-team/ajustes` (execução).
 
 ---
 
@@ -46,7 +46,7 @@ Coletar:
 - Rota(s) de backend (Express router, arquivo de rotas do servidor)
 - Propósito da tela (criar, listar, editar, visualizar, relatório)
 - Produto / serviço ao qual pertence
-- Dependências diretas (outros produtos, serviços de organização, APIs externas)
+- Dependências diretas (outros produtos, serviços de organizacao, APIs externas)
 
 Artefatos:
 ```
@@ -110,7 +110,7 @@ Artefatos:
 #### 3.1 Rotas Registradas
 - Arquivo de router (ex: `routes/pedidos.ts`)
 - Método HTTP + path + handler para cada rota da tela
-- Middleware aplicado (auth, Isolamento de Organização, rate limit)
+- Middleware aplicado (auth, Isolamento de Organizacao, rate limit)
 
 #### 3.2 Controllers / Handlers
 - Arquivo e função de cada handler
@@ -123,10 +123,10 @@ Artefatos:
 - Campos sensíveis sanitizados?
 
 #### 3.4 Middleware de Segurança
-- JWT validado via `@clerk/backend` (autenticação APENAS — Mandamento 01)?
-- Permissões consultadas via `/api/v1/me` (Prisma) — nunca lendo `publicMetadata.role`?
+- JWT validado via `@clerk/backend` (autenticação APENAS — Mandamento 01 — Isolamento Total do Clerk)?
+- Permissões consultadas via `/api/v1/me` (Prisma) — nunca lendo `publicMetadata.role` (Mandamento 01 — Isolamento Total do Clerk)?
 - `x-chave-interna` validado em chamadas inter-serviço?
-- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver` (PrismaClient direto é PROIBIDO)?
+- Acesso ao banco via `withOrganizacao` / `withOrganizacaoContext` do SDK (PrismaClient direto é PROIBIDO)?
 - Verificar conformidade com `skills/seguranca/seguranca-5-camadas/SKILL.md`
 
 #### 3.5 Tratamento de Erros
@@ -179,19 +179,19 @@ Artefatos:
 
 ### Fase 5 — Análise do Banco de Dados
 
-**Objetivo:** Auditar queries, Isolamento de Organização e performance de banco.
+**Objetivo:** Auditar queries, Isolamento de Organizacao e performance de banco.
 
-#### 5.1 Models Prisma Utilizados
+#### 5.1 Models Prisma Utilizados (pós-pivô Schema-per-Organizacao)
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Schema Composition](../../arquitetura/schema-composition/SKILL.md).
+
 - Quais models são consultados por esta tela?
-- Todos têm `id_organizacao String` com paridade Prisma↔PG (sem `@map` em coluna — DDD REGRA 2, Mandamento 03)?
-- Todos têm `@@map("snake_case")` apontando para a tabela PG (DDD REGRA 2 + REGRA 10)?
-- Todos têm os 3 índices obrigatórios?
-  - `@@index([id_organizacao])`
-  - `@@index([id_organizacao, id_produto])`
-  - `@@index([id_organizacao, id_usuario])`
+- **NÃO EXISTE** campo de organizacao no model? (o schema PostgreSQL **é** a organizacao — qualquer `id_organizacao String` em model de produto é violação pós-pivô)
+- Todos têm `@@map("snake_case")` apontando para a tabela PG (paridade Prisma↔PG — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md))?
+- Índices apenas para campos de domínio? (qualquer índice composto com `id_organizacao` é violação pós-pivô — schema isola fisicamente)
 
-#### 5.2 Isolamento de Organização (Schema-per-Organização)
-- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver`?
+#### 5.2 Isolamento de Organizacao (Schema-per-Organizacao)
+- Acesso ao banco via `withOrganizacao` / `withOrganizacaoContext` do SDK de organizacao?
 - Algum uso de `new PrismaClient()` direto (violação crítica)?
 - `id_organizacao` vem do JWT — nunca do body da requisição?
 - Verificar conformidade com `skills/governanca/lei/isolamento-organizacao/SKILL.md`
@@ -203,14 +203,16 @@ Artefatos:
 - Queries em loop (deveria ser batch)?
 
 #### 5.4 Seeds e Dados de Teste
-- `seed.ts` cobre os cenários da tela?
+- `prisma/seed.ts` cobre os cenários da tela?
 - Dados de demonstração realistas?
 
 Artefatos:
 ```
 [ ] Lista de models acessados
-[ ] Checklist de id_organizacao com paridade Prisma↔PG e @@map("snake_case") (por model)
-[ ] Checklist de índices (por model)
+[ ] Acesso ao banco via withOrganizacao / withOrganizacaoContext (sem PrismaClient direto)
+[ ] Models não têm campo id_organizacao (schema-per-organizacao isola)
+[ ] @@map("snake_case") presente (paridade Prisma↔PG)
+[ ] Índices apenas para campos de domínio (nenhum índice composto com id_organizacao)
 [ ] Queries problemáticas identificadas (N+1, campos extras)
 ```
 
@@ -226,24 +228,24 @@ Seguindo `skills/seguranca/seguranca-5-camadas/SKILL.md`:
 - Rate limiting configurado para as rotas?
 - Headers de segurança presentes (CORS, CSP)?
 
-#### Camada 2 — Autenticação (Clerk APENAS — Mandamento 01)
+#### Camada 2 — Autenticação (Clerk APENAS — Mandamento 01 — Isolamento Total do Clerk)
 - JWT validado em todas as rotas protegidas?
 - Token expirado tratado corretamente?
 - Clerk configurado corretamente?
 - **PROIBIDO** ler `publicMetadata.role` ou qualquer campo do Clerk para autorização
 
 #### Camada 3 — Autorização (Prisma como fonte da verdade)
-- Permissões consultadas via `/api/v1/me` + `meResponseSchema.parse()` (Mandamentos 01 + 06)?
-- Decisão baseada em `tipo_usuario` ou `gravity_admin` (do Prisma; DDD REGRA 5 — booleans sem prefixo `is_`)?
-- Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)?
-- Sem fallback silencioso `(data?.x?.y ?? null) as Role` (Mandamento 08)?
+- Permissões consultadas via `/api/v1/me` + `meResponseSchema.parse()` (Mandamento 01 — Isolamento Total do Clerk + Mandamento 06 — Validação de Contrato Zod)?
+- Decisão baseada em `tipo_usuario` ou `gravity_admin` (do Prisma; booleans sem prefixo `is_` — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md))?
+- Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04 — Lógica de Vínculo / Limbo)?
+- Sem fallback silencioso `(data?.x?.y ?? null) as Role` (Mandamento 08 — Fim dos Fallbacks Silenciosos)?
 - Verificar conformidade com `skills/seguranca/permissoes/SKILL.md`
 
-#### Camada 4 — Isolamento (Schema-per-Organização)
-- Nenhuma query vaza dados de outra organização?
+#### Camada 4 — Isolamento (Schema-per-Organizacao)
+- Nenhuma query vaza dados de outra organizacao?
 - Produtos não acessam banco do Configurador diretamente?
 - Produtos não acessam banco de outros produtos?
-- Acesso ao banco via `@gravity/tenant-resolver`, nunca `PrismaClient` direto?
+- Acesso ao banco via `withOrganizacao` / `withOrganizacaoContext` do SDK, nunca `PrismaClient` direto?
 
 #### Camada 5 — Auditoria
 - Ações críticas registradas no histórico?
@@ -269,8 +271,9 @@ Artefatos:
 - Re-renders desnecessários (componente pai re-renderizando filhos desnecessariamente)?
 
 #### 7.2 Backend
-- Tempo de resposta estimado dentro do budget de latência (200ms)?
-  - 5ms rede + 10ms middleware + 5ms validação + 80ms banco + 50ms lógica + 5ms serialização = **155ms**
+- Tempo de resposta estimado dentro do budget de latência?
+
+> ⚠️ **REGRA ABSOLUTA:** Budget de latência por camada vive em [SLA Metas](../../governanca/lei/sla-metas/SKILL.md).
 - Queries pesadas identificadas?
 - Caching implementado onde necessário?
 - Verificar conformidade com `skills/arquitetura/cache/SKILL.md`
@@ -332,7 +335,7 @@ Artefatos:
 
 ## Formato do Relatório Final
 
-O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
+O relatório deve ser entregue ao Líder (para tomada de decisão) e ao `dream-team/ajustes` (para execução) no seguinte formato:
 
 ```markdown
 # Relatório Detetive de Tela — [Nome da Tela]
@@ -340,7 +343,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 **Data:** YYYY-MM-DD  
 **Produto:** [nome]  
 **Analisado por:** Detetive de Tela  
-**Destinatário:** Dream Team Tecnologia
+**Destinatário:** Líder (decisão) + `dream-team/ajustes` (execução)
 
 ---
 
@@ -368,7 +371,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 ## 3. Achados por Categoria
 
 ### 🔴 CRÍTICO — Bloqueia entrega
-[Itens com severidade crítica — segurança, Isolamento de Organização, dados expostos, autorização via publicMetadata]
+[Itens com severidade crítica — segurança, Isolamento de Organizacao, dados expostos, autorização via publicMetadata]
 
 ### 🟠 ALTO — Corrigir nesta sprint
 [Bugs funcionais, violações de código-standards, missing validations]
@@ -381,7 +384,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 
 ---
 
-## 4. Plano de Ajustes para o Dream Team Tecnologia
+## 4. Plano de Ajustes para o Líder + dream-team/ajustes
 
 | # | Ajuste | Categoria | Severidade | Arquivo(s) | Skill de Referência |
 |---|--------|-----------|------------|------------|---------------------|
@@ -430,7 +433,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 | Situação | Skill a Acionar Após o Relatório |
 |----------|----------------------------------|
 | Achados CRÍTICO de segurança | `skills/seguranca/seguranca-5-camadas/SKILL.md` + notificar Líder |
-| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/governanca/lei/isolamento-organizacao/SKILL.md` + Coordenador |
+| Achados de banco com `id_organizacao` em model de produto (violação pós-pivô) ou usando `PrismaClient` direto | `skills/governanca/lei/isolamento-organizacao/SKILL.md` + Coordenador |
 | Achados de autorização via `publicMetadata` (anti-padrão) | `skills/governanca/lei/9-mandamentos/SKILL.md` (Mandamento 01) + Coordenador |
 | Achados de schema/model | `skills/arquitetura/schema-composition/SKILL.md` + Coordenador |
 | Ajustes identificados | `skills/dream-team/ajustes/SKILL.md` (executor dos ajustes) |

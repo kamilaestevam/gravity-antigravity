@@ -2,7 +2,7 @@
  * cleanup-users.ts
  *
  * Exclui TODOS os usuários exceto dmmltda@gmail.com (Super Admin)
- * de: Clerk (frontend auth) + Banco Configurador (Usuario, UsuarioPermissao, UsuarioWorkspace, FornecedorOrganizacao)
+ * de: Clerk (frontend auth) + Banco Configurador (Usuario, UsuarioPermissao, UsuarioWorkspace, OrganizacaoFornecedor)
  *
  * Uso:
  *   cd servicos-global/configurador
@@ -92,7 +92,7 @@ async function main() {
     const dbMemberships = await prisma.usuarioWorkspace.count({
       where: { user: { clerk_user_id: { in: toDelete.map(u => u.id) } } },
     })
-    const dbSupplier = await prisma.fornecedorOrganizacao.count({
+    const dbSupplier = await prisma.organizacaoFornecedor.count({
       where: { clerk_user_id: { in: toDelete.map(u => u.id) } },
     })
 
@@ -100,7 +100,7 @@ async function main() {
     console.log(`   Usuario:                 ${dbUsers} registros`)
     console.log(`   UsuarioPermissao:       ${dbPermissions} registros`)
     console.log(`   UsuarioWorkspace:       ${dbMemberships} registros`)
-    console.log(`   FornecedorOrganizacao: ${dbSupplier} registros`)
+    console.log(`   OrganizacaoFornecedor: ${dbSupplier} registros`)
     console.log(`\nDRY RUN completo. Execute sem --dry-run para aplicar.`)
     return
   }
@@ -110,7 +110,7 @@ async function main() {
   const clerkIds = toDelete.map(u => u.id)
 
   const deleted = await prisma.$transaction(async (tx) => {
-    const sup = await tx.fornecedorOrganizacao.deleteMany({
+    const sup = await tx.organizacaoFornecedor.deleteMany({
       where: { clerk_user_id: { in: clerkIds } },
     })
     const users = await tx.usuario.deleteMany({
@@ -119,7 +119,7 @@ async function main() {
     return { users: users.count, supplier: sup.count }
   })
 
-  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} FornecedorOrganizacao excluidos`)
+  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} OrganizacaoFornecedor excluidos`)
 
   // 3. Excluir do Clerk
   console.log('\nExcluindo do Clerk...')

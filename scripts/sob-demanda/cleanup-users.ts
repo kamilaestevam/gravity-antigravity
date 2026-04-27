@@ -99,7 +99,7 @@ async function main() {
         user: { clerk_user_id: { in: toDelete.map(u => u.id) } },
       },
     })
-    const dbSupplier = await prisma.fornecedorOrganizacao.count({
+    const dbSupplier = await prisma.organizacaoFornecedor.count({
       where: {
         clerk_user_id: { in: toDelete.map(u => u.id) },
       },
@@ -119,8 +119,8 @@ async function main() {
   const clerkIds = toDelete.map(u => u.id)
 
   const deleted = await prisma.$transaction(async (tx) => {
-    // FornecedorOrganizacao não tem cascade automático
-    const sup = await tx.fornecedorOrganizacao.deleteMany({
+    // OrganizacaoFornecedor não tem cascade automático
+    const sup = await tx.organizacaoFornecedor.deleteMany({
       where: { clerk_user_id: { in: clerkIds } },
     })
 
@@ -132,7 +132,7 @@ async function main() {
     return { users: users.count, supplier: sup.count }
   })
 
-  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} FornecedorOrganizacao excluidos`)
+  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} OrganizacaoFornecedor excluidos`)
 
   // 3. Excluir do Clerk
   console.log('\nExcluindo do Clerk...')

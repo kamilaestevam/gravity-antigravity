@@ -298,7 +298,7 @@ exports.Prisma.DeployScalarFieldEnum = {
   data_criacao_deploy: 'data_criacao_deploy'
 };
 
-exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
+exports.Prisma.OrganizacaoFornecedorScalarFieldEnum = {
   id_fornecedor_organizacao: 'id_fornecedor_organizacao',
   clerk_user_id: 'clerk_user_id',
   id_organizacao_fornecedor_organizacao: 'id_organizacao_fornecedor_organizacao',
@@ -579,7 +579,7 @@ exports.Prisma.ModelName = {
   ProdutoGravityFaixaPreco: 'ProdutoGravityFaixaPreco',
   ProdutoGravityNegociacaoEspecial: 'ProdutoGravityNegociacaoEspecial',
   Deploy: 'Deploy',
-  FornecedorOrganizacao: 'FornecedorOrganizacao',
+  OrganizacaoFornecedor: 'OrganizacaoFornecedor',
   Seguranca: 'Seguranca',
   Requisicoes: 'Requisicoes',
   Servicos: 'Servicos',

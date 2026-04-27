@@ -79,10 +79,10 @@ export type ProdutoGravityNegociacaoEspecial = $Result.DefaultSelection<Prisma.$
  */
 export type Deploy = $Result.DefaultSelection<Prisma.$DeployPayload>
 /**
- * Model FornecedorOrganizacao
+ * Model OrganizacaoFornecedor
  * 
  */
-export type FornecedorOrganizacao = $Result.DefaultSelection<Prisma.$FornecedorOrganizacaoPayload>
+export type OrganizacaoFornecedor = $Result.DefaultSelection<Prisma.$OrganizacaoFornecedorPayload>
 /**
  * Model Seguranca
  * 
@@ -547,14 +547,14 @@ export class PrismaClient<
   get deploy(): Prisma.DeployDelegate<ExtArgs>;
 
   /**
-   * `prisma.fornecedorOrganizacao`: Exposes CRUD operations for the **FornecedorOrganizacao** model.
+   * `prisma.organizacaoFornecedor`: Exposes CRUD operations for the **OrganizacaoFornecedor** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more FornecedorOrganizacaos
-    * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany()
+    * // Fetch zero or more OrganizacaoFornecedors
+    * const organizacaoFornecedors = await prisma.organizacaoFornecedor.findMany()
     * ```
     */
-  get fornecedorOrganizacao(): Prisma.FornecedorOrganizacaoDelegate<ExtArgs>;
+  get organizacaoFornecedor(): Prisma.OrganizacaoFornecedorDelegate<ExtArgs>;
 
   /**
    * `prisma.seguranca`: Exposes CRUD operations for the **Seguranca** model.
@@ -1099,7 +1099,7 @@ export namespace Prisma {
     ProdutoGravityFaixaPreco: 'ProdutoGravityFaixaPreco',
     ProdutoGravityNegociacaoEspecial: 'ProdutoGravityNegociacaoEspecial',
     Deploy: 'Deploy',
-    FornecedorOrganizacao: 'FornecedorOrganizacao',
+    OrganizacaoFornecedor: 'OrganizacaoFornecedor',
     Seguranca: 'Seguranca',
     Requisicoes: 'Requisicoes',
     Servicos: 'Servicos',
@@ -1124,7 +1124,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "fornecedorOrganizacao" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2038,73 +2038,73 @@ export namespace Prisma {
           }
         }
       }
-      FornecedorOrganizacao: {
-        payload: Prisma.$FornecedorOrganizacaoPayload<ExtArgs>
-        fields: Prisma.FornecedorOrganizacaoFieldRefs
+      OrganizacaoFornecedor: {
+        payload: Prisma.$OrganizacaoFornecedorPayload<ExtArgs>
+        fields: Prisma.OrganizacaoFornecedorFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.FornecedorOrganizacaoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload> | null
+            args: Prisma.OrganizacaoFornecedorFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           findFirst: {
-            args: Prisma.FornecedorOrganizacaoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload> | null
+            args: Prisma.OrganizacaoFornecedorFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           findMany: {
-            args: Prisma.FornecedorOrganizacaoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>[]
+            args: Prisma.OrganizacaoFornecedorFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>[]
           }
           create: {
-            args: Prisma.FornecedorOrganizacaoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           createMany: {
-            args: Prisma.FornecedorOrganizacaoCreateManyArgs<ExtArgs>
+            args: Prisma.OrganizacaoFornecedorCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>[]
+            args: Prisma.OrganizacaoFornecedorCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>[]
           }
           delete: {
-            args: Prisma.FornecedorOrganizacaoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           update: {
-            args: Prisma.FornecedorOrganizacaoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           deleteMany: {
-            args: Prisma.FornecedorOrganizacaoDeleteManyArgs<ExtArgs>
+            args: Prisma.OrganizacaoFornecedorDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.FornecedorOrganizacaoUpdateManyArgs<ExtArgs>
+            args: Prisma.OrganizacaoFornecedorUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.FornecedorOrganizacaoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FornecedorOrganizacaoPayload>
+            args: Prisma.OrganizacaoFornecedorUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizacaoFornecedorPayload>
           }
           aggregate: {
-            args: Prisma.FornecedorOrganizacaoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFornecedorOrganizacao>
+            args: Prisma.OrganizacaoFornecedorAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrganizacaoFornecedor>
           }
           groupBy: {
-            args: Prisma.FornecedorOrganizacaoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FornecedorOrganizacaoGroupByOutputType>[]
+            args: Prisma.OrganizacaoFornecedorGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrganizacaoFornecedorGroupByOutputType>[]
           }
           count: {
-            args: Prisma.FornecedorOrganizacaoCountArgs<ExtArgs>
-            result: $Utils.Optional<FornecedorOrganizacaoCountAggregateOutputType> | number
+            args: Prisma.OrganizacaoFornecedorCountArgs<ExtArgs>
+            result: $Utils.Optional<OrganizacaoFornecedorCountAggregateOutputType> | number
           }
         }
       }
@@ -16462,16 +16462,16 @@ export namespace Prisma {
 
 
   /**
-   * Model FornecedorOrganizacao
+   * Model OrganizacaoFornecedor
    */
 
-  export type AggregateFornecedorOrganizacao = {
-    _count: FornecedorOrganizacaoCountAggregateOutputType | null
-    _min: FornecedorOrganizacaoMinAggregateOutputType | null
-    _max: FornecedorOrganizacaoMaxAggregateOutputType | null
+  export type AggregateOrganizacaoFornecedor = {
+    _count: OrganizacaoFornecedorCountAggregateOutputType | null
+    _min: OrganizacaoFornecedorMinAggregateOutputType | null
+    _max: OrganizacaoFornecedorMaxAggregateOutputType | null
   }
 
-  export type FornecedorOrganizacaoMinAggregateOutputType = {
+  export type OrganizacaoFornecedorMinAggregateOutputType = {
     id_fornecedor_organizacao: string | null
     clerk_user_id: string | null
     id_organizacao_fornecedor_organizacao: string | null
@@ -16480,7 +16480,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao: Date | null
   }
 
-  export type FornecedorOrganizacaoMaxAggregateOutputType = {
+  export type OrganizacaoFornecedorMaxAggregateOutputType = {
     id_fornecedor_organizacao: string | null
     clerk_user_id: string | null
     id_organizacao_fornecedor_organizacao: string | null
@@ -16489,7 +16489,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao: Date | null
   }
 
-  export type FornecedorOrganizacaoCountAggregateOutputType = {
+  export type OrganizacaoFornecedorCountAggregateOutputType = {
     id_fornecedor_organizacao: number
     clerk_user_id: number
     id_organizacao_fornecedor_organizacao: number
@@ -16500,7 +16500,7 @@ export namespace Prisma {
   }
 
 
-  export type FornecedorOrganizacaoMinAggregateInputType = {
+  export type OrganizacaoFornecedorMinAggregateInputType = {
     id_fornecedor_organizacao?: true
     clerk_user_id?: true
     id_organizacao_fornecedor_organizacao?: true
@@ -16509,7 +16509,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: true
   }
 
-  export type FornecedorOrganizacaoMaxAggregateInputType = {
+  export type OrganizacaoFornecedorMaxAggregateInputType = {
     id_fornecedor_organizacao?: true
     clerk_user_id?: true
     id_organizacao_fornecedor_organizacao?: true
@@ -16518,7 +16518,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: true
   }
 
-  export type FornecedorOrganizacaoCountAggregateInputType = {
+  export type OrganizacaoFornecedorCountAggregateInputType = {
     id_fornecedor_organizacao?: true
     clerk_user_id?: true
     id_organizacao_fornecedor_organizacao?: true
@@ -16528,123 +16528,123 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type FornecedorOrganizacaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FornecedorOrganizacao to aggregate.
+     * Filter which OrganizacaoFornecedor to aggregate.
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FornecedorOrganizacaos to fetch.
+     * Determine the order of OrganizacaoFornecedors to fetch.
      */
-    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    orderBy?: OrganizacaoFornecedorOrderByWithRelationInput | OrganizacaoFornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    cursor?: OrganizacaoFornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     * Take `±n` OrganizacaoFornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FornecedorOrganizacaos.
+     * Skip the first `n` OrganizacaoFornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned FornecedorOrganizacaos
+     * Count returned OrganizacaoFornecedors
     **/
-    _count?: true | FornecedorOrganizacaoCountAggregateInputType
+    _count?: true | OrganizacaoFornecedorCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: FornecedorOrganizacaoMinAggregateInputType
+    _min?: OrganizacaoFornecedorMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: FornecedorOrganizacaoMaxAggregateInputType
+    _max?: OrganizacaoFornecedorMaxAggregateInputType
   }
 
-  export type GetFornecedorOrganizacaoAggregateType<T extends FornecedorOrganizacaoAggregateArgs> = {
-        [P in keyof T & keyof AggregateFornecedorOrganizacao]: P extends '_count' | 'count'
+  export type GetOrganizacaoFornecedorAggregateType<T extends OrganizacaoFornecedorAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrganizacaoFornecedor]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateFornecedorOrganizacao[P]>
-      : GetScalarType<T[P], AggregateFornecedorOrganizacao[P]>
+        : GetScalarType<T[P], AggregateOrganizacaoFornecedor[P]>
+      : GetScalarType<T[P], AggregateOrganizacaoFornecedor[P]>
   }
 
 
 
 
-  export type FornecedorOrganizacaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FornecedorOrganizacaoWhereInput
-    orderBy?: FornecedorOrganizacaoOrderByWithAggregationInput | FornecedorOrganizacaoOrderByWithAggregationInput[]
-    by: FornecedorOrganizacaoScalarFieldEnum[] | FornecedorOrganizacaoScalarFieldEnum
-    having?: FornecedorOrganizacaoScalarWhereWithAggregatesInput
+  export type OrganizacaoFornecedorGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizacaoFornecedorWhereInput
+    orderBy?: OrganizacaoFornecedorOrderByWithAggregationInput | OrganizacaoFornecedorOrderByWithAggregationInput[]
+    by: OrganizacaoFornecedorScalarFieldEnum[] | OrganizacaoFornecedorScalarFieldEnum
+    having?: OrganizacaoFornecedorScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: FornecedorOrganizacaoCountAggregateInputType | true
-    _min?: FornecedorOrganizacaoMinAggregateInputType
-    _max?: FornecedorOrganizacaoMaxAggregateInputType
+    _count?: OrganizacaoFornecedorCountAggregateInputType | true
+    _min?: OrganizacaoFornecedorMinAggregateInputType
+    _max?: OrganizacaoFornecedorMaxAggregateInputType
   }
 
-  export type FornecedorOrganizacaoGroupByOutputType = {
+  export type OrganizacaoFornecedorGroupByOutputType = {
     id_fornecedor_organizacao: string
     clerk_user_id: string
     id_organizacao_fornecedor_organizacao: string
     status_fornecedor_organizacao: string
     data_criacao_fornecedor_organizacao: Date
     data_atualizacao_fornecedor_organizacao: Date
-    _count: FornecedorOrganizacaoCountAggregateOutputType | null
-    _min: FornecedorOrganizacaoMinAggregateOutputType | null
-    _max: FornecedorOrganizacaoMaxAggregateOutputType | null
+    _count: OrganizacaoFornecedorCountAggregateOutputType | null
+    _min: OrganizacaoFornecedorMinAggregateOutputType | null
+    _max: OrganizacaoFornecedorMaxAggregateOutputType | null
   }
 
-  type GetFornecedorOrganizacaoGroupByPayload<T extends FornecedorOrganizacaoGroupByArgs> = Prisma.PrismaPromise<
+  type GetOrganizacaoFornecedorGroupByPayload<T extends OrganizacaoFornecedorGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<FornecedorOrganizacaoGroupByOutputType, T['by']> &
+      PickEnumerable<OrganizacaoFornecedorGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof FornecedorOrganizacaoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof OrganizacaoFornecedorGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], FornecedorOrganizacaoGroupByOutputType[P]>
-            : GetScalarType<T[P], FornecedorOrganizacaoGroupByOutputType[P]>
+              : GetScalarType<T[P], OrganizacaoFornecedorGroupByOutputType[P]>
+            : GetScalarType<T[P], OrganizacaoFornecedorGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type FornecedorOrganizacaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OrganizacaoFornecedorSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fornecedor_organizacao?: boolean
     clerk_user_id?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
     status_fornecedor_organizacao?: boolean
     data_criacao_fornecedor_organizacao?: boolean
     data_atualizacao_fornecedor_organizacao?: boolean
-  }, ExtArgs["result"]["fornecedorOrganizacao"]>
+  }, ExtArgs["result"]["organizacaoFornecedor"]>
 
-  export type FornecedorOrganizacaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OrganizacaoFornecedorSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fornecedor_organizacao?: boolean
     clerk_user_id?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
     status_fornecedor_organizacao?: boolean
     data_criacao_fornecedor_organizacao?: boolean
     data_atualizacao_fornecedor_organizacao?: boolean
-  }, ExtArgs["result"]["fornecedorOrganizacao"]>
+  }, ExtArgs["result"]["organizacaoFornecedor"]>
 
-  export type FornecedorOrganizacaoSelectScalar = {
+  export type OrganizacaoFornecedorSelectScalar = {
     id_fornecedor_organizacao?: boolean
     clerk_user_id?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
@@ -16654,8 +16654,8 @@ export namespace Prisma {
   }
 
 
-  export type $FornecedorOrganizacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FornecedorOrganizacao"
+  export type $OrganizacaoFornecedorPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrganizacaoFornecedor"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_fornecedor_organizacao: string
@@ -16664,136 +16664,136 @@ export namespace Prisma {
       status_fornecedor_organizacao: string
       data_criacao_fornecedor_organizacao: Date
       data_atualizacao_fornecedor_organizacao: Date
-    }, ExtArgs["result"]["fornecedorOrganizacao"]>
+    }, ExtArgs["result"]["organizacaoFornecedor"]>
     composites: {}
   }
 
-  type FornecedorOrganizacaoGetPayload<S extends boolean | null | undefined | FornecedorOrganizacaoDefaultArgs> = $Result.GetResult<Prisma.$FornecedorOrganizacaoPayload, S>
+  type OrganizacaoFornecedorGetPayload<S extends boolean | null | undefined | OrganizacaoFornecedorDefaultArgs> = $Result.GetResult<Prisma.$OrganizacaoFornecedorPayload, S>
 
-  type FornecedorOrganizacaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<FornecedorOrganizacaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: FornecedorOrganizacaoCountAggregateInputType | true
+  type OrganizacaoFornecedorCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OrganizacaoFornecedorFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OrganizacaoFornecedorCountAggregateInputType | true
     }
 
-  export interface FornecedorOrganizacaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FornecedorOrganizacao'], meta: { name: 'FornecedorOrganizacao' } }
+  export interface OrganizacaoFornecedorDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrganizacaoFornecedor'], meta: { name: 'OrganizacaoFornecedor' } }
     /**
-     * Find zero or one FornecedorOrganizacao that matches the filter.
-     * @param {FornecedorOrganizacaoFindUniqueArgs} args - Arguments to find a FornecedorOrganizacao
+     * Find zero or one OrganizacaoFornecedor that matches the filter.
+     * @param {OrganizacaoFornecedorFindUniqueArgs} args - Arguments to find a OrganizacaoFornecedor
      * @example
-     * // Get one FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findUnique({
+     * // Get one OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends FornecedorOrganizacaoFindUniqueArgs>(args: SelectSubset<T, FornecedorOrganizacaoFindUniqueArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends OrganizacaoFornecedorFindUniqueArgs>(args: SelectSubset<T, OrganizacaoFornecedorFindUniqueArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one FornecedorOrganizacao that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one OrganizacaoFornecedor that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {FornecedorOrganizacaoFindUniqueOrThrowArgs} args - Arguments to find a FornecedorOrganizacao
+     * @param {OrganizacaoFornecedorFindUniqueOrThrowArgs} args - Arguments to find a OrganizacaoFornecedor
      * @example
-     * // Get one FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findUniqueOrThrow({
+     * // Get one OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends FornecedorOrganizacaoFindUniqueOrThrowArgs>(args: SelectSubset<T, FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends OrganizacaoFornecedorFindUniqueOrThrowArgs>(args: SelectSubset<T, OrganizacaoFornecedorFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first FornecedorOrganizacao that matches the filter.
+     * Find the first OrganizacaoFornecedor that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoFindFirstArgs} args - Arguments to find a FornecedorOrganizacao
+     * @param {OrganizacaoFornecedorFindFirstArgs} args - Arguments to find a OrganizacaoFornecedor
      * @example
-     * // Get one FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findFirst({
+     * // Get one OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends FornecedorOrganizacaoFindFirstArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindFirstArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends OrganizacaoFornecedorFindFirstArgs>(args?: SelectSubset<T, OrganizacaoFornecedorFindFirstArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first FornecedorOrganizacao that matches the filter or
+     * Find the first OrganizacaoFornecedor that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoFindFirstOrThrowArgs} args - Arguments to find a FornecedorOrganizacao
+     * @param {OrganizacaoFornecedorFindFirstOrThrowArgs} args - Arguments to find a OrganizacaoFornecedor
      * @example
-     * // Get one FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.findFirstOrThrow({
+     * // Get one OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends FornecedorOrganizacaoFindFirstOrThrowArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends OrganizacaoFornecedorFindFirstOrThrowArgs>(args?: SelectSubset<T, OrganizacaoFornecedorFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more FornecedorOrganizacaos that matches the filter.
+     * Find zero or more OrganizacaoFornecedors that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {OrganizacaoFornecedorFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all FornecedorOrganizacaos
-     * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany()
+     * // Get all OrganizacaoFornecedors
+     * const organizacaoFornecedors = await prisma.organizacaoFornecedor.findMany()
      * 
-     * // Get first 10 FornecedorOrganizacaos
-     * const fornecedorOrganizacaos = await prisma.fornecedorOrganizacao.findMany({ take: 10 })
+     * // Get first 10 OrganizacaoFornecedors
+     * const organizacaoFornecedors = await prisma.organizacaoFornecedor.findMany({ take: 10 })
      * 
      * // Only select the `id_fornecedor_organizacao`
-     * const fornecedorOrganizacaoWithId_fornecedor_organizacaoOnly = await prisma.fornecedorOrganizacao.findMany({ select: { id_fornecedor_organizacao: true } })
+     * const organizacaoFornecedorWithId_fornecedor_organizacaoOnly = await prisma.organizacaoFornecedor.findMany({ select: { id_fornecedor_organizacao: true } })
      * 
      */
-    findMany<T extends FornecedorOrganizacaoFindManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends OrganizacaoFornecedorFindManyArgs>(args?: SelectSubset<T, OrganizacaoFornecedorFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a FornecedorOrganizacao.
-     * @param {FornecedorOrganizacaoCreateArgs} args - Arguments to create a FornecedorOrganizacao.
+     * Create a OrganizacaoFornecedor.
+     * @param {OrganizacaoFornecedorCreateArgs} args - Arguments to create a OrganizacaoFornecedor.
      * @example
-     * // Create one FornecedorOrganizacao
-     * const FornecedorOrganizacao = await prisma.fornecedorOrganizacao.create({
+     * // Create one OrganizacaoFornecedor
+     * const OrganizacaoFornecedor = await prisma.organizacaoFornecedor.create({
      *   data: {
-     *     // ... data to create a FornecedorOrganizacao
+     *     // ... data to create a OrganizacaoFornecedor
      *   }
      * })
      * 
      */
-    create<T extends FornecedorOrganizacaoCreateArgs>(args: SelectSubset<T, FornecedorOrganizacaoCreateArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends OrganizacaoFornecedorCreateArgs>(args: SelectSubset<T, OrganizacaoFornecedorCreateArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many FornecedorOrganizacaos.
-     * @param {FornecedorOrganizacaoCreateManyArgs} args - Arguments to create many FornecedorOrganizacaos.
+     * Create many OrganizacaoFornecedors.
+     * @param {OrganizacaoFornecedorCreateManyArgs} args - Arguments to create many OrganizacaoFornecedors.
      * @example
-     * // Create many FornecedorOrganizacaos
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.createMany({
+     * // Create many OrganizacaoFornecedors
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends FornecedorOrganizacaoCreateManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends OrganizacaoFornecedorCreateManyArgs>(args?: SelectSubset<T, OrganizacaoFornecedorCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many FornecedorOrganizacaos and returns the data saved in the database.
-     * @param {FornecedorOrganizacaoCreateManyAndReturnArgs} args - Arguments to create many FornecedorOrganizacaos.
+     * Create many OrganizacaoFornecedors and returns the data saved in the database.
+     * @param {OrganizacaoFornecedorCreateManyAndReturnArgs} args - Arguments to create many OrganizacaoFornecedors.
      * @example
-     * // Create many FornecedorOrganizacaos
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.createManyAndReturn({
+     * // Create many OrganizacaoFornecedors
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many FornecedorOrganizacaos and only return the `id_fornecedor_organizacao`
-     * const fornecedorOrganizacaoWithId_fornecedor_organizacaoOnly = await prisma.fornecedorOrganizacao.createManyAndReturn({ 
+     * // Create many OrganizacaoFornecedors and only return the `id_fornecedor_organizacao`
+     * const organizacaoFornecedorWithId_fornecedor_organizacaoOnly = await prisma.organizacaoFornecedor.createManyAndReturn({ 
      *   select: { id_fornecedor_organizacao: true },
      *   data: [
      *     // ... provide data here
@@ -16803,28 +16803,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends FornecedorOrganizacaoCreateManyAndReturnArgs>(args?: SelectSubset<T, FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends OrganizacaoFornecedorCreateManyAndReturnArgs>(args?: SelectSubset<T, OrganizacaoFornecedorCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a FornecedorOrganizacao.
-     * @param {FornecedorOrganizacaoDeleteArgs} args - Arguments to delete one FornecedorOrganizacao.
+     * Delete a OrganizacaoFornecedor.
+     * @param {OrganizacaoFornecedorDeleteArgs} args - Arguments to delete one OrganizacaoFornecedor.
      * @example
-     * // Delete one FornecedorOrganizacao
-     * const FornecedorOrganizacao = await prisma.fornecedorOrganizacao.delete({
+     * // Delete one OrganizacaoFornecedor
+     * const OrganizacaoFornecedor = await prisma.organizacaoFornecedor.delete({
      *   where: {
-     *     // ... filter to delete one FornecedorOrganizacao
+     *     // ... filter to delete one OrganizacaoFornecedor
      *   }
      * })
      * 
      */
-    delete<T extends FornecedorOrganizacaoDeleteArgs>(args: SelectSubset<T, FornecedorOrganizacaoDeleteArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends OrganizacaoFornecedorDeleteArgs>(args: SelectSubset<T, OrganizacaoFornecedorDeleteArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one FornecedorOrganizacao.
-     * @param {FornecedorOrganizacaoUpdateArgs} args - Arguments to update one FornecedorOrganizacao.
+     * Update one OrganizacaoFornecedor.
+     * @param {OrganizacaoFornecedorUpdateArgs} args - Arguments to update one OrganizacaoFornecedor.
      * @example
-     * // Update one FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.update({
+     * // Update one OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -16834,30 +16834,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends FornecedorOrganizacaoUpdateArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpdateArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends OrganizacaoFornecedorUpdateArgs>(args: SelectSubset<T, OrganizacaoFornecedorUpdateArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more FornecedorOrganizacaos.
-     * @param {FornecedorOrganizacaoDeleteManyArgs} args - Arguments to filter FornecedorOrganizacaos to delete.
+     * Delete zero or more OrganizacaoFornecedors.
+     * @param {OrganizacaoFornecedorDeleteManyArgs} args - Arguments to filter OrganizacaoFornecedors to delete.
      * @example
-     * // Delete a few FornecedorOrganizacaos
-     * const { count } = await prisma.fornecedorOrganizacao.deleteMany({
+     * // Delete a few OrganizacaoFornecedors
+     * const { count } = await prisma.organizacaoFornecedor.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends FornecedorOrganizacaoDeleteManyArgs>(args?: SelectSubset<T, FornecedorOrganizacaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends OrganizacaoFornecedorDeleteManyArgs>(args?: SelectSubset<T, OrganizacaoFornecedorDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more FornecedorOrganizacaos.
+     * Update zero or more OrganizacaoFornecedors.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {OrganizacaoFornecedorUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many FornecedorOrganizacaos
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.updateMany({
+     * // Update many OrganizacaoFornecedors
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -16867,56 +16867,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends FornecedorOrganizacaoUpdateManyArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends OrganizacaoFornecedorUpdateManyArgs>(args: SelectSubset<T, OrganizacaoFornecedorUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one FornecedorOrganizacao.
-     * @param {FornecedorOrganizacaoUpsertArgs} args - Arguments to update or create a FornecedorOrganizacao.
+     * Create or update one OrganizacaoFornecedor.
+     * @param {OrganizacaoFornecedorUpsertArgs} args - Arguments to update or create a OrganizacaoFornecedor.
      * @example
-     * // Update or create a FornecedorOrganizacao
-     * const fornecedorOrganizacao = await prisma.fornecedorOrganizacao.upsert({
+     * // Update or create a OrganizacaoFornecedor
+     * const organizacaoFornecedor = await prisma.organizacaoFornecedor.upsert({
      *   create: {
-     *     // ... data to create a FornecedorOrganizacao
+     *     // ... data to create a OrganizacaoFornecedor
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the FornecedorOrganizacao we want to update
+     *     // ... the filter for the OrganizacaoFornecedor we want to update
      *   }
      * })
      */
-    upsert<T extends FornecedorOrganizacaoUpsertArgs>(args: SelectSubset<T, FornecedorOrganizacaoUpsertArgs<ExtArgs>>): Prisma__FornecedorOrganizacaoClient<$Result.GetResult<Prisma.$FornecedorOrganizacaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends OrganizacaoFornecedorUpsertArgs>(args: SelectSubset<T, OrganizacaoFornecedorUpsertArgs<ExtArgs>>): Prisma__OrganizacaoFornecedorClient<$Result.GetResult<Prisma.$OrganizacaoFornecedorPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of FornecedorOrganizacaos.
+     * Count the number of OrganizacaoFornecedors.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoCountArgs} args - Arguments to filter FornecedorOrganizacaos to count.
+     * @param {OrganizacaoFornecedorCountArgs} args - Arguments to filter OrganizacaoFornecedors to count.
      * @example
-     * // Count the number of FornecedorOrganizacaos
-     * const count = await prisma.fornecedorOrganizacao.count({
+     * // Count the number of OrganizacaoFornecedors
+     * const count = await prisma.organizacaoFornecedor.count({
      *   where: {
-     *     // ... the filter for the FornecedorOrganizacaos we want to count
+     *     // ... the filter for the OrganizacaoFornecedors we want to count
      *   }
      * })
     **/
-    count<T extends FornecedorOrganizacaoCountArgs>(
-      args?: Subset<T, FornecedorOrganizacaoCountArgs>,
+    count<T extends OrganizacaoFornecedorCountArgs>(
+      args?: Subset<T, OrganizacaoFornecedorCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], FornecedorOrganizacaoCountAggregateOutputType>
+          : GetScalarType<T['select'], OrganizacaoFornecedorCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a FornecedorOrganizacao.
+     * Allows you to perform aggregations operations on a OrganizacaoFornecedor.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {OrganizacaoFornecedorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -16936,13 +16936,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends FornecedorOrganizacaoAggregateArgs>(args: Subset<T, FornecedorOrganizacaoAggregateArgs>): Prisma.PrismaPromise<GetFornecedorOrganizacaoAggregateType<T>>
+    aggregate<T extends OrganizacaoFornecedorAggregateArgs>(args: Subset<T, OrganizacaoFornecedorAggregateArgs>): Prisma.PrismaPromise<GetOrganizacaoFornecedorAggregateType<T>>
 
     /**
-     * Group by FornecedorOrganizacao.
+     * Group by OrganizacaoFornecedor.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FornecedorOrganizacaoGroupByArgs} args - Group by arguments.
+     * @param {OrganizacaoFornecedorGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -16957,14 +16957,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends FornecedorOrganizacaoGroupByArgs,
+      T extends OrganizacaoFornecedorGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FornecedorOrganizacaoGroupByArgs['orderBy'] }
-        : { orderBy?: FornecedorOrganizacaoGroupByArgs['orderBy'] },
+        ? { orderBy: OrganizacaoFornecedorGroupByArgs['orderBy'] }
+        : { orderBy?: OrganizacaoFornecedorGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -17013,20 +17013,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, FornecedorOrganizacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorOrganizacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, OrganizacaoFornecedorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrganizacaoFornecedorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the FornecedorOrganizacao model
+   * Fields of the OrganizacaoFornecedor model
    */
-  readonly fields: FornecedorOrganizacaoFieldRefs;
+  readonly fields: OrganizacaoFornecedorFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for FornecedorOrganizacao.
+   * The delegate class that acts as a "Promise-like" for OrganizacaoFornecedor.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__FornecedorOrganizacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__OrganizacaoFornecedorClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -17054,300 +17054,300 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the FornecedorOrganizacao model
+   * Fields of the OrganizacaoFornecedor model
    */ 
-  interface FornecedorOrganizacaoFieldRefs {
-    readonly id_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'String'>
-    readonly clerk_user_id: FieldRef<"FornecedorOrganizacao", 'String'>
-    readonly id_organizacao_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'String'>
-    readonly status_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'String'>
-    readonly data_criacao_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'DateTime'>
-    readonly data_atualizacao_fornecedor_organizacao: FieldRef<"FornecedorOrganizacao", 'DateTime'>
+  interface OrganizacaoFornecedorFieldRefs {
+    readonly id_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
+    readonly clerk_user_id: FieldRef<"OrganizacaoFornecedor", 'String'>
+    readonly id_organizacao_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
+    readonly status_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
+    readonly data_criacao_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'DateTime'>
+    readonly data_atualizacao_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * FornecedorOrganizacao findUnique
+   * OrganizacaoFornecedor findUnique
    */
-  export type FornecedorOrganizacaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which FornecedorOrganizacao to fetch.
+     * Filter, which OrganizacaoFornecedor to fetch.
      */
-    where: FornecedorOrganizacaoWhereUniqueInput
+    where: OrganizacaoFornecedorWhereUniqueInput
   }
 
   /**
-   * FornecedorOrganizacao findUniqueOrThrow
+   * OrganizacaoFornecedor findUniqueOrThrow
    */
-  export type FornecedorOrganizacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which FornecedorOrganizacao to fetch.
+     * Filter, which OrganizacaoFornecedor to fetch.
      */
-    where: FornecedorOrganizacaoWhereUniqueInput
+    where: OrganizacaoFornecedorWhereUniqueInput
   }
 
   /**
-   * FornecedorOrganizacao findFirst
+   * OrganizacaoFornecedor findFirst
    */
-  export type FornecedorOrganizacaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which FornecedorOrganizacao to fetch.
+     * Filter, which OrganizacaoFornecedor to fetch.
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FornecedorOrganizacaos to fetch.
+     * Determine the order of OrganizacaoFornecedors to fetch.
      */
-    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    orderBy?: OrganizacaoFornecedorOrderByWithRelationInput | OrganizacaoFornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FornecedorOrganizacaos.
+     * Sets the position for searching for OrganizacaoFornecedors.
      */
-    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    cursor?: OrganizacaoFornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     * Take `±n` OrganizacaoFornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FornecedorOrganizacaos.
+     * Skip the first `n` OrganizacaoFornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FornecedorOrganizacaos.
+     * Filter by unique combinations of OrganizacaoFornecedors.
      */
-    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+    distinct?: OrganizacaoFornecedorScalarFieldEnum | OrganizacaoFornecedorScalarFieldEnum[]
   }
 
   /**
-   * FornecedorOrganizacao findFirstOrThrow
+   * OrganizacaoFornecedor findFirstOrThrow
    */
-  export type FornecedorOrganizacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which FornecedorOrganizacao to fetch.
+     * Filter, which OrganizacaoFornecedor to fetch.
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FornecedorOrganizacaos to fetch.
+     * Determine the order of OrganizacaoFornecedors to fetch.
      */
-    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    orderBy?: OrganizacaoFornecedorOrderByWithRelationInput | OrganizacaoFornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FornecedorOrganizacaos.
+     * Sets the position for searching for OrganizacaoFornecedors.
      */
-    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    cursor?: OrganizacaoFornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     * Take `±n` OrganizacaoFornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FornecedorOrganizacaos.
+     * Skip the first `n` OrganizacaoFornecedors.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FornecedorOrganizacaos.
+     * Filter by unique combinations of OrganizacaoFornecedors.
      */
-    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+    distinct?: OrganizacaoFornecedorScalarFieldEnum | OrganizacaoFornecedorScalarFieldEnum[]
   }
 
   /**
-   * FornecedorOrganizacao findMany
+   * OrganizacaoFornecedor findMany
    */
-  export type FornecedorOrganizacaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter, which FornecedorOrganizacaos to fetch.
+     * Filter, which OrganizacaoFornecedors to fetch.
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FornecedorOrganizacaos to fetch.
+     * Determine the order of OrganizacaoFornecedors to fetch.
      */
-    orderBy?: FornecedorOrganizacaoOrderByWithRelationInput | FornecedorOrganizacaoOrderByWithRelationInput[]
+    orderBy?: OrganizacaoFornecedorOrderByWithRelationInput | OrganizacaoFornecedorOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing FornecedorOrganizacaos.
+     * Sets the position for listing OrganizacaoFornecedors.
      */
-    cursor?: FornecedorOrganizacaoWhereUniqueInput
+    cursor?: OrganizacaoFornecedorWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FornecedorOrganizacaos from the position of the cursor.
+     * Take `±n` OrganizacaoFornecedors from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FornecedorOrganizacaos.
+     * Skip the first `n` OrganizacaoFornecedors.
      */
     skip?: number
-    distinct?: FornecedorOrganizacaoScalarFieldEnum | FornecedorOrganizacaoScalarFieldEnum[]
+    distinct?: OrganizacaoFornecedorScalarFieldEnum | OrganizacaoFornecedorScalarFieldEnum[]
   }
 
   /**
-   * FornecedorOrganizacao create
+   * OrganizacaoFornecedor create
    */
-  export type FornecedorOrganizacaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * The data needed to create a FornecedorOrganizacao.
+     * The data needed to create a OrganizacaoFornecedor.
      */
-    data: XOR<FornecedorOrganizacaoCreateInput, FornecedorOrganizacaoUncheckedCreateInput>
+    data: XOR<OrganizacaoFornecedorCreateInput, OrganizacaoFornecedorUncheckedCreateInput>
   }
 
   /**
-   * FornecedorOrganizacao createMany
+   * OrganizacaoFornecedor createMany
    */
-  export type FornecedorOrganizacaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many FornecedorOrganizacaos.
+     * The data used to create many OrganizacaoFornecedors.
      */
-    data: FornecedorOrganizacaoCreateManyInput | FornecedorOrganizacaoCreateManyInput[]
+    data: OrganizacaoFornecedorCreateManyInput | OrganizacaoFornecedorCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * FornecedorOrganizacao createManyAndReturn
+   * OrganizacaoFornecedor createManyAndReturn
    */
-  export type FornecedorOrganizacaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelectCreateManyAndReturn<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many FornecedorOrganizacaos.
+     * The data used to create many OrganizacaoFornecedors.
      */
-    data: FornecedorOrganizacaoCreateManyInput | FornecedorOrganizacaoCreateManyInput[]
+    data: OrganizacaoFornecedorCreateManyInput | OrganizacaoFornecedorCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * FornecedorOrganizacao update
+   * OrganizacaoFornecedor update
    */
-  export type FornecedorOrganizacaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * The data needed to update a FornecedorOrganizacao.
+     * The data needed to update a OrganizacaoFornecedor.
      */
-    data: XOR<FornecedorOrganizacaoUpdateInput, FornecedorOrganizacaoUncheckedUpdateInput>
+    data: XOR<OrganizacaoFornecedorUpdateInput, OrganizacaoFornecedorUncheckedUpdateInput>
     /**
-     * Choose, which FornecedorOrganizacao to update.
+     * Choose, which OrganizacaoFornecedor to update.
      */
-    where: FornecedorOrganizacaoWhereUniqueInput
+    where: OrganizacaoFornecedorWhereUniqueInput
   }
 
   /**
-   * FornecedorOrganizacao updateMany
+   * OrganizacaoFornecedor updateMany
    */
-  export type FornecedorOrganizacaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update FornecedorOrganizacaos.
+     * The data used to update OrganizacaoFornecedors.
      */
-    data: XOR<FornecedorOrganizacaoUpdateManyMutationInput, FornecedorOrganizacaoUncheckedUpdateManyInput>
+    data: XOR<OrganizacaoFornecedorUpdateManyMutationInput, OrganizacaoFornecedorUncheckedUpdateManyInput>
     /**
-     * Filter which FornecedorOrganizacaos to update
+     * Filter which OrganizacaoFornecedors to update
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
   }
 
   /**
-   * FornecedorOrganizacao upsert
+   * OrganizacaoFornecedor upsert
    */
-  export type FornecedorOrganizacaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * The filter to search for the FornecedorOrganizacao to update in case it exists.
+     * The filter to search for the OrganizacaoFornecedor to update in case it exists.
      */
-    where: FornecedorOrganizacaoWhereUniqueInput
+    where: OrganizacaoFornecedorWhereUniqueInput
     /**
-     * In case the FornecedorOrganizacao found by the `where` argument doesn't exist, create a new FornecedorOrganizacao with this data.
+     * In case the OrganizacaoFornecedor found by the `where` argument doesn't exist, create a new OrganizacaoFornecedor with this data.
      */
-    create: XOR<FornecedorOrganizacaoCreateInput, FornecedorOrganizacaoUncheckedCreateInput>
+    create: XOR<OrganizacaoFornecedorCreateInput, OrganizacaoFornecedorUncheckedCreateInput>
     /**
-     * In case the FornecedorOrganizacao was found with the provided `where` argument, update it with this data.
+     * In case the OrganizacaoFornecedor was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<FornecedorOrganizacaoUpdateInput, FornecedorOrganizacaoUncheckedUpdateInput>
+    update: XOR<OrganizacaoFornecedorUpdateInput, OrganizacaoFornecedorUncheckedUpdateInput>
   }
 
   /**
-   * FornecedorOrganizacao delete
+   * OrganizacaoFornecedor delete
    */
-  export type FornecedorOrganizacaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
     /**
-     * Filter which FornecedorOrganizacao to delete.
+     * Filter which OrganizacaoFornecedor to delete.
      */
-    where: FornecedorOrganizacaoWhereUniqueInput
+    where: OrganizacaoFornecedorWhereUniqueInput
   }
 
   /**
-   * FornecedorOrganizacao deleteMany
+   * OrganizacaoFornecedor deleteMany
    */
-  export type FornecedorOrganizacaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FornecedorOrganizacaos to delete
+     * Filter which OrganizacaoFornecedors to delete
      */
-    where?: FornecedorOrganizacaoWhereInput
+    where?: OrganizacaoFornecedorWhereInput
   }
 
   /**
-   * FornecedorOrganizacao without action
+   * OrganizacaoFornecedor without action
    */
-  export type FornecedorOrganizacaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoFornecedorDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FornecedorOrganizacao
+     * Select specific fields to fetch from the OrganizacaoFornecedor
      */
-    select?: FornecedorOrganizacaoSelect<ExtArgs> | null
+    select?: OrganizacaoFornecedorSelect<ExtArgs> | null
   }
 
 
@@ -26632,7 +26632,7 @@ export namespace Prisma {
   export type DeployScalarFieldEnum = (typeof DeployScalarFieldEnum)[keyof typeof DeployScalarFieldEnum]
 
 
-  export const FornecedorOrganizacaoScalarFieldEnum: {
+  export const OrganizacaoFornecedorScalarFieldEnum: {
     id_fornecedor_organizacao: 'id_fornecedor_organizacao',
     clerk_user_id: 'clerk_user_id',
     id_organizacao_fornecedor_organizacao: 'id_organizacao_fornecedor_organizacao',
@@ -26641,7 +26641,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao: 'data_atualizacao_fornecedor_organizacao'
   };
 
-  export type FornecedorOrganizacaoScalarFieldEnum = (typeof FornecedorOrganizacaoScalarFieldEnum)[keyof typeof FornecedorOrganizacaoScalarFieldEnum]
+  export type OrganizacaoFornecedorScalarFieldEnum = (typeof OrganizacaoFornecedorScalarFieldEnum)[keyof typeof OrganizacaoFornecedorScalarFieldEnum]
 
 
   export const SegurancaScalarFieldEnum: {
@@ -28238,19 +28238,19 @@ export namespace Prisma {
     data_criacao_deploy?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
   }
 
-  export type FornecedorOrganizacaoWhereInput = {
-    AND?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
-    OR?: FornecedorOrganizacaoWhereInput[]
-    NOT?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
-    id_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
-    clerk_user_id?: StringFilter<"FornecedorOrganizacao"> | string
-    id_organizacao_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
-    status_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
-    data_criacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
-    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+  export type OrganizacaoFornecedorWhereInput = {
+    AND?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
+    OR?: OrganizacaoFornecedorWhereInput[]
+    NOT?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
+    id_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
+    clerk_user_id?: StringFilter<"OrganizacaoFornecedor"> | string
+    id_organizacao_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
+    status_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
+    data_criacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
   }
 
-  export type FornecedorOrganizacaoOrderByWithRelationInput = {
+  export type OrganizacaoFornecedorOrderByWithRelationInput = {
     id_fornecedor_organizacao?: SortOrder
     clerk_user_id?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
@@ -28259,41 +28259,41 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: SortOrder
   }
 
-  export type FornecedorOrganizacaoWhereUniqueInput = Prisma.AtLeast<{
+  export type OrganizacaoFornecedorWhereUniqueInput = Prisma.AtLeast<{
     id_fornecedor_organizacao?: string
-    clerk_user_id_id_organizacao_fornecedor_organizacao?: FornecedorOrganizacaoClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput
-    AND?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
-    OR?: FornecedorOrganizacaoWhereInput[]
-    NOT?: FornecedorOrganizacaoWhereInput | FornecedorOrganizacaoWhereInput[]
-    clerk_user_id?: StringFilter<"FornecedorOrganizacao"> | string
-    id_organizacao_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
-    status_fornecedor_organizacao?: StringFilter<"FornecedorOrganizacao"> | string
-    data_criacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
-    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"FornecedorOrganizacao"> | Date | string
+    clerk_user_id_id_organizacao_fornecedor_organizacao?: OrganizacaoFornecedorClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput
+    AND?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
+    OR?: OrganizacaoFornecedorWhereInput[]
+    NOT?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
+    clerk_user_id?: StringFilter<"OrganizacaoFornecedor"> | string
+    id_organizacao_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
+    status_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
+    data_criacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
   }, "id_fornecedor_organizacao" | "clerk_user_id_id_organizacao_fornecedor_organizacao">
 
-  export type FornecedorOrganizacaoOrderByWithAggregationInput = {
+  export type OrganizacaoFornecedorOrderByWithAggregationInput = {
     id_fornecedor_organizacao?: SortOrder
     clerk_user_id?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder
     data_atualizacao_fornecedor_organizacao?: SortOrder
-    _count?: FornecedorOrganizacaoCountOrderByAggregateInput
-    _max?: FornecedorOrganizacaoMaxOrderByAggregateInput
-    _min?: FornecedorOrganizacaoMinOrderByAggregateInput
+    _count?: OrganizacaoFornecedorCountOrderByAggregateInput
+    _max?: OrganizacaoFornecedorMaxOrderByAggregateInput
+    _min?: OrganizacaoFornecedorMinOrderByAggregateInput
   }
 
-  export type FornecedorOrganizacaoScalarWhereWithAggregatesInput = {
-    AND?: FornecedorOrganizacaoScalarWhereWithAggregatesInput | FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
-    OR?: FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
-    NOT?: FornecedorOrganizacaoScalarWhereWithAggregatesInput | FornecedorOrganizacaoScalarWhereWithAggregatesInput[]
-    id_fornecedor_organizacao?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
-    clerk_user_id?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
-    id_organizacao_fornecedor_organizacao?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
-    status_fornecedor_organizacao?: StringWithAggregatesFilter<"FornecedorOrganizacao"> | string
-    data_criacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"FornecedorOrganizacao"> | Date | string
-    data_atualizacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"FornecedorOrganizacao"> | Date | string
+  export type OrganizacaoFornecedorScalarWhereWithAggregatesInput = {
+    AND?: OrganizacaoFornecedorScalarWhereWithAggregatesInput | OrganizacaoFornecedorScalarWhereWithAggregatesInput[]
+    OR?: OrganizacaoFornecedorScalarWhereWithAggregatesInput[]
+    NOT?: OrganizacaoFornecedorScalarWhereWithAggregatesInput | OrganizacaoFornecedorScalarWhereWithAggregatesInput[]
+    id_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
+    clerk_user_id?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
+    id_organizacao_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
+    status_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
+    data_criacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"OrganizacaoFornecedor"> | Date | string
+    data_atualizacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"OrganizacaoFornecedor"> | Date | string
   }
 
   export type SegurancaWhereInput = {
@@ -30425,7 +30425,7 @@ export namespace Prisma {
     data_criacao_deploy?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FornecedorOrganizacaoCreateInput = {
+  export type OrganizacaoFornecedorCreateInput = {
     id_fornecedor_organizacao?: string
     clerk_user_id: string
     id_organizacao_fornecedor_organizacao: string
@@ -30434,7 +30434,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: Date | string
   }
 
-  export type FornecedorOrganizacaoUncheckedCreateInput = {
+  export type OrganizacaoFornecedorUncheckedCreateInput = {
     id_fornecedor_organizacao?: string
     clerk_user_id: string
     id_organizacao_fornecedor_organizacao: string
@@ -30443,7 +30443,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: Date | string
   }
 
-  export type FornecedorOrganizacaoUpdateInput = {
+  export type OrganizacaoFornecedorUpdateInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
@@ -30452,7 +30452,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FornecedorOrganizacaoUncheckedUpdateInput = {
+  export type OrganizacaoFornecedorUncheckedUpdateInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
@@ -30461,7 +30461,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FornecedorOrganizacaoCreateManyInput = {
+  export type OrganizacaoFornecedorCreateManyInput = {
     id_fornecedor_organizacao?: string
     clerk_user_id: string
     id_organizacao_fornecedor_organizacao: string
@@ -30470,7 +30470,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: Date | string
   }
 
-  export type FornecedorOrganizacaoUpdateManyMutationInput = {
+  export type OrganizacaoFornecedorUpdateManyMutationInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
@@ -30479,7 +30479,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FornecedorOrganizacaoUncheckedUpdateManyInput = {
+  export type OrganizacaoFornecedorUncheckedUpdateManyInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
@@ -32696,12 +32696,12 @@ export namespace Prisma {
     _max?: NestedEnumDeployStatusFilter<$PrismaModel>
   }
 
-  export type FornecedorOrganizacaoClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput = {
+  export type OrganizacaoFornecedorClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput = {
     clerk_user_id: string
     id_organizacao_fornecedor_organizacao: string
   }
 
-  export type FornecedorOrganizacaoCountOrderByAggregateInput = {
+  export type OrganizacaoFornecedorCountOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
     clerk_user_id?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
@@ -32710,7 +32710,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: SortOrder
   }
 
-  export type FornecedorOrganizacaoMaxOrderByAggregateInput = {
+  export type OrganizacaoFornecedorMaxOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
     clerk_user_id?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
@@ -32719,7 +32719,7 @@ export namespace Prisma {
     data_atualizacao_fornecedor_organizacao?: SortOrder
   }
 
-  export type FornecedorOrganizacaoMinOrderByAggregateInput = {
+  export type OrganizacaoFornecedorMinOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
     clerk_user_id?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
@@ -37288,9 +37288,9 @@ export namespace Prisma {
      */
     export type DeployArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeployDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use FornecedorOrganizacaoDefaultArgs instead
+     * @deprecated Use OrganizacaoFornecedorDefaultArgs instead
      */
-    export type FornecedorOrganizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FornecedorOrganizacaoDefaultArgs<ExtArgs>
+    export type OrganizacaoFornecedorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizacaoFornecedorDefaultArgs<ExtArgs>
     /**
      * @deprecated Use SegurancaDefaultArgs instead
      */

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-27T21:11:01.967Z
+// Gerado em: 2026-04-27T21:15:37.358Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -34,10 +34,10 @@ datasource db {
 // O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// AtividadesDados — tarefas e interações cross-produto do usuário logado
+// AtividadeDados — tarefas e interações cross-produto do usuário logado
 // ---------------------------------------------------------------------------
 
-model AtividadesDados {
+model AtividadeDados {
   id_atividades_dados             String  @id @default(cuid())
   id_organizacao_atividades_dados String
   id_usuario_atividades_dados     String? // criador da atividade
@@ -104,7 +104,7 @@ model UsuariosAtividades {
   id_usuario_atividades_participantes      String
   nome_usuario_atividades_participantes    String? // cache de nome para exibição sem JOIN extra
 
-  atividade_atividades_participantes AtividadesDados @relation(fields: [id_atividades_dados_atividades_participantes], references: [id_atividades_dados], onDelete: Cascade)
+  atividade_atividades_participantes AtividadeDados @relation(fields: [id_atividades_dados_atividades_participantes], references: [id_atividades_dados], onDelete: Cascade)
 
   @@unique([id_atividades_dados_atividades_participantes, id_usuario_atividades_participantes], map: "ap_atv_user_unq")
   @@index([id_atividades_dados_atividades_participantes], map: "ap_atv_idx")
@@ -122,7 +122,7 @@ model UsuariosAtividadesTempo {
   duracao_min_atividades_tempo     Int
   assunto_atividades_tempo         String?
 
-  atividade_atividades_tempo AtividadesDados @relation(fields: [id_atividades_dados_atividades_tempo], references: [id_atividades_dados], onDelete: Cascade)
+  atividade_atividades_tempo AtividadeDados @relation(fields: [id_atividades_dados_atividades_tempo], references: [id_atividades_dados], onDelete: Cascade)
 
   @@index([id_atividades_dados_atividades_tempo], map: "at_atv_idx")
   @@map("atividades_tempo")

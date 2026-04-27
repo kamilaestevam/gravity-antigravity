@@ -14,10 +14,10 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
- * Model AtividadesDados
+ * Model AtividadeDados
  * 
  */
-export type AtividadesDados = $Result.DefaultSelection<Prisma.$AtividadesDadosPayload>
+export type AtividadeDados = $Result.DefaultSelection<Prisma.$AtividadeDadosPayload>
 /**
  * Model UsuariosAtividades
  * 
@@ -432,8 +432,8 @@ export const NCMOrigemSincronizacao: typeof $Enums.NCMOrigemSincronizacao
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more AtividadesDados
- * const atividadesDados = await prisma.atividadesDados.findMany()
+ * // Fetch zero or more AtividadeDados
+ * const atividadeDados = await prisma.atividadeDados.findMany()
  * ```
  *
  * 
@@ -453,8 +453,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more AtividadesDados
-   * const atividadesDados = await prisma.atividadesDados.findMany()
+   * // Fetch zero or more AtividadeDados
+   * const atividadeDados = await prisma.atividadeDados.findMany()
    * ```
    *
    * 
@@ -549,14 +549,14 @@ export class PrismaClient<
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
-   * `prisma.atividadesDados`: Exposes CRUD operations for the **AtividadesDados** model.
+   * `prisma.atividadeDados`: Exposes CRUD operations for the **AtividadeDados** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AtividadesDados
-    * const atividadesDados = await prisma.atividadesDados.findMany()
+    * // Fetch zero or more AtividadeDados
+    * const atividadeDados = await prisma.atividadeDados.findMany()
     * ```
     */
-  get atividadesDados(): Prisma.AtividadesDadosDelegate<ExtArgs>;
+  get atividadeDados(): Prisma.AtividadeDadosDelegate<ExtArgs>;
 
   /**
    * `prisma.usuariosAtividades`: Exposes CRUD operations for the **UsuariosAtividades** model.
@@ -1438,7 +1438,7 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    AtividadesDados: 'AtividadesDados',
+    AtividadeDados: 'AtividadeDados',
     UsuariosAtividades: 'UsuariosAtividades',
     UsuariosAtividadesTempo: 'UsuariosAtividadesTempo',
     UsuarioHistoricoCronometro: 'UsuarioHistoricoCronometro',
@@ -1498,77 +1498,77 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "ncmItem" | "ncmLog" | "nCMAgendamento" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao"
+      modelProps: "atividadeDados" | "usuariosAtividades" | "usuariosAtividadesTempo" | "usuarioHistoricoCronometro" | "usuarioStatusCronometro" | "relatorioTempoPeriodo" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "emailTemplate" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvosUsuario" | "relatoriosConfiguracaoUsuario" | "relatorioExportar" | "historicoLog" | "alertaRegra" | "alertaData" | "alertaRegistro" | "exportarResultado" | "usuarioAgenda" | "usuarioHorarioDisponivel" | "usuarioReservaAgenda" | "usuarioConfiguracaoAgenda" | "gabiConversaCompleta" | "gabiMensagemIndividual" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenOrganizacao" | "gabiPersonalizacaoOrganizacao" | "workspacePreferenciaUsuario" | "ncmItem" | "ncmLog" | "nCMAgendamento" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalOrganizacao"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
-      AtividadesDados: {
-        payload: Prisma.$AtividadesDadosPayload<ExtArgs>
-        fields: Prisma.AtividadesDadosFieldRefs
+      AtividadeDados: {
+        payload: Prisma.$AtividadeDadosPayload<ExtArgs>
+        fields: Prisma.AtividadeDadosFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AtividadesDadosFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload> | null
+            args: Prisma.AtividadeDadosFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AtividadesDadosFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           findFirst: {
-            args: Prisma.AtividadesDadosFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload> | null
+            args: Prisma.AtividadeDadosFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AtividadesDadosFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           findMany: {
-            args: Prisma.AtividadesDadosFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>[]
+            args: Prisma.AtividadeDadosFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>[]
           }
           create: {
-            args: Prisma.AtividadesDadosCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           createMany: {
-            args: Prisma.AtividadesDadosCreateManyArgs<ExtArgs>
+            args: Prisma.AtividadeDadosCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AtividadesDadosCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>[]
+            args: Prisma.AtividadeDadosCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>[]
           }
           delete: {
-            args: Prisma.AtividadesDadosDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           update: {
-            args: Prisma.AtividadesDadosUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           deleteMany: {
-            args: Prisma.AtividadesDadosDeleteManyArgs<ExtArgs>
+            args: Prisma.AtividadeDadosDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AtividadesDadosUpdateManyArgs<ExtArgs>
+            args: Prisma.AtividadeDadosUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AtividadesDadosUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AtividadesDadosPayload>
+            args: Prisma.AtividadeDadosUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeDadosPayload>
           }
           aggregate: {
-            args: Prisma.AtividadesDadosAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAtividadesDados>
+            args: Prisma.AtividadeDadosAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAtividadeDados>
           }
           groupBy: {
-            args: Prisma.AtividadesDadosGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AtividadesDadosGroupByOutputType>[]
+            args: Prisma.AtividadeDadosGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeDadosGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AtividadesDadosCountArgs<ExtArgs>
-            result: $Utils.Optional<AtividadesDadosCountAggregateOutputType> | number
+            args: Prisma.AtividadeDadosCountArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeDadosCountAggregateOutputType> | number
           }
         }
       }
@@ -4809,41 +4809,41 @@ export namespace Prisma {
 
 
   /**
-   * Count Type AtividadesDadosCountOutputType
+   * Count Type AtividadeDadosCountOutputType
    */
 
-  export type AtividadesDadosCountOutputType = {
+  export type AtividadeDadosCountOutputType = {
     participantes_atividades_dados: number
     sessoes_timer_atividades_dados: number
   }
 
-  export type AtividadesDadosCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    participantes_atividades_dados?: boolean | AtividadesDadosCountOutputTypeCountParticipantes_atividades_dadosArgs
-    sessoes_timer_atividades_dados?: boolean | AtividadesDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs
+  export type AtividadeDadosCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participantes_atividades_dados?: boolean | AtividadeDadosCountOutputTypeCountParticipantes_atividades_dadosArgs
+    sessoes_timer_atividades_dados?: boolean | AtividadeDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs
   }
 
   // Custom InputTypes
   /**
-   * AtividadesDadosCountOutputType without action
+   * AtividadeDadosCountOutputType without action
    */
-  export type AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDadosCountOutputType
+     * Select specific fields to fetch from the AtividadeDadosCountOutputType
      */
-    select?: AtividadesDadosCountOutputTypeSelect<ExtArgs> | null
+    select?: AtividadeDadosCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AtividadesDadosCountOutputType without action
+   * AtividadeDadosCountOutputType without action
    */
-  export type AtividadesDadosCountOutputTypeCountParticipantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCountOutputTypeCountParticipantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuariosAtividadesWhereInput
   }
 
   /**
-   * AtividadesDadosCountOutputType without action
+   * AtividadeDadosCountOutputType without action
    */
-  export type AtividadesDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCountOutputTypeCountSessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuariosAtividadesTempoWhereInput
   }
 
@@ -5088,26 +5088,26 @@ export namespace Prisma {
    */
 
   /**
-   * Model AtividadesDados
+   * Model AtividadeDados
    */
 
-  export type AggregateAtividadesDados = {
-    _count: AtividadesDadosCountAggregateOutputType | null
-    _avg: AtividadesDadosAvgAggregateOutputType | null
-    _sum: AtividadesDadosSumAggregateOutputType | null
-    _min: AtividadesDadosMinAggregateOutputType | null
-    _max: AtividadesDadosMaxAggregateOutputType | null
+  export type AggregateAtividadeDados = {
+    _count: AtividadeDadosCountAggregateOutputType | null
+    _avg: AtividadeDadosAvgAggregateOutputType | null
+    _sum: AtividadeDadosSumAggregateOutputType | null
+    _min: AtividadeDadosMinAggregateOutputType | null
+    _max: AtividadeDadosMaxAggregateOutputType | null
   }
 
-  export type AtividadesDadosAvgAggregateOutputType = {
+  export type AtividadeDadosAvgAggregateOutputType = {
     tempo_gasto_minutos_atividades_dados: number | null
   }
 
-  export type AtividadesDadosSumAggregateOutputType = {
+  export type AtividadeDadosSumAggregateOutputType = {
     tempo_gasto_minutos_atividades_dados: number | null
   }
 
-  export type AtividadesDadosMinAggregateOutputType = {
+  export type AtividadeDadosMinAggregateOutputType = {
     id_atividades_dados: string | null
     id_organizacao_atividades_dados: string | null
     id_usuario_atividades_dados: string | null
@@ -5130,7 +5130,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados: Date | null
   }
 
-  export type AtividadesDadosMaxAggregateOutputType = {
+  export type AtividadeDadosMaxAggregateOutputType = {
     id_atividades_dados: string | null
     id_organizacao_atividades_dados: string | null
     id_usuario_atividades_dados: string | null
@@ -5153,7 +5153,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados: Date | null
   }
 
-  export type AtividadesDadosCountAggregateOutputType = {
+  export type AtividadeDadosCountAggregateOutputType = {
     id_atividades_dados: number
     id_organizacao_atividades_dados: number
     id_usuario_atividades_dados: number
@@ -5178,15 +5178,15 @@ export namespace Prisma {
   }
 
 
-  export type AtividadesDadosAvgAggregateInputType = {
+  export type AtividadeDadosAvgAggregateInputType = {
     tempo_gasto_minutos_atividades_dados?: true
   }
 
-  export type AtividadesDadosSumAggregateInputType = {
+  export type AtividadeDadosSumAggregateInputType = {
     tempo_gasto_minutos_atividades_dados?: true
   }
 
-  export type AtividadesDadosMinAggregateInputType = {
+  export type AtividadeDadosMinAggregateInputType = {
     id_atividades_dados?: true
     id_organizacao_atividades_dados?: true
     id_usuario_atividades_dados?: true
@@ -5209,7 +5209,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: true
   }
 
-  export type AtividadesDadosMaxAggregateInputType = {
+  export type AtividadeDadosMaxAggregateInputType = {
     id_atividades_dados?: true
     id_organizacao_atividades_dados?: true
     id_usuario_atividades_dados?: true
@@ -5232,7 +5232,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: true
   }
 
-  export type AtividadesDadosCountAggregateInputType = {
+  export type AtividadeDadosCountAggregateInputType = {
     id_atividades_dados?: true
     id_organizacao_atividades_dados?: true
     id_usuario_atividades_dados?: true
@@ -5256,93 +5256,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AtividadesDadosAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AtividadesDados to aggregate.
+     * Filter which AtividadeDados to aggregate.
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AtividadesDados to fetch.
+     * Determine the order of AtividadeDados to fetch.
      */
-    orderBy?: AtividadesDadosOrderByWithRelationInput | AtividadesDadosOrderByWithRelationInput[]
+    orderBy?: AtividadeDadosOrderByWithRelationInput | AtividadeDadosOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AtividadesDadosWhereUniqueInput
+    cursor?: AtividadeDadosWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AtividadesDados from the position of the cursor.
+     * Take `±n` AtividadeDados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AtividadesDados.
+     * Skip the first `n` AtividadeDados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AtividadesDados
+     * Count returned AtividadeDados
     **/
-    _count?: true | AtividadesDadosCountAggregateInputType
+    _count?: true | AtividadeDadosCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AtividadesDadosAvgAggregateInputType
+    _avg?: AtividadeDadosAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AtividadesDadosSumAggregateInputType
+    _sum?: AtividadeDadosSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AtividadesDadosMinAggregateInputType
+    _min?: AtividadeDadosMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AtividadesDadosMaxAggregateInputType
+    _max?: AtividadeDadosMaxAggregateInputType
   }
 
-  export type GetAtividadesDadosAggregateType<T extends AtividadesDadosAggregateArgs> = {
-        [P in keyof T & keyof AggregateAtividadesDados]: P extends '_count' | 'count'
+  export type GetAtividadeDadosAggregateType<T extends AtividadeDadosAggregateArgs> = {
+        [P in keyof T & keyof AggregateAtividadeDados]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAtividadesDados[P]>
-      : GetScalarType<T[P], AggregateAtividadesDados[P]>
+        : GetScalarType<T[P], AggregateAtividadeDados[P]>
+      : GetScalarType<T[P], AggregateAtividadeDados[P]>
   }
 
 
 
 
-  export type AtividadesDadosGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AtividadesDadosWhereInput
-    orderBy?: AtividadesDadosOrderByWithAggregationInput | AtividadesDadosOrderByWithAggregationInput[]
-    by: AtividadesDadosScalarFieldEnum[] | AtividadesDadosScalarFieldEnum
-    having?: AtividadesDadosScalarWhereWithAggregatesInput
+  export type AtividadeDadosGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AtividadeDadosWhereInput
+    orderBy?: AtividadeDadosOrderByWithAggregationInput | AtividadeDadosOrderByWithAggregationInput[]
+    by: AtividadeDadosScalarFieldEnum[] | AtividadeDadosScalarFieldEnum
+    having?: AtividadeDadosScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AtividadesDadosCountAggregateInputType | true
-    _avg?: AtividadesDadosAvgAggregateInputType
-    _sum?: AtividadesDadosSumAggregateInputType
-    _min?: AtividadesDadosMinAggregateInputType
-    _max?: AtividadesDadosMaxAggregateInputType
+    _count?: AtividadeDadosCountAggregateInputType | true
+    _avg?: AtividadeDadosAvgAggregateInputType
+    _sum?: AtividadeDadosSumAggregateInputType
+    _min?: AtividadeDadosMinAggregateInputType
+    _max?: AtividadeDadosMaxAggregateInputType
   }
 
-  export type AtividadesDadosGroupByOutputType = {
+  export type AtividadeDadosGroupByOutputType = {
     id_atividades_dados: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados: string | null
@@ -5363,28 +5363,28 @@ export namespace Prisma {
     id_processo_atividades_dados: string | null
     data_criacao_atividades_dados: Date
     data_atualizacao_atividades_dados: Date
-    _count: AtividadesDadosCountAggregateOutputType | null
-    _avg: AtividadesDadosAvgAggregateOutputType | null
-    _sum: AtividadesDadosSumAggregateOutputType | null
-    _min: AtividadesDadosMinAggregateOutputType | null
-    _max: AtividadesDadosMaxAggregateOutputType | null
+    _count: AtividadeDadosCountAggregateOutputType | null
+    _avg: AtividadeDadosAvgAggregateOutputType | null
+    _sum: AtividadeDadosSumAggregateOutputType | null
+    _min: AtividadeDadosMinAggregateOutputType | null
+    _max: AtividadeDadosMaxAggregateOutputType | null
   }
 
-  type GetAtividadesDadosGroupByPayload<T extends AtividadesDadosGroupByArgs> = Prisma.PrismaPromise<
+  type GetAtividadeDadosGroupByPayload<T extends AtividadeDadosGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AtividadesDadosGroupByOutputType, T['by']> &
+      PickEnumerable<AtividadeDadosGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AtividadesDadosGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AtividadeDadosGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AtividadesDadosGroupByOutputType[P]>
-            : GetScalarType<T[P], AtividadesDadosGroupByOutputType[P]>
+              : GetScalarType<T[P], AtividadeDadosGroupByOutputType[P]>
+            : GetScalarType<T[P], AtividadeDadosGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AtividadesDadosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AtividadeDadosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_atividades_dados?: boolean
     id_organizacao_atividades_dados?: boolean
     id_usuario_atividades_dados?: boolean
@@ -5405,12 +5405,12 @@ export namespace Prisma {
     id_processo_atividades_dados?: boolean
     data_criacao_atividades_dados?: boolean
     data_atualizacao_atividades_dados?: boolean
-    participantes_atividades_dados?: boolean | AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>
-    sessoes_timer_atividades_dados?: boolean | AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
-    _count?: boolean | AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["atividadesDados"]>
+    participantes_atividades_dados?: boolean | AtividadeDados$participantes_atividades_dadosArgs<ExtArgs>
+    sessoes_timer_atividades_dados?: boolean | AtividadeDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
+    _count?: boolean | AtividadeDadosCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["atividadeDados"]>
 
-  export type AtividadesDadosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AtividadeDadosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_atividades_dados?: boolean
     id_organizacao_atividades_dados?: boolean
     id_usuario_atividades_dados?: boolean
@@ -5431,9 +5431,9 @@ export namespace Prisma {
     id_processo_atividades_dados?: boolean
     data_criacao_atividades_dados?: boolean
     data_atualizacao_atividades_dados?: boolean
-  }, ExtArgs["result"]["atividadesDados"]>
+  }, ExtArgs["result"]["atividadeDados"]>
 
-  export type AtividadesDadosSelectScalar = {
+  export type AtividadeDadosSelectScalar = {
     id_atividades_dados?: boolean
     id_organizacao_atividades_dados?: boolean
     id_usuario_atividades_dados?: boolean
@@ -5456,15 +5456,15 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: boolean
   }
 
-  export type AtividadesDadosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    participantes_atividades_dados?: boolean | AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>
-    sessoes_timer_atividades_dados?: boolean | AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
-    _count?: boolean | AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs>
+  export type AtividadeDadosInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participantes_atividades_dados?: boolean | AtividadeDados$participantes_atividades_dadosArgs<ExtArgs>
+    sessoes_timer_atividades_dados?: boolean | AtividadeDados$sessoes_timer_atividades_dadosArgs<ExtArgs>
+    _count?: boolean | AtividadeDadosCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AtividadesDadosIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AtividadeDadosIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $AtividadesDadosPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AtividadesDados"
+  export type $AtividadeDadosPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AtividadeDados"
     objects: {
       participantes_atividades_dados: Prisma.$UsuariosAtividadesPayload<ExtArgs>[]
       sessoes_timer_atividades_dados: Prisma.$UsuariosAtividadesTempoPayload<ExtArgs>[]
@@ -5490,136 +5490,136 @@ export namespace Prisma {
       id_processo_atividades_dados: string | null
       data_criacao_atividades_dados: Date
       data_atualizacao_atividades_dados: Date
-    }, ExtArgs["result"]["atividadesDados"]>
+    }, ExtArgs["result"]["atividadeDados"]>
     composites: {}
   }
 
-  type AtividadesDadosGetPayload<S extends boolean | null | undefined | AtividadesDadosDefaultArgs> = $Result.GetResult<Prisma.$AtividadesDadosPayload, S>
+  type AtividadeDadosGetPayload<S extends boolean | null | undefined | AtividadeDadosDefaultArgs> = $Result.GetResult<Prisma.$AtividadeDadosPayload, S>
 
-  type AtividadesDadosCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AtividadesDadosFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AtividadesDadosCountAggregateInputType | true
+  type AtividadeDadosCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AtividadeDadosFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AtividadeDadosCountAggregateInputType | true
     }
 
-  export interface AtividadesDadosDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AtividadesDados'], meta: { name: 'AtividadesDados' } }
+  export interface AtividadeDadosDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AtividadeDados'], meta: { name: 'AtividadeDados' } }
     /**
-     * Find zero or one AtividadesDados that matches the filter.
-     * @param {AtividadesDadosFindUniqueArgs} args - Arguments to find a AtividadesDados
+     * Find zero or one AtividadeDados that matches the filter.
+     * @param {AtividadeDadosFindUniqueArgs} args - Arguments to find a AtividadeDados
      * @example
-     * // Get one AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findUnique({
+     * // Get one AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AtividadesDadosFindUniqueArgs>(args: SelectSubset<T, AtividadesDadosFindUniqueArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends AtividadeDadosFindUniqueArgs>(args: SelectSubset<T, AtividadeDadosFindUniqueArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AtividadesDados that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one AtividadeDados that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AtividadesDadosFindUniqueOrThrowArgs} args - Arguments to find a AtividadesDados
+     * @param {AtividadeDadosFindUniqueOrThrowArgs} args - Arguments to find a AtividadeDados
      * @example
-     * // Get one AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findUniqueOrThrow({
+     * // Get one AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AtividadesDadosFindUniqueOrThrowArgs>(args: SelectSubset<T, AtividadesDadosFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends AtividadeDadosFindUniqueOrThrowArgs>(args: SelectSubset<T, AtividadeDadosFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AtividadesDados that matches the filter.
+     * Find the first AtividadeDados that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosFindFirstArgs} args - Arguments to find a AtividadesDados
+     * @param {AtividadeDadosFindFirstArgs} args - Arguments to find a AtividadeDados
      * @example
-     * // Get one AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findFirst({
+     * // Get one AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AtividadesDadosFindFirstArgs>(args?: SelectSubset<T, AtividadesDadosFindFirstArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends AtividadeDadosFindFirstArgs>(args?: SelectSubset<T, AtividadeDadosFindFirstArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AtividadesDados that matches the filter or
+     * Find the first AtividadeDados that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosFindFirstOrThrowArgs} args - Arguments to find a AtividadesDados
+     * @param {AtividadeDadosFindFirstOrThrowArgs} args - Arguments to find a AtividadeDados
      * @example
-     * // Get one AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findFirstOrThrow({
+     * // Get one AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AtividadesDadosFindFirstOrThrowArgs>(args?: SelectSubset<T, AtividadesDadosFindFirstOrThrowArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends AtividadeDadosFindFirstOrThrowArgs>(args?: SelectSubset<T, AtividadeDadosFindFirstOrThrowArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AtividadesDados that matches the filter.
+     * Find zero or more AtividadeDados that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {AtividadeDadosFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findMany()
+     * // Get all AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findMany()
      * 
-     * // Get first 10 AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.findMany({ take: 10 })
+     * // Get first 10 AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.findMany({ take: 10 })
      * 
      * // Only select the `id_atividades_dados`
-     * const atividadesDadosWithId_atividades_dadosOnly = await prisma.atividadesDados.findMany({ select: { id_atividades_dados: true } })
+     * const atividadeDadosWithId_atividades_dadosOnly = await prisma.atividadeDados.findMany({ select: { id_atividades_dados: true } })
      * 
      */
-    findMany<T extends AtividadesDadosFindManyArgs>(args?: SelectSubset<T, AtividadesDadosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends AtividadeDadosFindManyArgs>(args?: SelectSubset<T, AtividadeDadosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AtividadesDados.
-     * @param {AtividadesDadosCreateArgs} args - Arguments to create a AtividadesDados.
+     * Create a AtividadeDados.
+     * @param {AtividadeDadosCreateArgs} args - Arguments to create a AtividadeDados.
      * @example
-     * // Create one AtividadesDados
-     * const AtividadesDados = await prisma.atividadesDados.create({
+     * // Create one AtividadeDados
+     * const AtividadeDados = await prisma.atividadeDados.create({
      *   data: {
-     *     // ... data to create a AtividadesDados
+     *     // ... data to create a AtividadeDados
      *   }
      * })
      * 
      */
-    create<T extends AtividadesDadosCreateArgs>(args: SelectSubset<T, AtividadesDadosCreateArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends AtividadeDadosCreateArgs>(args: SelectSubset<T, AtividadeDadosCreateArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AtividadesDados.
-     * @param {AtividadesDadosCreateManyArgs} args - Arguments to create many AtividadesDados.
+     * Create many AtividadeDados.
+     * @param {AtividadeDadosCreateManyArgs} args - Arguments to create many AtividadeDados.
      * @example
-     * // Create many AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.createMany({
+     * // Create many AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AtividadesDadosCreateManyArgs>(args?: SelectSubset<T, AtividadesDadosCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends AtividadeDadosCreateManyArgs>(args?: SelectSubset<T, AtividadeDadosCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AtividadesDados and returns the data saved in the database.
-     * @param {AtividadesDadosCreateManyAndReturnArgs} args - Arguments to create many AtividadesDados.
+     * Create many AtividadeDados and returns the data saved in the database.
+     * @param {AtividadeDadosCreateManyAndReturnArgs} args - Arguments to create many AtividadeDados.
      * @example
-     * // Create many AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.createManyAndReturn({
+     * // Create many AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AtividadesDados and only return the `id_atividades_dados`
-     * const atividadesDadosWithId_atividades_dadosOnly = await prisma.atividadesDados.createManyAndReturn({ 
+     * // Create many AtividadeDados and only return the `id_atividades_dados`
+     * const atividadeDadosWithId_atividades_dadosOnly = await prisma.atividadeDados.createManyAndReturn({ 
      *   select: { id_atividades_dados: true },
      *   data: [
      *     // ... provide data here
@@ -5629,28 +5629,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AtividadesDadosCreateManyAndReturnArgs>(args?: SelectSubset<T, AtividadesDadosCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends AtividadeDadosCreateManyAndReturnArgs>(args?: SelectSubset<T, AtividadeDadosCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AtividadesDados.
-     * @param {AtividadesDadosDeleteArgs} args - Arguments to delete one AtividadesDados.
+     * Delete a AtividadeDados.
+     * @param {AtividadeDadosDeleteArgs} args - Arguments to delete one AtividadeDados.
      * @example
-     * // Delete one AtividadesDados
-     * const AtividadesDados = await prisma.atividadesDados.delete({
+     * // Delete one AtividadeDados
+     * const AtividadeDados = await prisma.atividadeDados.delete({
      *   where: {
-     *     // ... filter to delete one AtividadesDados
+     *     // ... filter to delete one AtividadeDados
      *   }
      * })
      * 
      */
-    delete<T extends AtividadesDadosDeleteArgs>(args: SelectSubset<T, AtividadesDadosDeleteArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends AtividadeDadosDeleteArgs>(args: SelectSubset<T, AtividadeDadosDeleteArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AtividadesDados.
-     * @param {AtividadesDadosUpdateArgs} args - Arguments to update one AtividadesDados.
+     * Update one AtividadeDados.
+     * @param {AtividadeDadosUpdateArgs} args - Arguments to update one AtividadeDados.
      * @example
-     * // Update one AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.update({
+     * // Update one AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5660,30 +5660,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AtividadesDadosUpdateArgs>(args: SelectSubset<T, AtividadesDadosUpdateArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends AtividadeDadosUpdateArgs>(args: SelectSubset<T, AtividadeDadosUpdateArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AtividadesDados.
-     * @param {AtividadesDadosDeleteManyArgs} args - Arguments to filter AtividadesDados to delete.
+     * Delete zero or more AtividadeDados.
+     * @param {AtividadeDadosDeleteManyArgs} args - Arguments to filter AtividadeDados to delete.
      * @example
-     * // Delete a few AtividadesDados
-     * const { count } = await prisma.atividadesDados.deleteMany({
+     * // Delete a few AtividadeDados
+     * const { count } = await prisma.atividadeDados.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AtividadesDadosDeleteManyArgs>(args?: SelectSubset<T, AtividadesDadosDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends AtividadeDadosDeleteManyArgs>(args?: SelectSubset<T, AtividadeDadosDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AtividadesDados.
+     * Update zero or more AtividadeDados.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AtividadeDadosUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.updateMany({
+     * // Update many AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5693,56 +5693,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AtividadesDadosUpdateManyArgs>(args: SelectSubset<T, AtividadesDadosUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends AtividadeDadosUpdateManyArgs>(args: SelectSubset<T, AtividadeDadosUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AtividadesDados.
-     * @param {AtividadesDadosUpsertArgs} args - Arguments to update or create a AtividadesDados.
+     * Create or update one AtividadeDados.
+     * @param {AtividadeDadosUpsertArgs} args - Arguments to update or create a AtividadeDados.
      * @example
-     * // Update or create a AtividadesDados
-     * const atividadesDados = await prisma.atividadesDados.upsert({
+     * // Update or create a AtividadeDados
+     * const atividadeDados = await prisma.atividadeDados.upsert({
      *   create: {
-     *     // ... data to create a AtividadesDados
+     *     // ... data to create a AtividadeDados
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AtividadesDados we want to update
+     *     // ... the filter for the AtividadeDados we want to update
      *   }
      * })
      */
-    upsert<T extends AtividadesDadosUpsertArgs>(args: SelectSubset<T, AtividadesDadosUpsertArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends AtividadeDadosUpsertArgs>(args: SelectSubset<T, AtividadeDadosUpsertArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AtividadesDados.
+     * Count the number of AtividadeDados.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosCountArgs} args - Arguments to filter AtividadesDados to count.
+     * @param {AtividadeDadosCountArgs} args - Arguments to filter AtividadeDados to count.
      * @example
-     * // Count the number of AtividadesDados
-     * const count = await prisma.atividadesDados.count({
+     * // Count the number of AtividadeDados
+     * const count = await prisma.atividadeDados.count({
      *   where: {
-     *     // ... the filter for the AtividadesDados we want to count
+     *     // ... the filter for the AtividadeDados we want to count
      *   }
      * })
     **/
-    count<T extends AtividadesDadosCountArgs>(
-      args?: Subset<T, AtividadesDadosCountArgs>,
+    count<T extends AtividadeDadosCountArgs>(
+      args?: Subset<T, AtividadeDadosCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AtividadesDadosCountAggregateOutputType>
+          : GetScalarType<T['select'], AtividadeDadosCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AtividadesDados.
+     * Allows you to perform aggregations operations on a AtividadeDados.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AtividadeDadosAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -5762,13 +5762,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AtividadesDadosAggregateArgs>(args: Subset<T, AtividadesDadosAggregateArgs>): Prisma.PrismaPromise<GetAtividadesDadosAggregateType<T>>
+    aggregate<T extends AtividadeDadosAggregateArgs>(args: Subset<T, AtividadeDadosAggregateArgs>): Prisma.PrismaPromise<GetAtividadeDadosAggregateType<T>>
 
     /**
-     * Group by AtividadesDados.
+     * Group by AtividadeDados.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AtividadesDadosGroupByArgs} args - Group by arguments.
+     * @param {AtividadeDadosGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -5783,14 +5783,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AtividadesDadosGroupByArgs,
+      T extends AtividadeDadosGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AtividadesDadosGroupByArgs['orderBy'] }
-        : { orderBy?: AtividadesDadosGroupByArgs['orderBy'] },
+        ? { orderBy: AtividadeDadosGroupByArgs['orderBy'] }
+        : { orderBy?: AtividadeDadosGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -5839,23 +5839,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AtividadesDadosGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAtividadesDadosGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AtividadeDadosGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAtividadeDadosGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AtividadesDados model
+   * Fields of the AtividadeDados model
    */
-  readonly fields: AtividadesDadosFieldRefs;
+  readonly fields: AtividadeDadosFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AtividadesDados.
+   * The delegate class that acts as a "Promise-like" for AtividadeDados.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AtividadesDadosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AtividadeDadosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    participantes_atividades_dados<T extends AtividadesDados$participantes_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$participantes_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuariosAtividadesPayload<ExtArgs>, T, "findMany"> | Null>
-    sessoes_timer_atividades_dados<T extends AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuariosAtividadesTempoPayload<ExtArgs>, T, "findMany"> | Null>
+    participantes_atividades_dados<T extends AtividadeDados$participantes_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDados$participantes_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuariosAtividadesPayload<ExtArgs>, T, "findMany"> | Null>
+    sessoes_timer_atividades_dados<T extends AtividadeDados$sessoes_timer_atividades_dadosArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDados$sessoes_timer_atividades_dadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuariosAtividadesTempoPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5882,346 +5882,346 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AtividadesDados model
+   * Fields of the AtividadeDados model
    */ 
-  interface AtividadesDadosFieldRefs {
-    readonly id_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly id_organizacao_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly id_usuario_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly titulo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly descricao_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly tipo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly status_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly prioridade_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly data_atividade_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly data_vencimento_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly tempo_gasto_minutos_atividades_dados: FieldRef<"AtividadesDados", 'Int'>
-    readonly proximo_passo_titulo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly proximo_passo_data_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly lembrete_em_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly lembrete_email_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly lembrete_whatsapp_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly notificar_ao_atribuir_atividades_dados: FieldRef<"AtividadesDados", 'Boolean'>
-    readonly id_processo_atividades_dados: FieldRef<"AtividadesDados", 'String'>
-    readonly data_criacao_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
-    readonly data_atualizacao_atividades_dados: FieldRef<"AtividadesDados", 'DateTime'>
+  interface AtividadeDadosFieldRefs {
+    readonly id_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly id_organizacao_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly id_usuario_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly titulo_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly descricao_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly tipo_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly status_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly prioridade_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly data_atividade_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
+    readonly data_vencimento_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
+    readonly tempo_gasto_minutos_atividades_dados: FieldRef<"AtividadeDados", 'Int'>
+    readonly proximo_passo_titulo_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly proximo_passo_data_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
+    readonly lembrete_em_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
+    readonly lembrete_email_atividades_dados: FieldRef<"AtividadeDados", 'Boolean'>
+    readonly lembrete_whatsapp_atividades_dados: FieldRef<"AtividadeDados", 'Boolean'>
+    readonly notificar_ao_atribuir_atividades_dados: FieldRef<"AtividadeDados", 'Boolean'>
+    readonly id_processo_atividades_dados: FieldRef<"AtividadeDados", 'String'>
+    readonly data_criacao_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
+    readonly data_atualizacao_atividades_dados: FieldRef<"AtividadeDados", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AtividadesDados findUnique
+   * AtividadeDados findUnique
    */
-  export type AtividadesDadosFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter, which AtividadesDados to fetch.
+     * Filter, which AtividadeDados to fetch.
      */
-    where: AtividadesDadosWhereUniqueInput
+    where: AtividadeDadosWhereUniqueInput
   }
 
   /**
-   * AtividadesDados findUniqueOrThrow
+   * AtividadeDados findUniqueOrThrow
    */
-  export type AtividadesDadosFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter, which AtividadesDados to fetch.
+     * Filter, which AtividadeDados to fetch.
      */
-    where: AtividadesDadosWhereUniqueInput
+    where: AtividadeDadosWhereUniqueInput
   }
 
   /**
-   * AtividadesDados findFirst
+   * AtividadeDados findFirst
    */
-  export type AtividadesDadosFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter, which AtividadesDados to fetch.
+     * Filter, which AtividadeDados to fetch.
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AtividadesDados to fetch.
+     * Determine the order of AtividadeDados to fetch.
      */
-    orderBy?: AtividadesDadosOrderByWithRelationInput | AtividadesDadosOrderByWithRelationInput[]
+    orderBy?: AtividadeDadosOrderByWithRelationInput | AtividadeDadosOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AtividadesDados.
+     * Sets the position for searching for AtividadeDados.
      */
-    cursor?: AtividadesDadosWhereUniqueInput
+    cursor?: AtividadeDadosWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AtividadesDados from the position of the cursor.
+     * Take `±n` AtividadeDados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AtividadesDados.
+     * Skip the first `n` AtividadeDados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AtividadesDados.
+     * Filter by unique combinations of AtividadeDados.
      */
-    distinct?: AtividadesDadosScalarFieldEnum | AtividadesDadosScalarFieldEnum[]
+    distinct?: AtividadeDadosScalarFieldEnum | AtividadeDadosScalarFieldEnum[]
   }
 
   /**
-   * AtividadesDados findFirstOrThrow
+   * AtividadeDados findFirstOrThrow
    */
-  export type AtividadesDadosFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter, which AtividadesDados to fetch.
+     * Filter, which AtividadeDados to fetch.
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AtividadesDados to fetch.
+     * Determine the order of AtividadeDados to fetch.
      */
-    orderBy?: AtividadesDadosOrderByWithRelationInput | AtividadesDadosOrderByWithRelationInput[]
+    orderBy?: AtividadeDadosOrderByWithRelationInput | AtividadeDadosOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AtividadesDados.
+     * Sets the position for searching for AtividadeDados.
      */
-    cursor?: AtividadesDadosWhereUniqueInput
+    cursor?: AtividadeDadosWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AtividadesDados from the position of the cursor.
+     * Take `±n` AtividadeDados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AtividadesDados.
+     * Skip the first `n` AtividadeDados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AtividadesDados.
+     * Filter by unique combinations of AtividadeDados.
      */
-    distinct?: AtividadesDadosScalarFieldEnum | AtividadesDadosScalarFieldEnum[]
+    distinct?: AtividadeDadosScalarFieldEnum | AtividadeDadosScalarFieldEnum[]
   }
 
   /**
-   * AtividadesDados findMany
+   * AtividadeDados findMany
    */
-  export type AtividadesDadosFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter, which AtividadesDados to fetch.
+     * Filter, which AtividadeDados to fetch.
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AtividadesDados to fetch.
+     * Determine the order of AtividadeDados to fetch.
      */
-    orderBy?: AtividadesDadosOrderByWithRelationInput | AtividadesDadosOrderByWithRelationInput[]
+    orderBy?: AtividadeDadosOrderByWithRelationInput | AtividadeDadosOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AtividadesDados.
+     * Sets the position for listing AtividadeDados.
      */
-    cursor?: AtividadesDadosWhereUniqueInput
+    cursor?: AtividadeDadosWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AtividadesDados from the position of the cursor.
+     * Take `±n` AtividadeDados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AtividadesDados.
+     * Skip the first `n` AtividadeDados.
      */
     skip?: number
-    distinct?: AtividadesDadosScalarFieldEnum | AtividadesDadosScalarFieldEnum[]
+    distinct?: AtividadeDadosScalarFieldEnum | AtividadeDadosScalarFieldEnum[]
   }
 
   /**
-   * AtividadesDados create
+   * AtividadeDados create
    */
-  export type AtividadesDadosCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * The data needed to create a AtividadesDados.
+     * The data needed to create a AtividadeDados.
      */
-    data: XOR<AtividadesDadosCreateInput, AtividadesDadosUncheckedCreateInput>
+    data: XOR<AtividadeDadosCreateInput, AtividadeDadosUncheckedCreateInput>
   }
 
   /**
-   * AtividadesDados createMany
+   * AtividadeDados createMany
    */
-  export type AtividadesDadosCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AtividadesDados.
+     * The data used to create many AtividadeDados.
      */
-    data: AtividadesDadosCreateManyInput | AtividadesDadosCreateManyInput[]
+    data: AtividadeDadosCreateManyInput | AtividadeDadosCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AtividadesDados createManyAndReturn
+   * AtividadeDados createManyAndReturn
    */
-  export type AtividadesDadosCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelectCreateManyAndReturn<ExtArgs> | null
+    select?: AtividadeDadosSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AtividadesDados.
+     * The data used to create many AtividadeDados.
      */
-    data: AtividadesDadosCreateManyInput | AtividadesDadosCreateManyInput[]
+    data: AtividadeDadosCreateManyInput | AtividadeDadosCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AtividadesDados update
+   * AtividadeDados update
    */
-  export type AtividadesDadosUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * The data needed to update a AtividadesDados.
+     * The data needed to update a AtividadeDados.
      */
-    data: XOR<AtividadesDadosUpdateInput, AtividadesDadosUncheckedUpdateInput>
+    data: XOR<AtividadeDadosUpdateInput, AtividadeDadosUncheckedUpdateInput>
     /**
-     * Choose, which AtividadesDados to update.
+     * Choose, which AtividadeDados to update.
      */
-    where: AtividadesDadosWhereUniqueInput
+    where: AtividadeDadosWhereUniqueInput
   }
 
   /**
-   * AtividadesDados updateMany
+   * AtividadeDados updateMany
    */
-  export type AtividadesDadosUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AtividadesDados.
+     * The data used to update AtividadeDados.
      */
-    data: XOR<AtividadesDadosUpdateManyMutationInput, AtividadesDadosUncheckedUpdateManyInput>
+    data: XOR<AtividadeDadosUpdateManyMutationInput, AtividadeDadosUncheckedUpdateManyInput>
     /**
-     * Filter which AtividadesDados to update
+     * Filter which AtividadeDados to update
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
   }
 
   /**
-   * AtividadesDados upsert
+   * AtividadeDados upsert
    */
-  export type AtividadesDadosUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * The filter to search for the AtividadesDados to update in case it exists.
+     * The filter to search for the AtividadeDados to update in case it exists.
      */
-    where: AtividadesDadosWhereUniqueInput
+    where: AtividadeDadosWhereUniqueInput
     /**
-     * In case the AtividadesDados found by the `where` argument doesn't exist, create a new AtividadesDados with this data.
+     * In case the AtividadeDados found by the `where` argument doesn't exist, create a new AtividadeDados with this data.
      */
-    create: XOR<AtividadesDadosCreateInput, AtividadesDadosUncheckedCreateInput>
+    create: XOR<AtividadeDadosCreateInput, AtividadeDadosUncheckedCreateInput>
     /**
-     * In case the AtividadesDados was found with the provided `where` argument, update it with this data.
+     * In case the AtividadeDados was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AtividadesDadosUpdateInput, AtividadesDadosUncheckedUpdateInput>
+    update: XOR<AtividadeDadosUpdateInput, AtividadeDadosUncheckedUpdateInput>
   }
 
   /**
-   * AtividadesDados delete
+   * AtividadeDados delete
    */
-  export type AtividadesDadosDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
     /**
-     * Filter which AtividadesDados to delete.
+     * Filter which AtividadeDados to delete.
      */
-    where: AtividadesDadosWhereUniqueInput
+    where: AtividadeDadosWhereUniqueInput
   }
 
   /**
-   * AtividadesDados deleteMany
+   * AtividadeDados deleteMany
    */
-  export type AtividadesDadosDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AtividadesDados to delete
+     * Filter which AtividadeDados to delete
      */
-    where?: AtividadesDadosWhereInput
+    where?: AtividadeDadosWhereInput
   }
 
   /**
-   * AtividadesDados.participantes_atividades_dados
+   * AtividadeDados.participantes_atividades_dados
    */
-  export type AtividadesDados$participantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDados$participantes_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the UsuariosAtividades
      */
@@ -6239,9 +6239,9 @@ export namespace Prisma {
   }
 
   /**
-   * AtividadesDados.sessoes_timer_atividades_dados
+   * AtividadeDados.sessoes_timer_atividades_dados
    */
-  export type AtividadesDados$sessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDados$sessoes_timer_atividades_dadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the UsuariosAtividadesTempo
      */
@@ -6259,17 +6259,17 @@ export namespace Prisma {
   }
 
   /**
-   * AtividadesDados without action
+   * AtividadeDados without action
    */
-  export type AtividadesDadosDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeDadosDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AtividadesDados
+     * Select specific fields to fetch from the AtividadeDados
      */
-    select?: AtividadesDadosSelect<ExtArgs> | null
+    select?: AtividadeDadosSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AtividadesDadosInclude<ExtArgs> | null
+    include?: AtividadeDadosInclude<ExtArgs> | null
   }
 
 
@@ -6429,7 +6429,7 @@ export namespace Prisma {
     id_atividades_dados_atividades_participantes?: boolean
     id_usuario_atividades_participantes?: boolean
     nome_usuario_atividades_participantes?: boolean
-    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuariosAtividades"]>
 
   export type UsuariosAtividadesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6437,7 +6437,7 @@ export namespace Prisma {
     id_atividades_dados_atividades_participantes?: boolean
     id_usuario_atividades_participantes?: boolean
     nome_usuario_atividades_participantes?: boolean
-    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuariosAtividades"]>
 
   export type UsuariosAtividadesSelectScalar = {
@@ -6448,16 +6448,16 @@ export namespace Prisma {
   }
 
   export type UsuariosAtividadesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }
   export type UsuariosAtividadesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade_atividades_participantes?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_participantes?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }
 
   export type $UsuariosAtividadesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "UsuariosAtividades"
     objects: {
-      atividade_atividades_participantes: Prisma.$AtividadesDadosPayload<ExtArgs>
+      atividade_atividades_participantes: Prisma.$AtividadeDadosPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id_atividades_participantes: string
@@ -6828,7 +6828,7 @@ export namespace Prisma {
    */
   export interface Prisma__UsuariosAtividadesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    atividade_atividades_participantes<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    atividade_atividades_participantes<T extends AtividadeDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDadosDefaultArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7392,7 +7392,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: boolean
     duracao_min_atividades_tempo?: boolean
     assunto_atividades_tempo?: boolean
-    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuariosAtividadesTempo"]>
 
   export type UsuariosAtividadesTempoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7401,7 +7401,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: boolean
     duracao_min_atividades_tempo?: boolean
     assunto_atividades_tempo?: boolean
-    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuariosAtividadesTempo"]>
 
   export type UsuariosAtividadesTempoSelectScalar = {
@@ -7413,16 +7413,16 @@ export namespace Prisma {
   }
 
   export type UsuariosAtividadesTempoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }
   export type UsuariosAtividadesTempoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    atividade_atividades_tempo?: boolean | AtividadesDadosDefaultArgs<ExtArgs>
+    atividade_atividades_tempo?: boolean | AtividadeDadosDefaultArgs<ExtArgs>
   }
 
   export type $UsuariosAtividadesTempoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "UsuariosAtividadesTempo"
     objects: {
-      atividade_atividades_tempo: Prisma.$AtividadesDadosPayload<ExtArgs>
+      atividade_atividades_tempo: Prisma.$AtividadeDadosPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id_atividades_tempo: string
@@ -7794,7 +7794,7 @@ export namespace Prisma {
    */
   export interface Prisma__UsuariosAtividadesTempoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    atividade_atividades_tempo<T extends AtividadesDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadesDadosDefaultArgs<ExtArgs>>): Prisma__AtividadesDadosClient<$Result.GetResult<Prisma.$AtividadesDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    atividade_atividades_tempo<T extends AtividadeDadosDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDadosDefaultArgs<ExtArgs>>): Prisma__AtividadeDadosClient<$Result.GetResult<Prisma.$AtividadeDadosPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -50520,7 +50520,7 @@ export namespace Prisma {
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-  export const AtividadesDadosScalarFieldEnum: {
+  export const AtividadeDadosScalarFieldEnum: {
     id_atividades_dados: 'id_atividades_dados',
     id_organizacao_atividades_dados: 'id_organizacao_atividades_dados',
     id_usuario_atividades_dados: 'id_usuario_atividades_dados',
@@ -50543,7 +50543,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados: 'data_atualizacao_atividades_dados'
   };
 
-  export type AtividadesDadosScalarFieldEnum = (typeof AtividadesDadosScalarFieldEnum)[keyof typeof AtividadesDadosScalarFieldEnum]
+  export type AtividadeDadosScalarFieldEnum = (typeof AtividadeDadosScalarFieldEnum)[keyof typeof AtividadeDadosScalarFieldEnum]
 
 
   export const UsuariosAtividadesScalarFieldEnum: {
@@ -51672,35 +51672,35 @@ export namespace Prisma {
    */
 
 
-  export type AtividadesDadosWhereInput = {
-    AND?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    OR?: AtividadesDadosWhereInput[]
-    NOT?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    id_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    id_organizacao_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    id_usuario_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    titulo_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    descricao_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    tipo_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    status_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    prioridade_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadesDados"> | number
-    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    id_processo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_criacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
-    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+  export type AtividadeDadosWhereInput = {
+    AND?: AtividadeDadosWhereInput | AtividadeDadosWhereInput[]
+    OR?: AtividadeDadosWhereInput[]
+    NOT?: AtividadeDadosWhereInput | AtividadeDadosWhereInput[]
+    id_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    id_organizacao_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    id_usuario_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    titulo_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    descricao_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    tipo_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    status_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    prioridade_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadeDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    id_processo_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeFilter<"AtividadeDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadeDados"> | Date | string
     participantes_atividades_dados?: UsuariosAtividadesListRelationFilter
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoListRelationFilter
   }
 
-  export type AtividadesDadosOrderByWithRelationInput = {
+  export type AtividadeDadosOrderByWithRelationInput = {
     id_atividades_dados?: SortOrder
     id_organizacao_atividades_dados?: SortOrder
     id_usuario_atividades_dados?: SortOrderInput | SortOrder
@@ -51725,35 +51725,35 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoOrderByRelationAggregateInput
   }
 
-  export type AtividadesDadosWhereUniqueInput = Prisma.AtLeast<{
+  export type AtividadeDadosWhereUniqueInput = Prisma.AtLeast<{
     id_atividades_dados?: string
-    AND?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    OR?: AtividadesDadosWhereInput[]
-    NOT?: AtividadesDadosWhereInput | AtividadesDadosWhereInput[]
-    id_organizacao_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    id_usuario_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    titulo_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    descricao_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    tipo_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    status_atividades_dados?: StringFilter<"AtividadesDados"> | string
-    prioridade_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadesDados"> | number
-    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadesDados"> | boolean
-    id_processo_atividades_dados?: StringNullableFilter<"AtividadesDados"> | string | null
-    data_criacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
-    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadesDados"> | Date | string
+    AND?: AtividadeDadosWhereInput | AtividadeDadosWhereInput[]
+    OR?: AtividadeDadosWhereInput[]
+    NOT?: AtividadeDadosWhereInput | AtividadeDadosWhereInput[]
+    id_organizacao_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    id_usuario_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    titulo_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    descricao_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    tipo_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    status_atividades_dados?: StringFilter<"AtividadeDados"> | string
+    prioridade_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntFilter<"AtividadeDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableFilter<"AtividadeDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolFilter<"AtividadeDados"> | boolean
+    id_processo_atividades_dados?: StringNullableFilter<"AtividadeDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeFilter<"AtividadeDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeFilter<"AtividadeDados"> | Date | string
     participantes_atividades_dados?: UsuariosAtividadesListRelationFilter
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoListRelationFilter
   }, "id_atividades_dados">
 
-  export type AtividadesDadosOrderByWithAggregationInput = {
+  export type AtividadeDadosOrderByWithAggregationInput = {
     id_atividades_dados?: SortOrder
     id_organizacao_atividades_dados?: SortOrder
     id_usuario_atividades_dados?: SortOrderInput | SortOrder
@@ -51774,37 +51774,37 @@ export namespace Prisma {
     id_processo_atividades_dados?: SortOrderInput | SortOrder
     data_criacao_atividades_dados?: SortOrder
     data_atualizacao_atividades_dados?: SortOrder
-    _count?: AtividadesDadosCountOrderByAggregateInput
-    _avg?: AtividadesDadosAvgOrderByAggregateInput
-    _max?: AtividadesDadosMaxOrderByAggregateInput
-    _min?: AtividadesDadosMinOrderByAggregateInput
-    _sum?: AtividadesDadosSumOrderByAggregateInput
+    _count?: AtividadeDadosCountOrderByAggregateInput
+    _avg?: AtividadeDadosAvgOrderByAggregateInput
+    _max?: AtividadeDadosMaxOrderByAggregateInput
+    _min?: AtividadeDadosMinOrderByAggregateInput
+    _sum?: AtividadeDadosSumOrderByAggregateInput
   }
 
-  export type AtividadesDadosScalarWhereWithAggregatesInput = {
-    AND?: AtividadesDadosScalarWhereWithAggregatesInput | AtividadesDadosScalarWhereWithAggregatesInput[]
-    OR?: AtividadesDadosScalarWhereWithAggregatesInput[]
-    NOT?: AtividadesDadosScalarWhereWithAggregatesInput | AtividadesDadosScalarWhereWithAggregatesInput[]
-    id_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    id_organizacao_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    id_usuario_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    titulo_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    descricao_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    tipo_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    status_atividades_dados?: StringWithAggregatesFilter<"AtividadesDados"> | string
-    prioridade_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    data_atividade_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    data_vencimento_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    tempo_gasto_minutos_atividades_dados?: IntWithAggregatesFilter<"AtividadesDados"> | number
-    proximo_passo_titulo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    proximo_passo_data_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    lembrete_em_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadesDados"> | Date | string | null
-    lembrete_email_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    lembrete_whatsapp_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    notificar_ao_atribuir_atividades_dados?: BoolWithAggregatesFilter<"AtividadesDados"> | boolean
-    id_processo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadesDados"> | string | null
-    data_criacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
-    data_atualizacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadesDados"> | Date | string
+  export type AtividadeDadosScalarWhereWithAggregatesInput = {
+    AND?: AtividadeDadosScalarWhereWithAggregatesInput | AtividadeDadosScalarWhereWithAggregatesInput[]
+    OR?: AtividadeDadosScalarWhereWithAggregatesInput[]
+    NOT?: AtividadeDadosScalarWhereWithAggregatesInput | AtividadeDadosScalarWhereWithAggregatesInput[]
+    id_atividades_dados?: StringWithAggregatesFilter<"AtividadeDados"> | string
+    id_organizacao_atividades_dados?: StringWithAggregatesFilter<"AtividadeDados"> | string
+    id_usuario_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadeDados"> | string | null
+    titulo_atividades_dados?: StringWithAggregatesFilter<"AtividadeDados"> | string
+    descricao_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadeDados"> | string | null
+    tipo_atividades_dados?: StringWithAggregatesFilter<"AtividadeDados"> | string
+    status_atividades_dados?: StringWithAggregatesFilter<"AtividadeDados"> | string
+    prioridade_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadeDados"> | string | null
+    data_atividade_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadeDados"> | Date | string | null
+    data_vencimento_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadeDados"> | Date | string | null
+    tempo_gasto_minutos_atividades_dados?: IntWithAggregatesFilter<"AtividadeDados"> | number
+    proximo_passo_titulo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadeDados"> | string | null
+    proximo_passo_data_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadeDados"> | Date | string | null
+    lembrete_em_atividades_dados?: DateTimeNullableWithAggregatesFilter<"AtividadeDados"> | Date | string | null
+    lembrete_email_atividades_dados?: BoolWithAggregatesFilter<"AtividadeDados"> | boolean
+    lembrete_whatsapp_atividades_dados?: BoolWithAggregatesFilter<"AtividadeDados"> | boolean
+    notificar_ao_atribuir_atividades_dados?: BoolWithAggregatesFilter<"AtividadeDados"> | boolean
+    id_processo_atividades_dados?: StringNullableWithAggregatesFilter<"AtividadeDados"> | string | null
+    data_criacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadeDados"> | Date | string
+    data_atualizacao_atividades_dados?: DateTimeWithAggregatesFilter<"AtividadeDados"> | Date | string
   }
 
   export type UsuariosAtividadesWhereInput = {
@@ -51815,7 +51815,7 @@ export namespace Prisma {
     id_atividades_dados_atividades_participantes?: StringFilter<"UsuariosAtividades"> | string
     id_usuario_atividades_participantes?: StringFilter<"UsuariosAtividades"> | string
     nome_usuario_atividades_participantes?: StringNullableFilter<"UsuariosAtividades"> | string | null
-    atividade_atividades_participantes?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    atividade_atividades_participantes?: XOR<AtividadeDadosRelationFilter, AtividadeDadosWhereInput>
   }
 
   export type UsuariosAtividadesOrderByWithRelationInput = {
@@ -51823,7 +51823,7 @@ export namespace Prisma {
     id_atividades_dados_atividades_participantes?: SortOrder
     id_usuario_atividades_participantes?: SortOrder
     nome_usuario_atividades_participantes?: SortOrderInput | SortOrder
-    atividade_atividades_participantes?: AtividadesDadosOrderByWithRelationInput
+    atividade_atividades_participantes?: AtividadeDadosOrderByWithRelationInput
   }
 
   export type UsuariosAtividadesWhereUniqueInput = Prisma.AtLeast<{
@@ -51835,7 +51835,7 @@ export namespace Prisma {
     id_atividades_dados_atividades_participantes?: StringFilter<"UsuariosAtividades"> | string
     id_usuario_atividades_participantes?: StringFilter<"UsuariosAtividades"> | string
     nome_usuario_atividades_participantes?: StringNullableFilter<"UsuariosAtividades"> | string | null
-    atividade_atividades_participantes?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    atividade_atividades_participantes?: XOR<AtividadeDadosRelationFilter, AtividadeDadosWhereInput>
   }, "id_atividades_participantes" | "id_atividades_dados_atividades_participantes_id_usuario_atividades_participantes">
 
   export type UsuariosAtividadesOrderByWithAggregationInput = {
@@ -51867,7 +51867,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: DateTimeFilter<"UsuariosAtividadesTempo"> | Date | string
     duracao_min_atividades_tempo?: IntFilter<"UsuariosAtividadesTempo"> | number
     assunto_atividades_tempo?: StringNullableFilter<"UsuariosAtividadesTempo"> | string | null
-    atividade_atividades_tempo?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    atividade_atividades_tempo?: XOR<AtividadeDadosRelationFilter, AtividadeDadosWhereInput>
   }
 
   export type UsuariosAtividadesTempoOrderByWithRelationInput = {
@@ -51876,7 +51876,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: SortOrder
     duracao_min_atividades_tempo?: SortOrder
     assunto_atividades_tempo?: SortOrderInput | SortOrder
-    atividade_atividades_tempo?: AtividadesDadosOrderByWithRelationInput
+    atividade_atividades_tempo?: AtividadeDadosOrderByWithRelationInput
   }
 
   export type UsuariosAtividadesTempoWhereUniqueInput = Prisma.AtLeast<{
@@ -51888,7 +51888,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: DateTimeFilter<"UsuariosAtividadesTempo"> | Date | string
     duracao_min_atividades_tempo?: IntFilter<"UsuariosAtividadesTempo"> | number
     assunto_atividades_tempo?: StringNullableFilter<"UsuariosAtividadesTempo"> | string | null
-    atividade_atividades_tempo?: XOR<AtividadesDadosRelationFilter, AtividadesDadosWhereInput>
+    atividade_atividades_tempo?: XOR<AtividadeDadosRelationFilter, AtividadeDadosWhereInput>
   }, "id_atividades_tempo">
 
   export type UsuariosAtividadesTempoOrderByWithAggregationInput = {
@@ -55806,7 +55806,7 @@ export namespace Prisma {
     data_atualizacao_configuracao_canal_tenant?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalOrganizacao"> | Date | string
   }
 
-  export type AtividadesDadosCreateInput = {
+  export type AtividadeDadosCreateInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -55831,7 +55831,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosUncheckedCreateInput = {
+  export type AtividadeDadosUncheckedCreateInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -55856,7 +55856,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUncheckedCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosUpdateInput = {
+  export type AtividadeDadosUpdateInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55881,7 +55881,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosUncheckedUpdateInput = {
+  export type AtividadeDadosUncheckedUpdateInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55906,7 +55906,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosCreateManyInput = {
+  export type AtividadeDadosCreateManyInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -55929,7 +55929,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: Date | string
   }
 
-  export type AtividadesDadosUpdateManyMutationInput = {
+  export type AtividadeDadosUpdateManyMutationInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55952,7 +55952,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AtividadesDadosUncheckedUpdateManyInput = {
+  export type AtividadeDadosUncheckedUpdateManyInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55979,7 +55979,7 @@ export namespace Prisma {
     id_atividades_participantes?: string
     id_usuario_atividades_participantes: string
     nome_usuario_atividades_participantes?: string | null
-    atividade_atividades_participantes: AtividadesDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput
+    atividade_atividades_participantes: AtividadeDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput
   }
 
   export type UsuariosAtividadesUncheckedCreateInput = {
@@ -55993,7 +55993,7 @@ export namespace Prisma {
     id_atividades_participantes?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_participantes?: StringFieldUpdateOperationsInput | string
     nome_usuario_atividades_participantes?: NullableStringFieldUpdateOperationsInput | string | null
-    atividade_atividades_participantes?: AtividadesDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput
+    atividade_atividades_participantes?: AtividadeDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput
   }
 
   export type UsuariosAtividadesUncheckedUpdateInput = {
@@ -56028,7 +56028,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo: Date | string
     duracao_min_atividades_tempo: number
     assunto_atividades_tempo?: string | null
-    atividade_atividades_tempo: AtividadesDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput
+    atividade_atividades_tempo: AtividadeDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput
   }
 
   export type UsuariosAtividadesTempoUncheckedCreateInput = {
@@ -56044,7 +56044,7 @@ export namespace Prisma {
     iniciado_em_atividades_tempo?: DateTimeFieldUpdateOperationsInput | Date | string
     duracao_min_atividades_tempo?: IntFieldUpdateOperationsInput | number
     assunto_atividades_tempo?: NullableStringFieldUpdateOperationsInput | string | null
-    atividade_atividades_tempo?: AtividadesDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput
+    atividade_atividades_tempo?: AtividadeDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput
   }
 
   export type UsuariosAtividadesTempoUncheckedUpdateInput = {
@@ -60800,7 +60800,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type AtividadesDadosCountOrderByAggregateInput = {
+  export type AtividadeDadosCountOrderByAggregateInput = {
     id_atividades_dados?: SortOrder
     id_organizacao_atividades_dados?: SortOrder
     id_usuario_atividades_dados?: SortOrder
@@ -60823,11 +60823,11 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: SortOrder
   }
 
-  export type AtividadesDadosAvgOrderByAggregateInput = {
+  export type AtividadeDadosAvgOrderByAggregateInput = {
     tempo_gasto_minutos_atividades_dados?: SortOrder
   }
 
-  export type AtividadesDadosMaxOrderByAggregateInput = {
+  export type AtividadeDadosMaxOrderByAggregateInput = {
     id_atividades_dados?: SortOrder
     id_organizacao_atividades_dados?: SortOrder
     id_usuario_atividades_dados?: SortOrder
@@ -60850,7 +60850,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: SortOrder
   }
 
-  export type AtividadesDadosMinOrderByAggregateInput = {
+  export type AtividadeDadosMinOrderByAggregateInput = {
     id_atividades_dados?: SortOrder
     id_organizacao_atividades_dados?: SortOrder
     id_usuario_atividades_dados?: SortOrder
@@ -60873,7 +60873,7 @@ export namespace Prisma {
     data_atualizacao_atividades_dados?: SortOrder
   }
 
-  export type AtividadesDadosSumOrderByAggregateInput = {
+  export type AtividadeDadosSumOrderByAggregateInput = {
     tempo_gasto_minutos_atividades_dados?: SortOrder
   }
 
@@ -60965,9 +60965,9 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type AtividadesDadosRelationFilter = {
-    is?: AtividadesDadosWhereInput
-    isNot?: AtividadesDadosWhereInput
+  export type AtividadeDadosRelationFilter = {
+    is?: AtividadeDadosWhereInput
+    isNot?: AtividadeDadosWhereInput
   }
 
   export type UsuariosAtividadesId_atividades_dados_atividades_participantesId_usuario_atividades_participantesCompoundUniqueInput = {
@@ -63866,32 +63866,32 @@ export namespace Prisma {
     deleteMany?: UsuariosAtividadesTempoScalarWhereInput | UsuariosAtividadesTempoScalarWhereInput[]
   }
 
-  export type AtividadesDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput = {
-    create?: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
-    connect?: AtividadesDadosWhereUniqueInput
+  export type AtividadeDadosCreateNestedOneWithoutParticipantes_atividades_dadosInput = {
+    create?: XOR<AtividadeDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+    connectOrCreate?: AtividadeDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
+    connect?: AtividadeDadosWhereUniqueInput
   }
 
-  export type AtividadesDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput = {
-    create?: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
-    upsert?: AtividadesDadosUpsertWithoutParticipantes_atividades_dadosInput
-    connect?: AtividadesDadosWhereUniqueInput
-    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput, AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput>, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
+  export type AtividadeDadosUpdateOneRequiredWithoutParticipantes_atividades_dadosNestedInput = {
+    create?: XOR<AtividadeDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+    connectOrCreate?: AtividadeDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput
+    upsert?: AtividadeDadosUpsertWithoutParticipantes_atividades_dadosInput
+    connect?: AtividadeDadosWhereUniqueInput
+    update?: XOR<XOR<AtividadeDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput, AtividadeDadosUpdateWithoutParticipantes_atividades_dadosInput>, AtividadeDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput = {
-    create?: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
-    connect?: AtividadesDadosWhereUniqueInput
+  export type AtividadeDadosCreateNestedOneWithoutSessoes_timer_atividades_dadosInput = {
+    create?: XOR<AtividadeDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+    connectOrCreate?: AtividadeDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
+    connect?: AtividadeDadosWhereUniqueInput
   }
 
-  export type AtividadesDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput = {
-    create?: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
-    connectOrCreate?: AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
-    upsert?: AtividadesDadosUpsertWithoutSessoes_timer_atividades_dadosInput
-    connect?: AtividadesDadosWhereUniqueInput
-    update?: XOR<XOR<AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput>, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
+  export type AtividadeDadosUpdateOneRequiredWithoutSessoes_timer_atividades_dadosNestedInput = {
+    create?: XOR<AtividadeDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+    connectOrCreate?: AtividadeDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput
+    upsert?: AtividadeDadosUpsertWithoutSessoes_timer_atividades_dadosInput
+    connect?: AtividadeDadosWhereUniqueInput
+    update?: XOR<XOR<AtividadeDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUpdateWithoutSessoes_timer_atividades_dadosInput>, AtividadeDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -65257,7 +65257,7 @@ export namespace Prisma {
     assunto_atividades_tempo?: StringNullableFilter<"UsuariosAtividadesTempo"> | string | null
   }
 
-  export type AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput = {
+  export type AtividadeDadosCreateWithoutParticipantes_atividades_dadosInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -65281,7 +65281,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput = {
+  export type AtividadeDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -65305,23 +65305,23 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUncheckedCreateNestedManyWithoutAtividade_atividades_tempoInput
   }
 
-  export type AtividadesDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput = {
-    where: AtividadesDadosWhereUniqueInput
-    create: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+  export type AtividadeDadosCreateOrConnectWithoutParticipantes_atividades_dadosInput = {
+    where: AtividadeDadosWhereUniqueInput
+    create: XOR<AtividadeDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpsertWithoutParticipantes_atividades_dadosInput = {
-    update: XOR<AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
-    create: XOR<AtividadesDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
-    where?: AtividadesDadosWhereInput
+  export type AtividadeDadosUpsertWithoutParticipantes_atividades_dadosInput = {
+    update: XOR<AtividadeDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
+    create: XOR<AtividadeDadosCreateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutParticipantes_atividades_dadosInput>
+    where?: AtividadeDadosWhereInput
   }
 
-  export type AtividadesDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput = {
-    where?: AtividadesDadosWhereInput
-    data: XOR<AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
+  export type AtividadeDadosUpdateToOneWithWhereWithoutParticipantes_atividades_dadosInput = {
+    where?: AtividadeDadosWhereInput
+    data: XOR<AtividadeDadosUpdateWithoutParticipantes_atividades_dadosInput, AtividadeDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpdateWithoutParticipantes_atividades_dadosInput = {
+  export type AtividadeDadosUpdateWithoutParticipantes_atividades_dadosInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65345,7 +65345,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput = {
+  export type AtividadeDadosUncheckedUpdateWithoutParticipantes_atividades_dadosInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65369,7 +65369,7 @@ export namespace Prisma {
     sessoes_timer_atividades_dados?: UsuariosAtividadesTempoUncheckedUpdateManyWithoutAtividade_atividades_tempoNestedInput
   }
 
-  export type AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput = {
+  export type AtividadeDadosCreateWithoutSessoes_timer_atividades_dadosInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -65393,7 +65393,7 @@ export namespace Prisma {
     participantes_atividades_dados?: UsuariosAtividadesCreateNestedManyWithoutAtividade_atividades_participantesInput
   }
 
-  export type AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput = {
+  export type AtividadeDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput = {
     id_atividades_dados?: string
     id_organizacao_atividades_dados: string
     id_usuario_atividades_dados?: string | null
@@ -65417,23 +65417,23 @@ export namespace Prisma {
     participantes_atividades_dados?: UsuariosAtividadesUncheckedCreateNestedManyWithoutAtividade_atividades_participantesInput
   }
 
-  export type AtividadesDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput = {
-    where: AtividadesDadosWhereUniqueInput
-    create: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+  export type AtividadeDadosCreateOrConnectWithoutSessoes_timer_atividades_dadosInput = {
+    where: AtividadeDadosWhereUniqueInput
+    create: XOR<AtividadeDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpsertWithoutSessoes_timer_atividades_dadosInput = {
-    update: XOR<AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
-    create: XOR<AtividadesDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
-    where?: AtividadesDadosWhereInput
+  export type AtividadeDadosUpsertWithoutSessoes_timer_atividades_dadosInput = {
+    update: XOR<AtividadeDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
+    create: XOR<AtividadeDadosCreateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedCreateWithoutSessoes_timer_atividades_dadosInput>
+    where?: AtividadeDadosWhereInput
   }
 
-  export type AtividadesDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput = {
-    where?: AtividadesDadosWhereInput
-    data: XOR<AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
+  export type AtividadeDadosUpdateToOneWithWhereWithoutSessoes_timer_atividades_dadosInput = {
+    where?: AtividadeDadosWhereInput
+    data: XOR<AtividadeDadosUpdateWithoutSessoes_timer_atividades_dadosInput, AtividadeDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput>
   }
 
-  export type AtividadesDadosUpdateWithoutSessoes_timer_atividades_dadosInput = {
+  export type AtividadeDadosUpdateWithoutSessoes_timer_atividades_dadosInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65457,7 +65457,7 @@ export namespace Prisma {
     participantes_atividades_dados?: UsuariosAtividadesUpdateManyWithoutAtividade_atividades_participantesNestedInput
   }
 
-  export type AtividadesDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput = {
+  export type AtividadeDadosUncheckedUpdateWithoutSessoes_timer_atividades_dadosInput = {
     id_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_organizacao_atividades_dados?: StringFieldUpdateOperationsInput | string
     id_usuario_atividades_dados?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67654,9 +67654,9 @@ export namespace Prisma {
    * Aliases for legacy arg types
    */
     /**
-     * @deprecated Use AtividadesDadosCountOutputTypeDefaultArgs instead
+     * @deprecated Use AtividadeDadosCountOutputTypeDefaultArgs instead
      */
-    export type AtividadesDadosCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadesDadosCountOutputTypeDefaultArgs<ExtArgs>
+    export type AtividadeDadosCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeDadosCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use EmailAssuntosParticipantesCountOutputTypeDefaultArgs instead
      */
@@ -67686,9 +67686,9 @@ export namespace Prisma {
      */
     export type GabiConversaCompletaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiConversaCompletaCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AtividadesDadosDefaultArgs instead
+     * @deprecated Use AtividadeDadosDefaultArgs instead
      */
-    export type AtividadesDadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadesDadosDefaultArgs<ExtArgs>
+    export type AtividadeDadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeDadosDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UsuariosAtividadesDefaultArgs instead
      */

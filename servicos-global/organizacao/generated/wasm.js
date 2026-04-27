@@ -122,7 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.AtividadesDadosScalarFieldEnum = {
+exports.Prisma.AtividadeDadosScalarFieldEnum = {
   id_atividades_dados: 'id_atividades_dados',
   id_organizacao_atividades_dados: 'id_organizacao_atividades_dados',
   id_usuario_atividades_dados: 'id_usuario_atividades_dados',
@@ -937,7 +937,7 @@ exports.NCMOrigemSincronizacao = exports.$Enums.NCMOrigemSincronizacao = {
 };
 
 exports.Prisma.ModelName = {
-  AtividadesDados: 'AtividadesDados',
+  AtividadeDados: 'AtividadeDados',
   UsuariosAtividades: 'UsuariosAtividades',
   UsuariosAtividadesTempo: 'UsuariosAtividadesTempo',
   UsuarioHistoricoCronometro: 'UsuarioHistoricoCronometro',

@@ -24,35 +24,35 @@ export type Organizacao = $Result.DefaultSelection<Prisma.$OrganizacaoPayload>
  */
 export type Usuario = $Result.DefaultSelection<Prisma.$UsuarioPayload>
 /**
- * Model AssinaturaProdutoGravity
+ * Model ProdutoGravityAssinatura
  * 
  */
-export type AssinaturaProdutoGravity = $Result.DefaultSelection<Prisma.$AssinaturaProdutoGravityPayload>
+export type ProdutoGravityAssinatura = $Result.DefaultSelection<Prisma.$ProdutoGravityAssinaturaPayload>
 /**
  * Model UsuarioPermissao
  * 
  */
 export type UsuarioPermissao = $Result.DefaultSelection<Prisma.$UsuarioPermissaoPayload>
 /**
- * Model PermissaoAdminGravity
+ * Model AdminGravityPermissao
  * 
  */
-export type PermissaoAdminGravity = $Result.DefaultSelection<Prisma.$PermissaoAdminGravityPayload>
+export type AdminGravityPermissao = $Result.DefaultSelection<Prisma.$AdminGravityPermissaoPayload>
 /**
- * Model Empresa
+ * Model Workspace
  * 
  */
-export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
+export type Workspace = $Result.DefaultSelection<Prisma.$WorkspacePayload>
 /**
  * Model UsuarioWorkspace
  * 
  */
 export type UsuarioWorkspace = $Result.DefaultSelection<Prisma.$UsuarioWorkspacePayload>
 /**
- * Model ConfiguracaoProduto
+ * Model ProdutoGravityConfiguracao
  * 
  */
-export type ConfiguracaoProduto = $Result.DefaultSelection<Prisma.$ConfiguracaoProdutoPayload>
+export type ProdutoGravityConfiguracao = $Result.DefaultSelection<Prisma.$ProdutoGravityConfiguracaoPayload>
 /**
  * Model ProdutoGravityWorkspace
  * 
@@ -64,15 +64,15 @@ export type ProdutoGravityWorkspace = $Result.DefaultSelection<Prisma.$ProdutoGr
  */
 export type ProdutoGravity = $Result.DefaultSelection<Prisma.$ProdutoGravityPayload>
 /**
- * Model FaixaPreco
+ * Model ProdutoGravityFaixaPreco
  * 
  */
-export type FaixaPreco = $Result.DefaultSelection<Prisma.$FaixaPrecoPayload>
+export type ProdutoGravityFaixaPreco = $Result.DefaultSelection<Prisma.$ProdutoGravityFaixaPrecoPayload>
 /**
- * Model NegociacaoEspecial
+ * Model ProdutoGravityNegociacaoEspecial
  * 
  */
-export type NegociacaoEspecial = $Result.DefaultSelection<Prisma.$NegociacaoEspecialPayload>
+export type ProdutoGravityNegociacaoEspecial = $Result.DefaultSelection<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
 /**
  * Model Deploy
  * 
@@ -109,25 +109,25 @@ export type Cambio = $Result.DefaultSelection<Prisma.$CambioPayload>
  */
 export type Testes = $Result.DefaultSelection<Prisma.$TestesPayload>
 /**
- * Model AgendamentoTeste
+ * Model TesteAgendamento
  * 
  */
-export type AgendamentoTeste = $Result.DefaultSelection<Prisma.$AgendamentoTestePayload>
+export type TesteAgendamento = $Result.DefaultSelection<Prisma.$TesteAgendamentoPayload>
 /**
- * Model PlanoTeste
+ * Model TestePlano
  * 
  */
-export type PlanoTeste = $Result.DefaultSelection<Prisma.$PlanoTestePayload>
+export type TestePlano = $Result.DefaultSelection<Prisma.$TestePlanoPayload>
 /**
- * Model FaturaProdutosGravity
+ * Model ProdutoGravityFatura
  * 
  */
-export type FaturaProdutosGravity = $Result.DefaultSelection<Prisma.$FaturaProdutosGravityPayload>
+export type ProdutoGravityFatura = $Result.DefaultSelection<Prisma.$ProdutoGravityFaturaPayload>
 /**
- * Model MetricasGemini
+ * Model LLMMetricas
  * 
  */
-export type MetricasGemini = $Result.DefaultSelection<Prisma.$MetricasGeminiPayload>
+export type LLMMetricas = $Result.DefaultSelection<Prisma.$LLMMetricasPayload>
 
 /**
  * Enums
@@ -437,14 +437,14 @@ export class PrismaClient<
   get usuario(): Prisma.UsuarioDelegate<ExtArgs>;
 
   /**
-   * `prisma.assinaturaProdutoGravity`: Exposes CRUD operations for the **AssinaturaProdutoGravity** model.
+   * `prisma.produtoGravityAssinatura`: Exposes CRUD operations for the **ProdutoGravityAssinatura** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AssinaturaProdutoGravities
-    * const assinaturaProdutoGravities = await prisma.assinaturaProdutoGravity.findMany()
+    * // Fetch zero or more ProdutoGravityAssinaturas
+    * const produtoGravityAssinaturas = await prisma.produtoGravityAssinatura.findMany()
     * ```
     */
-  get assinaturaProdutoGravity(): Prisma.AssinaturaProdutoGravityDelegate<ExtArgs>;
+  get produtoGravityAssinatura(): Prisma.ProdutoGravityAssinaturaDelegate<ExtArgs>;
 
   /**
    * `prisma.usuarioPermissao`: Exposes CRUD operations for the **UsuarioPermissao** model.
@@ -457,24 +457,24 @@ export class PrismaClient<
   get usuarioPermissao(): Prisma.UsuarioPermissaoDelegate<ExtArgs>;
 
   /**
-   * `prisma.permissaoAdminGravity`: Exposes CRUD operations for the **PermissaoAdminGravity** model.
+   * `prisma.adminGravityPermissao`: Exposes CRUD operations for the **AdminGravityPermissao** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PermissaoAdminGravities
-    * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany()
+    * // Fetch zero or more AdminGravityPermissaos
+    * const adminGravityPermissaos = await prisma.adminGravityPermissao.findMany()
     * ```
     */
-  get permissaoAdminGravity(): Prisma.PermissaoAdminGravityDelegate<ExtArgs>;
+  get adminGravityPermissao(): Prisma.AdminGravityPermissaoDelegate<ExtArgs>;
 
   /**
-   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
+   * `prisma.workspace`: Exposes CRUD operations for the **Workspace** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Empresas
-    * const empresas = await prisma.empresa.findMany()
+    * // Fetch zero or more Workspaces
+    * const workspaces = await prisma.workspace.findMany()
     * ```
     */
-  get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
+  get workspace(): Prisma.WorkspaceDelegate<ExtArgs>;
 
   /**
    * `prisma.usuarioWorkspace`: Exposes CRUD operations for the **UsuarioWorkspace** model.
@@ -487,14 +487,14 @@ export class PrismaClient<
   get usuarioWorkspace(): Prisma.UsuarioWorkspaceDelegate<ExtArgs>;
 
   /**
-   * `prisma.configuracaoProduto`: Exposes CRUD operations for the **ConfiguracaoProduto** model.
+   * `prisma.produtoGravityConfiguracao`: Exposes CRUD operations for the **ProdutoGravityConfiguracao** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ConfiguracaoProdutos
-    * const configuracaoProdutos = await prisma.configuracaoProduto.findMany()
+    * // Fetch zero or more ProdutoGravityConfiguracaos
+    * const produtoGravityConfiguracaos = await prisma.produtoGravityConfiguracao.findMany()
     * ```
     */
-  get configuracaoProduto(): Prisma.ConfiguracaoProdutoDelegate<ExtArgs>;
+  get produtoGravityConfiguracao(): Prisma.ProdutoGravityConfiguracaoDelegate<ExtArgs>;
 
   /**
    * `prisma.produtoGravityWorkspace`: Exposes CRUD operations for the **ProdutoGravityWorkspace** model.
@@ -517,24 +517,24 @@ export class PrismaClient<
   get produtoGravity(): Prisma.ProdutoGravityDelegate<ExtArgs>;
 
   /**
-   * `prisma.faixaPreco`: Exposes CRUD operations for the **FaixaPreco** model.
+   * `prisma.produtoGravityFaixaPreco`: Exposes CRUD operations for the **ProdutoGravityFaixaPreco** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more FaixaPrecos
-    * const faixaPrecos = await prisma.faixaPreco.findMany()
+    * // Fetch zero or more ProdutoGravityFaixaPrecos
+    * const produtoGravityFaixaPrecos = await prisma.produtoGravityFaixaPreco.findMany()
     * ```
     */
-  get faixaPreco(): Prisma.FaixaPrecoDelegate<ExtArgs>;
+  get produtoGravityFaixaPreco(): Prisma.ProdutoGravityFaixaPrecoDelegate<ExtArgs>;
 
   /**
-   * `prisma.negociacaoEspecial`: Exposes CRUD operations for the **NegociacaoEspecial** model.
+   * `prisma.produtoGravityNegociacaoEspecial`: Exposes CRUD operations for the **ProdutoGravityNegociacaoEspecial** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more NegociacaoEspecials
-    * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany()
+    * // Fetch zero or more ProdutoGravityNegociacaoEspecials
+    * const produtoGravityNegociacaoEspecials = await prisma.produtoGravityNegociacaoEspecial.findMany()
     * ```
     */
-  get negociacaoEspecial(): Prisma.NegociacaoEspecialDelegate<ExtArgs>;
+  get produtoGravityNegociacaoEspecial(): Prisma.ProdutoGravityNegociacaoEspecialDelegate<ExtArgs>;
 
   /**
    * `prisma.deploy`: Exposes CRUD operations for the **Deploy** model.
@@ -607,44 +607,44 @@ export class PrismaClient<
   get testes(): Prisma.TestesDelegate<ExtArgs>;
 
   /**
-   * `prisma.agendamentoTeste`: Exposes CRUD operations for the **AgendamentoTeste** model.
+   * `prisma.testeAgendamento`: Exposes CRUD operations for the **TesteAgendamento** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AgendamentoTestes
-    * const agendamentoTestes = await prisma.agendamentoTeste.findMany()
+    * // Fetch zero or more TesteAgendamentos
+    * const testeAgendamentos = await prisma.testeAgendamento.findMany()
     * ```
     */
-  get agendamentoTeste(): Prisma.AgendamentoTesteDelegate<ExtArgs>;
+  get testeAgendamento(): Prisma.TesteAgendamentoDelegate<ExtArgs>;
 
   /**
-   * `prisma.planoTeste`: Exposes CRUD operations for the **PlanoTeste** model.
+   * `prisma.testePlano`: Exposes CRUD operations for the **TestePlano** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PlanoTestes
-    * const planoTestes = await prisma.planoTeste.findMany()
+    * // Fetch zero or more TestePlanos
+    * const testePlanos = await prisma.testePlano.findMany()
     * ```
     */
-  get planoTeste(): Prisma.PlanoTesteDelegate<ExtArgs>;
+  get testePlano(): Prisma.TestePlanoDelegate<ExtArgs>;
 
   /**
-   * `prisma.faturaProdutosGravity`: Exposes CRUD operations for the **FaturaProdutosGravity** model.
+   * `prisma.produtoGravityFatura`: Exposes CRUD operations for the **ProdutoGravityFatura** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more FaturaProdutosGravities
-    * const faturaProdutosGravities = await prisma.faturaProdutosGravity.findMany()
+    * // Fetch zero or more ProdutoGravityFaturas
+    * const produtoGravityFaturas = await prisma.produtoGravityFatura.findMany()
     * ```
     */
-  get faturaProdutosGravity(): Prisma.FaturaProdutosGravityDelegate<ExtArgs>;
+  get produtoGravityFatura(): Prisma.ProdutoGravityFaturaDelegate<ExtArgs>;
 
   /**
-   * `prisma.metricasGemini`: Exposes CRUD operations for the **MetricasGemini** model.
+   * `prisma.lLMMetricas`: Exposes CRUD operations for the **LLMMetricas** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more MetricasGeminis
-    * const metricasGeminis = await prisma.metricasGemini.findMany()
+    * // Fetch zero or more LLMMetricas
+    * const lLMMetricas = await prisma.lLMMetricas.findMany()
     * ```
     */
-  get metricasGemini(): Prisma.MetricasGeminiDelegate<ExtArgs>;
+  get lLMMetricas(): Prisma.LLMMetricasDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1088,16 +1088,16 @@ export namespace Prisma {
   export const ModelName: {
     Organizacao: 'Organizacao',
     Usuario: 'Usuario',
-    AssinaturaProdutoGravity: 'AssinaturaProdutoGravity',
+    ProdutoGravityAssinatura: 'ProdutoGravityAssinatura',
     UsuarioPermissao: 'UsuarioPermissao',
-    PermissaoAdminGravity: 'PermissaoAdminGravity',
-    Empresa: 'Empresa',
+    AdminGravityPermissao: 'AdminGravityPermissao',
+    Workspace: 'Workspace',
     UsuarioWorkspace: 'UsuarioWorkspace',
-    ConfiguracaoProduto: 'ConfiguracaoProduto',
+    ProdutoGravityConfiguracao: 'ProdutoGravityConfiguracao',
     ProdutoGravityWorkspace: 'ProdutoGravityWorkspace',
     ProdutoGravity: 'ProdutoGravity',
-    FaixaPreco: 'FaixaPreco',
-    NegociacaoEspecial: 'NegociacaoEspecial',
+    ProdutoGravityFaixaPreco: 'ProdutoGravityFaixaPreco',
+    ProdutoGravityNegociacaoEspecial: 'ProdutoGravityNegociacaoEspecial',
     Deploy: 'Deploy',
     FornecedorOrganizacao: 'FornecedorOrganizacao',
     Seguranca: 'Seguranca',
@@ -1105,10 +1105,10 @@ export namespace Prisma {
     Servicos: 'Servicos',
     Cambio: 'Cambio',
     Testes: 'Testes',
-    AgendamentoTeste: 'AgendamentoTeste',
-    PlanoTeste: 'PlanoTeste',
-    FaturaProdutosGravity: 'FaturaProdutosGravity',
-    MetricasGemini: 'MetricasGemini'
+    TesteAgendamento: 'TesteAgendamento',
+    TestePlano: 'TestePlano',
+    ProdutoGravityFatura: 'ProdutoGravityFatura',
+    LLMMetricas: 'LLMMetricas'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1124,7 +1124,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "assinaturaProdutoGravity" | "usuarioPermissao" | "permissaoAdminGravity" | "empresa" | "usuarioWorkspace" | "configuracaoProduto" | "produtoGravityWorkspace" | "produtoGravity" | "faixaPreco" | "negociacaoEspecial" | "deploy" | "fornecedorOrganizacao" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "agendamentoTeste" | "planoTeste" | "faturaProdutosGravity" | "metricasGemini"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "fornecedorOrganizacao" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1268,73 +1268,73 @@ export namespace Prisma {
           }
         }
       }
-      AssinaturaProdutoGravity: {
-        payload: Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>
-        fields: Prisma.AssinaturaProdutoGravityFieldRefs
+      ProdutoGravityAssinatura: {
+        payload: Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityAssinaturaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AssinaturaProdutoGravityFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload> | null
+            args: Prisma.ProdutoGravityAssinaturaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AssinaturaProdutoGravityFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           findFirst: {
-            args: Prisma.AssinaturaProdutoGravityFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload> | null
+            args: Prisma.ProdutoGravityAssinaturaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AssinaturaProdutoGravityFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           findMany: {
-            args: Prisma.AssinaturaProdutoGravityFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>[]
+            args: Prisma.ProdutoGravityAssinaturaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>[]
           }
           create: {
-            args: Prisma.AssinaturaProdutoGravityCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           createMany: {
-            args: Prisma.AssinaturaProdutoGravityCreateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityAssinaturaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AssinaturaProdutoGravityCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>[]
+            args: Prisma.ProdutoGravityAssinaturaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>[]
           }
           delete: {
-            args: Prisma.AssinaturaProdutoGravityDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           update: {
-            args: Prisma.AssinaturaProdutoGravityUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           deleteMany: {
-            args: Prisma.AssinaturaProdutoGravityDeleteManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityAssinaturaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AssinaturaProdutoGravityUpdateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityAssinaturaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AssinaturaProdutoGravityUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AssinaturaProdutoGravityPayload>
+            args: Prisma.ProdutoGravityAssinaturaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityAssinaturaPayload>
           }
           aggregate: {
-            args: Prisma.AssinaturaProdutoGravityAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAssinaturaProdutoGravity>
+            args: Prisma.ProdutoGravityAssinaturaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityAssinatura>
           }
           groupBy: {
-            args: Prisma.AssinaturaProdutoGravityGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AssinaturaProdutoGravityGroupByOutputType>[]
+            args: Prisma.ProdutoGravityAssinaturaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityAssinaturaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AssinaturaProdutoGravityCountArgs<ExtArgs>
-            result: $Utils.Optional<AssinaturaProdutoGravityCountAggregateOutputType> | number
+            args: Prisma.ProdutoGravityAssinaturaCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityAssinaturaCountAggregateOutputType> | number
           }
         }
       }
@@ -1408,143 +1408,143 @@ export namespace Prisma {
           }
         }
       }
-      PermissaoAdminGravity: {
-        payload: Prisma.$PermissaoAdminGravityPayload<ExtArgs>
-        fields: Prisma.PermissaoAdminGravityFieldRefs
+      AdminGravityPermissao: {
+        payload: Prisma.$AdminGravityPermissaoPayload<ExtArgs>
+        fields: Prisma.AdminGravityPermissaoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PermissaoAdminGravityFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload> | null
+            args: Prisma.AdminGravityPermissaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           findFirst: {
-            args: Prisma.PermissaoAdminGravityFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload> | null
+            args: Prisma.AdminGravityPermissaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           findMany: {
-            args: Prisma.PermissaoAdminGravityFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>[]
+            args: Prisma.AdminGravityPermissaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>[]
           }
           create: {
-            args: Prisma.PermissaoAdminGravityCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           createMany: {
-            args: Prisma.PermissaoAdminGravityCreateManyArgs<ExtArgs>
+            args: Prisma.AdminGravityPermissaoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>[]
+            args: Prisma.AdminGravityPermissaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>[]
           }
           delete: {
-            args: Prisma.PermissaoAdminGravityDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           update: {
-            args: Prisma.PermissaoAdminGravityUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           deleteMany: {
-            args: Prisma.PermissaoAdminGravityDeleteManyArgs<ExtArgs>
+            args: Prisma.AdminGravityPermissaoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PermissaoAdminGravityUpdateManyArgs<ExtArgs>
+            args: Prisma.AdminGravityPermissaoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.PermissaoAdminGravityUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
+            args: Prisma.AdminGravityPermissaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminGravityPermissaoPayload>
           }
           aggregate: {
-            args: Prisma.PermissaoAdminGravityAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePermissaoAdminGravity>
+            args: Prisma.AdminGravityPermissaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminGravityPermissao>
           }
           groupBy: {
-            args: Prisma.PermissaoAdminGravityGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PermissaoAdminGravityGroupByOutputType>[]
+            args: Prisma.AdminGravityPermissaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminGravityPermissaoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PermissaoAdminGravityCountArgs<ExtArgs>
-            result: $Utils.Optional<PermissaoAdminGravityCountAggregateOutputType> | number
+            args: Prisma.AdminGravityPermissaoCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminGravityPermissaoCountAggregateOutputType> | number
           }
         }
       }
-      Empresa: {
-        payload: Prisma.$EmpresaPayload<ExtArgs>
-        fields: Prisma.EmpresaFieldRefs
+      Workspace: {
+        payload: Prisma.$WorkspacePayload<ExtArgs>
+        fields: Prisma.WorkspaceFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+            args: Prisma.WorkspaceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           findFirst: {
-            args: Prisma.EmpresaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
+            args: Prisma.WorkspaceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           findMany: {
-            args: Prisma.EmpresaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+            args: Prisma.WorkspaceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
           }
           create: {
-            args: Prisma.EmpresaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           createMany: {
-            args: Prisma.EmpresaCreateManyArgs<ExtArgs>
+            args: Prisma.WorkspaceCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.EmpresaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
+            args: Prisma.WorkspaceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
           }
           delete: {
-            args: Prisma.EmpresaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           update: {
-            args: Prisma.EmpresaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           deleteMany: {
-            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>
+            args: Prisma.WorkspaceDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>
+            args: Prisma.WorkspaceUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.EmpresaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
+            args: Prisma.WorkspaceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
           }
           aggregate: {
-            args: Prisma.EmpresaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateEmpresa>
+            args: Prisma.WorkspaceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkspace>
           }
           groupBy: {
-            args: Prisma.EmpresaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaGroupByOutputType>[]
+            args: Prisma.WorkspaceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceGroupByOutputType>[]
           }
           count: {
-            args: Prisma.EmpresaCountArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
+            args: Prisma.WorkspaceCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceCountAggregateOutputType> | number
           }
         }
       }
@@ -1618,73 +1618,73 @@ export namespace Prisma {
           }
         }
       }
-      ConfiguracaoProduto: {
-        payload: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>
-        fields: Prisma.ConfiguracaoProdutoFieldRefs
+      ProdutoGravityConfiguracao: {
+        payload: Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityConfiguracaoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ConfiguracaoProdutoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload> | null
+            args: Prisma.ProdutoGravityConfiguracaoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           findFirst: {
-            args: Prisma.ConfiguracaoProdutoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload> | null
+            args: Prisma.ProdutoGravityConfiguracaoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           findMany: {
-            args: Prisma.ConfiguracaoProdutoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>[]
+            args: Prisma.ProdutoGravityConfiguracaoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>[]
           }
           create: {
-            args: Prisma.ConfiguracaoProdutoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           createMany: {
-            args: Prisma.ConfiguracaoProdutoCreateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityConfiguracaoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>[]
+            args: Prisma.ProdutoGravityConfiguracaoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>[]
           }
           delete: {
-            args: Prisma.ConfiguracaoProdutoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           update: {
-            args: Prisma.ConfiguracaoProdutoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           deleteMany: {
-            args: Prisma.ConfiguracaoProdutoDeleteManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityConfiguracaoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ConfiguracaoProdutoUpdateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityConfiguracaoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ConfiguracaoProdutoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
+            args: Prisma.ProdutoGravityConfiguracaoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityConfiguracaoPayload>
           }
           aggregate: {
-            args: Prisma.ConfiguracaoProdutoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateConfiguracaoProduto>
+            args: Prisma.ProdutoGravityConfiguracaoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityConfiguracao>
           }
           groupBy: {
-            args: Prisma.ConfiguracaoProdutoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ConfiguracaoProdutoGroupByOutputType>[]
+            args: Prisma.ProdutoGravityConfiguracaoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityConfiguracaoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ConfiguracaoProdutoCountArgs<ExtArgs>
-            result: $Utils.Optional<ConfiguracaoProdutoCountAggregateOutputType> | number
+            args: Prisma.ProdutoGravityConfiguracaoCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityConfiguracaoCountAggregateOutputType> | number
           }
         }
       }
@@ -1828,143 +1828,143 @@ export namespace Prisma {
           }
         }
       }
-      FaixaPreco: {
-        payload: Prisma.$FaixaPrecoPayload<ExtArgs>
-        fields: Prisma.FaixaPrecoFieldRefs
+      ProdutoGravityFaixaPreco: {
+        payload: Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityFaixaPrecoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.FaixaPrecoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload> | null
+            args: Prisma.ProdutoGravityFaixaPrecoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.FaixaPrecoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           findFirst: {
-            args: Prisma.FaixaPrecoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload> | null
+            args: Prisma.ProdutoGravityFaixaPrecoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.FaixaPrecoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           findMany: {
-            args: Prisma.FaixaPrecoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>[]
+            args: Prisma.ProdutoGravityFaixaPrecoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>[]
           }
           create: {
-            args: Prisma.FaixaPrecoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           createMany: {
-            args: Prisma.FaixaPrecoCreateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaixaPrecoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.FaixaPrecoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>[]
+            args: Prisma.ProdutoGravityFaixaPrecoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>[]
           }
           delete: {
-            args: Prisma.FaixaPrecoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           update: {
-            args: Prisma.FaixaPrecoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           deleteMany: {
-            args: Prisma.FaixaPrecoDeleteManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaixaPrecoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.FaixaPrecoUpdateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaixaPrecoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.FaixaPrecoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
+            args: Prisma.ProdutoGravityFaixaPrecoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaixaPrecoPayload>
           }
           aggregate: {
-            args: Prisma.FaixaPrecoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFaixaPreco>
+            args: Prisma.ProdutoGravityFaixaPrecoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityFaixaPreco>
           }
           groupBy: {
-            args: Prisma.FaixaPrecoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FaixaPrecoGroupByOutputType>[]
+            args: Prisma.ProdutoGravityFaixaPrecoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaixaPrecoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.FaixaPrecoCountArgs<ExtArgs>
-            result: $Utils.Optional<FaixaPrecoCountAggregateOutputType> | number
+            args: Prisma.ProdutoGravityFaixaPrecoCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaixaPrecoCountAggregateOutputType> | number
           }
         }
       }
-      NegociacaoEspecial: {
-        payload: Prisma.$NegociacaoEspecialPayload<ExtArgs>
-        fields: Prisma.NegociacaoEspecialFieldRefs
+      ProdutoGravityNegociacaoEspecial: {
+        payload: Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityNegociacaoEspecialFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.NegociacaoEspecialFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload> | null
+            args: Prisma.ProdutoGravityNegociacaoEspecialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           findFirst: {
-            args: Prisma.NegociacaoEspecialFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload> | null
+            args: Prisma.ProdutoGravityNegociacaoEspecialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           findMany: {
-            args: Prisma.NegociacaoEspecialFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>[]
+            args: Prisma.ProdutoGravityNegociacaoEspecialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>[]
           }
           create: {
-            args: Prisma.NegociacaoEspecialCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           createMany: {
-            args: Prisma.NegociacaoEspecialCreateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityNegociacaoEspecialCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>[]
+            args: Prisma.ProdutoGravityNegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>[]
           }
           delete: {
-            args: Prisma.NegociacaoEspecialDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           update: {
-            args: Prisma.NegociacaoEspecialUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           deleteMany: {
-            args: Prisma.NegociacaoEspecialDeleteManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityNegociacaoEspecialDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.NegociacaoEspecialUpdateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityNegociacaoEspecialUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.NegociacaoEspecialUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
+            args: Prisma.ProdutoGravityNegociacaoEspecialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload>
           }
           aggregate: {
-            args: Prisma.NegociacaoEspecialAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNegociacaoEspecial>
+            args: Prisma.ProdutoGravityNegociacaoEspecialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityNegociacaoEspecial>
           }
           groupBy: {
-            args: Prisma.NegociacaoEspecialGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NegociacaoEspecialGroupByOutputType>[]
+            args: Prisma.ProdutoGravityNegociacaoEspecialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityNegociacaoEspecialGroupByOutputType>[]
           }
           count: {
-            args: Prisma.NegociacaoEspecialCountArgs<ExtArgs>
-            result: $Utils.Optional<NegociacaoEspecialCountAggregateOutputType> | number
+            args: Prisma.ProdutoGravityNegociacaoEspecialCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityNegociacaoEspecialCountAggregateOutputType> | number
           }
         }
       }
@@ -2458,283 +2458,283 @@ export namespace Prisma {
           }
         }
       }
-      AgendamentoTeste: {
-        payload: Prisma.$AgendamentoTestePayload<ExtArgs>
-        fields: Prisma.AgendamentoTesteFieldRefs
+      TesteAgendamento: {
+        payload: Prisma.$TesteAgendamentoPayload<ExtArgs>
+        fields: Prisma.TesteAgendamentoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AgendamentoTesteFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload> | null
+            args: Prisma.TesteAgendamentoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           findFirst: {
-            args: Prisma.AgendamentoTesteFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload> | null
+            args: Prisma.TesteAgendamentoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AgendamentoTesteFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           findMany: {
-            args: Prisma.AgendamentoTesteFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>[]
+            args: Prisma.TesteAgendamentoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>[]
           }
           create: {
-            args: Prisma.AgendamentoTesteCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           createMany: {
-            args: Prisma.AgendamentoTesteCreateManyArgs<ExtArgs>
+            args: Prisma.TesteAgendamentoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AgendamentoTesteCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>[]
+            args: Prisma.TesteAgendamentoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>[]
           }
           delete: {
-            args: Prisma.AgendamentoTesteDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           update: {
-            args: Prisma.AgendamentoTesteUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           deleteMany: {
-            args: Prisma.AgendamentoTesteDeleteManyArgs<ExtArgs>
+            args: Prisma.TesteAgendamentoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AgendamentoTesteUpdateManyArgs<ExtArgs>
+            args: Prisma.TesteAgendamentoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AgendamentoTesteUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
+            args: Prisma.TesteAgendamentoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TesteAgendamentoPayload>
           }
           aggregate: {
-            args: Prisma.AgendamentoTesteAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAgendamentoTeste>
+            args: Prisma.TesteAgendamentoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTesteAgendamento>
           }
           groupBy: {
-            args: Prisma.AgendamentoTesteGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AgendamentoTesteGroupByOutputType>[]
+            args: Prisma.TesteAgendamentoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TesteAgendamentoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AgendamentoTesteCountArgs<ExtArgs>
-            result: $Utils.Optional<AgendamentoTesteCountAggregateOutputType> | number
+            args: Prisma.TesteAgendamentoCountArgs<ExtArgs>
+            result: $Utils.Optional<TesteAgendamentoCountAggregateOutputType> | number
           }
         }
       }
-      PlanoTeste: {
-        payload: Prisma.$PlanoTestePayload<ExtArgs>
-        fields: Prisma.PlanoTesteFieldRefs
+      TestePlano: {
+        payload: Prisma.$TestePlanoPayload<ExtArgs>
+        fields: Prisma.TestePlanoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PlanoTesteFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload> | null
+            args: Prisma.TestePlanoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PlanoTesteFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           findFirst: {
-            args: Prisma.PlanoTesteFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload> | null
+            args: Prisma.TestePlanoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PlanoTesteFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           findMany: {
-            args: Prisma.PlanoTesteFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>[]
+            args: Prisma.TestePlanoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>[]
           }
           create: {
-            args: Prisma.PlanoTesteCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           createMany: {
-            args: Prisma.PlanoTesteCreateManyArgs<ExtArgs>
+            args: Prisma.TestePlanoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PlanoTesteCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>[]
+            args: Prisma.TestePlanoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>[]
           }
           delete: {
-            args: Prisma.PlanoTesteDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           update: {
-            args: Prisma.PlanoTesteUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           deleteMany: {
-            args: Prisma.PlanoTesteDeleteManyArgs<ExtArgs>
+            args: Prisma.TestePlanoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PlanoTesteUpdateManyArgs<ExtArgs>
+            args: Prisma.TestePlanoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.PlanoTesteUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
+            args: Prisma.TestePlanoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePlanoPayload>
           }
           aggregate: {
-            args: Prisma.PlanoTesteAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePlanoTeste>
+            args: Prisma.TestePlanoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTestePlano>
           }
           groupBy: {
-            args: Prisma.PlanoTesteGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PlanoTesteGroupByOutputType>[]
+            args: Prisma.TestePlanoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TestePlanoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PlanoTesteCountArgs<ExtArgs>
-            result: $Utils.Optional<PlanoTesteCountAggregateOutputType> | number
+            args: Prisma.TestePlanoCountArgs<ExtArgs>
+            result: $Utils.Optional<TestePlanoCountAggregateOutputType> | number
           }
         }
       }
-      FaturaProdutosGravity: {
-        payload: Prisma.$FaturaProdutosGravityPayload<ExtArgs>
-        fields: Prisma.FaturaProdutosGravityFieldRefs
+      ProdutoGravityFatura: {
+        payload: Prisma.$ProdutoGravityFaturaPayload<ExtArgs>
+        fields: Prisma.ProdutoGravityFaturaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.FaturaProdutosGravityFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload> | null
+            args: Prisma.ProdutoGravityFaturaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.FaturaProdutosGravityFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           findFirst: {
-            args: Prisma.FaturaProdutosGravityFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload> | null
+            args: Prisma.ProdutoGravityFaturaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.FaturaProdutosGravityFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           findMany: {
-            args: Prisma.FaturaProdutosGravityFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>[]
+            args: Prisma.ProdutoGravityFaturaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>[]
           }
           create: {
-            args: Prisma.FaturaProdutosGravityCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           createMany: {
-            args: Prisma.FaturaProdutosGravityCreateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaturaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.FaturaProdutosGravityCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>[]
+            args: Prisma.ProdutoGravityFaturaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>[]
           }
           delete: {
-            args: Prisma.FaturaProdutosGravityDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           update: {
-            args: Prisma.FaturaProdutosGravityUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           deleteMany: {
-            args: Prisma.FaturaProdutosGravityDeleteManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaturaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.FaturaProdutosGravityUpdateManyArgs<ExtArgs>
+            args: Prisma.ProdutoGravityFaturaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.FaturaProdutosGravityUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FaturaProdutosGravityPayload>
+            args: Prisma.ProdutoGravityFaturaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProdutoGravityFaturaPayload>
           }
           aggregate: {
-            args: Prisma.FaturaProdutosGravityAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFaturaProdutosGravity>
+            args: Prisma.ProdutoGravityFaturaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProdutoGravityFatura>
           }
           groupBy: {
-            args: Prisma.FaturaProdutosGravityGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FaturaProdutosGravityGroupByOutputType>[]
+            args: Prisma.ProdutoGravityFaturaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaturaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.FaturaProdutosGravityCountArgs<ExtArgs>
-            result: $Utils.Optional<FaturaProdutosGravityCountAggregateOutputType> | number
+            args: Prisma.ProdutoGravityFaturaCountArgs<ExtArgs>
+            result: $Utils.Optional<ProdutoGravityFaturaCountAggregateOutputType> | number
           }
         }
       }
-      MetricasGemini: {
-        payload: Prisma.$MetricasGeminiPayload<ExtArgs>
-        fields: Prisma.MetricasGeminiFieldRefs
+      LLMMetricas: {
+        payload: Prisma.$LLMMetricasPayload<ExtArgs>
+        fields: Prisma.LLMMetricasFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.MetricasGeminiFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload> | null
+            args: Prisma.LLMMetricasFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.MetricasGeminiFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           findFirst: {
-            args: Prisma.MetricasGeminiFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload> | null
+            args: Prisma.LLMMetricasFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.MetricasGeminiFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           findMany: {
-            args: Prisma.MetricasGeminiFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>[]
+            args: Prisma.LLMMetricasFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>[]
           }
           create: {
-            args: Prisma.MetricasGeminiCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           createMany: {
-            args: Prisma.MetricasGeminiCreateManyArgs<ExtArgs>
+            args: Prisma.LLMMetricasCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.MetricasGeminiCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>[]
+            args: Prisma.LLMMetricasCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>[]
           }
           delete: {
-            args: Prisma.MetricasGeminiDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           update: {
-            args: Prisma.MetricasGeminiUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           deleteMany: {
-            args: Prisma.MetricasGeminiDeleteManyArgs<ExtArgs>
+            args: Prisma.LLMMetricasDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.MetricasGeminiUpdateManyArgs<ExtArgs>
+            args: Prisma.LLMMetricasUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.MetricasGeminiUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricasGeminiPayload>
+            args: Prisma.LLMMetricasUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LLMMetricasPayload>
           }
           aggregate: {
-            args: Prisma.MetricasGeminiAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateMetricasGemini>
+            args: Prisma.LLMMetricasAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLLMMetricas>
           }
           groupBy: {
-            args: Prisma.MetricasGeminiGroupByArgs<ExtArgs>
-            result: $Utils.Optional<MetricasGeminiGroupByOutputType>[]
+            args: Prisma.LLMMetricasGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LLMMetricasGroupByOutputType>[]
           }
           count: {
-            args: Prisma.MetricasGeminiCountArgs<ExtArgs>
-            result: $Utils.Optional<MetricasGeminiCountAggregateOutputType> | number
+            args: Prisma.LLMMetricasCountArgs<ExtArgs>
+            result: $Utils.Optional<LLMMetricasCountAggregateOutputType> | number
           }
         }
       }
@@ -2938,7 +2938,7 @@ export namespace Prisma {
    * OrganizacaoCountOutputType without action
    */
   export type OrganizacaoCountOutputTypeCountSubscriptions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
   }
 
   /**
@@ -2952,14 +2952,14 @@ export namespace Prisma {
    * OrganizacaoCountOutputType without action
    */
   export type OrganizacaoCountOutputTypeCountCompanies_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
   export type OrganizacaoCountOutputTypeCountProduct_configs_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
   }
 
   /**
@@ -3011,50 +3011,50 @@ export namespace Prisma {
 
 
   /**
-   * Count Type EmpresaCountOutputType
+   * Count Type WorkspaceCountOutputType
    */
 
-  export type EmpresaCountOutputType = {
+  export type WorkspaceCountOutputType = {
     memberships: number
     company_products: number
     preferred_by_users: number
   }
 
-  export type EmpresaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    memberships?: boolean | EmpresaCountOutputTypeCountMembershipsArgs
-    company_products?: boolean | EmpresaCountOutputTypeCountCompany_productsArgs
-    preferred_by_users?: boolean | EmpresaCountOutputTypeCountPreferred_by_usersArgs
+  export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    memberships?: boolean | WorkspaceCountOutputTypeCountMembershipsArgs
+    company_products?: boolean | WorkspaceCountOutputTypeCountCompany_productsArgs
+    preferred_by_users?: boolean | WorkspaceCountOutputTypeCountPreferred_by_usersArgs
   }
 
   // Custom InputTypes
   /**
-   * EmpresaCountOutputType without action
+   * WorkspaceCountOutputType without action
    */
-  export type EmpresaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the EmpresaCountOutputType
+     * Select specific fields to fetch from the WorkspaceCountOutputType
      */
-    select?: EmpresaCountOutputTypeSelect<ExtArgs> | null
+    select?: WorkspaceCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * EmpresaCountOutputType without action
+   * WorkspaceCountOutputType without action
    */
-  export type EmpresaCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWorkspaceWhereInput
   }
 
   /**
-   * EmpresaCountOutputType without action
+   * WorkspaceCountOutputType without action
    */
-  export type EmpresaCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityWorkspaceWhereInput
   }
 
   /**
-   * EmpresaCountOutputType without action
+   * WorkspaceCountOutputType without action
    */
-  export type EmpresaCountOutputTypeCountPreferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCountOutputTypeCountPreferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWhereInput
   }
 
@@ -3088,14 +3088,14 @@ export namespace Prisma {
    * ProdutoGravityCountOutputType without action
    */
   export type ProdutoGravityCountOutputTypeCountFaixas_preco_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
   }
 
   /**
    * ProdutoGravityCountOutputType without action
    */
   export type ProdutoGravityCountOutputTypeCountNegociacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
   }
 
 
@@ -3397,10 +3397,10 @@ export namespace Prisma {
     name: "Organizacao"
     objects: {
       users_organizacao: Prisma.$UsuarioPayload<ExtArgs>[]
-      subscriptions_organizacao: Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>[]
+      subscriptions_organizacao: Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>[]
       user_permissions_organizacao: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
-      companies_organizacao: Prisma.$EmpresaPayload<ExtArgs>[]
-      product_configs_organizacao: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>[]
+      companies_organizacao: Prisma.$WorkspacePayload<ExtArgs>[]
+      product_configs_organizacao: Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>[]
       ProdutoGravityWorkspace: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -3783,10 +3783,10 @@ export namespace Prisma {
   export interface Prisma__OrganizacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     users_organizacao<T extends Organizacao$users_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$users_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
-    subscriptions_organizacao<T extends Organizacao$subscriptions_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$subscriptions_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findMany"> | Null>
+    subscriptions_organizacao<T extends Organizacao$subscriptions_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$subscriptions_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findMany"> | Null>
     user_permissions_organizacao<T extends Organizacao$user_permissions_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$user_permissions_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
-    companies_organizacao<T extends Organizacao$companies_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companies_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany"> | Null>
-    product_configs_organizacao<T extends Organizacao$product_configs_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configs_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany"> | Null>
+    companies_organizacao<T extends Organizacao$companies_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companies_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    product_configs_organizacao<T extends Organizacao$product_configs_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configs_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findMany"> | Null>
     ProdutoGravityWorkspace<T extends Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4169,19 +4169,19 @@ export namespace Prisma {
    */
   export type Organizacao$subscriptions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
-    where?: AssinaturaProdutoGravityWhereInput
-    orderBy?: AssinaturaProdutoGravityOrderByWithRelationInput | AssinaturaProdutoGravityOrderByWithRelationInput[]
-    cursor?: AssinaturaProdutoGravityWhereUniqueInput
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
+    where?: ProdutoGravityAssinaturaWhereInput
+    orderBy?: ProdutoGravityAssinaturaOrderByWithRelationInput | ProdutoGravityAssinaturaOrderByWithRelationInput[]
+    cursor?: ProdutoGravityAssinaturaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AssinaturaProdutoGravityScalarFieldEnum | AssinaturaProdutoGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityAssinaturaScalarFieldEnum | ProdutoGravityAssinaturaScalarFieldEnum[]
   }
 
   /**
@@ -4209,19 +4209,19 @@ export namespace Prisma {
    */
   export type Organizacao$companies_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
-    where?: EmpresaWhereInput
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
-    cursor?: EmpresaWhereUniqueInput
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
+    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
+    cursor?: WorkspaceWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
   }
 
   /**
@@ -4229,19 +4229,19 @@ export namespace Prisma {
    */
   export type Organizacao$product_configs_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
-    where?: ConfiguracaoProdutoWhereInput
-    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
-    cursor?: ConfiguracaoProdutoWhereUniqueInput
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
+    where?: ProdutoGravityConfiguracaoWhereInput
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithRelationInput | ProdutoGravityConfiguracaoOrderByWithRelationInput[]
+    cursor?: ProdutoGravityConfiguracaoWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
+    distinct?: ProdutoGravityConfiguracaoScalarFieldEnum | ProdutoGravityConfiguracaoScalarFieldEnum[]
   }
 
   /**
@@ -4524,7 +4524,7 @@ export namespace Prisma {
     name: "Usuario"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
-      preferred_company: Prisma.$EmpresaPayload<ExtArgs> | null
+      preferred_company: Prisma.$WorkspacePayload<ExtArgs> | null
       user_permissions: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
     }
@@ -4903,7 +4903,7 @@ export namespace Prisma {
   export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    preferred_company<T extends Usuario$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$preferred_companyArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    preferred_company<T extends Usuario$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$preferred_companyArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     user_permissions<T extends Usuario$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
     memberships<T extends Usuario$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
@@ -5266,14 +5266,14 @@ export namespace Prisma {
    */
   export type Usuario$preferred_companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
-    where?: EmpresaWhereInput
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
   }
 
   /**
@@ -5332,16 +5332,16 @@ export namespace Prisma {
 
 
   /**
-   * Model AssinaturaProdutoGravity
+   * Model ProdutoGravityAssinatura
    */
 
-  export type AggregateAssinaturaProdutoGravity = {
-    _count: AssinaturaProdutoGravityCountAggregateOutputType | null
-    _min: AssinaturaProdutoGravityMinAggregateOutputType | null
-    _max: AssinaturaProdutoGravityMaxAggregateOutputType | null
+  export type AggregateProdutoGravityAssinatura = {
+    _count: ProdutoGravityAssinaturaCountAggregateOutputType | null
+    _min: ProdutoGravityAssinaturaMinAggregateOutputType | null
+    _max: ProdutoGravityAssinaturaMaxAggregateOutputType | null
   }
 
-  export type AssinaturaProdutoGravityMinAggregateOutputType = {
+  export type ProdutoGravityAssinaturaMinAggregateOutputType = {
     id_assinatura_produto_gravity: string | null
     id_organizacao_assinatura_produto_gravity: string | null
     status_assinatura_produto_gravity: $Enums.StatusAssinaturaProdutoGravity | null
@@ -5355,7 +5355,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity: Date | null
   }
 
-  export type AssinaturaProdutoGravityMaxAggregateOutputType = {
+  export type ProdutoGravityAssinaturaMaxAggregateOutputType = {
     id_assinatura_produto_gravity: string | null
     id_organizacao_assinatura_produto_gravity: string | null
     status_assinatura_produto_gravity: $Enums.StatusAssinaturaProdutoGravity | null
@@ -5369,7 +5369,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity: Date | null
   }
 
-  export type AssinaturaProdutoGravityCountAggregateOutputType = {
+  export type ProdutoGravityAssinaturaCountAggregateOutputType = {
     id_assinatura_produto_gravity: number
     id_organizacao_assinatura_produto_gravity: number
     status_assinatura_produto_gravity: number
@@ -5385,7 +5385,7 @@ export namespace Prisma {
   }
 
 
-  export type AssinaturaProdutoGravityMinAggregateInputType = {
+  export type ProdutoGravityAssinaturaMinAggregateInputType = {
     id_assinatura_produto_gravity?: true
     id_organizacao_assinatura_produto_gravity?: true
     status_assinatura_produto_gravity?: true
@@ -5399,7 +5399,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: true
   }
 
-  export type AssinaturaProdutoGravityMaxAggregateInputType = {
+  export type ProdutoGravityAssinaturaMaxAggregateInputType = {
     id_assinatura_produto_gravity?: true
     id_organizacao_assinatura_produto_gravity?: true
     status_assinatura_produto_gravity?: true
@@ -5413,7 +5413,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: true
   }
 
-  export type AssinaturaProdutoGravityCountAggregateInputType = {
+  export type ProdutoGravityAssinaturaCountAggregateInputType = {
     id_assinatura_produto_gravity?: true
     id_organizacao_assinatura_produto_gravity?: true
     status_assinatura_produto_gravity?: true
@@ -5428,79 +5428,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AssinaturaProdutoGravityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AssinaturaProdutoGravity to aggregate.
+     * Filter which ProdutoGravityAssinatura to aggregate.
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AssinaturaProdutoGravities to fetch.
+     * Determine the order of ProdutoGravityAssinaturas to fetch.
      */
-    orderBy?: AssinaturaProdutoGravityOrderByWithRelationInput | AssinaturaProdutoGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityAssinaturaOrderByWithRelationInput | ProdutoGravityAssinaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AssinaturaProdutoGravityWhereUniqueInput
+    cursor?: ProdutoGravityAssinaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AssinaturaProdutoGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityAssinaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AssinaturaProdutoGravities.
+     * Skip the first `n` ProdutoGravityAssinaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AssinaturaProdutoGravities
+     * Count returned ProdutoGravityAssinaturas
     **/
-    _count?: true | AssinaturaProdutoGravityCountAggregateInputType
+    _count?: true | ProdutoGravityAssinaturaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AssinaturaProdutoGravityMinAggregateInputType
+    _min?: ProdutoGravityAssinaturaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AssinaturaProdutoGravityMaxAggregateInputType
+    _max?: ProdutoGravityAssinaturaMaxAggregateInputType
   }
 
-  export type GetAssinaturaProdutoGravityAggregateType<T extends AssinaturaProdutoGravityAggregateArgs> = {
-        [P in keyof T & keyof AggregateAssinaturaProdutoGravity]: P extends '_count' | 'count'
+  export type GetProdutoGravityAssinaturaAggregateType<T extends ProdutoGravityAssinaturaAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityAssinatura]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAssinaturaProdutoGravity[P]>
-      : GetScalarType<T[P], AggregateAssinaturaProdutoGravity[P]>
+        : GetScalarType<T[P], AggregateProdutoGravityAssinatura[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityAssinatura[P]>
   }
 
 
 
 
-  export type AssinaturaProdutoGravityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AssinaturaProdutoGravityWhereInput
-    orderBy?: AssinaturaProdutoGravityOrderByWithAggregationInput | AssinaturaProdutoGravityOrderByWithAggregationInput[]
-    by: AssinaturaProdutoGravityScalarFieldEnum[] | AssinaturaProdutoGravityScalarFieldEnum
-    having?: AssinaturaProdutoGravityScalarWhereWithAggregatesInput
+  export type ProdutoGravityAssinaturaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityAssinaturaWhereInput
+    orderBy?: ProdutoGravityAssinaturaOrderByWithAggregationInput | ProdutoGravityAssinaturaOrderByWithAggregationInput[]
+    by: ProdutoGravityAssinaturaScalarFieldEnum[] | ProdutoGravityAssinaturaScalarFieldEnum
+    having?: ProdutoGravityAssinaturaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AssinaturaProdutoGravityCountAggregateInputType | true
-    _min?: AssinaturaProdutoGravityMinAggregateInputType
-    _max?: AssinaturaProdutoGravityMaxAggregateInputType
+    _count?: ProdutoGravityAssinaturaCountAggregateInputType | true
+    _min?: ProdutoGravityAssinaturaMinAggregateInputType
+    _max?: ProdutoGravityAssinaturaMaxAggregateInputType
   }
 
-  export type AssinaturaProdutoGravityGroupByOutputType = {
+  export type ProdutoGravityAssinaturaGroupByOutputType = {
     id_assinatura_produto_gravity: string
     id_organizacao_assinatura_produto_gravity: string
     status_assinatura_produto_gravity: $Enums.StatusAssinaturaProdutoGravity
@@ -5512,26 +5512,26 @@ export namespace Prisma {
     data_cancelamento_assinatura_produto_gravity: Date | null
     data_criacao_assinatura_produto_gravity: Date
     data_atualizacao_assinatura_produto_gravity: Date
-    _count: AssinaturaProdutoGravityCountAggregateOutputType | null
-    _min: AssinaturaProdutoGravityMinAggregateOutputType | null
-    _max: AssinaturaProdutoGravityMaxAggregateOutputType | null
+    _count: ProdutoGravityAssinaturaCountAggregateOutputType | null
+    _min: ProdutoGravityAssinaturaMinAggregateOutputType | null
+    _max: ProdutoGravityAssinaturaMaxAggregateOutputType | null
   }
 
-  type GetAssinaturaProdutoGravityGroupByPayload<T extends AssinaturaProdutoGravityGroupByArgs> = Prisma.PrismaPromise<
+  type GetProdutoGravityAssinaturaGroupByPayload<T extends ProdutoGravityAssinaturaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AssinaturaProdutoGravityGroupByOutputType, T['by']> &
+      PickEnumerable<ProdutoGravityAssinaturaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AssinaturaProdutoGravityGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProdutoGravityAssinaturaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AssinaturaProdutoGravityGroupByOutputType[P]>
-            : GetScalarType<T[P], AssinaturaProdutoGravityGroupByOutputType[P]>
+              : GetScalarType<T[P], ProdutoGravityAssinaturaGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityAssinaturaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AssinaturaProdutoGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityAssinaturaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_assinatura_produto_gravity?: boolean
     id_organizacao_assinatura_produto_gravity?: boolean
     status_assinatura_produto_gravity?: boolean
@@ -5544,9 +5544,9 @@ export namespace Prisma {
     data_criacao_assinatura_produto_gravity?: boolean
     data_atualizacao_assinatura_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["assinaturaProdutoGravity"]>
+  }, ExtArgs["result"]["produtoGravityAssinatura"]>
 
-  export type AssinaturaProdutoGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityAssinaturaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_assinatura_produto_gravity?: boolean
     id_organizacao_assinatura_produto_gravity?: boolean
     status_assinatura_produto_gravity?: boolean
@@ -5559,9 +5559,9 @@ export namespace Prisma {
     data_criacao_assinatura_produto_gravity?: boolean
     data_atualizacao_assinatura_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["assinaturaProdutoGravity"]>
+  }, ExtArgs["result"]["produtoGravityAssinatura"]>
 
-  export type AssinaturaProdutoGravitySelectScalar = {
+  export type ProdutoGravityAssinaturaSelectScalar = {
     id_assinatura_produto_gravity?: boolean
     id_organizacao_assinatura_produto_gravity?: boolean
     status_assinatura_produto_gravity?: boolean
@@ -5575,15 +5575,15 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: boolean
   }
 
-  export type AssinaturaProdutoGravityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
-  export type AssinaturaProdutoGravityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
 
-  export type $AssinaturaProdutoGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AssinaturaProdutoGravity"
+  export type $ProdutoGravityAssinaturaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityAssinatura"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
     }
@@ -5599,136 +5599,136 @@ export namespace Prisma {
       data_cancelamento_assinatura_produto_gravity: Date | null
       data_criacao_assinatura_produto_gravity: Date
       data_atualizacao_assinatura_produto_gravity: Date
-    }, ExtArgs["result"]["assinaturaProdutoGravity"]>
+    }, ExtArgs["result"]["produtoGravityAssinatura"]>
     composites: {}
   }
 
-  type AssinaturaProdutoGravityGetPayload<S extends boolean | null | undefined | AssinaturaProdutoGravityDefaultArgs> = $Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload, S>
+  type ProdutoGravityAssinaturaGetPayload<S extends boolean | null | undefined | ProdutoGravityAssinaturaDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload, S>
 
-  type AssinaturaProdutoGravityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AssinaturaProdutoGravityFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AssinaturaProdutoGravityCountAggregateInputType | true
+  type ProdutoGravityAssinaturaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityAssinaturaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityAssinaturaCountAggregateInputType | true
     }
 
-  export interface AssinaturaProdutoGravityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssinaturaProdutoGravity'], meta: { name: 'AssinaturaProdutoGravity' } }
+  export interface ProdutoGravityAssinaturaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityAssinatura'], meta: { name: 'ProdutoGravityAssinatura' } }
     /**
-     * Find zero or one AssinaturaProdutoGravity that matches the filter.
-     * @param {AssinaturaProdutoGravityFindUniqueArgs} args - Arguments to find a AssinaturaProdutoGravity
+     * Find zero or one ProdutoGravityAssinatura that matches the filter.
+     * @param {ProdutoGravityAssinaturaFindUniqueArgs} args - Arguments to find a ProdutoGravityAssinatura
      * @example
-     * // Get one AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.findUnique({
+     * // Get one ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AssinaturaProdutoGravityFindUniqueArgs>(args: SelectSubset<T, AssinaturaProdutoGravityFindUniqueArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ProdutoGravityAssinaturaFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AssinaturaProdutoGravity that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ProdutoGravityAssinatura that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AssinaturaProdutoGravityFindUniqueOrThrowArgs} args - Arguments to find a AssinaturaProdutoGravity
+     * @param {ProdutoGravityAssinaturaFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityAssinatura
      * @example
-     * // Get one AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.findUniqueOrThrow({
+     * // Get one ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AssinaturaProdutoGravityFindUniqueOrThrowArgs>(args: SelectSubset<T, AssinaturaProdutoGravityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ProdutoGravityAssinaturaFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AssinaturaProdutoGravity that matches the filter.
+     * Find the first ProdutoGravityAssinatura that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityFindFirstArgs} args - Arguments to find a AssinaturaProdutoGravity
+     * @param {ProdutoGravityAssinaturaFindFirstArgs} args - Arguments to find a ProdutoGravityAssinatura
      * @example
-     * // Get one AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.findFirst({
+     * // Get one ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AssinaturaProdutoGravityFindFirstArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityFindFirstArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ProdutoGravityAssinaturaFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AssinaturaProdutoGravity that matches the filter or
+     * Find the first ProdutoGravityAssinatura that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityFindFirstOrThrowArgs} args - Arguments to find a AssinaturaProdutoGravity
+     * @param {ProdutoGravityAssinaturaFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityAssinatura
      * @example
-     * // Get one AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.findFirstOrThrow({
+     * // Get one ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AssinaturaProdutoGravityFindFirstOrThrowArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ProdutoGravityAssinaturaFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AssinaturaProdutoGravities that matches the filter.
+     * Find zero or more ProdutoGravityAssinaturas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProdutoGravityAssinaturaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AssinaturaProdutoGravities
-     * const assinaturaProdutoGravities = await prisma.assinaturaProdutoGravity.findMany()
+     * // Get all ProdutoGravityAssinaturas
+     * const produtoGravityAssinaturas = await prisma.produtoGravityAssinatura.findMany()
      * 
-     * // Get first 10 AssinaturaProdutoGravities
-     * const assinaturaProdutoGravities = await prisma.assinaturaProdutoGravity.findMany({ take: 10 })
+     * // Get first 10 ProdutoGravityAssinaturas
+     * const produtoGravityAssinaturas = await prisma.produtoGravityAssinatura.findMany({ take: 10 })
      * 
      * // Only select the `id_assinatura_produto_gravity`
-     * const assinaturaProdutoGravityWithId_assinatura_produto_gravityOnly = await prisma.assinaturaProdutoGravity.findMany({ select: { id_assinatura_produto_gravity: true } })
+     * const produtoGravityAssinaturaWithId_assinatura_produto_gravityOnly = await prisma.produtoGravityAssinatura.findMany({ select: { id_assinatura_produto_gravity: true } })
      * 
      */
-    findMany<T extends AssinaturaProdutoGravityFindManyArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ProdutoGravityAssinaturaFindManyArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AssinaturaProdutoGravity.
-     * @param {AssinaturaProdutoGravityCreateArgs} args - Arguments to create a AssinaturaProdutoGravity.
+     * Create a ProdutoGravityAssinatura.
+     * @param {ProdutoGravityAssinaturaCreateArgs} args - Arguments to create a ProdutoGravityAssinatura.
      * @example
-     * // Create one AssinaturaProdutoGravity
-     * const AssinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.create({
+     * // Create one ProdutoGravityAssinatura
+     * const ProdutoGravityAssinatura = await prisma.produtoGravityAssinatura.create({
      *   data: {
-     *     // ... data to create a AssinaturaProdutoGravity
+     *     // ... data to create a ProdutoGravityAssinatura
      *   }
      * })
      * 
      */
-    create<T extends AssinaturaProdutoGravityCreateArgs>(args: SelectSubset<T, AssinaturaProdutoGravityCreateArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ProdutoGravityAssinaturaCreateArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaCreateArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AssinaturaProdutoGravities.
-     * @param {AssinaturaProdutoGravityCreateManyArgs} args - Arguments to create many AssinaturaProdutoGravities.
+     * Create many ProdutoGravityAssinaturas.
+     * @param {ProdutoGravityAssinaturaCreateManyArgs} args - Arguments to create many ProdutoGravityAssinaturas.
      * @example
-     * // Create many AssinaturaProdutoGravities
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.createMany({
+     * // Create many ProdutoGravityAssinaturas
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AssinaturaProdutoGravityCreateManyArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProdutoGravityAssinaturaCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AssinaturaProdutoGravities and returns the data saved in the database.
-     * @param {AssinaturaProdutoGravityCreateManyAndReturnArgs} args - Arguments to create many AssinaturaProdutoGravities.
+     * Create many ProdutoGravityAssinaturas and returns the data saved in the database.
+     * @param {ProdutoGravityAssinaturaCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityAssinaturas.
      * @example
-     * // Create many AssinaturaProdutoGravities
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.createManyAndReturn({
+     * // Create many ProdutoGravityAssinaturas
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AssinaturaProdutoGravities and only return the `id_assinatura_produto_gravity`
-     * const assinaturaProdutoGravityWithId_assinatura_produto_gravityOnly = await prisma.assinaturaProdutoGravity.createManyAndReturn({ 
+     * // Create many ProdutoGravityAssinaturas and only return the `id_assinatura_produto_gravity`
+     * const produtoGravityAssinaturaWithId_assinatura_produto_gravityOnly = await prisma.produtoGravityAssinatura.createManyAndReturn({ 
      *   select: { id_assinatura_produto_gravity: true },
      *   data: [
      *     // ... provide data here
@@ -5738,28 +5738,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AssinaturaProdutoGravityCreateManyAndReturnArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ProdutoGravityAssinaturaCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AssinaturaProdutoGravity.
-     * @param {AssinaturaProdutoGravityDeleteArgs} args - Arguments to delete one AssinaturaProdutoGravity.
+     * Delete a ProdutoGravityAssinatura.
+     * @param {ProdutoGravityAssinaturaDeleteArgs} args - Arguments to delete one ProdutoGravityAssinatura.
      * @example
-     * // Delete one AssinaturaProdutoGravity
-     * const AssinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.delete({
+     * // Delete one ProdutoGravityAssinatura
+     * const ProdutoGravityAssinatura = await prisma.produtoGravityAssinatura.delete({
      *   where: {
-     *     // ... filter to delete one AssinaturaProdutoGravity
+     *     // ... filter to delete one ProdutoGravityAssinatura
      *   }
      * })
      * 
      */
-    delete<T extends AssinaturaProdutoGravityDeleteArgs>(args: SelectSubset<T, AssinaturaProdutoGravityDeleteArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ProdutoGravityAssinaturaDeleteArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AssinaturaProdutoGravity.
-     * @param {AssinaturaProdutoGravityUpdateArgs} args - Arguments to update one AssinaturaProdutoGravity.
+     * Update one ProdutoGravityAssinatura.
+     * @param {ProdutoGravityAssinaturaUpdateArgs} args - Arguments to update one ProdutoGravityAssinatura.
      * @example
-     * // Update one AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.update({
+     * // Update one ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5769,30 +5769,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AssinaturaProdutoGravityUpdateArgs>(args: SelectSubset<T, AssinaturaProdutoGravityUpdateArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ProdutoGravityAssinaturaUpdateArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AssinaturaProdutoGravities.
-     * @param {AssinaturaProdutoGravityDeleteManyArgs} args - Arguments to filter AssinaturaProdutoGravities to delete.
+     * Delete zero or more ProdutoGravityAssinaturas.
+     * @param {ProdutoGravityAssinaturaDeleteManyArgs} args - Arguments to filter ProdutoGravityAssinaturas to delete.
      * @example
-     * // Delete a few AssinaturaProdutoGravities
-     * const { count } = await prisma.assinaturaProdutoGravity.deleteMany({
+     * // Delete a few ProdutoGravityAssinaturas
+     * const { count } = await prisma.produtoGravityAssinatura.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AssinaturaProdutoGravityDeleteManyArgs>(args?: SelectSubset<T, AssinaturaProdutoGravityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProdutoGravityAssinaturaDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityAssinaturaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AssinaturaProdutoGravities.
+     * Update zero or more ProdutoGravityAssinaturas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProdutoGravityAssinaturaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AssinaturaProdutoGravities
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.updateMany({
+     * // Update many ProdutoGravityAssinaturas
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5802,56 +5802,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AssinaturaProdutoGravityUpdateManyArgs>(args: SelectSubset<T, AssinaturaProdutoGravityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProdutoGravityAssinaturaUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AssinaturaProdutoGravity.
-     * @param {AssinaturaProdutoGravityUpsertArgs} args - Arguments to update or create a AssinaturaProdutoGravity.
+     * Create or update one ProdutoGravityAssinatura.
+     * @param {ProdutoGravityAssinaturaUpsertArgs} args - Arguments to update or create a ProdutoGravityAssinatura.
      * @example
-     * // Update or create a AssinaturaProdutoGravity
-     * const assinaturaProdutoGravity = await prisma.assinaturaProdutoGravity.upsert({
+     * // Update or create a ProdutoGravityAssinatura
+     * const produtoGravityAssinatura = await prisma.produtoGravityAssinatura.upsert({
      *   create: {
-     *     // ... data to create a AssinaturaProdutoGravity
+     *     // ... data to create a ProdutoGravityAssinatura
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AssinaturaProdutoGravity we want to update
+     *     // ... the filter for the ProdutoGravityAssinatura we want to update
      *   }
      * })
      */
-    upsert<T extends AssinaturaProdutoGravityUpsertArgs>(args: SelectSubset<T, AssinaturaProdutoGravityUpsertArgs<ExtArgs>>): Prisma__AssinaturaProdutoGravityClient<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ProdutoGravityAssinaturaUpsertArgs>(args: SelectSubset<T, ProdutoGravityAssinaturaUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityAssinaturaClient<$Result.GetResult<Prisma.$ProdutoGravityAssinaturaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AssinaturaProdutoGravities.
+     * Count the number of ProdutoGravityAssinaturas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityCountArgs} args - Arguments to filter AssinaturaProdutoGravities to count.
+     * @param {ProdutoGravityAssinaturaCountArgs} args - Arguments to filter ProdutoGravityAssinaturas to count.
      * @example
-     * // Count the number of AssinaturaProdutoGravities
-     * const count = await prisma.assinaturaProdutoGravity.count({
+     * // Count the number of ProdutoGravityAssinaturas
+     * const count = await prisma.produtoGravityAssinatura.count({
      *   where: {
-     *     // ... the filter for the AssinaturaProdutoGravities we want to count
+     *     // ... the filter for the ProdutoGravityAssinaturas we want to count
      *   }
      * })
     **/
-    count<T extends AssinaturaProdutoGravityCountArgs>(
-      args?: Subset<T, AssinaturaProdutoGravityCountArgs>,
+    count<T extends ProdutoGravityAssinaturaCountArgs>(
+      args?: Subset<T, ProdutoGravityAssinaturaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AssinaturaProdutoGravityCountAggregateOutputType>
+          : GetScalarType<T['select'], ProdutoGravityAssinaturaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AssinaturaProdutoGravity.
+     * Allows you to perform aggregations operations on a ProdutoGravityAssinatura.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProdutoGravityAssinaturaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -5871,13 +5871,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AssinaturaProdutoGravityAggregateArgs>(args: Subset<T, AssinaturaProdutoGravityAggregateArgs>): Prisma.PrismaPromise<GetAssinaturaProdutoGravityAggregateType<T>>
+    aggregate<T extends ProdutoGravityAssinaturaAggregateArgs>(args: Subset<T, ProdutoGravityAssinaturaAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityAssinaturaAggregateType<T>>
 
     /**
-     * Group by AssinaturaProdutoGravity.
+     * Group by ProdutoGravityAssinatura.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AssinaturaProdutoGravityGroupByArgs} args - Group by arguments.
+     * @param {ProdutoGravityAssinaturaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -5892,14 +5892,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AssinaturaProdutoGravityGroupByArgs,
+      T extends ProdutoGravityAssinaturaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AssinaturaProdutoGravityGroupByArgs['orderBy'] }
-        : { orderBy?: AssinaturaProdutoGravityGroupByArgs['orderBy'] },
+        ? { orderBy: ProdutoGravityAssinaturaGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityAssinaturaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -5948,20 +5948,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AssinaturaProdutoGravityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssinaturaProdutoGravityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProdutoGravityAssinaturaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityAssinaturaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AssinaturaProdutoGravity model
+   * Fields of the ProdutoGravityAssinatura model
    */
-  readonly fields: AssinaturaProdutoGravityFieldRefs;
+  readonly fields: ProdutoGravityAssinaturaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AssinaturaProdutoGravity.
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityAssinatura.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AssinaturaProdutoGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProdutoGravityAssinaturaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -5990,349 +5990,349 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AssinaturaProdutoGravity model
+   * Fields of the ProdutoGravityAssinatura model
    */ 
-  interface AssinaturaProdutoGravityFieldRefs {
-    readonly id_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'String'>
-    readonly id_organizacao_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'String'>
-    readonly status_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'StatusAssinaturaProdutoGravity'>
-    readonly stripe_subscription_id: FieldRef<"AssinaturaProdutoGravity", 'String'>
-    readonly stripe_price_id: FieldRef<"AssinaturaProdutoGravity", 'String'>
-    readonly data_fim_teste_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
-    readonly data_inicio_periodo_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
-    readonly data_fim_periodo_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
-    readonly data_cancelamento_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
-    readonly data_criacao_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
-    readonly data_atualizacao_assinatura_produto_gravity: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
+  interface ProdutoGravityAssinaturaFieldRefs {
+    readonly id_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'String'>
+    readonly id_organizacao_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'String'>
+    readonly status_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'StatusAssinaturaProdutoGravity'>
+    readonly stripe_subscription_id: FieldRef<"ProdutoGravityAssinatura", 'String'>
+    readonly stripe_price_id: FieldRef<"ProdutoGravityAssinatura", 'String'>
+    readonly data_fim_teste_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
+    readonly data_inicio_periodo_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
+    readonly data_fim_periodo_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
+    readonly data_cancelamento_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
+    readonly data_criacao_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
+    readonly data_atualizacao_assinatura_produto_gravity: FieldRef<"ProdutoGravityAssinatura", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AssinaturaProdutoGravity findUnique
+   * ProdutoGravityAssinatura findUnique
    */
-  export type AssinaturaProdutoGravityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter, which AssinaturaProdutoGravity to fetch.
+     * Filter, which ProdutoGravityAssinatura to fetch.
      */
-    where: AssinaturaProdutoGravityWhereUniqueInput
+    where: ProdutoGravityAssinaturaWhereUniqueInput
   }
 
   /**
-   * AssinaturaProdutoGravity findUniqueOrThrow
+   * ProdutoGravityAssinatura findUniqueOrThrow
    */
-  export type AssinaturaProdutoGravityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter, which AssinaturaProdutoGravity to fetch.
+     * Filter, which ProdutoGravityAssinatura to fetch.
      */
-    where: AssinaturaProdutoGravityWhereUniqueInput
+    where: ProdutoGravityAssinaturaWhereUniqueInput
   }
 
   /**
-   * AssinaturaProdutoGravity findFirst
+   * ProdutoGravityAssinatura findFirst
    */
-  export type AssinaturaProdutoGravityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter, which AssinaturaProdutoGravity to fetch.
+     * Filter, which ProdutoGravityAssinatura to fetch.
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AssinaturaProdutoGravities to fetch.
+     * Determine the order of ProdutoGravityAssinaturas to fetch.
      */
-    orderBy?: AssinaturaProdutoGravityOrderByWithRelationInput | AssinaturaProdutoGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityAssinaturaOrderByWithRelationInput | ProdutoGravityAssinaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AssinaturaProdutoGravities.
+     * Sets the position for searching for ProdutoGravityAssinaturas.
      */
-    cursor?: AssinaturaProdutoGravityWhereUniqueInput
+    cursor?: ProdutoGravityAssinaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AssinaturaProdutoGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityAssinaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AssinaturaProdutoGravities.
+     * Skip the first `n` ProdutoGravityAssinaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AssinaturaProdutoGravities.
+     * Filter by unique combinations of ProdutoGravityAssinaturas.
      */
-    distinct?: AssinaturaProdutoGravityScalarFieldEnum | AssinaturaProdutoGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityAssinaturaScalarFieldEnum | ProdutoGravityAssinaturaScalarFieldEnum[]
   }
 
   /**
-   * AssinaturaProdutoGravity findFirstOrThrow
+   * ProdutoGravityAssinatura findFirstOrThrow
    */
-  export type AssinaturaProdutoGravityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter, which AssinaturaProdutoGravity to fetch.
+     * Filter, which ProdutoGravityAssinatura to fetch.
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AssinaturaProdutoGravities to fetch.
+     * Determine the order of ProdutoGravityAssinaturas to fetch.
      */
-    orderBy?: AssinaturaProdutoGravityOrderByWithRelationInput | AssinaturaProdutoGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityAssinaturaOrderByWithRelationInput | ProdutoGravityAssinaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AssinaturaProdutoGravities.
+     * Sets the position for searching for ProdutoGravityAssinaturas.
      */
-    cursor?: AssinaturaProdutoGravityWhereUniqueInput
+    cursor?: ProdutoGravityAssinaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AssinaturaProdutoGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityAssinaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AssinaturaProdutoGravities.
+     * Skip the first `n` ProdutoGravityAssinaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AssinaturaProdutoGravities.
+     * Filter by unique combinations of ProdutoGravityAssinaturas.
      */
-    distinct?: AssinaturaProdutoGravityScalarFieldEnum | AssinaturaProdutoGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityAssinaturaScalarFieldEnum | ProdutoGravityAssinaturaScalarFieldEnum[]
   }
 
   /**
-   * AssinaturaProdutoGravity findMany
+   * ProdutoGravityAssinatura findMany
    */
-  export type AssinaturaProdutoGravityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter, which AssinaturaProdutoGravities to fetch.
+     * Filter, which ProdutoGravityAssinaturas to fetch.
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AssinaturaProdutoGravities to fetch.
+     * Determine the order of ProdutoGravityAssinaturas to fetch.
      */
-    orderBy?: AssinaturaProdutoGravityOrderByWithRelationInput | AssinaturaProdutoGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityAssinaturaOrderByWithRelationInput | ProdutoGravityAssinaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AssinaturaProdutoGravities.
+     * Sets the position for listing ProdutoGravityAssinaturas.
      */
-    cursor?: AssinaturaProdutoGravityWhereUniqueInput
+    cursor?: ProdutoGravityAssinaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AssinaturaProdutoGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityAssinaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AssinaturaProdutoGravities.
+     * Skip the first `n` ProdutoGravityAssinaturas.
      */
     skip?: number
-    distinct?: AssinaturaProdutoGravityScalarFieldEnum | AssinaturaProdutoGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityAssinaturaScalarFieldEnum | ProdutoGravityAssinaturaScalarFieldEnum[]
   }
 
   /**
-   * AssinaturaProdutoGravity create
+   * ProdutoGravityAssinatura create
    */
-  export type AssinaturaProdutoGravityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AssinaturaProdutoGravity.
+     * The data needed to create a ProdutoGravityAssinatura.
      */
-    data: XOR<AssinaturaProdutoGravityCreateInput, AssinaturaProdutoGravityUncheckedCreateInput>
+    data: XOR<ProdutoGravityAssinaturaCreateInput, ProdutoGravityAssinaturaUncheckedCreateInput>
   }
 
   /**
-   * AssinaturaProdutoGravity createMany
+   * ProdutoGravityAssinatura createMany
    */
-  export type AssinaturaProdutoGravityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AssinaturaProdutoGravities.
+     * The data used to create many ProdutoGravityAssinaturas.
      */
-    data: AssinaturaProdutoGravityCreateManyInput | AssinaturaProdutoGravityCreateManyInput[]
+    data: ProdutoGravityAssinaturaCreateManyInput | ProdutoGravityAssinaturaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AssinaturaProdutoGravity createManyAndReturn
+   * ProdutoGravityAssinatura createManyAndReturn
    */
-  export type AssinaturaProdutoGravityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AssinaturaProdutoGravities.
+     * The data used to create many ProdutoGravityAssinaturas.
      */
-    data: AssinaturaProdutoGravityCreateManyInput | AssinaturaProdutoGravityCreateManyInput[]
+    data: ProdutoGravityAssinaturaCreateManyInput | ProdutoGravityAssinaturaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * AssinaturaProdutoGravity update
+   * ProdutoGravityAssinatura update
    */
-  export type AssinaturaProdutoGravityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AssinaturaProdutoGravity.
+     * The data needed to update a ProdutoGravityAssinatura.
      */
-    data: XOR<AssinaturaProdutoGravityUpdateInput, AssinaturaProdutoGravityUncheckedUpdateInput>
+    data: XOR<ProdutoGravityAssinaturaUpdateInput, ProdutoGravityAssinaturaUncheckedUpdateInput>
     /**
-     * Choose, which AssinaturaProdutoGravity to update.
+     * Choose, which ProdutoGravityAssinatura to update.
      */
-    where: AssinaturaProdutoGravityWhereUniqueInput
+    where: ProdutoGravityAssinaturaWhereUniqueInput
   }
 
   /**
-   * AssinaturaProdutoGravity updateMany
+   * ProdutoGravityAssinatura updateMany
    */
-  export type AssinaturaProdutoGravityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AssinaturaProdutoGravities.
+     * The data used to update ProdutoGravityAssinaturas.
      */
-    data: XOR<AssinaturaProdutoGravityUpdateManyMutationInput, AssinaturaProdutoGravityUncheckedUpdateManyInput>
+    data: XOR<ProdutoGravityAssinaturaUpdateManyMutationInput, ProdutoGravityAssinaturaUncheckedUpdateManyInput>
     /**
-     * Filter which AssinaturaProdutoGravities to update
+     * Filter which ProdutoGravityAssinaturas to update
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
   }
 
   /**
-   * AssinaturaProdutoGravity upsert
+   * ProdutoGravityAssinatura upsert
    */
-  export type AssinaturaProdutoGravityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AssinaturaProdutoGravity to update in case it exists.
+     * The filter to search for the ProdutoGravityAssinatura to update in case it exists.
      */
-    where: AssinaturaProdutoGravityWhereUniqueInput
+    where: ProdutoGravityAssinaturaWhereUniqueInput
     /**
-     * In case the AssinaturaProdutoGravity found by the `where` argument doesn't exist, create a new AssinaturaProdutoGravity with this data.
+     * In case the ProdutoGravityAssinatura found by the `where` argument doesn't exist, create a new ProdutoGravityAssinatura with this data.
      */
-    create: XOR<AssinaturaProdutoGravityCreateInput, AssinaturaProdutoGravityUncheckedCreateInput>
+    create: XOR<ProdutoGravityAssinaturaCreateInput, ProdutoGravityAssinaturaUncheckedCreateInput>
     /**
-     * In case the AssinaturaProdutoGravity was found with the provided `where` argument, update it with this data.
+     * In case the ProdutoGravityAssinatura was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AssinaturaProdutoGravityUpdateInput, AssinaturaProdutoGravityUncheckedUpdateInput>
+    update: XOR<ProdutoGravityAssinaturaUpdateInput, ProdutoGravityAssinaturaUncheckedUpdateInput>
   }
 
   /**
-   * AssinaturaProdutoGravity delete
+   * ProdutoGravityAssinatura delete
    */
-  export type AssinaturaProdutoGravityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
     /**
-     * Filter which AssinaturaProdutoGravity to delete.
+     * Filter which ProdutoGravityAssinatura to delete.
      */
-    where: AssinaturaProdutoGravityWhereUniqueInput
+    where: ProdutoGravityAssinaturaWhereUniqueInput
   }
 
   /**
-   * AssinaturaProdutoGravity deleteMany
+   * ProdutoGravityAssinatura deleteMany
    */
-  export type AssinaturaProdutoGravityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AssinaturaProdutoGravities to delete
+     * Filter which ProdutoGravityAssinaturas to delete
      */
-    where?: AssinaturaProdutoGravityWhereInput
+    where?: ProdutoGravityAssinaturaWhereInput
   }
 
   /**
-   * AssinaturaProdutoGravity without action
+   * ProdutoGravityAssinatura without action
    */
-  export type AssinaturaProdutoGravityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityAssinaturaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AssinaturaProdutoGravity
+     * Select specific fields to fetch from the ProdutoGravityAssinatura
      */
-    select?: AssinaturaProdutoGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityAssinaturaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AssinaturaProdutoGravityInclude<ExtArgs> | null
+    include?: ProdutoGravityAssinaturaInclude<ExtArgs> | null
   }
 
 
@@ -7324,16 +7324,16 @@ export namespace Prisma {
 
 
   /**
-   * Model PermissaoAdminGravity
+   * Model AdminGravityPermissao
    */
 
-  export type AggregatePermissaoAdminGravity = {
-    _count: PermissaoAdminGravityCountAggregateOutputType | null
-    _min: PermissaoAdminGravityMinAggregateOutputType | null
-    _max: PermissaoAdminGravityMaxAggregateOutputType | null
+  export type AggregateAdminGravityPermissao = {
+    _count: AdminGravityPermissaoCountAggregateOutputType | null
+    _min: AdminGravityPermissaoMinAggregateOutputType | null
+    _max: AdminGravityPermissaoMaxAggregateOutputType | null
   }
 
-  export type PermissaoAdminGravityMinAggregateOutputType = {
+  export type AdminGravityPermissaoMinAggregateOutputType = {
     id_permissao_admin_gravity: string | null
     id_admin_permissao_admin_gravity: string | null
     recurso_permissao_admin_gravity: string | null
@@ -7343,7 +7343,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity: Date | null
   }
 
-  export type PermissaoAdminGravityMaxAggregateOutputType = {
+  export type AdminGravityPermissaoMaxAggregateOutputType = {
     id_permissao_admin_gravity: string | null
     id_admin_permissao_admin_gravity: string | null
     recurso_permissao_admin_gravity: string | null
@@ -7353,7 +7353,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity: Date | null
   }
 
-  export type PermissaoAdminGravityCountAggregateOutputType = {
+  export type AdminGravityPermissaoCountAggregateOutputType = {
     id_permissao_admin_gravity: number
     id_admin_permissao_admin_gravity: number
     recurso_permissao_admin_gravity: number
@@ -7365,7 +7365,7 @@ export namespace Prisma {
   }
 
 
-  export type PermissaoAdminGravityMinAggregateInputType = {
+  export type AdminGravityPermissaoMinAggregateInputType = {
     id_permissao_admin_gravity?: true
     id_admin_permissao_admin_gravity?: true
     recurso_permissao_admin_gravity?: true
@@ -7375,7 +7375,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: true
   }
 
-  export type PermissaoAdminGravityMaxAggregateInputType = {
+  export type AdminGravityPermissaoMaxAggregateInputType = {
     id_permissao_admin_gravity?: true
     id_admin_permissao_admin_gravity?: true
     recurso_permissao_admin_gravity?: true
@@ -7385,7 +7385,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: true
   }
 
-  export type PermissaoAdminGravityCountAggregateInputType = {
+  export type AdminGravityPermissaoCountAggregateInputType = {
     id_permissao_admin_gravity?: true
     id_admin_permissao_admin_gravity?: true
     recurso_permissao_admin_gravity?: true
@@ -7396,79 +7396,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type PermissaoAdminGravityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PermissaoAdminGravity to aggregate.
+     * Filter which AdminGravityPermissao to aggregate.
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PermissaoAdminGravities to fetch.
+     * Determine the order of AdminGravityPermissaos to fetch.
      */
-    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
+    orderBy?: AdminGravityPermissaoOrderByWithRelationInput | AdminGravityPermissaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PermissaoAdminGravityWhereUniqueInput
+    cursor?: AdminGravityPermissaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PermissaoAdminGravities from the position of the cursor.
+     * Take `±n` AdminGravityPermissaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PermissaoAdminGravities.
+     * Skip the first `n` AdminGravityPermissaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PermissaoAdminGravities
+     * Count returned AdminGravityPermissaos
     **/
-    _count?: true | PermissaoAdminGravityCountAggregateInputType
+    _count?: true | AdminGravityPermissaoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PermissaoAdminGravityMinAggregateInputType
+    _min?: AdminGravityPermissaoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PermissaoAdminGravityMaxAggregateInputType
+    _max?: AdminGravityPermissaoMaxAggregateInputType
   }
 
-  export type GetPermissaoAdminGravityAggregateType<T extends PermissaoAdminGravityAggregateArgs> = {
-        [P in keyof T & keyof AggregatePermissaoAdminGravity]: P extends '_count' | 'count'
+  export type GetAdminGravityPermissaoAggregateType<T extends AdminGravityPermissaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminGravityPermissao]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePermissaoAdminGravity[P]>
-      : GetScalarType<T[P], AggregatePermissaoAdminGravity[P]>
+        : GetScalarType<T[P], AggregateAdminGravityPermissao[P]>
+      : GetScalarType<T[P], AggregateAdminGravityPermissao[P]>
   }
 
 
 
 
-  export type PermissaoAdminGravityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PermissaoAdminGravityWhereInput
-    orderBy?: PermissaoAdminGravityOrderByWithAggregationInput | PermissaoAdminGravityOrderByWithAggregationInput[]
-    by: PermissaoAdminGravityScalarFieldEnum[] | PermissaoAdminGravityScalarFieldEnum
-    having?: PermissaoAdminGravityScalarWhereWithAggregatesInput
+  export type AdminGravityPermissaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminGravityPermissaoWhereInput
+    orderBy?: AdminGravityPermissaoOrderByWithAggregationInput | AdminGravityPermissaoOrderByWithAggregationInput[]
+    by: AdminGravityPermissaoScalarFieldEnum[] | AdminGravityPermissaoScalarFieldEnum
+    having?: AdminGravityPermissaoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PermissaoAdminGravityCountAggregateInputType | true
-    _min?: PermissaoAdminGravityMinAggregateInputType
-    _max?: PermissaoAdminGravityMaxAggregateInputType
+    _count?: AdminGravityPermissaoCountAggregateInputType | true
+    _min?: AdminGravityPermissaoMinAggregateInputType
+    _max?: AdminGravityPermissaoMaxAggregateInputType
   }
 
-  export type PermissaoAdminGravityGroupByOutputType = {
+  export type AdminGravityPermissaoGroupByOutputType = {
     id_permissao_admin_gravity: string
     id_admin_permissao_admin_gravity: string
     recurso_permissao_admin_gravity: string
@@ -7476,26 +7476,26 @@ export namespace Prisma {
     concedido_por_permissao_admin_gravity: string
     data_criacao_permissao_admin_gravity: Date
     data_atualizacao_permissao_admin_gravity: Date
-    _count: PermissaoAdminGravityCountAggregateOutputType | null
-    _min: PermissaoAdminGravityMinAggregateOutputType | null
-    _max: PermissaoAdminGravityMaxAggregateOutputType | null
+    _count: AdminGravityPermissaoCountAggregateOutputType | null
+    _min: AdminGravityPermissaoMinAggregateOutputType | null
+    _max: AdminGravityPermissaoMaxAggregateOutputType | null
   }
 
-  type GetPermissaoAdminGravityGroupByPayload<T extends PermissaoAdminGravityGroupByArgs> = Prisma.PrismaPromise<
+  type GetAdminGravityPermissaoGroupByPayload<T extends AdminGravityPermissaoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PermissaoAdminGravityGroupByOutputType, T['by']> &
+      PickEnumerable<AdminGravityPermissaoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PermissaoAdminGravityGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AdminGravityPermissaoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PermissaoAdminGravityGroupByOutputType[P]>
-            : GetScalarType<T[P], PermissaoAdminGravityGroupByOutputType[P]>
+              : GetScalarType<T[P], AdminGravityPermissaoGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminGravityPermissaoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PermissaoAdminGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AdminGravityPermissaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_permissao_admin_gravity?: boolean
     id_admin_permissao_admin_gravity?: boolean
     recurso_permissao_admin_gravity?: boolean
@@ -7503,9 +7503,9 @@ export namespace Prisma {
     concedido_por_permissao_admin_gravity?: boolean
     data_criacao_permissao_admin_gravity?: boolean
     data_atualizacao_permissao_admin_gravity?: boolean
-  }, ExtArgs["result"]["permissaoAdminGravity"]>
+  }, ExtArgs["result"]["adminGravityPermissao"]>
 
-  export type PermissaoAdminGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AdminGravityPermissaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_permissao_admin_gravity?: boolean
     id_admin_permissao_admin_gravity?: boolean
     recurso_permissao_admin_gravity?: boolean
@@ -7513,9 +7513,9 @@ export namespace Prisma {
     concedido_por_permissao_admin_gravity?: boolean
     data_criacao_permissao_admin_gravity?: boolean
     data_atualizacao_permissao_admin_gravity?: boolean
-  }, ExtArgs["result"]["permissaoAdminGravity"]>
+  }, ExtArgs["result"]["adminGravityPermissao"]>
 
-  export type PermissaoAdminGravitySelectScalar = {
+  export type AdminGravityPermissaoSelectScalar = {
     id_permissao_admin_gravity?: boolean
     id_admin_permissao_admin_gravity?: boolean
     recurso_permissao_admin_gravity?: boolean
@@ -7526,8 +7526,8 @@ export namespace Prisma {
   }
 
 
-  export type $PermissaoAdminGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PermissaoAdminGravity"
+  export type $AdminGravityPermissaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminGravityPermissao"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_permissao_admin_gravity: string
@@ -7537,136 +7537,136 @@ export namespace Prisma {
       concedido_por_permissao_admin_gravity: string
       data_criacao_permissao_admin_gravity: Date
       data_atualizacao_permissao_admin_gravity: Date
-    }, ExtArgs["result"]["permissaoAdminGravity"]>
+    }, ExtArgs["result"]["adminGravityPermissao"]>
     composites: {}
   }
 
-  type PermissaoAdminGravityGetPayload<S extends boolean | null | undefined | PermissaoAdminGravityDefaultArgs> = $Result.GetResult<Prisma.$PermissaoAdminGravityPayload, S>
+  type AdminGravityPermissaoGetPayload<S extends boolean | null | undefined | AdminGravityPermissaoDefaultArgs> = $Result.GetResult<Prisma.$AdminGravityPermissaoPayload, S>
 
-  type PermissaoAdminGravityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PermissaoAdminGravityFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: PermissaoAdminGravityCountAggregateInputType | true
+  type AdminGravityPermissaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AdminGravityPermissaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AdminGravityPermissaoCountAggregateInputType | true
     }
 
-  export interface PermissaoAdminGravityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PermissaoAdminGravity'], meta: { name: 'PermissaoAdminGravity' } }
+  export interface AdminGravityPermissaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminGravityPermissao'], meta: { name: 'AdminGravityPermissao' } }
     /**
-     * Find zero or one PermissaoAdminGravity that matches the filter.
-     * @param {PermissaoAdminGravityFindUniqueArgs} args - Arguments to find a PermissaoAdminGravity
+     * Find zero or one AdminGravityPermissao that matches the filter.
+     * @param {AdminGravityPermissaoFindUniqueArgs} args - Arguments to find a AdminGravityPermissao
      * @example
-     * // Get one PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findUnique({
+     * // Get one AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PermissaoAdminGravityFindUniqueArgs>(args: SelectSubset<T, PermissaoAdminGravityFindUniqueArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends AdminGravityPermissaoFindUniqueArgs>(args: SelectSubset<T, AdminGravityPermissaoFindUniqueArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one PermissaoAdminGravity that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one AdminGravityPermissao that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {PermissaoAdminGravityFindUniqueOrThrowArgs} args - Arguments to find a PermissaoAdminGravity
+     * @param {AdminGravityPermissaoFindUniqueOrThrowArgs} args - Arguments to find a AdminGravityPermissao
      * @example
-     * // Get one PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findUniqueOrThrow({
+     * // Get one AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PermissaoAdminGravityFindUniqueOrThrowArgs>(args: SelectSubset<T, PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends AdminGravityPermissaoFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminGravityPermissaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first PermissaoAdminGravity that matches the filter.
+     * Find the first AdminGravityPermissao that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityFindFirstArgs} args - Arguments to find a PermissaoAdminGravity
+     * @param {AdminGravityPermissaoFindFirstArgs} args - Arguments to find a AdminGravityPermissao
      * @example
-     * // Get one PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findFirst({
+     * // Get one AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PermissaoAdminGravityFindFirstArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindFirstArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends AdminGravityPermissaoFindFirstArgs>(args?: SelectSubset<T, AdminGravityPermissaoFindFirstArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first PermissaoAdminGravity that matches the filter or
+     * Find the first AdminGravityPermissao that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityFindFirstOrThrowArgs} args - Arguments to find a PermissaoAdminGravity
+     * @param {AdminGravityPermissaoFindFirstOrThrowArgs} args - Arguments to find a AdminGravityPermissao
      * @example
-     * // Get one PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findFirstOrThrow({
+     * // Get one AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PermissaoAdminGravityFindFirstOrThrowArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends AdminGravityPermissaoFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminGravityPermissaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more PermissaoAdminGravities that matches the filter.
+     * Find zero or more AdminGravityPermissaos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {AdminGravityPermissaoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PermissaoAdminGravities
-     * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany()
+     * // Get all AdminGravityPermissaos
+     * const adminGravityPermissaos = await prisma.adminGravityPermissao.findMany()
      * 
-     * // Get first 10 PermissaoAdminGravities
-     * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany({ take: 10 })
+     * // Get first 10 AdminGravityPermissaos
+     * const adminGravityPermissaos = await prisma.adminGravityPermissao.findMany({ take: 10 })
      * 
      * // Only select the `id_permissao_admin_gravity`
-     * const permissaoAdminGravityWithId_permissao_admin_gravityOnly = await prisma.permissaoAdminGravity.findMany({ select: { id_permissao_admin_gravity: true } })
+     * const adminGravityPermissaoWithId_permissao_admin_gravityOnly = await prisma.adminGravityPermissao.findMany({ select: { id_permissao_admin_gravity: true } })
      * 
      */
-    findMany<T extends PermissaoAdminGravityFindManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends AdminGravityPermissaoFindManyArgs>(args?: SelectSubset<T, AdminGravityPermissaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a PermissaoAdminGravity.
-     * @param {PermissaoAdminGravityCreateArgs} args - Arguments to create a PermissaoAdminGravity.
+     * Create a AdminGravityPermissao.
+     * @param {AdminGravityPermissaoCreateArgs} args - Arguments to create a AdminGravityPermissao.
      * @example
-     * // Create one PermissaoAdminGravity
-     * const PermissaoAdminGravity = await prisma.permissaoAdminGravity.create({
+     * // Create one AdminGravityPermissao
+     * const AdminGravityPermissao = await prisma.adminGravityPermissao.create({
      *   data: {
-     *     // ... data to create a PermissaoAdminGravity
+     *     // ... data to create a AdminGravityPermissao
      *   }
      * })
      * 
      */
-    create<T extends PermissaoAdminGravityCreateArgs>(args: SelectSubset<T, PermissaoAdminGravityCreateArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends AdminGravityPermissaoCreateArgs>(args: SelectSubset<T, AdminGravityPermissaoCreateArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many PermissaoAdminGravities.
-     * @param {PermissaoAdminGravityCreateManyArgs} args - Arguments to create many PermissaoAdminGravities.
+     * Create many AdminGravityPermissaos.
+     * @param {AdminGravityPermissaoCreateManyArgs} args - Arguments to create many AdminGravityPermissaos.
      * @example
-     * // Create many PermissaoAdminGravities
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.createMany({
+     * // Create many AdminGravityPermissaos
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PermissaoAdminGravityCreateManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends AdminGravityPermissaoCreateManyArgs>(args?: SelectSubset<T, AdminGravityPermissaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PermissaoAdminGravities and returns the data saved in the database.
-     * @param {PermissaoAdminGravityCreateManyAndReturnArgs} args - Arguments to create many PermissaoAdminGravities.
+     * Create many AdminGravityPermissaos and returns the data saved in the database.
+     * @param {AdminGravityPermissaoCreateManyAndReturnArgs} args - Arguments to create many AdminGravityPermissaos.
      * @example
-     * // Create many PermissaoAdminGravities
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.createManyAndReturn({
+     * // Create many AdminGravityPermissaos
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PermissaoAdminGravities and only return the `id_permissao_admin_gravity`
-     * const permissaoAdminGravityWithId_permissao_admin_gravityOnly = await prisma.permissaoAdminGravity.createManyAndReturn({ 
+     * // Create many AdminGravityPermissaos and only return the `id_permissao_admin_gravity`
+     * const adminGravityPermissaoWithId_permissao_admin_gravityOnly = await prisma.adminGravityPermissao.createManyAndReturn({ 
      *   select: { id_permissao_admin_gravity: true },
      *   data: [
      *     // ... provide data here
@@ -7676,28 +7676,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PermissaoAdminGravityCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends AdminGravityPermissaoCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminGravityPermissaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a PermissaoAdminGravity.
-     * @param {PermissaoAdminGravityDeleteArgs} args - Arguments to delete one PermissaoAdminGravity.
+     * Delete a AdminGravityPermissao.
+     * @param {AdminGravityPermissaoDeleteArgs} args - Arguments to delete one AdminGravityPermissao.
      * @example
-     * // Delete one PermissaoAdminGravity
-     * const PermissaoAdminGravity = await prisma.permissaoAdminGravity.delete({
+     * // Delete one AdminGravityPermissao
+     * const AdminGravityPermissao = await prisma.adminGravityPermissao.delete({
      *   where: {
-     *     // ... filter to delete one PermissaoAdminGravity
+     *     // ... filter to delete one AdminGravityPermissao
      *   }
      * })
      * 
      */
-    delete<T extends PermissaoAdminGravityDeleteArgs>(args: SelectSubset<T, PermissaoAdminGravityDeleteArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends AdminGravityPermissaoDeleteArgs>(args: SelectSubset<T, AdminGravityPermissaoDeleteArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one PermissaoAdminGravity.
-     * @param {PermissaoAdminGravityUpdateArgs} args - Arguments to update one PermissaoAdminGravity.
+     * Update one AdminGravityPermissao.
+     * @param {AdminGravityPermissaoUpdateArgs} args - Arguments to update one AdminGravityPermissao.
      * @example
-     * // Update one PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.update({
+     * // Update one AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7707,30 +7707,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PermissaoAdminGravityUpdateArgs>(args: SelectSubset<T, PermissaoAdminGravityUpdateArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends AdminGravityPermissaoUpdateArgs>(args: SelectSubset<T, AdminGravityPermissaoUpdateArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more PermissaoAdminGravities.
-     * @param {PermissaoAdminGravityDeleteManyArgs} args - Arguments to filter PermissaoAdminGravities to delete.
+     * Delete zero or more AdminGravityPermissaos.
+     * @param {AdminGravityPermissaoDeleteManyArgs} args - Arguments to filter AdminGravityPermissaos to delete.
      * @example
-     * // Delete a few PermissaoAdminGravities
-     * const { count } = await prisma.permissaoAdminGravity.deleteMany({
+     * // Delete a few AdminGravityPermissaos
+     * const { count } = await prisma.adminGravityPermissao.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PermissaoAdminGravityDeleteManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends AdminGravityPermissaoDeleteManyArgs>(args?: SelectSubset<T, AdminGravityPermissaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PermissaoAdminGravities.
+     * Update zero or more AdminGravityPermissaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AdminGravityPermissaoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PermissaoAdminGravities
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.updateMany({
+     * // Update many AdminGravityPermissaos
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7740,56 +7740,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PermissaoAdminGravityUpdateManyArgs>(args: SelectSubset<T, PermissaoAdminGravityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends AdminGravityPermissaoUpdateManyArgs>(args: SelectSubset<T, AdminGravityPermissaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one PermissaoAdminGravity.
-     * @param {PermissaoAdminGravityUpsertArgs} args - Arguments to update or create a PermissaoAdminGravity.
+     * Create or update one AdminGravityPermissao.
+     * @param {AdminGravityPermissaoUpsertArgs} args - Arguments to update or create a AdminGravityPermissao.
      * @example
-     * // Update or create a PermissaoAdminGravity
-     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.upsert({
+     * // Update or create a AdminGravityPermissao
+     * const adminGravityPermissao = await prisma.adminGravityPermissao.upsert({
      *   create: {
-     *     // ... data to create a PermissaoAdminGravity
+     *     // ... data to create a AdminGravityPermissao
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PermissaoAdminGravity we want to update
+     *     // ... the filter for the AdminGravityPermissao we want to update
      *   }
      * })
      */
-    upsert<T extends PermissaoAdminGravityUpsertArgs>(args: SelectSubset<T, PermissaoAdminGravityUpsertArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends AdminGravityPermissaoUpsertArgs>(args: SelectSubset<T, AdminGravityPermissaoUpsertArgs<ExtArgs>>): Prisma__AdminGravityPermissaoClient<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of PermissaoAdminGravities.
+     * Count the number of AdminGravityPermissaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityCountArgs} args - Arguments to filter PermissaoAdminGravities to count.
+     * @param {AdminGravityPermissaoCountArgs} args - Arguments to filter AdminGravityPermissaos to count.
      * @example
-     * // Count the number of PermissaoAdminGravities
-     * const count = await prisma.permissaoAdminGravity.count({
+     * // Count the number of AdminGravityPermissaos
+     * const count = await prisma.adminGravityPermissao.count({
      *   where: {
-     *     // ... the filter for the PermissaoAdminGravities we want to count
+     *     // ... the filter for the AdminGravityPermissaos we want to count
      *   }
      * })
     **/
-    count<T extends PermissaoAdminGravityCountArgs>(
-      args?: Subset<T, PermissaoAdminGravityCountArgs>,
+    count<T extends AdminGravityPermissaoCountArgs>(
+      args?: Subset<T, AdminGravityPermissaoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PermissaoAdminGravityCountAggregateOutputType>
+          : GetScalarType<T['select'], AdminGravityPermissaoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PermissaoAdminGravity.
+     * Allows you to perform aggregations operations on a AdminGravityPermissao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AdminGravityPermissaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -7809,13 +7809,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PermissaoAdminGravityAggregateArgs>(args: Subset<T, PermissaoAdminGravityAggregateArgs>): Prisma.PrismaPromise<GetPermissaoAdminGravityAggregateType<T>>
+    aggregate<T extends AdminGravityPermissaoAggregateArgs>(args: Subset<T, AdminGravityPermissaoAggregateArgs>): Prisma.PrismaPromise<GetAdminGravityPermissaoAggregateType<T>>
 
     /**
-     * Group by PermissaoAdminGravity.
+     * Group by AdminGravityPermissao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PermissaoAdminGravityGroupByArgs} args - Group by arguments.
+     * @param {AdminGravityPermissaoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -7830,14 +7830,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PermissaoAdminGravityGroupByArgs,
+      T extends AdminGravityPermissaoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PermissaoAdminGravityGroupByArgs['orderBy'] }
-        : { orderBy?: PermissaoAdminGravityGroupByArgs['orderBy'] },
+        ? { orderBy: AdminGravityPermissaoGroupByArgs['orderBy'] }
+        : { orderBy?: AdminGravityPermissaoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -7886,20 +7886,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PermissaoAdminGravityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPermissaoAdminGravityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AdminGravityPermissaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminGravityPermissaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PermissaoAdminGravity model
+   * Fields of the AdminGravityPermissao model
    */
-  readonly fields: PermissaoAdminGravityFieldRefs;
+  readonly fields: AdminGravityPermissaoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PermissaoAdminGravity.
+   * The delegate class that acts as a "Promise-like" for AdminGravityPermissao.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PermissaoAdminGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AdminGravityPermissaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -7927,315 +7927,315 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PermissaoAdminGravity model
+   * Fields of the AdminGravityPermissao model
    */ 
-  interface PermissaoAdminGravityFieldRefs {
-    readonly id_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'String'>
-    readonly id_admin_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'String'>
-    readonly recurso_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'String'>
-    readonly acao_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'String'>
-    readonly concedido_por_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'String'>
-    readonly data_criacao_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'DateTime'>
-    readonly data_atualizacao_permissao_admin_gravity: FieldRef<"PermissaoAdminGravity", 'DateTime'>
+  interface AdminGravityPermissaoFieldRefs {
+    readonly id_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly id_admin_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly recurso_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly acao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly concedido_por_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly data_criacao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'DateTime'>
+    readonly data_atualizacao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PermissaoAdminGravity findUnique
+   * AdminGravityPermissao findUnique
    */
-  export type PermissaoAdminGravityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter, which PermissaoAdminGravity to fetch.
+     * Filter, which AdminGravityPermissao to fetch.
      */
-    where: PermissaoAdminGravityWhereUniqueInput
+    where: AdminGravityPermissaoWhereUniqueInput
   }
 
   /**
-   * PermissaoAdminGravity findUniqueOrThrow
+   * AdminGravityPermissao findUniqueOrThrow
    */
-  export type PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter, which PermissaoAdminGravity to fetch.
+     * Filter, which AdminGravityPermissao to fetch.
      */
-    where: PermissaoAdminGravityWhereUniqueInput
+    where: AdminGravityPermissaoWhereUniqueInput
   }
 
   /**
-   * PermissaoAdminGravity findFirst
+   * AdminGravityPermissao findFirst
    */
-  export type PermissaoAdminGravityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter, which PermissaoAdminGravity to fetch.
+     * Filter, which AdminGravityPermissao to fetch.
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PermissaoAdminGravities to fetch.
+     * Determine the order of AdminGravityPermissaos to fetch.
      */
-    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
+    orderBy?: AdminGravityPermissaoOrderByWithRelationInput | AdminGravityPermissaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PermissaoAdminGravities.
+     * Sets the position for searching for AdminGravityPermissaos.
      */
-    cursor?: PermissaoAdminGravityWhereUniqueInput
+    cursor?: AdminGravityPermissaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PermissaoAdminGravities from the position of the cursor.
+     * Take `±n` AdminGravityPermissaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PermissaoAdminGravities.
+     * Skip the first `n` AdminGravityPermissaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PermissaoAdminGravities.
+     * Filter by unique combinations of AdminGravityPermissaos.
      */
-    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
+    distinct?: AdminGravityPermissaoScalarFieldEnum | AdminGravityPermissaoScalarFieldEnum[]
   }
 
   /**
-   * PermissaoAdminGravity findFirstOrThrow
+   * AdminGravityPermissao findFirstOrThrow
    */
-  export type PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter, which PermissaoAdminGravity to fetch.
+     * Filter, which AdminGravityPermissao to fetch.
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PermissaoAdminGravities to fetch.
+     * Determine the order of AdminGravityPermissaos to fetch.
      */
-    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
+    orderBy?: AdminGravityPermissaoOrderByWithRelationInput | AdminGravityPermissaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PermissaoAdminGravities.
+     * Sets the position for searching for AdminGravityPermissaos.
      */
-    cursor?: PermissaoAdminGravityWhereUniqueInput
+    cursor?: AdminGravityPermissaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PermissaoAdminGravities from the position of the cursor.
+     * Take `±n` AdminGravityPermissaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PermissaoAdminGravities.
+     * Skip the first `n` AdminGravityPermissaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PermissaoAdminGravities.
+     * Filter by unique combinations of AdminGravityPermissaos.
      */
-    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
+    distinct?: AdminGravityPermissaoScalarFieldEnum | AdminGravityPermissaoScalarFieldEnum[]
   }
 
   /**
-   * PermissaoAdminGravity findMany
+   * AdminGravityPermissao findMany
    */
-  export type PermissaoAdminGravityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter, which PermissaoAdminGravities to fetch.
+     * Filter, which AdminGravityPermissaos to fetch.
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PermissaoAdminGravities to fetch.
+     * Determine the order of AdminGravityPermissaos to fetch.
      */
-    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
+    orderBy?: AdminGravityPermissaoOrderByWithRelationInput | AdminGravityPermissaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PermissaoAdminGravities.
+     * Sets the position for listing AdminGravityPermissaos.
      */
-    cursor?: PermissaoAdminGravityWhereUniqueInput
+    cursor?: AdminGravityPermissaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PermissaoAdminGravities from the position of the cursor.
+     * Take `±n` AdminGravityPermissaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PermissaoAdminGravities.
+     * Skip the first `n` AdminGravityPermissaos.
      */
     skip?: number
-    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
+    distinct?: AdminGravityPermissaoScalarFieldEnum | AdminGravityPermissaoScalarFieldEnum[]
   }
 
   /**
-   * PermissaoAdminGravity create
+   * AdminGravityPermissao create
    */
-  export type PermissaoAdminGravityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * The data needed to create a PermissaoAdminGravity.
+     * The data needed to create a AdminGravityPermissao.
      */
-    data: XOR<PermissaoAdminGravityCreateInput, PermissaoAdminGravityUncheckedCreateInput>
+    data: XOR<AdminGravityPermissaoCreateInput, AdminGravityPermissaoUncheckedCreateInput>
   }
 
   /**
-   * PermissaoAdminGravity createMany
+   * AdminGravityPermissao createMany
    */
-  export type PermissaoAdminGravityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PermissaoAdminGravities.
+     * The data used to create many AdminGravityPermissaos.
      */
-    data: PermissaoAdminGravityCreateManyInput | PermissaoAdminGravityCreateManyInput[]
+    data: AdminGravityPermissaoCreateManyInput | AdminGravityPermissaoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PermissaoAdminGravity createManyAndReturn
+   * AdminGravityPermissao createManyAndReturn
    */
-  export type PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelectCreateManyAndReturn<ExtArgs> | null
+    select?: AdminGravityPermissaoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many PermissaoAdminGravities.
+     * The data used to create many AdminGravityPermissaos.
      */
-    data: PermissaoAdminGravityCreateManyInput | PermissaoAdminGravityCreateManyInput[]
+    data: AdminGravityPermissaoCreateManyInput | AdminGravityPermissaoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PermissaoAdminGravity update
+   * AdminGravityPermissao update
    */
-  export type PermissaoAdminGravityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * The data needed to update a PermissaoAdminGravity.
+     * The data needed to update a AdminGravityPermissao.
      */
-    data: XOR<PermissaoAdminGravityUpdateInput, PermissaoAdminGravityUncheckedUpdateInput>
+    data: XOR<AdminGravityPermissaoUpdateInput, AdminGravityPermissaoUncheckedUpdateInput>
     /**
-     * Choose, which PermissaoAdminGravity to update.
+     * Choose, which AdminGravityPermissao to update.
      */
-    where: PermissaoAdminGravityWhereUniqueInput
+    where: AdminGravityPermissaoWhereUniqueInput
   }
 
   /**
-   * PermissaoAdminGravity updateMany
+   * AdminGravityPermissao updateMany
    */
-  export type PermissaoAdminGravityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PermissaoAdminGravities.
+     * The data used to update AdminGravityPermissaos.
      */
-    data: XOR<PermissaoAdminGravityUpdateManyMutationInput, PermissaoAdminGravityUncheckedUpdateManyInput>
+    data: XOR<AdminGravityPermissaoUpdateManyMutationInput, AdminGravityPermissaoUncheckedUpdateManyInput>
     /**
-     * Filter which PermissaoAdminGravities to update
+     * Filter which AdminGravityPermissaos to update
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
   }
 
   /**
-   * PermissaoAdminGravity upsert
+   * AdminGravityPermissao upsert
    */
-  export type PermissaoAdminGravityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * The filter to search for the PermissaoAdminGravity to update in case it exists.
+     * The filter to search for the AdminGravityPermissao to update in case it exists.
      */
-    where: PermissaoAdminGravityWhereUniqueInput
+    where: AdminGravityPermissaoWhereUniqueInput
     /**
-     * In case the PermissaoAdminGravity found by the `where` argument doesn't exist, create a new PermissaoAdminGravity with this data.
+     * In case the AdminGravityPermissao found by the `where` argument doesn't exist, create a new AdminGravityPermissao with this data.
      */
-    create: XOR<PermissaoAdminGravityCreateInput, PermissaoAdminGravityUncheckedCreateInput>
+    create: XOR<AdminGravityPermissaoCreateInput, AdminGravityPermissaoUncheckedCreateInput>
     /**
-     * In case the PermissaoAdminGravity was found with the provided `where` argument, update it with this data.
+     * In case the AdminGravityPermissao was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PermissaoAdminGravityUpdateInput, PermissaoAdminGravityUncheckedUpdateInput>
+    update: XOR<AdminGravityPermissaoUpdateInput, AdminGravityPermissaoUncheckedUpdateInput>
   }
 
   /**
-   * PermissaoAdminGravity delete
+   * AdminGravityPermissao delete
    */
-  export type PermissaoAdminGravityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
     /**
-     * Filter which PermissaoAdminGravity to delete.
+     * Filter which AdminGravityPermissao to delete.
      */
-    where: PermissaoAdminGravityWhereUniqueInput
+    where: AdminGravityPermissaoWhereUniqueInput
   }
 
   /**
-   * PermissaoAdminGravity deleteMany
+   * AdminGravityPermissao deleteMany
    */
-  export type PermissaoAdminGravityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PermissaoAdminGravities to delete
+     * Filter which AdminGravityPermissaos to delete
      */
-    where?: PermissaoAdminGravityWhereInput
+    where?: AdminGravityPermissaoWhereInput
   }
 
   /**
-   * PermissaoAdminGravity without action
+   * AdminGravityPermissao without action
    */
-  export type PermissaoAdminGravityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AdminGravityPermissaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PermissaoAdminGravity
+     * Select specific fields to fetch from the AdminGravityPermissao
      */
-    select?: PermissaoAdminGravitySelect<ExtArgs> | null
+    select?: AdminGravityPermissaoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model Empresa
+   * Model Workspace
    */
 
-  export type AggregateEmpresa = {
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
+  export type AggregateWorkspace = {
+    _count: WorkspaceCountAggregateOutputType | null
+    _min: WorkspaceMinAggregateOutputType | null
+    _max: WorkspaceMaxAggregateOutputType | null
   }
 
-  export type EmpresaMinAggregateOutputType = {
+  export type WorkspaceMinAggregateOutputType = {
     id_workspace: string | null
     id_organizacao_workspace: string | null
     nome_workspace: string | null
@@ -8246,7 +8246,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type EmpresaMaxAggregateOutputType = {
+  export type WorkspaceMaxAggregateOutputType = {
     id_workspace: string | null
     id_organizacao_workspace: string | null
     nome_workspace: string | null
@@ -8257,7 +8257,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type EmpresaCountAggregateOutputType = {
+  export type WorkspaceCountAggregateOutputType = {
     id_workspace: number
     id_organizacao_workspace: number
     nome_workspace: number
@@ -8270,7 +8270,7 @@ export namespace Prisma {
   }
 
 
-  export type EmpresaMinAggregateInputType = {
+  export type WorkspaceMinAggregateInputType = {
     id_workspace?: true
     id_organizacao_workspace?: true
     nome_workspace?: true
@@ -8281,7 +8281,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type EmpresaMaxAggregateInputType = {
+  export type WorkspaceMaxAggregateInputType = {
     id_workspace?: true
     id_organizacao_workspace?: true
     nome_workspace?: true
@@ -8292,7 +8292,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type EmpresaCountAggregateInputType = {
+  export type WorkspaceCountAggregateInputType = {
     id_workspace?: true
     id_organizacao_workspace?: true
     nome_workspace?: true
@@ -8304,79 +8304,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Empresa to aggregate.
+     * Filter which Workspace to aggregate.
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Workspaces to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: WorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Workspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Workspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Empresas
+     * Count returned Workspaces
     **/
-    _count?: true | EmpresaCountAggregateInputType
+    _count?: true | WorkspaceCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: EmpresaMinAggregateInputType
+    _min?: WorkspaceMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: EmpresaMaxAggregateInputType
+    _max?: WorkspaceMaxAggregateInputType
   }
 
-  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
-        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
+  export type GetWorkspaceAggregateType<T extends WorkspaceAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkspace]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateEmpresa[P]>
-      : GetScalarType<T[P], AggregateEmpresa[P]>
+        : GetScalarType<T[P], AggregateWorkspace[P]>
+      : GetScalarType<T[P], AggregateWorkspace[P]>
   }
 
 
 
 
-  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: EmpresaWhereInput
-    orderBy?: EmpresaOrderByWithAggregationInput | EmpresaOrderByWithAggregationInput[]
-    by: EmpresaScalarFieldEnum[] | EmpresaScalarFieldEnum
-    having?: EmpresaScalarWhereWithAggregatesInput
+  export type WorkspaceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceWhereInput
+    orderBy?: WorkspaceOrderByWithAggregationInput | WorkspaceOrderByWithAggregationInput[]
+    by: WorkspaceScalarFieldEnum[] | WorkspaceScalarFieldEnum
+    having?: WorkspaceScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: EmpresaCountAggregateInputType | true
-    _min?: EmpresaMinAggregateInputType
-    _max?: EmpresaMaxAggregateInputType
+    _count?: WorkspaceCountAggregateInputType | true
+    _min?: WorkspaceMinAggregateInputType
+    _max?: WorkspaceMaxAggregateInputType
   }
 
-  export type EmpresaGroupByOutputType = {
+  export type WorkspaceGroupByOutputType = {
     id_workspace: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -8385,26 +8385,26 @@ export namespace Prisma {
     status_workspace: $Enums.EmpresaStatus
     data_criacao_workspace: Date
     updated_at: Date
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
+    _count: WorkspaceCountAggregateOutputType | null
+    _min: WorkspaceMinAggregateOutputType | null
+    _max: WorkspaceMaxAggregateOutputType | null
   }
 
-  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
+  type GetWorkspaceGroupByPayload<T extends WorkspaceGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<EmpresaGroupByOutputType, T['by']> &
+      PickEnumerable<WorkspaceGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof WorkspaceGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
+              : GetScalarType<T[P], WorkspaceGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkspaceGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type WorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_workspace?: boolean
     id_organizacao_workspace?: boolean
     nome_workspace?: boolean
@@ -8414,13 +8414,13 @@ export namespace Prisma {
     data_criacao_workspace?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    memberships?: boolean | Empresa$membershipsArgs<ExtArgs>
-    company_products?: boolean | Empresa$company_productsArgs<ExtArgs>
-    preferred_by_users?: boolean | Empresa$preferred_by_usersArgs<ExtArgs>
-    _count?: boolean | EmpresaCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["empresa"]>
+    memberships?: boolean | Workspace$membershipsArgs<ExtArgs>
+    company_products?: boolean | Workspace$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Workspace$preferred_by_usersArgs<ExtArgs>
+    _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspace"]>
 
-  export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type WorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_workspace?: boolean
     id_organizacao_workspace?: boolean
     nome_workspace?: boolean
@@ -8430,9 +8430,9 @@ export namespace Prisma {
     data_criacao_workspace?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["empresa"]>
+  }, ExtArgs["result"]["workspace"]>
 
-  export type EmpresaSelectScalar = {
+  export type WorkspaceSelectScalar = {
     id_workspace?: boolean
     id_organizacao_workspace?: boolean
     nome_workspace?: boolean
@@ -8443,19 +8443,19 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type EmpresaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    memberships?: boolean | Empresa$membershipsArgs<ExtArgs>
-    company_products?: boolean | Empresa$company_productsArgs<ExtArgs>
-    preferred_by_users?: boolean | Empresa$preferred_by_usersArgs<ExtArgs>
-    _count?: boolean | EmpresaCountOutputTypeDefaultArgs<ExtArgs>
+    memberships?: boolean | Workspace$membershipsArgs<ExtArgs>
+    company_products?: boolean | Workspace$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Workspace$preferred_by_usersArgs<ExtArgs>
+    _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type EmpresaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
 
-  export type $EmpresaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Empresa"
+  export type $WorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Workspace"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
@@ -8471,136 +8471,136 @@ export namespace Prisma {
       status_workspace: $Enums.EmpresaStatus
       data_criacao_workspace: Date
       updated_at: Date
-    }, ExtArgs["result"]["empresa"]>
+    }, ExtArgs["result"]["workspace"]>
     composites: {}
   }
 
-  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaDefaultArgs> = $Result.GetResult<Prisma.$EmpresaPayload, S>
+  type WorkspaceGetPayload<S extends boolean | null | undefined | WorkspaceDefaultArgs> = $Result.GetResult<Prisma.$WorkspacePayload, S>
 
-  type EmpresaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<EmpresaFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: EmpresaCountAggregateInputType | true
+  type WorkspaceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<WorkspaceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: WorkspaceCountAggregateInputType | true
     }
 
-  export interface EmpresaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
+  export interface WorkspaceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Workspace'], meta: { name: 'Workspace' } }
     /**
-     * Find zero or one Empresa that matches the filter.
-     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
+     * Find zero or one Workspace that matches the filter.
+     * @param {WorkspaceFindUniqueArgs} args - Arguments to find a Workspace
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUnique({
+     * // Get one Workspace
+     * const workspace = await prisma.workspace.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends EmpresaFindUniqueArgs>(args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends WorkspaceFindUniqueArgs>(args: SelectSubset<T, WorkspaceFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Empresa that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Workspace that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
+     * @param {WorkspaceFindUniqueOrThrowArgs} args - Arguments to find a Workspace
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUniqueOrThrow({
+     * // Get one Workspace
+     * const workspace = await prisma.workspace.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs>(args: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends WorkspaceFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Empresa that matches the filter.
+     * Find the first Workspace that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
+     * @param {WorkspaceFindFirstArgs} args - Arguments to find a Workspace
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirst({
+     * // Get one Workspace
+     * const workspace = await prisma.workspace.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends EmpresaFindFirstArgs>(args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends WorkspaceFindFirstArgs>(args?: SelectSubset<T, WorkspaceFindFirstArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Empresa that matches the filter or
+     * Find the first Workspace that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
+     * @param {WorkspaceFindFirstOrThrowArgs} args - Arguments to find a Workspace
      * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirstOrThrow({
+     * // Get one Workspace
+     * const workspace = await prisma.workspace.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs>(args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends WorkspaceFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Empresas that matches the filter.
+     * Find zero or more Workspaces that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {WorkspaceFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Empresas
-     * const empresas = await prisma.empresa.findMany()
+     * // Get all Workspaces
+     * const workspaces = await prisma.workspace.findMany()
      * 
-     * // Get first 10 Empresas
-     * const empresas = await prisma.empresa.findMany({ take: 10 })
+     * // Get first 10 Workspaces
+     * const workspaces = await prisma.workspace.findMany({ take: 10 })
      * 
      * // Only select the `id_workspace`
-     * const empresaWithId_workspaceOnly = await prisma.empresa.findMany({ select: { id_workspace: true } })
+     * const workspaceWithId_workspaceOnly = await prisma.workspace.findMany({ select: { id_workspace: true } })
      * 
      */
-    findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends WorkspaceFindManyArgs>(args?: SelectSubset<T, WorkspaceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Empresa.
-     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
+     * Create a Workspace.
+     * @param {WorkspaceCreateArgs} args - Arguments to create a Workspace.
      * @example
-     * // Create one Empresa
-     * const Empresa = await prisma.empresa.create({
+     * // Create one Workspace
+     * const Workspace = await prisma.workspace.create({
      *   data: {
-     *     // ... data to create a Empresa
+     *     // ... data to create a Workspace
      *   }
      * })
      * 
      */
-    create<T extends EmpresaCreateArgs>(args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends WorkspaceCreateArgs>(args: SelectSubset<T, WorkspaceCreateArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Empresas.
-     * @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
+     * Create many Workspaces.
+     * @param {WorkspaceCreateManyArgs} args - Arguments to create many Workspaces.
      * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createMany({
+     * // Create many Workspaces
+     * const workspace = await prisma.workspace.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends EmpresaCreateManyArgs>(args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends WorkspaceCreateManyArgs>(args?: SelectSubset<T, WorkspaceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Empresas and returns the data saved in the database.
-     * @param {EmpresaCreateManyAndReturnArgs} args - Arguments to create many Empresas.
+     * Create many Workspaces and returns the data saved in the database.
+     * @param {WorkspaceCreateManyAndReturnArgs} args - Arguments to create many Workspaces.
      * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createManyAndReturn({
+     * // Create many Workspaces
+     * const workspace = await prisma.workspace.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Empresas and only return the `id_workspace`
-     * const empresaWithId_workspaceOnly = await prisma.empresa.createManyAndReturn({ 
+     * // Create many Workspaces and only return the `id_workspace`
+     * const workspaceWithId_workspaceOnly = await prisma.workspace.createManyAndReturn({ 
      *   select: { id_workspace: true },
      *   data: [
      *     // ... provide data here
@@ -8610,28 +8610,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends EmpresaCreateManyAndReturnArgs>(args?: SelectSubset<T, EmpresaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends WorkspaceCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Empresa.
-     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
+     * Delete a Workspace.
+     * @param {WorkspaceDeleteArgs} args - Arguments to delete one Workspace.
      * @example
-     * // Delete one Empresa
-     * const Empresa = await prisma.empresa.delete({
+     * // Delete one Workspace
+     * const Workspace = await prisma.workspace.delete({
      *   where: {
-     *     // ... filter to delete one Empresa
+     *     // ... filter to delete one Workspace
      *   }
      * })
      * 
      */
-    delete<T extends EmpresaDeleteArgs>(args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends WorkspaceDeleteArgs>(args: SelectSubset<T, WorkspaceDeleteArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Empresa.
-     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
+     * Update one Workspace.
+     * @param {WorkspaceUpdateArgs} args - Arguments to update one Workspace.
      * @example
-     * // Update one Empresa
-     * const empresa = await prisma.empresa.update({
+     * // Update one Workspace
+     * const workspace = await prisma.workspace.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8641,30 +8641,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends EmpresaUpdateArgs>(args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends WorkspaceUpdateArgs>(args: SelectSubset<T, WorkspaceUpdateArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Empresas.
-     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
+     * Delete zero or more Workspaces.
+     * @param {WorkspaceDeleteManyArgs} args - Arguments to filter Workspaces to delete.
      * @example
-     * // Delete a few Empresas
-     * const { count } = await prisma.empresa.deleteMany({
+     * // Delete a few Workspaces
+     * const { count } = await prisma.workspace.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends EmpresaDeleteManyArgs>(args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends WorkspaceDeleteManyArgs>(args?: SelectSubset<T, WorkspaceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Empresas.
+     * Update zero or more Workspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {WorkspaceUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Empresas
-     * const empresa = await prisma.empresa.updateMany({
+     * // Update many Workspaces
+     * const workspace = await prisma.workspace.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8674,56 +8674,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends EmpresaUpdateManyArgs>(args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends WorkspaceUpdateManyArgs>(args: SelectSubset<T, WorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Empresa.
-     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
+     * Create or update one Workspace.
+     * @param {WorkspaceUpsertArgs} args - Arguments to update or create a Workspace.
      * @example
-     * // Update or create a Empresa
-     * const empresa = await prisma.empresa.upsert({
+     * // Update or create a Workspace
+     * const workspace = await prisma.workspace.upsert({
      *   create: {
-     *     // ... data to create a Empresa
+     *     // ... data to create a Workspace
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Empresa we want to update
+     *     // ... the filter for the Workspace we want to update
      *   }
      * })
      */
-    upsert<T extends EmpresaUpsertArgs>(args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends WorkspaceUpsertArgs>(args: SelectSubset<T, WorkspaceUpsertArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Empresas.
+     * Count the number of Workspaces.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
+     * @param {WorkspaceCountArgs} args - Arguments to filter Workspaces to count.
      * @example
-     * // Count the number of Empresas
-     * const count = await prisma.empresa.count({
+     * // Count the number of Workspaces
+     * const count = await prisma.workspace.count({
      *   where: {
-     *     // ... the filter for the Empresas we want to count
+     *     // ... the filter for the Workspaces we want to count
      *   }
      * })
     **/
-    count<T extends EmpresaCountArgs>(
-      args?: Subset<T, EmpresaCountArgs>,
+    count<T extends WorkspaceCountArgs>(
+      args?: Subset<T, WorkspaceCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
+          : GetScalarType<T['select'], WorkspaceCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Empresa.
+     * Allows you to perform aggregations operations on a Workspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {WorkspaceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -8743,13 +8743,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
+    aggregate<T extends WorkspaceAggregateArgs>(args: Subset<T, WorkspaceAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceAggregateType<T>>
 
     /**
-     * Group by Empresa.
+     * Group by Workspace.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaGroupByArgs} args - Group by arguments.
+     * @param {WorkspaceGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -8764,14 +8764,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends EmpresaGroupByArgs,
+      T extends WorkspaceGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
-        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
+        ? { orderBy: WorkspaceGroupByArgs['orderBy'] }
+        : { orderBy?: WorkspaceGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -8820,25 +8820,25 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, WorkspaceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Empresa model
+   * Fields of the Workspace model
    */
-  readonly fields: EmpresaFieldRefs;
+  readonly fields: WorkspaceFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Empresa.
+   * The delegate class that acts as a "Promise-like" for Workspace.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    memberships<T extends Empresa$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
-    company_products<T extends Empresa$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
-    preferred_by_users<T extends Empresa$preferred_by_usersArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$preferred_by_usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
+    memberships<T extends Workspace$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    company_products<T extends Workspace$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    preferred_by_users<T extends Workspace$preferred_by_usersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$preferred_by_usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8865,338 +8865,338 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Empresa model
+   * Fields of the Workspace model
    */ 
-  interface EmpresaFieldRefs {
-    readonly id_workspace: FieldRef<"Empresa", 'String'>
-    readonly id_organizacao_workspace: FieldRef<"Empresa", 'String'>
-    readonly nome_workspace: FieldRef<"Empresa", 'String'>
-    readonly subdominio_workspace: FieldRef<"Empresa", 'String'>
-    readonly cnpj_workspace: FieldRef<"Empresa", 'String'>
-    readonly status_workspace: FieldRef<"Empresa", 'EmpresaStatus'>
-    readonly data_criacao_workspace: FieldRef<"Empresa", 'DateTime'>
-    readonly updated_at: FieldRef<"Empresa", 'DateTime'>
+  interface WorkspaceFieldRefs {
+    readonly id_workspace: FieldRef<"Workspace", 'String'>
+    readonly id_organizacao_workspace: FieldRef<"Workspace", 'String'>
+    readonly nome_workspace: FieldRef<"Workspace", 'String'>
+    readonly subdominio_workspace: FieldRef<"Workspace", 'String'>
+    readonly cnpj_workspace: FieldRef<"Workspace", 'String'>
+    readonly status_workspace: FieldRef<"Workspace", 'EmpresaStatus'>
+    readonly data_criacao_workspace: FieldRef<"Workspace", 'DateTime'>
+    readonly updated_at: FieldRef<"Workspace", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Empresa findUnique
+   * Workspace findUnique
    */
-  export type EmpresaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Filter, which Workspace to fetch.
      */
-    where: EmpresaWhereUniqueInput
+    where: WorkspaceWhereUniqueInput
   }
 
   /**
-   * Empresa findUniqueOrThrow
+   * Workspace findUniqueOrThrow
    */
-  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Filter, which Workspace to fetch.
      */
-    where: EmpresaWhereUniqueInput
+    where: WorkspaceWhereUniqueInput
   }
 
   /**
-   * Empresa findFirst
+   * Workspace findFirst
    */
-  export type EmpresaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Filter, which Workspace to fetch.
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Workspaces to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Empresas.
+     * Sets the position for searching for Workspaces.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: WorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Workspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Workspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Empresas.
+     * Filter by unique combinations of Workspaces.
      */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
   }
 
   /**
-   * Empresa findFirstOrThrow
+   * Workspace findFirstOrThrow
    */
-  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter, which Empresa to fetch.
+     * Filter, which Workspace to fetch.
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Workspaces to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Empresas.
+     * Sets the position for searching for Workspaces.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: WorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Workspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Workspaces.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Empresas.
+     * Filter by unique combinations of Workspaces.
      */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
   }
 
   /**
-   * Empresa findMany
+   * Workspace findMany
    */
-  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter, which Empresas to fetch.
+     * Filter, which Workspaces to fetch.
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Empresas to fetch.
+     * Determine the order of Workspaces to fetch.
      */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Empresas.
+     * Sets the position for listing Workspaces.
      */
-    cursor?: EmpresaWhereUniqueInput
+    cursor?: WorkspaceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Empresas from the position of the cursor.
+     * Take `±n` Workspaces from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Empresas.
+     * Skip the first `n` Workspaces.
      */
     skip?: number
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
+    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
   }
 
   /**
-   * Empresa create
+   * Workspace create
    */
-  export type EmpresaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * The data needed to create a Empresa.
+     * The data needed to create a Workspace.
      */
-    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+    data: XOR<WorkspaceCreateInput, WorkspaceUncheckedCreateInput>
   }
 
   /**
-   * Empresa createMany
+   * Workspace createMany
    */
-  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Empresas.
+     * The data used to create many Workspaces.
      */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    data: WorkspaceCreateManyInput | WorkspaceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Empresa createManyAndReturn
+   * Workspace createManyAndReturn
    */
-  export type EmpresaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelectCreateManyAndReturn<ExtArgs> | null
+    select?: WorkspaceSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Empresas.
+     * The data used to create many Workspaces.
      */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
+    data: WorkspaceCreateManyInput | WorkspaceCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: WorkspaceIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Empresa update
+   * Workspace update
    */
-  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * The data needed to update a Empresa.
+     * The data needed to update a Workspace.
      */
-    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+    data: XOR<WorkspaceUpdateInput, WorkspaceUncheckedUpdateInput>
     /**
-     * Choose, which Empresa to update.
+     * Choose, which Workspace to update.
      */
-    where: EmpresaWhereUniqueInput
+    where: WorkspaceWhereUniqueInput
   }
 
   /**
-   * Empresa updateMany
+   * Workspace updateMany
    */
-  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Empresas.
+     * The data used to update Workspaces.
      */
-    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
+    data: XOR<WorkspaceUpdateManyMutationInput, WorkspaceUncheckedUpdateManyInput>
     /**
-     * Filter which Empresas to update
+     * Filter which Workspaces to update
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
   }
 
   /**
-   * Empresa upsert
+   * Workspace upsert
    */
-  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * The filter to search for the Empresa to update in case it exists.
+     * The filter to search for the Workspace to update in case it exists.
      */
-    where: EmpresaWhereUniqueInput
+    where: WorkspaceWhereUniqueInput
     /**
-     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
+     * In case the Workspace found by the `where` argument doesn't exist, create a new Workspace with this data.
      */
-    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
+    create: XOR<WorkspaceCreateInput, WorkspaceUncheckedCreateInput>
     /**
-     * In case the Empresa was found with the provided `where` argument, update it with this data.
+     * In case the Workspace was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
+    update: XOR<WorkspaceUpdateInput, WorkspaceUncheckedUpdateInput>
   }
 
   /**
-   * Empresa delete
+   * Workspace delete
    */
-  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
     /**
-     * Filter which Empresa to delete.
+     * Filter which Workspace to delete.
      */
-    where: EmpresaWhereUniqueInput
+    where: WorkspaceWhereUniqueInput
   }
 
   /**
-   * Empresa deleteMany
+   * Workspace deleteMany
    */
-  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Empresas to delete
+     * Filter which Workspaces to delete
      */
-    where?: EmpresaWhereInput
+    where?: WorkspaceWhereInput
   }
 
   /**
-   * Empresa.memberships
+   * Workspace.memberships
    */
-  export type Empresa$membershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Workspace$membershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the UsuarioWorkspace
      */
@@ -9214,9 +9214,9 @@ export namespace Prisma {
   }
 
   /**
-   * Empresa.company_products
+   * Workspace.company_products
    */
-  export type Empresa$company_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Workspace$company_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the ProdutoGravityWorkspace
      */
@@ -9234,9 +9234,9 @@ export namespace Prisma {
   }
 
   /**
-   * Empresa.preferred_by_users
+   * Workspace.preferred_by_users
    */
-  export type Empresa$preferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Workspace$preferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Usuario
      */
@@ -9254,17 +9254,17 @@ export namespace Prisma {
   }
 
   /**
-   * Empresa without action
+   * Workspace without action
    */
-  export type EmpresaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type WorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Empresa
+     * Select specific fields to fetch from the Workspace
      */
-    select?: EmpresaSelect<ExtArgs> | null
+    select?: WorkspaceSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: EmpresaInclude<ExtArgs> | null
+    include?: WorkspaceInclude<ExtArgs> | null
   }
 
 
@@ -9457,7 +9457,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: boolean
     data_atualizacao_usuario_workspace?: boolean
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioWorkspace"]>
 
   export type UsuarioWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9470,7 +9470,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: boolean
     data_atualizacao_usuario_workspace?: boolean
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioWorkspace"]>
 
   export type UsuarioWorkspaceSelectScalar = {
@@ -9486,18 +9486,18 @@ export namespace Prisma {
 
   export type UsuarioWorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
   export type UsuarioWorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
 
   export type $UsuarioWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "UsuarioWorkspace"
     objects: {
       user: Prisma.$UsuarioPayload<ExtArgs>
-      company: Prisma.$EmpresaPayload<ExtArgs>
+      company: Prisma.$WorkspacePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id_usuario_workspace: string
@@ -9873,7 +9873,7 @@ export namespace Prisma {
   export interface Prisma__UsuarioWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioDefaultArgs<ExtArgs>>): Prisma__UsuarioClient<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    company<T extends EmpresaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmpresaDefaultArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    company<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10244,16 +10244,16 @@ export namespace Prisma {
 
 
   /**
-   * Model ConfiguracaoProduto
+   * Model ProdutoGravityConfiguracao
    */
 
-  export type AggregateConfiguracaoProduto = {
-    _count: ConfiguracaoProdutoCountAggregateOutputType | null
-    _min: ConfiguracaoProdutoMinAggregateOutputType | null
-    _max: ConfiguracaoProdutoMaxAggregateOutputType | null
+  export type AggregateProdutoGravityConfiguracao = {
+    _count: ProdutoGravityConfiguracaoCountAggregateOutputType | null
+    _min: ProdutoGravityConfiguracaoMinAggregateOutputType | null
+    _max: ProdutoGravityConfiguracaoMaxAggregateOutputType | null
   }
 
-  export type ConfiguracaoProdutoMinAggregateOutputType = {
+  export type ProdutoGravityConfiguracaoMinAggregateOutputType = {
     id_config_produto_gravity: string | null
     id_organizacao_config_produto_gravity: string | null
     chave_produto_config_produto_gravity: string | null
@@ -10262,7 +10262,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity: Date | null
   }
 
-  export type ConfiguracaoProdutoMaxAggregateOutputType = {
+  export type ProdutoGravityConfiguracaoMaxAggregateOutputType = {
     id_config_produto_gravity: string | null
     id_organizacao_config_produto_gravity: string | null
     chave_produto_config_produto_gravity: string | null
@@ -10271,7 +10271,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity: Date | null
   }
 
-  export type ConfiguracaoProdutoCountAggregateOutputType = {
+  export type ProdutoGravityConfiguracaoCountAggregateOutputType = {
     id_config_produto_gravity: number
     id_organizacao_config_produto_gravity: number
     chave_produto_config_produto_gravity: number
@@ -10283,7 +10283,7 @@ export namespace Prisma {
   }
 
 
-  export type ConfiguracaoProdutoMinAggregateInputType = {
+  export type ProdutoGravityConfiguracaoMinAggregateInputType = {
     id_config_produto_gravity?: true
     id_organizacao_config_produto_gravity?: true
     chave_produto_config_produto_gravity?: true
@@ -10292,7 +10292,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: true
   }
 
-  export type ConfiguracaoProdutoMaxAggregateInputType = {
+  export type ProdutoGravityConfiguracaoMaxAggregateInputType = {
     id_config_produto_gravity?: true
     id_organizacao_config_produto_gravity?: true
     chave_produto_config_produto_gravity?: true
@@ -10301,7 +10301,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: true
   }
 
-  export type ConfiguracaoProdutoCountAggregateInputType = {
+  export type ProdutoGravityConfiguracaoCountAggregateInputType = {
     id_config_produto_gravity?: true
     id_organizacao_config_produto_gravity?: true
     chave_produto_config_produto_gravity?: true
@@ -10312,79 +10312,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type ConfiguracaoProdutoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConfiguracaoProduto to aggregate.
+     * Filter which ProdutoGravityConfiguracao to aggregate.
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfiguracaoProdutos to fetch.
+     * Determine the order of ProdutoGravityConfiguracaos to fetch.
      */
-    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithRelationInput | ProdutoGravityConfiguracaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ConfiguracaoProdutoWhereUniqueInput
+    cursor?: ProdutoGravityConfiguracaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
+     * Take `±n` ProdutoGravityConfiguracaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfiguracaoProdutos.
+     * Skip the first `n` ProdutoGravityConfiguracaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ConfiguracaoProdutos
+     * Count returned ProdutoGravityConfiguracaos
     **/
-    _count?: true | ConfiguracaoProdutoCountAggregateInputType
+    _count?: true | ProdutoGravityConfiguracaoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ConfiguracaoProdutoMinAggregateInputType
+    _min?: ProdutoGravityConfiguracaoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ConfiguracaoProdutoMaxAggregateInputType
+    _max?: ProdutoGravityConfiguracaoMaxAggregateInputType
   }
 
-  export type GetConfiguracaoProdutoAggregateType<T extends ConfiguracaoProdutoAggregateArgs> = {
-        [P in keyof T & keyof AggregateConfiguracaoProduto]: P extends '_count' | 'count'
+  export type GetProdutoGravityConfiguracaoAggregateType<T extends ProdutoGravityConfiguracaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityConfiguracao]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateConfiguracaoProduto[P]>
-      : GetScalarType<T[P], AggregateConfiguracaoProduto[P]>
+        : GetScalarType<T[P], AggregateProdutoGravityConfiguracao[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityConfiguracao[P]>
   }
 
 
 
 
-  export type ConfiguracaoProdutoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConfiguracaoProdutoWhereInput
-    orderBy?: ConfiguracaoProdutoOrderByWithAggregationInput | ConfiguracaoProdutoOrderByWithAggregationInput[]
-    by: ConfiguracaoProdutoScalarFieldEnum[] | ConfiguracaoProdutoScalarFieldEnum
-    having?: ConfiguracaoProdutoScalarWhereWithAggregatesInput
+  export type ProdutoGravityConfiguracaoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityConfiguracaoWhereInput
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithAggregationInput | ProdutoGravityConfiguracaoOrderByWithAggregationInput[]
+    by: ProdutoGravityConfiguracaoScalarFieldEnum[] | ProdutoGravityConfiguracaoScalarFieldEnum
+    having?: ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ConfiguracaoProdutoCountAggregateInputType | true
-    _min?: ConfiguracaoProdutoMinAggregateInputType
-    _max?: ConfiguracaoProdutoMaxAggregateInputType
+    _count?: ProdutoGravityConfiguracaoCountAggregateInputType | true
+    _min?: ProdutoGravityConfiguracaoMinAggregateInputType
+    _max?: ProdutoGravityConfiguracaoMaxAggregateInputType
   }
 
-  export type ConfiguracaoProdutoGroupByOutputType = {
+  export type ProdutoGravityConfiguracaoGroupByOutputType = {
     id_config_produto_gravity: string
     id_organizacao_config_produto_gravity: string
     chave_produto_config_produto_gravity: string
@@ -10392,26 +10392,26 @@ export namespace Prisma {
     ativo_config_produto_gravity: boolean
     data_criacao_config_produto_gravity: Date
     data_atualizacao_config_produto_gravity: Date
-    _count: ConfiguracaoProdutoCountAggregateOutputType | null
-    _min: ConfiguracaoProdutoMinAggregateOutputType | null
-    _max: ConfiguracaoProdutoMaxAggregateOutputType | null
+    _count: ProdutoGravityConfiguracaoCountAggregateOutputType | null
+    _min: ProdutoGravityConfiguracaoMinAggregateOutputType | null
+    _max: ProdutoGravityConfiguracaoMaxAggregateOutputType | null
   }
 
-  type GetConfiguracaoProdutoGroupByPayload<T extends ConfiguracaoProdutoGroupByArgs> = Prisma.PrismaPromise<
+  type GetProdutoGravityConfiguracaoGroupByPayload<T extends ProdutoGravityConfiguracaoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ConfiguracaoProdutoGroupByOutputType, T['by']> &
+      PickEnumerable<ProdutoGravityConfiguracaoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ConfiguracaoProdutoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProdutoGravityConfiguracaoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ConfiguracaoProdutoGroupByOutputType[P]>
-            : GetScalarType<T[P], ConfiguracaoProdutoGroupByOutputType[P]>
+              : GetScalarType<T[P], ProdutoGravityConfiguracaoGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityConfiguracaoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ConfiguracaoProdutoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityConfiguracaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_config_produto_gravity?: boolean
     id_organizacao_config_produto_gravity?: boolean
     chave_produto_config_produto_gravity?: boolean
@@ -10420,9 +10420,9 @@ export namespace Prisma {
     data_criacao_config_produto_gravity?: boolean
     data_atualizacao_config_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["configuracaoProduto"]>
+  }, ExtArgs["result"]["produtoGravityConfiguracao"]>
 
-  export type ConfiguracaoProdutoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityConfiguracaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_config_produto_gravity?: boolean
     id_organizacao_config_produto_gravity?: boolean
     chave_produto_config_produto_gravity?: boolean
@@ -10431,9 +10431,9 @@ export namespace Prisma {
     data_criacao_config_produto_gravity?: boolean
     data_atualizacao_config_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["configuracaoProduto"]>
+  }, ExtArgs["result"]["produtoGravityConfiguracao"]>
 
-  export type ConfiguracaoProdutoSelectScalar = {
+  export type ProdutoGravityConfiguracaoSelectScalar = {
     id_config_produto_gravity?: boolean
     id_organizacao_config_produto_gravity?: boolean
     chave_produto_config_produto_gravity?: boolean
@@ -10443,15 +10443,15 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: boolean
   }
 
-  export type ConfiguracaoProdutoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
-  export type ConfiguracaoProdutoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
 
-  export type $ConfiguracaoProdutoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ConfiguracaoProduto"
+  export type $ProdutoGravityConfiguracaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityConfiguracao"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
     }
@@ -10463,136 +10463,136 @@ export namespace Prisma {
       ativo_config_produto_gravity: boolean
       data_criacao_config_produto_gravity: Date
       data_atualizacao_config_produto_gravity: Date
-    }, ExtArgs["result"]["configuracaoProduto"]>
+    }, ExtArgs["result"]["produtoGravityConfiguracao"]>
     composites: {}
   }
 
-  type ConfiguracaoProdutoGetPayload<S extends boolean | null | undefined | ConfiguracaoProdutoDefaultArgs> = $Result.GetResult<Prisma.$ConfiguracaoProdutoPayload, S>
+  type ProdutoGravityConfiguracaoGetPayload<S extends boolean | null | undefined | ProdutoGravityConfiguracaoDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload, S>
 
-  type ConfiguracaoProdutoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ConfiguracaoProdutoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ConfiguracaoProdutoCountAggregateInputType | true
+  type ProdutoGravityConfiguracaoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityConfiguracaoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityConfiguracaoCountAggregateInputType | true
     }
 
-  export interface ConfiguracaoProdutoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfiguracaoProduto'], meta: { name: 'ConfiguracaoProduto' } }
+  export interface ProdutoGravityConfiguracaoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityConfiguracao'], meta: { name: 'ProdutoGravityConfiguracao' } }
     /**
-     * Find zero or one ConfiguracaoProduto that matches the filter.
-     * @param {ConfiguracaoProdutoFindUniqueArgs} args - Arguments to find a ConfiguracaoProduto
+     * Find zero or one ProdutoGravityConfiguracao that matches the filter.
+     * @param {ProdutoGravityConfiguracaoFindUniqueArgs} args - Arguments to find a ProdutoGravityConfiguracao
      * @example
-     * // Get one ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.findUnique({
+     * // Get one ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ConfiguracaoProdutoFindUniqueArgs>(args: SelectSubset<T, ConfiguracaoProdutoFindUniqueArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ProdutoGravityConfiguracaoFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ConfiguracaoProduto that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ProdutoGravityConfiguracao that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ConfiguracaoProdutoFindUniqueOrThrowArgs} args - Arguments to find a ConfiguracaoProduto
+     * @param {ProdutoGravityConfiguracaoFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityConfiguracao
      * @example
-     * // Get one ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.findUniqueOrThrow({
+     * // Get one ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ConfiguracaoProdutoFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ProdutoGravityConfiguracaoFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ConfiguracaoProduto that matches the filter.
+     * Find the first ProdutoGravityConfiguracao that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoFindFirstArgs} args - Arguments to find a ConfiguracaoProduto
+     * @param {ProdutoGravityConfiguracaoFindFirstArgs} args - Arguments to find a ProdutoGravityConfiguracao
      * @example
-     * // Get one ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.findFirst({
+     * // Get one ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ConfiguracaoProdutoFindFirstArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindFirstArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ProdutoGravityConfiguracaoFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ConfiguracaoProduto that matches the filter or
+     * Find the first ProdutoGravityConfiguracao that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoFindFirstOrThrowArgs} args - Arguments to find a ConfiguracaoProduto
+     * @param {ProdutoGravityConfiguracaoFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityConfiguracao
      * @example
-     * // Get one ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.findFirstOrThrow({
+     * // Get one ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ConfiguracaoProdutoFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ProdutoGravityConfiguracaoFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ConfiguracaoProdutos that matches the filter.
+     * Find zero or more ProdutoGravityConfiguracaos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProdutoGravityConfiguracaoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ConfiguracaoProdutos
-     * const configuracaoProdutos = await prisma.configuracaoProduto.findMany()
+     * // Get all ProdutoGravityConfiguracaos
+     * const produtoGravityConfiguracaos = await prisma.produtoGravityConfiguracao.findMany()
      * 
-     * // Get first 10 ConfiguracaoProdutos
-     * const configuracaoProdutos = await prisma.configuracaoProduto.findMany({ take: 10 })
+     * // Get first 10 ProdutoGravityConfiguracaos
+     * const produtoGravityConfiguracaos = await prisma.produtoGravityConfiguracao.findMany({ take: 10 })
      * 
      * // Only select the `id_config_produto_gravity`
-     * const configuracaoProdutoWithId_config_produto_gravityOnly = await prisma.configuracaoProduto.findMany({ select: { id_config_produto_gravity: true } })
+     * const produtoGravityConfiguracaoWithId_config_produto_gravityOnly = await prisma.produtoGravityConfiguracao.findMany({ select: { id_config_produto_gravity: true } })
      * 
      */
-    findMany<T extends ConfiguracaoProdutoFindManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ProdutoGravityConfiguracaoFindManyArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ConfiguracaoProduto.
-     * @param {ConfiguracaoProdutoCreateArgs} args - Arguments to create a ConfiguracaoProduto.
+     * Create a ProdutoGravityConfiguracao.
+     * @param {ProdutoGravityConfiguracaoCreateArgs} args - Arguments to create a ProdutoGravityConfiguracao.
      * @example
-     * // Create one ConfiguracaoProduto
-     * const ConfiguracaoProduto = await prisma.configuracaoProduto.create({
+     * // Create one ProdutoGravityConfiguracao
+     * const ProdutoGravityConfiguracao = await prisma.produtoGravityConfiguracao.create({
      *   data: {
-     *     // ... data to create a ConfiguracaoProduto
+     *     // ... data to create a ProdutoGravityConfiguracao
      *   }
      * })
      * 
      */
-    create<T extends ConfiguracaoProdutoCreateArgs>(args: SelectSubset<T, ConfiguracaoProdutoCreateArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ProdutoGravityConfiguracaoCreateArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoCreateArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ConfiguracaoProdutos.
-     * @param {ConfiguracaoProdutoCreateManyArgs} args - Arguments to create many ConfiguracaoProdutos.
+     * Create many ProdutoGravityConfiguracaos.
+     * @param {ProdutoGravityConfiguracaoCreateManyArgs} args - Arguments to create many ProdutoGravityConfiguracaos.
      * @example
-     * // Create many ConfiguracaoProdutos
-     * const configuracaoProduto = await prisma.configuracaoProduto.createMany({
+     * // Create many ProdutoGravityConfiguracaos
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ConfiguracaoProdutoCreateManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProdutoGravityConfiguracaoCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ConfiguracaoProdutos and returns the data saved in the database.
-     * @param {ConfiguracaoProdutoCreateManyAndReturnArgs} args - Arguments to create many ConfiguracaoProdutos.
+     * Create many ProdutoGravityConfiguracaos and returns the data saved in the database.
+     * @param {ProdutoGravityConfiguracaoCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityConfiguracaos.
      * @example
-     * // Create many ConfiguracaoProdutos
-     * const configuracaoProduto = await prisma.configuracaoProduto.createManyAndReturn({
+     * // Create many ProdutoGravityConfiguracaos
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ConfiguracaoProdutos and only return the `id_config_produto_gravity`
-     * const configuracaoProdutoWithId_config_produto_gravityOnly = await prisma.configuracaoProduto.createManyAndReturn({ 
+     * // Create many ProdutoGravityConfiguracaos and only return the `id_config_produto_gravity`
+     * const produtoGravityConfiguracaoWithId_config_produto_gravityOnly = await prisma.produtoGravityConfiguracao.createManyAndReturn({ 
      *   select: { id_config_produto_gravity: true },
      *   data: [
      *     // ... provide data here
@@ -10602,28 +10602,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ConfiguracaoProdutoCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ProdutoGravityConfiguracaoCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ConfiguracaoProduto.
-     * @param {ConfiguracaoProdutoDeleteArgs} args - Arguments to delete one ConfiguracaoProduto.
+     * Delete a ProdutoGravityConfiguracao.
+     * @param {ProdutoGravityConfiguracaoDeleteArgs} args - Arguments to delete one ProdutoGravityConfiguracao.
      * @example
-     * // Delete one ConfiguracaoProduto
-     * const ConfiguracaoProduto = await prisma.configuracaoProduto.delete({
+     * // Delete one ProdutoGravityConfiguracao
+     * const ProdutoGravityConfiguracao = await prisma.produtoGravityConfiguracao.delete({
      *   where: {
-     *     // ... filter to delete one ConfiguracaoProduto
+     *     // ... filter to delete one ProdutoGravityConfiguracao
      *   }
      * })
      * 
      */
-    delete<T extends ConfiguracaoProdutoDeleteArgs>(args: SelectSubset<T, ConfiguracaoProdutoDeleteArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ProdutoGravityConfiguracaoDeleteArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ConfiguracaoProduto.
-     * @param {ConfiguracaoProdutoUpdateArgs} args - Arguments to update one ConfiguracaoProduto.
+     * Update one ProdutoGravityConfiguracao.
+     * @param {ProdutoGravityConfiguracaoUpdateArgs} args - Arguments to update one ProdutoGravityConfiguracao.
      * @example
-     * // Update one ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.update({
+     * // Update one ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -10633,30 +10633,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ConfiguracaoProdutoUpdateArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpdateArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ProdutoGravityConfiguracaoUpdateArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ConfiguracaoProdutos.
-     * @param {ConfiguracaoProdutoDeleteManyArgs} args - Arguments to filter ConfiguracaoProdutos to delete.
+     * Delete zero or more ProdutoGravityConfiguracaos.
+     * @param {ProdutoGravityConfiguracaoDeleteManyArgs} args - Arguments to filter ProdutoGravityConfiguracaos to delete.
      * @example
-     * // Delete a few ConfiguracaoProdutos
-     * const { count } = await prisma.configuracaoProduto.deleteMany({
+     * // Delete a few ProdutoGravityConfiguracaos
+     * const { count } = await prisma.produtoGravityConfiguracao.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ConfiguracaoProdutoDeleteManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProdutoGravityConfiguracaoDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityConfiguracaoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ConfiguracaoProdutos.
+     * Update zero or more ProdutoGravityConfiguracaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProdutoGravityConfiguracaoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ConfiguracaoProdutos
-     * const configuracaoProduto = await prisma.configuracaoProduto.updateMany({
+     * // Update many ProdutoGravityConfiguracaos
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -10666,56 +10666,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ConfiguracaoProdutoUpdateManyArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProdutoGravityConfiguracaoUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ConfiguracaoProduto.
-     * @param {ConfiguracaoProdutoUpsertArgs} args - Arguments to update or create a ConfiguracaoProduto.
+     * Create or update one ProdutoGravityConfiguracao.
+     * @param {ProdutoGravityConfiguracaoUpsertArgs} args - Arguments to update or create a ProdutoGravityConfiguracao.
      * @example
-     * // Update or create a ConfiguracaoProduto
-     * const configuracaoProduto = await prisma.configuracaoProduto.upsert({
+     * // Update or create a ProdutoGravityConfiguracao
+     * const produtoGravityConfiguracao = await prisma.produtoGravityConfiguracao.upsert({
      *   create: {
-     *     // ... data to create a ConfiguracaoProduto
+     *     // ... data to create a ProdutoGravityConfiguracao
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ConfiguracaoProduto we want to update
+     *     // ... the filter for the ProdutoGravityConfiguracao we want to update
      *   }
      * })
      */
-    upsert<T extends ConfiguracaoProdutoUpsertArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpsertArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ProdutoGravityConfiguracaoUpsertArgs>(args: SelectSubset<T, ProdutoGravityConfiguracaoUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityConfiguracaoClient<$Result.GetResult<Prisma.$ProdutoGravityConfiguracaoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ConfiguracaoProdutos.
+     * Count the number of ProdutoGravityConfiguracaos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoCountArgs} args - Arguments to filter ConfiguracaoProdutos to count.
+     * @param {ProdutoGravityConfiguracaoCountArgs} args - Arguments to filter ProdutoGravityConfiguracaos to count.
      * @example
-     * // Count the number of ConfiguracaoProdutos
-     * const count = await prisma.configuracaoProduto.count({
+     * // Count the number of ProdutoGravityConfiguracaos
+     * const count = await prisma.produtoGravityConfiguracao.count({
      *   where: {
-     *     // ... the filter for the ConfiguracaoProdutos we want to count
+     *     // ... the filter for the ProdutoGravityConfiguracaos we want to count
      *   }
      * })
     **/
-    count<T extends ConfiguracaoProdutoCountArgs>(
-      args?: Subset<T, ConfiguracaoProdutoCountArgs>,
+    count<T extends ProdutoGravityConfiguracaoCountArgs>(
+      args?: Subset<T, ProdutoGravityConfiguracaoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ConfiguracaoProdutoCountAggregateOutputType>
+          : GetScalarType<T['select'], ProdutoGravityConfiguracaoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ConfiguracaoProduto.
+     * Allows you to perform aggregations operations on a ProdutoGravityConfiguracao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProdutoGravityConfiguracaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -10735,13 +10735,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ConfiguracaoProdutoAggregateArgs>(args: Subset<T, ConfiguracaoProdutoAggregateArgs>): Prisma.PrismaPromise<GetConfiguracaoProdutoAggregateType<T>>
+    aggregate<T extends ProdutoGravityConfiguracaoAggregateArgs>(args: Subset<T, ProdutoGravityConfiguracaoAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityConfiguracaoAggregateType<T>>
 
     /**
-     * Group by ConfiguracaoProduto.
+     * Group by ProdutoGravityConfiguracao.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfiguracaoProdutoGroupByArgs} args - Group by arguments.
+     * @param {ProdutoGravityConfiguracaoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -10756,14 +10756,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ConfiguracaoProdutoGroupByArgs,
+      T extends ProdutoGravityConfiguracaoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ConfiguracaoProdutoGroupByArgs['orderBy'] }
-        : { orderBy?: ConfiguracaoProdutoGroupByArgs['orderBy'] },
+        ? { orderBy: ProdutoGravityConfiguracaoGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityConfiguracaoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -10812,20 +10812,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ConfiguracaoProdutoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfiguracaoProdutoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProdutoGravityConfiguracaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityConfiguracaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ConfiguracaoProduto model
+   * Fields of the ProdutoGravityConfiguracao model
    */
-  readonly fields: ConfiguracaoProdutoFieldRefs;
+  readonly fields: ProdutoGravityConfiguracaoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ConfiguracaoProduto.
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityConfiguracao.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ConfiguracaoProdutoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProdutoGravityConfiguracaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -10854,345 +10854,345 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ConfiguracaoProduto model
+   * Fields of the ProdutoGravityConfiguracao model
    */ 
-  interface ConfiguracaoProdutoFieldRefs {
-    readonly id_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly id_organizacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly chave_produto_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly configuracao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'Json'>
-    readonly ativo_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'Boolean'>
-    readonly data_criacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'DateTime'>
-    readonly data_atualizacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'DateTime'>
+  interface ProdutoGravityConfiguracaoFieldRefs {
+    readonly id_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'String'>
+    readonly id_organizacao_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'String'>
+    readonly chave_produto_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'String'>
+    readonly configuracao_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'Json'>
+    readonly ativo_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'Boolean'>
+    readonly data_criacao_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'DateTime'>
+    readonly data_atualizacao_config_produto_gravity: FieldRef<"ProdutoGravityConfiguracao", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ConfiguracaoProduto findUnique
+   * ProdutoGravityConfiguracao findUnique
    */
-  export type ConfiguracaoProdutoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter, which ConfiguracaoProduto to fetch.
+     * Filter, which ProdutoGravityConfiguracao to fetch.
      */
-    where: ConfiguracaoProdutoWhereUniqueInput
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
   }
 
   /**
-   * ConfiguracaoProduto findUniqueOrThrow
+   * ProdutoGravityConfiguracao findUniqueOrThrow
    */
-  export type ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter, which ConfiguracaoProduto to fetch.
+     * Filter, which ProdutoGravityConfiguracao to fetch.
      */
-    where: ConfiguracaoProdutoWhereUniqueInput
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
   }
 
   /**
-   * ConfiguracaoProduto findFirst
+   * ProdutoGravityConfiguracao findFirst
    */
-  export type ConfiguracaoProdutoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter, which ConfiguracaoProduto to fetch.
+     * Filter, which ProdutoGravityConfiguracao to fetch.
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfiguracaoProdutos to fetch.
+     * Determine the order of ProdutoGravityConfiguracaos to fetch.
      */
-    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithRelationInput | ProdutoGravityConfiguracaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConfiguracaoProdutos.
+     * Sets the position for searching for ProdutoGravityConfiguracaos.
      */
-    cursor?: ConfiguracaoProdutoWhereUniqueInput
+    cursor?: ProdutoGravityConfiguracaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
+     * Take `±n` ProdutoGravityConfiguracaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfiguracaoProdutos.
+     * Skip the first `n` ProdutoGravityConfiguracaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConfiguracaoProdutos.
+     * Filter by unique combinations of ProdutoGravityConfiguracaos.
      */
-    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
+    distinct?: ProdutoGravityConfiguracaoScalarFieldEnum | ProdutoGravityConfiguracaoScalarFieldEnum[]
   }
 
   /**
-   * ConfiguracaoProduto findFirstOrThrow
+   * ProdutoGravityConfiguracao findFirstOrThrow
    */
-  export type ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter, which ConfiguracaoProduto to fetch.
+     * Filter, which ProdutoGravityConfiguracao to fetch.
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfiguracaoProdutos to fetch.
+     * Determine the order of ProdutoGravityConfiguracaos to fetch.
      */
-    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithRelationInput | ProdutoGravityConfiguracaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConfiguracaoProdutos.
+     * Sets the position for searching for ProdutoGravityConfiguracaos.
      */
-    cursor?: ConfiguracaoProdutoWhereUniqueInput
+    cursor?: ProdutoGravityConfiguracaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
+     * Take `±n` ProdutoGravityConfiguracaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfiguracaoProdutos.
+     * Skip the first `n` ProdutoGravityConfiguracaos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConfiguracaoProdutos.
+     * Filter by unique combinations of ProdutoGravityConfiguracaos.
      */
-    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
+    distinct?: ProdutoGravityConfiguracaoScalarFieldEnum | ProdutoGravityConfiguracaoScalarFieldEnum[]
   }
 
   /**
-   * ConfiguracaoProduto findMany
+   * ProdutoGravityConfiguracao findMany
    */
-  export type ConfiguracaoProdutoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter, which ConfiguracaoProdutos to fetch.
+     * Filter, which ProdutoGravityConfiguracaos to fetch.
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfiguracaoProdutos to fetch.
+     * Determine the order of ProdutoGravityConfiguracaos to fetch.
      */
-    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityConfiguracaoOrderByWithRelationInput | ProdutoGravityConfiguracaoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ConfiguracaoProdutos.
+     * Sets the position for listing ProdutoGravityConfiguracaos.
      */
-    cursor?: ConfiguracaoProdutoWhereUniqueInput
+    cursor?: ProdutoGravityConfiguracaoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
+     * Take `±n` ProdutoGravityConfiguracaos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfiguracaoProdutos.
+     * Skip the first `n` ProdutoGravityConfiguracaos.
      */
     skip?: number
-    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
+    distinct?: ProdutoGravityConfiguracaoScalarFieldEnum | ProdutoGravityConfiguracaoScalarFieldEnum[]
   }
 
   /**
-   * ConfiguracaoProduto create
+   * ProdutoGravityConfiguracao create
    */
-  export type ConfiguracaoProdutoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * The data needed to create a ConfiguracaoProduto.
+     * The data needed to create a ProdutoGravityConfiguracao.
      */
-    data: XOR<ConfiguracaoProdutoCreateInput, ConfiguracaoProdutoUncheckedCreateInput>
+    data: XOR<ProdutoGravityConfiguracaoCreateInput, ProdutoGravityConfiguracaoUncheckedCreateInput>
   }
 
   /**
-   * ConfiguracaoProduto createMany
+   * ProdutoGravityConfiguracao createMany
    */
-  export type ConfiguracaoProdutoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ConfiguracaoProdutos.
+     * The data used to create many ProdutoGravityConfiguracaos.
      */
-    data: ConfiguracaoProdutoCreateManyInput | ConfiguracaoProdutoCreateManyInput[]
+    data: ProdutoGravityConfiguracaoCreateManyInput | ProdutoGravityConfiguracaoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ConfiguracaoProduto createManyAndReturn
+   * ProdutoGravityConfiguracao createManyAndReturn
    */
-  export type ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ConfiguracaoProdutos.
+     * The data used to create many ProdutoGravityConfiguracaos.
      */
-    data: ConfiguracaoProdutoCreateManyInput | ConfiguracaoProdutoCreateManyInput[]
+    data: ProdutoGravityConfiguracaoCreateManyInput | ProdutoGravityConfiguracaoCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ConfiguracaoProduto update
+   * ProdutoGravityConfiguracao update
    */
-  export type ConfiguracaoProdutoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * The data needed to update a ConfiguracaoProduto.
+     * The data needed to update a ProdutoGravityConfiguracao.
      */
-    data: XOR<ConfiguracaoProdutoUpdateInput, ConfiguracaoProdutoUncheckedUpdateInput>
+    data: XOR<ProdutoGravityConfiguracaoUpdateInput, ProdutoGravityConfiguracaoUncheckedUpdateInput>
     /**
-     * Choose, which ConfiguracaoProduto to update.
+     * Choose, which ProdutoGravityConfiguracao to update.
      */
-    where: ConfiguracaoProdutoWhereUniqueInput
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
   }
 
   /**
-   * ConfiguracaoProduto updateMany
+   * ProdutoGravityConfiguracao updateMany
    */
-  export type ConfiguracaoProdutoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ConfiguracaoProdutos.
+     * The data used to update ProdutoGravityConfiguracaos.
      */
-    data: XOR<ConfiguracaoProdutoUpdateManyMutationInput, ConfiguracaoProdutoUncheckedUpdateManyInput>
+    data: XOR<ProdutoGravityConfiguracaoUpdateManyMutationInput, ProdutoGravityConfiguracaoUncheckedUpdateManyInput>
     /**
-     * Filter which ConfiguracaoProdutos to update
+     * Filter which ProdutoGravityConfiguracaos to update
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
   }
 
   /**
-   * ConfiguracaoProduto upsert
+   * ProdutoGravityConfiguracao upsert
    */
-  export type ConfiguracaoProdutoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * The filter to search for the ConfiguracaoProduto to update in case it exists.
+     * The filter to search for the ProdutoGravityConfiguracao to update in case it exists.
      */
-    where: ConfiguracaoProdutoWhereUniqueInput
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
     /**
-     * In case the ConfiguracaoProduto found by the `where` argument doesn't exist, create a new ConfiguracaoProduto with this data.
+     * In case the ProdutoGravityConfiguracao found by the `where` argument doesn't exist, create a new ProdutoGravityConfiguracao with this data.
      */
-    create: XOR<ConfiguracaoProdutoCreateInput, ConfiguracaoProdutoUncheckedCreateInput>
+    create: XOR<ProdutoGravityConfiguracaoCreateInput, ProdutoGravityConfiguracaoUncheckedCreateInput>
     /**
-     * In case the ConfiguracaoProduto was found with the provided `where` argument, update it with this data.
+     * In case the ProdutoGravityConfiguracao was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ConfiguracaoProdutoUpdateInput, ConfiguracaoProdutoUncheckedUpdateInput>
+    update: XOR<ProdutoGravityConfiguracaoUpdateInput, ProdutoGravityConfiguracaoUncheckedUpdateInput>
   }
 
   /**
-   * ConfiguracaoProduto delete
+   * ProdutoGravityConfiguracao delete
    */
-  export type ConfiguracaoProdutoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
     /**
-     * Filter which ConfiguracaoProduto to delete.
+     * Filter which ProdutoGravityConfiguracao to delete.
      */
-    where: ConfiguracaoProdutoWhereUniqueInput
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
   }
 
   /**
-   * ConfiguracaoProduto deleteMany
+   * ProdutoGravityConfiguracao deleteMany
    */
-  export type ConfiguracaoProdutoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConfiguracaoProdutos to delete
+     * Filter which ProdutoGravityConfiguracaos to delete
      */
-    where?: ConfiguracaoProdutoWhereInput
+    where?: ProdutoGravityConfiguracaoWhereInput
   }
 
   /**
-   * ConfiguracaoProduto without action
+   * ProdutoGravityConfiguracao without action
    */
-  export type ConfiguracaoProdutoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityConfiguracaoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfiguracaoProduto
+     * Select specific fields to fetch from the ProdutoGravityConfiguracao
      */
-    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
+    select?: ProdutoGravityConfiguracaoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    include?: ProdutoGravityConfiguracaoInclude<ExtArgs> | null
   }
 
 
@@ -11377,7 +11377,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: boolean
     data_atualizacao_produto_gravity_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11389,7 +11389,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: boolean
     data_atualizacao_produto_gravity_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectScalar = {
@@ -11404,18 +11404,18 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
   export type ProdutoGravityWorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | EmpresaDefaultArgs<ExtArgs>
+    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
   }
 
   export type $ProdutoGravityWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProdutoGravityWorkspace"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
-      company: Prisma.$EmpresaPayload<ExtArgs>
+      company: Prisma.$WorkspacePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id_produto_gravity_workspace: string
@@ -11790,7 +11790,7 @@ export namespace Prisma {
   export interface Prisma__ProdutoGravityWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    company<T extends EmpresaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmpresaDefaultArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    company<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12660,8 +12660,8 @@ export namespace Prisma {
   export type $ProdutoGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProdutoGravity"
     objects: {
-      faixas_preco_produto_gravity: Prisma.$FaixaPrecoPayload<ExtArgs>[]
-      negociacoes_produto_gravity: Prisma.$NegociacaoEspecialPayload<ExtArgs>[]
+      faixas_preco_produto_gravity: Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>[]
+      negociacoes_produto_gravity: Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_produto_gravity: string
@@ -13057,8 +13057,8 @@ export namespace Prisma {
    */
   export interface Prisma__ProdutoGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    faixas_preco_produto_gravity<T extends ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
-    negociacoes_produto_gravity<T extends ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
+    faixas_preco_produto_gravity<T extends ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
+    negociacoes_produto_gravity<T extends ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13435,19 +13435,19 @@ export namespace Prisma {
    */
   export type ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
-    where?: FaixaPrecoWhereInput
-    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
-    cursor?: FaixaPrecoWhereUniqueInput
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
+    where?: ProdutoGravityFaixaPrecoWhereInput
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithRelationInput | ProdutoGravityFaixaPrecoOrderByWithRelationInput[]
+    cursor?: ProdutoGravityFaixaPrecoWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
+    distinct?: ProdutoGravityFaixaPrecoScalarFieldEnum | ProdutoGravityFaixaPrecoScalarFieldEnum[]
   }
 
   /**
@@ -13455,19 +13455,19 @@ export namespace Prisma {
    */
   export type ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
-    where?: NegociacaoEspecialWhereInput
-    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
-    cursor?: NegociacaoEspecialWhereUniqueInput
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithRelationInput | ProdutoGravityNegociacaoEspecialOrderByWithRelationInput[]
+    cursor?: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
+    distinct?: ProdutoGravityNegociacaoEspecialScalarFieldEnum | ProdutoGravityNegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
@@ -13486,30 +13486,30 @@ export namespace Prisma {
 
 
   /**
-   * Model FaixaPreco
+   * Model ProdutoGravityFaixaPreco
    */
 
-  export type AggregateFaixaPreco = {
-    _count: FaixaPrecoCountAggregateOutputType | null
-    _avg: FaixaPrecoAvgAggregateOutputType | null
-    _sum: FaixaPrecoSumAggregateOutputType | null
-    _min: FaixaPrecoMinAggregateOutputType | null
-    _max: FaixaPrecoMaxAggregateOutputType | null
+  export type AggregateProdutoGravityFaixaPreco = {
+    _count: ProdutoGravityFaixaPrecoCountAggregateOutputType | null
+    _avg: ProdutoGravityFaixaPrecoAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaixaPrecoSumAggregateOutputType | null
+    _min: ProdutoGravityFaixaPrecoMinAggregateOutputType | null
+    _max: ProdutoGravityFaixaPrecoMaxAggregateOutputType | null
   }
 
-  export type FaixaPrecoAvgAggregateOutputType = {
+  export type ProdutoGravityFaixaPrecoAvgAggregateOutputType = {
     faixa_de_faixa_preco: number | null
     faixa_ate_faixa_preco: number | null
     preco_faixa_preco: Decimal | null
   }
 
-  export type FaixaPrecoSumAggregateOutputType = {
+  export type ProdutoGravityFaixaPrecoSumAggregateOutputType = {
     faixa_de_faixa_preco: number | null
     faixa_ate_faixa_preco: number | null
     preco_faixa_preco: Decimal | null
   }
 
-  export type FaixaPrecoMinAggregateOutputType = {
+  export type ProdutoGravityFaixaPrecoMinAggregateOutputType = {
     id_faixa_preco: string | null
     id_produto_gravity_faixa_preco: string | null
     faixa_de_faixa_preco: number | null
@@ -13519,7 +13519,7 @@ export namespace Prisma {
     data_criacao_faixa_preco: Date | null
   }
 
-  export type FaixaPrecoMaxAggregateOutputType = {
+  export type ProdutoGravityFaixaPrecoMaxAggregateOutputType = {
     id_faixa_preco: string | null
     id_produto_gravity_faixa_preco: string | null
     faixa_de_faixa_preco: number | null
@@ -13529,7 +13529,7 @@ export namespace Prisma {
     data_criacao_faixa_preco: Date | null
   }
 
-  export type FaixaPrecoCountAggregateOutputType = {
+  export type ProdutoGravityFaixaPrecoCountAggregateOutputType = {
     id_faixa_preco: number
     id_produto_gravity_faixa_preco: number
     faixa_de_faixa_preco: number
@@ -13541,19 +13541,19 @@ export namespace Prisma {
   }
 
 
-  export type FaixaPrecoAvgAggregateInputType = {
+  export type ProdutoGravityFaixaPrecoAvgAggregateInputType = {
     faixa_de_faixa_preco?: true
     faixa_ate_faixa_preco?: true
     preco_faixa_preco?: true
   }
 
-  export type FaixaPrecoSumAggregateInputType = {
+  export type ProdutoGravityFaixaPrecoSumAggregateInputType = {
     faixa_de_faixa_preco?: true
     faixa_ate_faixa_preco?: true
     preco_faixa_preco?: true
   }
 
-  export type FaixaPrecoMinAggregateInputType = {
+  export type ProdutoGravityFaixaPrecoMinAggregateInputType = {
     id_faixa_preco?: true
     id_produto_gravity_faixa_preco?: true
     faixa_de_faixa_preco?: true
@@ -13563,7 +13563,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: true
   }
 
-  export type FaixaPrecoMaxAggregateInputType = {
+  export type ProdutoGravityFaixaPrecoMaxAggregateInputType = {
     id_faixa_preco?: true
     id_produto_gravity_faixa_preco?: true
     faixa_de_faixa_preco?: true
@@ -13573,7 +13573,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: true
   }
 
-  export type FaixaPrecoCountAggregateInputType = {
+  export type ProdutoGravityFaixaPrecoCountAggregateInputType = {
     id_faixa_preco?: true
     id_produto_gravity_faixa_preco?: true
     faixa_de_faixa_preco?: true
@@ -13584,93 +13584,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type FaixaPrecoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FaixaPreco to aggregate.
+     * Filter which ProdutoGravityFaixaPreco to aggregate.
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaixaPrecos to fetch.
+     * Determine the order of ProdutoGravityFaixaPrecos to fetch.
      */
-    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithRelationInput | ProdutoGravityFaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: FaixaPrecoWhereUniqueInput
+    cursor?: ProdutoGravityFaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaixaPrecos from the position of the cursor.
+     * Take `±n` ProdutoGravityFaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaixaPrecos.
+     * Skip the first `n` ProdutoGravityFaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned FaixaPrecos
+     * Count returned ProdutoGravityFaixaPrecos
     **/
-    _count?: true | FaixaPrecoCountAggregateInputType
+    _count?: true | ProdutoGravityFaixaPrecoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: FaixaPrecoAvgAggregateInputType
+    _avg?: ProdutoGravityFaixaPrecoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: FaixaPrecoSumAggregateInputType
+    _sum?: ProdutoGravityFaixaPrecoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: FaixaPrecoMinAggregateInputType
+    _min?: ProdutoGravityFaixaPrecoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: FaixaPrecoMaxAggregateInputType
+    _max?: ProdutoGravityFaixaPrecoMaxAggregateInputType
   }
 
-  export type GetFaixaPrecoAggregateType<T extends FaixaPrecoAggregateArgs> = {
-        [P in keyof T & keyof AggregateFaixaPreco]: P extends '_count' | 'count'
+  export type GetProdutoGravityFaixaPrecoAggregateType<T extends ProdutoGravityFaixaPrecoAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityFaixaPreco]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateFaixaPreco[P]>
-      : GetScalarType<T[P], AggregateFaixaPreco[P]>
+        : GetScalarType<T[P], AggregateProdutoGravityFaixaPreco[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityFaixaPreco[P]>
   }
 
 
 
 
-  export type FaixaPrecoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FaixaPrecoWhereInput
-    orderBy?: FaixaPrecoOrderByWithAggregationInput | FaixaPrecoOrderByWithAggregationInput[]
-    by: FaixaPrecoScalarFieldEnum[] | FaixaPrecoScalarFieldEnum
-    having?: FaixaPrecoScalarWhereWithAggregatesInput
+  export type ProdutoGravityFaixaPrecoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityFaixaPrecoWhereInput
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithAggregationInput | ProdutoGravityFaixaPrecoOrderByWithAggregationInput[]
+    by: ProdutoGravityFaixaPrecoScalarFieldEnum[] | ProdutoGravityFaixaPrecoScalarFieldEnum
+    having?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: FaixaPrecoCountAggregateInputType | true
-    _avg?: FaixaPrecoAvgAggregateInputType
-    _sum?: FaixaPrecoSumAggregateInputType
-    _min?: FaixaPrecoMinAggregateInputType
-    _max?: FaixaPrecoMaxAggregateInputType
+    _count?: ProdutoGravityFaixaPrecoCountAggregateInputType | true
+    _avg?: ProdutoGravityFaixaPrecoAvgAggregateInputType
+    _sum?: ProdutoGravityFaixaPrecoSumAggregateInputType
+    _min?: ProdutoGravityFaixaPrecoMinAggregateInputType
+    _max?: ProdutoGravityFaixaPrecoMaxAggregateInputType
   }
 
-  export type FaixaPrecoGroupByOutputType = {
+  export type ProdutoGravityFaixaPrecoGroupByOutputType = {
     id_faixa_preco: string
     id_produto_gravity_faixa_preco: string
     faixa_de_faixa_preco: number
@@ -13678,28 +13678,28 @@ export namespace Prisma {
     preco_faixa_preco: Decimal
     moeda_faixa_preco: string
     data_criacao_faixa_preco: Date
-    _count: FaixaPrecoCountAggregateOutputType | null
-    _avg: FaixaPrecoAvgAggregateOutputType | null
-    _sum: FaixaPrecoSumAggregateOutputType | null
-    _min: FaixaPrecoMinAggregateOutputType | null
-    _max: FaixaPrecoMaxAggregateOutputType | null
+    _count: ProdutoGravityFaixaPrecoCountAggregateOutputType | null
+    _avg: ProdutoGravityFaixaPrecoAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaixaPrecoSumAggregateOutputType | null
+    _min: ProdutoGravityFaixaPrecoMinAggregateOutputType | null
+    _max: ProdutoGravityFaixaPrecoMaxAggregateOutputType | null
   }
 
-  type GetFaixaPrecoGroupByPayload<T extends FaixaPrecoGroupByArgs> = Prisma.PrismaPromise<
+  type GetProdutoGravityFaixaPrecoGroupByPayload<T extends ProdutoGravityFaixaPrecoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<FaixaPrecoGroupByOutputType, T['by']> &
+      PickEnumerable<ProdutoGravityFaixaPrecoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof FaixaPrecoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProdutoGravityFaixaPrecoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], FaixaPrecoGroupByOutputType[P]>
-            : GetScalarType<T[P], FaixaPrecoGroupByOutputType[P]>
+              : GetScalarType<T[P], ProdutoGravityFaixaPrecoGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityFaixaPrecoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type FaixaPrecoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityFaixaPrecoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_faixa_preco?: boolean
     id_produto_gravity_faixa_preco?: boolean
     faixa_de_faixa_preco?: boolean
@@ -13708,9 +13708,9 @@ export namespace Prisma {
     moeda_faixa_preco?: boolean
     data_criacao_faixa_preco?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["faixaPreco"]>
+  }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
 
-  export type FaixaPrecoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityFaixaPrecoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_faixa_preco?: boolean
     id_produto_gravity_faixa_preco?: boolean
     faixa_de_faixa_preco?: boolean
@@ -13719,9 +13719,9 @@ export namespace Prisma {
     moeda_faixa_preco?: boolean
     data_criacao_faixa_preco?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["faixaPreco"]>
+  }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
 
-  export type FaixaPrecoSelectScalar = {
+  export type ProdutoGravityFaixaPrecoSelectScalar = {
     id_faixa_preco?: boolean
     id_produto_gravity_faixa_preco?: boolean
     faixa_de_faixa_preco?: boolean
@@ -13731,15 +13731,15 @@ export namespace Prisma {
     data_criacao_faixa_preco?: boolean
   }
 
-  export type FaixaPrecoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
-  export type FaixaPrecoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
-  export type $FaixaPrecoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FaixaPreco"
+  export type $ProdutoGravityFaixaPrecoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityFaixaPreco"
     objects: {
       produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
@@ -13751,136 +13751,136 @@ export namespace Prisma {
       preco_faixa_preco: Prisma.Decimal
       moeda_faixa_preco: string
       data_criacao_faixa_preco: Date
-    }, ExtArgs["result"]["faixaPreco"]>
+    }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
     composites: {}
   }
 
-  type FaixaPrecoGetPayload<S extends boolean | null | undefined | FaixaPrecoDefaultArgs> = $Result.GetResult<Prisma.$FaixaPrecoPayload, S>
+  type ProdutoGravityFaixaPrecoGetPayload<S extends boolean | null | undefined | ProdutoGravityFaixaPrecoDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload, S>
 
-  type FaixaPrecoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<FaixaPrecoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: FaixaPrecoCountAggregateInputType | true
+  type ProdutoGravityFaixaPrecoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityFaixaPrecoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityFaixaPrecoCountAggregateInputType | true
     }
 
-  export interface FaixaPrecoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FaixaPreco'], meta: { name: 'FaixaPreco' } }
+  export interface ProdutoGravityFaixaPrecoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityFaixaPreco'], meta: { name: 'ProdutoGravityFaixaPreco' } }
     /**
-     * Find zero or one FaixaPreco that matches the filter.
-     * @param {FaixaPrecoFindUniqueArgs} args - Arguments to find a FaixaPreco
+     * Find zero or one ProdutoGravityFaixaPreco that matches the filter.
+     * @param {ProdutoGravityFaixaPrecoFindUniqueArgs} args - Arguments to find a ProdutoGravityFaixaPreco
      * @example
-     * // Get one FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.findUnique({
+     * // Get one ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends FaixaPrecoFindUniqueArgs>(args: SelectSubset<T, FaixaPrecoFindUniqueArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ProdutoGravityFaixaPrecoFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one FaixaPreco that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ProdutoGravityFaixaPreco that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {FaixaPrecoFindUniqueOrThrowArgs} args - Arguments to find a FaixaPreco
+     * @param {ProdutoGravityFaixaPrecoFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityFaixaPreco
      * @example
-     * // Get one FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.findUniqueOrThrow({
+     * // Get one ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends FaixaPrecoFindUniqueOrThrowArgs>(args: SelectSubset<T, FaixaPrecoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ProdutoGravityFaixaPrecoFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first FaixaPreco that matches the filter.
+     * Find the first ProdutoGravityFaixaPreco that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoFindFirstArgs} args - Arguments to find a FaixaPreco
+     * @param {ProdutoGravityFaixaPrecoFindFirstArgs} args - Arguments to find a ProdutoGravityFaixaPreco
      * @example
-     * // Get one FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.findFirst({
+     * // Get one ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends FaixaPrecoFindFirstArgs>(args?: SelectSubset<T, FaixaPrecoFindFirstArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ProdutoGravityFaixaPrecoFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first FaixaPreco that matches the filter or
+     * Find the first ProdutoGravityFaixaPreco that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoFindFirstOrThrowArgs} args - Arguments to find a FaixaPreco
+     * @param {ProdutoGravityFaixaPrecoFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityFaixaPreco
      * @example
-     * // Get one FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.findFirstOrThrow({
+     * // Get one ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends FaixaPrecoFindFirstOrThrowArgs>(args?: SelectSubset<T, FaixaPrecoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ProdutoGravityFaixaPrecoFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more FaixaPrecos that matches the filter.
+     * Find zero or more ProdutoGravityFaixaPrecos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProdutoGravityFaixaPrecoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all FaixaPrecos
-     * const faixaPrecos = await prisma.faixaPreco.findMany()
+     * // Get all ProdutoGravityFaixaPrecos
+     * const produtoGravityFaixaPrecos = await prisma.produtoGravityFaixaPreco.findMany()
      * 
-     * // Get first 10 FaixaPrecos
-     * const faixaPrecos = await prisma.faixaPreco.findMany({ take: 10 })
+     * // Get first 10 ProdutoGravityFaixaPrecos
+     * const produtoGravityFaixaPrecos = await prisma.produtoGravityFaixaPreco.findMany({ take: 10 })
      * 
      * // Only select the `id_faixa_preco`
-     * const faixaPrecoWithId_faixa_precoOnly = await prisma.faixaPreco.findMany({ select: { id_faixa_preco: true } })
+     * const produtoGravityFaixaPrecoWithId_faixa_precoOnly = await prisma.produtoGravityFaixaPreco.findMany({ select: { id_faixa_preco: true } })
      * 
      */
-    findMany<T extends FaixaPrecoFindManyArgs>(args?: SelectSubset<T, FaixaPrecoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ProdutoGravityFaixaPrecoFindManyArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a FaixaPreco.
-     * @param {FaixaPrecoCreateArgs} args - Arguments to create a FaixaPreco.
+     * Create a ProdutoGravityFaixaPreco.
+     * @param {ProdutoGravityFaixaPrecoCreateArgs} args - Arguments to create a ProdutoGravityFaixaPreco.
      * @example
-     * // Create one FaixaPreco
-     * const FaixaPreco = await prisma.faixaPreco.create({
+     * // Create one ProdutoGravityFaixaPreco
+     * const ProdutoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.create({
      *   data: {
-     *     // ... data to create a FaixaPreco
+     *     // ... data to create a ProdutoGravityFaixaPreco
      *   }
      * })
      * 
      */
-    create<T extends FaixaPrecoCreateArgs>(args: SelectSubset<T, FaixaPrecoCreateArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ProdutoGravityFaixaPrecoCreateArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoCreateArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many FaixaPrecos.
-     * @param {FaixaPrecoCreateManyArgs} args - Arguments to create many FaixaPrecos.
+     * Create many ProdutoGravityFaixaPrecos.
+     * @param {ProdutoGravityFaixaPrecoCreateManyArgs} args - Arguments to create many ProdutoGravityFaixaPrecos.
      * @example
-     * // Create many FaixaPrecos
-     * const faixaPreco = await prisma.faixaPreco.createMany({
+     * // Create many ProdutoGravityFaixaPrecos
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends FaixaPrecoCreateManyArgs>(args?: SelectSubset<T, FaixaPrecoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProdutoGravityFaixaPrecoCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many FaixaPrecos and returns the data saved in the database.
-     * @param {FaixaPrecoCreateManyAndReturnArgs} args - Arguments to create many FaixaPrecos.
+     * Create many ProdutoGravityFaixaPrecos and returns the data saved in the database.
+     * @param {ProdutoGravityFaixaPrecoCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityFaixaPrecos.
      * @example
-     * // Create many FaixaPrecos
-     * const faixaPreco = await prisma.faixaPreco.createManyAndReturn({
+     * // Create many ProdutoGravityFaixaPrecos
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many FaixaPrecos and only return the `id_faixa_preco`
-     * const faixaPrecoWithId_faixa_precoOnly = await prisma.faixaPreco.createManyAndReturn({ 
+     * // Create many ProdutoGravityFaixaPrecos and only return the `id_faixa_preco`
+     * const produtoGravityFaixaPrecoWithId_faixa_precoOnly = await prisma.produtoGravityFaixaPreco.createManyAndReturn({ 
      *   select: { id_faixa_preco: true },
      *   data: [
      *     // ... provide data here
@@ -13890,28 +13890,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends FaixaPrecoCreateManyAndReturnArgs>(args?: SelectSubset<T, FaixaPrecoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ProdutoGravityFaixaPrecoCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a FaixaPreco.
-     * @param {FaixaPrecoDeleteArgs} args - Arguments to delete one FaixaPreco.
+     * Delete a ProdutoGravityFaixaPreco.
+     * @param {ProdutoGravityFaixaPrecoDeleteArgs} args - Arguments to delete one ProdutoGravityFaixaPreco.
      * @example
-     * // Delete one FaixaPreco
-     * const FaixaPreco = await prisma.faixaPreco.delete({
+     * // Delete one ProdutoGravityFaixaPreco
+     * const ProdutoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.delete({
      *   where: {
-     *     // ... filter to delete one FaixaPreco
+     *     // ... filter to delete one ProdutoGravityFaixaPreco
      *   }
      * })
      * 
      */
-    delete<T extends FaixaPrecoDeleteArgs>(args: SelectSubset<T, FaixaPrecoDeleteArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ProdutoGravityFaixaPrecoDeleteArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one FaixaPreco.
-     * @param {FaixaPrecoUpdateArgs} args - Arguments to update one FaixaPreco.
+     * Update one ProdutoGravityFaixaPreco.
+     * @param {ProdutoGravityFaixaPrecoUpdateArgs} args - Arguments to update one ProdutoGravityFaixaPreco.
      * @example
-     * // Update one FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.update({
+     * // Update one ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13921,30 +13921,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends FaixaPrecoUpdateArgs>(args: SelectSubset<T, FaixaPrecoUpdateArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ProdutoGravityFaixaPrecoUpdateArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more FaixaPrecos.
-     * @param {FaixaPrecoDeleteManyArgs} args - Arguments to filter FaixaPrecos to delete.
+     * Delete zero or more ProdutoGravityFaixaPrecos.
+     * @param {ProdutoGravityFaixaPrecoDeleteManyArgs} args - Arguments to filter ProdutoGravityFaixaPrecos to delete.
      * @example
-     * // Delete a few FaixaPrecos
-     * const { count } = await prisma.faixaPreco.deleteMany({
+     * // Delete a few ProdutoGravityFaixaPrecos
+     * const { count } = await prisma.produtoGravityFaixaPreco.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends FaixaPrecoDeleteManyArgs>(args?: SelectSubset<T, FaixaPrecoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProdutoGravityFaixaPrecoDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more FaixaPrecos.
+     * Update zero or more ProdutoGravityFaixaPrecos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProdutoGravityFaixaPrecoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many FaixaPrecos
-     * const faixaPreco = await prisma.faixaPreco.updateMany({
+     * // Update many ProdutoGravityFaixaPrecos
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13954,56 +13954,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends FaixaPrecoUpdateManyArgs>(args: SelectSubset<T, FaixaPrecoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProdutoGravityFaixaPrecoUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one FaixaPreco.
-     * @param {FaixaPrecoUpsertArgs} args - Arguments to update or create a FaixaPreco.
+     * Create or update one ProdutoGravityFaixaPreco.
+     * @param {ProdutoGravityFaixaPrecoUpsertArgs} args - Arguments to update or create a ProdutoGravityFaixaPreco.
      * @example
-     * // Update or create a FaixaPreco
-     * const faixaPreco = await prisma.faixaPreco.upsert({
+     * // Update or create a ProdutoGravityFaixaPreco
+     * const produtoGravityFaixaPreco = await prisma.produtoGravityFaixaPreco.upsert({
      *   create: {
-     *     // ... data to create a FaixaPreco
+     *     // ... data to create a ProdutoGravityFaixaPreco
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the FaixaPreco we want to update
+     *     // ... the filter for the ProdutoGravityFaixaPreco we want to update
      *   }
      * })
      */
-    upsert<T extends FaixaPrecoUpsertArgs>(args: SelectSubset<T, FaixaPrecoUpsertArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ProdutoGravityFaixaPrecoUpsertArgs>(args: SelectSubset<T, ProdutoGravityFaixaPrecoUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityFaixaPrecoClient<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of FaixaPrecos.
+     * Count the number of ProdutoGravityFaixaPrecos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoCountArgs} args - Arguments to filter FaixaPrecos to count.
+     * @param {ProdutoGravityFaixaPrecoCountArgs} args - Arguments to filter ProdutoGravityFaixaPrecos to count.
      * @example
-     * // Count the number of FaixaPrecos
-     * const count = await prisma.faixaPreco.count({
+     * // Count the number of ProdutoGravityFaixaPrecos
+     * const count = await prisma.produtoGravityFaixaPreco.count({
      *   where: {
-     *     // ... the filter for the FaixaPrecos we want to count
+     *     // ... the filter for the ProdutoGravityFaixaPrecos we want to count
      *   }
      * })
     **/
-    count<T extends FaixaPrecoCountArgs>(
-      args?: Subset<T, FaixaPrecoCountArgs>,
+    count<T extends ProdutoGravityFaixaPrecoCountArgs>(
+      args?: Subset<T, ProdutoGravityFaixaPrecoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], FaixaPrecoCountAggregateOutputType>
+          : GetScalarType<T['select'], ProdutoGravityFaixaPrecoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a FaixaPreco.
+     * Allows you to perform aggregations operations on a ProdutoGravityFaixaPreco.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProdutoGravityFaixaPrecoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -14023,13 +14023,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends FaixaPrecoAggregateArgs>(args: Subset<T, FaixaPrecoAggregateArgs>): Prisma.PrismaPromise<GetFaixaPrecoAggregateType<T>>
+    aggregate<T extends ProdutoGravityFaixaPrecoAggregateArgs>(args: Subset<T, ProdutoGravityFaixaPrecoAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityFaixaPrecoAggregateType<T>>
 
     /**
-     * Group by FaixaPreco.
+     * Group by ProdutoGravityFaixaPreco.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaixaPrecoGroupByArgs} args - Group by arguments.
+     * @param {ProdutoGravityFaixaPrecoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -14044,14 +14044,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends FaixaPrecoGroupByArgs,
+      T extends ProdutoGravityFaixaPrecoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FaixaPrecoGroupByArgs['orderBy'] }
-        : { orderBy?: FaixaPrecoGroupByArgs['orderBy'] },
+        ? { orderBy: ProdutoGravityFaixaPrecoGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityFaixaPrecoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14100,20 +14100,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, FaixaPrecoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFaixaPrecoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProdutoGravityFaixaPrecoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityFaixaPrecoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the FaixaPreco model
+   * Fields of the ProdutoGravityFaixaPreco model
    */
-  readonly fields: FaixaPrecoFieldRefs;
+  readonly fields: ProdutoGravityFaixaPrecoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for FaixaPreco.
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityFaixaPreco.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__FaixaPrecoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProdutoGravityFaixaPrecoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     produto<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -14142,359 +14142,359 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the FaixaPreco model
+   * Fields of the ProdutoGravityFaixaPreco model
    */ 
-  interface FaixaPrecoFieldRefs {
-    readonly id_faixa_preco: FieldRef<"FaixaPreco", 'String'>
-    readonly id_produto_gravity_faixa_preco: FieldRef<"FaixaPreco", 'String'>
-    readonly faixa_de_faixa_preco: FieldRef<"FaixaPreco", 'Int'>
-    readonly faixa_ate_faixa_preco: FieldRef<"FaixaPreco", 'Int'>
-    readonly preco_faixa_preco: FieldRef<"FaixaPreco", 'Decimal'>
-    readonly moeda_faixa_preco: FieldRef<"FaixaPreco", 'String'>
-    readonly data_criacao_faixa_preco: FieldRef<"FaixaPreco", 'DateTime'>
+  interface ProdutoGravityFaixaPrecoFieldRefs {
+    readonly id_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
+    readonly id_produto_gravity_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
+    readonly faixa_de_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
+    readonly faixa_ate_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
+    readonly preco_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Decimal'>
+    readonly moeda_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
+    readonly data_criacao_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * FaixaPreco findUnique
+   * ProdutoGravityFaixaPreco findUnique
    */
-  export type FaixaPrecoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which FaixaPreco to fetch.
+     * Filter, which ProdutoGravityFaixaPreco to fetch.
      */
-    where: FaixaPrecoWhereUniqueInput
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
   }
 
   /**
-   * FaixaPreco findUniqueOrThrow
+   * ProdutoGravityFaixaPreco findUniqueOrThrow
    */
-  export type FaixaPrecoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which FaixaPreco to fetch.
+     * Filter, which ProdutoGravityFaixaPreco to fetch.
      */
-    where: FaixaPrecoWhereUniqueInput
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
   }
 
   /**
-   * FaixaPreco findFirst
+   * ProdutoGravityFaixaPreco findFirst
    */
-  export type FaixaPrecoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which FaixaPreco to fetch.
+     * Filter, which ProdutoGravityFaixaPreco to fetch.
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaixaPrecos to fetch.
+     * Determine the order of ProdutoGravityFaixaPrecos to fetch.
      */
-    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithRelationInput | ProdutoGravityFaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FaixaPrecos.
+     * Sets the position for searching for ProdutoGravityFaixaPrecos.
      */
-    cursor?: FaixaPrecoWhereUniqueInput
+    cursor?: ProdutoGravityFaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaixaPrecos from the position of the cursor.
+     * Take `±n` ProdutoGravityFaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaixaPrecos.
+     * Skip the first `n` ProdutoGravityFaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FaixaPrecos.
+     * Filter by unique combinations of ProdutoGravityFaixaPrecos.
      */
-    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
+    distinct?: ProdutoGravityFaixaPrecoScalarFieldEnum | ProdutoGravityFaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * FaixaPreco findFirstOrThrow
+   * ProdutoGravityFaixaPreco findFirstOrThrow
    */
-  export type FaixaPrecoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which FaixaPreco to fetch.
+     * Filter, which ProdutoGravityFaixaPreco to fetch.
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaixaPrecos to fetch.
+     * Determine the order of ProdutoGravityFaixaPrecos to fetch.
      */
-    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithRelationInput | ProdutoGravityFaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FaixaPrecos.
+     * Sets the position for searching for ProdutoGravityFaixaPrecos.
      */
-    cursor?: FaixaPrecoWhereUniqueInput
+    cursor?: ProdutoGravityFaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaixaPrecos from the position of the cursor.
+     * Take `±n` ProdutoGravityFaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaixaPrecos.
+     * Skip the first `n` ProdutoGravityFaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FaixaPrecos.
+     * Filter by unique combinations of ProdutoGravityFaixaPrecos.
      */
-    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
+    distinct?: ProdutoGravityFaixaPrecoScalarFieldEnum | ProdutoGravityFaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * FaixaPreco findMany
+   * ProdutoGravityFaixaPreco findMany
    */
-  export type FaixaPrecoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which FaixaPrecos to fetch.
+     * Filter, which ProdutoGravityFaixaPrecos to fetch.
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaixaPrecos to fetch.
+     * Determine the order of ProdutoGravityFaixaPrecos to fetch.
      */
-    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaixaPrecoOrderByWithRelationInput | ProdutoGravityFaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing FaixaPrecos.
+     * Sets the position for listing ProdutoGravityFaixaPrecos.
      */
-    cursor?: FaixaPrecoWhereUniqueInput
+    cursor?: ProdutoGravityFaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaixaPrecos from the position of the cursor.
+     * Take `±n` ProdutoGravityFaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaixaPrecos.
+     * Skip the first `n` ProdutoGravityFaixaPrecos.
      */
     skip?: number
-    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
+    distinct?: ProdutoGravityFaixaPrecoScalarFieldEnum | ProdutoGravityFaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * FaixaPreco create
+   * ProdutoGravityFaixaPreco create
    */
-  export type FaixaPrecoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * The data needed to create a FaixaPreco.
+     * The data needed to create a ProdutoGravityFaixaPreco.
      */
-    data: XOR<FaixaPrecoCreateInput, FaixaPrecoUncheckedCreateInput>
+    data: XOR<ProdutoGravityFaixaPrecoCreateInput, ProdutoGravityFaixaPrecoUncheckedCreateInput>
   }
 
   /**
-   * FaixaPreco createMany
+   * ProdutoGravityFaixaPreco createMany
    */
-  export type FaixaPrecoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many FaixaPrecos.
+     * The data used to create many ProdutoGravityFaixaPrecos.
      */
-    data: FaixaPrecoCreateManyInput | FaixaPrecoCreateManyInput[]
+    data: ProdutoGravityFaixaPrecoCreateManyInput | ProdutoGravityFaixaPrecoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * FaixaPreco createManyAndReturn
+   * ProdutoGravityFaixaPreco createManyAndReturn
    */
-  export type FaixaPrecoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many FaixaPrecos.
+     * The data used to create many ProdutoGravityFaixaPrecos.
      */
-    data: FaixaPrecoCreateManyInput | FaixaPrecoCreateManyInput[]
+    data: ProdutoGravityFaixaPrecoCreateManyInput | ProdutoGravityFaixaPrecoCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * FaixaPreco update
+   * ProdutoGravityFaixaPreco update
    */
-  export type FaixaPrecoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * The data needed to update a FaixaPreco.
+     * The data needed to update a ProdutoGravityFaixaPreco.
      */
-    data: XOR<FaixaPrecoUpdateInput, FaixaPrecoUncheckedUpdateInput>
+    data: XOR<ProdutoGravityFaixaPrecoUpdateInput, ProdutoGravityFaixaPrecoUncheckedUpdateInput>
     /**
-     * Choose, which FaixaPreco to update.
+     * Choose, which ProdutoGravityFaixaPreco to update.
      */
-    where: FaixaPrecoWhereUniqueInput
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
   }
 
   /**
-   * FaixaPreco updateMany
+   * ProdutoGravityFaixaPreco updateMany
    */
-  export type FaixaPrecoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update FaixaPrecos.
+     * The data used to update ProdutoGravityFaixaPrecos.
      */
-    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyInput>
+    data: XOR<ProdutoGravityFaixaPrecoUpdateManyMutationInput, ProdutoGravityFaixaPrecoUncheckedUpdateManyInput>
     /**
-     * Filter which FaixaPrecos to update
+     * Filter which ProdutoGravityFaixaPrecos to update
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
   }
 
   /**
-   * FaixaPreco upsert
+   * ProdutoGravityFaixaPreco upsert
    */
-  export type FaixaPrecoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * The filter to search for the FaixaPreco to update in case it exists.
+     * The filter to search for the ProdutoGravityFaixaPreco to update in case it exists.
      */
-    where: FaixaPrecoWhereUniqueInput
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
     /**
-     * In case the FaixaPreco found by the `where` argument doesn't exist, create a new FaixaPreco with this data.
+     * In case the ProdutoGravityFaixaPreco found by the `where` argument doesn't exist, create a new ProdutoGravityFaixaPreco with this data.
      */
-    create: XOR<FaixaPrecoCreateInput, FaixaPrecoUncheckedCreateInput>
+    create: XOR<ProdutoGravityFaixaPrecoCreateInput, ProdutoGravityFaixaPrecoUncheckedCreateInput>
     /**
-     * In case the FaixaPreco was found with the provided `where` argument, update it with this data.
+     * In case the ProdutoGravityFaixaPreco was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<FaixaPrecoUpdateInput, FaixaPrecoUncheckedUpdateInput>
+    update: XOR<ProdutoGravityFaixaPrecoUpdateInput, ProdutoGravityFaixaPrecoUncheckedUpdateInput>
   }
 
   /**
-   * FaixaPreco delete
+   * ProdutoGravityFaixaPreco delete
    */
-  export type FaixaPrecoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter which FaixaPreco to delete.
+     * Filter which ProdutoGravityFaixaPreco to delete.
      */
-    where: FaixaPrecoWhereUniqueInput
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
   }
 
   /**
-   * FaixaPreco deleteMany
+   * ProdutoGravityFaixaPreco deleteMany
    */
-  export type FaixaPrecoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FaixaPrecos to delete
+     * Filter which ProdutoGravityFaixaPrecos to delete
      */
-    where?: FaixaPrecoWhereInput
+    where?: ProdutoGravityFaixaPrecoWhereInput
   }
 
   /**
-   * FaixaPreco without action
+   * ProdutoGravityFaixaPreco without action
    */
-  export type FaixaPrecoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaixaPrecoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaixaPreco
+     * Select specific fields to fetch from the ProdutoGravityFaixaPreco
      */
-    select?: FaixaPrecoSelect<ExtArgs> | null
+    select?: ProdutoGravityFaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: FaixaPrecoInclude<ExtArgs> | null
+    include?: ProdutoGravityFaixaPrecoInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model NegociacaoEspecial
+   * Model ProdutoGravityNegociacaoEspecial
    */
 
-  export type AggregateNegociacaoEspecial = {
-    _count: NegociacaoEspecialCountAggregateOutputType | null
-    _min: NegociacaoEspecialMinAggregateOutputType | null
-    _max: NegociacaoEspecialMaxAggregateOutputType | null
+  export type AggregateProdutoGravityNegociacaoEspecial = {
+    _count: ProdutoGravityNegociacaoEspecialCountAggregateOutputType | null
+    _min: ProdutoGravityNegociacaoEspecialMinAggregateOutputType | null
+    _max: ProdutoGravityNegociacaoEspecialMaxAggregateOutputType | null
   }
 
-  export type NegociacaoEspecialMinAggregateOutputType = {
+  export type ProdutoGravityNegociacaoEspecialMinAggregateOutputType = {
     id_negociacao_especial: string | null
     id_produto_gravity_negociacao_especial: string | null
     id_organizacao_negociacao_especial: string | null
@@ -14507,7 +14507,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial: Date | null
   }
 
-  export type NegociacaoEspecialMaxAggregateOutputType = {
+  export type ProdutoGravityNegociacaoEspecialMaxAggregateOutputType = {
     id_negociacao_especial: string | null
     id_produto_gravity_negociacao_especial: string | null
     id_organizacao_negociacao_especial: string | null
@@ -14520,7 +14520,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial: Date | null
   }
 
-  export type NegociacaoEspecialCountAggregateOutputType = {
+  export type ProdutoGravityNegociacaoEspecialCountAggregateOutputType = {
     id_negociacao_especial: number
     id_produto_gravity_negociacao_especial: number
     id_organizacao_negociacao_especial: number
@@ -14535,7 +14535,7 @@ export namespace Prisma {
   }
 
 
-  export type NegociacaoEspecialMinAggregateInputType = {
+  export type ProdutoGravityNegociacaoEspecialMinAggregateInputType = {
     id_negociacao_especial?: true
     id_produto_gravity_negociacao_especial?: true
     id_organizacao_negociacao_especial?: true
@@ -14548,7 +14548,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: true
   }
 
-  export type NegociacaoEspecialMaxAggregateInputType = {
+  export type ProdutoGravityNegociacaoEspecialMaxAggregateInputType = {
     id_negociacao_especial?: true
     id_produto_gravity_negociacao_especial?: true
     id_organizacao_negociacao_especial?: true
@@ -14561,7 +14561,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: true
   }
 
-  export type NegociacaoEspecialCountAggregateInputType = {
+  export type ProdutoGravityNegociacaoEspecialCountAggregateInputType = {
     id_negociacao_especial?: true
     id_produto_gravity_negociacao_especial?: true
     id_organizacao_negociacao_especial?: true
@@ -14575,79 +14575,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type NegociacaoEspecialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NegociacaoEspecial to aggregate.
+     * Filter which ProdutoGravityNegociacaoEspecial to aggregate.
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NegociacaoEspecials to fetch.
+     * Determine the order of ProdutoGravityNegociacaoEspecials to fetch.
      */
-    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithRelationInput | ProdutoGravityNegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: NegociacaoEspecialWhereUniqueInput
+    cursor?: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NegociacaoEspecials from the position of the cursor.
+     * Take `±n` ProdutoGravityNegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NegociacaoEspecials.
+     * Skip the first `n` ProdutoGravityNegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned NegociacaoEspecials
+     * Count returned ProdutoGravityNegociacaoEspecials
     **/
-    _count?: true | NegociacaoEspecialCountAggregateInputType
+    _count?: true | ProdutoGravityNegociacaoEspecialCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: NegociacaoEspecialMinAggregateInputType
+    _min?: ProdutoGravityNegociacaoEspecialMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: NegociacaoEspecialMaxAggregateInputType
+    _max?: ProdutoGravityNegociacaoEspecialMaxAggregateInputType
   }
 
-  export type GetNegociacaoEspecialAggregateType<T extends NegociacaoEspecialAggregateArgs> = {
-        [P in keyof T & keyof AggregateNegociacaoEspecial]: P extends '_count' | 'count'
+  export type GetProdutoGravityNegociacaoEspecialAggregateType<T extends ProdutoGravityNegociacaoEspecialAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityNegociacaoEspecial]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateNegociacaoEspecial[P]>
-      : GetScalarType<T[P], AggregateNegociacaoEspecial[P]>
+        : GetScalarType<T[P], AggregateProdutoGravityNegociacaoEspecial[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityNegociacaoEspecial[P]>
   }
 
 
 
 
-  export type NegociacaoEspecialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NegociacaoEspecialWhereInput
-    orderBy?: NegociacaoEspecialOrderByWithAggregationInput | NegociacaoEspecialOrderByWithAggregationInput[]
-    by: NegociacaoEspecialScalarFieldEnum[] | NegociacaoEspecialScalarFieldEnum
-    having?: NegociacaoEspecialScalarWhereWithAggregatesInput
+  export type ProdutoGravityNegociacaoEspecialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithAggregationInput | ProdutoGravityNegociacaoEspecialOrderByWithAggregationInput[]
+    by: ProdutoGravityNegociacaoEspecialScalarFieldEnum[] | ProdutoGravityNegociacaoEspecialScalarFieldEnum
+    having?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: NegociacaoEspecialCountAggregateInputType | true
-    _min?: NegociacaoEspecialMinAggregateInputType
-    _max?: NegociacaoEspecialMaxAggregateInputType
+    _count?: ProdutoGravityNegociacaoEspecialCountAggregateInputType | true
+    _min?: ProdutoGravityNegociacaoEspecialMinAggregateInputType
+    _max?: ProdutoGravityNegociacaoEspecialMaxAggregateInputType
   }
 
-  export type NegociacaoEspecialGroupByOutputType = {
+  export type ProdutoGravityNegociacaoEspecialGroupByOutputType = {
     id_negociacao_especial: string
     id_produto_gravity_negociacao_especial: string
     id_organizacao_negociacao_especial: string
@@ -14658,26 +14658,26 @@ export namespace Prisma {
     ilimitado_negociacao_especial: boolean
     data_criacao_negociacao_especial: Date
     data_atualizacao_negociacao_especial: Date
-    _count: NegociacaoEspecialCountAggregateOutputType | null
-    _min: NegociacaoEspecialMinAggregateOutputType | null
-    _max: NegociacaoEspecialMaxAggregateOutputType | null
+    _count: ProdutoGravityNegociacaoEspecialCountAggregateOutputType | null
+    _min: ProdutoGravityNegociacaoEspecialMinAggregateOutputType | null
+    _max: ProdutoGravityNegociacaoEspecialMaxAggregateOutputType | null
   }
 
-  type GetNegociacaoEspecialGroupByPayload<T extends NegociacaoEspecialGroupByArgs> = Prisma.PrismaPromise<
+  type GetProdutoGravityNegociacaoEspecialGroupByPayload<T extends ProdutoGravityNegociacaoEspecialGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<NegociacaoEspecialGroupByOutputType, T['by']> &
+      PickEnumerable<ProdutoGravityNegociacaoEspecialGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof NegociacaoEspecialGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProdutoGravityNegociacaoEspecialGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], NegociacaoEspecialGroupByOutputType[P]>
-            : GetScalarType<T[P], NegociacaoEspecialGroupByOutputType[P]>
+              : GetScalarType<T[P], ProdutoGravityNegociacaoEspecialGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityNegociacaoEspecialGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type NegociacaoEspecialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityNegociacaoEspecialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_negociacao_especial?: boolean
     id_produto_gravity_negociacao_especial?: boolean
     id_organizacao_negociacao_especial?: boolean
@@ -14689,9 +14689,9 @@ export namespace Prisma {
     data_criacao_negociacao_especial?: boolean
     data_atualizacao_negociacao_especial?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["negociacaoEspecial"]>
+  }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
 
-  export type NegociacaoEspecialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityNegociacaoEspecialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_negociacao_especial?: boolean
     id_produto_gravity_negociacao_especial?: boolean
     id_organizacao_negociacao_especial?: boolean
@@ -14703,9 +14703,9 @@ export namespace Prisma {
     data_criacao_negociacao_especial?: boolean
     data_atualizacao_negociacao_especial?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["negociacaoEspecial"]>
+  }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
 
-  export type NegociacaoEspecialSelectScalar = {
+  export type ProdutoGravityNegociacaoEspecialSelectScalar = {
     id_negociacao_especial?: boolean
     id_produto_gravity_negociacao_especial?: boolean
     id_organizacao_negociacao_especial?: boolean
@@ -14718,15 +14718,15 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: boolean
   }
 
-  export type NegociacaoEspecialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
-  export type NegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
-  export type $NegociacaoEspecialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NegociacaoEspecial"
+  export type $ProdutoGravityNegociacaoEspecialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityNegociacaoEspecial"
     objects: {
       produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
@@ -14741,136 +14741,136 @@ export namespace Prisma {
       ilimitado_negociacao_especial: boolean
       data_criacao_negociacao_especial: Date
       data_atualizacao_negociacao_especial: Date
-    }, ExtArgs["result"]["negociacaoEspecial"]>
+    }, ExtArgs["result"]["produtoGravityNegociacaoEspecial"]>
     composites: {}
   }
 
-  type NegociacaoEspecialGetPayload<S extends boolean | null | undefined | NegociacaoEspecialDefaultArgs> = $Result.GetResult<Prisma.$NegociacaoEspecialPayload, S>
+  type ProdutoGravityNegociacaoEspecialGetPayload<S extends boolean | null | undefined | ProdutoGravityNegociacaoEspecialDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload, S>
 
-  type NegociacaoEspecialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NegociacaoEspecialFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NegociacaoEspecialCountAggregateInputType | true
+  type ProdutoGravityNegociacaoEspecialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityNegociacaoEspecialFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityNegociacaoEspecialCountAggregateInputType | true
     }
 
-  export interface NegociacaoEspecialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NegociacaoEspecial'], meta: { name: 'NegociacaoEspecial' } }
+  export interface ProdutoGravityNegociacaoEspecialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityNegociacaoEspecial'], meta: { name: 'ProdutoGravityNegociacaoEspecial' } }
     /**
-     * Find zero or one NegociacaoEspecial that matches the filter.
-     * @param {NegociacaoEspecialFindUniqueArgs} args - Arguments to find a NegociacaoEspecial
+     * Find zero or one ProdutoGravityNegociacaoEspecial that matches the filter.
+     * @param {ProdutoGravityNegociacaoEspecialFindUniqueArgs} args - Arguments to find a ProdutoGravityNegociacaoEspecial
      * @example
-     * // Get one NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.findUnique({
+     * // Get one ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends NegociacaoEspecialFindUniqueArgs>(args: SelectSubset<T, NegociacaoEspecialFindUniqueArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ProdutoGravityNegociacaoEspecialFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one NegociacaoEspecial that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ProdutoGravityNegociacaoEspecial that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {NegociacaoEspecialFindUniqueOrThrowArgs} args - Arguments to find a NegociacaoEspecial
+     * @param {ProdutoGravityNegociacaoEspecialFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityNegociacaoEspecial
      * @example
-     * // Get one NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.findUniqueOrThrow({
+     * // Get one ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NegociacaoEspecialFindUniqueOrThrowArgs>(args: SelectSubset<T, NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ProdutoGravityNegociacaoEspecialFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first NegociacaoEspecial that matches the filter.
+     * Find the first ProdutoGravityNegociacaoEspecial that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialFindFirstArgs} args - Arguments to find a NegociacaoEspecial
+     * @param {ProdutoGravityNegociacaoEspecialFindFirstArgs} args - Arguments to find a ProdutoGravityNegociacaoEspecial
      * @example
-     * // Get one NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.findFirst({
+     * // Get one ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends NegociacaoEspecialFindFirstArgs>(args?: SelectSubset<T, NegociacaoEspecialFindFirstArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ProdutoGravityNegociacaoEspecialFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first NegociacaoEspecial that matches the filter or
+     * Find the first ProdutoGravityNegociacaoEspecial that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialFindFirstOrThrowArgs} args - Arguments to find a NegociacaoEspecial
+     * @param {ProdutoGravityNegociacaoEspecialFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityNegociacaoEspecial
      * @example
-     * // Get one NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.findFirstOrThrow({
+     * // Get one ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends NegociacaoEspecialFindFirstOrThrowArgs>(args?: SelectSubset<T, NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ProdutoGravityNegociacaoEspecialFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more NegociacaoEspecials that matches the filter.
+     * Find zero or more ProdutoGravityNegociacaoEspecials that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProdutoGravityNegociacaoEspecialFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all NegociacaoEspecials
-     * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany()
+     * // Get all ProdutoGravityNegociacaoEspecials
+     * const produtoGravityNegociacaoEspecials = await prisma.produtoGravityNegociacaoEspecial.findMany()
      * 
-     * // Get first 10 NegociacaoEspecials
-     * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany({ take: 10 })
+     * // Get first 10 ProdutoGravityNegociacaoEspecials
+     * const produtoGravityNegociacaoEspecials = await prisma.produtoGravityNegociacaoEspecial.findMany({ take: 10 })
      * 
      * // Only select the `id_negociacao_especial`
-     * const negociacaoEspecialWithId_negociacao_especialOnly = await prisma.negociacaoEspecial.findMany({ select: { id_negociacao_especial: true } })
+     * const produtoGravityNegociacaoEspecialWithId_negociacao_especialOnly = await prisma.produtoGravityNegociacaoEspecial.findMany({ select: { id_negociacao_especial: true } })
      * 
      */
-    findMany<T extends NegociacaoEspecialFindManyArgs>(args?: SelectSubset<T, NegociacaoEspecialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ProdutoGravityNegociacaoEspecialFindManyArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a NegociacaoEspecial.
-     * @param {NegociacaoEspecialCreateArgs} args - Arguments to create a NegociacaoEspecial.
+     * Create a ProdutoGravityNegociacaoEspecial.
+     * @param {ProdutoGravityNegociacaoEspecialCreateArgs} args - Arguments to create a ProdutoGravityNegociacaoEspecial.
      * @example
-     * // Create one NegociacaoEspecial
-     * const NegociacaoEspecial = await prisma.negociacaoEspecial.create({
+     * // Create one ProdutoGravityNegociacaoEspecial
+     * const ProdutoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.create({
      *   data: {
-     *     // ... data to create a NegociacaoEspecial
+     *     // ... data to create a ProdutoGravityNegociacaoEspecial
      *   }
      * })
      * 
      */
-    create<T extends NegociacaoEspecialCreateArgs>(args: SelectSubset<T, NegociacaoEspecialCreateArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ProdutoGravityNegociacaoEspecialCreateArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialCreateArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many NegociacaoEspecials.
-     * @param {NegociacaoEspecialCreateManyArgs} args - Arguments to create many NegociacaoEspecials.
+     * Create many ProdutoGravityNegociacaoEspecials.
+     * @param {ProdutoGravityNegociacaoEspecialCreateManyArgs} args - Arguments to create many ProdutoGravityNegociacaoEspecials.
      * @example
-     * // Create many NegociacaoEspecials
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.createMany({
+     * // Create many ProdutoGravityNegociacaoEspecials
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends NegociacaoEspecialCreateManyArgs>(args?: SelectSubset<T, NegociacaoEspecialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProdutoGravityNegociacaoEspecialCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many NegociacaoEspecials and returns the data saved in the database.
-     * @param {NegociacaoEspecialCreateManyAndReturnArgs} args - Arguments to create many NegociacaoEspecials.
+     * Create many ProdutoGravityNegociacaoEspecials and returns the data saved in the database.
+     * @param {ProdutoGravityNegociacaoEspecialCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityNegociacaoEspecials.
      * @example
-     * // Create many NegociacaoEspecials
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.createManyAndReturn({
+     * // Create many ProdutoGravityNegociacaoEspecials
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many NegociacaoEspecials and only return the `id_negociacao_especial`
-     * const negociacaoEspecialWithId_negociacao_especialOnly = await prisma.negociacaoEspecial.createManyAndReturn({ 
+     * // Create many ProdutoGravityNegociacaoEspecials and only return the `id_negociacao_especial`
+     * const produtoGravityNegociacaoEspecialWithId_negociacao_especialOnly = await prisma.produtoGravityNegociacaoEspecial.createManyAndReturn({ 
      *   select: { id_negociacao_especial: true },
      *   data: [
      *     // ... provide data here
@@ -14880,28 +14880,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NegociacaoEspecialCreateManyAndReturnArgs>(args?: SelectSubset<T, NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ProdutoGravityNegociacaoEspecialCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a NegociacaoEspecial.
-     * @param {NegociacaoEspecialDeleteArgs} args - Arguments to delete one NegociacaoEspecial.
+     * Delete a ProdutoGravityNegociacaoEspecial.
+     * @param {ProdutoGravityNegociacaoEspecialDeleteArgs} args - Arguments to delete one ProdutoGravityNegociacaoEspecial.
      * @example
-     * // Delete one NegociacaoEspecial
-     * const NegociacaoEspecial = await prisma.negociacaoEspecial.delete({
+     * // Delete one ProdutoGravityNegociacaoEspecial
+     * const ProdutoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.delete({
      *   where: {
-     *     // ... filter to delete one NegociacaoEspecial
+     *     // ... filter to delete one ProdutoGravityNegociacaoEspecial
      *   }
      * })
      * 
      */
-    delete<T extends NegociacaoEspecialDeleteArgs>(args: SelectSubset<T, NegociacaoEspecialDeleteArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ProdutoGravityNegociacaoEspecialDeleteArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one NegociacaoEspecial.
-     * @param {NegociacaoEspecialUpdateArgs} args - Arguments to update one NegociacaoEspecial.
+     * Update one ProdutoGravityNegociacaoEspecial.
+     * @param {ProdutoGravityNegociacaoEspecialUpdateArgs} args - Arguments to update one ProdutoGravityNegociacaoEspecial.
      * @example
-     * // Update one NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.update({
+     * // Update one ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14911,30 +14911,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NegociacaoEspecialUpdateArgs>(args: SelectSubset<T, NegociacaoEspecialUpdateArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ProdutoGravityNegociacaoEspecialUpdateArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more NegociacaoEspecials.
-     * @param {NegociacaoEspecialDeleteManyArgs} args - Arguments to filter NegociacaoEspecials to delete.
+     * Delete zero or more ProdutoGravityNegociacaoEspecials.
+     * @param {ProdutoGravityNegociacaoEspecialDeleteManyArgs} args - Arguments to filter ProdutoGravityNegociacaoEspecials to delete.
      * @example
-     * // Delete a few NegociacaoEspecials
-     * const { count } = await prisma.negociacaoEspecial.deleteMany({
+     * // Delete a few ProdutoGravityNegociacaoEspecials
+     * const { count } = await prisma.produtoGravityNegociacaoEspecial.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends NegociacaoEspecialDeleteManyArgs>(args?: SelectSubset<T, NegociacaoEspecialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProdutoGravityNegociacaoEspecialDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityNegociacaoEspecialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more NegociacaoEspecials.
+     * Update zero or more ProdutoGravityNegociacaoEspecials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProdutoGravityNegociacaoEspecialUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many NegociacaoEspecials
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.updateMany({
+     * // Update many ProdutoGravityNegociacaoEspecials
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14944,56 +14944,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends NegociacaoEspecialUpdateManyArgs>(args: SelectSubset<T, NegociacaoEspecialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProdutoGravityNegociacaoEspecialUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one NegociacaoEspecial.
-     * @param {NegociacaoEspecialUpsertArgs} args - Arguments to update or create a NegociacaoEspecial.
+     * Create or update one ProdutoGravityNegociacaoEspecial.
+     * @param {ProdutoGravityNegociacaoEspecialUpsertArgs} args - Arguments to update or create a ProdutoGravityNegociacaoEspecial.
      * @example
-     * // Update or create a NegociacaoEspecial
-     * const negociacaoEspecial = await prisma.negociacaoEspecial.upsert({
+     * // Update or create a ProdutoGravityNegociacaoEspecial
+     * const produtoGravityNegociacaoEspecial = await prisma.produtoGravityNegociacaoEspecial.upsert({
      *   create: {
-     *     // ... data to create a NegociacaoEspecial
+     *     // ... data to create a ProdutoGravityNegociacaoEspecial
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the NegociacaoEspecial we want to update
+     *     // ... the filter for the ProdutoGravityNegociacaoEspecial we want to update
      *   }
      * })
      */
-    upsert<T extends NegociacaoEspecialUpsertArgs>(args: SelectSubset<T, NegociacaoEspecialUpsertArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ProdutoGravityNegociacaoEspecialUpsertArgs>(args: SelectSubset<T, ProdutoGravityNegociacaoEspecialUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityNegociacaoEspecialClient<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of NegociacaoEspecials.
+     * Count the number of ProdutoGravityNegociacaoEspecials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialCountArgs} args - Arguments to filter NegociacaoEspecials to count.
+     * @param {ProdutoGravityNegociacaoEspecialCountArgs} args - Arguments to filter ProdutoGravityNegociacaoEspecials to count.
      * @example
-     * // Count the number of NegociacaoEspecials
-     * const count = await prisma.negociacaoEspecial.count({
+     * // Count the number of ProdutoGravityNegociacaoEspecials
+     * const count = await prisma.produtoGravityNegociacaoEspecial.count({
      *   where: {
-     *     // ... the filter for the NegociacaoEspecials we want to count
+     *     // ... the filter for the ProdutoGravityNegociacaoEspecials we want to count
      *   }
      * })
     **/
-    count<T extends NegociacaoEspecialCountArgs>(
-      args?: Subset<T, NegociacaoEspecialCountArgs>,
+    count<T extends ProdutoGravityNegociacaoEspecialCountArgs>(
+      args?: Subset<T, ProdutoGravityNegociacaoEspecialCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], NegociacaoEspecialCountAggregateOutputType>
+          : GetScalarType<T['select'], ProdutoGravityNegociacaoEspecialCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a NegociacaoEspecial.
+     * Allows you to perform aggregations operations on a ProdutoGravityNegociacaoEspecial.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProdutoGravityNegociacaoEspecialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -15013,13 +15013,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends NegociacaoEspecialAggregateArgs>(args: Subset<T, NegociacaoEspecialAggregateArgs>): Prisma.PrismaPromise<GetNegociacaoEspecialAggregateType<T>>
+    aggregate<T extends ProdutoGravityNegociacaoEspecialAggregateArgs>(args: Subset<T, ProdutoGravityNegociacaoEspecialAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityNegociacaoEspecialAggregateType<T>>
 
     /**
-     * Group by NegociacaoEspecial.
+     * Group by ProdutoGravityNegociacaoEspecial.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NegociacaoEspecialGroupByArgs} args - Group by arguments.
+     * @param {ProdutoGravityNegociacaoEspecialGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -15034,14 +15034,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends NegociacaoEspecialGroupByArgs,
+      T extends ProdutoGravityNegociacaoEspecialGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NegociacaoEspecialGroupByArgs['orderBy'] }
-        : { orderBy?: NegociacaoEspecialGroupByArgs['orderBy'] },
+        ? { orderBy: ProdutoGravityNegociacaoEspecialGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityNegociacaoEspecialGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -15090,20 +15090,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, NegociacaoEspecialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNegociacaoEspecialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProdutoGravityNegociacaoEspecialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityNegociacaoEspecialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the NegociacaoEspecial model
+   * Fields of the ProdutoGravityNegociacaoEspecial model
    */
-  readonly fields: NegociacaoEspecialFieldRefs;
+  readonly fields: ProdutoGravityNegociacaoEspecialFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for NegociacaoEspecial.
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityNegociacaoEspecial.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NegociacaoEspecialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProdutoGravityNegociacaoEspecialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     produto<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -15132,348 +15132,348 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the NegociacaoEspecial model
+   * Fields of the ProdutoGravityNegociacaoEspecial model
    */ 
-  interface NegociacaoEspecialFieldRefs {
-    readonly id_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly id_produto_gravity_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly id_organizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly nome_organizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly acordo_negociacao_especial: FieldRef<"NegociacaoEspecial", 'String'>
-    readonly data_inicio_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly data_fim_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly ilimitado_negociacao_especial: FieldRef<"NegociacaoEspecial", 'Boolean'>
-    readonly data_criacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
-    readonly data_atualizacao_negociacao_especial: FieldRef<"NegociacaoEspecial", 'DateTime'>
+  interface ProdutoGravityNegociacaoEspecialFieldRefs {
+    readonly id_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly id_produto_gravity_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly id_organizacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly nome_organizacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly acordo_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'String'>
+    readonly data_inicio_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly data_fim_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly ilimitado_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'Boolean'>
+    readonly data_criacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
+    readonly data_atualizacao_negociacao_especial: FieldRef<"ProdutoGravityNegociacaoEspecial", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * NegociacaoEspecial findUnique
+   * ProdutoGravityNegociacaoEspecial findUnique
    */
-  export type NegociacaoEspecialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which NegociacaoEspecial to fetch.
+     * Filter, which ProdutoGravityNegociacaoEspecial to fetch.
      */
-    where: NegociacaoEspecialWhereUniqueInput
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * NegociacaoEspecial findUniqueOrThrow
+   * ProdutoGravityNegociacaoEspecial findUniqueOrThrow
    */
-  export type NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which NegociacaoEspecial to fetch.
+     * Filter, which ProdutoGravityNegociacaoEspecial to fetch.
      */
-    where: NegociacaoEspecialWhereUniqueInput
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * NegociacaoEspecial findFirst
+   * ProdutoGravityNegociacaoEspecial findFirst
    */
-  export type NegociacaoEspecialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which NegociacaoEspecial to fetch.
+     * Filter, which ProdutoGravityNegociacaoEspecial to fetch.
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NegociacaoEspecials to fetch.
+     * Determine the order of ProdutoGravityNegociacaoEspecials to fetch.
      */
-    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithRelationInput | ProdutoGravityNegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NegociacaoEspecials.
+     * Sets the position for searching for ProdutoGravityNegociacaoEspecials.
      */
-    cursor?: NegociacaoEspecialWhereUniqueInput
+    cursor?: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NegociacaoEspecials from the position of the cursor.
+     * Take `±n` ProdutoGravityNegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NegociacaoEspecials.
+     * Skip the first `n` ProdutoGravityNegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NegociacaoEspecials.
+     * Filter by unique combinations of ProdutoGravityNegociacaoEspecials.
      */
-    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
+    distinct?: ProdutoGravityNegociacaoEspecialScalarFieldEnum | ProdutoGravityNegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * NegociacaoEspecial findFirstOrThrow
+   * ProdutoGravityNegociacaoEspecial findFirstOrThrow
    */
-  export type NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which NegociacaoEspecial to fetch.
+     * Filter, which ProdutoGravityNegociacaoEspecial to fetch.
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NegociacaoEspecials to fetch.
+     * Determine the order of ProdutoGravityNegociacaoEspecials to fetch.
      */
-    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithRelationInput | ProdutoGravityNegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NegociacaoEspecials.
+     * Sets the position for searching for ProdutoGravityNegociacaoEspecials.
      */
-    cursor?: NegociacaoEspecialWhereUniqueInput
+    cursor?: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NegociacaoEspecials from the position of the cursor.
+     * Take `±n` ProdutoGravityNegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NegociacaoEspecials.
+     * Skip the first `n` ProdutoGravityNegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NegociacaoEspecials.
+     * Filter by unique combinations of ProdutoGravityNegociacaoEspecials.
      */
-    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
+    distinct?: ProdutoGravityNegociacaoEspecialScalarFieldEnum | ProdutoGravityNegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * NegociacaoEspecial findMany
+   * ProdutoGravityNegociacaoEspecial findMany
    */
-  export type NegociacaoEspecialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which NegociacaoEspecials to fetch.
+     * Filter, which ProdutoGravityNegociacaoEspecials to fetch.
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NegociacaoEspecials to fetch.
+     * Determine the order of ProdutoGravityNegociacaoEspecials to fetch.
      */
-    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityNegociacaoEspecialOrderByWithRelationInput | ProdutoGravityNegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing NegociacaoEspecials.
+     * Sets the position for listing ProdutoGravityNegociacaoEspecials.
      */
-    cursor?: NegociacaoEspecialWhereUniqueInput
+    cursor?: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NegociacaoEspecials from the position of the cursor.
+     * Take `±n` ProdutoGravityNegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NegociacaoEspecials.
+     * Skip the first `n` ProdutoGravityNegociacaoEspecials.
      */
     skip?: number
-    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
+    distinct?: ProdutoGravityNegociacaoEspecialScalarFieldEnum | ProdutoGravityNegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * NegociacaoEspecial create
+   * ProdutoGravityNegociacaoEspecial create
    */
-  export type NegociacaoEspecialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The data needed to create a NegociacaoEspecial.
+     * The data needed to create a ProdutoGravityNegociacaoEspecial.
      */
-    data: XOR<NegociacaoEspecialCreateInput, NegociacaoEspecialUncheckedCreateInput>
+    data: XOR<ProdutoGravityNegociacaoEspecialCreateInput, ProdutoGravityNegociacaoEspecialUncheckedCreateInput>
   }
 
   /**
-   * NegociacaoEspecial createMany
+   * ProdutoGravityNegociacaoEspecial createMany
    */
-  export type NegociacaoEspecialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many NegociacaoEspecials.
+     * The data used to create many ProdutoGravityNegociacaoEspecials.
      */
-    data: NegociacaoEspecialCreateManyInput | NegociacaoEspecialCreateManyInput[]
+    data: ProdutoGravityNegociacaoEspecialCreateManyInput | ProdutoGravityNegociacaoEspecialCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NegociacaoEspecial createManyAndReturn
+   * ProdutoGravityNegociacaoEspecial createManyAndReturn
    */
-  export type NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many NegociacaoEspecials.
+     * The data used to create many ProdutoGravityNegociacaoEspecials.
      */
-    data: NegociacaoEspecialCreateManyInput | NegociacaoEspecialCreateManyInput[]
+    data: ProdutoGravityNegociacaoEspecialCreateManyInput | ProdutoGravityNegociacaoEspecialCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * NegociacaoEspecial update
+   * ProdutoGravityNegociacaoEspecial update
    */
-  export type NegociacaoEspecialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The data needed to update a NegociacaoEspecial.
+     * The data needed to update a ProdutoGravityNegociacaoEspecial.
      */
-    data: XOR<NegociacaoEspecialUpdateInput, NegociacaoEspecialUncheckedUpdateInput>
+    data: XOR<ProdutoGravityNegociacaoEspecialUpdateInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateInput>
     /**
-     * Choose, which NegociacaoEspecial to update.
+     * Choose, which ProdutoGravityNegociacaoEspecial to update.
      */
-    where: NegociacaoEspecialWhereUniqueInput
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * NegociacaoEspecial updateMany
+   * ProdutoGravityNegociacaoEspecial updateMany
    */
-  export type NegociacaoEspecialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update NegociacaoEspecials.
+     * The data used to update ProdutoGravityNegociacaoEspecials.
      */
-    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyInput>
+    data: XOR<ProdutoGravityNegociacaoEspecialUpdateManyMutationInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateManyInput>
     /**
-     * Filter which NegociacaoEspecials to update
+     * Filter which ProdutoGravityNegociacaoEspecials to update
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
   }
 
   /**
-   * NegociacaoEspecial upsert
+   * ProdutoGravityNegociacaoEspecial upsert
    */
-  export type NegociacaoEspecialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The filter to search for the NegociacaoEspecial to update in case it exists.
+     * The filter to search for the ProdutoGravityNegociacaoEspecial to update in case it exists.
      */
-    where: NegociacaoEspecialWhereUniqueInput
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
     /**
-     * In case the NegociacaoEspecial found by the `where` argument doesn't exist, create a new NegociacaoEspecial with this data.
+     * In case the ProdutoGravityNegociacaoEspecial found by the `where` argument doesn't exist, create a new ProdutoGravityNegociacaoEspecial with this data.
      */
-    create: XOR<NegociacaoEspecialCreateInput, NegociacaoEspecialUncheckedCreateInput>
+    create: XOR<ProdutoGravityNegociacaoEspecialCreateInput, ProdutoGravityNegociacaoEspecialUncheckedCreateInput>
     /**
-     * In case the NegociacaoEspecial was found with the provided `where` argument, update it with this data.
+     * In case the ProdutoGravityNegociacaoEspecial was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<NegociacaoEspecialUpdateInput, NegociacaoEspecialUncheckedUpdateInput>
+    update: XOR<ProdutoGravityNegociacaoEspecialUpdateInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateInput>
   }
 
   /**
-   * NegociacaoEspecial delete
+   * ProdutoGravityNegociacaoEspecial delete
    */
-  export type NegociacaoEspecialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter which NegociacaoEspecial to delete.
+     * Filter which ProdutoGravityNegociacaoEspecial to delete.
      */
-    where: NegociacaoEspecialWhereUniqueInput
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * NegociacaoEspecial deleteMany
+   * ProdutoGravityNegociacaoEspecial deleteMany
    */
-  export type NegociacaoEspecialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NegociacaoEspecials to delete
+     * Filter which ProdutoGravityNegociacaoEspecials to delete
      */
-    where?: NegociacaoEspecialWhereInput
+    where?: ProdutoGravityNegociacaoEspecialWhereInput
   }
 
   /**
-   * NegociacaoEspecial without action
+   * ProdutoGravityNegociacaoEspecial without action
    */
-  export type NegociacaoEspecialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityNegociacaoEspecialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NegociacaoEspecial
+     * Select specific fields to fetch from the ProdutoGravityNegociacaoEspecial
      */
-    select?: NegociacaoEspecialSelect<ExtArgs> | null
+    select?: ProdutoGravityNegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    include?: ProdutoGravityNegociacaoEspecialInclude<ExtArgs> | null
   }
 
 
@@ -22264,28 +22264,28 @@ export namespace Prisma {
 
 
   /**
-   * Model AgendamentoTeste
+   * Model TesteAgendamento
    */
 
-  export type AggregateAgendamentoTeste = {
-    _count: AgendamentoTesteCountAggregateOutputType | null
-    _avg: AgendamentoTesteAvgAggregateOutputType | null
-    _sum: AgendamentoTesteSumAggregateOutputType | null
-    _min: AgendamentoTesteMinAggregateOutputType | null
-    _max: AgendamentoTesteMaxAggregateOutputType | null
+  export type AggregateTesteAgendamento = {
+    _count: TesteAgendamentoCountAggregateOutputType | null
+    _avg: TesteAgendamentoAvgAggregateOutputType | null
+    _sum: TesteAgendamentoSumAggregateOutputType | null
+    _min: TesteAgendamentoMinAggregateOutputType | null
+    _max: TesteAgendamentoMaxAggregateOutputType | null
   }
 
-  export type AgendamentoTesteAvgAggregateOutputType = {
+  export type TesteAgendamentoAvgAggregateOutputType = {
     hora_agendamento_teste: number | null
     minuto_agendamento_teste: number | null
   }
 
-  export type AgendamentoTesteSumAggregateOutputType = {
+  export type TesteAgendamentoSumAggregateOutputType = {
     hora_agendamento_teste: number | null
     minuto_agendamento_teste: number | null
   }
 
-  export type AgendamentoTesteMinAggregateOutputType = {
+  export type TesteAgendamentoMinAggregateOutputType = {
     id_agendamento_teste: string | null
     id_organizacao_agendamento_teste: string | null
     ativo_agendamento_teste: boolean | null
@@ -22299,7 +22299,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste: Date | null
   }
 
-  export type AgendamentoTesteMaxAggregateOutputType = {
+  export type TesteAgendamentoMaxAggregateOutputType = {
     id_agendamento_teste: string | null
     id_organizacao_agendamento_teste: string | null
     ativo_agendamento_teste: boolean | null
@@ -22313,7 +22313,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste: Date | null
   }
 
-  export type AgendamentoTesteCountAggregateOutputType = {
+  export type TesteAgendamentoCountAggregateOutputType = {
     id_agendamento_teste: number
     id_organizacao_agendamento_teste: number
     ativo_agendamento_teste: number
@@ -22332,17 +22332,17 @@ export namespace Prisma {
   }
 
 
-  export type AgendamentoTesteAvgAggregateInputType = {
+  export type TesteAgendamentoAvgAggregateInputType = {
     hora_agendamento_teste?: true
     minuto_agendamento_teste?: true
   }
 
-  export type AgendamentoTesteSumAggregateInputType = {
+  export type TesteAgendamentoSumAggregateInputType = {
     hora_agendamento_teste?: true
     minuto_agendamento_teste?: true
   }
 
-  export type AgendamentoTesteMinAggregateInputType = {
+  export type TesteAgendamentoMinAggregateInputType = {
     id_agendamento_teste?: true
     id_organizacao_agendamento_teste?: true
     ativo_agendamento_teste?: true
@@ -22356,7 +22356,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: true
   }
 
-  export type AgendamentoTesteMaxAggregateInputType = {
+  export type TesteAgendamentoMaxAggregateInputType = {
     id_agendamento_teste?: true
     id_organizacao_agendamento_teste?: true
     ativo_agendamento_teste?: true
@@ -22370,7 +22370,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: true
   }
 
-  export type AgendamentoTesteCountAggregateInputType = {
+  export type TesteAgendamentoCountAggregateInputType = {
     id_agendamento_teste?: true
     id_organizacao_agendamento_teste?: true
     ativo_agendamento_teste?: true
@@ -22388,93 +22388,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AgendamentoTesteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AgendamentoTeste to aggregate.
+     * Filter which TesteAgendamento to aggregate.
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AgendamentoTestes to fetch.
+     * Determine the order of TesteAgendamentos to fetch.
      */
-    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
+    orderBy?: TesteAgendamentoOrderByWithRelationInput | TesteAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AgendamentoTesteWhereUniqueInput
+    cursor?: TesteAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AgendamentoTestes from the position of the cursor.
+     * Take `±n` TesteAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AgendamentoTestes.
+     * Skip the first `n` TesteAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AgendamentoTestes
+     * Count returned TesteAgendamentos
     **/
-    _count?: true | AgendamentoTesteCountAggregateInputType
+    _count?: true | TesteAgendamentoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AgendamentoTesteAvgAggregateInputType
+    _avg?: TesteAgendamentoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AgendamentoTesteSumAggregateInputType
+    _sum?: TesteAgendamentoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AgendamentoTesteMinAggregateInputType
+    _min?: TesteAgendamentoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AgendamentoTesteMaxAggregateInputType
+    _max?: TesteAgendamentoMaxAggregateInputType
   }
 
-  export type GetAgendamentoTesteAggregateType<T extends AgendamentoTesteAggregateArgs> = {
-        [P in keyof T & keyof AggregateAgendamentoTeste]: P extends '_count' | 'count'
+  export type GetTesteAgendamentoAggregateType<T extends TesteAgendamentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateTesteAgendamento]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAgendamentoTeste[P]>
-      : GetScalarType<T[P], AggregateAgendamentoTeste[P]>
+        : GetScalarType<T[P], AggregateTesteAgendamento[P]>
+      : GetScalarType<T[P], AggregateTesteAgendamento[P]>
   }
 
 
 
 
-  export type AgendamentoTesteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AgendamentoTesteWhereInput
-    orderBy?: AgendamentoTesteOrderByWithAggregationInput | AgendamentoTesteOrderByWithAggregationInput[]
-    by: AgendamentoTesteScalarFieldEnum[] | AgendamentoTesteScalarFieldEnum
-    having?: AgendamentoTesteScalarWhereWithAggregatesInput
+  export type TesteAgendamentoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TesteAgendamentoWhereInput
+    orderBy?: TesteAgendamentoOrderByWithAggregationInput | TesteAgendamentoOrderByWithAggregationInput[]
+    by: TesteAgendamentoScalarFieldEnum[] | TesteAgendamentoScalarFieldEnum
+    having?: TesteAgendamentoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AgendamentoTesteCountAggregateInputType | true
-    _avg?: AgendamentoTesteAvgAggregateInputType
-    _sum?: AgendamentoTesteSumAggregateInputType
-    _min?: AgendamentoTesteMinAggregateInputType
-    _max?: AgendamentoTesteMaxAggregateInputType
+    _count?: TesteAgendamentoCountAggregateInputType | true
+    _avg?: TesteAgendamentoAvgAggregateInputType
+    _sum?: TesteAgendamentoSumAggregateInputType
+    _min?: TesteAgendamentoMinAggregateInputType
+    _max?: TesteAgendamentoMaxAggregateInputType
   }
 
-  export type AgendamentoTesteGroupByOutputType = {
+  export type TesteAgendamentoGroupByOutputType = {
     id_agendamento_teste: string
     id_organizacao_agendamento_teste: string
     ativo_agendamento_teste: boolean
@@ -22489,28 +22489,28 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste: Date | null
     data_criacao_agendamento_teste: Date
     data_atualizacao_agendamento_teste: Date
-    _count: AgendamentoTesteCountAggregateOutputType | null
-    _avg: AgendamentoTesteAvgAggregateOutputType | null
-    _sum: AgendamentoTesteSumAggregateOutputType | null
-    _min: AgendamentoTesteMinAggregateOutputType | null
-    _max: AgendamentoTesteMaxAggregateOutputType | null
+    _count: TesteAgendamentoCountAggregateOutputType | null
+    _avg: TesteAgendamentoAvgAggregateOutputType | null
+    _sum: TesteAgendamentoSumAggregateOutputType | null
+    _min: TesteAgendamentoMinAggregateOutputType | null
+    _max: TesteAgendamentoMaxAggregateOutputType | null
   }
 
-  type GetAgendamentoTesteGroupByPayload<T extends AgendamentoTesteGroupByArgs> = Prisma.PrismaPromise<
+  type GetTesteAgendamentoGroupByPayload<T extends TesteAgendamentoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AgendamentoTesteGroupByOutputType, T['by']> &
+      PickEnumerable<TesteAgendamentoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AgendamentoTesteGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof TesteAgendamentoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AgendamentoTesteGroupByOutputType[P]>
-            : GetScalarType<T[P], AgendamentoTesteGroupByOutputType[P]>
+              : GetScalarType<T[P], TesteAgendamentoGroupByOutputType[P]>
+            : GetScalarType<T[P], TesteAgendamentoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AgendamentoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type TesteAgendamentoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_agendamento_teste?: boolean
     id_organizacao_agendamento_teste?: boolean
     ativo_agendamento_teste?: boolean
@@ -22525,9 +22525,9 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: boolean
     data_criacao_agendamento_teste?: boolean
     data_atualizacao_agendamento_teste?: boolean
-  }, ExtArgs["result"]["agendamentoTeste"]>
+  }, ExtArgs["result"]["testeAgendamento"]>
 
-  export type AgendamentoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type TesteAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_agendamento_teste?: boolean
     id_organizacao_agendamento_teste?: boolean
     ativo_agendamento_teste?: boolean
@@ -22542,9 +22542,9 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: boolean
     data_criacao_agendamento_teste?: boolean
     data_atualizacao_agendamento_teste?: boolean
-  }, ExtArgs["result"]["agendamentoTeste"]>
+  }, ExtArgs["result"]["testeAgendamento"]>
 
-  export type AgendamentoTesteSelectScalar = {
+  export type TesteAgendamentoSelectScalar = {
     id_agendamento_teste?: boolean
     id_organizacao_agendamento_teste?: boolean
     ativo_agendamento_teste?: boolean
@@ -22562,8 +22562,8 @@ export namespace Prisma {
   }
 
 
-  export type $AgendamentoTestePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AgendamentoTeste"
+  export type $TesteAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TesteAgendamento"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_agendamento_teste: string
@@ -22580,136 +22580,136 @@ export namespace Prisma {
       proxima_execucao_agendamento_teste: Date | null
       data_criacao_agendamento_teste: Date
       data_atualizacao_agendamento_teste: Date
-    }, ExtArgs["result"]["agendamentoTeste"]>
+    }, ExtArgs["result"]["testeAgendamento"]>
     composites: {}
   }
 
-  type AgendamentoTesteGetPayload<S extends boolean | null | undefined | AgendamentoTesteDefaultArgs> = $Result.GetResult<Prisma.$AgendamentoTestePayload, S>
+  type TesteAgendamentoGetPayload<S extends boolean | null | undefined | TesteAgendamentoDefaultArgs> = $Result.GetResult<Prisma.$TesteAgendamentoPayload, S>
 
-  type AgendamentoTesteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AgendamentoTesteFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AgendamentoTesteCountAggregateInputType | true
+  type TesteAgendamentoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TesteAgendamentoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TesteAgendamentoCountAggregateInputType | true
     }
 
-  export interface AgendamentoTesteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgendamentoTeste'], meta: { name: 'AgendamentoTeste' } }
+  export interface TesteAgendamentoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TesteAgendamento'], meta: { name: 'TesteAgendamento' } }
     /**
-     * Find zero or one AgendamentoTeste that matches the filter.
-     * @param {AgendamentoTesteFindUniqueArgs} args - Arguments to find a AgendamentoTeste
+     * Find zero or one TesteAgendamento that matches the filter.
+     * @param {TesteAgendamentoFindUniqueArgs} args - Arguments to find a TesteAgendamento
      * @example
-     * // Get one AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.findUnique({
+     * // Get one TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AgendamentoTesteFindUniqueArgs>(args: SelectSubset<T, AgendamentoTesteFindUniqueArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends TesteAgendamentoFindUniqueArgs>(args: SelectSubset<T, TesteAgendamentoFindUniqueArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AgendamentoTeste that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one TesteAgendamento that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AgendamentoTesteFindUniqueOrThrowArgs} args - Arguments to find a AgendamentoTeste
+     * @param {TesteAgendamentoFindUniqueOrThrowArgs} args - Arguments to find a TesteAgendamento
      * @example
-     * // Get one AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.findUniqueOrThrow({
+     * // Get one TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AgendamentoTesteFindUniqueOrThrowArgs>(args: SelectSubset<T, AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends TesteAgendamentoFindUniqueOrThrowArgs>(args: SelectSubset<T, TesteAgendamentoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AgendamentoTeste that matches the filter.
+     * Find the first TesteAgendamento that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteFindFirstArgs} args - Arguments to find a AgendamentoTeste
+     * @param {TesteAgendamentoFindFirstArgs} args - Arguments to find a TesteAgendamento
      * @example
-     * // Get one AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.findFirst({
+     * // Get one TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AgendamentoTesteFindFirstArgs>(args?: SelectSubset<T, AgendamentoTesteFindFirstArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends TesteAgendamentoFindFirstArgs>(args?: SelectSubset<T, TesteAgendamentoFindFirstArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AgendamentoTeste that matches the filter or
+     * Find the first TesteAgendamento that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteFindFirstOrThrowArgs} args - Arguments to find a AgendamentoTeste
+     * @param {TesteAgendamentoFindFirstOrThrowArgs} args - Arguments to find a TesteAgendamento
      * @example
-     * // Get one AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.findFirstOrThrow({
+     * // Get one TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AgendamentoTesteFindFirstOrThrowArgs>(args?: SelectSubset<T, AgendamentoTesteFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends TesteAgendamentoFindFirstOrThrowArgs>(args?: SelectSubset<T, TesteAgendamentoFindFirstOrThrowArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AgendamentoTestes that matches the filter.
+     * Find zero or more TesteAgendamentos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {TesteAgendamentoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AgendamentoTestes
-     * const agendamentoTestes = await prisma.agendamentoTeste.findMany()
+     * // Get all TesteAgendamentos
+     * const testeAgendamentos = await prisma.testeAgendamento.findMany()
      * 
-     * // Get first 10 AgendamentoTestes
-     * const agendamentoTestes = await prisma.agendamentoTeste.findMany({ take: 10 })
+     * // Get first 10 TesteAgendamentos
+     * const testeAgendamentos = await prisma.testeAgendamento.findMany({ take: 10 })
      * 
      * // Only select the `id_agendamento_teste`
-     * const agendamentoTesteWithId_agendamento_testeOnly = await prisma.agendamentoTeste.findMany({ select: { id_agendamento_teste: true } })
+     * const testeAgendamentoWithId_agendamento_testeOnly = await prisma.testeAgendamento.findMany({ select: { id_agendamento_teste: true } })
      * 
      */
-    findMany<T extends AgendamentoTesteFindManyArgs>(args?: SelectSubset<T, AgendamentoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends TesteAgendamentoFindManyArgs>(args?: SelectSubset<T, TesteAgendamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AgendamentoTeste.
-     * @param {AgendamentoTesteCreateArgs} args - Arguments to create a AgendamentoTeste.
+     * Create a TesteAgendamento.
+     * @param {TesteAgendamentoCreateArgs} args - Arguments to create a TesteAgendamento.
      * @example
-     * // Create one AgendamentoTeste
-     * const AgendamentoTeste = await prisma.agendamentoTeste.create({
+     * // Create one TesteAgendamento
+     * const TesteAgendamento = await prisma.testeAgendamento.create({
      *   data: {
-     *     // ... data to create a AgendamentoTeste
+     *     // ... data to create a TesteAgendamento
      *   }
      * })
      * 
      */
-    create<T extends AgendamentoTesteCreateArgs>(args: SelectSubset<T, AgendamentoTesteCreateArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends TesteAgendamentoCreateArgs>(args: SelectSubset<T, TesteAgendamentoCreateArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AgendamentoTestes.
-     * @param {AgendamentoTesteCreateManyArgs} args - Arguments to create many AgendamentoTestes.
+     * Create many TesteAgendamentos.
+     * @param {TesteAgendamentoCreateManyArgs} args - Arguments to create many TesteAgendamentos.
      * @example
-     * // Create many AgendamentoTestes
-     * const agendamentoTeste = await prisma.agendamentoTeste.createMany({
+     * // Create many TesteAgendamentos
+     * const testeAgendamento = await prisma.testeAgendamento.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AgendamentoTesteCreateManyArgs>(args?: SelectSubset<T, AgendamentoTesteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends TesteAgendamentoCreateManyArgs>(args?: SelectSubset<T, TesteAgendamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AgendamentoTestes and returns the data saved in the database.
-     * @param {AgendamentoTesteCreateManyAndReturnArgs} args - Arguments to create many AgendamentoTestes.
+     * Create many TesteAgendamentos and returns the data saved in the database.
+     * @param {TesteAgendamentoCreateManyAndReturnArgs} args - Arguments to create many TesteAgendamentos.
      * @example
-     * // Create many AgendamentoTestes
-     * const agendamentoTeste = await prisma.agendamentoTeste.createManyAndReturn({
+     * // Create many TesteAgendamentos
+     * const testeAgendamento = await prisma.testeAgendamento.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AgendamentoTestes and only return the `id_agendamento_teste`
-     * const agendamentoTesteWithId_agendamento_testeOnly = await prisma.agendamentoTeste.createManyAndReturn({ 
+     * // Create many TesteAgendamentos and only return the `id_agendamento_teste`
+     * const testeAgendamentoWithId_agendamento_testeOnly = await prisma.testeAgendamento.createManyAndReturn({ 
      *   select: { id_agendamento_teste: true },
      *   data: [
      *     // ... provide data here
@@ -22719,28 +22719,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AgendamentoTesteCreateManyAndReturnArgs>(args?: SelectSubset<T, AgendamentoTesteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends TesteAgendamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, TesteAgendamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AgendamentoTeste.
-     * @param {AgendamentoTesteDeleteArgs} args - Arguments to delete one AgendamentoTeste.
+     * Delete a TesteAgendamento.
+     * @param {TesteAgendamentoDeleteArgs} args - Arguments to delete one TesteAgendamento.
      * @example
-     * // Delete one AgendamentoTeste
-     * const AgendamentoTeste = await prisma.agendamentoTeste.delete({
+     * // Delete one TesteAgendamento
+     * const TesteAgendamento = await prisma.testeAgendamento.delete({
      *   where: {
-     *     // ... filter to delete one AgendamentoTeste
+     *     // ... filter to delete one TesteAgendamento
      *   }
      * })
      * 
      */
-    delete<T extends AgendamentoTesteDeleteArgs>(args: SelectSubset<T, AgendamentoTesteDeleteArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends TesteAgendamentoDeleteArgs>(args: SelectSubset<T, TesteAgendamentoDeleteArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AgendamentoTeste.
-     * @param {AgendamentoTesteUpdateArgs} args - Arguments to update one AgendamentoTeste.
+     * Update one TesteAgendamento.
+     * @param {TesteAgendamentoUpdateArgs} args - Arguments to update one TesteAgendamento.
      * @example
-     * // Update one AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.update({
+     * // Update one TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22750,30 +22750,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AgendamentoTesteUpdateArgs>(args: SelectSubset<T, AgendamentoTesteUpdateArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends TesteAgendamentoUpdateArgs>(args: SelectSubset<T, TesteAgendamentoUpdateArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AgendamentoTestes.
-     * @param {AgendamentoTesteDeleteManyArgs} args - Arguments to filter AgendamentoTestes to delete.
+     * Delete zero or more TesteAgendamentos.
+     * @param {TesteAgendamentoDeleteManyArgs} args - Arguments to filter TesteAgendamentos to delete.
      * @example
-     * // Delete a few AgendamentoTestes
-     * const { count } = await prisma.agendamentoTeste.deleteMany({
+     * // Delete a few TesteAgendamentos
+     * const { count } = await prisma.testeAgendamento.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AgendamentoTesteDeleteManyArgs>(args?: SelectSubset<T, AgendamentoTesteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends TesteAgendamentoDeleteManyArgs>(args?: SelectSubset<T, TesteAgendamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AgendamentoTestes.
+     * Update zero or more TesteAgendamentos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {TesteAgendamentoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AgendamentoTestes
-     * const agendamentoTeste = await prisma.agendamentoTeste.updateMany({
+     * // Update many TesteAgendamentos
+     * const testeAgendamento = await prisma.testeAgendamento.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22783,56 +22783,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AgendamentoTesteUpdateManyArgs>(args: SelectSubset<T, AgendamentoTesteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends TesteAgendamentoUpdateManyArgs>(args: SelectSubset<T, TesteAgendamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AgendamentoTeste.
-     * @param {AgendamentoTesteUpsertArgs} args - Arguments to update or create a AgendamentoTeste.
+     * Create or update one TesteAgendamento.
+     * @param {TesteAgendamentoUpsertArgs} args - Arguments to update or create a TesteAgendamento.
      * @example
-     * // Update or create a AgendamentoTeste
-     * const agendamentoTeste = await prisma.agendamentoTeste.upsert({
+     * // Update or create a TesteAgendamento
+     * const testeAgendamento = await prisma.testeAgendamento.upsert({
      *   create: {
-     *     // ... data to create a AgendamentoTeste
+     *     // ... data to create a TesteAgendamento
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AgendamentoTeste we want to update
+     *     // ... the filter for the TesteAgendamento we want to update
      *   }
      * })
      */
-    upsert<T extends AgendamentoTesteUpsertArgs>(args: SelectSubset<T, AgendamentoTesteUpsertArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends TesteAgendamentoUpsertArgs>(args: SelectSubset<T, TesteAgendamentoUpsertArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AgendamentoTestes.
+     * Count the number of TesteAgendamentos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteCountArgs} args - Arguments to filter AgendamentoTestes to count.
+     * @param {TesteAgendamentoCountArgs} args - Arguments to filter TesteAgendamentos to count.
      * @example
-     * // Count the number of AgendamentoTestes
-     * const count = await prisma.agendamentoTeste.count({
+     * // Count the number of TesteAgendamentos
+     * const count = await prisma.testeAgendamento.count({
      *   where: {
-     *     // ... the filter for the AgendamentoTestes we want to count
+     *     // ... the filter for the TesteAgendamentos we want to count
      *   }
      * })
     **/
-    count<T extends AgendamentoTesteCountArgs>(
-      args?: Subset<T, AgendamentoTesteCountArgs>,
+    count<T extends TesteAgendamentoCountArgs>(
+      args?: Subset<T, TesteAgendamentoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AgendamentoTesteCountAggregateOutputType>
+          : GetScalarType<T['select'], TesteAgendamentoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AgendamentoTeste.
+     * Allows you to perform aggregations operations on a TesteAgendamento.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {TesteAgendamentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -22852,13 +22852,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AgendamentoTesteAggregateArgs>(args: Subset<T, AgendamentoTesteAggregateArgs>): Prisma.PrismaPromise<GetAgendamentoTesteAggregateType<T>>
+    aggregate<T extends TesteAgendamentoAggregateArgs>(args: Subset<T, TesteAgendamentoAggregateArgs>): Prisma.PrismaPromise<GetTesteAgendamentoAggregateType<T>>
 
     /**
-     * Group by AgendamentoTeste.
+     * Group by TesteAgendamento.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AgendamentoTesteGroupByArgs} args - Group by arguments.
+     * @param {TesteAgendamentoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -22873,14 +22873,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AgendamentoTesteGroupByArgs,
+      T extends TesteAgendamentoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AgendamentoTesteGroupByArgs['orderBy'] }
-        : { orderBy?: AgendamentoTesteGroupByArgs['orderBy'] },
+        ? { orderBy: TesteAgendamentoGroupByArgs['orderBy'] }
+        : { orderBy?: TesteAgendamentoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -22929,20 +22929,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AgendamentoTesteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgendamentoTesteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, TesteAgendamentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTesteAgendamentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AgendamentoTeste model
+   * Fields of the TesteAgendamento model
    */
-  readonly fields: AgendamentoTesteFieldRefs;
+  readonly fields: TesteAgendamentoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AgendamentoTeste.
+   * The delegate class that acts as a "Promise-like" for TesteAgendamento.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AgendamentoTesteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TesteAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -22970,334 +22970,334 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AgendamentoTeste model
+   * Fields of the TesteAgendamento model
    */ 
-  interface AgendamentoTesteFieldRefs {
-    readonly id_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
-    readonly id_organizacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
-    readonly ativo_agendamento_teste: FieldRef<"AgendamentoTeste", 'Boolean'>
-    readonly frequencia_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
-    readonly hora_agendamento_teste: FieldRef<"AgendamentoTeste", 'Int'>
-    readonly minuto_agendamento_teste: FieldRef<"AgendamentoTeste", 'Int'>
-    readonly tipos_agendamento_teste: FieldRef<"AgendamentoTeste", 'Json'>
-    readonly escopos_agendamento_teste: FieldRef<"AgendamentoTeste", 'String[]'>
-    readonly ambiente_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
-    readonly alertas_agendamento_teste: FieldRef<"AgendamentoTeste", 'Json'>
-    readonly ultima_execucao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly proxima_execucao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly data_criacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly data_atualizacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
+  interface TesteAgendamentoFieldRefs {
+    readonly id_agendamento_teste: FieldRef<"TesteAgendamento", 'String'>
+    readonly id_organizacao_agendamento_teste: FieldRef<"TesteAgendamento", 'String'>
+    readonly ativo_agendamento_teste: FieldRef<"TesteAgendamento", 'Boolean'>
+    readonly frequencia_agendamento_teste: FieldRef<"TesteAgendamento", 'String'>
+    readonly hora_agendamento_teste: FieldRef<"TesteAgendamento", 'Int'>
+    readonly minuto_agendamento_teste: FieldRef<"TesteAgendamento", 'Int'>
+    readonly tipos_agendamento_teste: FieldRef<"TesteAgendamento", 'Json'>
+    readonly escopos_agendamento_teste: FieldRef<"TesteAgendamento", 'String[]'>
+    readonly ambiente_agendamento_teste: FieldRef<"TesteAgendamento", 'String'>
+    readonly alertas_agendamento_teste: FieldRef<"TesteAgendamento", 'Json'>
+    readonly ultima_execucao_agendamento_teste: FieldRef<"TesteAgendamento", 'DateTime'>
+    readonly proxima_execucao_agendamento_teste: FieldRef<"TesteAgendamento", 'DateTime'>
+    readonly data_criacao_agendamento_teste: FieldRef<"TesteAgendamento", 'DateTime'>
+    readonly data_atualizacao_agendamento_teste: FieldRef<"TesteAgendamento", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AgendamentoTeste findUnique
+   * TesteAgendamento findUnique
    */
-  export type AgendamentoTesteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which AgendamentoTeste to fetch.
+     * Filter, which TesteAgendamento to fetch.
      */
-    where: AgendamentoTesteWhereUniqueInput
+    where: TesteAgendamentoWhereUniqueInput
   }
 
   /**
-   * AgendamentoTeste findUniqueOrThrow
+   * TesteAgendamento findUniqueOrThrow
    */
-  export type AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which AgendamentoTeste to fetch.
+     * Filter, which TesteAgendamento to fetch.
      */
-    where: AgendamentoTesteWhereUniqueInput
+    where: TesteAgendamentoWhereUniqueInput
   }
 
   /**
-   * AgendamentoTeste findFirst
+   * TesteAgendamento findFirst
    */
-  export type AgendamentoTesteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which AgendamentoTeste to fetch.
+     * Filter, which TesteAgendamento to fetch.
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AgendamentoTestes to fetch.
+     * Determine the order of TesteAgendamentos to fetch.
      */
-    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
+    orderBy?: TesteAgendamentoOrderByWithRelationInput | TesteAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AgendamentoTestes.
+     * Sets the position for searching for TesteAgendamentos.
      */
-    cursor?: AgendamentoTesteWhereUniqueInput
+    cursor?: TesteAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AgendamentoTestes from the position of the cursor.
+     * Take `±n` TesteAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AgendamentoTestes.
+     * Skip the first `n` TesteAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AgendamentoTestes.
+     * Filter by unique combinations of TesteAgendamentos.
      */
-    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
+    distinct?: TesteAgendamentoScalarFieldEnum | TesteAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * AgendamentoTeste findFirstOrThrow
+   * TesteAgendamento findFirstOrThrow
    */
-  export type AgendamentoTesteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which AgendamentoTeste to fetch.
+     * Filter, which TesteAgendamento to fetch.
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AgendamentoTestes to fetch.
+     * Determine the order of TesteAgendamentos to fetch.
      */
-    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
+    orderBy?: TesteAgendamentoOrderByWithRelationInput | TesteAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AgendamentoTestes.
+     * Sets the position for searching for TesteAgendamentos.
      */
-    cursor?: AgendamentoTesteWhereUniqueInput
+    cursor?: TesteAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AgendamentoTestes from the position of the cursor.
+     * Take `±n` TesteAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AgendamentoTestes.
+     * Skip the first `n` TesteAgendamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AgendamentoTestes.
+     * Filter by unique combinations of TesteAgendamentos.
      */
-    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
+    distinct?: TesteAgendamentoScalarFieldEnum | TesteAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * AgendamentoTeste findMany
+   * TesteAgendamento findMany
    */
-  export type AgendamentoTesteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter, which AgendamentoTestes to fetch.
+     * Filter, which TesteAgendamentos to fetch.
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AgendamentoTestes to fetch.
+     * Determine the order of TesteAgendamentos to fetch.
      */
-    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
+    orderBy?: TesteAgendamentoOrderByWithRelationInput | TesteAgendamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AgendamentoTestes.
+     * Sets the position for listing TesteAgendamentos.
      */
-    cursor?: AgendamentoTesteWhereUniqueInput
+    cursor?: TesteAgendamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AgendamentoTestes from the position of the cursor.
+     * Take `±n` TesteAgendamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AgendamentoTestes.
+     * Skip the first `n` TesteAgendamentos.
      */
     skip?: number
-    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
+    distinct?: TesteAgendamentoScalarFieldEnum | TesteAgendamentoScalarFieldEnum[]
   }
 
   /**
-   * AgendamentoTeste create
+   * TesteAgendamento create
    */
-  export type AgendamentoTesteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * The data needed to create a AgendamentoTeste.
+     * The data needed to create a TesteAgendamento.
      */
-    data: XOR<AgendamentoTesteCreateInput, AgendamentoTesteUncheckedCreateInput>
+    data: XOR<TesteAgendamentoCreateInput, TesteAgendamentoUncheckedCreateInput>
   }
 
   /**
-   * AgendamentoTeste createMany
+   * TesteAgendamento createMany
    */
-  export type AgendamentoTesteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AgendamentoTestes.
+     * The data used to create many TesteAgendamentos.
      */
-    data: AgendamentoTesteCreateManyInput | AgendamentoTesteCreateManyInput[]
+    data: TesteAgendamentoCreateManyInput | TesteAgendamentoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AgendamentoTeste createManyAndReturn
+   * TesteAgendamento createManyAndReturn
    */
-  export type AgendamentoTesteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelectCreateManyAndReturn<ExtArgs> | null
+    select?: TesteAgendamentoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AgendamentoTestes.
+     * The data used to create many TesteAgendamentos.
      */
-    data: AgendamentoTesteCreateManyInput | AgendamentoTesteCreateManyInput[]
+    data: TesteAgendamentoCreateManyInput | TesteAgendamentoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AgendamentoTeste update
+   * TesteAgendamento update
    */
-  export type AgendamentoTesteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * The data needed to update a AgendamentoTeste.
+     * The data needed to update a TesteAgendamento.
      */
-    data: XOR<AgendamentoTesteUpdateInput, AgendamentoTesteUncheckedUpdateInput>
+    data: XOR<TesteAgendamentoUpdateInput, TesteAgendamentoUncheckedUpdateInput>
     /**
-     * Choose, which AgendamentoTeste to update.
+     * Choose, which TesteAgendamento to update.
      */
-    where: AgendamentoTesteWhereUniqueInput
+    where: TesteAgendamentoWhereUniqueInput
   }
 
   /**
-   * AgendamentoTeste updateMany
+   * TesteAgendamento updateMany
    */
-  export type AgendamentoTesteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AgendamentoTestes.
+     * The data used to update TesteAgendamentos.
      */
-    data: XOR<AgendamentoTesteUpdateManyMutationInput, AgendamentoTesteUncheckedUpdateManyInput>
+    data: XOR<TesteAgendamentoUpdateManyMutationInput, TesteAgendamentoUncheckedUpdateManyInput>
     /**
-     * Filter which AgendamentoTestes to update
+     * Filter which TesteAgendamentos to update
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
   }
 
   /**
-   * AgendamentoTeste upsert
+   * TesteAgendamento upsert
    */
-  export type AgendamentoTesteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * The filter to search for the AgendamentoTeste to update in case it exists.
+     * The filter to search for the TesteAgendamento to update in case it exists.
      */
-    where: AgendamentoTesteWhereUniqueInput
+    where: TesteAgendamentoWhereUniqueInput
     /**
-     * In case the AgendamentoTeste found by the `where` argument doesn't exist, create a new AgendamentoTeste with this data.
+     * In case the TesteAgendamento found by the `where` argument doesn't exist, create a new TesteAgendamento with this data.
      */
-    create: XOR<AgendamentoTesteCreateInput, AgendamentoTesteUncheckedCreateInput>
+    create: XOR<TesteAgendamentoCreateInput, TesteAgendamentoUncheckedCreateInput>
     /**
-     * In case the AgendamentoTeste was found with the provided `where` argument, update it with this data.
+     * In case the TesteAgendamento was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AgendamentoTesteUpdateInput, AgendamentoTesteUncheckedUpdateInput>
+    update: XOR<TesteAgendamentoUpdateInput, TesteAgendamentoUncheckedUpdateInput>
   }
 
   /**
-   * AgendamentoTeste delete
+   * TesteAgendamento delete
    */
-  export type AgendamentoTesteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
-     * Filter which AgendamentoTeste to delete.
+     * Filter which TesteAgendamento to delete.
      */
-    where: AgendamentoTesteWhereUniqueInput
+    where: TesteAgendamentoWhereUniqueInput
   }
 
   /**
-   * AgendamentoTeste deleteMany
+   * TesteAgendamento deleteMany
    */
-  export type AgendamentoTesteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AgendamentoTestes to delete
+     * Filter which TesteAgendamentos to delete
      */
-    where?: AgendamentoTesteWhereInput
+    where?: TesteAgendamentoWhereInput
   }
 
   /**
-   * AgendamentoTeste without action
+   * TesteAgendamento without action
    */
-  export type AgendamentoTesteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AgendamentoTeste
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: AgendamentoTesteSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model PlanoTeste
+   * Model TestePlano
    */
 
-  export type AggregatePlanoTeste = {
-    _count: PlanoTesteCountAggregateOutputType | null
-    _avg: PlanoTesteAvgAggregateOutputType | null
-    _sum: PlanoTesteSumAggregateOutputType | null
-    _min: PlanoTesteMinAggregateOutputType | null
-    _max: PlanoTesteMaxAggregateOutputType | null
+  export type AggregateTestePlano = {
+    _count: TestePlanoCountAggregateOutputType | null
+    _avg: TestePlanoAvgAggregateOutputType | null
+    _sum: TestePlanoSumAggregateOutputType | null
+    _min: TestePlanoMinAggregateOutputType | null
+    _max: TestePlanoMaxAggregateOutputType | null
   }
 
-  export type PlanoTesteAvgAggregateOutputType = {
+  export type TestePlanoAvgAggregateOutputType = {
     cobertura_pct_plano_teste: number | null
     passos_total_plano_teste: number | null
   }
 
-  export type PlanoTesteSumAggregateOutputType = {
+  export type TestePlanoSumAggregateOutputType = {
     cobertura_pct_plano_teste: number | null
     passos_total_plano_teste: number | null
   }
 
-  export type PlanoTesteMinAggregateOutputType = {
+  export type TestePlanoMinAggregateOutputType = {
     id_plano_teste: string | null
     id_organizacao_plano_teste: string | null
     versao_plano_teste: string | null
@@ -23320,7 +23320,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste: Date | null
   }
 
-  export type PlanoTesteMaxAggregateOutputType = {
+  export type TestePlanoMaxAggregateOutputType = {
     id_plano_teste: string | null
     id_organizacao_plano_teste: string | null
     versao_plano_teste: string | null
@@ -23343,7 +23343,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste: Date | null
   }
 
-  export type PlanoTesteCountAggregateOutputType = {
+  export type TestePlanoCountAggregateOutputType = {
     id_plano_teste: number
     id_organizacao_plano_teste: number
     versao_plano_teste: number
@@ -23370,17 +23370,17 @@ export namespace Prisma {
   }
 
 
-  export type PlanoTesteAvgAggregateInputType = {
+  export type TestePlanoAvgAggregateInputType = {
     cobertura_pct_plano_teste?: true
     passos_total_plano_teste?: true
   }
 
-  export type PlanoTesteSumAggregateInputType = {
+  export type TestePlanoSumAggregateInputType = {
     cobertura_pct_plano_teste?: true
     passos_total_plano_teste?: true
   }
 
-  export type PlanoTesteMinAggregateInputType = {
+  export type TestePlanoMinAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
     versao_plano_teste?: true
@@ -23403,7 +23403,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: true
   }
 
-  export type PlanoTesteMaxAggregateInputType = {
+  export type TestePlanoMaxAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
     versao_plano_teste?: true
@@ -23426,7 +23426,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: true
   }
 
-  export type PlanoTesteCountAggregateInputType = {
+  export type TestePlanoCountAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
     versao_plano_teste?: true
@@ -23452,93 +23452,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type PlanoTesteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PlanoTeste to aggregate.
+     * Filter which TestePlano to aggregate.
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PlanoTestes to fetch.
+     * Determine the order of TestePlanos to fetch.
      */
-    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
+    orderBy?: TestePlanoOrderByWithRelationInput | TestePlanoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PlanoTesteWhereUniqueInput
+    cursor?: TestePlanoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PlanoTestes from the position of the cursor.
+     * Take `±n` TestePlanos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PlanoTestes.
+     * Skip the first `n` TestePlanos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PlanoTestes
+     * Count returned TestePlanos
     **/
-    _count?: true | PlanoTesteCountAggregateInputType
+    _count?: true | TestePlanoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PlanoTesteAvgAggregateInputType
+    _avg?: TestePlanoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PlanoTesteSumAggregateInputType
+    _sum?: TestePlanoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PlanoTesteMinAggregateInputType
+    _min?: TestePlanoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PlanoTesteMaxAggregateInputType
+    _max?: TestePlanoMaxAggregateInputType
   }
 
-  export type GetPlanoTesteAggregateType<T extends PlanoTesteAggregateArgs> = {
-        [P in keyof T & keyof AggregatePlanoTeste]: P extends '_count' | 'count'
+  export type GetTestePlanoAggregateType<T extends TestePlanoAggregateArgs> = {
+        [P in keyof T & keyof AggregateTestePlano]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePlanoTeste[P]>
-      : GetScalarType<T[P], AggregatePlanoTeste[P]>
+        : GetScalarType<T[P], AggregateTestePlano[P]>
+      : GetScalarType<T[P], AggregateTestePlano[P]>
   }
 
 
 
 
-  export type PlanoTesteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PlanoTesteWhereInput
-    orderBy?: PlanoTesteOrderByWithAggregationInput | PlanoTesteOrderByWithAggregationInput[]
-    by: PlanoTesteScalarFieldEnum[] | PlanoTesteScalarFieldEnum
-    having?: PlanoTesteScalarWhereWithAggregatesInput
+  export type TestePlanoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TestePlanoWhereInput
+    orderBy?: TestePlanoOrderByWithAggregationInput | TestePlanoOrderByWithAggregationInput[]
+    by: TestePlanoScalarFieldEnum[] | TestePlanoScalarFieldEnum
+    having?: TestePlanoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PlanoTesteCountAggregateInputType | true
-    _avg?: PlanoTesteAvgAggregateInputType
-    _sum?: PlanoTesteSumAggregateInputType
-    _min?: PlanoTesteMinAggregateInputType
-    _max?: PlanoTesteMaxAggregateInputType
+    _count?: TestePlanoCountAggregateInputType | true
+    _avg?: TestePlanoAvgAggregateInputType
+    _sum?: TestePlanoSumAggregateInputType
+    _min?: TestePlanoMinAggregateInputType
+    _max?: TestePlanoMaxAggregateInputType
   }
 
-  export type PlanoTesteGroupByOutputType = {
+  export type TestePlanoGroupByOutputType = {
     id_plano_teste: string
     id_organizacao_plano_teste: string
     versao_plano_teste: string
@@ -23561,28 +23561,28 @@ export namespace Prisma {
     ultimo_resultado_plano_teste: string | null
     data_criacao_plano_teste: Date
     data_atualizacao_plano_teste: Date
-    _count: PlanoTesteCountAggregateOutputType | null
-    _avg: PlanoTesteAvgAggregateOutputType | null
-    _sum: PlanoTesteSumAggregateOutputType | null
-    _min: PlanoTesteMinAggregateOutputType | null
-    _max: PlanoTesteMaxAggregateOutputType | null
+    _count: TestePlanoCountAggregateOutputType | null
+    _avg: TestePlanoAvgAggregateOutputType | null
+    _sum: TestePlanoSumAggregateOutputType | null
+    _min: TestePlanoMinAggregateOutputType | null
+    _max: TestePlanoMaxAggregateOutputType | null
   }
 
-  type GetPlanoTesteGroupByPayload<T extends PlanoTesteGroupByArgs> = Prisma.PrismaPromise<
+  type GetTestePlanoGroupByPayload<T extends TestePlanoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PlanoTesteGroupByOutputType, T['by']> &
+      PickEnumerable<TestePlanoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PlanoTesteGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof TestePlanoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PlanoTesteGroupByOutputType[P]>
-            : GetScalarType<T[P], PlanoTesteGroupByOutputType[P]>
+              : GetScalarType<T[P], TestePlanoGroupByOutputType[P]>
+            : GetScalarType<T[P], TestePlanoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PlanoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type TestePlanoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
     versao_plano_teste?: boolean
@@ -23605,9 +23605,9 @@ export namespace Prisma {
     ultimo_resultado_plano_teste?: boolean
     data_criacao_plano_teste?: boolean
     data_atualizacao_plano_teste?: boolean
-  }, ExtArgs["result"]["planoTeste"]>
+  }, ExtArgs["result"]["testePlano"]>
 
-  export type PlanoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type TestePlanoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
     versao_plano_teste?: boolean
@@ -23630,9 +23630,9 @@ export namespace Prisma {
     ultimo_resultado_plano_teste?: boolean
     data_criacao_plano_teste?: boolean
     data_atualizacao_plano_teste?: boolean
-  }, ExtArgs["result"]["planoTeste"]>
+  }, ExtArgs["result"]["testePlano"]>
 
-  export type PlanoTesteSelectScalar = {
+  export type TestePlanoSelectScalar = {
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
     versao_plano_teste?: boolean
@@ -23658,8 +23658,8 @@ export namespace Prisma {
   }
 
 
-  export type $PlanoTestePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PlanoTeste"
+  export type $TestePlanoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TestePlano"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_plano_teste: string
@@ -23684,136 +23684,136 @@ export namespace Prisma {
       ultimo_resultado_plano_teste: string | null
       data_criacao_plano_teste: Date
       data_atualizacao_plano_teste: Date
-    }, ExtArgs["result"]["planoTeste"]>
+    }, ExtArgs["result"]["testePlano"]>
     composites: {}
   }
 
-  type PlanoTesteGetPayload<S extends boolean | null | undefined | PlanoTesteDefaultArgs> = $Result.GetResult<Prisma.$PlanoTestePayload, S>
+  type TestePlanoGetPayload<S extends boolean | null | undefined | TestePlanoDefaultArgs> = $Result.GetResult<Prisma.$TestePlanoPayload, S>
 
-  type PlanoTesteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PlanoTesteFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: PlanoTesteCountAggregateInputType | true
+  type TestePlanoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TestePlanoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TestePlanoCountAggregateInputType | true
     }
 
-  export interface PlanoTesteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PlanoTeste'], meta: { name: 'PlanoTeste' } }
+  export interface TestePlanoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TestePlano'], meta: { name: 'TestePlano' } }
     /**
-     * Find zero or one PlanoTeste that matches the filter.
-     * @param {PlanoTesteFindUniqueArgs} args - Arguments to find a PlanoTeste
+     * Find zero or one TestePlano that matches the filter.
+     * @param {TestePlanoFindUniqueArgs} args - Arguments to find a TestePlano
      * @example
-     * // Get one PlanoTeste
-     * const planoTeste = await prisma.planoTeste.findUnique({
+     * // Get one TestePlano
+     * const testePlano = await prisma.testePlano.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PlanoTesteFindUniqueArgs>(args: SelectSubset<T, PlanoTesteFindUniqueArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends TestePlanoFindUniqueArgs>(args: SelectSubset<T, TestePlanoFindUniqueArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one PlanoTeste that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one TestePlano that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {PlanoTesteFindUniqueOrThrowArgs} args - Arguments to find a PlanoTeste
+     * @param {TestePlanoFindUniqueOrThrowArgs} args - Arguments to find a TestePlano
      * @example
-     * // Get one PlanoTeste
-     * const planoTeste = await prisma.planoTeste.findUniqueOrThrow({
+     * // Get one TestePlano
+     * const testePlano = await prisma.testePlano.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PlanoTesteFindUniqueOrThrowArgs>(args: SelectSubset<T, PlanoTesteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends TestePlanoFindUniqueOrThrowArgs>(args: SelectSubset<T, TestePlanoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first PlanoTeste that matches the filter.
+     * Find the first TestePlano that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteFindFirstArgs} args - Arguments to find a PlanoTeste
+     * @param {TestePlanoFindFirstArgs} args - Arguments to find a TestePlano
      * @example
-     * // Get one PlanoTeste
-     * const planoTeste = await prisma.planoTeste.findFirst({
+     * // Get one TestePlano
+     * const testePlano = await prisma.testePlano.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PlanoTesteFindFirstArgs>(args?: SelectSubset<T, PlanoTesteFindFirstArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends TestePlanoFindFirstArgs>(args?: SelectSubset<T, TestePlanoFindFirstArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first PlanoTeste that matches the filter or
+     * Find the first TestePlano that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteFindFirstOrThrowArgs} args - Arguments to find a PlanoTeste
+     * @param {TestePlanoFindFirstOrThrowArgs} args - Arguments to find a TestePlano
      * @example
-     * // Get one PlanoTeste
-     * const planoTeste = await prisma.planoTeste.findFirstOrThrow({
+     * // Get one TestePlano
+     * const testePlano = await prisma.testePlano.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PlanoTesteFindFirstOrThrowArgs>(args?: SelectSubset<T, PlanoTesteFindFirstOrThrowArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends TestePlanoFindFirstOrThrowArgs>(args?: SelectSubset<T, TestePlanoFindFirstOrThrowArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more PlanoTestes that matches the filter.
+     * Find zero or more TestePlanos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {TestePlanoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PlanoTestes
-     * const planoTestes = await prisma.planoTeste.findMany()
+     * // Get all TestePlanos
+     * const testePlanos = await prisma.testePlano.findMany()
      * 
-     * // Get first 10 PlanoTestes
-     * const planoTestes = await prisma.planoTeste.findMany({ take: 10 })
+     * // Get first 10 TestePlanos
+     * const testePlanos = await prisma.testePlano.findMany({ take: 10 })
      * 
      * // Only select the `id_plano_teste`
-     * const planoTesteWithId_plano_testeOnly = await prisma.planoTeste.findMany({ select: { id_plano_teste: true } })
+     * const testePlanoWithId_plano_testeOnly = await prisma.testePlano.findMany({ select: { id_plano_teste: true } })
      * 
      */
-    findMany<T extends PlanoTesteFindManyArgs>(args?: SelectSubset<T, PlanoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends TestePlanoFindManyArgs>(args?: SelectSubset<T, TestePlanoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a PlanoTeste.
-     * @param {PlanoTesteCreateArgs} args - Arguments to create a PlanoTeste.
+     * Create a TestePlano.
+     * @param {TestePlanoCreateArgs} args - Arguments to create a TestePlano.
      * @example
-     * // Create one PlanoTeste
-     * const PlanoTeste = await prisma.planoTeste.create({
+     * // Create one TestePlano
+     * const TestePlano = await prisma.testePlano.create({
      *   data: {
-     *     // ... data to create a PlanoTeste
+     *     // ... data to create a TestePlano
      *   }
      * })
      * 
      */
-    create<T extends PlanoTesteCreateArgs>(args: SelectSubset<T, PlanoTesteCreateArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends TestePlanoCreateArgs>(args: SelectSubset<T, TestePlanoCreateArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many PlanoTestes.
-     * @param {PlanoTesteCreateManyArgs} args - Arguments to create many PlanoTestes.
+     * Create many TestePlanos.
+     * @param {TestePlanoCreateManyArgs} args - Arguments to create many TestePlanos.
      * @example
-     * // Create many PlanoTestes
-     * const planoTeste = await prisma.planoTeste.createMany({
+     * // Create many TestePlanos
+     * const testePlano = await prisma.testePlano.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PlanoTesteCreateManyArgs>(args?: SelectSubset<T, PlanoTesteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends TestePlanoCreateManyArgs>(args?: SelectSubset<T, TestePlanoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PlanoTestes and returns the data saved in the database.
-     * @param {PlanoTesteCreateManyAndReturnArgs} args - Arguments to create many PlanoTestes.
+     * Create many TestePlanos and returns the data saved in the database.
+     * @param {TestePlanoCreateManyAndReturnArgs} args - Arguments to create many TestePlanos.
      * @example
-     * // Create many PlanoTestes
-     * const planoTeste = await prisma.planoTeste.createManyAndReturn({
+     * // Create many TestePlanos
+     * const testePlano = await prisma.testePlano.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PlanoTestes and only return the `id_plano_teste`
-     * const planoTesteWithId_plano_testeOnly = await prisma.planoTeste.createManyAndReturn({ 
+     * // Create many TestePlanos and only return the `id_plano_teste`
+     * const testePlanoWithId_plano_testeOnly = await prisma.testePlano.createManyAndReturn({ 
      *   select: { id_plano_teste: true },
      *   data: [
      *     // ... provide data here
@@ -23823,28 +23823,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PlanoTesteCreateManyAndReturnArgs>(args?: SelectSubset<T, PlanoTesteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends TestePlanoCreateManyAndReturnArgs>(args?: SelectSubset<T, TestePlanoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a PlanoTeste.
-     * @param {PlanoTesteDeleteArgs} args - Arguments to delete one PlanoTeste.
+     * Delete a TestePlano.
+     * @param {TestePlanoDeleteArgs} args - Arguments to delete one TestePlano.
      * @example
-     * // Delete one PlanoTeste
-     * const PlanoTeste = await prisma.planoTeste.delete({
+     * // Delete one TestePlano
+     * const TestePlano = await prisma.testePlano.delete({
      *   where: {
-     *     // ... filter to delete one PlanoTeste
+     *     // ... filter to delete one TestePlano
      *   }
      * })
      * 
      */
-    delete<T extends PlanoTesteDeleteArgs>(args: SelectSubset<T, PlanoTesteDeleteArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends TestePlanoDeleteArgs>(args: SelectSubset<T, TestePlanoDeleteArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one PlanoTeste.
-     * @param {PlanoTesteUpdateArgs} args - Arguments to update one PlanoTeste.
+     * Update one TestePlano.
+     * @param {TestePlanoUpdateArgs} args - Arguments to update one TestePlano.
      * @example
-     * // Update one PlanoTeste
-     * const planoTeste = await prisma.planoTeste.update({
+     * // Update one TestePlano
+     * const testePlano = await prisma.testePlano.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23854,30 +23854,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PlanoTesteUpdateArgs>(args: SelectSubset<T, PlanoTesteUpdateArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends TestePlanoUpdateArgs>(args: SelectSubset<T, TestePlanoUpdateArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more PlanoTestes.
-     * @param {PlanoTesteDeleteManyArgs} args - Arguments to filter PlanoTestes to delete.
+     * Delete zero or more TestePlanos.
+     * @param {TestePlanoDeleteManyArgs} args - Arguments to filter TestePlanos to delete.
      * @example
-     * // Delete a few PlanoTestes
-     * const { count } = await prisma.planoTeste.deleteMany({
+     * // Delete a few TestePlanos
+     * const { count } = await prisma.testePlano.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PlanoTesteDeleteManyArgs>(args?: SelectSubset<T, PlanoTesteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends TestePlanoDeleteManyArgs>(args?: SelectSubset<T, TestePlanoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PlanoTestes.
+     * Update zero or more TestePlanos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {TestePlanoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PlanoTestes
-     * const planoTeste = await prisma.planoTeste.updateMany({
+     * // Update many TestePlanos
+     * const testePlano = await prisma.testePlano.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23887,56 +23887,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PlanoTesteUpdateManyArgs>(args: SelectSubset<T, PlanoTesteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends TestePlanoUpdateManyArgs>(args: SelectSubset<T, TestePlanoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one PlanoTeste.
-     * @param {PlanoTesteUpsertArgs} args - Arguments to update or create a PlanoTeste.
+     * Create or update one TestePlano.
+     * @param {TestePlanoUpsertArgs} args - Arguments to update or create a TestePlano.
      * @example
-     * // Update or create a PlanoTeste
-     * const planoTeste = await prisma.planoTeste.upsert({
+     * // Update or create a TestePlano
+     * const testePlano = await prisma.testePlano.upsert({
      *   create: {
-     *     // ... data to create a PlanoTeste
+     *     // ... data to create a TestePlano
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PlanoTeste we want to update
+     *     // ... the filter for the TestePlano we want to update
      *   }
      * })
      */
-    upsert<T extends PlanoTesteUpsertArgs>(args: SelectSubset<T, PlanoTesteUpsertArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends TestePlanoUpsertArgs>(args: SelectSubset<T, TestePlanoUpsertArgs<ExtArgs>>): Prisma__TestePlanoClient<$Result.GetResult<Prisma.$TestePlanoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of PlanoTestes.
+     * Count the number of TestePlanos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteCountArgs} args - Arguments to filter PlanoTestes to count.
+     * @param {TestePlanoCountArgs} args - Arguments to filter TestePlanos to count.
      * @example
-     * // Count the number of PlanoTestes
-     * const count = await prisma.planoTeste.count({
+     * // Count the number of TestePlanos
+     * const count = await prisma.testePlano.count({
      *   where: {
-     *     // ... the filter for the PlanoTestes we want to count
+     *     // ... the filter for the TestePlanos we want to count
      *   }
      * })
     **/
-    count<T extends PlanoTesteCountArgs>(
-      args?: Subset<T, PlanoTesteCountArgs>,
+    count<T extends TestePlanoCountArgs>(
+      args?: Subset<T, TestePlanoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PlanoTesteCountAggregateOutputType>
+          : GetScalarType<T['select'], TestePlanoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PlanoTeste.
+     * Allows you to perform aggregations operations on a TestePlano.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {TestePlanoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -23956,13 +23956,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PlanoTesteAggregateArgs>(args: Subset<T, PlanoTesteAggregateArgs>): Prisma.PrismaPromise<GetPlanoTesteAggregateType<T>>
+    aggregate<T extends TestePlanoAggregateArgs>(args: Subset<T, TestePlanoAggregateArgs>): Prisma.PrismaPromise<GetTestePlanoAggregateType<T>>
 
     /**
-     * Group by PlanoTeste.
+     * Group by TestePlano.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PlanoTesteGroupByArgs} args - Group by arguments.
+     * @param {TestePlanoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -23977,14 +23977,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PlanoTesteGroupByArgs,
+      T extends TestePlanoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PlanoTesteGroupByArgs['orderBy'] }
-        : { orderBy?: PlanoTesteGroupByArgs['orderBy'] },
+        ? { orderBy: TestePlanoGroupByArgs['orderBy'] }
+        : { orderBy?: TestePlanoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -24033,20 +24033,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PlanoTesteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPlanoTesteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, TestePlanoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTestePlanoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PlanoTeste model
+   * Fields of the TestePlano model
    */
-  readonly fields: PlanoTesteFieldRefs;
+  readonly fields: TestePlanoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PlanoTeste.
+   * The delegate class that acts as a "Promise-like" for TestePlano.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PlanoTesteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TestePlanoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -24074,340 +24074,340 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PlanoTeste model
+   * Fields of the TestePlano model
    */ 
-  interface PlanoTesteFieldRefs {
-    readonly id_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly id_organizacao_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly versao_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly tipo_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly escopo_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly sublocal_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly tela_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly rota_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly criticidade_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly ambientes_plano_teste: FieldRef<"PlanoTeste", 'String[]'>
-    readonly caminho_componente_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly caminho_spec_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly caminho_mapeamento_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly cobertura_pct_plano_teste: FieldRef<"PlanoTeste", 'Int'>
-    readonly passos_total_plano_teste: FieldRef<"PlanoTeste", 'Int'>
-    readonly resumo_executivo_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly plano_completo_plano_teste: FieldRef<"PlanoTeste", 'Json'>
-    readonly status_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly ultima_execucao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
-    readonly ultimo_resultado_plano_teste: FieldRef<"PlanoTeste", 'String'>
-    readonly data_criacao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
-    readonly data_atualizacao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
+  interface TestePlanoFieldRefs {
+    readonly id_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly id_organizacao_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly versao_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly tipo_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly escopo_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly sublocal_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly tela_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly rota_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly criticidade_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly ambientes_plano_teste: FieldRef<"TestePlano", 'String[]'>
+    readonly caminho_componente_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly caminho_spec_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly caminho_mapeamento_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly cobertura_pct_plano_teste: FieldRef<"TestePlano", 'Int'>
+    readonly passos_total_plano_teste: FieldRef<"TestePlano", 'Int'>
+    readonly resumo_executivo_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly plano_completo_plano_teste: FieldRef<"TestePlano", 'Json'>
+    readonly status_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly ultima_execucao_plano_teste: FieldRef<"TestePlano", 'DateTime'>
+    readonly ultimo_resultado_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly data_criacao_plano_teste: FieldRef<"TestePlano", 'DateTime'>
+    readonly data_atualizacao_plano_teste: FieldRef<"TestePlano", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PlanoTeste findUnique
+   * TestePlano findUnique
    */
-  export type PlanoTesteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter, which PlanoTeste to fetch.
+     * Filter, which TestePlano to fetch.
      */
-    where: PlanoTesteWhereUniqueInput
+    where: TestePlanoWhereUniqueInput
   }
 
   /**
-   * PlanoTeste findUniqueOrThrow
+   * TestePlano findUniqueOrThrow
    */
-  export type PlanoTesteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter, which PlanoTeste to fetch.
+     * Filter, which TestePlano to fetch.
      */
-    where: PlanoTesteWhereUniqueInput
+    where: TestePlanoWhereUniqueInput
   }
 
   /**
-   * PlanoTeste findFirst
+   * TestePlano findFirst
    */
-  export type PlanoTesteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter, which PlanoTeste to fetch.
+     * Filter, which TestePlano to fetch.
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PlanoTestes to fetch.
+     * Determine the order of TestePlanos to fetch.
      */
-    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
+    orderBy?: TestePlanoOrderByWithRelationInput | TestePlanoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PlanoTestes.
+     * Sets the position for searching for TestePlanos.
      */
-    cursor?: PlanoTesteWhereUniqueInput
+    cursor?: TestePlanoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PlanoTestes from the position of the cursor.
+     * Take `±n` TestePlanos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PlanoTestes.
+     * Skip the first `n` TestePlanos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PlanoTestes.
+     * Filter by unique combinations of TestePlanos.
      */
-    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
+    distinct?: TestePlanoScalarFieldEnum | TestePlanoScalarFieldEnum[]
   }
 
   /**
-   * PlanoTeste findFirstOrThrow
+   * TestePlano findFirstOrThrow
    */
-  export type PlanoTesteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter, which PlanoTeste to fetch.
+     * Filter, which TestePlano to fetch.
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PlanoTestes to fetch.
+     * Determine the order of TestePlanos to fetch.
      */
-    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
+    orderBy?: TestePlanoOrderByWithRelationInput | TestePlanoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PlanoTestes.
+     * Sets the position for searching for TestePlanos.
      */
-    cursor?: PlanoTesteWhereUniqueInput
+    cursor?: TestePlanoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PlanoTestes from the position of the cursor.
+     * Take `±n` TestePlanos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PlanoTestes.
+     * Skip the first `n` TestePlanos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PlanoTestes.
+     * Filter by unique combinations of TestePlanos.
      */
-    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
+    distinct?: TestePlanoScalarFieldEnum | TestePlanoScalarFieldEnum[]
   }
 
   /**
-   * PlanoTeste findMany
+   * TestePlano findMany
    */
-  export type PlanoTesteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter, which PlanoTestes to fetch.
+     * Filter, which TestePlanos to fetch.
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PlanoTestes to fetch.
+     * Determine the order of TestePlanos to fetch.
      */
-    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
+    orderBy?: TestePlanoOrderByWithRelationInput | TestePlanoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PlanoTestes.
+     * Sets the position for listing TestePlanos.
      */
-    cursor?: PlanoTesteWhereUniqueInput
+    cursor?: TestePlanoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PlanoTestes from the position of the cursor.
+     * Take `±n` TestePlanos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PlanoTestes.
+     * Skip the first `n` TestePlanos.
      */
     skip?: number
-    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
+    distinct?: TestePlanoScalarFieldEnum | TestePlanoScalarFieldEnum[]
   }
 
   /**
-   * PlanoTeste create
+   * TestePlano create
    */
-  export type PlanoTesteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * The data needed to create a PlanoTeste.
+     * The data needed to create a TestePlano.
      */
-    data: XOR<PlanoTesteCreateInput, PlanoTesteUncheckedCreateInput>
+    data: XOR<TestePlanoCreateInput, TestePlanoUncheckedCreateInput>
   }
 
   /**
-   * PlanoTeste createMany
+   * TestePlano createMany
    */
-  export type PlanoTesteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PlanoTestes.
+     * The data used to create many TestePlanos.
      */
-    data: PlanoTesteCreateManyInput | PlanoTesteCreateManyInput[]
+    data: TestePlanoCreateManyInput | TestePlanoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PlanoTeste createManyAndReturn
+   * TestePlano createManyAndReturn
    */
-  export type PlanoTesteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelectCreateManyAndReturn<ExtArgs> | null
+    select?: TestePlanoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many PlanoTestes.
+     * The data used to create many TestePlanos.
      */
-    data: PlanoTesteCreateManyInput | PlanoTesteCreateManyInput[]
+    data: TestePlanoCreateManyInput | TestePlanoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PlanoTeste update
+   * TestePlano update
    */
-  export type PlanoTesteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * The data needed to update a PlanoTeste.
+     * The data needed to update a TestePlano.
      */
-    data: XOR<PlanoTesteUpdateInput, PlanoTesteUncheckedUpdateInput>
+    data: XOR<TestePlanoUpdateInput, TestePlanoUncheckedUpdateInput>
     /**
-     * Choose, which PlanoTeste to update.
+     * Choose, which TestePlano to update.
      */
-    where: PlanoTesteWhereUniqueInput
+    where: TestePlanoWhereUniqueInput
   }
 
   /**
-   * PlanoTeste updateMany
+   * TestePlano updateMany
    */
-  export type PlanoTesteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PlanoTestes.
+     * The data used to update TestePlanos.
      */
-    data: XOR<PlanoTesteUpdateManyMutationInput, PlanoTesteUncheckedUpdateManyInput>
+    data: XOR<TestePlanoUpdateManyMutationInput, TestePlanoUncheckedUpdateManyInput>
     /**
-     * Filter which PlanoTestes to update
+     * Filter which TestePlanos to update
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
   }
 
   /**
-   * PlanoTeste upsert
+   * TestePlano upsert
    */
-  export type PlanoTesteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * The filter to search for the PlanoTeste to update in case it exists.
+     * The filter to search for the TestePlano to update in case it exists.
      */
-    where: PlanoTesteWhereUniqueInput
+    where: TestePlanoWhereUniqueInput
     /**
-     * In case the PlanoTeste found by the `where` argument doesn't exist, create a new PlanoTeste with this data.
+     * In case the TestePlano found by the `where` argument doesn't exist, create a new TestePlano with this data.
      */
-    create: XOR<PlanoTesteCreateInput, PlanoTesteUncheckedCreateInput>
+    create: XOR<TestePlanoCreateInput, TestePlanoUncheckedCreateInput>
     /**
-     * In case the PlanoTeste was found with the provided `where` argument, update it with this data.
+     * In case the TestePlano was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PlanoTesteUpdateInput, PlanoTesteUncheckedUpdateInput>
+    update: XOR<TestePlanoUpdateInput, TestePlanoUncheckedUpdateInput>
   }
 
   /**
-   * PlanoTeste delete
+   * TestePlano delete
    */
-  export type PlanoTesteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
     /**
-     * Filter which PlanoTeste to delete.
+     * Filter which TestePlano to delete.
      */
-    where: PlanoTesteWhereUniqueInput
+    where: TestePlanoWhereUniqueInput
   }
 
   /**
-   * PlanoTeste deleteMany
+   * TestePlano deleteMany
    */
-  export type PlanoTesteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PlanoTestes to delete
+     * Filter which TestePlanos to delete
      */
-    where?: PlanoTesteWhereInput
+    where?: TestePlanoWhereInput
   }
 
   /**
-   * PlanoTeste without action
+   * TestePlano without action
    */
-  export type PlanoTesteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TestePlanoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PlanoTeste
+     * Select specific fields to fetch from the TestePlano
      */
-    select?: PlanoTesteSelect<ExtArgs> | null
+    select?: TestePlanoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model FaturaProdutosGravity
+   * Model ProdutoGravityFatura
    */
 
-  export type AggregateFaturaProdutosGravity = {
-    _count: FaturaProdutosGravityCountAggregateOutputType | null
-    _avg: FaturaProdutosGravityAvgAggregateOutputType | null
-    _sum: FaturaProdutosGravitySumAggregateOutputType | null
-    _min: FaturaProdutosGravityMinAggregateOutputType | null
-    _max: FaturaProdutosGravityMaxAggregateOutputType | null
+  export type AggregateProdutoGravityFatura = {
+    _count: ProdutoGravityFaturaCountAggregateOutputType | null
+    _avg: ProdutoGravityFaturaAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaturaSumAggregateOutputType | null
+    _min: ProdutoGravityFaturaMinAggregateOutputType | null
+    _max: ProdutoGravityFaturaMaxAggregateOutputType | null
   }
 
-  export type FaturaProdutosGravityAvgAggregateOutputType = {
+  export type ProdutoGravityFaturaAvgAggregateOutputType = {
     valor_total_fatura_produtos_gravity: Decimal | null
   }
 
-  export type FaturaProdutosGravitySumAggregateOutputType = {
+  export type ProdutoGravityFaturaSumAggregateOutputType = {
     valor_total_fatura_produtos_gravity: Decimal | null
   }
 
-  export type FaturaProdutosGravityMinAggregateOutputType = {
+  export type ProdutoGravityFaturaMinAggregateOutputType = {
     id_fatura_produtos_gravity: string | null
     id_organizacao_fatura_produtos_gravity: string | null
     numero_fatura_produtos_gravity: string | null
@@ -24422,7 +24422,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity: Date | null
   }
 
-  export type FaturaProdutosGravityMaxAggregateOutputType = {
+  export type ProdutoGravityFaturaMaxAggregateOutputType = {
     id_fatura_produtos_gravity: string | null
     id_organizacao_fatura_produtos_gravity: string | null
     numero_fatura_produtos_gravity: string | null
@@ -24437,7 +24437,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity: Date | null
   }
 
-  export type FaturaProdutosGravityCountAggregateOutputType = {
+  export type ProdutoGravityFaturaCountAggregateOutputType = {
     id_fatura_produtos_gravity: number
     id_organizacao_fatura_produtos_gravity: number
     numero_fatura_produtos_gravity: number
@@ -24454,15 +24454,15 @@ export namespace Prisma {
   }
 
 
-  export type FaturaProdutosGravityAvgAggregateInputType = {
+  export type ProdutoGravityFaturaAvgAggregateInputType = {
     valor_total_fatura_produtos_gravity?: true
   }
 
-  export type FaturaProdutosGravitySumAggregateInputType = {
+  export type ProdutoGravityFaturaSumAggregateInputType = {
     valor_total_fatura_produtos_gravity?: true
   }
 
-  export type FaturaProdutosGravityMinAggregateInputType = {
+  export type ProdutoGravityFaturaMinAggregateInputType = {
     id_fatura_produtos_gravity?: true
     id_organizacao_fatura_produtos_gravity?: true
     numero_fatura_produtos_gravity?: true
@@ -24477,7 +24477,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: true
   }
 
-  export type FaturaProdutosGravityMaxAggregateInputType = {
+  export type ProdutoGravityFaturaMaxAggregateInputType = {
     id_fatura_produtos_gravity?: true
     id_organizacao_fatura_produtos_gravity?: true
     numero_fatura_produtos_gravity?: true
@@ -24492,7 +24492,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: true
   }
 
-  export type FaturaProdutosGravityCountAggregateInputType = {
+  export type ProdutoGravityFaturaCountAggregateInputType = {
     id_fatura_produtos_gravity?: true
     id_organizacao_fatura_produtos_gravity?: true
     numero_fatura_produtos_gravity?: true
@@ -24508,93 +24508,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type FaturaProdutosGravityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FaturaProdutosGravity to aggregate.
+     * Filter which ProdutoGravityFatura to aggregate.
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaturaProdutosGravities to fetch.
+     * Determine the order of ProdutoGravityFaturas to fetch.
      */
-    orderBy?: FaturaProdutosGravityOrderByWithRelationInput | FaturaProdutosGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaturaOrderByWithRelationInput | ProdutoGravityFaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: FaturaProdutosGravityWhereUniqueInput
+    cursor?: ProdutoGravityFaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaturaProdutosGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityFaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaturaProdutosGravities.
+     * Skip the first `n` ProdutoGravityFaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned FaturaProdutosGravities
+     * Count returned ProdutoGravityFaturas
     **/
-    _count?: true | FaturaProdutosGravityCountAggregateInputType
+    _count?: true | ProdutoGravityFaturaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: FaturaProdutosGravityAvgAggregateInputType
+    _avg?: ProdutoGravityFaturaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: FaturaProdutosGravitySumAggregateInputType
+    _sum?: ProdutoGravityFaturaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: FaturaProdutosGravityMinAggregateInputType
+    _min?: ProdutoGravityFaturaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: FaturaProdutosGravityMaxAggregateInputType
+    _max?: ProdutoGravityFaturaMaxAggregateInputType
   }
 
-  export type GetFaturaProdutosGravityAggregateType<T extends FaturaProdutosGravityAggregateArgs> = {
-        [P in keyof T & keyof AggregateFaturaProdutosGravity]: P extends '_count' | 'count'
+  export type GetProdutoGravityFaturaAggregateType<T extends ProdutoGravityFaturaAggregateArgs> = {
+        [P in keyof T & keyof AggregateProdutoGravityFatura]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateFaturaProdutosGravity[P]>
-      : GetScalarType<T[P], AggregateFaturaProdutosGravity[P]>
+        : GetScalarType<T[P], AggregateProdutoGravityFatura[P]>
+      : GetScalarType<T[P], AggregateProdutoGravityFatura[P]>
   }
 
 
 
 
-  export type FaturaProdutosGravityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FaturaProdutosGravityWhereInput
-    orderBy?: FaturaProdutosGravityOrderByWithAggregationInput | FaturaProdutosGravityOrderByWithAggregationInput[]
-    by: FaturaProdutosGravityScalarFieldEnum[] | FaturaProdutosGravityScalarFieldEnum
-    having?: FaturaProdutosGravityScalarWhereWithAggregatesInput
+  export type ProdutoGravityFaturaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityFaturaWhereInput
+    orderBy?: ProdutoGravityFaturaOrderByWithAggregationInput | ProdutoGravityFaturaOrderByWithAggregationInput[]
+    by: ProdutoGravityFaturaScalarFieldEnum[] | ProdutoGravityFaturaScalarFieldEnum
+    having?: ProdutoGravityFaturaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: FaturaProdutosGravityCountAggregateInputType | true
-    _avg?: FaturaProdutosGravityAvgAggregateInputType
-    _sum?: FaturaProdutosGravitySumAggregateInputType
-    _min?: FaturaProdutosGravityMinAggregateInputType
-    _max?: FaturaProdutosGravityMaxAggregateInputType
+    _count?: ProdutoGravityFaturaCountAggregateInputType | true
+    _avg?: ProdutoGravityFaturaAvgAggregateInputType
+    _sum?: ProdutoGravityFaturaSumAggregateInputType
+    _min?: ProdutoGravityFaturaMinAggregateInputType
+    _max?: ProdutoGravityFaturaMaxAggregateInputType
   }
 
-  export type FaturaProdutosGravityGroupByOutputType = {
+  export type ProdutoGravityFaturaGroupByOutputType = {
     id_fatura_produtos_gravity: string
     id_organizacao_fatura_produtos_gravity: string
     numero_fatura_produtos_gravity: string
@@ -24607,28 +24607,28 @@ export namespace Prisma {
     data_fatura_produtos_gravity: Date
     data_criacao_fatura_produtos_gravity: Date
     data_atualizacao_fatura_produtos_gravity: Date
-    _count: FaturaProdutosGravityCountAggregateOutputType | null
-    _avg: FaturaProdutosGravityAvgAggregateOutputType | null
-    _sum: FaturaProdutosGravitySumAggregateOutputType | null
-    _min: FaturaProdutosGravityMinAggregateOutputType | null
-    _max: FaturaProdutosGravityMaxAggregateOutputType | null
+    _count: ProdutoGravityFaturaCountAggregateOutputType | null
+    _avg: ProdutoGravityFaturaAvgAggregateOutputType | null
+    _sum: ProdutoGravityFaturaSumAggregateOutputType | null
+    _min: ProdutoGravityFaturaMinAggregateOutputType | null
+    _max: ProdutoGravityFaturaMaxAggregateOutputType | null
   }
 
-  type GetFaturaProdutosGravityGroupByPayload<T extends FaturaProdutosGravityGroupByArgs> = Prisma.PrismaPromise<
+  type GetProdutoGravityFaturaGroupByPayload<T extends ProdutoGravityFaturaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<FaturaProdutosGravityGroupByOutputType, T['by']> &
+      PickEnumerable<ProdutoGravityFaturaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof FaturaProdutosGravityGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProdutoGravityFaturaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], FaturaProdutosGravityGroupByOutputType[P]>
-            : GetScalarType<T[P], FaturaProdutosGravityGroupByOutputType[P]>
+              : GetScalarType<T[P], ProdutoGravityFaturaGroupByOutputType[P]>
+            : GetScalarType<T[P], ProdutoGravityFaturaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type FaturaProdutosGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityFaturaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fatura_produtos_gravity?: boolean
     id_organizacao_fatura_produtos_gravity?: boolean
     numero_fatura_produtos_gravity?: boolean
@@ -24641,9 +24641,9 @@ export namespace Prisma {
     data_fatura_produtos_gravity?: boolean
     data_criacao_fatura_produtos_gravity?: boolean
     data_atualizacao_fatura_produtos_gravity?: boolean
-  }, ExtArgs["result"]["faturaProdutosGravity"]>
+  }, ExtArgs["result"]["produtoGravityFatura"]>
 
-  export type FaturaProdutosGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProdutoGravityFaturaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fatura_produtos_gravity?: boolean
     id_organizacao_fatura_produtos_gravity?: boolean
     numero_fatura_produtos_gravity?: boolean
@@ -24656,9 +24656,9 @@ export namespace Prisma {
     data_fatura_produtos_gravity?: boolean
     data_criacao_fatura_produtos_gravity?: boolean
     data_atualizacao_fatura_produtos_gravity?: boolean
-  }, ExtArgs["result"]["faturaProdutosGravity"]>
+  }, ExtArgs["result"]["produtoGravityFatura"]>
 
-  export type FaturaProdutosGravitySelectScalar = {
+  export type ProdutoGravityFaturaSelectScalar = {
     id_fatura_produtos_gravity?: boolean
     id_organizacao_fatura_produtos_gravity?: boolean
     numero_fatura_produtos_gravity?: boolean
@@ -24674,8 +24674,8 @@ export namespace Prisma {
   }
 
 
-  export type $FaturaProdutosGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FaturaProdutosGravity"
+  export type $ProdutoGravityFaturaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProdutoGravityFatura"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_fatura_produtos_gravity: string
@@ -24690,136 +24690,136 @@ export namespace Prisma {
       data_fatura_produtos_gravity: Date
       data_criacao_fatura_produtos_gravity: Date
       data_atualizacao_fatura_produtos_gravity: Date
-    }, ExtArgs["result"]["faturaProdutosGravity"]>
+    }, ExtArgs["result"]["produtoGravityFatura"]>
     composites: {}
   }
 
-  type FaturaProdutosGravityGetPayload<S extends boolean | null | undefined | FaturaProdutosGravityDefaultArgs> = $Result.GetResult<Prisma.$FaturaProdutosGravityPayload, S>
+  type ProdutoGravityFaturaGetPayload<S extends boolean | null | undefined | ProdutoGravityFaturaDefaultArgs> = $Result.GetResult<Prisma.$ProdutoGravityFaturaPayload, S>
 
-  type FaturaProdutosGravityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<FaturaProdutosGravityFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: FaturaProdutosGravityCountAggregateInputType | true
+  type ProdutoGravityFaturaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProdutoGravityFaturaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProdutoGravityFaturaCountAggregateInputType | true
     }
 
-  export interface FaturaProdutosGravityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FaturaProdutosGravity'], meta: { name: 'FaturaProdutosGravity' } }
+  export interface ProdutoGravityFaturaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProdutoGravityFatura'], meta: { name: 'ProdutoGravityFatura' } }
     /**
-     * Find zero or one FaturaProdutosGravity that matches the filter.
-     * @param {FaturaProdutosGravityFindUniqueArgs} args - Arguments to find a FaturaProdutosGravity
+     * Find zero or one ProdutoGravityFatura that matches the filter.
+     * @param {ProdutoGravityFaturaFindUniqueArgs} args - Arguments to find a ProdutoGravityFatura
      * @example
-     * // Get one FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.findUnique({
+     * // Get one ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends FaturaProdutosGravityFindUniqueArgs>(args: SelectSubset<T, FaturaProdutosGravityFindUniqueArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ProdutoGravityFaturaFindUniqueArgs>(args: SelectSubset<T, ProdutoGravityFaturaFindUniqueArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one FaturaProdutosGravity that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ProdutoGravityFatura that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {FaturaProdutosGravityFindUniqueOrThrowArgs} args - Arguments to find a FaturaProdutosGravity
+     * @param {ProdutoGravityFaturaFindUniqueOrThrowArgs} args - Arguments to find a ProdutoGravityFatura
      * @example
-     * // Get one FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.findUniqueOrThrow({
+     * // Get one ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends FaturaProdutosGravityFindUniqueOrThrowArgs>(args: SelectSubset<T, FaturaProdutosGravityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ProdutoGravityFaturaFindUniqueOrThrowArgs>(args: SelectSubset<T, ProdutoGravityFaturaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first FaturaProdutosGravity that matches the filter.
+     * Find the first ProdutoGravityFatura that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityFindFirstArgs} args - Arguments to find a FaturaProdutosGravity
+     * @param {ProdutoGravityFaturaFindFirstArgs} args - Arguments to find a ProdutoGravityFatura
      * @example
-     * // Get one FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.findFirst({
+     * // Get one ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends FaturaProdutosGravityFindFirstArgs>(args?: SelectSubset<T, FaturaProdutosGravityFindFirstArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ProdutoGravityFaturaFindFirstArgs>(args?: SelectSubset<T, ProdutoGravityFaturaFindFirstArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first FaturaProdutosGravity that matches the filter or
+     * Find the first ProdutoGravityFatura that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityFindFirstOrThrowArgs} args - Arguments to find a FaturaProdutosGravity
+     * @param {ProdutoGravityFaturaFindFirstOrThrowArgs} args - Arguments to find a ProdutoGravityFatura
      * @example
-     * // Get one FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.findFirstOrThrow({
+     * // Get one ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends FaturaProdutosGravityFindFirstOrThrowArgs>(args?: SelectSubset<T, FaturaProdutosGravityFindFirstOrThrowArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ProdutoGravityFaturaFindFirstOrThrowArgs>(args?: SelectSubset<T, ProdutoGravityFaturaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more FaturaProdutosGravities that matches the filter.
+     * Find zero or more ProdutoGravityFaturas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProdutoGravityFaturaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all FaturaProdutosGravities
-     * const faturaProdutosGravities = await prisma.faturaProdutosGravity.findMany()
+     * // Get all ProdutoGravityFaturas
+     * const produtoGravityFaturas = await prisma.produtoGravityFatura.findMany()
      * 
-     * // Get first 10 FaturaProdutosGravities
-     * const faturaProdutosGravities = await prisma.faturaProdutosGravity.findMany({ take: 10 })
+     * // Get first 10 ProdutoGravityFaturas
+     * const produtoGravityFaturas = await prisma.produtoGravityFatura.findMany({ take: 10 })
      * 
      * // Only select the `id_fatura_produtos_gravity`
-     * const faturaProdutosGravityWithId_fatura_produtos_gravityOnly = await prisma.faturaProdutosGravity.findMany({ select: { id_fatura_produtos_gravity: true } })
+     * const produtoGravityFaturaWithId_fatura_produtos_gravityOnly = await prisma.produtoGravityFatura.findMany({ select: { id_fatura_produtos_gravity: true } })
      * 
      */
-    findMany<T extends FaturaProdutosGravityFindManyArgs>(args?: SelectSubset<T, FaturaProdutosGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ProdutoGravityFaturaFindManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a FaturaProdutosGravity.
-     * @param {FaturaProdutosGravityCreateArgs} args - Arguments to create a FaturaProdutosGravity.
+     * Create a ProdutoGravityFatura.
+     * @param {ProdutoGravityFaturaCreateArgs} args - Arguments to create a ProdutoGravityFatura.
      * @example
-     * // Create one FaturaProdutosGravity
-     * const FaturaProdutosGravity = await prisma.faturaProdutosGravity.create({
+     * // Create one ProdutoGravityFatura
+     * const ProdutoGravityFatura = await prisma.produtoGravityFatura.create({
      *   data: {
-     *     // ... data to create a FaturaProdutosGravity
+     *     // ... data to create a ProdutoGravityFatura
      *   }
      * })
      * 
      */
-    create<T extends FaturaProdutosGravityCreateArgs>(args: SelectSubset<T, FaturaProdutosGravityCreateArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ProdutoGravityFaturaCreateArgs>(args: SelectSubset<T, ProdutoGravityFaturaCreateArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many FaturaProdutosGravities.
-     * @param {FaturaProdutosGravityCreateManyArgs} args - Arguments to create many FaturaProdutosGravities.
+     * Create many ProdutoGravityFaturas.
+     * @param {ProdutoGravityFaturaCreateManyArgs} args - Arguments to create many ProdutoGravityFaturas.
      * @example
-     * // Create many FaturaProdutosGravities
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.createMany({
+     * // Create many ProdutoGravityFaturas
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends FaturaProdutosGravityCreateManyArgs>(args?: SelectSubset<T, FaturaProdutosGravityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProdutoGravityFaturaCreateManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many FaturaProdutosGravities and returns the data saved in the database.
-     * @param {FaturaProdutosGravityCreateManyAndReturnArgs} args - Arguments to create many FaturaProdutosGravities.
+     * Create many ProdutoGravityFaturas and returns the data saved in the database.
+     * @param {ProdutoGravityFaturaCreateManyAndReturnArgs} args - Arguments to create many ProdutoGravityFaturas.
      * @example
-     * // Create many FaturaProdutosGravities
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.createManyAndReturn({
+     * // Create many ProdutoGravityFaturas
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many FaturaProdutosGravities and only return the `id_fatura_produtos_gravity`
-     * const faturaProdutosGravityWithId_fatura_produtos_gravityOnly = await prisma.faturaProdutosGravity.createManyAndReturn({ 
+     * // Create many ProdutoGravityFaturas and only return the `id_fatura_produtos_gravity`
+     * const produtoGravityFaturaWithId_fatura_produtos_gravityOnly = await prisma.produtoGravityFatura.createManyAndReturn({ 
      *   select: { id_fatura_produtos_gravity: true },
      *   data: [
      *     // ... provide data here
@@ -24829,28 +24829,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends FaturaProdutosGravityCreateManyAndReturnArgs>(args?: SelectSubset<T, FaturaProdutosGravityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ProdutoGravityFaturaCreateManyAndReturnArgs>(args?: SelectSubset<T, ProdutoGravityFaturaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a FaturaProdutosGravity.
-     * @param {FaturaProdutosGravityDeleteArgs} args - Arguments to delete one FaturaProdutosGravity.
+     * Delete a ProdutoGravityFatura.
+     * @param {ProdutoGravityFaturaDeleteArgs} args - Arguments to delete one ProdutoGravityFatura.
      * @example
-     * // Delete one FaturaProdutosGravity
-     * const FaturaProdutosGravity = await prisma.faturaProdutosGravity.delete({
+     * // Delete one ProdutoGravityFatura
+     * const ProdutoGravityFatura = await prisma.produtoGravityFatura.delete({
      *   where: {
-     *     // ... filter to delete one FaturaProdutosGravity
+     *     // ... filter to delete one ProdutoGravityFatura
      *   }
      * })
      * 
      */
-    delete<T extends FaturaProdutosGravityDeleteArgs>(args: SelectSubset<T, FaturaProdutosGravityDeleteArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ProdutoGravityFaturaDeleteArgs>(args: SelectSubset<T, ProdutoGravityFaturaDeleteArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one FaturaProdutosGravity.
-     * @param {FaturaProdutosGravityUpdateArgs} args - Arguments to update one FaturaProdutosGravity.
+     * Update one ProdutoGravityFatura.
+     * @param {ProdutoGravityFaturaUpdateArgs} args - Arguments to update one ProdutoGravityFatura.
      * @example
-     * // Update one FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.update({
+     * // Update one ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -24860,30 +24860,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends FaturaProdutosGravityUpdateArgs>(args: SelectSubset<T, FaturaProdutosGravityUpdateArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ProdutoGravityFaturaUpdateArgs>(args: SelectSubset<T, ProdutoGravityFaturaUpdateArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more FaturaProdutosGravities.
-     * @param {FaturaProdutosGravityDeleteManyArgs} args - Arguments to filter FaturaProdutosGravities to delete.
+     * Delete zero or more ProdutoGravityFaturas.
+     * @param {ProdutoGravityFaturaDeleteManyArgs} args - Arguments to filter ProdutoGravityFaturas to delete.
      * @example
-     * // Delete a few FaturaProdutosGravities
-     * const { count } = await prisma.faturaProdutosGravity.deleteMany({
+     * // Delete a few ProdutoGravityFaturas
+     * const { count } = await prisma.produtoGravityFatura.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends FaturaProdutosGravityDeleteManyArgs>(args?: SelectSubset<T, FaturaProdutosGravityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProdutoGravityFaturaDeleteManyArgs>(args?: SelectSubset<T, ProdutoGravityFaturaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more FaturaProdutosGravities.
+     * Update zero or more ProdutoGravityFaturas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProdutoGravityFaturaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many FaturaProdutosGravities
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.updateMany({
+     * // Update many ProdutoGravityFaturas
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -24893,56 +24893,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends FaturaProdutosGravityUpdateManyArgs>(args: SelectSubset<T, FaturaProdutosGravityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProdutoGravityFaturaUpdateManyArgs>(args: SelectSubset<T, ProdutoGravityFaturaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one FaturaProdutosGravity.
-     * @param {FaturaProdutosGravityUpsertArgs} args - Arguments to update or create a FaturaProdutosGravity.
+     * Create or update one ProdutoGravityFatura.
+     * @param {ProdutoGravityFaturaUpsertArgs} args - Arguments to update or create a ProdutoGravityFatura.
      * @example
-     * // Update or create a FaturaProdutosGravity
-     * const faturaProdutosGravity = await prisma.faturaProdutosGravity.upsert({
+     * // Update or create a ProdutoGravityFatura
+     * const produtoGravityFatura = await prisma.produtoGravityFatura.upsert({
      *   create: {
-     *     // ... data to create a FaturaProdutosGravity
+     *     // ... data to create a ProdutoGravityFatura
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the FaturaProdutosGravity we want to update
+     *     // ... the filter for the ProdutoGravityFatura we want to update
      *   }
      * })
      */
-    upsert<T extends FaturaProdutosGravityUpsertArgs>(args: SelectSubset<T, FaturaProdutosGravityUpsertArgs<ExtArgs>>): Prisma__FaturaProdutosGravityClient<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ProdutoGravityFaturaUpsertArgs>(args: SelectSubset<T, ProdutoGravityFaturaUpsertArgs<ExtArgs>>): Prisma__ProdutoGravityFaturaClient<$Result.GetResult<Prisma.$ProdutoGravityFaturaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of FaturaProdutosGravities.
+     * Count the number of ProdutoGravityFaturas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityCountArgs} args - Arguments to filter FaturaProdutosGravities to count.
+     * @param {ProdutoGravityFaturaCountArgs} args - Arguments to filter ProdutoGravityFaturas to count.
      * @example
-     * // Count the number of FaturaProdutosGravities
-     * const count = await prisma.faturaProdutosGravity.count({
+     * // Count the number of ProdutoGravityFaturas
+     * const count = await prisma.produtoGravityFatura.count({
      *   where: {
-     *     // ... the filter for the FaturaProdutosGravities we want to count
+     *     // ... the filter for the ProdutoGravityFaturas we want to count
      *   }
      * })
     **/
-    count<T extends FaturaProdutosGravityCountArgs>(
-      args?: Subset<T, FaturaProdutosGravityCountArgs>,
+    count<T extends ProdutoGravityFaturaCountArgs>(
+      args?: Subset<T, ProdutoGravityFaturaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], FaturaProdutosGravityCountAggregateOutputType>
+          : GetScalarType<T['select'], ProdutoGravityFaturaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a FaturaProdutosGravity.
+     * Allows you to perform aggregations operations on a ProdutoGravityFatura.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProdutoGravityFaturaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -24962,13 +24962,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends FaturaProdutosGravityAggregateArgs>(args: Subset<T, FaturaProdutosGravityAggregateArgs>): Prisma.PrismaPromise<GetFaturaProdutosGravityAggregateType<T>>
+    aggregate<T extends ProdutoGravityFaturaAggregateArgs>(args: Subset<T, ProdutoGravityFaturaAggregateArgs>): Prisma.PrismaPromise<GetProdutoGravityFaturaAggregateType<T>>
 
     /**
-     * Group by FaturaProdutosGravity.
+     * Group by ProdutoGravityFatura.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {FaturaProdutosGravityGroupByArgs} args - Group by arguments.
+     * @param {ProdutoGravityFaturaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -24983,14 +24983,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends FaturaProdutosGravityGroupByArgs,
+      T extends ProdutoGravityFaturaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FaturaProdutosGravityGroupByArgs['orderBy'] }
-        : { orderBy?: FaturaProdutosGravityGroupByArgs['orderBy'] },
+        ? { orderBy: ProdutoGravityFaturaGroupByArgs['orderBy'] }
+        : { orderBy?: ProdutoGravityFaturaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -25039,20 +25039,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, FaturaProdutosGravityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFaturaProdutosGravityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProdutoGravityFaturaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProdutoGravityFaturaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the FaturaProdutosGravity model
+   * Fields of the ProdutoGravityFatura model
    */
-  readonly fields: FaturaProdutosGravityFieldRefs;
+  readonly fields: ProdutoGravityFaturaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for FaturaProdutosGravity.
+   * The delegate class that acts as a "Promise-like" for ProdutoGravityFatura.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__FaturaProdutosGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProdutoGravityFaturaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -25080,322 +25080,322 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the FaturaProdutosGravity model
+   * Fields of the ProdutoGravityFatura model
    */ 
-  interface FaturaProdutosGravityFieldRefs {
-    readonly id_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly id_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly numero_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly status_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'FaturaStatusGravity'>
-    readonly nome_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly email_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly valor_total_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'Decimal'>
-    readonly moeda_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly competencia_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly data_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
-    readonly data_criacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
-    readonly data_atualizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
+  interface ProdutoGravityFaturaFieldRefs {
+    readonly id_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly id_organizacao_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly numero_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly status_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'FaturaStatusGravity'>
+    readonly nome_organizacao_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly email_organizacao_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly valor_total_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'Decimal'>
+    readonly moeda_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly competencia_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'String'>
+    readonly data_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'DateTime'>
+    readonly data_criacao_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'DateTime'>
+    readonly data_atualizacao_fatura_produtos_gravity: FieldRef<"ProdutoGravityFatura", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * FaturaProdutosGravity findUnique
+   * ProdutoGravityFatura findUnique
    */
-  export type FaturaProdutosGravityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter, which FaturaProdutosGravity to fetch.
+     * Filter, which ProdutoGravityFatura to fetch.
      */
-    where: FaturaProdutosGravityWhereUniqueInput
+    where: ProdutoGravityFaturaWhereUniqueInput
   }
 
   /**
-   * FaturaProdutosGravity findUniqueOrThrow
+   * ProdutoGravityFatura findUniqueOrThrow
    */
-  export type FaturaProdutosGravityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter, which FaturaProdutosGravity to fetch.
+     * Filter, which ProdutoGravityFatura to fetch.
      */
-    where: FaturaProdutosGravityWhereUniqueInput
+    where: ProdutoGravityFaturaWhereUniqueInput
   }
 
   /**
-   * FaturaProdutosGravity findFirst
+   * ProdutoGravityFatura findFirst
    */
-  export type FaturaProdutosGravityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter, which FaturaProdutosGravity to fetch.
+     * Filter, which ProdutoGravityFatura to fetch.
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaturaProdutosGravities to fetch.
+     * Determine the order of ProdutoGravityFaturas to fetch.
      */
-    orderBy?: FaturaProdutosGravityOrderByWithRelationInput | FaturaProdutosGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaturaOrderByWithRelationInput | ProdutoGravityFaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FaturaProdutosGravities.
+     * Sets the position for searching for ProdutoGravityFaturas.
      */
-    cursor?: FaturaProdutosGravityWhereUniqueInput
+    cursor?: ProdutoGravityFaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaturaProdutosGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityFaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaturaProdutosGravities.
+     * Skip the first `n` ProdutoGravityFaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FaturaProdutosGravities.
+     * Filter by unique combinations of ProdutoGravityFaturas.
      */
-    distinct?: FaturaProdutosGravityScalarFieldEnum | FaturaProdutosGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityFaturaScalarFieldEnum | ProdutoGravityFaturaScalarFieldEnum[]
   }
 
   /**
-   * FaturaProdutosGravity findFirstOrThrow
+   * ProdutoGravityFatura findFirstOrThrow
    */
-  export type FaturaProdutosGravityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter, which FaturaProdutosGravity to fetch.
+     * Filter, which ProdutoGravityFatura to fetch.
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaturaProdutosGravities to fetch.
+     * Determine the order of ProdutoGravityFaturas to fetch.
      */
-    orderBy?: FaturaProdutosGravityOrderByWithRelationInput | FaturaProdutosGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaturaOrderByWithRelationInput | ProdutoGravityFaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for FaturaProdutosGravities.
+     * Sets the position for searching for ProdutoGravityFaturas.
      */
-    cursor?: FaturaProdutosGravityWhereUniqueInput
+    cursor?: ProdutoGravityFaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaturaProdutosGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityFaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaturaProdutosGravities.
+     * Skip the first `n` ProdutoGravityFaturas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of FaturaProdutosGravities.
+     * Filter by unique combinations of ProdutoGravityFaturas.
      */
-    distinct?: FaturaProdutosGravityScalarFieldEnum | FaturaProdutosGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityFaturaScalarFieldEnum | ProdutoGravityFaturaScalarFieldEnum[]
   }
 
   /**
-   * FaturaProdutosGravity findMany
+   * ProdutoGravityFatura findMany
    */
-  export type FaturaProdutosGravityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter, which FaturaProdutosGravities to fetch.
+     * Filter, which ProdutoGravityFaturas to fetch.
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of FaturaProdutosGravities to fetch.
+     * Determine the order of ProdutoGravityFaturas to fetch.
      */
-    orderBy?: FaturaProdutosGravityOrderByWithRelationInput | FaturaProdutosGravityOrderByWithRelationInput[]
+    orderBy?: ProdutoGravityFaturaOrderByWithRelationInput | ProdutoGravityFaturaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing FaturaProdutosGravities.
+     * Sets the position for listing ProdutoGravityFaturas.
      */
-    cursor?: FaturaProdutosGravityWhereUniqueInput
+    cursor?: ProdutoGravityFaturaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` FaturaProdutosGravities from the position of the cursor.
+     * Take `±n` ProdutoGravityFaturas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` FaturaProdutosGravities.
+     * Skip the first `n` ProdutoGravityFaturas.
      */
     skip?: number
-    distinct?: FaturaProdutosGravityScalarFieldEnum | FaturaProdutosGravityScalarFieldEnum[]
+    distinct?: ProdutoGravityFaturaScalarFieldEnum | ProdutoGravityFaturaScalarFieldEnum[]
   }
 
   /**
-   * FaturaProdutosGravity create
+   * ProdutoGravityFatura create
    */
-  export type FaturaProdutosGravityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * The data needed to create a FaturaProdutosGravity.
+     * The data needed to create a ProdutoGravityFatura.
      */
-    data: XOR<FaturaProdutosGravityCreateInput, FaturaProdutosGravityUncheckedCreateInput>
+    data: XOR<ProdutoGravityFaturaCreateInput, ProdutoGravityFaturaUncheckedCreateInput>
   }
 
   /**
-   * FaturaProdutosGravity createMany
+   * ProdutoGravityFatura createMany
    */
-  export type FaturaProdutosGravityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many FaturaProdutosGravities.
+     * The data used to create many ProdutoGravityFaturas.
      */
-    data: FaturaProdutosGravityCreateManyInput | FaturaProdutosGravityCreateManyInput[]
+    data: ProdutoGravityFaturaCreateManyInput | ProdutoGravityFaturaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * FaturaProdutosGravity createManyAndReturn
+   * ProdutoGravityFatura createManyAndReturn
    */
-  export type FaturaProdutosGravityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many FaturaProdutosGravities.
+     * The data used to create many ProdutoGravityFaturas.
      */
-    data: FaturaProdutosGravityCreateManyInput | FaturaProdutosGravityCreateManyInput[]
+    data: ProdutoGravityFaturaCreateManyInput | ProdutoGravityFaturaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * FaturaProdutosGravity update
+   * ProdutoGravityFatura update
    */
-  export type FaturaProdutosGravityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * The data needed to update a FaturaProdutosGravity.
+     * The data needed to update a ProdutoGravityFatura.
      */
-    data: XOR<FaturaProdutosGravityUpdateInput, FaturaProdutosGravityUncheckedUpdateInput>
+    data: XOR<ProdutoGravityFaturaUpdateInput, ProdutoGravityFaturaUncheckedUpdateInput>
     /**
-     * Choose, which FaturaProdutosGravity to update.
+     * Choose, which ProdutoGravityFatura to update.
      */
-    where: FaturaProdutosGravityWhereUniqueInput
+    where: ProdutoGravityFaturaWhereUniqueInput
   }
 
   /**
-   * FaturaProdutosGravity updateMany
+   * ProdutoGravityFatura updateMany
    */
-  export type FaturaProdutosGravityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update FaturaProdutosGravities.
+     * The data used to update ProdutoGravityFaturas.
      */
-    data: XOR<FaturaProdutosGravityUpdateManyMutationInput, FaturaProdutosGravityUncheckedUpdateManyInput>
+    data: XOR<ProdutoGravityFaturaUpdateManyMutationInput, ProdutoGravityFaturaUncheckedUpdateManyInput>
     /**
-     * Filter which FaturaProdutosGravities to update
+     * Filter which ProdutoGravityFaturas to update
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
   }
 
   /**
-   * FaturaProdutosGravity upsert
+   * ProdutoGravityFatura upsert
    */
-  export type FaturaProdutosGravityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * The filter to search for the FaturaProdutosGravity to update in case it exists.
+     * The filter to search for the ProdutoGravityFatura to update in case it exists.
      */
-    where: FaturaProdutosGravityWhereUniqueInput
+    where: ProdutoGravityFaturaWhereUniqueInput
     /**
-     * In case the FaturaProdutosGravity found by the `where` argument doesn't exist, create a new FaturaProdutosGravity with this data.
+     * In case the ProdutoGravityFatura found by the `where` argument doesn't exist, create a new ProdutoGravityFatura with this data.
      */
-    create: XOR<FaturaProdutosGravityCreateInput, FaturaProdutosGravityUncheckedCreateInput>
+    create: XOR<ProdutoGravityFaturaCreateInput, ProdutoGravityFaturaUncheckedCreateInput>
     /**
-     * In case the FaturaProdutosGravity was found with the provided `where` argument, update it with this data.
+     * In case the ProdutoGravityFatura was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<FaturaProdutosGravityUpdateInput, FaturaProdutosGravityUncheckedUpdateInput>
+    update: XOR<ProdutoGravityFaturaUpdateInput, ProdutoGravityFaturaUncheckedUpdateInput>
   }
 
   /**
-   * FaturaProdutosGravity delete
+   * ProdutoGravityFatura delete
    */
-  export type FaturaProdutosGravityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
     /**
-     * Filter which FaturaProdutosGravity to delete.
+     * Filter which ProdutoGravityFatura to delete.
      */
-    where: FaturaProdutosGravityWhereUniqueInput
+    where: ProdutoGravityFaturaWhereUniqueInput
   }
 
   /**
-   * FaturaProdutosGravity deleteMany
+   * ProdutoGravityFatura deleteMany
    */
-  export type FaturaProdutosGravityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which FaturaProdutosGravities to delete
+     * Filter which ProdutoGravityFaturas to delete
      */
-    where?: FaturaProdutosGravityWhereInput
+    where?: ProdutoGravityFaturaWhereInput
   }
 
   /**
-   * FaturaProdutosGravity without action
+   * ProdutoGravityFatura without action
    */
-  export type FaturaProdutosGravityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProdutoGravityFaturaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the FaturaProdutosGravity
+     * Select specific fields to fetch from the ProdutoGravityFatura
      */
-    select?: FaturaProdutosGravitySelect<ExtArgs> | null
+    select?: ProdutoGravityFaturaSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model MetricasGemini
+   * Model LLMMetricas
    */
 
-  export type AggregateMetricasGemini = {
-    _count: MetricasGeminiCountAggregateOutputType | null
-    _avg: MetricasGeminiAvgAggregateOutputType | null
-    _sum: MetricasGeminiSumAggregateOutputType | null
-    _min: MetricasGeminiMinAggregateOutputType | null
-    _max: MetricasGeminiMaxAggregateOutputType | null
+  export type AggregateLLMMetricas = {
+    _count: LLMMetricasCountAggregateOutputType | null
+    _avg: LLMMetricasAvgAggregateOutputType | null
+    _sum: LLMMetricasSumAggregateOutputType | null
+    _min: LLMMetricasMinAggregateOutputType | null
+    _max: LLMMetricasMaxAggregateOutputType | null
   }
 
-  export type MetricasGeminiAvgAggregateOutputType = {
+  export type LLMMetricasAvgAggregateOutputType = {
     total_analise_metricas_gemini: number | null
     total_token_metricas_gemini: number | null
     custo_metricas_gemini: Decimal | null
@@ -25406,7 +25406,7 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_gemini: number | null
   }
 
-  export type MetricasGeminiSumAggregateOutputType = {
+  export type LLMMetricasSumAggregateOutputType = {
     total_analise_metricas_gemini: number | null
     total_token_metricas_gemini: number | null
     custo_metricas_gemini: Decimal | null
@@ -25417,7 +25417,7 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_gemini: number | null
   }
 
-  export type MetricasGeminiMinAggregateOutputType = {
+  export type LLMMetricasMinAggregateOutputType = {
     id_metricas_gemini: string | null
     data_analise_metricas_gemini: Date | null
     total_analise_metricas_gemini: number | null
@@ -25431,7 +25431,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini: Date | null
   }
 
-  export type MetricasGeminiMaxAggregateOutputType = {
+  export type LLMMetricasMaxAggregateOutputType = {
     id_metricas_gemini: string | null
     data_analise_metricas_gemini: Date | null
     total_analise_metricas_gemini: number | null
@@ -25445,7 +25445,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini: Date | null
   }
 
-  export type MetricasGeminiCountAggregateOutputType = {
+  export type LLMMetricasCountAggregateOutputType = {
     id_metricas_gemini: number
     nome_metricas_gemini: number
     data_analise_metricas_gemini: number
@@ -25462,7 +25462,7 @@ export namespace Prisma {
   }
 
 
-  export type MetricasGeminiAvgAggregateInputType = {
+  export type LLMMetricasAvgAggregateInputType = {
     total_analise_metricas_gemini?: true
     total_token_metricas_gemini?: true
     custo_metricas_gemini?: true
@@ -25473,7 +25473,7 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_gemini?: true
   }
 
-  export type MetricasGeminiSumAggregateInputType = {
+  export type LLMMetricasSumAggregateInputType = {
     total_analise_metricas_gemini?: true
     total_token_metricas_gemini?: true
     custo_metricas_gemini?: true
@@ -25484,7 +25484,7 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_gemini?: true
   }
 
-  export type MetricasGeminiMinAggregateInputType = {
+  export type LLMMetricasMinAggregateInputType = {
     id_metricas_gemini?: true
     data_analise_metricas_gemini?: true
     total_analise_metricas_gemini?: true
@@ -25498,7 +25498,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: true
   }
 
-  export type MetricasGeminiMaxAggregateInputType = {
+  export type LLMMetricasMaxAggregateInputType = {
     id_metricas_gemini?: true
     data_analise_metricas_gemini?: true
     total_analise_metricas_gemini?: true
@@ -25512,7 +25512,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: true
   }
 
-  export type MetricasGeminiCountAggregateInputType = {
+  export type LLMMetricasCountAggregateInputType = {
     id_metricas_gemini?: true
     nome_metricas_gemini?: true
     data_analise_metricas_gemini?: true
@@ -25528,93 +25528,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type MetricasGeminiAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MetricasGemini to aggregate.
+     * Filter which LLMMetricas to aggregate.
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricasGeminis to fetch.
+     * Determine the order of LLMMetricas to fetch.
      */
-    orderBy?: MetricasGeminiOrderByWithRelationInput | MetricasGeminiOrderByWithRelationInput[]
+    orderBy?: LLMMetricasOrderByWithRelationInput | LLMMetricasOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: MetricasGeminiWhereUniqueInput
+    cursor?: LLMMetricasWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricasGeminis from the position of the cursor.
+     * Take `±n` LLMMetricas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricasGeminis.
+     * Skip the first `n` LLMMetricas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned MetricasGeminis
+     * Count returned LLMMetricas
     **/
-    _count?: true | MetricasGeminiCountAggregateInputType
+    _count?: true | LLMMetricasCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: MetricasGeminiAvgAggregateInputType
+    _avg?: LLMMetricasAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: MetricasGeminiSumAggregateInputType
+    _sum?: LLMMetricasSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: MetricasGeminiMinAggregateInputType
+    _min?: LLMMetricasMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: MetricasGeminiMaxAggregateInputType
+    _max?: LLMMetricasMaxAggregateInputType
   }
 
-  export type GetMetricasGeminiAggregateType<T extends MetricasGeminiAggregateArgs> = {
-        [P in keyof T & keyof AggregateMetricasGemini]: P extends '_count' | 'count'
+  export type GetLLMMetricasAggregateType<T extends LLMMetricasAggregateArgs> = {
+        [P in keyof T & keyof AggregateLLMMetricas]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateMetricasGemini[P]>
-      : GetScalarType<T[P], AggregateMetricasGemini[P]>
+        : GetScalarType<T[P], AggregateLLMMetricas[P]>
+      : GetScalarType<T[P], AggregateLLMMetricas[P]>
   }
 
 
 
 
-  export type MetricasGeminiGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MetricasGeminiWhereInput
-    orderBy?: MetricasGeminiOrderByWithAggregationInput | MetricasGeminiOrderByWithAggregationInput[]
-    by: MetricasGeminiScalarFieldEnum[] | MetricasGeminiScalarFieldEnum
-    having?: MetricasGeminiScalarWhereWithAggregatesInput
+  export type LLMMetricasGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LLMMetricasWhereInput
+    orderBy?: LLMMetricasOrderByWithAggregationInput | LLMMetricasOrderByWithAggregationInput[]
+    by: LLMMetricasScalarFieldEnum[] | LLMMetricasScalarFieldEnum
+    having?: LLMMetricasScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: MetricasGeminiCountAggregateInputType | true
-    _avg?: MetricasGeminiAvgAggregateInputType
-    _sum?: MetricasGeminiSumAggregateInputType
-    _min?: MetricasGeminiMinAggregateInputType
-    _max?: MetricasGeminiMaxAggregateInputType
+    _count?: LLMMetricasCountAggregateInputType | true
+    _avg?: LLMMetricasAvgAggregateInputType
+    _sum?: LLMMetricasSumAggregateInputType
+    _min?: LLMMetricasMinAggregateInputType
+    _max?: LLMMetricasMaxAggregateInputType
   }
 
-  export type MetricasGeminiGroupByOutputType = {
+  export type LLMMetricasGroupByOutputType = {
     id_metricas_gemini: string
     nome_metricas_gemini: string[]
     data_analise_metricas_gemini: Date
@@ -25627,28 +25627,28 @@ export namespace Prisma {
     confianca_baixa_metricas_gemini: number
     quantidade_codigo_validado_metricas_gemini: number
     data_criacao_metricas_gemini: Date
-    _count: MetricasGeminiCountAggregateOutputType | null
-    _avg: MetricasGeminiAvgAggregateOutputType | null
-    _sum: MetricasGeminiSumAggregateOutputType | null
-    _min: MetricasGeminiMinAggregateOutputType | null
-    _max: MetricasGeminiMaxAggregateOutputType | null
+    _count: LLMMetricasCountAggregateOutputType | null
+    _avg: LLMMetricasAvgAggregateOutputType | null
+    _sum: LLMMetricasSumAggregateOutputType | null
+    _min: LLMMetricasMinAggregateOutputType | null
+    _max: LLMMetricasMaxAggregateOutputType | null
   }
 
-  type GetMetricasGeminiGroupByPayload<T extends MetricasGeminiGroupByArgs> = Prisma.PrismaPromise<
+  type GetLLMMetricasGroupByPayload<T extends LLMMetricasGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<MetricasGeminiGroupByOutputType, T['by']> &
+      PickEnumerable<LLMMetricasGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof MetricasGeminiGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof LLMMetricasGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], MetricasGeminiGroupByOutputType[P]>
-            : GetScalarType<T[P], MetricasGeminiGroupByOutputType[P]>
+              : GetScalarType<T[P], LLMMetricasGroupByOutputType[P]>
+            : GetScalarType<T[P], LLMMetricasGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type MetricasGeminiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type LLMMetricasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_metricas_gemini?: boolean
     nome_metricas_gemini?: boolean
     data_analise_metricas_gemini?: boolean
@@ -25661,9 +25661,9 @@ export namespace Prisma {
     confianca_baixa_metricas_gemini?: boolean
     quantidade_codigo_validado_metricas_gemini?: boolean
     data_criacao_metricas_gemini?: boolean
-  }, ExtArgs["result"]["metricasGemini"]>
+  }, ExtArgs["result"]["lLMMetricas"]>
 
-  export type MetricasGeminiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type LLMMetricasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_metricas_gemini?: boolean
     nome_metricas_gemini?: boolean
     data_analise_metricas_gemini?: boolean
@@ -25676,9 +25676,9 @@ export namespace Prisma {
     confianca_baixa_metricas_gemini?: boolean
     quantidade_codigo_validado_metricas_gemini?: boolean
     data_criacao_metricas_gemini?: boolean
-  }, ExtArgs["result"]["metricasGemini"]>
+  }, ExtArgs["result"]["lLMMetricas"]>
 
-  export type MetricasGeminiSelectScalar = {
+  export type LLMMetricasSelectScalar = {
     id_metricas_gemini?: boolean
     nome_metricas_gemini?: boolean
     data_analise_metricas_gemini?: boolean
@@ -25694,8 +25694,8 @@ export namespace Prisma {
   }
 
 
-  export type $MetricasGeminiPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "MetricasGemini"
+  export type $LLMMetricasPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LLMMetricas"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_metricas_gemini: string
@@ -25710,136 +25710,136 @@ export namespace Prisma {
       confianca_baixa_metricas_gemini: number
       quantidade_codigo_validado_metricas_gemini: number
       data_criacao_metricas_gemini: Date
-    }, ExtArgs["result"]["metricasGemini"]>
+    }, ExtArgs["result"]["lLMMetricas"]>
     composites: {}
   }
 
-  type MetricasGeminiGetPayload<S extends boolean | null | undefined | MetricasGeminiDefaultArgs> = $Result.GetResult<Prisma.$MetricasGeminiPayload, S>
+  type LLMMetricasGetPayload<S extends boolean | null | undefined | LLMMetricasDefaultArgs> = $Result.GetResult<Prisma.$LLMMetricasPayload, S>
 
-  type MetricasGeminiCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<MetricasGeminiFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: MetricasGeminiCountAggregateInputType | true
+  type LLMMetricasCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<LLMMetricasFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: LLMMetricasCountAggregateInputType | true
     }
 
-  export interface MetricasGeminiDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MetricasGemini'], meta: { name: 'MetricasGemini' } }
+  export interface LLMMetricasDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LLMMetricas'], meta: { name: 'LLMMetricas' } }
     /**
-     * Find zero or one MetricasGemini that matches the filter.
-     * @param {MetricasGeminiFindUniqueArgs} args - Arguments to find a MetricasGemini
+     * Find zero or one LLMMetricas that matches the filter.
+     * @param {LLMMetricasFindUniqueArgs} args - Arguments to find a LLMMetricas
      * @example
-     * // Get one MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.findUnique({
+     * // Get one LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends MetricasGeminiFindUniqueArgs>(args: SelectSubset<T, MetricasGeminiFindUniqueArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends LLMMetricasFindUniqueArgs>(args: SelectSubset<T, LLMMetricasFindUniqueArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one MetricasGemini that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one LLMMetricas that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {MetricasGeminiFindUniqueOrThrowArgs} args - Arguments to find a MetricasGemini
+     * @param {LLMMetricasFindUniqueOrThrowArgs} args - Arguments to find a LLMMetricas
      * @example
-     * // Get one MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.findUniqueOrThrow({
+     * // Get one LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends MetricasGeminiFindUniqueOrThrowArgs>(args: SelectSubset<T, MetricasGeminiFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends LLMMetricasFindUniqueOrThrowArgs>(args: SelectSubset<T, LLMMetricasFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first MetricasGemini that matches the filter.
+     * Find the first LLMMetricas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiFindFirstArgs} args - Arguments to find a MetricasGemini
+     * @param {LLMMetricasFindFirstArgs} args - Arguments to find a LLMMetricas
      * @example
-     * // Get one MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.findFirst({
+     * // Get one LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends MetricasGeminiFindFirstArgs>(args?: SelectSubset<T, MetricasGeminiFindFirstArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends LLMMetricasFindFirstArgs>(args?: SelectSubset<T, LLMMetricasFindFirstArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first MetricasGemini that matches the filter or
+     * Find the first LLMMetricas that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiFindFirstOrThrowArgs} args - Arguments to find a MetricasGemini
+     * @param {LLMMetricasFindFirstOrThrowArgs} args - Arguments to find a LLMMetricas
      * @example
-     * // Get one MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.findFirstOrThrow({
+     * // Get one LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends MetricasGeminiFindFirstOrThrowArgs>(args?: SelectSubset<T, MetricasGeminiFindFirstOrThrowArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends LLMMetricasFindFirstOrThrowArgs>(args?: SelectSubset<T, LLMMetricasFindFirstOrThrowArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more MetricasGeminis that matches the filter.
+     * Find zero or more LLMMetricas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {LLMMetricasFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all MetricasGeminis
-     * const metricasGeminis = await prisma.metricasGemini.findMany()
+     * // Get all LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findMany()
      * 
-     * // Get first 10 MetricasGeminis
-     * const metricasGeminis = await prisma.metricasGemini.findMany({ take: 10 })
+     * // Get first 10 LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.findMany({ take: 10 })
      * 
      * // Only select the `id_metricas_gemini`
-     * const metricasGeminiWithId_metricas_geminiOnly = await prisma.metricasGemini.findMany({ select: { id_metricas_gemini: true } })
+     * const lLMMetricasWithId_metricas_geminiOnly = await prisma.lLMMetricas.findMany({ select: { id_metricas_gemini: true } })
      * 
      */
-    findMany<T extends MetricasGeminiFindManyArgs>(args?: SelectSubset<T, MetricasGeminiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends LLMMetricasFindManyArgs>(args?: SelectSubset<T, LLMMetricasFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a MetricasGemini.
-     * @param {MetricasGeminiCreateArgs} args - Arguments to create a MetricasGemini.
+     * Create a LLMMetricas.
+     * @param {LLMMetricasCreateArgs} args - Arguments to create a LLMMetricas.
      * @example
-     * // Create one MetricasGemini
-     * const MetricasGemini = await prisma.metricasGemini.create({
+     * // Create one LLMMetricas
+     * const LLMMetricas = await prisma.lLMMetricas.create({
      *   data: {
-     *     // ... data to create a MetricasGemini
+     *     // ... data to create a LLMMetricas
      *   }
      * })
      * 
      */
-    create<T extends MetricasGeminiCreateArgs>(args: SelectSubset<T, MetricasGeminiCreateArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends LLMMetricasCreateArgs>(args: SelectSubset<T, LLMMetricasCreateArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many MetricasGeminis.
-     * @param {MetricasGeminiCreateManyArgs} args - Arguments to create many MetricasGeminis.
+     * Create many LLMMetricas.
+     * @param {LLMMetricasCreateManyArgs} args - Arguments to create many LLMMetricas.
      * @example
-     * // Create many MetricasGeminis
-     * const metricasGemini = await prisma.metricasGemini.createMany({
+     * // Create many LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends MetricasGeminiCreateManyArgs>(args?: SelectSubset<T, MetricasGeminiCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends LLMMetricasCreateManyArgs>(args?: SelectSubset<T, LLMMetricasCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many MetricasGeminis and returns the data saved in the database.
-     * @param {MetricasGeminiCreateManyAndReturnArgs} args - Arguments to create many MetricasGeminis.
+     * Create many LLMMetricas and returns the data saved in the database.
+     * @param {LLMMetricasCreateManyAndReturnArgs} args - Arguments to create many LLMMetricas.
      * @example
-     * // Create many MetricasGeminis
-     * const metricasGemini = await prisma.metricasGemini.createManyAndReturn({
+     * // Create many LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many MetricasGeminis and only return the `id_metricas_gemini`
-     * const metricasGeminiWithId_metricas_geminiOnly = await prisma.metricasGemini.createManyAndReturn({ 
+     * // Create many LLMMetricas and only return the `id_metricas_gemini`
+     * const lLMMetricasWithId_metricas_geminiOnly = await prisma.lLMMetricas.createManyAndReturn({ 
      *   select: { id_metricas_gemini: true },
      *   data: [
      *     // ... provide data here
@@ -25849,28 +25849,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends MetricasGeminiCreateManyAndReturnArgs>(args?: SelectSubset<T, MetricasGeminiCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends LLMMetricasCreateManyAndReturnArgs>(args?: SelectSubset<T, LLMMetricasCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a MetricasGemini.
-     * @param {MetricasGeminiDeleteArgs} args - Arguments to delete one MetricasGemini.
+     * Delete a LLMMetricas.
+     * @param {LLMMetricasDeleteArgs} args - Arguments to delete one LLMMetricas.
      * @example
-     * // Delete one MetricasGemini
-     * const MetricasGemini = await prisma.metricasGemini.delete({
+     * // Delete one LLMMetricas
+     * const LLMMetricas = await prisma.lLMMetricas.delete({
      *   where: {
-     *     // ... filter to delete one MetricasGemini
+     *     // ... filter to delete one LLMMetricas
      *   }
      * })
      * 
      */
-    delete<T extends MetricasGeminiDeleteArgs>(args: SelectSubset<T, MetricasGeminiDeleteArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends LLMMetricasDeleteArgs>(args: SelectSubset<T, LLMMetricasDeleteArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one MetricasGemini.
-     * @param {MetricasGeminiUpdateArgs} args - Arguments to update one MetricasGemini.
+     * Update one LLMMetricas.
+     * @param {LLMMetricasUpdateArgs} args - Arguments to update one LLMMetricas.
      * @example
-     * // Update one MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.update({
+     * // Update one LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -25880,30 +25880,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends MetricasGeminiUpdateArgs>(args: SelectSubset<T, MetricasGeminiUpdateArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends LLMMetricasUpdateArgs>(args: SelectSubset<T, LLMMetricasUpdateArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more MetricasGeminis.
-     * @param {MetricasGeminiDeleteManyArgs} args - Arguments to filter MetricasGeminis to delete.
+     * Delete zero or more LLMMetricas.
+     * @param {LLMMetricasDeleteManyArgs} args - Arguments to filter LLMMetricas to delete.
      * @example
-     * // Delete a few MetricasGeminis
-     * const { count } = await prisma.metricasGemini.deleteMany({
+     * // Delete a few LLMMetricas
+     * const { count } = await prisma.lLMMetricas.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends MetricasGeminiDeleteManyArgs>(args?: SelectSubset<T, MetricasGeminiDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends LLMMetricasDeleteManyArgs>(args?: SelectSubset<T, LLMMetricasDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more MetricasGeminis.
+     * Update zero or more LLMMetricas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {LLMMetricasUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many MetricasGeminis
-     * const metricasGemini = await prisma.metricasGemini.updateMany({
+     * // Update many LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -25913,56 +25913,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends MetricasGeminiUpdateManyArgs>(args: SelectSubset<T, MetricasGeminiUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends LLMMetricasUpdateManyArgs>(args: SelectSubset<T, LLMMetricasUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one MetricasGemini.
-     * @param {MetricasGeminiUpsertArgs} args - Arguments to update or create a MetricasGemini.
+     * Create or update one LLMMetricas.
+     * @param {LLMMetricasUpsertArgs} args - Arguments to update or create a LLMMetricas.
      * @example
-     * // Update or create a MetricasGemini
-     * const metricasGemini = await prisma.metricasGemini.upsert({
+     * // Update or create a LLMMetricas
+     * const lLMMetricas = await prisma.lLMMetricas.upsert({
      *   create: {
-     *     // ... data to create a MetricasGemini
+     *     // ... data to create a LLMMetricas
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the MetricasGemini we want to update
+     *     // ... the filter for the LLMMetricas we want to update
      *   }
      * })
      */
-    upsert<T extends MetricasGeminiUpsertArgs>(args: SelectSubset<T, MetricasGeminiUpsertArgs<ExtArgs>>): Prisma__MetricasGeminiClient<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends LLMMetricasUpsertArgs>(args: SelectSubset<T, LLMMetricasUpsertArgs<ExtArgs>>): Prisma__LLMMetricasClient<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of MetricasGeminis.
+     * Count the number of LLMMetricas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiCountArgs} args - Arguments to filter MetricasGeminis to count.
+     * @param {LLMMetricasCountArgs} args - Arguments to filter LLMMetricas to count.
      * @example
-     * // Count the number of MetricasGeminis
-     * const count = await prisma.metricasGemini.count({
+     * // Count the number of LLMMetricas
+     * const count = await prisma.lLMMetricas.count({
      *   where: {
-     *     // ... the filter for the MetricasGeminis we want to count
+     *     // ... the filter for the LLMMetricas we want to count
      *   }
      * })
     **/
-    count<T extends MetricasGeminiCountArgs>(
-      args?: Subset<T, MetricasGeminiCountArgs>,
+    count<T extends LLMMetricasCountArgs>(
+      args?: Subset<T, LLMMetricasCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], MetricasGeminiCountAggregateOutputType>
+          : GetScalarType<T['select'], LLMMetricasCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a MetricasGemini.
+     * Allows you to perform aggregations operations on a LLMMetricas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {LLMMetricasAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -25982,13 +25982,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends MetricasGeminiAggregateArgs>(args: Subset<T, MetricasGeminiAggregateArgs>): Prisma.PrismaPromise<GetMetricasGeminiAggregateType<T>>
+    aggregate<T extends LLMMetricasAggregateArgs>(args: Subset<T, LLMMetricasAggregateArgs>): Prisma.PrismaPromise<GetLLMMetricasAggregateType<T>>
 
     /**
-     * Group by MetricasGemini.
+     * Group by LLMMetricas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricasGeminiGroupByArgs} args - Group by arguments.
+     * @param {LLMMetricasGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -26003,14 +26003,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends MetricasGeminiGroupByArgs,
+      T extends LLMMetricasGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: MetricasGeminiGroupByArgs['orderBy'] }
-        : { orderBy?: MetricasGeminiGroupByArgs['orderBy'] },
+        ? { orderBy: LLMMetricasGroupByArgs['orderBy'] }
+        : { orderBy?: LLMMetricasGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -26059,20 +26059,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, MetricasGeminiGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMetricasGeminiGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, LLMMetricasGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLLMMetricasGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the MetricasGemini model
+   * Fields of the LLMMetricas model
    */
-  readonly fields: MetricasGeminiFieldRefs;
+  readonly fields: LLMMetricasFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for MetricasGemini.
+   * The delegate class that acts as a "Promise-like" for LLMMetricas.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__MetricasGeminiClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__LLMMetricasClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -26100,306 +26100,306 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the MetricasGemini model
+   * Fields of the LLMMetricas model
    */ 
-  interface MetricasGeminiFieldRefs {
-    readonly id_metricas_gemini: FieldRef<"MetricasGemini", 'String'>
-    readonly nome_metricas_gemini: FieldRef<"MetricasGemini", 'String[]'>
-    readonly data_analise_metricas_gemini: FieldRef<"MetricasGemini", 'DateTime'>
-    readonly total_analise_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly total_token_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly custo_metricas_gemini: FieldRef<"MetricasGemini", 'Decimal'>
-    readonly latencia_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_alta_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_media_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_baixa_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly quantidade_codigo_validado_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
-    readonly data_criacao_metricas_gemini: FieldRef<"MetricasGemini", 'DateTime'>
+  interface LLMMetricasFieldRefs {
+    readonly id_metricas_gemini: FieldRef<"LLMMetricas", 'String'>
+    readonly nome_metricas_gemini: FieldRef<"LLMMetricas", 'String[]'>
+    readonly data_analise_metricas_gemini: FieldRef<"LLMMetricas", 'DateTime'>
+    readonly total_analise_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly total_token_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly custo_metricas_gemini: FieldRef<"LLMMetricas", 'Decimal'>
+    readonly latencia_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_alta_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_media_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_baixa_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly quantidade_codigo_validado_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
+    readonly data_criacao_metricas_gemini: FieldRef<"LLMMetricas", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * MetricasGemini findUnique
+   * LLMMetricas findUnique
    */
-  export type MetricasGeminiFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter, which MetricasGemini to fetch.
+     * Filter, which LLMMetricas to fetch.
      */
-    where: MetricasGeminiWhereUniqueInput
+    where: LLMMetricasWhereUniqueInput
   }
 
   /**
-   * MetricasGemini findUniqueOrThrow
+   * LLMMetricas findUniqueOrThrow
    */
-  export type MetricasGeminiFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter, which MetricasGemini to fetch.
+     * Filter, which LLMMetricas to fetch.
      */
-    where: MetricasGeminiWhereUniqueInput
+    where: LLMMetricasWhereUniqueInput
   }
 
   /**
-   * MetricasGemini findFirst
+   * LLMMetricas findFirst
    */
-  export type MetricasGeminiFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter, which MetricasGemini to fetch.
+     * Filter, which LLMMetricas to fetch.
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricasGeminis to fetch.
+     * Determine the order of LLMMetricas to fetch.
      */
-    orderBy?: MetricasGeminiOrderByWithRelationInput | MetricasGeminiOrderByWithRelationInput[]
+    orderBy?: LLMMetricasOrderByWithRelationInput | LLMMetricasOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MetricasGeminis.
+     * Sets the position for searching for LLMMetricas.
      */
-    cursor?: MetricasGeminiWhereUniqueInput
+    cursor?: LLMMetricasWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricasGeminis from the position of the cursor.
+     * Take `±n` LLMMetricas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricasGeminis.
+     * Skip the first `n` LLMMetricas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MetricasGeminis.
+     * Filter by unique combinations of LLMMetricas.
      */
-    distinct?: MetricasGeminiScalarFieldEnum | MetricasGeminiScalarFieldEnum[]
+    distinct?: LLMMetricasScalarFieldEnum | LLMMetricasScalarFieldEnum[]
   }
 
   /**
-   * MetricasGemini findFirstOrThrow
+   * LLMMetricas findFirstOrThrow
    */
-  export type MetricasGeminiFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter, which MetricasGemini to fetch.
+     * Filter, which LLMMetricas to fetch.
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricasGeminis to fetch.
+     * Determine the order of LLMMetricas to fetch.
      */
-    orderBy?: MetricasGeminiOrderByWithRelationInput | MetricasGeminiOrderByWithRelationInput[]
+    orderBy?: LLMMetricasOrderByWithRelationInput | LLMMetricasOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MetricasGeminis.
+     * Sets the position for searching for LLMMetricas.
      */
-    cursor?: MetricasGeminiWhereUniqueInput
+    cursor?: LLMMetricasWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricasGeminis from the position of the cursor.
+     * Take `±n` LLMMetricas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricasGeminis.
+     * Skip the first `n` LLMMetricas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MetricasGeminis.
+     * Filter by unique combinations of LLMMetricas.
      */
-    distinct?: MetricasGeminiScalarFieldEnum | MetricasGeminiScalarFieldEnum[]
+    distinct?: LLMMetricasScalarFieldEnum | LLMMetricasScalarFieldEnum[]
   }
 
   /**
-   * MetricasGemini findMany
+   * LLMMetricas findMany
    */
-  export type MetricasGeminiFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter, which MetricasGeminis to fetch.
+     * Filter, which LLMMetricas to fetch.
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricasGeminis to fetch.
+     * Determine the order of LLMMetricas to fetch.
      */
-    orderBy?: MetricasGeminiOrderByWithRelationInput | MetricasGeminiOrderByWithRelationInput[]
+    orderBy?: LLMMetricasOrderByWithRelationInput | LLMMetricasOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing MetricasGeminis.
+     * Sets the position for listing LLMMetricas.
      */
-    cursor?: MetricasGeminiWhereUniqueInput
+    cursor?: LLMMetricasWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricasGeminis from the position of the cursor.
+     * Take `±n` LLMMetricas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricasGeminis.
+     * Skip the first `n` LLMMetricas.
      */
     skip?: number
-    distinct?: MetricasGeminiScalarFieldEnum | MetricasGeminiScalarFieldEnum[]
+    distinct?: LLMMetricasScalarFieldEnum | LLMMetricasScalarFieldEnum[]
   }
 
   /**
-   * MetricasGemini create
+   * LLMMetricas create
    */
-  export type MetricasGeminiCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * The data needed to create a MetricasGemini.
+     * The data needed to create a LLMMetricas.
      */
-    data: XOR<MetricasGeminiCreateInput, MetricasGeminiUncheckedCreateInput>
+    data: XOR<LLMMetricasCreateInput, LLMMetricasUncheckedCreateInput>
   }
 
   /**
-   * MetricasGemini createMany
+   * LLMMetricas createMany
    */
-  export type MetricasGeminiCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many MetricasGeminis.
+     * The data used to create many LLMMetricas.
      */
-    data: MetricasGeminiCreateManyInput | MetricasGeminiCreateManyInput[]
+    data: LLMMetricasCreateManyInput | LLMMetricasCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MetricasGemini createManyAndReturn
+   * LLMMetricas createManyAndReturn
    */
-  export type MetricasGeminiCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelectCreateManyAndReturn<ExtArgs> | null
+    select?: LLMMetricasSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many MetricasGeminis.
+     * The data used to create many LLMMetricas.
      */
-    data: MetricasGeminiCreateManyInput | MetricasGeminiCreateManyInput[]
+    data: LLMMetricasCreateManyInput | LLMMetricasCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MetricasGemini update
+   * LLMMetricas update
    */
-  export type MetricasGeminiUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * The data needed to update a MetricasGemini.
+     * The data needed to update a LLMMetricas.
      */
-    data: XOR<MetricasGeminiUpdateInput, MetricasGeminiUncheckedUpdateInput>
+    data: XOR<LLMMetricasUpdateInput, LLMMetricasUncheckedUpdateInput>
     /**
-     * Choose, which MetricasGemini to update.
+     * Choose, which LLMMetricas to update.
      */
-    where: MetricasGeminiWhereUniqueInput
+    where: LLMMetricasWhereUniqueInput
   }
 
   /**
-   * MetricasGemini updateMany
+   * LLMMetricas updateMany
    */
-  export type MetricasGeminiUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update MetricasGeminis.
+     * The data used to update LLMMetricas.
      */
-    data: XOR<MetricasGeminiUpdateManyMutationInput, MetricasGeminiUncheckedUpdateManyInput>
+    data: XOR<LLMMetricasUpdateManyMutationInput, LLMMetricasUncheckedUpdateManyInput>
     /**
-     * Filter which MetricasGeminis to update
+     * Filter which LLMMetricas to update
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
   }
 
   /**
-   * MetricasGemini upsert
+   * LLMMetricas upsert
    */
-  export type MetricasGeminiUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * The filter to search for the MetricasGemini to update in case it exists.
+     * The filter to search for the LLMMetricas to update in case it exists.
      */
-    where: MetricasGeminiWhereUniqueInput
+    where: LLMMetricasWhereUniqueInput
     /**
-     * In case the MetricasGemini found by the `where` argument doesn't exist, create a new MetricasGemini with this data.
+     * In case the LLMMetricas found by the `where` argument doesn't exist, create a new LLMMetricas with this data.
      */
-    create: XOR<MetricasGeminiCreateInput, MetricasGeminiUncheckedCreateInput>
+    create: XOR<LLMMetricasCreateInput, LLMMetricasUncheckedCreateInput>
     /**
-     * In case the MetricasGemini was found with the provided `where` argument, update it with this data.
+     * In case the LLMMetricas was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<MetricasGeminiUpdateInput, MetricasGeminiUncheckedUpdateInput>
+    update: XOR<LLMMetricasUpdateInput, LLMMetricasUncheckedUpdateInput>
   }
 
   /**
-   * MetricasGemini delete
+   * LLMMetricas delete
    */
-  export type MetricasGeminiDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
     /**
-     * Filter which MetricasGemini to delete.
+     * Filter which LLMMetricas to delete.
      */
-    where: MetricasGeminiWhereUniqueInput
+    where: LLMMetricasWhereUniqueInput
   }
 
   /**
-   * MetricasGemini deleteMany
+   * LLMMetricas deleteMany
    */
-  export type MetricasGeminiDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MetricasGeminis to delete
+     * Filter which LLMMetricas to delete
      */
-    where?: MetricasGeminiWhereInput
+    where?: LLMMetricasWhereInput
   }
 
   /**
-   * MetricasGemini without action
+   * LLMMetricas without action
    */
-  export type MetricasGeminiDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type LLMMetricasDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricasGemini
+     * Select specific fields to fetch from the LLMMetricas
      */
-    select?: MetricasGeminiSelect<ExtArgs> | null
+    select?: LLMMetricasSelect<ExtArgs> | null
   }
 
 
@@ -26452,7 +26452,7 @@ export namespace Prisma {
   export type UsuarioScalarFieldEnum = (typeof UsuarioScalarFieldEnum)[keyof typeof UsuarioScalarFieldEnum]
 
 
-  export const AssinaturaProdutoGravityScalarFieldEnum: {
+  export const ProdutoGravityAssinaturaScalarFieldEnum: {
     id_assinatura_produto_gravity: 'id_assinatura_produto_gravity',
     id_organizacao_assinatura_produto_gravity: 'id_organizacao_assinatura_produto_gravity',
     status_assinatura_produto_gravity: 'status_assinatura_produto_gravity',
@@ -26466,7 +26466,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity: 'data_atualizacao_assinatura_produto_gravity'
   };
 
-  export type AssinaturaProdutoGravityScalarFieldEnum = (typeof AssinaturaProdutoGravityScalarFieldEnum)[keyof typeof AssinaturaProdutoGravityScalarFieldEnum]
+  export type ProdutoGravityAssinaturaScalarFieldEnum = (typeof ProdutoGravityAssinaturaScalarFieldEnum)[keyof typeof ProdutoGravityAssinaturaScalarFieldEnum]
 
 
   export const UsuarioPermissaoScalarFieldEnum: {
@@ -26484,7 +26484,7 @@ export namespace Prisma {
   export type UsuarioPermissaoScalarFieldEnum = (typeof UsuarioPermissaoScalarFieldEnum)[keyof typeof UsuarioPermissaoScalarFieldEnum]
 
 
-  export const PermissaoAdminGravityScalarFieldEnum: {
+  export const AdminGravityPermissaoScalarFieldEnum: {
     id_permissao_admin_gravity: 'id_permissao_admin_gravity',
     id_admin_permissao_admin_gravity: 'id_admin_permissao_admin_gravity',
     recurso_permissao_admin_gravity: 'recurso_permissao_admin_gravity',
@@ -26494,10 +26494,10 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity: 'data_atualizacao_permissao_admin_gravity'
   };
 
-  export type PermissaoAdminGravityScalarFieldEnum = (typeof PermissaoAdminGravityScalarFieldEnum)[keyof typeof PermissaoAdminGravityScalarFieldEnum]
+  export type AdminGravityPermissaoScalarFieldEnum = (typeof AdminGravityPermissaoScalarFieldEnum)[keyof typeof AdminGravityPermissaoScalarFieldEnum]
 
 
-  export const EmpresaScalarFieldEnum: {
+  export const WorkspaceScalarFieldEnum: {
     id_workspace: 'id_workspace',
     id_organizacao_workspace: 'id_organizacao_workspace',
     nome_workspace: 'nome_workspace',
@@ -26508,7 +26508,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
+  export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
 
 
   export const UsuarioWorkspaceScalarFieldEnum: {
@@ -26525,7 +26525,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceScalarFieldEnum = (typeof UsuarioWorkspaceScalarFieldEnum)[keyof typeof UsuarioWorkspaceScalarFieldEnum]
 
 
-  export const ConfiguracaoProdutoScalarFieldEnum: {
+  export const ProdutoGravityConfiguracaoScalarFieldEnum: {
     id_config_produto_gravity: 'id_config_produto_gravity',
     id_organizacao_config_produto_gravity: 'id_organizacao_config_produto_gravity',
     chave_produto_config_produto_gravity: 'chave_produto_config_produto_gravity',
@@ -26535,7 +26535,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity: 'data_atualizacao_config_produto_gravity'
   };
 
-  export type ConfiguracaoProdutoScalarFieldEnum = (typeof ConfiguracaoProdutoScalarFieldEnum)[keyof typeof ConfiguracaoProdutoScalarFieldEnum]
+  export type ProdutoGravityConfiguracaoScalarFieldEnum = (typeof ProdutoGravityConfiguracaoScalarFieldEnum)[keyof typeof ProdutoGravityConfiguracaoScalarFieldEnum]
 
 
   export const ProdutoGravityWorkspaceScalarFieldEnum: {
@@ -26586,7 +26586,7 @@ export namespace Prisma {
   export type ProdutoGravityScalarFieldEnum = (typeof ProdutoGravityScalarFieldEnum)[keyof typeof ProdutoGravityScalarFieldEnum]
 
 
-  export const FaixaPrecoScalarFieldEnum: {
+  export const ProdutoGravityFaixaPrecoScalarFieldEnum: {
     id_faixa_preco: 'id_faixa_preco',
     id_produto_gravity_faixa_preco: 'id_produto_gravity_faixa_preco',
     faixa_de_faixa_preco: 'faixa_de_faixa_preco',
@@ -26596,10 +26596,10 @@ export namespace Prisma {
     data_criacao_faixa_preco: 'data_criacao_faixa_preco'
   };
 
-  export type FaixaPrecoScalarFieldEnum = (typeof FaixaPrecoScalarFieldEnum)[keyof typeof FaixaPrecoScalarFieldEnum]
+  export type ProdutoGravityFaixaPrecoScalarFieldEnum = (typeof ProdutoGravityFaixaPrecoScalarFieldEnum)[keyof typeof ProdutoGravityFaixaPrecoScalarFieldEnum]
 
 
-  export const NegociacaoEspecialScalarFieldEnum: {
+  export const ProdutoGravityNegociacaoEspecialScalarFieldEnum: {
     id_negociacao_especial: 'id_negociacao_especial',
     id_produto_gravity_negociacao_especial: 'id_produto_gravity_negociacao_especial',
     id_organizacao_negociacao_especial: 'id_organizacao_negociacao_especial',
@@ -26612,7 +26612,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial: 'data_atualizacao_negociacao_especial'
   };
 
-  export type NegociacaoEspecialScalarFieldEnum = (typeof NegociacaoEspecialScalarFieldEnum)[keyof typeof NegociacaoEspecialScalarFieldEnum]
+  export type ProdutoGravityNegociacaoEspecialScalarFieldEnum = (typeof ProdutoGravityNegociacaoEspecialScalarFieldEnum)[keyof typeof ProdutoGravityNegociacaoEspecialScalarFieldEnum]
 
 
   export const DeployScalarFieldEnum: {
@@ -26734,7 +26734,7 @@ export namespace Prisma {
   export type TestesScalarFieldEnum = (typeof TestesScalarFieldEnum)[keyof typeof TestesScalarFieldEnum]
 
 
-  export const AgendamentoTesteScalarFieldEnum: {
+  export const TesteAgendamentoScalarFieldEnum: {
     id_agendamento_teste: 'id_agendamento_teste',
     id_organizacao_agendamento_teste: 'id_organizacao_agendamento_teste',
     ativo_agendamento_teste: 'ativo_agendamento_teste',
@@ -26751,10 +26751,10 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste: 'data_atualizacao_agendamento_teste'
   };
 
-  export type AgendamentoTesteScalarFieldEnum = (typeof AgendamentoTesteScalarFieldEnum)[keyof typeof AgendamentoTesteScalarFieldEnum]
+  export type TesteAgendamentoScalarFieldEnum = (typeof TesteAgendamentoScalarFieldEnum)[keyof typeof TesteAgendamentoScalarFieldEnum]
 
 
-  export const PlanoTesteScalarFieldEnum: {
+  export const TestePlanoScalarFieldEnum: {
     id_plano_teste: 'id_plano_teste',
     id_organizacao_plano_teste: 'id_organizacao_plano_teste',
     versao_plano_teste: 'versao_plano_teste',
@@ -26779,10 +26779,10 @@ export namespace Prisma {
     data_atualizacao_plano_teste: 'data_atualizacao_plano_teste'
   };
 
-  export type PlanoTesteScalarFieldEnum = (typeof PlanoTesteScalarFieldEnum)[keyof typeof PlanoTesteScalarFieldEnum]
+  export type TestePlanoScalarFieldEnum = (typeof TestePlanoScalarFieldEnum)[keyof typeof TestePlanoScalarFieldEnum]
 
 
-  export const FaturaProdutosGravityScalarFieldEnum: {
+  export const ProdutoGravityFaturaScalarFieldEnum: {
     id_fatura_produtos_gravity: 'id_fatura_produtos_gravity',
     id_organizacao_fatura_produtos_gravity: 'id_organizacao_fatura_produtos_gravity',
     numero_fatura_produtos_gravity: 'numero_fatura_produtos_gravity',
@@ -26797,10 +26797,10 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity: 'data_atualizacao_fatura_produtos_gravity'
   };
 
-  export type FaturaProdutosGravityScalarFieldEnum = (typeof FaturaProdutosGravityScalarFieldEnum)[keyof typeof FaturaProdutosGravityScalarFieldEnum]
+  export type ProdutoGravityFaturaScalarFieldEnum = (typeof ProdutoGravityFaturaScalarFieldEnum)[keyof typeof ProdutoGravityFaturaScalarFieldEnum]
 
 
-  export const MetricasGeminiScalarFieldEnum: {
+  export const LLMMetricasScalarFieldEnum: {
     id_metricas_gemini: 'id_metricas_gemini',
     nome_metricas_gemini: 'nome_metricas_gemini',
     data_analise_metricas_gemini: 'data_analise_metricas_gemini',
@@ -26815,7 +26815,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini: 'data_criacao_metricas_gemini'
   };
 
-  export type MetricasGeminiScalarFieldEnum = (typeof MetricasGeminiScalarFieldEnum)[keyof typeof MetricasGeminiScalarFieldEnum]
+  export type LLMMetricasScalarFieldEnum = (typeof LLMMetricasScalarFieldEnum)[keyof typeof LLMMetricasScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -27131,10 +27131,10 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
-    subscriptions_organizacao?: AssinaturaProdutoGravityListRelationFilter
+    subscriptions_organizacao?: ProdutoGravityAssinaturaListRelationFilter
     user_permissions_organizacao?: UsuarioPermissaoListRelationFilter
-    companies_organizacao?: EmpresaListRelationFilter
-    product_configs_organizacao?: ConfiguracaoProdutoListRelationFilter
+    companies_organizacao?: WorkspaceListRelationFilter
+    product_configs_organizacao?: ProdutoGravityConfiguracaoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }
 
@@ -27154,10 +27154,10 @@ export namespace Prisma {
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
     users_organizacao?: UsuarioOrderByRelationAggregateInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityOrderByRelationAggregateInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaOrderByRelationAggregateInput
     user_permissions_organizacao?: UsuarioPermissaoOrderByRelationAggregateInput
-    companies_organizacao?: EmpresaOrderByRelationAggregateInput
-    product_configs_organizacao?: ConfiguracaoProdutoOrderByRelationAggregateInput
+    companies_organizacao?: WorkspaceOrderByRelationAggregateInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoOrderByRelationAggregateInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
   }
 
@@ -27180,10 +27180,10 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
-    subscriptions_organizacao?: AssinaturaProdutoGravityListRelationFilter
+    subscriptions_organizacao?: ProdutoGravityAssinaturaListRelationFilter
     user_permissions_organizacao?: UsuarioPermissaoListRelationFilter
-    companies_organizacao?: EmpresaListRelationFilter
-    product_configs_organizacao?: ConfiguracaoProdutoListRelationFilter
+    companies_organizacao?: WorkspaceListRelationFilter
+    product_configs_organizacao?: ProdutoGravityConfiguracaoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }, "id_organizacao" | "subdominio_organizacao" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa_organizacao">
 
@@ -27241,7 +27241,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
+    preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
   }
@@ -27257,7 +27257,7 @@ export namespace Prisma {
     data_criacao_usuario?: SortOrder
     updated_at?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
-    preferred_company?: EmpresaOrderByWithRelationInput
+    preferred_company?: WorkspaceOrderByWithRelationInput
     user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
     memberships?: UsuarioWorkspaceOrderByRelationAggregateInput
   }
@@ -27277,7 +27277,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
+    preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
   }, "id_usuario" | "clerk_user_id" | "id_organizacao_usuario_email_usuario">
@@ -27312,25 +27312,25 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
   }
 
-  export type AssinaturaProdutoGravityWhereInput = {
-    AND?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
-    OR?: AssinaturaProdutoGravityWhereInput[]
-    NOT?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
-    id_assinatura_produto_gravity?: StringFilter<"AssinaturaProdutoGravity"> | string
-    id_organizacao_assinatura_produto_gravity?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
-    stripe_subscription_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
-    stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
-    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
-    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
+  export type ProdutoGravityAssinaturaWhereInput = {
+    AND?: ProdutoGravityAssinaturaWhereInput | ProdutoGravityAssinaturaWhereInput[]
+    OR?: ProdutoGravityAssinaturaWhereInput[]
+    NOT?: ProdutoGravityAssinaturaWhereInput | ProdutoGravityAssinaturaWhereInput[]
+    id_assinatura_produto_gravity?: StringFilter<"ProdutoGravityAssinatura"> | string
+    id_organizacao_assinatura_produto_gravity?: StringFilter<"ProdutoGravityAssinatura"> | string
+    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"ProdutoGravityAssinatura"> | $Enums.StatusAssinaturaProdutoGravity
+    stripe_subscription_id?: StringNullableFilter<"ProdutoGravityAssinatura"> | string | null
+    stripe_price_id?: StringNullableFilter<"ProdutoGravityAssinatura"> | string | null
+    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
+    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }
 
-  export type AssinaturaProdutoGravityOrderByWithRelationInput = {
+  export type ProdutoGravityAssinaturaOrderByWithRelationInput = {
     id_assinatura_produto_gravity?: SortOrder
     id_organizacao_assinatura_produto_gravity?: SortOrder
     status_assinatura_produto_gravity?: SortOrder
@@ -27345,25 +27345,25 @@ export namespace Prisma {
     tenant?: OrganizacaoOrderByWithRelationInput
   }
 
-  export type AssinaturaProdutoGravityWhereUniqueInput = Prisma.AtLeast<{
+  export type ProdutoGravityAssinaturaWhereUniqueInput = Prisma.AtLeast<{
     id_assinatura_produto_gravity?: string
     stripe_subscription_id?: string
-    AND?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
-    OR?: AssinaturaProdutoGravityWhereInput[]
-    NOT?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
-    id_organizacao_assinatura_produto_gravity?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
-    stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
-    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
-    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
+    AND?: ProdutoGravityAssinaturaWhereInput | ProdutoGravityAssinaturaWhereInput[]
+    OR?: ProdutoGravityAssinaturaWhereInput[]
+    NOT?: ProdutoGravityAssinaturaWhereInput | ProdutoGravityAssinaturaWhereInput[]
+    id_organizacao_assinatura_produto_gravity?: StringFilter<"ProdutoGravityAssinatura"> | string
+    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"ProdutoGravityAssinatura"> | $Enums.StatusAssinaturaProdutoGravity
+    stripe_price_id?: StringNullableFilter<"ProdutoGravityAssinatura"> | string | null
+    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
+    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }, "id_assinatura_produto_gravity" | "stripe_subscription_id">
 
-  export type AssinaturaProdutoGravityOrderByWithAggregationInput = {
+  export type ProdutoGravityAssinaturaOrderByWithAggregationInput = {
     id_assinatura_produto_gravity?: SortOrder
     id_organizacao_assinatura_produto_gravity?: SortOrder
     status_assinatura_produto_gravity?: SortOrder
@@ -27375,26 +27375,26 @@ export namespace Prisma {
     data_cancelamento_assinatura_produto_gravity?: SortOrderInput | SortOrder
     data_criacao_assinatura_produto_gravity?: SortOrder
     data_atualizacao_assinatura_produto_gravity?: SortOrder
-    _count?: AssinaturaProdutoGravityCountOrderByAggregateInput
-    _max?: AssinaturaProdutoGravityMaxOrderByAggregateInput
-    _min?: AssinaturaProdutoGravityMinOrderByAggregateInput
+    _count?: ProdutoGravityAssinaturaCountOrderByAggregateInput
+    _max?: ProdutoGravityAssinaturaMaxOrderByAggregateInput
+    _min?: ProdutoGravityAssinaturaMinOrderByAggregateInput
   }
 
-  export type AssinaturaProdutoGravityScalarWhereWithAggregatesInput = {
-    AND?: AssinaturaProdutoGravityScalarWhereWithAggregatesInput | AssinaturaProdutoGravityScalarWhereWithAggregatesInput[]
-    OR?: AssinaturaProdutoGravityScalarWhereWithAggregatesInput[]
-    NOT?: AssinaturaProdutoGravityScalarWhereWithAggregatesInput | AssinaturaProdutoGravityScalarWhereWithAggregatesInput[]
-    id_assinatura_produto_gravity?: StringWithAggregatesFilter<"AssinaturaProdutoGravity"> | string
-    id_organizacao_assinatura_produto_gravity?: StringWithAggregatesFilter<"AssinaturaProdutoGravity"> | string
-    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityWithAggregatesFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
-    stripe_subscription_id?: StringNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | string | null
-    stripe_price_id?: StringNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | string | null
-    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_criacao_assinatura_produto_gravity?: DateTimeWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string
-    data_atualizacao_assinatura_produto_gravity?: DateTimeWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string
+  export type ProdutoGravityAssinaturaScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityAssinaturaScalarWhereWithAggregatesInput | ProdutoGravityAssinaturaScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityAssinaturaScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityAssinaturaScalarWhereWithAggregatesInput | ProdutoGravityAssinaturaScalarWhereWithAggregatesInput[]
+    id_assinatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityAssinatura"> | string
+    id_organizacao_assinatura_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityAssinatura"> | string
+    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityWithAggregatesFilter<"ProdutoGravityAssinatura"> | $Enums.StatusAssinaturaProdutoGravity
+    stripe_subscription_id?: StringNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | string | null
+    stripe_price_id?: StringNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | string | null
+    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_criacao_assinatura_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string
+    data_atualizacao_assinatura_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityAssinatura"> | Date | string
   }
 
   export type UsuarioPermissaoWhereInput = {
@@ -27476,20 +27476,20 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
   }
 
-  export type PermissaoAdminGravityWhereInput = {
-    AND?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
-    OR?: PermissaoAdminGravityWhereInput[]
-    NOT?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
-    id_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    id_admin_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    recurso_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    acao_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    concedido_por_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
+  export type AdminGravityPermissaoWhereInput = {
+    AND?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
+    OR?: AdminGravityPermissaoWhereInput[]
+    NOT?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
+    id_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    id_admin_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    recurso_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    acao_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
   }
 
-  export type PermissaoAdminGravityOrderByWithRelationInput = {
+  export type AdminGravityPermissaoOrderByWithRelationInput = {
     id_permissao_admin_gravity?: SortOrder
     id_admin_permissao_admin_gravity?: SortOrder
     recurso_permissao_admin_gravity?: SortOrder
@@ -27499,21 +27499,21 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: SortOrder
   }
 
-  export type PermissaoAdminGravityWhereUniqueInput = Prisma.AtLeast<{
+  export type AdminGravityPermissaoWhereUniqueInput = Prisma.AtLeast<{
     id_permissao_admin_gravity?: string
-    id_admin_permissao_admin_gravity_recurso_permissao_admin_gravity_acao_permissao_admin_gravity?: PermissaoAdminGravityId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput
-    AND?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
-    OR?: PermissaoAdminGravityWhereInput[]
-    NOT?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
-    id_admin_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    recurso_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    acao_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    concedido_por_permissao_admin_gravity?: StringFilter<"PermissaoAdminGravity"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
+    id_admin_permissao_admin_gravity_recurso_permissao_admin_gravity_acao_permissao_admin_gravity?: AdminGravityPermissaoId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput
+    AND?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
+    OR?: AdminGravityPermissaoWhereInput[]
+    NOT?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
+    id_admin_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    recurso_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    acao_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
   }, "id_permissao_admin_gravity" | "id_admin_permissao_admin_gravity_recurso_permissao_admin_gravity_acao_permissao_admin_gravity">
 
-  export type PermissaoAdminGravityOrderByWithAggregationInput = {
+  export type AdminGravityPermissaoOrderByWithAggregationInput = {
     id_permissao_admin_gravity?: SortOrder
     id_admin_permissao_admin_gravity?: SortOrder
     recurso_permissao_admin_gravity?: SortOrder
@@ -27521,43 +27521,43 @@ export namespace Prisma {
     concedido_por_permissao_admin_gravity?: SortOrder
     data_criacao_permissao_admin_gravity?: SortOrder
     data_atualizacao_permissao_admin_gravity?: SortOrder
-    _count?: PermissaoAdminGravityCountOrderByAggregateInput
-    _max?: PermissaoAdminGravityMaxOrderByAggregateInput
-    _min?: PermissaoAdminGravityMinOrderByAggregateInput
+    _count?: AdminGravityPermissaoCountOrderByAggregateInput
+    _max?: AdminGravityPermissaoMaxOrderByAggregateInput
+    _min?: AdminGravityPermissaoMinOrderByAggregateInput
   }
 
-  export type PermissaoAdminGravityScalarWhereWithAggregatesInput = {
-    AND?: PermissaoAdminGravityScalarWhereWithAggregatesInput | PermissaoAdminGravityScalarWhereWithAggregatesInput[]
-    OR?: PermissaoAdminGravityScalarWhereWithAggregatesInput[]
-    NOT?: PermissaoAdminGravityScalarWhereWithAggregatesInput | PermissaoAdminGravityScalarWhereWithAggregatesInput[]
-    id_permissao_admin_gravity?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
-    id_admin_permissao_admin_gravity?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
-    recurso_permissao_admin_gravity?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
-    acao_permissao_admin_gravity?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
-    concedido_por_permissao_admin_gravity?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"PermissaoAdminGravity"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"PermissaoAdminGravity"> | Date | string
+  export type AdminGravityPermissaoScalarWhereWithAggregatesInput = {
+    AND?: AdminGravityPermissaoScalarWhereWithAggregatesInput | AdminGravityPermissaoScalarWhereWithAggregatesInput[]
+    OR?: AdminGravityPermissaoScalarWhereWithAggregatesInput[]
+    NOT?: AdminGravityPermissaoScalarWhereWithAggregatesInput | AdminGravityPermissaoScalarWhereWithAggregatesInput[]
+    id_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    id_admin_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    recurso_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    acao_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
   }
 
-  export type EmpresaWhereInput = {
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id_workspace?: StringFilter<"Empresa"> | string
-    id_organizacao_workspace?: StringFilter<"Empresa"> | string
-    nome_workspace?: StringFilter<"Empresa"> | string
-    subdominio_workspace?: StringNullableFilter<"Empresa"> | string | null
-    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
-    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeFilter<"Empresa"> | Date | string
+  export type WorkspaceWhereInput = {
+    AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
+    OR?: WorkspaceWhereInput[]
+    NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
+    id_workspace?: StringFilter<"Workspace"> | string
+    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    nome_workspace?: StringFilter<"Workspace"> | string
+    subdominio_workspace?: StringNullableFilter<"Workspace"> | string | null
+    cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Workspace"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
+    updated_at?: DateTimeFilter<"Workspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
     preferred_by_users?: UsuarioListRelationFilter
   }
 
-  export type EmpresaOrderByWithRelationInput = {
+  export type WorkspaceOrderByWithRelationInput = {
     id_workspace?: SortOrder
     id_organizacao_workspace?: SortOrder
     nome_workspace?: SortOrder
@@ -27572,25 +27572,25 @@ export namespace Prisma {
     preferred_by_users?: UsuarioOrderByRelationAggregateInput
   }
 
-  export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
+  export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
     id_workspace?: string
     subdominio_workspace?: string
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id_organizacao_workspace?: StringFilter<"Empresa"> | string
-    nome_workspace?: StringFilter<"Empresa"> | string
-    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
-    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeFilter<"Empresa"> | Date | string
+    AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
+    OR?: WorkspaceWhereInput[]
+    NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
+    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    nome_workspace?: StringFilter<"Workspace"> | string
+    cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Workspace"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
+    updated_at?: DateTimeFilter<"Workspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
     preferred_by_users?: UsuarioListRelationFilter
   }, "id_workspace" | "subdominio_workspace">
 
-  export type EmpresaOrderByWithAggregationInput = {
+  export type WorkspaceOrderByWithAggregationInput = {
     id_workspace?: SortOrder
     id_organizacao_workspace?: SortOrder
     nome_workspace?: SortOrder
@@ -27599,23 +27599,23 @@ export namespace Prisma {
     status_workspace?: SortOrder
     data_criacao_workspace?: SortOrder
     updated_at?: SortOrder
-    _count?: EmpresaCountOrderByAggregateInput
-    _max?: EmpresaMaxOrderByAggregateInput
-    _min?: EmpresaMinOrderByAggregateInput
+    _count?: WorkspaceCountOrderByAggregateInput
+    _max?: WorkspaceMaxOrderByAggregateInput
+    _min?: WorkspaceMinOrderByAggregateInput
   }
 
-  export type EmpresaScalarWhereWithAggregatesInput = {
-    AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    OR?: EmpresaScalarWhereWithAggregatesInput[]
-    NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    id_workspace?: StringWithAggregatesFilter<"Empresa"> | string
-    id_organizacao_workspace?: StringWithAggregatesFilter<"Empresa"> | string
-    nome_workspace?: StringWithAggregatesFilter<"Empresa"> | string
-    subdominio_workspace?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    cnpj_workspace?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    status_workspace?: EnumEmpresaStatusWithAggregatesFilter<"Empresa"> | $Enums.EmpresaStatus
-    data_criacao_workspace?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+  export type WorkspaceScalarWhereWithAggregatesInput = {
+    AND?: WorkspaceScalarWhereWithAggregatesInput | WorkspaceScalarWhereWithAggregatesInput[]
+    OR?: WorkspaceScalarWhereWithAggregatesInput[]
+    NOT?: WorkspaceScalarWhereWithAggregatesInput | WorkspaceScalarWhereWithAggregatesInput[]
+    id_workspace?: StringWithAggregatesFilter<"Workspace"> | string
+    id_organizacao_workspace?: StringWithAggregatesFilter<"Workspace"> | string
+    nome_workspace?: StringWithAggregatesFilter<"Workspace"> | string
+    subdominio_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    cnpj_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    status_workspace?: EnumEmpresaStatusWithAggregatesFilter<"Workspace"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
   }
 
   export type UsuarioWorkspaceWhereInput = {
@@ -27631,7 +27631,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
-    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
+    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
   }
 
   export type UsuarioWorkspaceOrderByWithRelationInput = {
@@ -27644,7 +27644,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: SortOrder
     data_atualizacao_usuario_workspace?: SortOrder
     user?: UsuarioOrderByWithRelationInput
-    company?: EmpresaOrderByWithRelationInput
+    company?: WorkspaceOrderByWithRelationInput
   }
 
   export type UsuarioWorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -27661,7 +27661,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
-    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
+    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
   }, "id_usuario_workspace" | "id_organizacao_usuario_workspace_id_usuario_usuario_workspace_id_workspace_usuario_workspace">
 
   export type UsuarioWorkspaceOrderByWithAggregationInput = {
@@ -27692,21 +27692,21 @@ export namespace Prisma {
     data_atualizacao_usuario_workspace?: DateTimeWithAggregatesFilter<"UsuarioWorkspace"> | Date | string
   }
 
-  export type ConfiguracaoProdutoWhereInput = {
-    AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    OR?: ConfiguracaoProdutoWhereInput[]
-    NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    id_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
-    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+  export type ProdutoGravityConfiguracaoWhereInput = {
+    AND?: ProdutoGravityConfiguracaoWhereInput | ProdutoGravityConfiguracaoWhereInput[]
+    OR?: ProdutoGravityConfiguracaoWhereInput[]
+    NOT?: ProdutoGravityConfiguracaoWhereInput | ProdutoGravityConfiguracaoWhereInput[]
+    id_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    id_organizacao_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ProdutoGravityConfiguracao">
+    ativo_config_produto_gravity?: BoolFilter<"ProdutoGravityConfiguracao"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }
 
-  export type ConfiguracaoProdutoOrderByWithRelationInput = {
+  export type ProdutoGravityConfiguracaoOrderByWithRelationInput = {
     id_config_produto_gravity?: SortOrder
     id_organizacao_config_produto_gravity?: SortOrder
     chave_produto_config_produto_gravity?: SortOrder
@@ -27717,22 +27717,22 @@ export namespace Prisma {
     tenant?: OrganizacaoOrderByWithRelationInput
   }
 
-  export type ConfiguracaoProdutoWhereUniqueInput = Prisma.AtLeast<{
+  export type ProdutoGravityConfiguracaoWhereUniqueInput = Prisma.AtLeast<{
     id_config_produto_gravity?: string
-    id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity?: ConfiguracaoProdutoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput
-    AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    OR?: ConfiguracaoProdutoWhereInput[]
-    NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
-    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity?: ProdutoGravityConfiguracaoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput
+    AND?: ProdutoGravityConfiguracaoWhereInput | ProdutoGravityConfiguracaoWhereInput[]
+    OR?: ProdutoGravityConfiguracaoWhereInput[]
+    NOT?: ProdutoGravityConfiguracaoWhereInput | ProdutoGravityConfiguracaoWhereInput[]
+    id_organizacao_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ProdutoGravityConfiguracao">
+    ativo_config_produto_gravity?: BoolFilter<"ProdutoGravityConfiguracao"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }, "id_config_produto_gravity" | "id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity">
 
-  export type ConfiguracaoProdutoOrderByWithAggregationInput = {
+  export type ProdutoGravityConfiguracaoOrderByWithAggregationInput = {
     id_config_produto_gravity?: SortOrder
     id_organizacao_config_produto_gravity?: SortOrder
     chave_produto_config_produto_gravity?: SortOrder
@@ -27740,22 +27740,22 @@ export namespace Prisma {
     ativo_config_produto_gravity?: SortOrder
     data_criacao_config_produto_gravity?: SortOrder
     data_atualizacao_config_produto_gravity?: SortOrder
-    _count?: ConfiguracaoProdutoCountOrderByAggregateInput
-    _max?: ConfiguracaoProdutoMaxOrderByAggregateInput
-    _min?: ConfiguracaoProdutoMinOrderByAggregateInput
+    _count?: ProdutoGravityConfiguracaoCountOrderByAggregateInput
+    _max?: ProdutoGravityConfiguracaoMaxOrderByAggregateInput
+    _min?: ProdutoGravityConfiguracaoMinOrderByAggregateInput
   }
 
-  export type ConfiguracaoProdutoScalarWhereWithAggregatesInput = {
-    AND?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
-    OR?: ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
-    NOT?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
-    id_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    id_organizacao_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    chave_produto_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    configuracao_config_produto_gravity?: JsonWithAggregatesFilter<"ConfiguracaoProduto">
-    ativo_config_produto_gravity?: BoolWithAggregatesFilter<"ConfiguracaoProduto"> | boolean
-    data_criacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
-    data_atualizacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
+  export type ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput | ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput | ProdutoGravityConfiguracaoScalarWhereWithAggregatesInput[]
+    id_config_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityConfiguracao"> | string
+    id_organizacao_config_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityConfiguracao"> | string
+    chave_produto_config_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityConfiguracao"> | string
+    configuracao_config_produto_gravity?: JsonWithAggregatesFilter<"ProdutoGravityConfiguracao">
+    ativo_config_produto_gravity?: BoolWithAggregatesFilter<"ProdutoGravityConfiguracao"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityConfiguracao"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityConfiguracao"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceWhereInput = {
@@ -27770,7 +27770,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
+    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
   }
 
   export type ProdutoGravityWorkspaceOrderByWithRelationInput = {
@@ -27782,7 +27782,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
-    company?: EmpresaOrderByWithRelationInput
+    company?: WorkspaceOrderByWithRelationInput
   }
 
   export type ProdutoGravityWorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -27798,7 +27798,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
+    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
   }, "id_produto_gravity_workspace" | "id_workspace_produto_gravity_workspace_chave_produto_produto_gravity_workspace">
 
   export type ProdutoGravityWorkspaceOrderByWithAggregationInput = {
@@ -27860,8 +27860,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
     data_atualizacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
     data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoListRelationFilter
-    negociacoes_produto_gravity?: NegociacaoEspecialListRelationFilter
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoListRelationFilter
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialListRelationFilter
   }
 
   export type ProdutoGravityOrderByWithRelationInput = {
@@ -27894,8 +27894,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: SortOrder
     data_atualizacao_produto_gravity?: SortOrder
     data_remocao_produto_gravity?: SortOrderInput | SortOrder
-    faixas_preco_produto_gravity?: FaixaPrecoOrderByRelationAggregateInput
-    negociacoes_produto_gravity?: NegociacaoEspecialOrderByRelationAggregateInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoOrderByRelationAggregateInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialOrderByRelationAggregateInput
   }
 
   export type ProdutoGravityWhereUniqueInput = Prisma.AtLeast<{
@@ -27931,8 +27931,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
     data_atualizacao_produto_gravity?: DateTimeFilter<"ProdutoGravity"> | Date | string
     data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoListRelationFilter
-    negociacoes_produto_gravity?: NegociacaoEspecialListRelationFilter
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoListRelationFilter
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialListRelationFilter
   }, "id_produto_gravity" | "slug_produto_gravity">
 
   export type ProdutoGravityOrderByWithAggregationInput = {
@@ -28007,21 +28007,21 @@ export namespace Prisma {
     data_remocao_produto_gravity?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
   }
 
-  export type FaixaPrecoWhereInput = {
-    AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    OR?: FaixaPrecoWhereInput[]
-    NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    id_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
+  export type ProdutoGravityFaixaPrecoWhereInput = {
+    AND?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
+    OR?: ProdutoGravityFaixaPrecoWhereInput[]
+    NOT?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
+    id_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
-  export type FaixaPrecoOrderByWithRelationInput = {
+  export type ProdutoGravityFaixaPrecoOrderByWithRelationInput = {
     id_faixa_preco?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
     faixa_de_faixa_preco?: SortOrder
@@ -28032,21 +28032,21 @@ export namespace Prisma {
     produto?: ProdutoGravityOrderByWithRelationInput
   }
 
-  export type FaixaPrecoWhereUniqueInput = Prisma.AtLeast<{
+  export type ProdutoGravityFaixaPrecoWhereUniqueInput = Prisma.AtLeast<{
     id_faixa_preco?: string
-    AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    OR?: FaixaPrecoWhereInput[]
-    NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
-    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
+    AND?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
+    OR?: ProdutoGravityFaixaPrecoWhereInput[]
+    NOT?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
+    id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }, "id_faixa_preco">
 
-  export type FaixaPrecoOrderByWithAggregationInput = {
+  export type ProdutoGravityFaixaPrecoOrderByWithAggregationInput = {
     id_faixa_preco?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
     faixa_de_faixa_preco?: SortOrder
@@ -28054,44 +28054,44 @@ export namespace Prisma {
     preco_faixa_preco?: SortOrder
     moeda_faixa_preco?: SortOrder
     data_criacao_faixa_preco?: SortOrder
-    _count?: FaixaPrecoCountOrderByAggregateInput
-    _avg?: FaixaPrecoAvgOrderByAggregateInput
-    _max?: FaixaPrecoMaxOrderByAggregateInput
-    _min?: FaixaPrecoMinOrderByAggregateInput
-    _sum?: FaixaPrecoSumOrderByAggregateInput
+    _count?: ProdutoGravityFaixaPrecoCountOrderByAggregateInput
+    _avg?: ProdutoGravityFaixaPrecoAvgOrderByAggregateInput
+    _max?: ProdutoGravityFaixaPrecoMaxOrderByAggregateInput
+    _min?: ProdutoGravityFaixaPrecoMinOrderByAggregateInput
+    _sum?: ProdutoGravityFaixaPrecoSumOrderByAggregateInput
   }
 
-  export type FaixaPrecoScalarWhereWithAggregatesInput = {
-    AND?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
-    OR?: FaixaPrecoScalarWhereWithAggregatesInput[]
-    NOT?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
-    id_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    id_produto_gravity_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    faixa_de_faixa_preco?: IntWithAggregatesFilter<"FaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableWithAggregatesFilter<"FaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalWithAggregatesFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringWithAggregatesFilter<"FaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeWithAggregatesFilter<"FaixaPreco"> | Date | string
+  export type ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput | ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput | ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
+    id_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
+    faixa_de_faixa_preco?: IntWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Date | string
   }
 
-  export type NegociacaoEspecialWhereInput = {
-    AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    OR?: NegociacaoEspecialWhereInput[]
-    NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    id_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+  export type ProdutoGravityNegociacaoEspecialWhereInput = {
+    AND?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
+    OR?: ProdutoGravityNegociacaoEspecialWhereInput[]
+    NOT?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
+    id_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
-  export type NegociacaoEspecialOrderByWithRelationInput = {
+  export type ProdutoGravityNegociacaoEspecialOrderByWithRelationInput = {
     id_negociacao_especial?: SortOrder
     id_produto_gravity_negociacao_especial?: SortOrder
     id_organizacao_negociacao_especial?: SortOrder
@@ -28105,24 +28105,24 @@ export namespace Prisma {
     produto?: ProdutoGravityOrderByWithRelationInput
   }
 
-  export type NegociacaoEspecialWhereUniqueInput = Prisma.AtLeast<{
+  export type ProdutoGravityNegociacaoEspecialWhereUniqueInput = Prisma.AtLeast<{
     id_negociacao_especial?: string
-    AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    OR?: NegociacaoEspecialWhereInput[]
-    NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
-    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    AND?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
+    OR?: ProdutoGravityNegociacaoEspecialWhereInput[]
+    NOT?: ProdutoGravityNegociacaoEspecialWhereInput | ProdutoGravityNegociacaoEspecialWhereInput[]
+    id_produto_gravity_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }, "id_negociacao_especial">
 
-  export type NegociacaoEspecialOrderByWithAggregationInput = {
+  export type ProdutoGravityNegociacaoEspecialOrderByWithAggregationInput = {
     id_negociacao_especial?: SortOrder
     id_produto_gravity_negociacao_especial?: SortOrder
     id_organizacao_negociacao_especial?: SortOrder
@@ -28133,25 +28133,25 @@ export namespace Prisma {
     ilimitado_negociacao_especial?: SortOrder
     data_criacao_negociacao_especial?: SortOrder
     data_atualizacao_negociacao_especial?: SortOrder
-    _count?: NegociacaoEspecialCountOrderByAggregateInput
-    _max?: NegociacaoEspecialMaxOrderByAggregateInput
-    _min?: NegociacaoEspecialMinOrderByAggregateInput
+    _count?: ProdutoGravityNegociacaoEspecialCountOrderByAggregateInput
+    _max?: ProdutoGravityNegociacaoEspecialMaxOrderByAggregateInput
+    _min?: ProdutoGravityNegociacaoEspecialMinOrderByAggregateInput
   }
 
-  export type NegociacaoEspecialScalarWhereWithAggregatesInput = {
-    AND?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
-    OR?: NegociacaoEspecialScalarWhereWithAggregatesInput[]
-    NOT?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
-    id_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    id_produto_gravity_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    id_organizacao_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    acordo_negociacao_especial?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
-    data_inicio_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial?: BoolWithAggregatesFilter<"NegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
+  export type ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput | ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput | ProdutoGravityNegociacaoEspecialScalarWhereWithAggregatesInput[]
+    id_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeWithAggregatesFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
   }
 
   export type DeployWhereInput = {
@@ -28738,27 +28738,27 @@ export namespace Prisma {
     data_criacao_testes?: DateTimeWithAggregatesFilter<"Testes"> | Date | string
   }
 
-  export type AgendamentoTesteWhereInput = {
-    AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    OR?: AgendamentoTesteWhereInput[]
-    NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    id_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    id_organizacao_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    ativo_agendamento_teste?: BoolFilter<"AgendamentoTeste"> | boolean
-    frequencia_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    hora_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
-    minuto_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
-    tipos_agendamento_teste?: JsonFilter<"AgendamentoTeste">
-    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    alertas_agendamento_teste?: JsonFilter<"AgendamentoTeste">
-    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    data_criacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
-    data_atualizacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+  export type TesteAgendamentoWhereInput = {
+    AND?: TesteAgendamentoWhereInput | TesteAgendamentoWhereInput[]
+    OR?: TesteAgendamentoWhereInput[]
+    NOT?: TesteAgendamentoWhereInput | TesteAgendamentoWhereInput[]
+    id_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    id_organizacao_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    ativo_agendamento_teste?: BoolFilter<"TesteAgendamento"> | boolean
+    frequencia_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    hora_agendamento_teste?: IntFilter<"TesteAgendamento"> | number
+    minuto_agendamento_teste?: IntFilter<"TesteAgendamento"> | number
+    tipos_agendamento_teste?: JsonFilter<"TesteAgendamento">
+    escopos_agendamento_teste?: StringNullableListFilter<"TesteAgendamento">
+    ambiente_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    alertas_agendamento_teste?: JsonFilter<"TesteAgendamento">
+    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
   }
 
-  export type AgendamentoTesteOrderByWithRelationInput = {
+  export type TesteAgendamentoOrderByWithRelationInput = {
     id_agendamento_teste?: SortOrder
     id_organizacao_agendamento_teste?: SortOrder
     ativo_agendamento_teste?: SortOrder
@@ -28775,27 +28775,27 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: SortOrder
   }
 
-  export type AgendamentoTesteWhereUniqueInput = Prisma.AtLeast<{
+  export type TesteAgendamentoWhereUniqueInput = Prisma.AtLeast<{
     id_agendamento_teste?: string
-    AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    OR?: AgendamentoTesteWhereInput[]
-    NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    id_organizacao_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    ativo_agendamento_teste?: BoolFilter<"AgendamentoTeste"> | boolean
-    frequencia_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    hora_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
-    minuto_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
-    tipos_agendamento_teste?: JsonFilter<"AgendamentoTeste">
-    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
-    alertas_agendamento_teste?: JsonFilter<"AgendamentoTeste">
-    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    data_criacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
-    data_atualizacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    AND?: TesteAgendamentoWhereInput | TesteAgendamentoWhereInput[]
+    OR?: TesteAgendamentoWhereInput[]
+    NOT?: TesteAgendamentoWhereInput | TesteAgendamentoWhereInput[]
+    id_organizacao_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    ativo_agendamento_teste?: BoolFilter<"TesteAgendamento"> | boolean
+    frequencia_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    hora_agendamento_teste?: IntFilter<"TesteAgendamento"> | number
+    minuto_agendamento_teste?: IntFilter<"TesteAgendamento"> | number
+    tipos_agendamento_teste?: JsonFilter<"TesteAgendamento">
+    escopos_agendamento_teste?: StringNullableListFilter<"TesteAgendamento">
+    ambiente_agendamento_teste?: StringFilter<"TesteAgendamento"> | string
+    alertas_agendamento_teste?: JsonFilter<"TesteAgendamento">
+    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
   }, "id_agendamento_teste">
 
-  export type AgendamentoTesteOrderByWithAggregationInput = {
+  export type TesteAgendamentoOrderByWithAggregationInput = {
     id_agendamento_teste?: SortOrder
     id_organizacao_agendamento_teste?: SortOrder
     ativo_agendamento_teste?: SortOrder
@@ -28810,62 +28810,62 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: SortOrderInput | SortOrder
     data_criacao_agendamento_teste?: SortOrder
     data_atualizacao_agendamento_teste?: SortOrder
-    _count?: AgendamentoTesteCountOrderByAggregateInput
-    _avg?: AgendamentoTesteAvgOrderByAggregateInput
-    _max?: AgendamentoTesteMaxOrderByAggregateInput
-    _min?: AgendamentoTesteMinOrderByAggregateInput
-    _sum?: AgendamentoTesteSumOrderByAggregateInput
+    _count?: TesteAgendamentoCountOrderByAggregateInput
+    _avg?: TesteAgendamentoAvgOrderByAggregateInput
+    _max?: TesteAgendamentoMaxOrderByAggregateInput
+    _min?: TesteAgendamentoMinOrderByAggregateInput
+    _sum?: TesteAgendamentoSumOrderByAggregateInput
   }
 
-  export type AgendamentoTesteScalarWhereWithAggregatesInput = {
-    AND?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
-    OR?: AgendamentoTesteScalarWhereWithAggregatesInput[]
-    NOT?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
-    id_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    id_organizacao_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    ativo_agendamento_teste?: BoolWithAggregatesFilter<"AgendamentoTeste"> | boolean
-    frequencia_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    hora_agendamento_teste?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
-    minuto_agendamento_teste?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
-    tipos_agendamento_teste?: JsonWithAggregatesFilter<"AgendamentoTeste">
-    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    alertas_agendamento_teste?: JsonWithAggregatesFilter<"AgendamentoTeste">
-    ultima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
-    data_criacao_agendamento_teste?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
-    data_atualizacao_agendamento_teste?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
+  export type TesteAgendamentoScalarWhereWithAggregatesInput = {
+    AND?: TesteAgendamentoScalarWhereWithAggregatesInput | TesteAgendamentoScalarWhereWithAggregatesInput[]
+    OR?: TesteAgendamentoScalarWhereWithAggregatesInput[]
+    NOT?: TesteAgendamentoScalarWhereWithAggregatesInput | TesteAgendamentoScalarWhereWithAggregatesInput[]
+    id_agendamento_teste?: StringWithAggregatesFilter<"TesteAgendamento"> | string
+    id_organizacao_agendamento_teste?: StringWithAggregatesFilter<"TesteAgendamento"> | string
+    ativo_agendamento_teste?: BoolWithAggregatesFilter<"TesteAgendamento"> | boolean
+    frequencia_agendamento_teste?: StringWithAggregatesFilter<"TesteAgendamento"> | string
+    hora_agendamento_teste?: IntWithAggregatesFilter<"TesteAgendamento"> | number
+    minuto_agendamento_teste?: IntWithAggregatesFilter<"TesteAgendamento"> | number
+    tipos_agendamento_teste?: JsonWithAggregatesFilter<"TesteAgendamento">
+    escopos_agendamento_teste?: StringNullableListFilter<"TesteAgendamento">
+    ambiente_agendamento_teste?: StringWithAggregatesFilter<"TesteAgendamento"> | string
+    alertas_agendamento_teste?: JsonWithAggregatesFilter<"TesteAgendamento">
+    ultima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"TesteAgendamento"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"TesteAgendamento"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeWithAggregatesFilter<"TesteAgendamento"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeWithAggregatesFilter<"TesteAgendamento"> | Date | string
   }
 
-  export type PlanoTesteWhereInput = {
-    AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    OR?: PlanoTesteWhereInput[]
-    NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    id_plano_teste?: StringFilter<"PlanoTeste"> | string
-    id_organizacao_plano_teste?: StringFilter<"PlanoTeste"> | string
-    versao_plano_teste?: StringFilter<"PlanoTeste"> | string
-    tipo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    escopo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    sublocal_plano_teste?: StringFilter<"PlanoTeste"> | string
-    tela_plano_teste?: StringFilter<"PlanoTeste"> | string
-    rota_plano_teste?: StringFilter<"PlanoTeste"> | string
-    criticidade_plano_teste?: StringFilter<"PlanoTeste"> | string
-    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
-    caminho_componente_plano_teste?: StringFilter<"PlanoTeste"> | string
-    caminho_spec_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
-    caminho_mapeamento_plano_teste?: StringFilter<"PlanoTeste"> | string
-    cobertura_pct_plano_teste?: IntFilter<"PlanoTeste"> | number
-    passos_total_plano_teste?: IntFilter<"PlanoTeste"> | number
-    resumo_executivo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    plano_completo_plano_teste?: JsonFilter<"PlanoTeste">
-    status_plano_teste?: StringFilter<"PlanoTeste"> | string
-    ultima_execucao_plano_teste?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
-    data_criacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
-    data_atualizacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
+  export type TestePlanoWhereInput = {
+    AND?: TestePlanoWhereInput | TestePlanoWhereInput[]
+    OR?: TestePlanoWhereInput[]
+    NOT?: TestePlanoWhereInput | TestePlanoWhereInput[]
+    id_plano_teste?: StringFilter<"TestePlano"> | string
+    id_organizacao_plano_teste?: StringFilter<"TestePlano"> | string
+    versao_plano_teste?: StringFilter<"TestePlano"> | string
+    tipo_plano_teste?: StringFilter<"TestePlano"> | string
+    escopo_plano_teste?: StringFilter<"TestePlano"> | string
+    sublocal_plano_teste?: StringFilter<"TestePlano"> | string
+    tela_plano_teste?: StringFilter<"TestePlano"> | string
+    rota_plano_teste?: StringFilter<"TestePlano"> | string
+    criticidade_plano_teste?: StringFilter<"TestePlano"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"TestePlano">
+    caminho_componente_plano_teste?: StringFilter<"TestePlano"> | string
+    caminho_spec_plano_teste?: StringNullableFilter<"TestePlano"> | string | null
+    caminho_mapeamento_plano_teste?: StringFilter<"TestePlano"> | string
+    cobertura_pct_plano_teste?: IntFilter<"TestePlano"> | number
+    passos_total_plano_teste?: IntFilter<"TestePlano"> | number
+    resumo_executivo_plano_teste?: StringFilter<"TestePlano"> | string
+    plano_completo_plano_teste?: JsonFilter<"TestePlano">
+    status_plano_teste?: StringFilter<"TestePlano"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableFilter<"TestePlano"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableFilter<"TestePlano"> | string | null
+    data_criacao_plano_teste?: DateTimeFilter<"TestePlano"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeFilter<"TestePlano"> | Date | string
   }
 
-  export type PlanoTesteOrderByWithRelationInput = {
+  export type TestePlanoOrderByWithRelationInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
@@ -28890,35 +28890,35 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: SortOrder
   }
 
-  export type PlanoTesteWhereUniqueInput = Prisma.AtLeast<{
+  export type TestePlanoWhereUniqueInput = Prisma.AtLeast<{
     id_plano_teste?: string
-    AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    OR?: PlanoTesteWhereInput[]
-    NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    id_organizacao_plano_teste?: StringFilter<"PlanoTeste"> | string
-    versao_plano_teste?: StringFilter<"PlanoTeste"> | string
-    tipo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    escopo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    sublocal_plano_teste?: StringFilter<"PlanoTeste"> | string
-    tela_plano_teste?: StringFilter<"PlanoTeste"> | string
-    rota_plano_teste?: StringFilter<"PlanoTeste"> | string
-    criticidade_plano_teste?: StringFilter<"PlanoTeste"> | string
-    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
-    caminho_componente_plano_teste?: StringFilter<"PlanoTeste"> | string
-    caminho_spec_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
-    caminho_mapeamento_plano_teste?: StringFilter<"PlanoTeste"> | string
-    cobertura_pct_plano_teste?: IntFilter<"PlanoTeste"> | number
-    passos_total_plano_teste?: IntFilter<"PlanoTeste"> | number
-    resumo_executivo_plano_teste?: StringFilter<"PlanoTeste"> | string
-    plano_completo_plano_teste?: JsonFilter<"PlanoTeste">
-    status_plano_teste?: StringFilter<"PlanoTeste"> | string
-    ultima_execucao_plano_teste?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
-    data_criacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
-    data_atualizacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
+    AND?: TestePlanoWhereInput | TestePlanoWhereInput[]
+    OR?: TestePlanoWhereInput[]
+    NOT?: TestePlanoWhereInput | TestePlanoWhereInput[]
+    id_organizacao_plano_teste?: StringFilter<"TestePlano"> | string
+    versao_plano_teste?: StringFilter<"TestePlano"> | string
+    tipo_plano_teste?: StringFilter<"TestePlano"> | string
+    escopo_plano_teste?: StringFilter<"TestePlano"> | string
+    sublocal_plano_teste?: StringFilter<"TestePlano"> | string
+    tela_plano_teste?: StringFilter<"TestePlano"> | string
+    rota_plano_teste?: StringFilter<"TestePlano"> | string
+    criticidade_plano_teste?: StringFilter<"TestePlano"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"TestePlano">
+    caminho_componente_plano_teste?: StringFilter<"TestePlano"> | string
+    caminho_spec_plano_teste?: StringNullableFilter<"TestePlano"> | string | null
+    caminho_mapeamento_plano_teste?: StringFilter<"TestePlano"> | string
+    cobertura_pct_plano_teste?: IntFilter<"TestePlano"> | number
+    passos_total_plano_teste?: IntFilter<"TestePlano"> | number
+    resumo_executivo_plano_teste?: StringFilter<"TestePlano"> | string
+    plano_completo_plano_teste?: JsonFilter<"TestePlano">
+    status_plano_teste?: StringFilter<"TestePlano"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableFilter<"TestePlano"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableFilter<"TestePlano"> | string | null
+    data_criacao_plano_teste?: DateTimeFilter<"TestePlano"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeFilter<"TestePlano"> | Date | string
   }, "id_plano_teste">
 
-  export type PlanoTesteOrderByWithAggregationInput = {
+  export type TestePlanoOrderByWithAggregationInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
@@ -28941,60 +28941,60 @@ export namespace Prisma {
     ultimo_resultado_plano_teste?: SortOrderInput | SortOrder
     data_criacao_plano_teste?: SortOrder
     data_atualizacao_plano_teste?: SortOrder
-    _count?: PlanoTesteCountOrderByAggregateInput
-    _avg?: PlanoTesteAvgOrderByAggregateInput
-    _max?: PlanoTesteMaxOrderByAggregateInput
-    _min?: PlanoTesteMinOrderByAggregateInput
-    _sum?: PlanoTesteSumOrderByAggregateInput
+    _count?: TestePlanoCountOrderByAggregateInput
+    _avg?: TestePlanoAvgOrderByAggregateInput
+    _max?: TestePlanoMaxOrderByAggregateInput
+    _min?: TestePlanoMinOrderByAggregateInput
+    _sum?: TestePlanoSumOrderByAggregateInput
   }
 
-  export type PlanoTesteScalarWhereWithAggregatesInput = {
-    AND?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
-    OR?: PlanoTesteScalarWhereWithAggregatesInput[]
-    NOT?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
-    id_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    id_organizacao_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    versao_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    tipo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    escopo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    sublocal_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    tela_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    rota_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    criticidade_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
-    caminho_componente_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    caminho_spec_plano_teste?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
-    caminho_mapeamento_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    cobertura_pct_plano_teste?: IntWithAggregatesFilter<"PlanoTeste"> | number
-    passos_total_plano_teste?: IntWithAggregatesFilter<"PlanoTeste"> | number
-    resumo_executivo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    plano_completo_plano_teste?: JsonWithAggregatesFilter<"PlanoTeste">
-    status_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    ultima_execucao_plano_teste?: DateTimeNullableWithAggregatesFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado_plano_teste?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
-    data_criacao_plano_teste?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
-    data_atualizacao_plano_teste?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
+  export type TestePlanoScalarWhereWithAggregatesInput = {
+    AND?: TestePlanoScalarWhereWithAggregatesInput | TestePlanoScalarWhereWithAggregatesInput[]
+    OR?: TestePlanoScalarWhereWithAggregatesInput[]
+    NOT?: TestePlanoScalarWhereWithAggregatesInput | TestePlanoScalarWhereWithAggregatesInput[]
+    id_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    id_organizacao_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    versao_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    tipo_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    escopo_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    sublocal_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    tela_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    rota_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    criticidade_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"TestePlano">
+    caminho_componente_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    caminho_spec_plano_teste?: StringNullableWithAggregatesFilter<"TestePlano"> | string | null
+    caminho_mapeamento_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    cobertura_pct_plano_teste?: IntWithAggregatesFilter<"TestePlano"> | number
+    passos_total_plano_teste?: IntWithAggregatesFilter<"TestePlano"> | number
+    resumo_executivo_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    plano_completo_plano_teste?: JsonWithAggregatesFilter<"TestePlano">
+    status_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableWithAggregatesFilter<"TestePlano"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableWithAggregatesFilter<"TestePlano"> | string | null
+    data_criacao_plano_teste?: DateTimeWithAggregatesFilter<"TestePlano"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeWithAggregatesFilter<"TestePlano"> | Date | string
   }
 
-  export type FaturaProdutosGravityWhereInput = {
-    AND?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    OR?: FaturaProdutosGravityWhereInput[]
-    NOT?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    id_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    id_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    nome_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_produtos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+  export type ProdutoGravityFaturaWhereInput = {
+    AND?: ProdutoGravityFaturaWhereInput | ProdutoGravityFaturaWhereInput[]
+    OR?: ProdutoGravityFaturaWhereInput[]
+    NOT?: ProdutoGravityFaturaWhereInput | ProdutoGravityFaturaWhereInput[]
+    id_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    id_organizacao_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    numero_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"ProdutoGravityFatura"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"ProdutoGravityFatura"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFilter<"ProdutoGravityFatura"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    competencia_fatura_produtos_gravity?: StringNullableFilter<"ProdutoGravityFatura"> | string | null
+    data_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
   }
 
-  export type FaturaProdutosGravityOrderByWithRelationInput = {
+  export type ProdutoGravityFaturaOrderByWithRelationInput = {
     id_fatura_produtos_gravity?: SortOrder
     id_organizacao_fatura_produtos_gravity?: SortOrder
     numero_fatura_produtos_gravity?: SortOrder
@@ -29009,25 +29009,25 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
-  export type FaturaProdutosGravityWhereUniqueInput = Prisma.AtLeast<{
+  export type ProdutoGravityFaturaWhereUniqueInput = Prisma.AtLeast<{
     id_fatura_produtos_gravity?: string
-    AND?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    OR?: FaturaProdutosGravityWhereInput[]
-    NOT?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    id_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    nome_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_produtos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    AND?: ProdutoGravityFaturaWhereInput | ProdutoGravityFaturaWhereInput[]
+    OR?: ProdutoGravityFaturaWhereInput[]
+    NOT?: ProdutoGravityFaturaWhereInput | ProdutoGravityFaturaWhereInput[]
+    id_organizacao_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    numero_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"ProdutoGravityFatura"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"ProdutoGravityFatura"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFilter<"ProdutoGravityFatura"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFilter<"ProdutoGravityFatura"> | string
+    competencia_fatura_produtos_gravity?: StringNullableFilter<"ProdutoGravityFatura"> | string | null
+    data_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"ProdutoGravityFatura"> | Date | string
   }, "id_fatura_produtos_gravity">
 
-  export type FaturaProdutosGravityOrderByWithAggregationInput = {
+  export type ProdutoGravityFaturaOrderByWithAggregationInput = {
     id_fatura_produtos_gravity?: SortOrder
     id_organizacao_fatura_produtos_gravity?: SortOrder
     numero_fatura_produtos_gravity?: SortOrder
@@ -29040,50 +29040,50 @@ export namespace Prisma {
     data_fatura_produtos_gravity?: SortOrder
     data_criacao_fatura_produtos_gravity?: SortOrder
     data_atualizacao_fatura_produtos_gravity?: SortOrder
-    _count?: FaturaProdutosGravityCountOrderByAggregateInput
-    _avg?: FaturaProdutosGravityAvgOrderByAggregateInput
-    _max?: FaturaProdutosGravityMaxOrderByAggregateInput
-    _min?: FaturaProdutosGravityMinOrderByAggregateInput
-    _sum?: FaturaProdutosGravitySumOrderByAggregateInput
+    _count?: ProdutoGravityFaturaCountOrderByAggregateInput
+    _avg?: ProdutoGravityFaturaAvgOrderByAggregateInput
+    _max?: ProdutoGravityFaturaMaxOrderByAggregateInput
+    _min?: ProdutoGravityFaturaMinOrderByAggregateInput
+    _sum?: ProdutoGravityFaturaSumOrderByAggregateInput
   }
 
-  export type FaturaProdutosGravityScalarWhereWithAggregatesInput = {
-    AND?: FaturaProdutosGravityScalarWhereWithAggregatesInput | FaturaProdutosGravityScalarWhereWithAggregatesInput[]
-    OR?: FaturaProdutosGravityScalarWhereWithAggregatesInput[]
-    NOT?: FaturaProdutosGravityScalarWhereWithAggregatesInput | FaturaProdutosGravityScalarWhereWithAggregatesInput[]
-    id_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    id_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    status_fatura_produtos_gravity?: EnumFaturaStatusGravityWithAggregatesFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    nome_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_produtos_gravity?: DecimalWithAggregatesFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
-    data_criacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
-    data_atualizacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
+  export type ProdutoGravityFaturaScalarWhereWithAggregatesInput = {
+    AND?: ProdutoGravityFaturaScalarWhereWithAggregatesInput | ProdutoGravityFaturaScalarWhereWithAggregatesInput[]
+    OR?: ProdutoGravityFaturaScalarWhereWithAggregatesInput[]
+    NOT?: ProdutoGravityFaturaScalarWhereWithAggregatesInput | ProdutoGravityFaturaScalarWhereWithAggregatesInput[]
+    id_fatura_produtos_gravity?: StringWithAggregatesFilter<"ProdutoGravityFatura"> | string
+    id_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"ProdutoGravityFatura"> | string
+    numero_fatura_produtos_gravity?: StringWithAggregatesFilter<"ProdutoGravityFatura"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityWithAggregatesFilter<"ProdutoGravityFatura"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"ProdutoGravityFatura"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravityFatura"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalWithAggregatesFilter<"ProdutoGravityFatura"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringWithAggregatesFilter<"ProdutoGravityFatura"> | string
+    competencia_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"ProdutoGravityFatura"> | string | null
+    data_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFatura"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFatura"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFatura"> | Date | string
   }
 
-  export type MetricasGeminiWhereInput = {
-    AND?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    OR?: MetricasGeminiWhereInput[]
-    NOT?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    id_metricas_gemini?: StringFilter<"MetricasGemini"> | string
-    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
-    data_analise_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
-    total_analise_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    total_token_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    custo_metricas_gemini?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_alta_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_media_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_baixa_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    data_criacao_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
+  export type LLMMetricasWhereInput = {
+    AND?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
+    OR?: LLMMetricasWhereInput[]
+    NOT?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
+    id_metricas_gemini?: StringFilter<"LLMMetricas"> | string
+    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    total_token_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    custo_metricas_gemini?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_media_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    data_criacao_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
   }
 
-  export type MetricasGeminiOrderByWithRelationInput = {
+  export type LLMMetricasOrderByWithRelationInput = {
     id_metricas_gemini?: SortOrder
     nome_metricas_gemini?: SortOrder
     data_analise_metricas_gemini?: SortOrder
@@ -29098,25 +29098,25 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: SortOrder
   }
 
-  export type MetricasGeminiWhereUniqueInput = Prisma.AtLeast<{
+  export type LLMMetricasWhereUniqueInput = Prisma.AtLeast<{
     id_metricas_gemini?: string
-    AND?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    OR?: MetricasGeminiWhereInput[]
-    NOT?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
-    data_analise_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
-    total_analise_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    total_token_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    custo_metricas_gemini?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_alta_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_media_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    confianca_baixa_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntFilter<"MetricasGemini"> | number
-    data_criacao_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
+    AND?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
+    OR?: LLMMetricasWhereInput[]
+    NOT?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
+    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    total_token_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    custo_metricas_gemini?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_media_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntFilter<"LLMMetricas"> | number
+    data_criacao_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
   }, "id_metricas_gemini">
 
-  export type MetricasGeminiOrderByWithAggregationInput = {
+  export type LLMMetricasOrderByWithAggregationInput = {
     id_metricas_gemini?: SortOrder
     nome_metricas_gemini?: SortOrder
     data_analise_metricas_gemini?: SortOrder
@@ -29129,29 +29129,29 @@ export namespace Prisma {
     confianca_baixa_metricas_gemini?: SortOrder
     quantidade_codigo_validado_metricas_gemini?: SortOrder
     data_criacao_metricas_gemini?: SortOrder
-    _count?: MetricasGeminiCountOrderByAggregateInput
-    _avg?: MetricasGeminiAvgOrderByAggregateInput
-    _max?: MetricasGeminiMaxOrderByAggregateInput
-    _min?: MetricasGeminiMinOrderByAggregateInput
-    _sum?: MetricasGeminiSumOrderByAggregateInput
+    _count?: LLMMetricasCountOrderByAggregateInput
+    _avg?: LLMMetricasAvgOrderByAggregateInput
+    _max?: LLMMetricasMaxOrderByAggregateInput
+    _min?: LLMMetricasMinOrderByAggregateInput
+    _sum?: LLMMetricasSumOrderByAggregateInput
   }
 
-  export type MetricasGeminiScalarWhereWithAggregatesInput = {
-    AND?: MetricasGeminiScalarWhereWithAggregatesInput | MetricasGeminiScalarWhereWithAggregatesInput[]
-    OR?: MetricasGeminiScalarWhereWithAggregatesInput[]
-    NOT?: MetricasGeminiScalarWhereWithAggregatesInput | MetricasGeminiScalarWhereWithAggregatesInput[]
-    id_metricas_gemini?: StringWithAggregatesFilter<"MetricasGemini"> | string
-    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
-    data_analise_metricas_gemini?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
-    total_analise_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    total_token_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    custo_metricas_gemini?: DecimalWithAggregatesFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_alta_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_media_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_baixa_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    data_criacao_metricas_gemini?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
+  export type LLMMetricasScalarWhereWithAggregatesInput = {
+    AND?: LLMMetricasScalarWhereWithAggregatesInput | LLMMetricasScalarWhereWithAggregatesInput[]
+    OR?: LLMMetricasScalarWhereWithAggregatesInput[]
+    NOT?: LLMMetricasScalarWhereWithAggregatesInput | LLMMetricasScalarWhereWithAggregatesInput[]
+    id_metricas_gemini?: StringWithAggregatesFilter<"LLMMetricas"> | string
+    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_gemini?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    total_token_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    custo_metricas_gemini?: DecimalWithAggregatesFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_media_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    data_criacao_metricas_gemini?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
   }
 
   export type OrganizacaoCreateInput = {
@@ -29170,10 +29170,10 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -29193,10 +29193,10 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -29216,10 +29216,10 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -29239,10 +29239,10 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -29306,7 +29306,7 @@ export namespace Prisma {
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
-    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -29334,7 +29334,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
-    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
@@ -29387,7 +29387,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityCreateInput = {
+  export type ProdutoGravityAssinaturaCreateInput = {
     id_assinatura_produto_gravity?: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
@@ -29401,7 +29401,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutSubscriptions_organizacaoInput
   }
 
-  export type AssinaturaProdutoGravityUncheckedCreateInput = {
+  export type ProdutoGravityAssinaturaUncheckedCreateInput = {
     id_assinatura_produto_gravity?: string
     id_organizacao_assinatura_produto_gravity: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
@@ -29415,7 +29415,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: Date | string
   }
 
-  export type AssinaturaProdutoGravityUpdateInput = {
+  export type ProdutoGravityAssinaturaUpdateInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29429,7 +29429,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutSubscriptions_organizacaoNestedInput
   }
 
-  export type AssinaturaProdutoGravityUncheckedUpdateInput = {
+  export type ProdutoGravityAssinaturaUncheckedUpdateInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
@@ -29443,7 +29443,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityCreateManyInput = {
+  export type ProdutoGravityAssinaturaCreateManyInput = {
     id_assinatura_produto_gravity?: string
     id_organizacao_assinatura_produto_gravity: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
@@ -29457,7 +29457,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: Date | string
   }
 
-  export type AssinaturaProdutoGravityUpdateManyMutationInput = {
+  export type ProdutoGravityAssinaturaUpdateManyMutationInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29470,7 +29470,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityUncheckedUpdateManyInput = {
+  export type ProdutoGravityAssinaturaUncheckedUpdateManyInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
@@ -29566,7 +29566,7 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PermissaoAdminGravityCreateInput = {
+  export type AdminGravityPermissaoCreateInput = {
     id_permissao_admin_gravity?: string
     id_admin_permissao_admin_gravity: string
     recurso_permissao_admin_gravity: string
@@ -29576,7 +29576,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: Date | string
   }
 
-  export type PermissaoAdminGravityUncheckedCreateInput = {
+  export type AdminGravityPermissaoUncheckedCreateInput = {
     id_permissao_admin_gravity?: string
     id_admin_permissao_admin_gravity: string
     recurso_permissao_admin_gravity: string
@@ -29586,7 +29586,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: Date | string
   }
 
-  export type PermissaoAdminGravityUpdateInput = {
+  export type AdminGravityPermissaoUpdateInput = {
     id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
@@ -29596,7 +29596,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PermissaoAdminGravityUncheckedUpdateInput = {
+  export type AdminGravityPermissaoUncheckedUpdateInput = {
     id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
@@ -29606,7 +29606,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PermissaoAdminGravityCreateManyInput = {
+  export type AdminGravityPermissaoCreateManyInput = {
     id_permissao_admin_gravity?: string
     id_admin_permissao_admin_gravity: string
     recurso_permissao_admin_gravity: string
@@ -29616,7 +29616,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: Date | string
   }
 
-  export type PermissaoAdminGravityUpdateManyMutationInput = {
+  export type AdminGravityPermissaoUpdateManyMutationInput = {
     id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
@@ -29626,7 +29626,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PermissaoAdminGravityUncheckedUpdateManyInput = {
+  export type AdminGravityPermissaoUncheckedUpdateManyInput = {
     id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
     recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
@@ -29636,7 +29636,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaCreateInput = {
+  export type WorkspaceCreateInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -29650,7 +29650,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaUncheckedCreateInput = {
+  export type WorkspaceUncheckedCreateInput = {
     id_workspace?: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -29664,7 +29664,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaUpdateInput = {
+  export type WorkspaceUpdateInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29678,7 +29678,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateInput = {
+  export type WorkspaceUncheckedUpdateInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
@@ -29692,7 +29692,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaCreateManyInput = {
+  export type WorkspaceCreateManyInput = {
     id_workspace?: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -29703,7 +29703,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type EmpresaUpdateManyMutationInput = {
+  export type WorkspaceUpdateManyMutationInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29713,7 +29713,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaUncheckedUpdateManyInput = {
+  export type WorkspaceUncheckedUpdateManyInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
@@ -29732,7 +29732,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: Date | string
     data_atualizacao_usuario_workspace?: Date | string
     user: UsuarioCreateNestedOneWithoutMembershipsInput
-    company: EmpresaCreateNestedOneWithoutMembershipsInput
+    company: WorkspaceCreateNestedOneWithoutMembershipsInput
   }
 
   export type UsuarioWorkspaceUncheckedCreateInput = {
@@ -29754,7 +29754,7 @@ export namespace Prisma {
     data_criacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UsuarioUpdateOneRequiredWithoutMembershipsNestedInput
-    company?: EmpresaUpdateOneRequiredWithoutMembershipsNestedInput
+    company?: WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput
   }
 
   export type UsuarioWorkspaceUncheckedUpdateInput = {
@@ -29799,7 +29799,7 @@ export namespace Prisma {
     data_atualizacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoCreateInput = {
+  export type ProdutoGravityConfiguracaoCreateInput = {
     id_config_produto_gravity?: string
     chave_produto_config_produto_gravity: string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -29809,7 +29809,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutProduct_configs_organizacaoInput
   }
 
-  export type ConfiguracaoProdutoUncheckedCreateInput = {
+  export type ProdutoGravityConfiguracaoUncheckedCreateInput = {
     id_config_produto_gravity?: string
     id_organizacao_config_produto_gravity: string
     chave_produto_config_produto_gravity: string
@@ -29819,7 +29819,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: Date | string
   }
 
-  export type ConfiguracaoProdutoUpdateInput = {
+  export type ProdutoGravityConfiguracaoUpdateInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -29829,7 +29829,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutProduct_configs_organizacaoNestedInput
   }
 
-  export type ConfiguracaoProdutoUncheckedUpdateInput = {
+  export type ProdutoGravityConfiguracaoUncheckedUpdateInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
@@ -29839,7 +29839,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoCreateManyInput = {
+  export type ProdutoGravityConfiguracaoCreateManyInput = {
     id_config_produto_gravity?: string
     id_organizacao_config_produto_gravity: string
     chave_produto_config_produto_gravity: string
@@ -29849,7 +29849,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: Date | string
   }
 
-  export type ConfiguracaoProdutoUpdateManyMutationInput = {
+  export type ProdutoGravityConfiguracaoUpdateManyMutationInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -29858,7 +29858,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoUncheckedUpdateManyInput = {
+  export type ProdutoGravityConfiguracaoUncheckedUpdateManyInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
@@ -29875,7 +29875,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput
-    company: EmpresaCreateNestedOneWithoutCompany_productsInput
+    company: WorkspaceCreateNestedOneWithoutCompany_productsInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateInput = {
@@ -29895,7 +29895,7 @@ export namespace Prisma {
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput
-    company?: EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput
+    company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateInput = {
@@ -29966,8 +29966,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoCreateNestedManyWithoutProdutoInput
-    negociacoes_produto_gravity?: NegociacaoEspecialCreateNestedManyWithoutProdutoInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateInput = {
@@ -30000,8 +30000,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
-    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUpdateInput = {
@@ -30034,8 +30034,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUpdateManyWithoutProdutoNestedInput
-    negociacoes_produto_gravity?: NegociacaoEspecialUpdateManyWithoutProdutoNestedInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateInput = {
@@ -30068,8 +30068,8 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
-    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityCreateManyInput = {
@@ -30168,7 +30168,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type FaixaPrecoCreateInput = {
+  export type ProdutoGravityFaixaPrecoCreateInput = {
     id_faixa_preco?: string
     faixa_de_faixa_preco: number
     faixa_ate_faixa_preco?: number | null
@@ -30178,7 +30178,7 @@ export namespace Prisma {
     produto: ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput
   }
 
-  export type FaixaPrecoUncheckedCreateInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedCreateInput = {
     id_faixa_preco?: string
     id_produto_gravity_faixa_preco: string
     faixa_de_faixa_preco: number
@@ -30188,7 +30188,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoUpdateInput = {
+  export type ProdutoGravityFaixaPrecoUpdateInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
     faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
@@ -30198,7 +30198,7 @@ export namespace Prisma {
     produto?: ProdutoGravityUpdateOneRequiredWithoutFaixas_preco_produto_gravityNestedInput
   }
 
-  export type FaixaPrecoUncheckedUpdateInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedUpdateInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
@@ -30208,7 +30208,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoCreateManyInput = {
+  export type ProdutoGravityFaixaPrecoCreateManyInput = {
     id_faixa_preco?: string
     id_produto_gravity_faixa_preco: string
     faixa_de_faixa_preco: number
@@ -30218,7 +30218,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoUpdateManyMutationInput = {
+  export type ProdutoGravityFaixaPrecoUpdateManyMutationInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
     faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
@@ -30227,7 +30227,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoUncheckedUpdateManyInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedUpdateManyInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
@@ -30237,7 +30237,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialCreateInput = {
+  export type ProdutoGravityNegociacaoEspecialCreateInput = {
     id_negociacao_especial?: string
     id_organizacao_negociacao_especial: string
     nome_organizacao_negociacao_especial: string
@@ -30250,7 +30250,7 @@ export namespace Prisma {
     produto: ProdutoGravityCreateNestedOneWithoutNegociacoes_produto_gravityInput
   }
 
-  export type NegociacaoEspecialUncheckedCreateInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedCreateInput = {
     id_negociacao_especial?: string
     id_produto_gravity_negociacao_especial: string
     id_organizacao_negociacao_especial: string
@@ -30263,7 +30263,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialUpdateInput = {
+  export type ProdutoGravityNegociacaoEspecialUpdateInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
     nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -30276,7 +30276,7 @@ export namespace Prisma {
     produto?: ProdutoGravityUpdateOneRequiredWithoutNegociacoes_produto_gravityNestedInput
   }
 
-  export type NegociacaoEspecialUncheckedUpdateInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedUpdateInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -30289,7 +30289,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialCreateManyInput = {
+  export type ProdutoGravityNegociacaoEspecialCreateManyInput = {
     id_negociacao_especial?: string
     id_produto_gravity_negociacao_especial: string
     id_organizacao_negociacao_especial: string
@@ -30302,7 +30302,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialUpdateManyMutationInput = {
+  export type ProdutoGravityNegociacaoEspecialUpdateManyMutationInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
     nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -30314,7 +30314,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUncheckedUpdateManyInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedUpdateManyInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -31013,7 +31013,7 @@ export namespace Prisma {
     data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendamentoTesteCreateInput = {
+  export type TesteAgendamentoCreateInput = {
     id_agendamento_teste?: string
     id_organizacao_agendamento_teste?: string
     ativo_agendamento_teste?: boolean
@@ -31021,7 +31021,7 @@ export namespace Prisma {
     hora_agendamento_teste?: number
     minuto_agendamento_teste?: number
     tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoCreateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: Date | string | null
@@ -31030,7 +31030,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: Date | string
   }
 
-  export type AgendamentoTesteUncheckedCreateInput = {
+  export type TesteAgendamentoUncheckedCreateInput = {
     id_agendamento_teste?: string
     id_organizacao_agendamento_teste?: string
     ativo_agendamento_teste?: boolean
@@ -31038,7 +31038,7 @@ export namespace Prisma {
     hora_agendamento_teste?: number
     minuto_agendamento_teste?: number
     tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoCreateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: Date | string | null
@@ -31047,7 +31047,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: Date | string
   }
 
-  export type AgendamentoTesteUpdateInput = {
+  export type TesteAgendamentoUpdateInput = {
     id_agendamento_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
     ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
@@ -31055,7 +31055,7 @@ export namespace Prisma {
     hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
     minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
     tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31064,7 +31064,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendamentoTesteUncheckedUpdateInput = {
+  export type TesteAgendamentoUncheckedUpdateInput = {
     id_agendamento_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
     ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
@@ -31072,7 +31072,7 @@ export namespace Prisma {
     hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
     minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
     tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31081,7 +31081,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendamentoTesteCreateManyInput = {
+  export type TesteAgendamentoCreateManyInput = {
     id_agendamento_teste?: string
     id_organizacao_agendamento_teste?: string
     ativo_agendamento_teste?: boolean
@@ -31089,7 +31089,7 @@ export namespace Prisma {
     hora_agendamento_teste?: number
     minuto_agendamento_teste?: number
     tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoCreateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: Date | string | null
@@ -31098,7 +31098,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: Date | string
   }
 
-  export type AgendamentoTesteUpdateManyMutationInput = {
+  export type TesteAgendamentoUpdateManyMutationInput = {
     id_agendamento_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
     ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
@@ -31106,7 +31106,7 @@ export namespace Prisma {
     hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
     minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
     tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31115,7 +31115,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AgendamentoTesteUncheckedUpdateManyInput = {
+  export type TesteAgendamentoUncheckedUpdateManyInput = {
     id_agendamento_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
     ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
@@ -31123,7 +31123,7 @@ export namespace Prisma {
     hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
     minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
     tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
-    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
     ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
     alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
     ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31132,7 +31132,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PlanoTesteCreateInput = {
+  export type TestePlanoCreateInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
     versao_plano_teste?: string
@@ -31142,7 +31142,7 @@ export namespace Prisma {
     tela_plano_teste: string
     rota_plano_teste: string
     criticidade_plano_teste?: string
-    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoCreateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste: string
     caminho_spec_plano_teste?: string | null
     caminho_mapeamento_plano_teste: string
@@ -31157,7 +31157,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: Date | string
   }
 
-  export type PlanoTesteUncheckedCreateInput = {
+  export type TestePlanoUncheckedCreateInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
     versao_plano_teste?: string
@@ -31167,7 +31167,7 @@ export namespace Prisma {
     tela_plano_teste: string
     rota_plano_teste: string
     criticidade_plano_teste?: string
-    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoCreateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste: string
     caminho_spec_plano_teste?: string | null
     caminho_mapeamento_plano_teste: string
@@ -31182,7 +31182,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: Date | string
   }
 
-  export type PlanoTesteUpdateInput = {
+  export type TestePlanoUpdateInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31192,7 +31192,7 @@ export namespace Prisma {
     tela_plano_teste?: StringFieldUpdateOperationsInput | string
     rota_plano_teste?: StringFieldUpdateOperationsInput | string
     criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
-    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoUpdateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
     caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
     caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31207,7 +31207,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PlanoTesteUncheckedUpdateInput = {
+  export type TestePlanoUncheckedUpdateInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31217,7 +31217,7 @@ export namespace Prisma {
     tela_plano_teste?: StringFieldUpdateOperationsInput | string
     rota_plano_teste?: StringFieldUpdateOperationsInput | string
     criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
-    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoUpdateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
     caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
     caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31232,7 +31232,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PlanoTesteCreateManyInput = {
+  export type TestePlanoCreateManyInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
     versao_plano_teste?: string
@@ -31242,7 +31242,7 @@ export namespace Prisma {
     tela_plano_teste: string
     rota_plano_teste: string
     criticidade_plano_teste?: string
-    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoCreateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste: string
     caminho_spec_plano_teste?: string | null
     caminho_mapeamento_plano_teste: string
@@ -31257,7 +31257,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: Date | string
   }
 
-  export type PlanoTesteUpdateManyMutationInput = {
+  export type TestePlanoUpdateManyMutationInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31267,7 +31267,7 @@ export namespace Prisma {
     tela_plano_teste?: StringFieldUpdateOperationsInput | string
     rota_plano_teste?: StringFieldUpdateOperationsInput | string
     criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
-    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoUpdateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
     caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
     caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31282,7 +31282,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PlanoTesteUncheckedUpdateManyInput = {
+  export type TestePlanoUncheckedUpdateManyInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31292,7 +31292,7 @@ export namespace Prisma {
     tela_plano_teste?: StringFieldUpdateOperationsInput | string
     rota_plano_teste?: StringFieldUpdateOperationsInput | string
     criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
-    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    ambientes_plano_teste?: TestePlanoUpdateambientes_plano_testeInput | string[]
     caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
     caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
     caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31307,7 +31307,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaturaProdutosGravityCreateInput = {
+  export type ProdutoGravityFaturaCreateInput = {
     id_fatura_produtos_gravity?: string
     id_organizacao_fatura_produtos_gravity: string
     numero_fatura_produtos_gravity: string
@@ -31322,7 +31322,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
-  export type FaturaProdutosGravityUncheckedCreateInput = {
+  export type ProdutoGravityFaturaUncheckedCreateInput = {
     id_fatura_produtos_gravity?: string
     id_organizacao_fatura_produtos_gravity: string
     numero_fatura_produtos_gravity: string
@@ -31337,7 +31337,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
-  export type FaturaProdutosGravityUpdateInput = {
+  export type ProdutoGravityFaturaUpdateInput = {
     id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
@@ -31352,7 +31352,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaturaProdutosGravityUncheckedUpdateInput = {
+  export type ProdutoGravityFaturaUncheckedUpdateInput = {
     id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
@@ -31367,7 +31367,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaturaProdutosGravityCreateManyInput = {
+  export type ProdutoGravityFaturaCreateManyInput = {
     id_fatura_produtos_gravity?: string
     id_organizacao_fatura_produtos_gravity: string
     numero_fatura_produtos_gravity: string
@@ -31382,7 +31382,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
-  export type FaturaProdutosGravityUpdateManyMutationInput = {
+  export type ProdutoGravityFaturaUpdateManyMutationInput = {
     id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
@@ -31397,7 +31397,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaturaProdutosGravityUncheckedUpdateManyInput = {
+  export type ProdutoGravityFaturaUncheckedUpdateManyInput = {
     id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
     numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
@@ -31412,9 +31412,9 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricasGeminiCreateInput = {
+  export type LLMMetricasCreateInput = {
     id_metricas_gemini?: string
-    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini: Date | string
     total_analise_metricas_gemini?: number
     total_token_metricas_gemini?: number
@@ -31427,9 +31427,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: Date | string
   }
 
-  export type MetricasGeminiUncheckedCreateInput = {
+  export type LLMMetricasUncheckedCreateInput = {
     id_metricas_gemini?: string
-    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini: Date | string
     total_analise_metricas_gemini?: number
     total_token_metricas_gemini?: number
@@ -31442,9 +31442,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: Date | string
   }
 
-  export type MetricasGeminiUpdateInput = {
+  export type LLMMetricasUpdateInput = {
     id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
     total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
     total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
@@ -31457,9 +31457,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricasGeminiUncheckedUpdateInput = {
+  export type LLMMetricasUncheckedUpdateInput = {
     id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
     total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
     total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
@@ -31472,9 +31472,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricasGeminiCreateManyInput = {
+  export type LLMMetricasCreateManyInput = {
     id_metricas_gemini?: string
-    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini: Date | string
     total_analise_metricas_gemini?: number
     total_token_metricas_gemini?: number
@@ -31487,9 +31487,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: Date | string
   }
 
-  export type MetricasGeminiUpdateManyMutationInput = {
+  export type LLMMetricasUpdateManyMutationInput = {
     id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
     total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
     total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
@@ -31502,9 +31502,9 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricasGeminiUncheckedUpdateManyInput = {
+  export type LLMMetricasUncheckedUpdateManyInput = {
     id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
     data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
     total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
     total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
@@ -31571,10 +31571,10 @@ export namespace Prisma {
     none?: UsuarioWhereInput
   }
 
-  export type AssinaturaProdutoGravityListRelationFilter = {
-    every?: AssinaturaProdutoGravityWhereInput
-    some?: AssinaturaProdutoGravityWhereInput
-    none?: AssinaturaProdutoGravityWhereInput
+  export type ProdutoGravityAssinaturaListRelationFilter = {
+    every?: ProdutoGravityAssinaturaWhereInput
+    some?: ProdutoGravityAssinaturaWhereInput
+    none?: ProdutoGravityAssinaturaWhereInput
   }
 
   export type UsuarioPermissaoListRelationFilter = {
@@ -31583,16 +31583,16 @@ export namespace Prisma {
     none?: UsuarioPermissaoWhereInput
   }
 
-  export type EmpresaListRelationFilter = {
-    every?: EmpresaWhereInput
-    some?: EmpresaWhereInput
-    none?: EmpresaWhereInput
+  export type WorkspaceListRelationFilter = {
+    every?: WorkspaceWhereInput
+    some?: WorkspaceWhereInput
+    none?: WorkspaceWhereInput
   }
 
-  export type ConfiguracaoProdutoListRelationFilter = {
-    every?: ConfiguracaoProdutoWhereInput
-    some?: ConfiguracaoProdutoWhereInput
-    none?: ConfiguracaoProdutoWhereInput
+  export type ProdutoGravityConfiguracaoListRelationFilter = {
+    every?: ProdutoGravityConfiguracaoWhereInput
+    some?: ProdutoGravityConfiguracaoWhereInput
+    none?: ProdutoGravityConfiguracaoWhereInput
   }
 
   export type ProdutoGravityWorkspaceListRelationFilter = {
@@ -31610,7 +31610,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type AssinaturaProdutoGravityOrderByRelationAggregateInput = {
+  export type ProdutoGravityAssinaturaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -31618,11 +31618,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type EmpresaOrderByRelationAggregateInput = {
+  export type WorkspaceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ConfiguracaoProdutoOrderByRelationAggregateInput = {
+  export type ProdutoGravityConfiguracaoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -31753,9 +31753,9 @@ export namespace Prisma {
     isNot?: OrganizacaoWhereInput
   }
 
-  export type EmpresaNullableRelationFilter = {
-    is?: EmpresaWhereInput | null
-    isNot?: EmpresaWhereInput | null
+  export type WorkspaceNullableRelationFilter = {
+    is?: WorkspaceWhereInput | null
+    isNot?: WorkspaceWhereInput | null
   }
 
   export type UsuarioWorkspaceListRelationFilter = {
@@ -31837,7 +31837,7 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type AssinaturaProdutoGravityCountOrderByAggregateInput = {
+  export type ProdutoGravityAssinaturaCountOrderByAggregateInput = {
     id_assinatura_produto_gravity?: SortOrder
     id_organizacao_assinatura_produto_gravity?: SortOrder
     status_assinatura_produto_gravity?: SortOrder
@@ -31851,7 +31851,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: SortOrder
   }
 
-  export type AssinaturaProdutoGravityMaxOrderByAggregateInput = {
+  export type ProdutoGravityAssinaturaMaxOrderByAggregateInput = {
     id_assinatura_produto_gravity?: SortOrder
     id_organizacao_assinatura_produto_gravity?: SortOrder
     status_assinatura_produto_gravity?: SortOrder
@@ -31865,7 +31865,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: SortOrder
   }
 
-  export type AssinaturaProdutoGravityMinOrderByAggregateInput = {
+  export type ProdutoGravityAssinaturaMinOrderByAggregateInput = {
     id_assinatura_produto_gravity?: SortOrder
     id_organizacao_assinatura_produto_gravity?: SortOrder
     status_assinatura_produto_gravity?: SortOrder
@@ -31952,13 +31952,13 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: SortOrder
   }
 
-  export type PermissaoAdminGravityId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput = {
+  export type AdminGravityPermissaoId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput = {
     id_admin_permissao_admin_gravity: string
     recurso_permissao_admin_gravity: string
     acao_permissao_admin_gravity: string
   }
 
-  export type PermissaoAdminGravityCountOrderByAggregateInput = {
+  export type AdminGravityPermissaoCountOrderByAggregateInput = {
     id_permissao_admin_gravity?: SortOrder
     id_admin_permissao_admin_gravity?: SortOrder
     recurso_permissao_admin_gravity?: SortOrder
@@ -31968,7 +31968,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: SortOrder
   }
 
-  export type PermissaoAdminGravityMaxOrderByAggregateInput = {
+  export type AdminGravityPermissaoMaxOrderByAggregateInput = {
     id_permissao_admin_gravity?: SortOrder
     id_admin_permissao_admin_gravity?: SortOrder
     recurso_permissao_admin_gravity?: SortOrder
@@ -31978,7 +31978,7 @@ export namespace Prisma {
     data_atualizacao_permissao_admin_gravity?: SortOrder
   }
 
-  export type PermissaoAdminGravityMinOrderByAggregateInput = {
+  export type AdminGravityPermissaoMinOrderByAggregateInput = {
     id_permissao_admin_gravity?: SortOrder
     id_admin_permissao_admin_gravity?: SortOrder
     recurso_permissao_admin_gravity?: SortOrder
@@ -31995,7 +31995,7 @@ export namespace Prisma {
     not?: NestedEnumEmpresaStatusFilter<$PrismaModel> | $Enums.EmpresaStatus
   }
 
-  export type EmpresaCountOrderByAggregateInput = {
+  export type WorkspaceCountOrderByAggregateInput = {
     id_workspace?: SortOrder
     id_organizacao_workspace?: SortOrder
     nome_workspace?: SortOrder
@@ -32006,7 +32006,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EmpresaMaxOrderByAggregateInput = {
+  export type WorkspaceMaxOrderByAggregateInput = {
     id_workspace?: SortOrder
     id_organizacao_workspace?: SortOrder
     nome_workspace?: SortOrder
@@ -32017,7 +32017,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EmpresaMinOrderByAggregateInput = {
+  export type WorkspaceMinOrderByAggregateInput = {
     id_workspace?: SortOrder
     id_organizacao_workspace?: SortOrder
     nome_workspace?: SortOrder
@@ -32050,9 +32050,9 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type EmpresaRelationFilter = {
-    is?: EmpresaWhereInput
-    isNot?: EmpresaWhereInput
+  export type WorkspaceRelationFilter = {
+    is?: WorkspaceWhereInput
+    isNot?: WorkspaceWhereInput
   }
 
   export type UsuarioWorkspaceId_organizacao_usuario_workspaceId_usuario_usuario_workspaceId_workspace_usuario_workspaceCompoundUniqueInput = {
@@ -32134,12 +32134,12 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type ConfiguracaoProdutoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput = {
+  export type ProdutoGravityConfiguracaoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput = {
     id_organizacao_config_produto_gravity: string
     chave_produto_config_produto_gravity: string
   }
 
-  export type ConfiguracaoProdutoCountOrderByAggregateInput = {
+  export type ProdutoGravityConfiguracaoCountOrderByAggregateInput = {
     id_config_produto_gravity?: SortOrder
     id_organizacao_config_produto_gravity?: SortOrder
     chave_produto_config_produto_gravity?: SortOrder
@@ -32149,7 +32149,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: SortOrder
   }
 
-  export type ConfiguracaoProdutoMaxOrderByAggregateInput = {
+  export type ProdutoGravityConfiguracaoMaxOrderByAggregateInput = {
     id_config_produto_gravity?: SortOrder
     id_organizacao_config_produto_gravity?: SortOrder
     chave_produto_config_produto_gravity?: SortOrder
@@ -32158,7 +32158,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: SortOrder
   }
 
-  export type ConfiguracaoProdutoMinOrderByAggregateInput = {
+  export type ProdutoGravityConfiguracaoMinOrderByAggregateInput = {
     id_config_produto_gravity?: SortOrder
     id_organizacao_config_produto_gravity?: SortOrder
     chave_produto_config_produto_gravity?: SortOrder
@@ -32292,23 +32292,23 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type FaixaPrecoListRelationFilter = {
-    every?: FaixaPrecoWhereInput
-    some?: FaixaPrecoWhereInput
-    none?: FaixaPrecoWhereInput
+  export type ProdutoGravityFaixaPrecoListRelationFilter = {
+    every?: ProdutoGravityFaixaPrecoWhereInput
+    some?: ProdutoGravityFaixaPrecoWhereInput
+    none?: ProdutoGravityFaixaPrecoWhereInput
   }
 
-  export type NegociacaoEspecialListRelationFilter = {
-    every?: NegociacaoEspecialWhereInput
-    some?: NegociacaoEspecialWhereInput
-    none?: NegociacaoEspecialWhereInput
+  export type ProdutoGravityNegociacaoEspecialListRelationFilter = {
+    every?: ProdutoGravityNegociacaoEspecialWhereInput
+    some?: ProdutoGravityNegociacaoEspecialWhereInput
+    none?: ProdutoGravityNegociacaoEspecialWhereInput
   }
 
-  export type FaixaPrecoOrderByRelationAggregateInput = {
+  export type ProdutoGravityFaixaPrecoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type NegociacaoEspecialOrderByRelationAggregateInput = {
+  export type ProdutoGravityNegociacaoEspecialOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -32531,7 +32531,7 @@ export namespace Prisma {
     isNot?: ProdutoGravityWhereInput
   }
 
-  export type FaixaPrecoCountOrderByAggregateInput = {
+  export type ProdutoGravityFaixaPrecoCountOrderByAggregateInput = {
     id_faixa_preco?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
     faixa_de_faixa_preco?: SortOrder
@@ -32541,13 +32541,13 @@ export namespace Prisma {
     data_criacao_faixa_preco?: SortOrder
   }
 
-  export type FaixaPrecoAvgOrderByAggregateInput = {
+  export type ProdutoGravityFaixaPrecoAvgOrderByAggregateInput = {
     faixa_de_faixa_preco?: SortOrder
     faixa_ate_faixa_preco?: SortOrder
     preco_faixa_preco?: SortOrder
   }
 
-  export type FaixaPrecoMaxOrderByAggregateInput = {
+  export type ProdutoGravityFaixaPrecoMaxOrderByAggregateInput = {
     id_faixa_preco?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
     faixa_de_faixa_preco?: SortOrder
@@ -32557,7 +32557,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: SortOrder
   }
 
-  export type FaixaPrecoMinOrderByAggregateInput = {
+  export type ProdutoGravityFaixaPrecoMinOrderByAggregateInput = {
     id_faixa_preco?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
     faixa_de_faixa_preco?: SortOrder
@@ -32567,13 +32567,13 @@ export namespace Prisma {
     data_criacao_faixa_preco?: SortOrder
   }
 
-  export type FaixaPrecoSumOrderByAggregateInput = {
+  export type ProdutoGravityFaixaPrecoSumOrderByAggregateInput = {
     faixa_de_faixa_preco?: SortOrder
     faixa_ate_faixa_preco?: SortOrder
     preco_faixa_preco?: SortOrder
   }
 
-  export type NegociacaoEspecialCountOrderByAggregateInput = {
+  export type ProdutoGravityNegociacaoEspecialCountOrderByAggregateInput = {
     id_negociacao_especial?: SortOrder
     id_produto_gravity_negociacao_especial?: SortOrder
     id_organizacao_negociacao_especial?: SortOrder
@@ -32586,7 +32586,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: SortOrder
   }
 
-  export type NegociacaoEspecialMaxOrderByAggregateInput = {
+  export type ProdutoGravityNegociacaoEspecialMaxOrderByAggregateInput = {
     id_negociacao_especial?: SortOrder
     id_produto_gravity_negociacao_especial?: SortOrder
     id_organizacao_negociacao_especial?: SortOrder
@@ -32599,7 +32599,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: SortOrder
   }
 
-  export type NegociacaoEspecialMinOrderByAggregateInput = {
+  export type ProdutoGravityNegociacaoEspecialMinOrderByAggregateInput = {
     id_negociacao_especial?: SortOrder
     id_produto_gravity_negociacao_especial?: SortOrder
     id_organizacao_negociacao_especial?: SortOrder
@@ -33038,7 +33038,7 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type AgendamentoTesteCountOrderByAggregateInput = {
+  export type TesteAgendamentoCountOrderByAggregateInput = {
     id_agendamento_teste?: SortOrder
     id_organizacao_agendamento_teste?: SortOrder
     ativo_agendamento_teste?: SortOrder
@@ -33055,12 +33055,12 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: SortOrder
   }
 
-  export type AgendamentoTesteAvgOrderByAggregateInput = {
+  export type TesteAgendamentoAvgOrderByAggregateInput = {
     hora_agendamento_teste?: SortOrder
     minuto_agendamento_teste?: SortOrder
   }
 
-  export type AgendamentoTesteMaxOrderByAggregateInput = {
+  export type TesteAgendamentoMaxOrderByAggregateInput = {
     id_agendamento_teste?: SortOrder
     id_organizacao_agendamento_teste?: SortOrder
     ativo_agendamento_teste?: SortOrder
@@ -33074,7 +33074,7 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: SortOrder
   }
 
-  export type AgendamentoTesteMinOrderByAggregateInput = {
+  export type TesteAgendamentoMinOrderByAggregateInput = {
     id_agendamento_teste?: SortOrder
     id_organizacao_agendamento_teste?: SortOrder
     ativo_agendamento_teste?: SortOrder
@@ -33088,12 +33088,12 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: SortOrder
   }
 
-  export type AgendamentoTesteSumOrderByAggregateInput = {
+  export type TesteAgendamentoSumOrderByAggregateInput = {
     hora_agendamento_teste?: SortOrder
     minuto_agendamento_teste?: SortOrder
   }
 
-  export type PlanoTesteCountOrderByAggregateInput = {
+  export type TestePlanoCountOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
@@ -33118,12 +33118,12 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: SortOrder
   }
 
-  export type PlanoTesteAvgOrderByAggregateInput = {
+  export type TestePlanoAvgOrderByAggregateInput = {
     cobertura_pct_plano_teste?: SortOrder
     passos_total_plano_teste?: SortOrder
   }
 
-  export type PlanoTesteMaxOrderByAggregateInput = {
+  export type TestePlanoMaxOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
@@ -33146,7 +33146,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: SortOrder
   }
 
-  export type PlanoTesteMinOrderByAggregateInput = {
+  export type TestePlanoMinOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
@@ -33169,7 +33169,7 @@ export namespace Prisma {
     data_atualizacao_plano_teste?: SortOrder
   }
 
-  export type PlanoTesteSumOrderByAggregateInput = {
+  export type TestePlanoSumOrderByAggregateInput = {
     cobertura_pct_plano_teste?: SortOrder
     passos_total_plano_teste?: SortOrder
   }
@@ -33181,7 +33181,7 @@ export namespace Prisma {
     not?: NestedEnumFaturaStatusGravityFilter<$PrismaModel> | $Enums.FaturaStatusGravity
   }
 
-  export type FaturaProdutosGravityCountOrderByAggregateInput = {
+  export type ProdutoGravityFaturaCountOrderByAggregateInput = {
     id_fatura_produtos_gravity?: SortOrder
     id_organizacao_fatura_produtos_gravity?: SortOrder
     numero_fatura_produtos_gravity?: SortOrder
@@ -33196,11 +33196,11 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
-  export type FaturaProdutosGravityAvgOrderByAggregateInput = {
+  export type ProdutoGravityFaturaAvgOrderByAggregateInput = {
     valor_total_fatura_produtos_gravity?: SortOrder
   }
 
-  export type FaturaProdutosGravityMaxOrderByAggregateInput = {
+  export type ProdutoGravityFaturaMaxOrderByAggregateInput = {
     id_fatura_produtos_gravity?: SortOrder
     id_organizacao_fatura_produtos_gravity?: SortOrder
     numero_fatura_produtos_gravity?: SortOrder
@@ -33215,7 +33215,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
-  export type FaturaProdutosGravityMinOrderByAggregateInput = {
+  export type ProdutoGravityFaturaMinOrderByAggregateInput = {
     id_fatura_produtos_gravity?: SortOrder
     id_organizacao_fatura_produtos_gravity?: SortOrder
     numero_fatura_produtos_gravity?: SortOrder
@@ -33230,7 +33230,7 @@ export namespace Prisma {
     data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
-  export type FaturaProdutosGravitySumOrderByAggregateInput = {
+  export type ProdutoGravityFaturaSumOrderByAggregateInput = {
     valor_total_fatura_produtos_gravity?: SortOrder
   }
 
@@ -33244,7 +33244,7 @@ export namespace Prisma {
     _max?: NestedEnumFaturaStatusGravityFilter<$PrismaModel>
   }
 
-  export type MetricasGeminiCountOrderByAggregateInput = {
+  export type LLMMetricasCountOrderByAggregateInput = {
     id_metricas_gemini?: SortOrder
     nome_metricas_gemini?: SortOrder
     data_analise_metricas_gemini?: SortOrder
@@ -33259,7 +33259,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: SortOrder
   }
 
-  export type MetricasGeminiAvgOrderByAggregateInput = {
+  export type LLMMetricasAvgOrderByAggregateInput = {
     total_analise_metricas_gemini?: SortOrder
     total_token_metricas_gemini?: SortOrder
     custo_metricas_gemini?: SortOrder
@@ -33270,7 +33270,7 @@ export namespace Prisma {
     quantidade_codigo_validado_metricas_gemini?: SortOrder
   }
 
-  export type MetricasGeminiMaxOrderByAggregateInput = {
+  export type LLMMetricasMaxOrderByAggregateInput = {
     id_metricas_gemini?: SortOrder
     data_analise_metricas_gemini?: SortOrder
     total_analise_metricas_gemini?: SortOrder
@@ -33284,7 +33284,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: SortOrder
   }
 
-  export type MetricasGeminiMinOrderByAggregateInput = {
+  export type LLMMetricasMinOrderByAggregateInput = {
     id_metricas_gemini?: SortOrder
     data_analise_metricas_gemini?: SortOrder
     total_analise_metricas_gemini?: SortOrder
@@ -33298,7 +33298,7 @@ export namespace Prisma {
     data_criacao_metricas_gemini?: SortOrder
   }
 
-  export type MetricasGeminiSumOrderByAggregateInput = {
+  export type LLMMetricasSumOrderByAggregateInput = {
     total_analise_metricas_gemini?: SortOrder
     total_token_metricas_gemini?: SortOrder
     custo_metricas_gemini?: SortOrder
@@ -33316,11 +33316,11 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput | UsuarioWhereUniqueInput[]
   }
 
-  export type AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput = {
-    create?: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput> | AssinaturaProdutoGravityCreateWithoutTenantInput[] | AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput | AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput[]
-    createMany?: AssinaturaProdutoGravityCreateManyTenantInputEnvelope
-    connect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
+  export type ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput> | ProdutoGravityAssinaturaCreateWithoutTenantInput[] | ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput | ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput[]
+    createMany?: ProdutoGravityAssinaturaCreateManyTenantInputEnvelope
+    connect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
   }
 
   export type UsuarioPermissaoCreateNestedManyWithoutTenantInput = {
@@ -33330,18 +33330,18 @@ export namespace Prisma {
     connect?: UsuarioPermissaoWhereUniqueInput | UsuarioPermissaoWhereUniqueInput[]
   }
 
-  export type EmpresaCreateNestedManyWithoutTenantInput = {
-    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
-    createMany?: EmpresaCreateManyTenantInputEnvelope
-    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+  export type WorkspaceCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
+    createMany?: WorkspaceCreateManyTenantInputEnvelope
+    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
   }
 
-  export type ConfiguracaoProdutoCreateNestedManyWithoutTenantInput = {
-    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
-    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
-    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+  export type ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput> | ProdutoGravityConfiguracaoCreateWithoutTenantInput[] | ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput | ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput[]
+    createMany?: ProdutoGravityConfiguracaoCreateManyTenantInputEnvelope
+    connect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
   }
 
   export type ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput = {
@@ -33358,11 +33358,11 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput | UsuarioWhereUniqueInput[]
   }
 
-  export type AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput> | AssinaturaProdutoGravityCreateWithoutTenantInput[] | AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput | AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput[]
-    createMany?: AssinaturaProdutoGravityCreateManyTenantInputEnvelope
-    connect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
+  export type ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput> | ProdutoGravityAssinaturaCreateWithoutTenantInput[] | ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput | ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput[]
+    createMany?: ProdutoGravityAssinaturaCreateManyTenantInputEnvelope
+    connect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
   }
 
   export type UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput = {
@@ -33372,18 +33372,18 @@ export namespace Prisma {
     connect?: UsuarioPermissaoWhereUniqueInput | UsuarioPermissaoWhereUniqueInput[]
   }
 
-  export type EmpresaUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
-    createMany?: EmpresaCreateManyTenantInputEnvelope
-    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+  export type WorkspaceUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
+    createMany?: WorkspaceCreateManyTenantInputEnvelope
+    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
   }
 
-  export type ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
-    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
-    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+  export type ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput> | ProdutoGravityConfiguracaoCreateWithoutTenantInput[] | ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput | ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput[]
+    createMany?: ProdutoGravityConfiguracaoCreateManyTenantInputEnvelope
+    connect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput = {
@@ -33423,18 +33423,18 @@ export namespace Prisma {
     deleteMany?: UsuarioScalarWhereInput | UsuarioScalarWhereInput[]
   }
 
-  export type AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput> | AssinaturaProdutoGravityCreateWithoutTenantInput[] | AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput | AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput[]
-    upsert?: AssinaturaProdutoGravityUpsertWithWhereUniqueWithoutTenantInput | AssinaturaProdutoGravityUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: AssinaturaProdutoGravityCreateManyTenantInputEnvelope
-    set?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    disconnect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    delete?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    connect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    update?: AssinaturaProdutoGravityUpdateWithWhereUniqueWithoutTenantInput | AssinaturaProdutoGravityUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: AssinaturaProdutoGravityUpdateManyWithWhereWithoutTenantInput | AssinaturaProdutoGravityUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: AssinaturaProdutoGravityScalarWhereInput | AssinaturaProdutoGravityScalarWhereInput[]
+  export type ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput> | ProdutoGravityAssinaturaCreateWithoutTenantInput[] | ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput | ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput[]
+    upsert?: ProdutoGravityAssinaturaUpsertWithWhereUniqueWithoutTenantInput | ProdutoGravityAssinaturaUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ProdutoGravityAssinaturaCreateManyTenantInputEnvelope
+    set?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    disconnect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    delete?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    connect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    update?: ProdutoGravityAssinaturaUpdateWithWhereUniqueWithoutTenantInput | ProdutoGravityAssinaturaUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ProdutoGravityAssinaturaUpdateManyWithWhereWithoutTenantInput | ProdutoGravityAssinaturaUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ProdutoGravityAssinaturaScalarWhereInput | ProdutoGravityAssinaturaScalarWhereInput[]
   }
 
   export type UsuarioPermissaoUpdateManyWithoutTenantNestedInput = {
@@ -33451,32 +33451,32 @@ export namespace Prisma {
     deleteMany?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
   }
 
-  export type EmpresaUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
-    upsert?: EmpresaUpsertWithWhereUniqueWithoutTenantInput | EmpresaUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: EmpresaCreateManyTenantInputEnvelope
-    set?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    disconnect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    delete?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    update?: EmpresaUpdateWithWhereUniqueWithoutTenantInput | EmpresaUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: EmpresaUpdateManyWithWhereWithoutTenantInput | EmpresaUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
+  export type WorkspaceUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
+    upsert?: WorkspaceUpsertWithWhereUniqueWithoutTenantInput | WorkspaceUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WorkspaceCreateManyTenantInputEnvelope
+    set?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    disconnect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    delete?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    update?: WorkspaceUpdateWithWhereUniqueWithoutTenantInput | WorkspaceUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WorkspaceUpdateManyWithWhereWithoutTenantInput | WorkspaceUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
   }
 
-  export type ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
-    upsert?: ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
-    set?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    disconnect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    delete?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    update?: ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput | ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
+  export type ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput> | ProdutoGravityConfiguracaoCreateWithoutTenantInput[] | ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput | ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput[]
+    upsert?: ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput | ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ProdutoGravityConfiguracaoCreateManyTenantInputEnvelope
+    set?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    disconnect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    delete?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    connect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    update?: ProdutoGravityConfiguracaoUpdateWithWhereUniqueWithoutTenantInput | ProdutoGravityConfiguracaoUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ProdutoGravityConfiguracaoUpdateManyWithWhereWithoutTenantInput | ProdutoGravityConfiguracaoUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ProdutoGravityConfiguracaoScalarWhereInput | ProdutoGravityConfiguracaoScalarWhereInput[]
   }
 
   export type ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput = {
@@ -33507,18 +33507,18 @@ export namespace Prisma {
     deleteMany?: UsuarioScalarWhereInput | UsuarioScalarWhereInput[]
   }
 
-  export type AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput> | AssinaturaProdutoGravityCreateWithoutTenantInput[] | AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput | AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput[]
-    upsert?: AssinaturaProdutoGravityUpsertWithWhereUniqueWithoutTenantInput | AssinaturaProdutoGravityUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: AssinaturaProdutoGravityCreateManyTenantInputEnvelope
-    set?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    disconnect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    delete?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    connect?: AssinaturaProdutoGravityWhereUniqueInput | AssinaturaProdutoGravityWhereUniqueInput[]
-    update?: AssinaturaProdutoGravityUpdateWithWhereUniqueWithoutTenantInput | AssinaturaProdutoGravityUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: AssinaturaProdutoGravityUpdateManyWithWhereWithoutTenantInput | AssinaturaProdutoGravityUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: AssinaturaProdutoGravityScalarWhereInput | AssinaturaProdutoGravityScalarWhereInput[]
+  export type ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput> | ProdutoGravityAssinaturaCreateWithoutTenantInput[] | ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput | ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput[]
+    upsert?: ProdutoGravityAssinaturaUpsertWithWhereUniqueWithoutTenantInput | ProdutoGravityAssinaturaUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ProdutoGravityAssinaturaCreateManyTenantInputEnvelope
+    set?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    disconnect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    delete?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    connect?: ProdutoGravityAssinaturaWhereUniqueInput | ProdutoGravityAssinaturaWhereUniqueInput[]
+    update?: ProdutoGravityAssinaturaUpdateWithWhereUniqueWithoutTenantInput | ProdutoGravityAssinaturaUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ProdutoGravityAssinaturaUpdateManyWithWhereWithoutTenantInput | ProdutoGravityAssinaturaUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ProdutoGravityAssinaturaScalarWhereInput | ProdutoGravityAssinaturaScalarWhereInput[]
   }
 
   export type UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -33535,32 +33535,32 @@ export namespace Prisma {
     deleteMany?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
   }
 
-  export type EmpresaUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
-    upsert?: EmpresaUpsertWithWhereUniqueWithoutTenantInput | EmpresaUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: EmpresaCreateManyTenantInputEnvelope
-    set?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    disconnect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    delete?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
-    update?: EmpresaUpdateWithWhereUniqueWithoutTenantInput | EmpresaUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: EmpresaUpdateManyWithWhereWithoutTenantInput | EmpresaUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
+  export type WorkspaceUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
+    upsert?: WorkspaceUpsertWithWhereUniqueWithoutTenantInput | WorkspaceUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WorkspaceCreateManyTenantInputEnvelope
+    set?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    disconnect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    delete?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+    update?: WorkspaceUpdateWithWhereUniqueWithoutTenantInput | WorkspaceUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WorkspaceUpdateManyWithWhereWithoutTenantInput | WorkspaceUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
   }
 
-  export type ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
-    upsert?: ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
-    set?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    disconnect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    delete?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
-    update?: ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput | ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
+  export type ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput> | ProdutoGravityConfiguracaoCreateWithoutTenantInput[] | ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput | ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput[]
+    upsert?: ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput | ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ProdutoGravityConfiguracaoCreateManyTenantInputEnvelope
+    set?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    disconnect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    delete?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    connect?: ProdutoGravityConfiguracaoWhereUniqueInput | ProdutoGravityConfiguracaoWhereUniqueInput[]
+    update?: ProdutoGravityConfiguracaoUpdateWithWhereUniqueWithoutTenantInput | ProdutoGravityConfiguracaoUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ProdutoGravityConfiguracaoUpdateManyWithWhereWithoutTenantInput | ProdutoGravityConfiguracaoUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ProdutoGravityConfiguracaoScalarWhereInput | ProdutoGravityConfiguracaoScalarWhereInput[]
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -33583,10 +33583,10 @@ export namespace Prisma {
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type EmpresaCreateNestedOneWithoutPreferred_by_usersInput = {
-    create?: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutPreferred_by_usersInput
-    connect?: EmpresaWhereUniqueInput
+  export type WorkspaceCreateNestedOneWithoutPreferred_by_usersInput = {
+    create?: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutPreferred_by_usersInput
+    connect?: WorkspaceWhereUniqueInput
   }
 
   export type UsuarioPermissaoCreateNestedManyWithoutUserInput = {
@@ -33629,14 +33629,14 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUsers_organizacaoInput, OrganizacaoUpdateWithoutUsers_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
   }
 
-  export type EmpresaUpdateOneWithoutPreferred_by_usersNestedInput = {
-    create?: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutPreferred_by_usersInput
-    upsert?: EmpresaUpsertWithoutPreferred_by_usersInput
-    disconnect?: EmpresaWhereInput | boolean
-    delete?: EmpresaWhereInput | boolean
-    connect?: EmpresaWhereUniqueInput
-    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutPreferred_by_usersInput, EmpresaUpdateWithoutPreferred_by_usersInput>, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
+  export type WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutPreferred_by_usersInput
+    upsert?: WorkspaceUpsertWithoutPreferred_by_usersInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutPreferred_by_usersInput, WorkspaceUpdateWithoutPreferred_by_usersInput>, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
   }
 
   export type UsuarioPermissaoUpdateManyWithoutUserNestedInput = {
@@ -33895,10 +33895,10 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput
   }
 
-  export type EmpresaCreateNestedOneWithoutMembershipsInput = {
-    create?: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutMembershipsInput
-    connect?: EmpresaWhereUniqueInput
+  export type WorkspaceCreateNestedOneWithoutMembershipsInput = {
+    create?: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutMembershipsInput
+    connect?: WorkspaceWhereUniqueInput
   }
 
   export type EnumTipoUsuarioEmpresaFieldUpdateOperationsInput = {
@@ -33917,12 +33917,12 @@ export namespace Prisma {
     update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutMembershipsInput, UsuarioUpdateWithoutMembershipsInput>, UsuarioUncheckedUpdateWithoutMembershipsInput>
   }
 
-  export type EmpresaUpdateOneRequiredWithoutMembershipsNestedInput = {
-    create?: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutMembershipsInput
-    upsert?: EmpresaUpsertWithoutMembershipsInput
-    connect?: EmpresaWhereUniqueInput
-    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutMembershipsInput, EmpresaUpdateWithoutMembershipsInput>, EmpresaUncheckedUpdateWithoutMembershipsInput>
+  export type WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutMembershipsInput
+    upsert?: WorkspaceUpsertWithoutMembershipsInput
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutMembershipsInput, WorkspaceUpdateWithoutMembershipsInput>, WorkspaceUncheckedUpdateWithoutMembershipsInput>
   }
 
   export type OrganizacaoCreateNestedOneWithoutProduct_configs_organizacaoInput = {
@@ -33945,10 +33945,10 @@ export namespace Prisma {
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type EmpresaCreateNestedOneWithoutCompany_productsInput = {
-    create?: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutCompany_productsInput
-    connect?: EmpresaWhereUniqueInput
+  export type WorkspaceCreateNestedOneWithoutCompany_productsInput = {
+    create?: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutCompany_productsInput
+    connect?: WorkspaceWhereUniqueInput
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput = {
@@ -33959,40 +33959,40 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutProdutoGravityWorkspaceInput, OrganizacaoUpdateWithoutProdutoGravityWorkspaceInput>, OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput>
   }
 
-  export type EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput = {
-    create?: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutCompany_productsInput
-    upsert?: EmpresaUpsertWithoutCompany_productsInput
-    connect?: EmpresaWhereUniqueInput
-    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutCompany_productsInput, EmpresaUpdateWithoutCompany_productsInput>, EmpresaUncheckedUpdateWithoutCompany_productsInput>
+  export type WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutCompany_productsInput
+    upsert?: WorkspaceUpsertWithoutCompany_productsInput
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutCompany_productsInput, WorkspaceUpdateWithoutCompany_productsInput>, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
   }
 
-  export type FaixaPrecoCreateNestedManyWithoutProdutoInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
-    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
-    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+  export type ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityFaixaPrecoCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
   }
 
-  export type NegociacaoEspecialCreateNestedManyWithoutProdutoInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
-    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
-    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+  export type ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput> | ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput[] | ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput | ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
   }
 
-  export type FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
-    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
-    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+  export type ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityFaixaPrecoCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
   }
 
-  export type NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
-    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
-    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+  export type ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput> | ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput[] | ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput | ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
   }
 
   export type EnumStatusProdutoGravityFieldUpdateOperationsInput = {
@@ -34039,60 +34039,60 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type FaixaPrecoUpdateManyWithoutProdutoNestedInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
-    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
-    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
-    set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
-    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProdutoInput | FaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
-    deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
+  export type ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityFaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityFaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityFaixaPrecoCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    delete?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    connect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    update?: ProdutoGravityFaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityFaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityFaixaPrecoUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityFaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
   }
 
-  export type NegociacaoEspecialUpdateManyWithoutProdutoNestedInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
-    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
-    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
-    set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
-    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
-    deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
+  export type ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput> | ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput[] | ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput | ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    disconnect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    delete?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    update?: ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
   }
 
-  export type FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput = {
-    create?: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput> | FaixaPrecoCreateWithoutProdutoInput[] | FaixaPrecoUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProdutoInput | FaixaPrecoCreateOrConnectWithoutProdutoInput[]
-    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
-    createMany?: FaixaPrecoCreateManyProdutoInputEnvelope
-    set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
-    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
-    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProdutoInput | FaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
-    deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
+  export type ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityFaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityFaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityFaixaPrecoCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    disconnect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    delete?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    connect?: ProdutoGravityFaixaPrecoWhereUniqueInput | ProdutoGravityFaixaPrecoWhereUniqueInput[]
+    update?: ProdutoGravityFaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityFaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityFaixaPrecoUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityFaixaPrecoUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
   }
 
-  export type NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput = {
-    create?: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput> | NegociacaoEspecialCreateWithoutProdutoInput[] | NegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
-    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProdutoInput | NegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
-    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
-    createMany?: NegociacaoEspecialCreateManyProdutoInputEnvelope
-    set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
-    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
-    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
-    deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
+  export type ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput> | ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput[] | ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput | ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    disconnect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    delete?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+    update?: ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
   }
 
   export type ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput = {
@@ -34131,20 +34131,20 @@ export namespace Prisma {
     set?: $Enums.DeployStatus
   }
 
-  export type AgendamentoTesteCreateescopos_agendamento_testeInput = {
+  export type TesteAgendamentoCreateescopos_agendamento_testeInput = {
     set: string[]
   }
 
-  export type AgendamentoTesteUpdateescopos_agendamento_testeInput = {
+  export type TesteAgendamentoUpdateescopos_agendamento_testeInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type PlanoTesteCreateambientes_plano_testeInput = {
+  export type TestePlanoCreateambientes_plano_testeInput = {
     set: string[]
   }
 
-  export type PlanoTesteUpdateambientes_plano_testeInput = {
+  export type TestePlanoUpdateambientes_plano_testeInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -34153,11 +34153,11 @@ export namespace Prisma {
     set?: $Enums.FaturaStatusGravity
   }
 
-  export type MetricasGeminiCreatenome_metricas_geminiInput = {
+  export type LLMMetricasCreatenome_metricas_geminiInput = {
     set: string[]
   }
 
-  export type MetricasGeminiUpdatenome_metricas_geminiInput = {
+  export type LLMMetricasUpdatenome_metricas_geminiInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -34656,7 +34656,7 @@ export namespace Prisma {
     tipo_usuario?: $Enums.UsuarioTipo
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
-    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -34684,7 +34684,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type AssinaturaProdutoGravityCreateWithoutTenantInput = {
+  export type ProdutoGravityAssinaturaCreateWithoutTenantInput = {
     id_assinatura_produto_gravity?: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
@@ -34697,7 +34697,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: Date | string
   }
 
-  export type AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput = {
+  export type ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput = {
     id_assinatura_produto_gravity?: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
@@ -34710,13 +34710,13 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: Date | string
   }
 
-  export type AssinaturaProdutoGravityCreateOrConnectWithoutTenantInput = {
-    where: AssinaturaProdutoGravityWhereUniqueInput
-    create: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput>
+  export type ProdutoGravityAssinaturaCreateOrConnectWithoutTenantInput = {
+    where: ProdutoGravityAssinaturaWhereUniqueInput
+    create: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput>
   }
 
-  export type AssinaturaProdutoGravityCreateManyTenantInputEnvelope = {
-    data: AssinaturaProdutoGravityCreateManyTenantInput | AssinaturaProdutoGravityCreateManyTenantInput[]
+  export type ProdutoGravityAssinaturaCreateManyTenantInputEnvelope = {
+    data: ProdutoGravityAssinaturaCreateManyTenantInput | ProdutoGravityAssinaturaCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -34752,7 +34752,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type EmpresaCreateWithoutTenantInput = {
+  export type WorkspaceCreateWithoutTenantInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -34765,7 +34765,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaUncheckedCreateWithoutTenantInput = {
+  export type WorkspaceUncheckedCreateWithoutTenantInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -34778,17 +34778,17 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaCreateOrConnectWithoutTenantInput = {
-    where: EmpresaWhereUniqueInput
-    create: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput>
+  export type WorkspaceCreateOrConnectWithoutTenantInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput>
   }
 
-  export type EmpresaCreateManyTenantInputEnvelope = {
-    data: EmpresaCreateManyTenantInput | EmpresaCreateManyTenantInput[]
+  export type WorkspaceCreateManyTenantInputEnvelope = {
+    data: WorkspaceCreateManyTenantInput | WorkspaceCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
-  export type ConfiguracaoProdutoCreateWithoutTenantInput = {
+  export type ProdutoGravityConfiguracaoCreateWithoutTenantInput = {
     id_config_produto_gravity?: string
     chave_produto_config_produto_gravity: string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -34797,7 +34797,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: Date | string
   }
 
-  export type ConfiguracaoProdutoUncheckedCreateWithoutTenantInput = {
+  export type ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput = {
     id_config_produto_gravity?: string
     chave_produto_config_produto_gravity: string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -34806,13 +34806,13 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: Date | string
   }
 
-  export type ConfiguracaoProdutoCreateOrConnectWithoutTenantInput = {
-    where: ConfiguracaoProdutoWhereUniqueInput
-    create: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput>
+  export type ProdutoGravityConfiguracaoCreateOrConnectWithoutTenantInput = {
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
+    create: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput>
   }
 
-  export type ConfiguracaoProdutoCreateManyTenantInputEnvelope = {
-    data: ConfiguracaoProdutoCreateManyTenantInput | ConfiguracaoProdutoCreateManyTenantInput[]
+  export type ProdutoGravityConfiguracaoCreateManyTenantInputEnvelope = {
+    data: ProdutoGravityConfiguracaoCreateManyTenantInput | ProdutoGravityConfiguracaoCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -34822,7 +34822,7 @@ export namespace Prisma {
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
-    company: EmpresaCreateNestedOneWithoutCompany_productsInput
+    company: WorkspaceCreateNestedOneWithoutCompany_productsInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateWithoutTenantInput = {
@@ -34875,37 +34875,37 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
   }
 
-  export type AssinaturaProdutoGravityUpsertWithWhereUniqueWithoutTenantInput = {
-    where: AssinaturaProdutoGravityWhereUniqueInput
-    update: XOR<AssinaturaProdutoGravityUpdateWithoutTenantInput, AssinaturaProdutoGravityUncheckedUpdateWithoutTenantInput>
-    create: XOR<AssinaturaProdutoGravityCreateWithoutTenantInput, AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput>
+  export type ProdutoGravityAssinaturaUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ProdutoGravityAssinaturaWhereUniqueInput
+    update: XOR<ProdutoGravityAssinaturaUpdateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedUpdateWithoutTenantInput>
+    create: XOR<ProdutoGravityAssinaturaCreateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedCreateWithoutTenantInput>
   }
 
-  export type AssinaturaProdutoGravityUpdateWithWhereUniqueWithoutTenantInput = {
-    where: AssinaturaProdutoGravityWhereUniqueInput
-    data: XOR<AssinaturaProdutoGravityUpdateWithoutTenantInput, AssinaturaProdutoGravityUncheckedUpdateWithoutTenantInput>
+  export type ProdutoGravityAssinaturaUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ProdutoGravityAssinaturaWhereUniqueInput
+    data: XOR<ProdutoGravityAssinaturaUpdateWithoutTenantInput, ProdutoGravityAssinaturaUncheckedUpdateWithoutTenantInput>
   }
 
-  export type AssinaturaProdutoGravityUpdateManyWithWhereWithoutTenantInput = {
-    where: AssinaturaProdutoGravityScalarWhereInput
-    data: XOR<AssinaturaProdutoGravityUpdateManyMutationInput, AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantInput>
+  export type ProdutoGravityAssinaturaUpdateManyWithWhereWithoutTenantInput = {
+    where: ProdutoGravityAssinaturaScalarWhereInput
+    data: XOR<ProdutoGravityAssinaturaUpdateManyMutationInput, ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantInput>
   }
 
-  export type AssinaturaProdutoGravityScalarWhereInput = {
-    AND?: AssinaturaProdutoGravityScalarWhereInput | AssinaturaProdutoGravityScalarWhereInput[]
-    OR?: AssinaturaProdutoGravityScalarWhereInput[]
-    NOT?: AssinaturaProdutoGravityScalarWhereInput | AssinaturaProdutoGravityScalarWhereInput[]
-    id_assinatura_produto_gravity?: StringFilter<"AssinaturaProdutoGravity"> | string
-    id_organizacao_assinatura_produto_gravity?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
-    stripe_subscription_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
-    stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
-    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
-    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
-    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"AssinaturaProdutoGravity"> | Date | string
+  export type ProdutoGravityAssinaturaScalarWhereInput = {
+    AND?: ProdutoGravityAssinaturaScalarWhereInput | ProdutoGravityAssinaturaScalarWhereInput[]
+    OR?: ProdutoGravityAssinaturaScalarWhereInput[]
+    NOT?: ProdutoGravityAssinaturaScalarWhereInput | ProdutoGravityAssinaturaScalarWhereInput[]
+    id_assinatura_produto_gravity?: StringFilter<"ProdutoGravityAssinatura"> | string
+    id_organizacao_assinatura_produto_gravity?: StringFilter<"ProdutoGravityAssinatura"> | string
+    status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFilter<"ProdutoGravityAssinatura"> | $Enums.StatusAssinaturaProdutoGravity
+    stripe_subscription_id?: StringNullableFilter<"ProdutoGravityAssinatura"> | string | null
+    stripe_price_id?: StringNullableFilter<"ProdutoGravityAssinatura"> | string | null
+    data_fim_teste_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_inicio_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_fim_periodo_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_cancelamento_assinatura_produto_gravity?: DateTimeNullableFilter<"ProdutoGravityAssinatura"> | Date | string | null
+    data_criacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
+    data_atualizacao_assinatura_produto_gravity?: DateTimeFilter<"ProdutoGravityAssinatura"> | Date | string
   }
 
   export type UsuarioPermissaoUpsertWithWhereUniqueWithoutTenantInput = {
@@ -34939,63 +34939,63 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: DateTimeFilter<"UsuarioPermissao"> | Date | string
   }
 
-  export type EmpresaUpsertWithWhereUniqueWithoutTenantInput = {
-    where: EmpresaWhereUniqueInput
-    update: XOR<EmpresaUpdateWithoutTenantInput, EmpresaUncheckedUpdateWithoutTenantInput>
-    create: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput>
+  export type WorkspaceUpsertWithWhereUniqueWithoutTenantInput = {
+    where: WorkspaceWhereUniqueInput
+    update: XOR<WorkspaceUpdateWithoutTenantInput, WorkspaceUncheckedUpdateWithoutTenantInput>
+    create: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput>
   }
 
-  export type EmpresaUpdateWithWhereUniqueWithoutTenantInput = {
-    where: EmpresaWhereUniqueInput
-    data: XOR<EmpresaUpdateWithoutTenantInput, EmpresaUncheckedUpdateWithoutTenantInput>
+  export type WorkspaceUpdateWithWhereUniqueWithoutTenantInput = {
+    where: WorkspaceWhereUniqueInput
+    data: XOR<WorkspaceUpdateWithoutTenantInput, WorkspaceUncheckedUpdateWithoutTenantInput>
   }
 
-  export type EmpresaUpdateManyWithWhereWithoutTenantInput = {
-    where: EmpresaScalarWhereInput
-    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyWithoutTenantInput>
+  export type WorkspaceUpdateManyWithWhereWithoutTenantInput = {
+    where: WorkspaceScalarWhereInput
+    data: XOR<WorkspaceUpdateManyMutationInput, WorkspaceUncheckedUpdateManyWithoutTenantInput>
   }
 
-  export type EmpresaScalarWhereInput = {
-    AND?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
-    OR?: EmpresaScalarWhereInput[]
-    NOT?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
-    id_workspace?: StringFilter<"Empresa"> | string
-    id_organizacao_workspace?: StringFilter<"Empresa"> | string
-    nome_workspace?: StringFilter<"Empresa"> | string
-    subdominio_workspace?: StringNullableFilter<"Empresa"> | string | null
-    cnpj_workspace?: StringNullableFilter<"Empresa"> | string | null
-    status_workspace?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    data_criacao_workspace?: DateTimeFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeFilter<"Empresa"> | Date | string
+  export type WorkspaceScalarWhereInput = {
+    AND?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
+    OR?: WorkspaceScalarWhereInput[]
+    NOT?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
+    id_workspace?: StringFilter<"Workspace"> | string
+    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    nome_workspace?: StringFilter<"Workspace"> | string
+    subdominio_workspace?: StringNullableFilter<"Workspace"> | string | null
+    cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
+    status_workspace?: EnumEmpresaStatusFilter<"Workspace"> | $Enums.EmpresaStatus
+    data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
+    updated_at?: DateTimeFilter<"Workspace"> | Date | string
   }
 
-  export type ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput = {
-    where: ConfiguracaoProdutoWhereUniqueInput
-    update: XOR<ConfiguracaoProdutoUpdateWithoutTenantInput, ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput>
-    create: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput>
+  export type ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
+    update: XOR<ProdutoGravityConfiguracaoUpdateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedUpdateWithoutTenantInput>
+    create: XOR<ProdutoGravityConfiguracaoCreateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedCreateWithoutTenantInput>
   }
 
-  export type ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput = {
-    where: ConfiguracaoProdutoWhereUniqueInput
-    data: XOR<ConfiguracaoProdutoUpdateWithoutTenantInput, ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput>
+  export type ProdutoGravityConfiguracaoUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ProdutoGravityConfiguracaoWhereUniqueInput
+    data: XOR<ProdutoGravityConfiguracaoUpdateWithoutTenantInput, ProdutoGravityConfiguracaoUncheckedUpdateWithoutTenantInput>
   }
 
-  export type ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput = {
-    where: ConfiguracaoProdutoScalarWhereInput
-    data: XOR<ConfiguracaoProdutoUpdateManyMutationInput, ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantInput>
+  export type ProdutoGravityConfiguracaoUpdateManyWithWhereWithoutTenantInput = {
+    where: ProdutoGravityConfiguracaoScalarWhereInput
+    data: XOR<ProdutoGravityConfiguracaoUpdateManyMutationInput, ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantInput>
   }
 
-  export type ConfiguracaoProdutoScalarWhereInput = {
-    AND?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
-    OR?: ConfiguracaoProdutoScalarWhereInput[]
-    NOT?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
-    id_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
-    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
-    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+  export type ProdutoGravityConfiguracaoScalarWhereInput = {
+    AND?: ProdutoGravityConfiguracaoScalarWhereInput | ProdutoGravityConfiguracaoScalarWhereInput[]
+    OR?: ProdutoGravityConfiguracaoScalarWhereInput[]
+    NOT?: ProdutoGravityConfiguracaoScalarWhereInput | ProdutoGravityConfiguracaoScalarWhereInput[]
+    id_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    id_organizacao_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ProdutoGravityConfiguracao"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ProdutoGravityConfiguracao">
+    ativo_config_produto_gravity?: BoolFilter<"ProdutoGravityConfiguracao"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ProdutoGravityConfiguracao"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutTenantInput = {
@@ -35042,10 +35042,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35064,10 +35064,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35076,7 +35076,7 @@ export namespace Prisma {
     create: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
   }
 
-  export type EmpresaCreateWithoutPreferred_by_usersInput = {
+  export type WorkspaceCreateWithoutPreferred_by_usersInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -35089,7 +35089,7 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
   }
 
-  export type EmpresaUncheckedCreateWithoutPreferred_by_usersInput = {
+  export type WorkspaceUncheckedCreateWithoutPreferred_by_usersInput = {
     id_workspace?: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -35102,9 +35102,9 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
   }
 
-  export type EmpresaCreateOrConnectWithoutPreferred_by_usersInput = {
-    where: EmpresaWhereUniqueInput
-    create: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
+  export type WorkspaceCreateOrConnectWithoutPreferred_by_usersInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
   }
 
   export type UsuarioPermissaoCreateWithoutUserInput = {
@@ -35146,7 +35146,7 @@ export namespace Prisma {
     ativo_usuario_workspace?: boolean
     data_criacao_usuario_workspace?: Date | string
     data_atualizacao_usuario_workspace?: Date | string
-    company: EmpresaCreateNestedOneWithoutMembershipsInput
+    company: WorkspaceCreateNestedOneWithoutMembershipsInput
   }
 
   export type UsuarioWorkspaceUncheckedCreateWithoutUserInput = {
@@ -35195,10 +35195,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35217,25 +35217,25 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type EmpresaUpsertWithoutPreferred_by_usersInput = {
-    update: XOR<EmpresaUpdateWithoutPreferred_by_usersInput, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
-    create: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
-    where?: EmpresaWhereInput
+  export type WorkspaceUpsertWithoutPreferred_by_usersInput = {
+    update: XOR<WorkspaceUpdateWithoutPreferred_by_usersInput, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
+    create: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
+    where?: WorkspaceWhereInput
   }
 
-  export type EmpresaUpdateToOneWithWhereWithoutPreferred_by_usersInput = {
-    where?: EmpresaWhereInput
-    data: XOR<EmpresaUpdateWithoutPreferred_by_usersInput, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
+  export type WorkspaceUpdateToOneWithWhereWithoutPreferred_by_usersInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutPreferred_by_usersInput, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
   }
 
-  export type EmpresaUpdateWithoutPreferred_by_usersInput = {
+  export type WorkspaceUpdateWithoutPreferred_by_usersInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35248,7 +35248,7 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateWithoutPreferred_by_usersInput = {
+  export type WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
@@ -35324,8 +35324,8 @@ export namespace Prisma {
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35346,8 +35346,8 @@ export namespace Prisma {
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35384,8 +35384,8 @@ export namespace Prisma {
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35406,8 +35406,8 @@ export namespace Prisma {
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35427,9 +35427,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35449,9 +35449,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35469,7 +35469,7 @@ export namespace Prisma {
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
-    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
 
@@ -35518,9 +35518,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35540,9 +35540,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35566,7 +35566,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
-    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
 
@@ -35599,9 +35599,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35621,9 +35621,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35753,9 +35753,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35775,9 +35775,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35838,7 +35838,7 @@ export namespace Prisma {
     data_criacao_usuario?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
-    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
   }
 
@@ -35860,7 +35860,7 @@ export namespace Prisma {
     create: XOR<UsuarioCreateWithoutMembershipsInput, UsuarioUncheckedCreateWithoutMembershipsInput>
   }
 
-  export type EmpresaCreateWithoutMembershipsInput = {
+  export type WorkspaceCreateWithoutMembershipsInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -35873,7 +35873,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaUncheckedCreateWithoutMembershipsInput = {
+  export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
     id_workspace?: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -35886,9 +35886,9 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaCreateOrConnectWithoutMembershipsInput = {
-    where: EmpresaWhereUniqueInput
-    create: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
+  export type WorkspaceCreateOrConnectWithoutMembershipsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
   }
 
   export type UsuarioUpsertWithoutMembershipsInput = {
@@ -35911,7 +35911,7 @@ export namespace Prisma {
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
-    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
   }
 
@@ -35928,18 +35928,18 @@ export namespace Prisma {
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type EmpresaUpsertWithoutMembershipsInput = {
-    update: XOR<EmpresaUpdateWithoutMembershipsInput, EmpresaUncheckedUpdateWithoutMembershipsInput>
-    create: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
-    where?: EmpresaWhereInput
+  export type WorkspaceUpsertWithoutMembershipsInput = {
+    update: XOR<WorkspaceUpdateWithoutMembershipsInput, WorkspaceUncheckedUpdateWithoutMembershipsInput>
+    create: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
+    where?: WorkspaceWhereInput
   }
 
-  export type EmpresaUpdateToOneWithWhereWithoutMembershipsInput = {
-    where?: EmpresaWhereInput
-    data: XOR<EmpresaUpdateWithoutMembershipsInput, EmpresaUncheckedUpdateWithoutMembershipsInput>
+  export type WorkspaceUpdateToOneWithWhereWithoutMembershipsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutMembershipsInput, WorkspaceUncheckedUpdateWithoutMembershipsInput>
   }
 
-  export type EmpresaUpdateWithoutMembershipsInput = {
+  export type WorkspaceUpdateWithoutMembershipsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35952,7 +35952,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateWithoutMembershipsInput = {
+  export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
@@ -35981,9 +35981,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -36003,9 +36003,9 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -36041,9 +36041,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -36063,9 +36063,9 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -36085,10 +36085,10 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
@@ -36107,10 +36107,10 @@ export namespace Prisma {
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput = {
@@ -36118,7 +36118,7 @@ export namespace Prisma {
     create: XOR<OrganizacaoCreateWithoutProdutoGravityWorkspaceInput, OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput>
   }
 
-  export type EmpresaCreateWithoutCompany_productsInput = {
+  export type WorkspaceCreateWithoutCompany_productsInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -36131,7 +36131,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaUncheckedCreateWithoutCompany_productsInput = {
+  export type WorkspaceUncheckedCreateWithoutCompany_productsInput = {
     id_workspace?: string
     id_organizacao_workspace: string
     nome_workspace: string
@@ -36144,9 +36144,9 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type EmpresaCreateOrConnectWithoutCompany_productsInput = {
-    where: EmpresaWhereUniqueInput
-    create: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
+  export type WorkspaceCreateOrConnectWithoutCompany_productsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
   }
 
   export type OrganizacaoUpsertWithoutProdutoGravityWorkspaceInput = {
@@ -36176,10 +36176,10 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUpdateManyWithoutTenantNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
@@ -36198,24 +36198,24 @@ export namespace Prisma {
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type EmpresaUpsertWithoutCompany_productsInput = {
-    update: XOR<EmpresaUpdateWithoutCompany_productsInput, EmpresaUncheckedUpdateWithoutCompany_productsInput>
-    create: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
-    where?: EmpresaWhereInput
+  export type WorkspaceUpsertWithoutCompany_productsInput = {
+    update: XOR<WorkspaceUpdateWithoutCompany_productsInput, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
+    create: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
+    where?: WorkspaceWhereInput
   }
 
-  export type EmpresaUpdateToOneWithWhereWithoutCompany_productsInput = {
-    where?: EmpresaWhereInput
-    data: XOR<EmpresaUpdateWithoutCompany_productsInput, EmpresaUncheckedUpdateWithoutCompany_productsInput>
+  export type WorkspaceUpdateToOneWithWhereWithoutCompany_productsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutCompany_productsInput, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
   }
 
-  export type EmpresaUpdateWithoutCompany_productsInput = {
+  export type WorkspaceUpdateWithoutCompany_productsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36228,7 +36228,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateWithoutCompany_productsInput = {
+  export type WorkspaceUncheckedUpdateWithoutCompany_productsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
@@ -36241,7 +36241,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type FaixaPrecoCreateWithoutProdutoInput = {
+  export type ProdutoGravityFaixaPrecoCreateWithoutProdutoInput = {
     id_faixa_preco?: string
     faixa_de_faixa_preco: number
     faixa_ate_faixa_preco?: number | null
@@ -36250,7 +36250,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoUncheckedCreateWithoutProdutoInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput = {
     id_faixa_preco?: string
     faixa_de_faixa_preco: number
     faixa_ate_faixa_preco?: number | null
@@ -36259,17 +36259,17 @@ export namespace Prisma {
     data_criacao_faixa_preco?: Date | string
   }
 
-  export type FaixaPrecoCreateOrConnectWithoutProdutoInput = {
-    where: FaixaPrecoWhereUniqueInput
-    create: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput>
+  export type ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput = {
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
+    create: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoCreateManyProdutoInputEnvelope = {
-    data: FaixaPrecoCreateManyProdutoInput | FaixaPrecoCreateManyProdutoInput[]
+  export type ProdutoGravityFaixaPrecoCreateManyProdutoInputEnvelope = {
+    data: ProdutoGravityFaixaPrecoCreateManyProdutoInput | ProdutoGravityFaixaPrecoCreateManyProdutoInput[]
     skipDuplicates?: boolean
   }
 
-  export type NegociacaoEspecialCreateWithoutProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput = {
     id_negociacao_especial?: string
     id_organizacao_negociacao_especial: string
     nome_organizacao_negociacao_especial: string
@@ -36281,7 +36281,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialUncheckedCreateWithoutProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput = {
     id_negociacao_especial?: string
     id_organizacao_negociacao_especial: string
     nome_organizacao_negociacao_especial: string
@@ -36293,75 +36293,75 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type NegociacaoEspecialCreateOrConnectWithoutProdutoInput = {
-    where: NegociacaoEspecialWhereUniqueInput
-    create: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput>
+  export type ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput = {
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
+    create: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialCreateManyProdutoInputEnvelope = {
-    data: NegociacaoEspecialCreateManyProdutoInput | NegociacaoEspecialCreateManyProdutoInput[]
+  export type ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope = {
+    data: ProdutoGravityNegociacaoEspecialCreateManyProdutoInput | ProdutoGravityNegociacaoEspecialCreateManyProdutoInput[]
     skipDuplicates?: boolean
   }
 
-  export type FaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput = {
-    where: FaixaPrecoWhereUniqueInput
-    update: XOR<FaixaPrecoUpdateWithoutProdutoInput, FaixaPrecoUncheckedUpdateWithoutProdutoInput>
-    create: XOR<FaixaPrecoCreateWithoutProdutoInput, FaixaPrecoUncheckedCreateWithoutProdutoInput>
+  export type ProdutoGravityFaixaPrecoUpsertWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
+    update: XOR<ProdutoGravityFaixaPrecoUpdateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedUpdateWithoutProdutoInput>
+    create: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput = {
-    where: FaixaPrecoWhereUniqueInput
-    data: XOR<FaixaPrecoUpdateWithoutProdutoInput, FaixaPrecoUncheckedUpdateWithoutProdutoInput>
+  export type ProdutoGravityFaixaPrecoUpdateWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityFaixaPrecoWhereUniqueInput
+    data: XOR<ProdutoGravityFaixaPrecoUpdateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedUpdateWithoutProdutoInput>
   }
 
-  export type FaixaPrecoUpdateManyWithWhereWithoutProdutoInput = {
-    where: FaixaPrecoScalarWhereInput
-    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyWithoutProdutoInput>
+  export type ProdutoGravityFaixaPrecoUpdateManyWithWhereWithoutProdutoInput = {
+    where: ProdutoGravityFaixaPrecoScalarWhereInput
+    data: XOR<ProdutoGravityFaixaPrecoUpdateManyMutationInput, ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoInput>
   }
 
-  export type FaixaPrecoScalarWhereInput = {
-    AND?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
-    OR?: FaixaPrecoScalarWhereInput[]
-    NOT?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
-    id_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    id_produto_gravity_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"FaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"FaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"FaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"FaixaPreco"> | Date | string
+  export type ProdutoGravityFaixaPrecoScalarWhereInput = {
+    AND?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
+    OR?: ProdutoGravityFaixaPrecoScalarWhereInput[]
+    NOT?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
+    id_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
   }
 
-  export type NegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput = {
-    where: NegociacaoEspecialWhereUniqueInput
-    update: XOR<NegociacaoEspecialUpdateWithoutProdutoInput, NegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
-    create: XOR<NegociacaoEspecialCreateWithoutProdutoInput, NegociacaoEspecialUncheckedCreateWithoutProdutoInput>
+  export type ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
+    update: XOR<ProdutoGravityNegociacaoEspecialUpdateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
+    create: XOR<ProdutoGravityNegociacaoEspecialCreateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedCreateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput = {
-    where: NegociacaoEspecialWhereUniqueInput
-    data: XOR<NegociacaoEspecialUpdateWithoutProdutoInput, NegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
+  export type ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityNegociacaoEspecialWhereUniqueInput
+    data: XOR<ProdutoGravityNegociacaoEspecialUpdateWithoutProdutoInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput = {
-    where: NegociacaoEspecialScalarWhereInput
-    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput>
+  export type ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput = {
+    where: ProdutoGravityNegociacaoEspecialScalarWhereInput
+    data: XOR<ProdutoGravityNegociacaoEspecialUpdateManyMutationInput, ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput>
   }
 
-  export type NegociacaoEspecialScalarWhereInput = {
-    AND?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
-    OR?: NegociacaoEspecialScalarWhereInput[]
-    NOT?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
-    id_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    id_produto_gravity_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    id_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    nome_organizacao_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    acordo_negociacao_especial?: StringFilter<"NegociacaoEspecial"> | string
-    data_inicio_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    data_fim_negociacao_especial?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
-    ilimitado_negociacao_especial?: BoolFilter<"NegociacaoEspecial"> | boolean
-    data_criacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
-    data_atualizacao_negociacao_especial?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+  export type ProdutoGravityNegociacaoEspecialScalarWhereInput = {
+    AND?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
+    OR?: ProdutoGravityNegociacaoEspecialScalarWhereInput[]
+    NOT?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
+    id_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_produto_gravity_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    id_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    nome_organizacao_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    acordo_negociacao_especial?: StringFilter<"ProdutoGravityNegociacaoEspecial"> | string
+    data_inicio_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    data_fim_negociacao_especial?: DateTimeNullableFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string | null
+    ilimitado_negociacao_especial?: BoolFilter<"ProdutoGravityNegociacaoEspecial"> | boolean
+    data_criacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
+    data_atualizacao_negociacao_especial?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
   }
 
   export type ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput = {
@@ -36394,7 +36394,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    negociacoes_produto_gravity?: NegociacaoEspecialCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput = {
@@ -36427,7 +36427,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutFaixas_preco_produto_gravityInput = {
@@ -36476,7 +36476,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negociacoes_produto_gravity?: NegociacaoEspecialUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput = {
@@ -36509,7 +36509,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negociacoes_produto_gravity?: NegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput = {
@@ -36542,7 +36542,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoCreateNestedManyWithoutProdutoInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput = {
@@ -36575,7 +36575,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: Date | string
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutNegociacoes_produto_gravityInput = {
@@ -36624,7 +36624,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUpdateManyWithoutProdutoNestedInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput = {
@@ -36657,7 +36657,7 @@ export namespace Prisma {
     data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    faixas_preco_produto_gravity?: FaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -36671,7 +36671,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type AssinaturaProdutoGravityCreateManyTenantInput = {
+  export type ProdutoGravityAssinaturaCreateManyTenantInput = {
     id_assinatura_produto_gravity?: string
     status_assinatura_produto_gravity?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
@@ -36695,7 +36695,7 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: Date | string
   }
 
-  export type EmpresaCreateManyTenantInput = {
+  export type WorkspaceCreateManyTenantInput = {
     id_workspace?: string
     nome_workspace: string
     subdominio_workspace?: string | null
@@ -36705,7 +36705,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ConfiguracaoProdutoCreateManyTenantInput = {
+  export type ProdutoGravityConfiguracaoCreateManyTenantInput = {
     id_config_produto_gravity?: string
     chave_produto_config_produto_gravity: string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -36731,7 +36731,7 @@ export namespace Prisma {
     tipo_usuario?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     data_criacao_usuario?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
@@ -36760,7 +36760,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityUpdateWithoutTenantInput = {
+  export type ProdutoGravityAssinaturaUpdateWithoutTenantInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36773,7 +36773,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityUncheckedUpdateWithoutTenantInput = {
+  export type ProdutoGravityAssinaturaUncheckedUpdateWithoutTenantInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36786,7 +36786,7 @@ export namespace Prisma {
     data_atualizacao_assinatura_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantInput = {
+  export type ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantInput = {
     id_assinatura_produto_gravity?: StringFieldUpdateOperationsInput | string
     status_assinatura_produto_gravity?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36832,7 +36832,7 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaUpdateWithoutTenantInput = {
+  export type WorkspaceUpdateWithoutTenantInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36845,7 +36845,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateWithoutTenantInput = {
+  export type WorkspaceUncheckedUpdateWithoutTenantInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36858,7 +36858,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type EmpresaUncheckedUpdateManyWithoutTenantInput = {
+  export type WorkspaceUncheckedUpdateManyWithoutTenantInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36868,7 +36868,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoUpdateWithoutTenantInput = {
+  export type ProdutoGravityConfiguracaoUpdateWithoutTenantInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -36877,7 +36877,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput = {
+  export type ProdutoGravityConfiguracaoUncheckedUpdateWithoutTenantInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -36886,7 +36886,7 @@ export namespace Prisma {
     data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantInput = {
+  export type ProdutoGravityConfiguracaoUncheckedUpdateManyWithoutTenantInput = {
     id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
     configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
@@ -36901,7 +36901,7 @@ export namespace Prisma {
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput
+    company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateWithoutTenantInput = {
@@ -36983,7 +36983,7 @@ export namespace Prisma {
     ativo_usuario_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_usuario_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: EmpresaUpdateOneRequiredWithoutMembershipsNestedInput
+    company?: WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput
   }
 
   export type UsuarioWorkspaceUncheckedUpdateWithoutUserInput = {
@@ -37130,7 +37130,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoCreateManyProdutoInput = {
+  export type ProdutoGravityFaixaPrecoCreateManyProdutoInput = {
     id_faixa_preco?: string
     faixa_de_faixa_preco: number
     faixa_ate_faixa_preco?: number | null
@@ -37139,7 +37139,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: Date | string
   }
 
-  export type NegociacaoEspecialCreateManyProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialCreateManyProdutoInput = {
     id_negociacao_especial?: string
     id_organizacao_negociacao_especial: string
     nome_organizacao_negociacao_especial: string
@@ -37151,7 +37151,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: Date | string
   }
 
-  export type FaixaPrecoUpdateWithoutProdutoInput = {
+  export type ProdutoGravityFaixaPrecoUpdateWithoutProdutoInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
     faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37160,7 +37160,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoUncheckedUpdateWithoutProdutoInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedUpdateWithoutProdutoInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
     faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37169,7 +37169,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type FaixaPrecoUncheckedUpdateManyWithoutProdutoInput = {
+  export type ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoInput = {
     id_faixa_preco?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
     faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37178,7 +37178,7 @@ export namespace Prisma {
     data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUpdateWithoutProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialUpdateWithoutProdutoInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
     nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -37190,7 +37190,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUncheckedUpdateWithoutProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedUpdateWithoutProdutoInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
     nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -37202,7 +37202,7 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type NegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput = {
+  export type ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoInput = {
     id_negociacao_especial?: StringFieldUpdateOperationsInput | string
     id_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
     nome_organizacao_negociacao_especial?: StringFieldUpdateOperationsInput | string
@@ -37228,9 +37228,9 @@ export namespace Prisma {
      */
     export type UsuarioCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use EmpresaCountOutputTypeDefaultArgs instead
+     * @deprecated Use WorkspaceCountOutputTypeDefaultArgs instead
      */
-    export type EmpresaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaCountOutputTypeDefaultArgs<ExtArgs>
+    export type WorkspaceCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ProdutoGravityCountOutputTypeDefaultArgs instead
      */
@@ -37244,29 +37244,29 @@ export namespace Prisma {
      */
     export type UsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AssinaturaProdutoGravityDefaultArgs instead
+     * @deprecated Use ProdutoGravityAssinaturaDefaultArgs instead
      */
-    export type AssinaturaProdutoGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssinaturaProdutoGravityDefaultArgs<ExtArgs>
+    export type ProdutoGravityAssinaturaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityAssinaturaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UsuarioPermissaoDefaultArgs instead
      */
     export type UsuarioPermissaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioPermissaoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use PermissaoAdminGravityDefaultArgs instead
+     * @deprecated Use AdminGravityPermissaoDefaultArgs instead
      */
-    export type PermissaoAdminGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PermissaoAdminGravityDefaultArgs<ExtArgs>
+    export type AdminGravityPermissaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AdminGravityPermissaoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use EmpresaDefaultArgs instead
+     * @deprecated Use WorkspaceDefaultArgs instead
      */
-    export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
+    export type WorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WorkspaceDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UsuarioWorkspaceDefaultArgs instead
      */
     export type UsuarioWorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioWorkspaceDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ConfiguracaoProdutoDefaultArgs instead
+     * @deprecated Use ProdutoGravityConfiguracaoDefaultArgs instead
      */
-    export type ConfiguracaoProdutoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoProdutoDefaultArgs<ExtArgs>
+    export type ProdutoGravityConfiguracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityConfiguracaoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ProdutoGravityWorkspaceDefaultArgs instead
      */
@@ -37276,13 +37276,13 @@ export namespace Prisma {
      */
     export type ProdutoGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use FaixaPrecoDefaultArgs instead
+     * @deprecated Use ProdutoGravityFaixaPrecoDefaultArgs instead
      */
-    export type FaixaPrecoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FaixaPrecoDefaultArgs<ExtArgs>
+    export type ProdutoGravityFaixaPrecoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityFaixaPrecoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use NegociacaoEspecialDefaultArgs instead
+     * @deprecated Use ProdutoGravityNegociacaoEspecialDefaultArgs instead
      */
-    export type NegociacaoEspecialArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NegociacaoEspecialDefaultArgs<ExtArgs>
+    export type ProdutoGravityNegociacaoEspecialArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityNegociacaoEspecialDefaultArgs<ExtArgs>
     /**
      * @deprecated Use DeployDefaultArgs instead
      */
@@ -37312,21 +37312,21 @@ export namespace Prisma {
      */
     export type TestesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestesDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AgendamentoTesteDefaultArgs instead
+     * @deprecated Use TesteAgendamentoDefaultArgs instead
      */
-    export type AgendamentoTesteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendamentoTesteDefaultArgs<ExtArgs>
+    export type TesteAgendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TesteAgendamentoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use PlanoTesteDefaultArgs instead
+     * @deprecated Use TestePlanoDefaultArgs instead
      */
-    export type PlanoTesteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PlanoTesteDefaultArgs<ExtArgs>
+    export type TestePlanoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestePlanoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use FaturaProdutosGravityDefaultArgs instead
+     * @deprecated Use ProdutoGravityFaturaDefaultArgs instead
      */
-    export type FaturaProdutosGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FaturaProdutosGravityDefaultArgs<ExtArgs>
+    export type ProdutoGravityFaturaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityFaturaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use MetricasGeminiDefaultArgs instead
+     * @deprecated Use LLMMetricasDefaultArgs instead
      */
-    export type MetricasGeminiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MetricasGeminiDefaultArgs<ExtArgs>
+    export type LLMMetricasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LLMMetricasDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

@@ -11,7 +11,7 @@ export const productConfigService = {
    * Busca a configuração de um produto para um tenant específico
    */
   async getConfig(tenantId: string, productKey: string) {
-    return prisma.configuracaoProduto.findUnique({
+    return prisma.produtoGravityConfiguracao.findUnique({
       where: {
         [COMPOUND_KEY]: {
           id_organizacao_config_produto_gravity: tenantId,
@@ -31,7 +31,7 @@ export const productConfigService = {
     config: Record<string, unknown>,
     isActive = true
   ) {
-    return prisma.configuracaoProduto.upsert({
+    return prisma.produtoGravityConfiguracao.upsert({
       where: {
         [COMPOUND_KEY]: {
           id_organizacao_config_produto_gravity: tenantId,
@@ -55,7 +55,7 @@ export const productConfigService = {
    * Lista todos os produtos habilitados para um tenant
    */
   async listActiveProducts(tenantId: string) {
-    return prisma.configuracaoProduto.findMany({
+    return prisma.produtoGravityConfiguracao.findMany({
       where: {
         id_organizacao_config_produto_gravity: tenantId,
         ativo_config_produto_gravity: true,
@@ -72,7 +72,7 @@ export const productConfigService = {
    * Desabilita um produto para um tenant (sem deletar a config)
    */
   async disableProduct(tenantId: string, productKey: string) {
-    return prisma.configuracaoProduto.updateMany({
+    return prisma.produtoGravityConfiguracao.updateMany({
       where: {
         id_organizacao_config_produto_gravity: tenantId,
         chave_produto_config_produto_gravity: productKey,

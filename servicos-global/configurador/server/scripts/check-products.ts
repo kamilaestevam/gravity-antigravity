@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma.js'
 async function main() {
-  const configs = await prisma.configuracaoProduto.findMany()
+  const configs = await prisma.produtoGravityConfiguracao.findMany()
   console.log('Total ProductConfig:', configs.length)
   configs.forEach(c =>
     console.log(

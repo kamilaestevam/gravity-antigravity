@@ -43,7 +43,7 @@ export const billingService = {
 
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([
-          prisma.assinaturaProdutoGravity.updateMany({
+          prisma.produtoGravityAssinatura.updateMany({
             where: { id_organizacao_assinatura_produto_gravity: tenantId },
             data: {
               status_assinatura_produto_gravity: 'ATIVA',
@@ -65,7 +65,7 @@ export const billingService = {
         })
         if (!tenantRow) break
 
-        await prisma.assinaturaProdutoGravity.updateMany({
+        await prisma.produtoGravityAssinatura.updateMany({
           where: {
             id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
             stripe_subscription_id: sub.id,
@@ -87,7 +87,7 @@ export const billingService = {
         if (!tenantRow) break
 
         await prisma.$transaction([
-          prisma.assinaturaProdutoGravity.updateMany({
+          prisma.produtoGravityAssinatura.updateMany({
             where: {
               id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
               stripe_subscription_id: sub.id,
@@ -112,7 +112,7 @@ export const billingService = {
         })
         if (!tenantRow) break
 
-        await prisma.assinaturaProdutoGravity.updateMany({
+        await prisma.produtoGravityAssinatura.updateMany({
           where: { id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao },
           data: { status_assinatura_produto_gravity: 'VENCIDA' },
         })

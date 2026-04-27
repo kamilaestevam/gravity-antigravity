@@ -164,7 +164,7 @@ async function isPreferredCompanyValid(
 ): Promise<boolean> {
   // Admins Gravity: acesso via tenant, não via membership
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-    const company = await prisma.empresa.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: {
         id_workspace: companyId,
         id_organizacao_workspace: tenantId,

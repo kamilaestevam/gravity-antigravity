@@ -128,13 +128,13 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
     let empresasParaVincular: { id_workspace: string }[] = []
 
     if (role === 'MASTER' || workspacesPayload === 'all') {
-      empresasParaVincular = await prisma.empresa.findMany({
+      empresasParaVincular = await prisma.workspace.findMany({
         where: { id_organizacao_workspace: req.auth.tenantId, status_workspace: 'ATIVO' },
         select: { id_workspace: true },
       })
     } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
       // IDOR prevention: valida que todos os IDs pertencem ao tenant antes do insert
-      empresasParaVincular = await prisma.empresa.findMany({
+      empresasParaVincular = await prisma.workspace.findMany({
         where: {
           id_workspace: { in: workspacesPayload },
           id_organizacao_workspace: req.auth.tenantId,
@@ -215,7 +215,7 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
     }
 
     // Garante que a empresa filha pertence ao mesmo tenant
-    const company = await prisma.empresa.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
@@ -263,7 +263,7 @@ async function validarWorkspacesDoTenant(
   tenantId: string,
   workspaceIds: string[],
 ): Promise<void> {
-  const empresas = await prisma.empresa.findMany({
+  const empresas = await prisma.workspace.findMany({
     where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: tenantId, status_workspace: 'ATIVO' },
     select: { id_workspace: true },
   })

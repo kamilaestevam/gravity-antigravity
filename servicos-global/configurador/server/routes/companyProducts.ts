@@ -25,7 +25,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const { id_workspace: companyId } = req.params
 
     // Verifica se o workspace pertence ao tenant
-    const company = await prisma.empresa.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
@@ -41,7 +41,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
         orderBy: { data_criacao_produto_gravity_workspace: 'desc' },
       }),
       // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
-      prisma.configuracaoProduto.findMany({
+      prisma.produtoGravityConfiguracao.findMany({
         where: {
           id_organizacao_config_produto_gravity: req.auth.tenantId,
           ativo_config_produto_gravity: true,
@@ -115,7 +115,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     const { product_key } = parsed.data
 
     // Verifica se o workspace pertence ao tenant
-    const company = await prisma.empresa.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
@@ -123,7 +123,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     }
 
     // Verifica se o tenant contratou o produto
-    const tenantProduct = await prisma.configuracaoProduto.findUnique({
+    const tenantProduct = await prisma.produtoGravityConfiguracao.findUnique({
       where: {
         id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
           id_organizacao_config_produto_gravity: req.auth.tenantId,

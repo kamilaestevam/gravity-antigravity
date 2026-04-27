@@ -24,10 +24,10 @@ const prismaMock = {
     findFirst: vi.fn(),
     create: vi.fn(),
   },
-  assinaturaProdutoGravity: {
+  produtoGravityAssinatura: {
     create: vi.fn(),
   },
-  empresa: {
+  workspace: {
     create: vi.fn(),
   },
   $transaction: vi.fn(),
@@ -128,8 +128,8 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
         suid_empresa_organizacao: suid,
       })
       prismaMock.usuario.create.mockResolvedValueOnce({ id: 'user-id' })
-      prismaMock.assinaturaProdutoGravity.create.mockResolvedValueOnce({ id: 'sub-id' })
-      prismaMock.empresa.create.mockResolvedValueOnce({ id: 'empresa-id' })
+      prismaMock.produtoGravityAssinatura.create.mockResolvedValueOnce({ id: 'sub-id' })
+      prismaMock.workspace.create.mockResolvedValueOnce({ id: 'empresa-id' })
       return cb(prismaMock)
     })
 
@@ -149,8 +149,8 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     expect(prismaMock.organizacao.create).toHaveBeenCalledTimes(1)
     expect(prismaMock.organizacao.create.mock.calls[0][0].data.suid_empresa_organizacao).toBe(suid)
     expect(prismaMock.usuario.create).toHaveBeenCalledTimes(1)
-    expect(prismaMock.assinaturaProdutoGravity.create).toHaveBeenCalledTimes(1)
-    expect(prismaMock.empresa.create).toHaveBeenCalledTimes(1)
+    expect(prismaMock.produtoGravityAssinatura.create).toHaveBeenCalledTimes(1)
+    expect(prismaMock.workspace.create).toHaveBeenCalledTimes(1)
 
     expect(tenant.suid_empresa_organizacao).toBe(suid)
   })

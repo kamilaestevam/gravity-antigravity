@@ -369,10 +369,10 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.empresa.findUnique({ where: { id_workspace: idParsed.data } })
+    const existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
     if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
 
-    const company = await prisma.empresa.update({
+    const company = await prisma.workspace.update({
       where: { id_workspace: idParsed.data },
       data: { status_workspace: parsed.data.status },
       select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao_workspace: true },

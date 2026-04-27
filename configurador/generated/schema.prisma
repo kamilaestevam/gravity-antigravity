@@ -87,10 +87,10 @@ model Organizacao {
 
   // Relações
   users_organizacao            Usuario[]
-  subscriptions_organizacao    AssinaturaProdutoGravity[]
+  subscriptions_organizacao    ProdutoGravityAssinatura[]
   user_permissions_organizacao UsuarioPermissao[]
-  companies_organizacao        Empresa[]
-  product_configs_organizacao  ConfiguracaoProduto[]
+  companies_organizacao        Workspace[]
+  product_configs_organizacao  ProdutoGravityConfiguracao[]
   ProdutoGravityWorkspace      ProdutoGravityWorkspace[]
 
   @@index([status_organizacao])
@@ -105,33 +105,33 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id            String      @id @default(cuid()) @map("id_usuario")
-  tenant_id     String      @map("id_organizacao_usuario")
-  clerk_user_id String      @unique
-  email         String      @map("email_usuario")
-  name          String      @map("nome_usuario")
-  role          UsuarioTipo @default(PADRAO) @map("tipo_usuario")
+  id_usuario             String      @id @default(cuid())
+  id_organizacao_usuario String
+  clerk_user_id          String      @unique
+  email_usuario          String
+  nome_usuario           String
+  tipo_usuario           UsuarioTipo @default(PADRAO)
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
   preferred_company_id String?
 
   // Timestamps
-  created_at DateTime @default(now()) @map("data_criacao_usuario")
-  updated_at DateTime @updatedAt
+  data_criacao_usuario DateTime @default(now())
+  updated_at           DateTime @updatedAt
 
   // Relações
-  tenant            Organizacao        @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
+  tenant            Organizacao        @relation(fields: [id_organizacao_usuario], references: [id_organizacao], onDelete: Cascade)
+  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id_workspace], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
-  // Email único por tenant
-  @@unique([tenant_id, email])
-  // Índices obrigatórios (tenant_id base + compostos)
-  @@index([tenant_id])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, role])
+  // Email único por organização
+  @@unique([id_organizacao_usuario, email_usuario])
+  // Índices obrigatórios (id_organizacao_usuario base + compostos)
+  @@index([id_organizacao_usuario])
+  @@index([id_organizacao_usuario, data_criacao_usuario])
+  @@index([id_organizacao_usuario, tipo_usuario])
   @@index([preferred_company_id])
   @@map("usuario")
 }
@@ -142,30 +142,30 @@ model Usuario {
 // tenant_id é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
-model AssinaturaProdutoGravity {
-  id        String                         @id @default(cuid())
-  tenant_id String
-  status    StatusAssinaturaProdutoGravity @default(EM_TESTE)
+model ProdutoGravityAssinatura {
+  id_assinatura_produto_gravity             String                         @id @default(cuid())
+  id_organizacao_assinatura_produto_gravity String
+  status_assinatura_produto_gravity         StatusAssinaturaProdutoGravity @default(EM_TESTE)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
 
-  trial_ends_at        DateTime?
-  current_period_start DateTime?
-  current_period_end   DateTime?
-  cancelled_at         DateTime?
+  data_fim_teste_assinatura_produto_gravity      DateTime?
+  data_inicio_periodo_assinatura_produto_gravity DateTime?
+  data_fim_periodo_assinatura_produto_gravity    DateTime?
+  data_cancelamento_assinatura_produto_gravity   DateTime?
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_assinatura_produto_gravity     DateTime @default(now())
+  data_atualizacao_assinatura_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_assinatura_produto_gravity], references: [id_organizacao], onDelete: Cascade)
 
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, status])
+  // Índices obrigatórios — `map` explícito porque os nomes longos colidem após truncamento PG (63 chars)
+  @@index([id_organizacao_assinatura_produto_gravity], map: "apg_org_idx")
+  @@index([id_organizacao_assinatura_produto_gravity, data_criacao_assinatura_produto_gravity], map: "apg_org_criacao_idx")
+  @@index([id_organizacao_assinatura_produto_gravity, status_assinatura_produto_gravity], map: "apg_org_status_idx")
   @@map("assinatura_produto_gravity")
 }
 
@@ -177,28 +177,28 @@ model AssinaturaProdutoGravity {
 // ---------------------------------------------------------------------------
 
 model UsuarioPermissao {
-  id         String @id @default(cuid())
-  tenant_id  String
-  company_id String // workspace onde se aplica (obrigatório)
-  user_id    String
-  product_id String // produto ao qual a permissão pertence
-  permission String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
-  granted_by String // clerk_id do Master que concedeu a permissão
+  id_usuario_permissao             String @id @default(cuid())
+  id_organizacao_usuario_permissao String
+  id_workspace_usuario_permissao   String // workspace onde se aplica (obrigatório)
+  id_usuario_usuario_permissao     String
+  id_produto_usuario_permissao     String // produto ao qual a permissão pertence
+  permissao_usuario_permissao      String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  concedido_por_usuario_permissao  String // clerk_id do Master que concedeu a permissão
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_usuario_permissao     DateTime @default(now())
+  data_atualizacao_usuario_permissao DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  user   Usuario     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_usuario_permissao], references: [id_organizacao], onDelete: Cascade)
+  user   Usuario     @relation(fields: [id_usuario_usuario_permissao], references: [id_usuario], onDelete: Cascade)
 
   // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
-  @@unique([tenant_id, company_id, user_id, product_id, permission])
+  @@unique([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao, id_produto_usuario_permissao, permissao_usuario_permissao])
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id, user_id])
+  @@index([id_organizacao_usuario_permissao])
+  @@index([id_organizacao_usuario_permissao, id_usuario_usuario_permissao])
+  @@index([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao])
   @@map("usuario_permissao")
 }
 
@@ -208,22 +208,22 @@ model UsuarioPermissao {
 // Super Admin não usa esta tabela — tem acesso irrestrito.
 // ---------------------------------------------------------------------------
 
-model PermissaoAdminGravity {
-  id         String @id @default(cuid())
-  admin_id   String // clerk_id do Admin Gravity
-  resource   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
-  action     String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
-  granted_by String // clerk_id do Super Admin que concedeu
+model AdminGravityPermissao {
+  id_permissao_admin_gravity            String @id @default(cuid())
+  id_admin_permissao_admin_gravity      String // clerk_id do Admin Gravity
+  recurso_permissao_admin_gravity       String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
+  acao_permissao_admin_gravity          String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
+  concedido_por_permissao_admin_gravity String // clerk_id do Super Admin que concedeu
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_permissao_admin_gravity     DateTime @default(now())
+  data_atualizacao_permissao_admin_gravity DateTime @updatedAt
 
   // Admin não pode ter permissão duplicada no mesmo recurso+ação
-  @@unique([admin_id, resource, action])
+  @@unique([id_admin_permissao_admin_gravity, recurso_permissao_admin_gravity, acao_permissao_admin_gravity], map: "pag_admin_recurso_acao_unq")
   // Índices obrigatórios
-  @@index([admin_id])
-  @@index([admin_id, resource])
+  @@index([id_admin_permissao_admin_gravity], map: "pag_admin_idx")
+  @@index([id_admin_permissao_admin_gravity, recurso_permissao_admin_gravity], map: "pag_admin_recurso_idx")
   @@map("permissao_admin_gravity")
 }
 
@@ -233,28 +233,28 @@ model PermissaoAdminGravity {
 // Um tenant pode ter até 50 empresas filhas.
 // ---------------------------------------------------------------------------
 
-model Empresa {
-  id        String        @id @default(cuid())
-  tenant_id String
-  name      String
-  subdomain String?       @unique
-  cnpj      String?
-  status    EmpresaStatus @default(ATIVO)
+model Workspace {
+  id_workspace             String        @id @default(cuid())
+  id_organizacao_workspace String
+  nome_workspace           String
+  subdominio_workspace     String?       @unique
+  cnpj_workspace           String?
+  status_workspace         EmpresaStatus @default(ATIVO)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_workspace DateTime @default(now())
+  updated_at             DateTime @updatedAt
 
   // Relações
-  tenant             Organizacao               @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant             Organizacao               @relation(fields: [id_organizacao_workspace], references: [id_organizacao], onDelete: Cascade)
   memberships        UsuarioWorkspace[]
   company_products   ProdutoGravityWorkspace[]
   preferred_by_users Usuario[]                 @relation("UserPreferredCompany")
 
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao_workspace])
+  @@index([id_organizacao_workspace, status_workspace])
+  @@index([id_organizacao_workspace, data_criacao_workspace])
   @@map("workspace")
 }
 
@@ -265,27 +265,27 @@ model Empresa {
 // ---------------------------------------------------------------------------
 
 model UsuarioWorkspace {
-  id         String             @id @default(cuid())
-  tenant_id  String
-  user_id    String
-  company_id String
-  role       TipoUsuarioEmpresa @default(PADRAO)
-  is_active  Boolean            @default(true)
+  id_usuario_workspace             String             @id @default(cuid())
+  id_organizacao_usuario_workspace String
+  id_usuario_usuario_workspace     String
+  id_workspace_usuario_workspace   String
+  tipo_usuario_workspace           TipoUsuarioEmpresa @default(PADRAO)
+  ativo_usuario_workspace          Boolean            @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_usuario_workspace     DateTime @default(now())
+  data_atualizacao_usuario_workspace DateTime @updatedAt
 
   // Relações
-  user    Usuario @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  company Empresa @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user    Usuario   @relation(fields: [id_usuario_usuario_workspace], references: [id_usuario], onDelete: Cascade)
+  company Workspace @relation(fields: [id_workspace_usuario_workspace], references: [id_workspace], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
-  @@unique([tenant_id, user_id, company_id])
+  @@unique([id_organizacao_usuario_workspace, id_usuario_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_user_ws_unq")
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao_usuario_workspace], map: "uw_org_idx")
+  @@index([id_organizacao_usuario_workspace, id_usuario_usuario_workspace], map: "uw_org_user_idx")
+  @@index([id_organizacao_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_ws_idx")
   @@map("usuario_workspace")
 }
 
@@ -295,26 +295,26 @@ model UsuarioWorkspace {
 // product_key identifica o produto (ex: "simulacusto", "nf-importacao")
 // ---------------------------------------------------------------------------
 
-model ConfiguracaoProduto {
-  id          String  @id @default(cuid())
-  tenant_id   String
-  product_key String
-  config      Json    @default("{}")
-  is_active   Boolean @default(true)
+model ProdutoGravityConfiguracao {
+  id_config_produto_gravity             String  @id @default(cuid())
+  id_organizacao_config_produto_gravity String
+  chave_produto_config_produto_gravity  String
+  configuracao_config_produto_gravity   Json    @default("{}")
+  ativo_config_produto_gravity          Boolean @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_config_produto_gravity     DateTime @default(now())
+  data_atualizacao_config_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_config_produto_gravity], references: [id_organizacao], onDelete: Cascade)
 
-  // Apenas uma config por produto por tenant
-  @@unique([tenant_id, product_key])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, product_key])
-  @@index([tenant_id, is_active])
+  // Apenas uma config por produto por tenant — `map` explícito para evitar colisão pós truncamento PG (63 chars)
+  @@unique([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_config_produto_gravity], map: "cpg_org_idx")
+  @@index([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_idx")
+  @@index([id_organizacao_config_produto_gravity, ativo_config_produto_gravity], map: "cpg_org_ativo_idx")
   @@map("config_produto_gravity")
 }
 
@@ -324,26 +324,26 @@ model ConfiguracaoProduto {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityWorkspace {
-  id          String  @id @default(cuid())
-  tenant_id   String
-  company_id  String
-  product_key String // ex: "simulacusto", "gestao-atividades"
-  is_active   Boolean @default(true)
+  id_produto_gravity_workspace             String  @id @default(cuid())
+  id_organizacao_produto_gravity_workspace String
+  id_workspace_produto_gravity_workspace   String
+  chave_produto_produto_gravity_workspace  String // ex: "simulacusto", "gestao-atividades"
+  ativo_produto_gravity_workspace          Boolean @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_produto_gravity_workspace     DateTime @default(now())
+  data_atualizacao_produto_gravity_workspace DateTime @updatedAt
 
   // Relações
-  tenant  Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
-  company Empresa     @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  tenant  Organizacao @relation(fields: [id_organizacao_produto_gravity_workspace], references: [id_organizacao], onDelete: Cascade)
+  company Workspace   @relation(fields: [id_workspace_produto_gravity_workspace], references: [id_workspace], onDelete: Cascade)
 
-  // Apenas uma ativação por produto por workspace
-  @@unique([company_id, product_key])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([company_id])
-  @@index([company_id, is_active])
+  // Apenas uma ativação por produto por workspace — `map` explícito para evitar colisão pós truncamento PG
+  @@unique([id_workspace_produto_gravity_workspace, chave_produto_produto_gravity_workspace], map: "pgw_ws_chave_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_produto_gravity_workspace], map: "pgw_org_idx")
+  @@index([id_workspace_produto_gravity_workspace], map: "pgw_ws_idx")
+  @@index([id_workspace_produto_gravity_workspace, ativo_produto_gravity_workspace], map: "pgw_ws_ativo_idx")
   @@map("produto_gravity_workspace")
 }
 
@@ -380,58 +380,58 @@ enum ProdutoGravityLimiteUsuario {
 }
 
 model ProdutoGravity {
-  id          String               @id @default(cuid())
-  name        String
-  slug        String               @unique
-  description String
-  status      StatusProdutoGravity @default(ATIVO)
-  launch_date DateTime?
+  id_produto_gravity              String               @id @default(cuid())
+  nome_produto_gravity            String
+  slug_produto_gravity            String               @unique(map: "pg_slug_unq")
+  descricao_produto_gravity       String
+  status_produto_gravity          StatusProdutoGravity @default(ATIVO)
+  data_lancamento_produto_gravity DateTime?
 
   // Setup
-  has_setup      Boolean  @default(false)
-  setup_price    Decimal? @db.Decimal(15, 2)
-  setup_currency String   @default("BRL")
+  possui_setup_produto_gravity Boolean  @default(false)
+  preco_setup_produto_gravity  Decimal? @db.Decimal(15, 2)
+  moeda_setup_produto_gravity  String   @default("BRL")
 
   // Billing
-  billing_type     TipoCobrancaGravity @default(MENSAL)
-  unit_price       Decimal             @db.Decimal(15, 2)
-  unit_currency    String              @default("BRL")
-  minimum_price    Decimal             @default(0) @db.Decimal(15, 2)
-  minimum_currency String              @default("BRL")
-  total_price      Decimal?            @db.Decimal(15, 2)
-  total_currency   String              @default("BRL")
+  tipo_cobranca_produto_gravity  TipoCobrancaGravity @default(MENSAL)
+  preco_unitario_produto_gravity Decimal             @db.Decimal(15, 2)
+  moeda_unitario_produto_gravity String              @default("BRL")
+  preco_minimo_produto_gravity   Decimal             @default(0) @db.Decimal(15, 2)
+  moeda_minimo_produto_gravity   String              @default("BRL")
+  preco_total_produto_gravity    Decimal?            @db.Decimal(15, 2)
+  moeda_total_produto_gravity    String              @default("BRL")
 
   // Users
-  user_limit_type     ProdutoGravityLimiteUsuario @default(ILIMITADO)
-  base_users_qty      Int?
-  extra_user_price    Decimal?                    @db.Decimal(15, 2)
-  extra_user_currency String                      @default("BRL")
+  tipo_limite_usuario_produto_gravity ProdutoGravityLimiteUsuario @default(ILIMITADO)
+  qtd_usuarios_base_produto_gravity   Int?
+  preco_usuario_extra_produto_gravity Decimal?                    @db.Decimal(15, 2)
+  moeda_usuario_extra_produto_gravity String                      @default("BRL")
 
   // Support
-  helpdesk_hours      Int      @default(0)
-  extra_hour_price    Decimal? @db.Decimal(15, 2)
-  extra_hour_currency String   @default("BRL")
+  horas_helpdesk_produto_gravity   Int      @default(0)
+  preco_hora_extra_produto_gravity Decimal? @db.Decimal(15, 2)
+  moeda_hora_extra_produto_gravity String   @default("BRL")
 
   // GABI On-Demand — quota padrão de tokens por tenant/mês
-  gabi_quota_mensal Int @default(0)
+  quota_gabi_mensal_produto_gravity Int @default(0)
 
   // Metadata
-  backend_module  String? // ex: "simula-custo", "bid-frete"
-  target_audience String?
+  modulo_backend_produto_gravity String? // ex: "simula-custo", "bid-frete"
+  publico_alvo_produto_gravity   String?
 
   // Timestamps
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime? // soft-delete — preserva negociações especiais
+  data_criacao_produto_gravity     DateTime  @default(now())
+  data_atualizacao_produto_gravity DateTime  @updatedAt
+  data_remocao_produto_gravity     DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
-  price_tiers  FaixaPreco[]
-  negotiations NegociacaoEspecial[]
+  faixas_preco_produto_gravity ProdutoGravityFaixaPreco[]
+  negociacoes_produto_gravity  ProdutoGravityNegociacaoEspecial[]
 
-  @@index([status])
-  @@index([slug])
-  @@index([deleted_at])
-  @@map("produtos_gravity")
+  @@index([status_produto_gravity], map: "pg_status_idx")
+  @@index([slug_produto_gravity], map: "pg_slug_idx")
+  @@index([data_remocao_produto_gravity], map: "pg_remocao_idx")
+  @@map("produto_gravity")
 }
 
 // ---------------------------------------------------------------------------
@@ -439,22 +439,22 @@ model ProdutoGravity {
 // Precificação escalonada — preço varia conforme quantidade.
 // ---------------------------------------------------------------------------
 
-model FaixaPreco {
-  id         String  @id @default(cuid())
-  product_id String
-  range_from Int
-  range_to   Int?
-  price      Decimal @db.Decimal(15, 2)
-  currency   String  @default("BRL")
+model ProdutoGravityFaixaPreco {
+  id_faixa_preco                 String  @id @default(cuid())
+  id_produto_gravity_faixa_preco String
+  faixa_de_faixa_preco           Int
+  faixa_ate_faixa_preco          Int?
+  preco_faixa_preco              Decimal @db.Decimal(15, 2)
+  moeda_faixa_preco              String  @default("BRL")
 
   // Timestamps
-  created_at DateTime @default(now())
+  data_criacao_faixa_preco DateTime @default(now())
 
   // Relations
-  product ProdutoGravity @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity_faixa_preco], references: [id_produto_gravity], onDelete: Cascade)
 
-  @@index([product_id])
-  @@index([product_id, range_from])
+  @@index([id_produto_gravity_faixa_preco], map: "fp_produto_idx")
+  @@index([id_produto_gravity_faixa_preco, faixa_de_faixa_preco], map: "fp_produto_faixa_idx")
   @@map("faixa_preco_produto_gravity")
 }
 
@@ -463,26 +463,26 @@ model FaixaPreco {
 // Condições comerciais personalizadas para tenants específicos.
 // ---------------------------------------------------------------------------
 
-model NegociacaoEspecial {
-  id           String    @id @default(cuid())
-  product_id   String
-  tenant_id    String
-  tenant_name  String
-  agreement    String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
-  starts_at    DateTime?
-  ends_at      DateTime?
-  is_unlimited Boolean   @default(false)
+model ProdutoGravityNegociacaoEspecial {
+  id_negociacao_especial                 String    @id @default(cuid())
+  id_produto_gravity_negociacao_especial String
+  id_organizacao_negociacao_especial     String
+  nome_organizacao_negociacao_especial   String
+  acordo_negociacao_especial             String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
+  data_inicio_negociacao_especial        DateTime?
+  data_fim_negociacao_especial           DateTime?
+  ilimitado_negociacao_especial          Boolean   @default(false)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_negociacao_especial     DateTime @default(now())
+  data_atualizacao_negociacao_especial DateTime @updatedAt
 
   // Relations
-  product ProdutoGravity @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity_negociacao_especial], references: [id_produto_gravity], onDelete: Cascade)
 
-  @@index([product_id])
-  @@index([tenant_id])
-  @@index([product_id, tenant_id])
+  @@index([id_produto_gravity_negociacao_especial], map: "ne_produto_idx")
+  @@index([id_organizacao_negociacao_especial], map: "ne_org_idx")
+  @@index([id_produto_gravity_negociacao_especial, id_organizacao_negociacao_especial], map: "ne_produto_org_idx")
   @@map("negociacao_especial_produto_gravity")
 }
 
@@ -507,24 +507,24 @@ enum DeployStatus {
 }
 
 model Deploy {
-  id                  String         @id @default(cuid()) @map("id_deploy")
-  deploy_number       Int            @default(autoincrement())
-  area                String         @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
-  version             String         @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
-  description         String         @map("descricao_deploy") // resumo das alterações (changelog curto)
-  environment         DeployAmbiente @default(PRODUCAO) @map("ambiente_deploy")
-  status              DeployStatus   @default(SUCESSO) @map("status_deploy")
-  deployed_by         String         @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
-  deployed_by_user_id String?        @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
-  deployed_at         DateTime       @default(now()) @map("data_execucao_deploy")
+  id_deploy            String         @id @default(cuid())
+  deploy_number        Int            @default(autoincrement())
+  area_deploy          String // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
+  versao_deploy        String // semver (v1.2.3) ou git sha (8f3a1c2)
+  descricao_deploy     String // resumo das alterações (changelog curto)
+  ambiente_deploy      DeployAmbiente @default(PRODUCAO)
+  status_deploy        DeployStatus   @default(SUCESSO)
+  quem_deploy          String // nome legível do responsável (snapshot no momento do deploy)
+  id_usuario_deploy    String? // FK opcional para Usuario (pode ser null se deploy veio de CI)
+  data_execucao_deploy DateTime       @default(now())
 
-  created_at DateTime @default(now()) @map("data_criacao_deploy")
+  data_criacao_deploy DateTime @default(now())
 
-  @@index([deployed_at])
-  @@index([area])
-  @@index([environment])
-  @@index([status])
-  @@index([area, deployed_at])
+  @@index([data_execucao_deploy])
+  @@index([area_deploy])
+  @@index([ambiente_deploy])
+  @@index([status_deploy])
+  @@index([area_deploy, data_execucao_deploy])
   @@map("deploy")
 }
 
@@ -535,21 +535,21 @@ model Deploy {
 // ---------------------------------------------------------------------------
 
 model FornecedorOrganizacao {
-  id            String @id @default(cuid())
-  clerk_user_id String
-  tenant_id     String
-  status        String @default("active")
+  id_fornecedor_organizacao             String @id @default(cuid())
+  clerk_user_id                         String
+  id_organizacao_fornecedor_organizacao String
+  status_fornecedor_organizacao         String @default("active")
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_fornecedor_organizacao     DateTime @default(now())
+  data_atualizacao_fornecedor_organizacao DateTime @updatedAt
 
-  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
-  @@unique([clerk_user_id, tenant_id])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([clerk_user_id])
-  @@index([tenant_id, clerk_user_id])
+  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant — `map` explícito (truncamento PG 63 chars)
+  @@unique([clerk_user_id, id_organizacao_fornecedor_organizacao], map: "fo_clerk_org_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_fornecedor_organizacao], map: "fo_org_idx")
+  @@index([clerk_user_id], map: "fo_clerk_idx")
+  @@index([id_organizacao_fornecedor_organizacao, clerk_user_id], map: "fo_org_clerk_idx")
   @@map("fornecedor_organizacao")
 }
 
@@ -560,27 +560,27 @@ model FornecedorOrganizacao {
 // ---------------------------------------------------------------------------
 
 model Seguranca {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  actor_id       String
-  actor_type     String // USER | SYSTEM | GABI_IA | ADMIN
-  action         String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
-  severity       String // CRITICAL | WARNING | INFO
-  status         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
-  description    String?
-  ip             String?
-  endpoint       String?
-  user_id        String?
-  product_id     String?
-  correlation_id String?
-  metadata       Json?    @default("{}")
-  created_at     DateTime @default(now())
+  id_seguranca             String   @id @default(cuid())
+  id_organizacao_seguranca String
+  id_ator_seguranca        String
+  tipo_ator_seguranca      String // USER | SYSTEM | GABI_IA | ADMIN
+  acao_seguranca           String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
+  severidade_seguranca     String // CRITICAL | WARNING | INFO
+  status_seguranca         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
+  descricao_seguranca      String?
+  ip_seguranca             String?
+  endpoint_seguranca       String?
+  id_usuario_seguranca     String?
+  id_produto_seguranca     String?
+  id_correlacao_seguranca  String?
+  metadata_seguranca       Json?    @default("{}")
+  data_criacao_seguranca   DateTime @default(now())
 
-  @@index([created_at])
-  @@index([severity])
-  @@index([action])
-  @@index([tenant_id, created_at])
-  @@index([severity, created_at])
+  @@index([data_criacao_seguranca])
+  @@index([severidade_seguranca])
+  @@index([acao_seguranca])
+  @@index([id_organizacao_seguranca, data_criacao_seguranca])
+  @@index([severidade_seguranca, data_criacao_seguranca])
   @@map("seguranca")
 }
 
@@ -590,20 +590,20 @@ model Seguranca {
 // ---------------------------------------------------------------------------
 
 model Requisicoes {
-  id           String   @id @default(cuid())
-  key          String // tenant:ip combo
-  tenant_id    String?
-  ip           String?
-  endpoint     String
-  count        Int
-  limit_max    Int
-  blocked      Boolean  @default(false)
-  window_start DateTime
-  created_at   DateTime @default(now())
+  id_requisicoes             String   @id @default(cuid())
+  chave_requisicoes          String // tenant:ip combo
+  id_organizacao_requisicoes String?
+  ip_requisicoes             String?
+  endpoint_requisicoes       String
+  contagem_requisicoes       Int
+  limite_maximo_requisicoes  Int
+  bloqueado_requisicoes      Boolean  @default(false)
+  inicio_janela_requisicoes  DateTime
+  data_criacao_requisicoes   DateTime @default(now())
 
-  @@index([created_at])
-  @@index([blocked, created_at])
-  @@index([tenant_id])
+  @@index([data_criacao_requisicoes])
+  @@index([bloqueado_requisicoes, data_criacao_requisicoes])
+  @@index([id_organizacao_requisicoes])
   @@map("requisicoes")
 }
 
@@ -613,18 +613,18 @@ model Requisicoes {
 // ---------------------------------------------------------------------------
 
 model Servicos {
-  id         String   @id @default(cuid())
-  service    String   @unique // ex: "configurador", "bid-frete"
-  url        String // health check URL
-  status     String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
-  latency_ms Int?
-  last_error String?
-  checked_at DateTime @default(now())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id_servicos               String   @id @default(cuid())
+  servico_servicos          String   @unique(map: "srv_servico_unq") // ex: "configurador", "bid-frete"
+  url_servicos              String // health check URL
+  status_servicos           String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
+  latencia_ms_servicos      Int?
+  ultimo_erro_servicos      String?
+  data_verificacao_servicos DateTime @default(now())
+  data_criacao_servicos     DateTime @default(now())
+  data_atualizacao_servicos DateTime @updatedAt
 
-  @@index([status])
-  @@index([checked_at])
+  @@index([status_servicos], map: "srv_status_idx")
+  @@index([data_verificacao_servicos], map: "srv_verificacao_idx")
   @@map("servicos")
 }
 
@@ -636,22 +636,22 @@ model Servicos {
 // ---------------------------------------------------------------------------
 
 model Cambio {
-  id           String   @id @default(cuid())
-  moeda        String // USD, EUR, GBP, CHF, CNY, JPY
-  compra       Decimal  @db.Decimal(15, 6)
-  venda        Decimal  @db.Decimal(15, 6)
-  data_cotacao DateTime // data da cotação (dia, meia-noite UTC)
-  hora_cotacao String? // ex: "13:02"
-  boletim      String   @default("Fechamento") // "1º Boletim" | "2º Boletim" | "3º Boletim" | "Fechamento"
-  fonte        String   @default("BCB/PTAX")
-  criado_em    DateTime @default(now())
+  id_cambio           String   @id @default(cuid())
+  moeda_cambio        String // USD, EUR, GBP, CHF, CNY, JPY
+  compra_cambio       Decimal  @db.Decimal(15, 6)
+  venda_cambio        Decimal  @db.Decimal(15, 6)
+  data_cotacao_cambio DateTime // data da cotação (dia, meia-noite UTC)
+  hora_cotacao_cambio String? // ex: "13:02"
+  boletim_cambio      String   @default("Fechamento") // "1º Boletim" | "2º Boletim" | "3º Boletim" | "Fechamento"
+  fonte_cambio        String   @default("BCB/PTAX")
+  data_criacao_cambio DateTime @default(now())
 
   // Garante 1 registro por moeda × dia × boletim (upsert idempotente)
-  @@unique([moeda, data_cotacao, boletim])
-  @@index([moeda])
-  @@index([moeda, data_cotacao])
-  @@index([data_cotacao])
-  @@index([criado_em])
+  @@unique([moeda_cambio, data_cotacao_cambio, boletim_cambio], map: "cmb_moeda_data_boletim_unq")
+  @@index([moeda_cambio], map: "cmb_moeda_idx")
+  @@index([moeda_cambio, data_cotacao_cambio], map: "cmb_moeda_data_idx")
+  @@index([data_cotacao_cambio], map: "cmb_data_idx")
+  @@index([data_criacao_cambio], map: "cmb_criacao_idx")
   @@map("cambio")
 }
 
@@ -663,83 +663,83 @@ model Cambio {
 // Convenção de IDs: TST-{TIPO}-{ESCOPO}-{NNNNNN}
 
 model Testes {
-  id           String   @id @default(cuid())
-  tenant_id    String   @default("platform") // sempre "platform" — logs globais
-  type         String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo       String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
-  sublocal     String?
-  module       String
-  test_name    String
-  test_id      String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
-  result       String // APROVADO | REPROVADO | ERRO
-  duration     String
-  error_log    String?  @db.Text
-  ai_analysis  Json? // AiAnalysis schema do gemini-test-analyzer
-  screenshot   String? // path do PNG capturado pela fixture
-  ambiente     String   @default("Local") // Local | Staging | Producao
-  run_id       String? // agrupa logs do mesmo run
-  triggered_by String? // userId que disparou (manual) ou "cron" (automático)
-  created_at   DateTime @default(now())
+  id_testes             String   @id @default(cuid())
+  id_organizacao_testes String   @default("platform") // sempre "platform" — logs globais
+  tipo_testes           String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_testes         String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
+  sublocal_testes       String?
+  modulo_testes         String
+  nome_testes           String
+  id_plano_testes       String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
+  resultado_testes      String // APROVADO | REPROVADO | ERRO
+  duracao_testes        String
+  log_erro_testes       String?  @db.Text
+  analise_ia_testes     Json? // AiAnalysis schema do gemini-test-analyzer
+  screenshot_testes     String? // path do PNG capturado pela fixture
+  ambiente_testes       String   @default("Local") // Local | Staging | Producao
+  id_execucao_testes    String? // agrupa logs do mesmo run
+  disparado_por_testes  String? // userId que disparou (manual) ou "cron" (automático)
+  data_criacao_testes   DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([created_at])
-  @@index([type, escopo])
-  @@index([result])
-  @@index([run_id])
-  @@index([test_id])
+  @@index([id_organizacao_testes], map: "tst_org_idx")
+  @@index([data_criacao_testes], map: "tst_criacao_idx")
+  @@index([tipo_testes, escopo_testes], map: "tst_tipo_escopo_idx")
+  @@index([resultado_testes], map: "tst_resultado_idx")
+  @@index([id_execucao_testes], map: "tst_execucao_idx")
+  @@index([id_plano_testes], map: "tst_plano_idx")
   @@map("testes")
 }
 
-model AgendamentoTeste {
-  id           String    @id @default(cuid())
-  tenant_id    String    @default("platform")
-  ativo        Boolean   @default(false)
-  frequencia   String    @default("Manual") // Manual | Diario | Semanal
-  hora         Int       @default(0) // 0-23
-  minuto       Int       @default(0) // 0-59
-  tipos        Json // { uni: bool, con: bool, fun: bool, cro: bool, e2e: bool, pen: bool }
-  escopos      String[] // ['CONFIG','PEDIDO','ADMIN',...]
-  ambiente     String    @default("Local") // Local | Staging | Producao
-  alertas      Json      @default("[]") // [{ nome, contato, condicao, canal }]
-  ultima_exec  DateTime?
-  proxima_exec DateTime?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
+model TesteAgendamento {
+  id_agendamento_teste               String    @id @default(cuid())
+  id_organizacao_agendamento_teste   String    @default("platform")
+  ativo_agendamento_teste            Boolean   @default(false)
+  frequencia_agendamento_teste       String    @default("Manual") // Manual | Diario | Semanal
+  hora_agendamento_teste             Int       @default(0) // 0-23
+  minuto_agendamento_teste           Int       @default(0) // 0-59
+  tipos_agendamento_teste            Json // { uni: bool, con: bool, fun: bool, cro: bool, e2e: bool, pen: bool }
+  escopos_agendamento_teste          String[] // ['CONFIG','PEDIDO','ADMIN',...]
+  ambiente_agendamento_teste         String    @default("Local") // Local | Staging | Producao
+  alertas_agendamento_teste          Json      @default("[]") // [{ nome, contato, condicao, canal }]
+  ultima_execucao_agendamento_teste  DateTime?
+  proxima_execucao_agendamento_teste DateTime?
+  data_criacao_agendamento_teste     DateTime  @default(now())
+  data_atualizacao_agendamento_teste DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([ativo])
-  @@index([proxima_exec])
+  @@index([id_organizacao_agendamento_teste], map: "agt_org_idx")
+  @@index([ativo_agendamento_teste], map: "agt_ativo_idx")
+  @@index([proxima_execucao_agendamento_teste], map: "agt_proxima_idx")
   @@map("agendamento_teste")
 }
 
-model PlanoTeste {
-  id               String    @id // TST-E2E-CONFIG-000001
-  tenant_id        String    @default("platform")
-  versao           String    @default("1.0")
-  tipo             String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo           String // LOGIN | CONFIG | ...
-  sublocal         String
-  tela             String
-  rota             String
-  criticidade      String    @default("media") // baixa | media | alta | critica
-  ambientes        String[]
-  componente_path  String
-  spec_path        String?
-  mapeamento_path  String
-  cobertura_pct    Int       @default(0)
-  passos_total     Int       @default(0)
-  resumo_executivo String    @db.Text
-  plano_completo   Json // o JSON inteiro do plano (formato do agente-plano-teste)
-  status           String    @default("pendente_validacao") // pendente_validacao | aprovado | obsoleto
-  ultima_execucao  DateTime?
-  ultimo_resultado String? // APROVADO | REPROVADO | ERRO | NAO_EXECUTADO
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+model TestePlano {
+  id_plano_teste                 String    @id // TST-E2E-CONFIG-000001
+  id_organizacao_plano_teste     String    @default("platform")
+  versao_plano_teste             String    @default("1.0")
+  tipo_plano_teste               String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_plano_teste             String // LOGIN | CONFIG | ...
+  sublocal_plano_teste           String
+  tela_plano_teste               String
+  rota_plano_teste               String
+  criticidade_plano_teste        String    @default("media") // baixa | media | alta | critica
+  ambientes_plano_teste          String[]
+  caminho_componente_plano_teste String
+  caminho_spec_plano_teste       String?
+  caminho_mapeamento_plano_teste String
+  cobertura_pct_plano_teste      Int       @default(0)
+  passos_total_plano_teste       Int       @default(0)
+  resumo_executivo_plano_teste   String    @db.Text
+  plano_completo_plano_teste     Json // o JSON inteiro do plano (formato do agente-plano-teste)
+  status_plano_teste             String    @default("pendente_validacao") // pendente_validacao | aprovado | obsoleto
+  ultima_execucao_plano_teste    DateTime?
+  ultimo_resultado_plano_teste   String? // APROVADO | REPROVADO | ERRO | NAO_EXECUTADO
+  data_criacao_plano_teste       DateTime  @default(now())
+  data_atualizacao_plano_teste   DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tipo, escopo])
-  @@index([status])
-  @@index([sublocal])
+  @@index([id_organizacao_plano_teste], map: "plt_org_idx")
+  @@index([tipo_plano_teste, escopo_plano_teste], map: "plt_tipo_escopo_idx")
+  @@index([status_plano_teste], map: "plt_status_idx")
+  @@index([sublocal_plano_teste], map: "plt_sublocal_idx")
   @@map("plano_teste")
 }
 
@@ -756,22 +756,22 @@ enum FaturaStatusGravity {
   UNCOLLECTIBLE
 }
 
-model FaturaProdutosGravity {
-  id                                        String              @id @default(cuid())
-  tenant_id                                 String
-  numero_fatura_servicos_gravity            String
-  status_fatura_servicos_gravity            FaturaStatusGravity @default(DRAFT)
-  organizacao_fatura_servicos_gravity       String
-  email_organizacao_fatura_servicos_gravity String?
-  valor_total_fatura_servicos_gravity       Decimal             @db.Decimal(18, 2)
-  moeda_fatura_servicos_gravity             String              @default("brl")
-  competencia_fatura_servicos_gravity       String?
-  data_fatura_servicos_gravity              DateTime            @default(now())
-  created_at                                DateTime            @default(now())
-  updated_at                                DateTime            @updatedAt
+model ProdutoGravityFatura {
+  id_fatura_produtos_gravity                String              @id @default(cuid())
+  id_organizacao_fatura_produtos_gravity    String
+  numero_fatura_produtos_gravity            String
+  status_fatura_produtos_gravity            FaturaStatusGravity @default(DRAFT)
+  nome_organizacao_fatura_produtos_gravity  String
+  email_organizacao_fatura_produtos_gravity String?
+  valor_total_fatura_produtos_gravity       Decimal             @db.Decimal(18, 2)
+  moeda_fatura_produtos_gravity             String              @default("brl")
+  competencia_fatura_produtos_gravity       String?
+  data_fatura_produtos_gravity              DateTime            @default(now())
+  data_criacao_fatura_produtos_gravity      DateTime            @default(now())
+  data_atualizacao_fatura_produtos_gravity  DateTime            @updatedAt
 
-  @@index([tenant_id])
-  @@index([status_fatura_servicos_gravity])
+  @@index([id_organizacao_fatura_produtos_gravity], map: "fpg_org_idx")
+  @@index([status_fatura_produtos_gravity], map: "fpg_status_idx")
   @@map("fatura_produtos_gravity")
 }
 
@@ -779,20 +779,20 @@ model FaturaProdutosGravity {
 // METRICAS GEMINI (nova — dados de LLM/teste AI)
 // ---------------------------------------------------------------------------
 
-model MetricasGemini {
-  id                             String   @id @default(cuid())
-  nome_llm                       String[]
-  data_analise_llm               DateTime
-  total_analise_llm              Int      @default(0)
-  total_token_llm                Int      @default(0)
-  custo_llm                      Decimal  @db.Decimal(10, 4)
-  latencia_llm                   Int      @default(0)
-  confianca_alta_llm             Int      @default(0)
-  confianca_media_llm            Int      @default(0)
-  confianca_baixa_llm            Int      @default(0)
-  quantidade_codigo_validado_llm Int      @default(0)
-  created_at                     DateTime @default(now())
+model LLMMetricas {
+  id_metricas_gemini                         String   @id @default(cuid())
+  nome_metricas_gemini                       String[]
+  data_analise_metricas_gemini               DateTime
+  total_analise_metricas_gemini              Int      @default(0)
+  total_token_metricas_gemini                Int      @default(0)
+  custo_metricas_gemini                      Decimal  @db.Decimal(10, 4)
+  latencia_metricas_gemini                   Int      @default(0)
+  confianca_alta_metricas_gemini             Int      @default(0)
+  confianca_media_metricas_gemini            Int      @default(0)
+  confianca_baixa_metricas_gemini            Int      @default(0)
+  quantidade_codigo_validado_metricas_gemini Int      @default(0)
+  data_criacao_metricas_gemini               DateTime @default(now())
 
-  @@index([data_analise_llm])
+  @@index([data_analise_metricas_gemini], map: "mtg_data_idx")
   @@map("metricas_gemini")
 }

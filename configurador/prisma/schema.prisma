@@ -87,10 +87,10 @@ model Organizacao {
 
   // Relações
   users_organizacao            Usuario[]
-  subscriptions_organizacao    AssinaturaProdutoGravity[]
+  subscriptions_organizacao    ProdutoGravityAssinatura[]
   user_permissions_organizacao UsuarioPermissao[]
-  companies_organizacao        Empresa[]
-  product_configs_organizacao  ConfiguracaoProduto[]
+  companies_organizacao        Workspace[]
+  product_configs_organizacao  ProdutoGravityConfiguracao[]
   ProdutoGravityWorkspace      ProdutoGravityWorkspace[]
 
   @@index([status_organizacao])
@@ -122,7 +122,7 @@ model Usuario {
 
   // Relações
   tenant            Organizacao        @relation(fields: [id_organizacao_usuario], references: [id_organizacao], onDelete: Cascade)
-  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id_workspace], onDelete: SetNull)
+  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id_workspace], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
@@ -142,7 +142,7 @@ model Usuario {
 // tenant_id é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
-model AssinaturaProdutoGravity {
+model ProdutoGravityAssinatura {
   id_assinatura_produto_gravity             String                         @id @default(cuid())
   id_organizacao_assinatura_produto_gravity String
   status_assinatura_produto_gravity         StatusAssinaturaProdutoGravity @default(EM_TESTE)
@@ -208,7 +208,7 @@ model UsuarioPermissao {
 // Super Admin não usa esta tabela — tem acesso irrestrito.
 // ---------------------------------------------------------------------------
 
-model PermissaoAdminGravity {
+model AdminGravityPermissao {
   id_permissao_admin_gravity            String @id @default(cuid())
   id_admin_permissao_admin_gravity      String // clerk_id do Admin Gravity
   recurso_permissao_admin_gravity       String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
@@ -233,7 +233,7 @@ model PermissaoAdminGravity {
 // Um tenant pode ter até 50 empresas filhas.
 // ---------------------------------------------------------------------------
 
-model Empresa {
+model Workspace {
   id_workspace             String        @id @default(cuid())
   id_organizacao_workspace String
   nome_workspace           String
@@ -277,8 +277,8 @@ model UsuarioWorkspace {
   data_atualizacao_usuario_workspace DateTime @updatedAt
 
   // Relações
-  user    Usuario @relation(fields: [id_usuario_usuario_workspace], references: [id_usuario], onDelete: Cascade)
-  company Empresa @relation(fields: [id_workspace_usuario_workspace], references: [id_workspace], onDelete: Cascade)
+  user    Usuario   @relation(fields: [id_usuario_usuario_workspace], references: [id_usuario], onDelete: Cascade)
+  company Workspace @relation(fields: [id_workspace_usuario_workspace], references: [id_workspace], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
   @@unique([id_organizacao_usuario_workspace, id_usuario_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_user_ws_unq")
@@ -295,7 +295,7 @@ model UsuarioWorkspace {
 // product_key identifica o produto (ex: "simulacusto", "nf-importacao")
 // ---------------------------------------------------------------------------
 
-model ConfiguracaoProduto {
+model ProdutoGravityConfiguracao {
   id_config_produto_gravity             String  @id @default(cuid())
   id_organizacao_config_produto_gravity String
   chave_produto_config_produto_gravity  String
@@ -336,7 +336,7 @@ model ProdutoGravityWorkspace {
 
   // Relações
   tenant  Organizacao @relation(fields: [id_organizacao_produto_gravity_workspace], references: [id_organizacao], onDelete: Cascade)
-  company Empresa     @relation(fields: [id_workspace_produto_gravity_workspace], references: [id_workspace], onDelete: Cascade)
+  company Workspace   @relation(fields: [id_workspace_produto_gravity_workspace], references: [id_workspace], onDelete: Cascade)
 
   // Apenas uma ativação por produto por workspace — `map` explícito para evitar colisão pós truncamento PG
   @@unique([id_workspace_produto_gravity_workspace, chave_produto_produto_gravity_workspace], map: "pgw_ws_chave_unq")
@@ -425,8 +425,8 @@ model ProdutoGravity {
   data_remocao_produto_gravity     DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
-  faixas_preco_produto_gravity FaixaPreco[]
-  negociacoes_produto_gravity  NegociacaoEspecial[]
+  faixas_preco_produto_gravity ProdutoGravityFaixaPreco[]
+  negociacoes_produto_gravity  ProdutoGravityNegociacaoEspecial[]
 
   @@index([status_produto_gravity], map: "pg_status_idx")
   @@index([slug_produto_gravity], map: "pg_slug_idx")
@@ -439,7 +439,7 @@ model ProdutoGravity {
 // Precificação escalonada — preço varia conforme quantidade.
 // ---------------------------------------------------------------------------
 
-model FaixaPreco {
+model ProdutoGravityFaixaPreco {
   id_faixa_preco                 String  @id @default(cuid())
   id_produto_gravity_faixa_preco String
   faixa_de_faixa_preco           Int
@@ -463,7 +463,7 @@ model FaixaPreco {
 // Condições comerciais personalizadas para tenants específicos.
 // ---------------------------------------------------------------------------
 
-model NegociacaoEspecial {
+model ProdutoGravityNegociacaoEspecial {
   id_negociacao_especial                 String    @id @default(cuid())
   id_produto_gravity_negociacao_especial String
   id_organizacao_negociacao_especial     String
@@ -690,7 +690,7 @@ model Testes {
   @@map("testes")
 }
 
-model AgendamentoTeste {
+model TesteAgendamento {
   id_agendamento_teste               String    @id @default(cuid())
   id_organizacao_agendamento_teste   String    @default("platform")
   ativo_agendamento_teste            Boolean   @default(false)
@@ -712,7 +712,7 @@ model AgendamentoTeste {
   @@map("agendamento_teste")
 }
 
-model PlanoTeste {
+model TestePlano {
   id_plano_teste                 String    @id // TST-E2E-CONFIG-000001
   id_organizacao_plano_teste     String    @default("platform")
   versao_plano_teste             String    @default("1.0")
@@ -756,7 +756,7 @@ enum FaturaStatusGravity {
   UNCOLLECTIBLE
 }
 
-model FaturaProdutosGravity {
+model ProdutoGravityFatura {
   id_fatura_produtos_gravity                String              @id @default(cuid())
   id_organizacao_fatura_produtos_gravity    String
   numero_fatura_produtos_gravity            String
@@ -779,7 +779,7 @@ model FaturaProdutosGravity {
 // METRICAS GEMINI (nova — dados de LLM/teste AI)
 // ---------------------------------------------------------------------------
 
-model MetricasGemini {
+model LLMMetricas {
   id_metricas_gemini                         String   @id @default(cuid())
   nome_metricas_gemini                       String[]
   data_analise_metricas_gemini               DateTime

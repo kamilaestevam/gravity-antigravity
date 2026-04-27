@@ -38,12 +38,12 @@ async function main() {
   }
 
   // 2. Busca ou cria o workspace (Empresa)
-  let company = await prisma.empresa.findFirst({
+  let company = await prisma.workspace.findFirst({
     where: { tenant_id: tenant.id, name: 'DMM Workspace Principal' },
   })
 
   if (!company) {
-    company = await prisma.empresa.create({
+    company = await prisma.workspace.create({
       data: {
         tenant_id: tenant.id,
         name: 'DMM Workspace Principal',
@@ -129,7 +129,7 @@ async function main() {
   console.log('Produto SimulaCusto:', simulaCusto.id)
 
   // 6. Cria ConfiguracaoProduto (organizacao contrata o produto)
-  const productConfig = await prisma.configuracaoProduto.upsert({
+  const productConfig = await prisma.produtoGravityConfiguracao.upsert({
     where: {
       tenant_id_product_key: {
         tenant_id: tenant.id,
@@ -165,7 +165,7 @@ async function main() {
   console.log('ProdutoGravityWorkspace:', companyProduct.id)
 
   // 8. Cria AssinaturaProdutoGravity
-  await prisma.assinaturaProdutoGravity.upsert({
+  await prisma.produtoGravityAssinatura.upsert({
     where: { id: `sub_${tenant.id}` },
     create: {
       id: `sub_${tenant.id}`,

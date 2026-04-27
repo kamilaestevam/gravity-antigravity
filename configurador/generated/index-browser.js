@@ -151,7 +151,7 @@ exports.Prisma.UsuarioScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.AssinaturaProdutoGravityScalarFieldEnum = {
+exports.Prisma.ProdutoGravityAssinaturaScalarFieldEnum = {
   id_assinatura_produto_gravity: 'id_assinatura_produto_gravity',
   id_organizacao_assinatura_produto_gravity: 'id_organizacao_assinatura_produto_gravity',
   status_assinatura_produto_gravity: 'status_assinatura_produto_gravity',
@@ -177,7 +177,7 @@ exports.Prisma.UsuarioPermissaoScalarFieldEnum = {
   data_atualizacao_usuario_permissao: 'data_atualizacao_usuario_permissao'
 };
 
-exports.Prisma.PermissaoAdminGravityScalarFieldEnum = {
+exports.Prisma.AdminGravityPermissaoScalarFieldEnum = {
   id_permissao_admin_gravity: 'id_permissao_admin_gravity',
   id_admin_permissao_admin_gravity: 'id_admin_permissao_admin_gravity',
   recurso_permissao_admin_gravity: 'recurso_permissao_admin_gravity',
@@ -187,7 +187,7 @@ exports.Prisma.PermissaoAdminGravityScalarFieldEnum = {
   data_atualizacao_permissao_admin_gravity: 'data_atualizacao_permissao_admin_gravity'
 };
 
-exports.Prisma.EmpresaScalarFieldEnum = {
+exports.Prisma.WorkspaceScalarFieldEnum = {
   id_workspace: 'id_workspace',
   id_organizacao_workspace: 'id_organizacao_workspace',
   nome_workspace: 'nome_workspace',
@@ -209,7 +209,7 @@ exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {
   data_atualizacao_usuario_workspace: 'data_atualizacao_usuario_workspace'
 };
 
-exports.Prisma.ConfiguracaoProdutoScalarFieldEnum = {
+exports.Prisma.ProdutoGravityConfiguracaoScalarFieldEnum = {
   id_config_produto_gravity: 'id_config_produto_gravity',
   id_organizacao_config_produto_gravity: 'id_organizacao_config_produto_gravity',
   chave_produto_config_produto_gravity: 'chave_produto_config_produto_gravity',
@@ -261,7 +261,7 @@ exports.Prisma.ProdutoGravityScalarFieldEnum = {
   data_remocao_produto_gravity: 'data_remocao_produto_gravity'
 };
 
-exports.Prisma.FaixaPrecoScalarFieldEnum = {
+exports.Prisma.ProdutoGravityFaixaPrecoScalarFieldEnum = {
   id_faixa_preco: 'id_faixa_preco',
   id_produto_gravity_faixa_preco: 'id_produto_gravity_faixa_preco',
   faixa_de_faixa_preco: 'faixa_de_faixa_preco',
@@ -271,7 +271,7 @@ exports.Prisma.FaixaPrecoScalarFieldEnum = {
   data_criacao_faixa_preco: 'data_criacao_faixa_preco'
 };
 
-exports.Prisma.NegociacaoEspecialScalarFieldEnum = {
+exports.Prisma.ProdutoGravityNegociacaoEspecialScalarFieldEnum = {
   id_negociacao_especial: 'id_negociacao_especial',
   id_produto_gravity_negociacao_especial: 'id_produto_gravity_negociacao_especial',
   id_organizacao_negociacao_especial: 'id_organizacao_negociacao_especial',
@@ -382,7 +382,7 @@ exports.Prisma.TestesScalarFieldEnum = {
   data_criacao_testes: 'data_criacao_testes'
 };
 
-exports.Prisma.AgendamentoTesteScalarFieldEnum = {
+exports.Prisma.TesteAgendamentoScalarFieldEnum = {
   id_agendamento_teste: 'id_agendamento_teste',
   id_organizacao_agendamento_teste: 'id_organizacao_agendamento_teste',
   ativo_agendamento_teste: 'ativo_agendamento_teste',
@@ -399,7 +399,7 @@ exports.Prisma.AgendamentoTesteScalarFieldEnum = {
   data_atualizacao_agendamento_teste: 'data_atualizacao_agendamento_teste'
 };
 
-exports.Prisma.PlanoTesteScalarFieldEnum = {
+exports.Prisma.TestePlanoScalarFieldEnum = {
   id_plano_teste: 'id_plano_teste',
   id_organizacao_plano_teste: 'id_organizacao_plano_teste',
   versao_plano_teste: 'versao_plano_teste',
@@ -424,7 +424,7 @@ exports.Prisma.PlanoTesteScalarFieldEnum = {
   data_atualizacao_plano_teste: 'data_atualizacao_plano_teste'
 };
 
-exports.Prisma.FaturaProdutosGravityScalarFieldEnum = {
+exports.Prisma.ProdutoGravityFaturaScalarFieldEnum = {
   id_fatura_produtos_gravity: 'id_fatura_produtos_gravity',
   id_organizacao_fatura_produtos_gravity: 'id_organizacao_fatura_produtos_gravity',
   numero_fatura_produtos_gravity: 'numero_fatura_produtos_gravity',
@@ -439,7 +439,7 @@ exports.Prisma.FaturaProdutosGravityScalarFieldEnum = {
   data_atualizacao_fatura_produtos_gravity: 'data_atualizacao_fatura_produtos_gravity'
 };
 
-exports.Prisma.MetricasGeminiScalarFieldEnum = {
+exports.Prisma.LLMMetricasScalarFieldEnum = {
   id_metricas_gemini: 'id_metricas_gemini',
   nome_metricas_gemini: 'nome_metricas_gemini',
   data_analise_metricas_gemini: 'data_analise_metricas_gemini',
@@ -568,16 +568,16 @@ exports.FaturaStatusGravity = exports.$Enums.FaturaStatusGravity = {
 exports.Prisma.ModelName = {
   Organizacao: 'Organizacao',
   Usuario: 'Usuario',
-  AssinaturaProdutoGravity: 'AssinaturaProdutoGravity',
+  ProdutoGravityAssinatura: 'ProdutoGravityAssinatura',
   UsuarioPermissao: 'UsuarioPermissao',
-  PermissaoAdminGravity: 'PermissaoAdminGravity',
-  Empresa: 'Empresa',
+  AdminGravityPermissao: 'AdminGravityPermissao',
+  Workspace: 'Workspace',
   UsuarioWorkspace: 'UsuarioWorkspace',
-  ConfiguracaoProduto: 'ConfiguracaoProduto',
+  ProdutoGravityConfiguracao: 'ProdutoGravityConfiguracao',
   ProdutoGravityWorkspace: 'ProdutoGravityWorkspace',
   ProdutoGravity: 'ProdutoGravity',
-  FaixaPreco: 'FaixaPreco',
-  NegociacaoEspecial: 'NegociacaoEspecial',
+  ProdutoGravityFaixaPreco: 'ProdutoGravityFaixaPreco',
+  ProdutoGravityNegociacaoEspecial: 'ProdutoGravityNegociacaoEspecial',
   Deploy: 'Deploy',
   FornecedorOrganizacao: 'FornecedorOrganizacao',
   Seguranca: 'Seguranca',
@@ -585,10 +585,10 @@ exports.Prisma.ModelName = {
   Servicos: 'Servicos',
   Cambio: 'Cambio',
   Testes: 'Testes',
-  AgendamentoTeste: 'AgendamentoTeste',
-  PlanoTeste: 'PlanoTeste',
-  FaturaProdutosGravity: 'FaturaProdutosGravity',
-  MetricasGemini: 'MetricasGemini'
+  TesteAgendamento: 'TesteAgendamento',
+  TestePlano: 'TestePlano',
+  ProdutoGravityFatura: 'ProdutoGravityFatura',
+  LLMMetricas: 'LLMMetricas'
 };
 
 /**

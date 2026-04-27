@@ -341,9 +341,9 @@ export const productCatalogService = {
 
     const row = await prisma.$transaction(async (tx) => {
       if (price_tiers !== undefined) {
-        await tx.faixaPreco.deleteMany({ where: { id_produto_gravity_faixa_preco: id } })
+        await tx.produtoGravityFaixaPreco.deleteMany({ where: { id_produto_gravity_faixa_preco: id } })
         if (price_tiers.length > 0) {
-          await tx.faixaPreco.createMany({
+          await tx.produtoGravityFaixaPreco.createMany({
             data: price_tiers.map(tier => ({
               id_produto_gravity_faixa_preco: id,
               faixa_de_faixa_preco: tier.range_from,
@@ -385,7 +385,7 @@ export const productCatalogService = {
    */
   async countActiveNegotiations(productId: string): Promise<number> {
     const now = new Date()
-    return prisma.negociacaoEspecial.count({
+    return prisma.produtoGravityNegociacaoEspecial.count({
       where: {
         id_produto_gravity_negociacao_especial: productId,
         OR: [
@@ -496,7 +496,7 @@ export const productCatalogService = {
   async activateProductsForTenant(tenantId: string, productKeys: string[]) {
     const results = await Promise.all(
       productKeys.map(key =>
-        prisma.configuracaoProduto.upsert({
+        prisma.produtoGravityConfiguracao.upsert({
           where: {
             id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
               id_organizacao_config_produto_gravity: tenantId,

@@ -58,7 +58,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
-      prisma.configuracaoProduto.findMany({
+      prisma.produtoGravityConfiguracao.findMany({
         where: { id_organizacao_config_produto_gravity: tenantId },
         orderBy: { data_criacao_config_produto_gravity: 'desc' },
       }).catch(() => []),
@@ -166,7 +166,7 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const role = normalizeHubRole(req.auth.role)
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
-    const configs = await prisma.configuracaoProduto.findMany({
+    const configs = await prisma.produtoGravityConfiguracao.findMany({
       where: {
         id_organizacao_config_produto_gravity: tenantId,
         ativo_config_produto_gravity: true,

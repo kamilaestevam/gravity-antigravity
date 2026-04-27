@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   //    CUID gerado pelo Prisma.
   //    Upsert em `subdomain` (@unique no schema).
   // ─────────────────────────────────────────────────────────────────────────
-  const company = await prisma.empresa.upsert({
+  const company = await prisma.workspace.upsert({
     where: { subdomain: 'dev-workspace-principal' },
     update: { status: EmpresaStatus.ATIVO },
     create: {
@@ -131,12 +131,12 @@ async function main(): Promise<void> {
   //    CUID gerado pelo Prisma — sem ID hardcoded.
   //    Upsert por tenant_id (findFirst + create = evita duplicata).
   // ─────────────────────────────────────────────────────────────────────────
-  let subscription = await prisma.assinaturaProdutoGravity.findFirst({
+  let subscription = await prisma.produtoGravityAssinatura.findFirst({
     where: { tenant_id: tenant.id },
   })
 
   if (!subscription) {
-    subscription = await prisma.assinaturaProdutoGravity.create({
+    subscription = await prisma.produtoGravityAssinatura.create({
       data: {
         tenant_id: tenant.id,
         status: 'ATIVA',

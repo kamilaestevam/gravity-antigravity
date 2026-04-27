@@ -13,7 +13,7 @@ const prismaMock = {
   produtoGravity: {
     findMany: vi.fn().mockResolvedValue([]),
   },
-  configuracaoProduto: {
+  produtoGravityConfiguracao: {
     findMany: vi.fn().mockResolvedValue([]),
   },
   usuario: {
@@ -102,7 +102,7 @@ beforeEach(() => {
 
   // Reset defaults
   prismaMock.produtoGravity.findMany.mockResolvedValue([])
-  prismaMock.configuracaoProduto.findMany.mockResolvedValue([])
+  prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([])
   prismaMock.usuario.findUnique.mockResolvedValue(null)
   prismaMock.usuario.update.mockResolvedValue(null)
   tenantServiceMock.getTenantById.mockResolvedValue({
@@ -196,7 +196,7 @@ describe('GET /api/v1/hub/init', () => {
 
   it('filtra productConfig por tenant_id (tenant isolation)', async () => {
     await request.get('/api/v1/hub/init')
-    expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
+    expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id_organizacao_config_produto_gravity: 'tenant-001' },
       }),
@@ -211,7 +211,7 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request.get('/api/v1/hub/init')
     expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-999')
     expect(tenantServiceMock.getCompanies).toHaveBeenCalledWith('tenant-999')
-    expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
+    expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id_organizacao_config_produto_gravity: 'tenant-999' } }),
     )
     expect(res.body.tenant.id).toBe('tenant-999')
@@ -221,7 +221,7 @@ describe('GET /api/v1/hub/init', () => {
   // ── Products enrichment ──
 
   it('enriquece products com dados do catálogo', async () => {
-    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
+    prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([
       {
         chave_produto_config_produto_gravity: 'bid-cambio',
         ativo_config_produto_gravity: true,
@@ -241,7 +241,7 @@ describe('GET /api/v1/hub/init', () => {
   })
 
   it('retorna catalog null quando produto não está no catálogo', async () => {
-    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
+    prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([
       {
         chave_produto_config_produto_gravity: 'produto-legacy',
         ativo_config_produto_gravity: false,
@@ -315,7 +315,7 @@ describe('GET /api/v1/hub/init', () => {
   // ── Resiliência ──
 
   it('retorna products vazio quando productConfig falha (catch resiliente)', async () => {
-    prismaMock.configuracaoProduto.findMany.mockRejectedValue(new Error('timeout'))
+    prismaMock.produtoGravityConfiguracao.findMany.mockRejectedValue(new Error('timeout'))
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
@@ -358,7 +358,7 @@ describe('GET /api/v1/hub/init', () => {
       callOrder.push('companies')
       return []
     })
-    prismaMock.configuracaoProduto.findMany.mockImplementation(async () => {
+    prismaMock.produtoGravityConfiguracao.findMany.mockImplementation(async () => {
       callOrder.push('configs')
       return []
     })

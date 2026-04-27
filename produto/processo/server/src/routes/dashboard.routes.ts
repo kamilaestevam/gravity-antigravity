@@ -52,14 +52,14 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         // ── Métricas de Processo ────────────────────────────────────────────────
 
         case 'total_ativos': {
-          const count = await prisma.processo.count({
+          const count = await prisma.processoGravity.count({
             where: { status: { in: ['aberto', 'em_andamento'] } },
           })
           result.total_ativos = count
           break
         }
         case 'atraso_chegada': {
-          const processos = await prisma.processo.findMany({
+          const processos = await prisma.processoGravity.findMany({
             where: {
               data_chegada_real: { not: null },
               data_chegada_prevista: { not: null },
@@ -75,14 +75,14 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'etapas_atrasadas': {
-          const count = await prisma.processoEtapa.count({
+          const count = await prisma.processoEtapas.count({
             where: { status: 'pendente', data_realizada: { not: null } },
           })
           result.etapas_atrasadas = count
           break
         }
         case 'por_status': {
-          const items = await prisma.processo.groupBy({
+          const items = await prisma.processoGravity.groupBy({
             by: ['status'],
             _count: true,
             where: { created_at: { gte: periodStart } },
@@ -93,7 +93,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         case 'chegadas_7d': {
           const agora = new Date()
           const em7d = new Date(agora.getTime() + 7 * 86400000)
-          const count = await prisma.processo.count({
+          const count = await prisma.processoGravity.count({
             where: { data_chegada_prevista: { gte: agora, lte: em7d } },
           })
           result.chegadas_7d = count
@@ -101,7 +101,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.processo.findMany({
+          const items = await prisma.processoGravity.findMany({
             where: { created_at: { gte: dozeAtras } },
             select: { created_at: true },
           })
@@ -117,14 +117,14 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         // ── Métricas de Pedido (mesmo banco) ───────────────────────────────────
 
         case 'total_abertos': {
-          const count = await prisma.pedido.count({
+          const count = await prisma.processoPedido.count({
             where: { status: 'pendente', created_at: { gte: periodStart } },
           })
           result.total_abertos = count
           break
         }
         case 'valor_fob_total': {
-          const agg = await prisma.pedido.aggregate({
+          const agg = await prisma.processoPedido.aggregate({
             _sum: { valor_fob: true },
             where: { created_at: { gte: periodStart } },
           })
@@ -132,7 +132,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'pedido_por_status': {
-          const items = await prisma.pedido.groupBy({
+          const items = await prisma.processoPedido.groupBy({
             by: ['status'],
             _count: true,
             where: { created_at: { gte: periodStart } },
@@ -142,7 +142,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
         }
         case 'pedido_volume_mensal': {
           const dozeAtras = new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1)
-          const items = await prisma.pedido.findMany({
+          const items = await prisma.processoPedido.findMany({
             where: { created_at: { gte: dozeAtras } },
             select: { created_at: true },
           })
@@ -155,7 +155,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'itens_ncm': {
-          const items = await prisma.pedidoItem.groupBy({
+          const items = await prisma.processoPedidoItens.groupBy({
             by: ['ncm'],
             _count: true,
             where: { ncm: { not: null } },
@@ -168,7 +168,7 @@ dashboardWidgetsRouter.post('/widgets', async (req: Request, res: Response, next
           break
         }
         case 'valor_por_fornecedor': {
-          const items = await prisma.pedido.groupBy({
+          const items = await prisma.processoPedido.groupBy({
             by: ['fornecedor_id'],
             _sum: { valor_fob: true },
             where: { created_at: { gte: periodStart } },

@@ -3,7 +3,7 @@
 // REGRA: todo model DEVE ter tenant_id (snake_case) e os indices obrigatorios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
-model Processo {
+model ProcessoGravity {
   id                  String   @id @default(cuid())
   tenant_id           String   // OBRIGATORIO — nunca nullable
   product_id          String?  // "processo" — permite queries isoladas por produto
@@ -22,12 +22,12 @@ model Processo {
   updated_at          DateTime @updatedAt
 
   // Relacoes
-  etapas              ProcessoEtapa[]
-  pedidos             Pedido[]
-  followUps           FollowUp[]
-  documentos          Documento[]
-  estimativaCusto     EstimativaCusto?
-  dadosTecnicos       DadosTecnicos?
+  etapas              ProcessoEtapas[]
+  pedidos             ProcessoPedido[]
+  followUps           ProcessoFollowup[]
+  documentos          ProcessoAnexos[]
+  estimativaCusto     ProcessoEstimativaCusto?
+  dadosTecnicos       ProcessoDadosTecnicos?
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -36,7 +36,7 @@ model Processo {
   @@map("processos")
 }
 
-model ProcessoEtapa {
+model ProcessoEtapas {
   id             String    @id @default(cuid())
   tenant_id      String
   product_id     String?
@@ -49,7 +49,7 @@ model ProcessoEtapa {
   data_realizada DateTime?
   observacao     String?
 
-  processo       Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  processo       ProcessoGravity  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -57,7 +57,7 @@ model ProcessoEtapa {
   @@map("processo_etapas")
 }
 
-model Pedido {
+model ProcessoPedido {
   id              String   @id @default(cuid())
   tenant_id       String
   product_id      String?
@@ -71,14 +71,14 @@ model Pedido {
   moeda           String   @default("USD")
   peso_bruto      Decimal  @default(0) @db.Decimal(18,6)
   status          String   @default("pendente") // pendente | confirmado | embarcado
-  status_id       String?  // FK to PedidoStatus (null = status built-in)
+  status_id       String?  // FK to ProcessoStatus (null = status built-in)
   campos_custom   Json?    // Colunas customizadas do tenant (JSONB + GIN index)
 
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 
-  processo        Processo     @relation(fields: [processo_id], references: [id], onDelete: Cascade)
-  itens           PedidoItem[]
+  processo        ProcessoGravity     @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  itens           ProcessoPedidoItens[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -88,7 +88,7 @@ model Pedido {
   @@map("pedidos")
 }
 
-model PedidoItem {
+model ProcessoPedidoItens {
   id             String  @id @default(cuid())
   tenant_id      String
   product_id     String?
@@ -109,7 +109,7 @@ model PedidoItem {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  pedido         Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  pedido         ProcessoPedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -117,7 +117,7 @@ model PedidoItem {
   @@map("pedido_itens")
 }
 
-model FollowUp {
+model ProcessoFollowup {
   id            String   @id @default(cuid())
   tenant_id     String
   product_id    String?
@@ -133,7 +133,7 @@ model FollowUp {
 
   created_at    DateTime @default(now())
 
-  processo      Processo @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  processo      ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -141,7 +141,7 @@ model FollowUp {
   @@map("follow_ups")
 }
 
-model Documento {
+model ProcessoAnexos {
   id             String   @id @default(cuid())
   tenant_id      String
   product_id     String?
@@ -156,7 +156,7 @@ model Documento {
 
   created_at     DateTime @default(now())
 
-  processo       Processo @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  processo       ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -164,7 +164,7 @@ model Documento {
   @@map("documentos")
 }
 
-model EstimativaCusto {
+model ProcessoEstimativaCusto {
   id           String  @id @default(cuid())
   tenant_id    String
   product_id   String?
@@ -178,14 +178,14 @@ model EstimativaCusto {
   total        Float   @default(0)
   moeda        String  @default("BRL")
 
-  processo     Processo @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  processo     ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@map("estimativas_custo")
 }
 
-model DadosTecnicos {
+model ProcessoDadosTecnicos {
   id                     String  @id @default(cuid())
   tenant_id              String
   product_id             String?
@@ -226,7 +226,7 @@ model DadosTecnicos {
   seguro_valor           Float?
   seguro_moeda           String?
 
-  processo               Processo @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  processo               ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -236,7 +236,7 @@ model DadosTecnicos {
 // ─── Configuração da Tabela de Pedidos ─────────────────────────────────────────
 
 // Status customizáveis por tenant (geram as "abas" da tabela)
-model PedidoStatus {
+model ProcessoStatus {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -259,7 +259,7 @@ model PedidoStatus {
 }
 
 // Colunas customizadas criadas pelo tenant (máx 30)
-model PedidoColuna {
+model ProcessoColunas {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -284,7 +284,7 @@ model PedidoColuna {
 }
 
 // Preferência de colunas por usuário (cross-device, no banco)
-model PedidoPreferenciaUsuario {
+model ProcessosPedidoPreferencia {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -302,7 +302,7 @@ model PedidoPreferenciaUsuario {
 }
 
 // Preferência padrão de colunas por workspace (fallback)
-model PedidoPreferenciaPadrao {
+model ProcessoPedidoPadrao {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?

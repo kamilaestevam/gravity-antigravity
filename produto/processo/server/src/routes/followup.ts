@@ -36,7 +36,7 @@ followUpRouter.get('/processos/:id_processo/follow-ups', async (req: Request, re
     if (tipo) where.tipo = tipo
     if (categoria) where.categoria = categoria
 
-    const data = await prisma.followUp.findMany({
+    const data = await prisma.processoFollowup.findMany({
       where,
       orderBy: { created_at: 'desc' },
     })
@@ -63,7 +63,7 @@ followUpRouter.post('/follow-ups-processo', async (req: Request, res: Response) 
     const prisma = (req as any).prisma
     const userId = req.headers['x-user-id'] as string | undefined
 
-    const followUp = await prisma.followUp.create({
+    const followUp = await prisma.processoFollowup.create({
       data: {
         ...parsed.data,
         usuario_id: userId,

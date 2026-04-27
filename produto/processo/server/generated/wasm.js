@@ -122,7 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.ProcessoScalarFieldEnum = {
+exports.Prisma.ProcessoGravityScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -139,7 +139,7 @@ exports.Prisma.ProcessoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ProcessoEtapaScalarFieldEnum = {
+exports.Prisma.ProcessoEtapasScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -152,7 +152,7 @@ exports.Prisma.ProcessoEtapaScalarFieldEnum = {
   observacao: 'observacao'
 };
 
-exports.Prisma.PedidoScalarFieldEnum = {
+exports.Prisma.ProcessoPedidoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -171,7 +171,7 @@ exports.Prisma.PedidoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PedidoItemScalarFieldEnum = {
+exports.Prisma.ProcessoPedidoItensScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -191,7 +191,7 @@ exports.Prisma.PedidoItemScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.FollowUpScalarFieldEnum = {
+exports.Prisma.ProcessoFollowupScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -206,7 +206,7 @@ exports.Prisma.FollowUpScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.DocumentoScalarFieldEnum = {
+exports.Prisma.ProcessoAnexosScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -220,7 +220,7 @@ exports.Prisma.DocumentoScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.EstimativaCustoScalarFieldEnum = {
+exports.Prisma.ProcessoEstimativaCustoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -234,7 +234,7 @@ exports.Prisma.EstimativaCustoScalarFieldEnum = {
   moeda: 'moeda'
 };
 
-exports.Prisma.DadosTecnicosScalarFieldEnum = {
+exports.Prisma.ProcessoDadosTecnicosScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -265,7 +265,7 @@ exports.Prisma.DadosTecnicosScalarFieldEnum = {
   seguro_moeda: 'seguro_moeda'
 };
 
-exports.Prisma.PedidoStatusScalarFieldEnum = {
+exports.Prisma.ProcessoStatusScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -280,7 +280,7 @@ exports.Prisma.PedidoStatusScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PedidoColunaScalarFieldEnum = {
+exports.Prisma.ProcessoColunasScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -297,7 +297,7 @@ exports.Prisma.PedidoColunaScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PedidoPreferenciaUsuarioScalarFieldEnum = {
+exports.Prisma.ProcessosPedidoPreferenciaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -307,7 +307,7 @@ exports.Prisma.PedidoPreferenciaUsuarioScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PedidoPreferenciaPadraoScalarFieldEnum = {
+exports.Prisma.ProcessoPedidoPadraoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -344,18 +344,18 @@ exports.Prisma.JsonNullValueFilter = {
 
 
 exports.Prisma.ModelName = {
-  Processo: 'Processo',
-  ProcessoEtapa: 'ProcessoEtapa',
-  Pedido: 'Pedido',
-  PedidoItem: 'PedidoItem',
-  FollowUp: 'FollowUp',
-  Documento: 'Documento',
-  EstimativaCusto: 'EstimativaCusto',
-  DadosTecnicos: 'DadosTecnicos',
-  PedidoStatus: 'PedidoStatus',
-  PedidoColuna: 'PedidoColuna',
-  PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
-  PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao'
+  ProcessoGravity: 'ProcessoGravity',
+  ProcessoEtapas: 'ProcessoEtapas',
+  ProcessoPedido: 'ProcessoPedido',
+  ProcessoPedidoItens: 'ProcessoPedidoItens',
+  ProcessoFollowup: 'ProcessoFollowup',
+  ProcessoAnexos: 'ProcessoAnexos',
+  ProcessoEstimativaCusto: 'ProcessoEstimativaCusto',
+  ProcessoDadosTecnicos: 'ProcessoDadosTecnicos',
+  ProcessoStatus: 'ProcessoStatus',
+  ProcessoColunas: 'ProcessoColunas',
+  ProcessosPedidoPreferencia: 'ProcessosPedidoPreferencia',
+  ProcessoPedidoPadrao: 'ProcessoPedidoPadrao'
 };
 
 /**

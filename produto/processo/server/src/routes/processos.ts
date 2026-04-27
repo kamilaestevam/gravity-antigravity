@@ -65,7 +65,7 @@ processosRouter.get('/', async (req: Request, res: Response) => {
     }
 
     const [data, total] = await Promise.all([
-      prisma.processo.findMany({
+      prisma.processoGravity.findMany({
         where,
         skip,
         take: limit,
@@ -74,7 +74,7 @@ processosRouter.get('/', async (req: Request, res: Response) => {
           etapas: { orderBy: { data_prevista: 'asc' } },
         },
       }),
-      prisma.processo.count({ where }),
+      prisma.processoGravity.count({ where }),
     ])
 
     res.json({
@@ -102,7 +102,7 @@ processosRouter.get('/:id_processo', async (req: Request, res: Response) => {
     const prisma = (req as any).prisma
     const { id_processo } = req.params
 
-    const processo = await prisma.processo.findFirst({
+    const processo = await prisma.processoGravity.findFirst({
       where: { id: id_processo },
       include: {
         etapas: { orderBy: { data_prevista: 'asc' } },
@@ -144,7 +144,7 @@ processosRouter.post('/', async (req: Request, res: Response) => {
     const prisma = (req as any).prisma
     const userId = req.headers['x-user-id'] as string | undefined
 
-    const processo = await prisma.processo.create({
+    const processo = await prisma.processoGravity.create({
       data: {
         ...parsed.data,
         user_id: userId,
@@ -174,12 +174,12 @@ processosRouter.patch('/:id_processo', async (req: Request, res: Response) => {
     const { id_processo } = req.params
 
     // Verifica se existe (tenant isolado)
-    const existing = await prisma.processo.findFirst({ where: { id: id_processo } })
+    const existing = await prisma.processoGravity.findFirst({ where: { id: id_processo } })
     if (!existing) {
       return res.status(404).json({ error: 'Processo nao encontrado' })
     }
 
-    const processo = await prisma.processo.update({
+    const processo = await prisma.processoGravity.update({
       where: { id: id_processo },
       data: parsed.data,
     })

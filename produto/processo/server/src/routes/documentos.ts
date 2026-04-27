@@ -35,7 +35,7 @@ documentosRouter.get('/processos/:id_processo/documentos', async (req: Request, 
     const where: Record<string, unknown> = { processo_id: id_processo }
     if (categoria) where.categoria = categoria
 
-    const data = await prisma.documento.findMany({
+    const data = await prisma.processoAnexos.findMany({
       where,
       orderBy: { created_at: 'desc' },
     })
@@ -62,7 +62,7 @@ documentosRouter.post('/documentos-processo', async (req: Request, res: Response
     const prisma = (req as any).prisma
     const userId = req.headers['x-user-id'] as string | undefined
 
-    const documento = await prisma.documento.create({
+    const documento = await prisma.processoAnexos.create({
       data: {
         ...parsed.data,
         user_id: userId,
@@ -86,12 +86,12 @@ documentosRouter.delete('/documentos-processo/:id_documento_processo', async (re
     const { id_documento_processo } = req.params
 
     // Verifica se existe (tenant isolado)
-    const existing = await prisma.documento.findFirst({ where: { id: id_documento_processo } })
+    const existing = await prisma.processoAnexos.findFirst({ where: { id: id_documento_processo } })
     if (!existing) {
       return res.status(404).json({ error: 'Documento nao encontrado' })
     }
 
-    await prisma.documento.delete({ where: { id: id_documento_processo } })
+    await prisma.processoAnexos.delete({ where: { id: id_documento_processo } })
 
     res.json({ success: true, message: 'Documento removido' })
   } catch (err: unknown) {

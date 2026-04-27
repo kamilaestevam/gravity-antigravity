@@ -1,5 +1,5 @@
 /**
- * MeuDesempenho.tsx — Portal da Corretora: Metricas de performance e rating
+ * Desempenho.tsx — Portal da Corretora: Metricas de performance e rating
  * KPI cards, rating por categoria, score global, placeholder de grafico
  */
 
@@ -251,11 +251,11 @@ const fmtPct = (val: number): string =>
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-interface MeuDesempenhoProps {
+interface DesempenhoProps {
   disabled?: boolean
 }
 
-export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) {
+export default function Desempenho({ disabled = false }: DesempenhoProps) {
   const { t } = useTranslation()
   const [dados, setDados] = useState<DesempenhoData | null>(null)
   const [pageState, setPageState] = useState<PageState>('loading')

@@ -1,5 +1,5 @@
 /**
- * WorkflowPage.tsx — Tela principal de Workflow do Processo
+ * Workflow.tsx — Tela principal de Workflow do Processo
  *
  * Segue padroes do Configurador:
  * - PaginaGlobal com layout="lista"
@@ -45,7 +45,7 @@ import {
 import { useProcesso } from '../ProcessoLayout'
 import { getFollowUps, createFollowUp, deleteDocumento } from '../../shared/api'
 import type { FollowUp, FilterFollowUp } from '../../shared/types'
-import './WorkflowPage.css'
+import './Workflow.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -94,7 +94,7 @@ const CUSTO_ICONS: Record<string, React.ReactNode> = {
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 
-export default function WorkflowPage() {
+export default function Workflow() {
   const { t } = useTranslation()
   const { processo, loading, refetch } = useProcesso()
   const addNotification = useShellStore((state) => state.addNotification)

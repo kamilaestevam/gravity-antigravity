@@ -16,14 +16,11 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 // ─── Lazy loading das telas do produto ─────────────────────────────────────
 
-// v1 original (preservada):
-// const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
-// v2 — nova versao para avaliacao:
-const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout_2'))
-const WorkflowPage = lazy(() => import('./pages/workflow/WorkflowPage'))
-const PedidosPage = lazy(() => import('./pages/pedidos/PedidosPage'))
-const DadosTecnicosPage = lazy(() => import('./pages/dados-tecnicos/DadosTecnicosPage'))
-const EmailPage = lazy(() => import('./pages/email/EmailPage'))
+const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
+const Workflow = lazy(() => import('./pages/workflow/Workflow'))
+const Pedidos = lazy(() => import('./pages/pedidos/Pedidos'))
+const DadosTecnicos = lazy(() => import('./pages/dados-tecnicos/DadosTecnicos'))
+const Email = lazy(() => import('./pages/email/Email'))
 
 // ─── Loading Fallback ──────────────────────────────────────────────────────
 
@@ -71,10 +68,10 @@ export function App() {
         <Routes>
           <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
-            <Route path="workflow" element={<WorkflowPage />} />
-            <Route path="pedidos" element={<PedidosPage />} />
-            <Route path="dados-tecnicos" element={<DadosTecnicosPage />} />
-            <Route path="email" element={<EmailPage />} />
+            <Route path="workflow" element={<Workflow />} />
+            <Route path="pedidos" element={<Pedidos />} />
+            <Route path="dados-tecnicos" element={<DadosTecnicos />} />
+            <Route path="email" element={<Email />} />
             <Route path="financeiro" element={<FinanceiroPlaceholder />} />
           </Route>
           <Route path="*" element={<Navigate to="workflow" replace />} />

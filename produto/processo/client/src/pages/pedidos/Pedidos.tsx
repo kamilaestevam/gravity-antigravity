@@ -1,5 +1,5 @@
 /**
- * PedidosPage.tsx — Pedidos de compra vinculados ao processo
+ * Pedidos.tsx — Pedidos de compra vinculados ao processo
  *
  * TabelaVirtualGlobal: pedidos como nível pai, itens como nível filho.
  * Dados 100% da API — cursor pagination, edição inline, lote, exportação.
@@ -50,7 +50,7 @@ const fmtDate = (iso: string) =>
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function PedidosPage() {
+export default function Pedidos() {
   const [pedidos, setPedidos] = useState<PedidoRico[]>([])
   const [carregando, setCarregando] = useState(true)
   const [abaAtiva, setAbaAtiva] = useState('todos')
@@ -141,7 +141,7 @@ export default function PedidosPage() {
 
   // ── Carregar filhos (itens do pedido) ─────────────────────────────────────
   // useCallback com deps estáveis para não disparar o useEffect de
-  // auto-revalidação do useGTExpandir em todo render de PedidosPage.
+  // auto-revalidação do useGTExpandir em todo render de Pedidos.
   const carregarItens = useCallback(
     (pedido: PedidoRico): Promise<PedidoItemRico[]> => getPedidoItens(tenantId, pedido.id),
     [tenantId],

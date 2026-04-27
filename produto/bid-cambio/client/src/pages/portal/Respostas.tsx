@@ -1,5 +1,5 @@
 /**
- * MinhasRespostas.tsx — Portal da Corretora: Historico de respostas enviadas
+ * Respostas.tsx — Portal da Corretora: Historico de respostas enviadas
  * Tabela com filtro por status, paginacao, badges de status
  */
 
@@ -240,11 +240,11 @@ const s = {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-interface MinhasRespostasProps {
+interface RespostasProps {
   disabled?: boolean
 }
 
-export default function MinhasRespostas({ disabled = false }: MinhasRespostasProps) {
+export default function Respostas({ disabled = false }: RespostasProps) {
   const { t } = useTranslation()
   const [respostas, setRespostas] = useState<RespostaHistorico[]>([])
   const [pageState, setPageState] = useState<PageState>('loading')

@@ -1,5 +1,5 @@
 /**
- * ConfigCorretora.tsx — Portal da Corretora: Configuracoes e perfil
+ * Configuracoes.tsx — Portal da Corretora: Configuracoes e perfil
  * Dados da empresa (read-only), contato (editavel), moedas, toggle portal
  */
 
@@ -253,11 +253,11 @@ const s = {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-interface ConfigCorretoraProps {
+interface ConfiguracoesProps {
   disabled?: boolean
 }
 
-export default function ConfigCorretora({ disabled = false }: ConfigCorretoraProps) {
+export default function Configuracoes({ disabled = false }: ConfiguracoesProps) {
   const { t } = useTranslation()
   const [config, setConfig] = useState<ConfigData>({
     razao_social: '',

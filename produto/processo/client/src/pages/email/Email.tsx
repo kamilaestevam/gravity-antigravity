@@ -1,5 +1,5 @@
 /**
- * EmailPage.tsx — Tela de Email do Processo
+ * Email.tsx — Tela de Email do Processo
  *
  * Layout dividido: lista de emails (esquerda) + detalhe do email (direita).
  * Lista com busca, tabs pill de categoria, indicador de não lido.
@@ -27,7 +27,7 @@ import {
   Tag,
   Star,
 } from '@phosphor-icons/react'
-import './EmailPage.css'
+import './Email.css'
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────
 
@@ -184,7 +184,7 @@ function EmailDetailSkeleton() {
 
 // ─── Componente Principal ──────────────────────────────────────────────────
 
-export default function EmailPage() {
+export default function Email() {
   const { t } = useTranslation()
   const addNotification = useShellStore((state) => state.addNotification)
 

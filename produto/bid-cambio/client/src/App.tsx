@@ -26,9 +26,9 @@ const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 const PortalDashboard = lazy(() => import('./pages/portal/PortalDashboard'))
 const CotacoesPendentes = lazy(() => import('./pages/portal/CotacoesPendentes'))
 const ResponderCotacao = lazy(() => import('./pages/portal/ResponderCotacao'))
-const MinhasRespostas = lazy(() => import('./pages/portal/MinhasRespostas'))
-const MeuDesempenho = lazy(() => import('./pages/portal/MeuDesempenho'))
-const ConfigCorretora = lazy(() => import('./pages/portal/ConfigCorretora'))
+const PortalRespostas = lazy(() => import('./pages/portal/Respostas'))
+const PortalDesempenho = lazy(() => import('./pages/portal/Desempenho'))
+const PortalConfiguracoes = lazy(() => import('./pages/portal/Configuracoes'))
 
 // --- Portal Publico (sem login — via token) ---
 const ResponderPublico = lazy(() => import('./pages/portal/ResponderPublico'))
@@ -56,26 +56,26 @@ export default function App() {
           <Route path="/" element={<Navigate to="visao-geral" replace />} />
           <Route path="visao-geral" element={<Dashboard />} />
           <Route path="cambios" element={<ListaCambios />} />
-          <Route path="cambios/:id/pagar" element={<ModalPagamento />} />
+          <Route path="cambios/:id_cambio/pagar" element={<ModalPagamento />} />
           <Route path="cotacoes" element={<NovaCotacao />} />
           <Route path="cotacoes/nova" element={<NovaCotacao />} />
-          <Route path="cotacoes/:id" element={<DetalheCotacao />} />
-          <Route path="cotacoes/:id/comparativo" element={<Comparativo />} />
+          <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />
+          <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="corretoras" element={<Corretoras />} />
-          <Route path="corretoras/:id" element={<DetalheCorretora />} />
+          <Route path="corretoras/:id_corretora" element={<DetalheCorretora />} />
           <Route path="configuracoes" element={<Configuracoes />} />
 
           {/* Portal da Corretora (logado) */}
           <Route path="portal" element={<Navigate to="portal/dashboard" replace />} />
           <Route path="portal/dashboard" element={<PortalDashboard />} />
           <Route path="portal/pendentes" element={<CotacoesPendentes />} />
-          <Route path="portal/respostas" element={<MinhasRespostas />} />
-          <Route path="portal/desempenho" element={<MeuDesempenho />} />
-          <Route path="portal/responder/:bidRequestId" element={<ResponderCotacao />} />
-          <Route path="portal/configuracoes" element={<ConfigCorretora />} />
+          <Route path="portal/respostas" element={<PortalRespostas />} />
+          <Route path="portal/desempenho" element={<PortalDesempenho />} />
+          <Route path="portal/responder/:id_cotacao" element={<ResponderCotacao />} />
+          <Route path="portal/configuracoes" element={<PortalConfiguracoes />} />
 
           {/* Portal Publico */}
-          <Route path="portal/public/responder/:token" element={<ResponderPublico />} />
+          <Route path="portal/public/responder/:token_resposta" element={<ResponderPublico />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="visao-geral" replace />} />

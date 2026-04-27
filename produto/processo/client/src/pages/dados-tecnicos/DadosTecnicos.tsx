@@ -1,5 +1,5 @@
 /**
- * DadosTecnicosPage.tsx — Formulario de Dados Tecnicos do Processo
+ * DadosTecnicos.tsx — Formulario de Dados Tecnicos do Processo
  *
  * Secoes: Importador, Exportador, Transporte Internacional, Despacho Aduaneiro, Seguro.
  * Melhorias: pill tabs, CardGraficoGlobal (gauge de preenchimento), LocalizarExpandidoCampoGlobal.
@@ -31,7 +31,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CardGraficoGlobal } from '@nucleo/card-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { useShellStore } from '@gravity/shell'
-import './DadosTecnicosPage.css'
+import './DadosTecnicos.css'
 
 // ── Opcoes dos selects ────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ const TODOS_CAMPOS = Object.values(CAMPOS_POR_ABA).flat()
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function DadosTecnicosPage() {
+export default function DadosTecnicos() {
   const { t } = useTranslation()
   const addNotification = useShellStore((state) => state.addNotification)
 

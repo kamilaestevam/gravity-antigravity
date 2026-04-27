@@ -51,7 +51,7 @@ import {
   CaretLeft, CaretRight, RocketLaunch,
   DotsThree, PencilSimple, Trash, X,
 } from '@phosphor-icons/react'
-import './DashboardPedido.css'
+import './PedidosDashboard.css'
 
 import { useDashboardStore } from '../stores/dashboardStore'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
@@ -864,7 +864,7 @@ function SortableTabWrapper({ id, children }: { id: string; children: ReactNode 
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export default function DashboardPedido() {
+export default function PedidosDashboard() {
   const {
     widgets, addWidget, removeWidget, updateWidget, updateLayout,
     slicers, setPeriod, setStatusFilter,

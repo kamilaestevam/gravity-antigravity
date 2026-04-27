@@ -113,7 +113,7 @@ import {
 } from '../shared/types'
 import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
-import './ListaPedidos.css'
+import './Pedidos.css'
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
 
@@ -2870,7 +2870,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function ListaPedidos() {
+export default function Pedidos() {
   const { t, i18n } = useTranslation()
   // Colunas pai reativas — rebuild quando o idioma muda.
   // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo

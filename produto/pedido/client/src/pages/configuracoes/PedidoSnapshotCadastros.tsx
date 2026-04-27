@@ -41,7 +41,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { pedidoConfigApi } from '../../shared/api'
 import type { PedidoStatusConfig } from '../../shared/types'
-import './MatrizSnapshotCadastros.css'
+import './PedidoSnapshotCadastros.css'
 
 // ─── Papéis (rows) ────────────────────────────────────────────────────────────
 // Mesma lista usada em EmpresasParceiros / ModalEditarEmpresa — fonte única de
@@ -136,7 +136,7 @@ function salvarMatriz(tenantId: string | undefined, matriz: Matriz): void {
 
 // ─── Componente ────────────────────────────────────────────────────────────────
 
-export function MatrizSnapshotCadastros() {
+export function PedidoSnapshotCadastros() {
   const currentUser    = useShellStore(s => s.currentUser)
   const addNotification = useShellStore(s => s.addNotification)
   const tenantId       = currentUser?.tenantId

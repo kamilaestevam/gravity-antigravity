@@ -45,7 +45,7 @@ const FORMATO_ICONES: Record<string, React.ReactNode> = {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function ImportarArquivo() {
+export default function PedidosImportar() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)

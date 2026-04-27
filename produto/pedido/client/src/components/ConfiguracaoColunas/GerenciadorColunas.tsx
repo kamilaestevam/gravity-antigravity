@@ -34,7 +34,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { ColunaUsuario } from '../../shared/types'
 import { colunasUsuarioApi } from '../../shared/api'
-import { COLUNAS_PAI_CHAVES } from '../../pages/ListaPedidos'
+import { COLUNAS_PAI_CHAVES } from '../../pages/Pedidos'
 import { ModalNovaColuna } from './ModalNovaColuna'
 import './GerenciadorColunas.css'
 

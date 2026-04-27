@@ -111,11 +111,11 @@ const gridStyle: React.CSSProperties = {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export default function NovoPedido() {
+export default function PedidoFormulario() {
   const { t } = useTranslation()
-  const { id } = useParams<{ id: string }>()
+  const { id_pedido } = useParams<{ id_pedido: string }>()
   const navigate = useNavigate()
-  const modoEdicao = Boolean(id)
+  const modoEdicao = Boolean(id_pedido)
 
   const [form, setForm] = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens] = useState<ItemForm[]>([ITEM_VAZIO()])
@@ -142,8 +142,8 @@ export default function NovoPedido() {
   }
 
   useEffect(() => {
-    if (!modoEdicao || !id) return
-    pedidoApi.buscarPorId(id)
+    if (!modoEdicao || !id_pedido) return
+    pedidoApi.buscarPorId(id_pedido)
       .then(pedido => {
         setForm({
           tipo_operacao: pedido.tipo_operacao,
@@ -173,7 +173,7 @@ export default function NovoPedido() {
         }
       })
       .catch(() => { /* dev: ignorar erro de backend */ })
-  }, [modoEdicao, id])
+  }, [modoEdicao, id_pedido])
 
   async function handleSalvar() {
     setSalvando(true)
@@ -192,13 +192,13 @@ export default function NovoPedido() {
         itens: itensMapped as PedidoItem[],
       }
       if (modoEdicao) {
-        await pedidoApi.atualizar(id!, payload)
+        await pedidoApi.atualizar(id_pedido!, payload)
       } else {
         await pedidoApi.criar(payload)
       }
       navigate('/pedidos')
     } catch (err) {
-      console.error('[NovoPedido] Erro ao salvar:', err)
+      console.error('[PedidoFormulario] Erro ao salvar:', err)
       if (import.meta.env.DEV) navigate(-1)
     } finally {
       setSalvando(false)
@@ -213,7 +213,7 @@ export default function NovoPedido() {
         <CabecalhoGlobal
           icone={<Package weight="duotone" size={22} />}
           titulo={modoEdicao ? t('pedido.editar', 'Editar Pedido') : t('pedido.novo_pedido')}
-          subtitulo={modoEdicao ? t('pedido.editando', `Editando pedido ${id}`, { id }) : t('pedido.criar_subtitulo', 'Criar novo pedido de compra/venda')}
+          subtitulo={modoEdicao ? t('pedido.editando', `Editando pedido ${id_pedido}`, { id: id_pedido }) : t('pedido.criar_subtitulo', 'Criar novo pedido de compra/venda')}
         />
       }
       acoes={

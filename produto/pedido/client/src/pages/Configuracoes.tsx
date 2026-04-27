@@ -64,7 +64,7 @@ import type {
 } from '../shared/types'
 import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
-import { MatrizSnapshotCadastros } from './configuracoes/MatrizSnapshotCadastros'
+import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -4483,7 +4483,7 @@ export default function Configuracoes() {
         {/* ════════════════════════ SNAPSHOT CADASTROS ════════════════════════ */}
         {categoria === 'snapshot-cadastros' && (
           <div className="cfg-cards-wrapper">
-            <MatrizSnapshotCadastros />
+            <PedidoSnapshotCadastros />
           </div>
         )}
 

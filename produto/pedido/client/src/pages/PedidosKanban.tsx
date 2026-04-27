@@ -38,7 +38,7 @@ import { computarColunasKanban, IS_READ_ONLY_MAP, COLUNAS_FALLBACK_SHAPE } from 
 export { computarColunasKanban, IS_READ_ONLY_MAP }
 import { useNavigate } from 'react-router-dom'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
-import './KanbanPedidos.css'
+import './PedidosKanban.css'
 
 // ── Colunas base — apenas ícone (label/cor/ordem vêm da API via kanbanUtils) ──
 
@@ -406,7 +406,7 @@ function ModalKanbanPedido({
 
 // ── Página ────────────────────────────────────────────────────────────────────
 
-export default function KanbanPedidos() {
+export default function PedidosKanban() {
   const [pedidos, setPedidos]           = useState<Pedido[]>([])
   const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
   const [preferencias, setPreferencias] = useState<KanbanPreferencias | null>(null)

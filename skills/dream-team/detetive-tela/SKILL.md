@@ -74,7 +74,7 @@ Artefatos:
 - React Query / TanStack Query (queries, mutations, cache keys)
 - Estado local (`useState`, `useReducer`) e seus propósitos
 - Context API (se houver)
-- Verificar conformidade com `skills/arquitetura/state-management/SKILL.md`
+- Verificar conformidade com `skills/arquitetura/estado/SKILL.md`
 
 #### 2.3 Hooks e Efeitos
 - Hooks customizados utilizados (arquivo + propósito)
@@ -387,7 +387,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 |---|--------|-----------|------------|------------|---------------------|
 | 1 | [descrição] | Segurança | CRÍTICO | `arquivo.ts:linha` | `seguranca-5-camadas` |
 | 2 | [descrição] | Backend | ALTO | `arquivo.ts:linha` | `code-standards` |
-| 3 | [descrição] | Frontend | MÉDIO | `arquivo.tsx:linha` | `state-management` |
+| 3 | [descrição] | Frontend | MÉDIO | `arquivo.tsx:linha` | `estado` |
 
 ---
 

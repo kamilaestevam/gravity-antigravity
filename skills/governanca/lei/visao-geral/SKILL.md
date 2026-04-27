@@ -244,7 +244,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Monitoramento, Sentry, UptimeRobot | `antigravity-observabilidade` |
 | Design system, cores, tipografia, tokens CSS | `antigravity-design-system` |
 | Componentes globais (Tabela, Modal, Select) | `antigravity-nucleo-global` |
-| State management frontend | `antigravity-state-management` |
+| State management frontend | `antigravity-estado` |
 | Marketplace (landing e catálogo) | `antigravity-marketplace` |
 | Configurador (Clerk autenticação, permissões) | `antigravity-configurador` |
 | Gabi (assistente de IA) | `antigravity-gabi` |

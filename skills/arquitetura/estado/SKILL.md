@@ -1,16 +1,16 @@
 ---
-name: antigravity-state-management
+name: antigravity-estado
 description: "Use esta skill sempre que uma tarefa envolver gerenciamento de estado no frontend — seja no shell ou em um produto. Define a separação obrigatória entre estado do shell e estado do produto, a dependência unidirecional, os campos restritos do ShellState e como o isolamento é garantido. Todo agente consulta esta skill antes de criar ou modificar qualquer store, context ou hook de estado."
 ---
 
-# Gravity — State Management
+# Gravity — Estado (State Management)
 
 ## Regra Fundamental
 
 Shell e produto usam stores distintas com uma regra de dependência unidirecional:
 
 ```
-nucleo-global/shell/state        produtos/[produto]/src/shared/state
+nucleo-global/shell/state        produto/[produto]/src/shared/state
 (estado genérico)                 (estado específico)
 │
 │◀──── produto PODE ler ──────────┘
@@ -30,11 +30,24 @@ O ShellState contém apenas dados que fazem sentido em qualquer produto. É um c
 // servicos-global/shell/store/types.ts
 export type MeStatus = 'idle' | 'loading' | 'success' | 'error'
 
-interface ShellState {
+export type Notification = {
+  type: 'success' | 'error' | 'info'
+  message: string
+}
+
+export interface ShellState {
+  // dados
   sidebarOpen: boolean
   currentTheme: 'light' | 'dark'
   currentUser: { id: string; name: string; email: string; avatarUrl?: string }
   meStatus: MeStatus   // ciclo de vida do GET /api/v1/me — NUNCA ignorar
+  notifications: Notification[]
+
+  // ações
+  toggleSidebar: () => void
+  setMeStatus: (status: MeStatus) => void
+  clearCurrentUser: () => void
+  addNotification: (n: Notification) => void
 }
 ```
 
@@ -64,14 +77,25 @@ if (meStatus === 'error') {
 **Com Zustand:**
 
 ```typescript
+import { create } from 'zustand'
+import type { ShellState, Notification } from './types'
+
+const DEFAULT_USER = { id: '', name: '', email: '' }
+
 export const useShellStore = create<ShellState>((set) => ({
+  // dados
   sidebarOpen: true,
   currentTheme: 'dark',
   currentUser: DEFAULT_USER,
   meStatus: 'idle',
+  notifications: [],
+
+  // ações
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setMeStatus: (status) => set({ meStatus: status }),
   clearCurrentUser: () => set({ currentUser: DEFAULT_USER, meStatus: 'idle' }),
+  addNotification: (n: Notification) =>
+    set((state) => ({ notifications: [...state.notifications, n] })),
 }))
 ```
 
@@ -82,10 +106,12 @@ export const useShellStore = create<ShellState>((set) => ({
 Cada produto tem seu próprio ProductState. Ele pode ler o ShellState por meio de hooks, mas o ShellState nunca tem conhecimento do ProductState.
 
 ```typescript
-// produtos/vendas/src/shared/state/types.ts
-interface VendasState {
-  idCarrinho: string
-  items: SaleItem[]
+// produto/pedido/src/shared/state/types.ts
+import type { PedidoItem } from '../models'
+
+export interface PedidoState {
+  idPedido: string
+  items: PedidoItem[]
   workspace: {
     id: string
     nome_workspace: string
@@ -100,14 +126,17 @@ interface VendasState {
 async function handleSalvar() {
   try {
     const { currentUser } = useShellStore.getState()
-    const { items } = useProductStore.getState()
+    const { items } = usePedidoStore.getState()
 
-    await api.vendas.create({
+    await api.pedido.create({
       items,
-      createdById: currentUser.id
+      createdById: currentUser.id,
     })
   } catch (error) {
-    AppError.handle(error)
+    useShellStore.getState().addNotification({
+      type: 'error',
+      message: error instanceof Error ? error.message : 'Erro ao salvar',
+    })
   }
 }
 ```
@@ -119,14 +148,17 @@ async function handleSalvar() {
 O shell não lê o estado do produto, mas os dois podem se comunicar via event bus:
 
 ```typescript
-import { emit, on } from '@nucleo/shell'
+import { emit, on } from '@gravity/shell'
 
 // Produto emite evento quando algo relevante acontece
-emit('activity:created', { id: '123', title: 'Nova simulação' })
+emit<{ id: string; title: string }>('activity:created', { id: '123', title: 'Nova simulação' })
 
 // Shell (ou outro módulo) escuta sem precisar conhecer o estado do produto
-on('activity:created', ({ id, title }) => {
-  addNotification(`Atividade criada: ${title}`)
+on<{ id: string; title: string }>('activity:created', ({ id, title }) => {
+  useShellStore.getState().addNotification({
+    type: 'info',
+    message: `Atividade criada: ${title}`,
+  })
 })
 ```
 
@@ -139,7 +171,7 @@ on('activity:created', ({ id, title }) => {
 O produto nunca gerencia toasts diretamente — usa o shell:
 
 ```typescript
-import { useShellStore } from '@nucleo/shell'
+import { useShellStore } from '@gravity/shell'
 
 function SimulacaoPage() {
   const { addNotification } = useShellStore()
@@ -167,37 +199,39 @@ function SimulacaoPage() {
 | Estado de operação | `produto/shared/state` | importação em andamento |
 | Estado de permissões | `produto/shared/state` | o que o usuário pode fazer |
 | Dados do servidor | Queries (React Query ou SWR) | listas, detalhes de entidades |
-| Comunicação entre módulos | Event bus (`@nucleo/shell`) | timer parou, atividade criada |
+| Comunicação entre módulos | Event bus (`@gravity/shell`) | timer parou, atividade criada |
 
 ---
 
-## Event Bus — Padrão Obrigatório entre Módulos da Organização (Dream Team)
+## Event Bus — Padrão Obrigatório entre Módulos da Organização
 
-Quando múltiplos serviços da organização estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus:
+Quando múltiplos serviços da organização estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus tipado por generics:
 
 ```typescript
 // servicos-global/shell/events.ts
 const bus = new EventTarget()
 
-export function emit(event: string, detail: unknown) {
-  bus.dispatchEvent(new CustomEvent(event, { detail }))
+export function emit<T>(event: string, detail: T): void {
+  bus.dispatchEvent(new CustomEvent<T>(event, { detail }))
 }
 
-export function on(event: string, callback: (detail: unknown) => void) {
-  bus.addEventListener(event, (e) => callback((e as CustomEvent).detail))
+export function on<T>(event: string, callback: (detail: T) => void): void {
+  bus.addEventListener(event, (e) => callback((e as CustomEvent<T>).detail))
 }
 
-export function off(event: string, callback: (detail: unknown) => void) {
+export function off<T>(event: string, callback: (detail: T) => void): void {
   bus.removeEventListener(event, callback as EventListener)
 }
 ```
 
 ### Eventos padronizados
 
+> **Convenção de payload:** os payloads do Event Bus operam em memória TypeScript (não cruzam HTTP), então usam **camelCase** (`activityId`, `idProduto`). Snake_case fica reservado a contratos REST/Prisma/banco.
+
 | Evento | Emissor | Dados | Quem escuta |
 |:---|:---|:---|:---|
-| `timer:stopped` | Cronômetro | `{ activity_id, duration }` | Atividades |
-| `activity:created` | Atividades | `{ id, title, id_produto }` | Dashboard, Notificações |
+| `timer:stopped` | Cronômetro | `{ activityId, duration }` | Atividades |
+| `activity:created` | Atividades | `{ id, title, idProduto }` | Dashboard, Notificações |
 | `email:received` | Email | `{ id, subject, from }` | Notificações, Dashboard |
 | `notification:new` | Qualquer | `{ type, message }` | Shell (toast) |
 
@@ -209,10 +243,12 @@ export function off(event: string, callback: (detail: unknown) => void) {
 - **Cleanup** — componentes devem chamar `off()` no unmount para evitar memory leaks
 
 ```typescript
+type TimerStoppedDetail = { activityId: string; duration: number }
+
 useEffect(() => {
-  const handler = (detail) => updateTimer(detail)
-  on('timer:stopped', handler)
-  return () => off('timer:stopped', handler)
+  const handler = (detail: TimerStoppedDetail) => updateTimer(detail)
+  on<TimerStoppedDetail>('timer:stopped', handler)
+  return () => off<TimerStoppedDetail>('timer:stopped', handler)
 }, [])
 ```
 

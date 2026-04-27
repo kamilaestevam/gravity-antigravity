@@ -69,7 +69,7 @@ skills/governanca/convencao-tecnica/code-standards/SKILL.md
 | CSS compartilhado / design tokens | `skills/ux/design-system/SKILL.md` + `skills/ux/acessibilidade/SKILL.md` |
 | Migration Prisma | `skills/processos/deploy/SKILL.md` + `skills/governanca/convencao-tecnica/database-governance/SKILL.md` |
 | `shared/types.ts` | `skills/testes/contract-testing/SKILL.md` |
-| Estado global (store/context) | `skills/arquitetura/state-management/SKILL.md` |
+| Estado global (store/context) | `skills/arquitetura/estado/SKILL.md` |
 
 > **Regra:** se uma skill existe e é ignorada durante o ajuste, o ajuste está
 > incompleto por definição — independente da qualidade técnica da execução.

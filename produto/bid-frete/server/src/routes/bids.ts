@@ -25,7 +25,7 @@ const CotacaoAbertaSchema = z.object({
 })
 
 // POST /disparar — Disparar BIDs direcionados
-router.post('/disparar', async (req: Request & { prisma?: any; tenantId?: string }, res: Response, next: NextFunction) => {
+router.post('/disparar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = DispararSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
@@ -33,7 +33,7 @@ router.post('/disparar', async (req: Request & { prisma?: any; tenantId?: string
     const userId = req.headers['x-user-id'] as string
     if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
 
-    const resultado = await bidEngine.disparar(req.prisma, {
+    const resultado = await bidEngine.disparar(req.prisma!, {
       cotacao_id: parsed.data.cotacao_id,
       fornecedor_ids: parsed.data.fornecedor_ids,
       canais: parsed.data.canais,
@@ -48,7 +48,7 @@ router.post('/disparar', async (req: Request & { prisma?: any; tenantId?: string
 })
 
 // POST /cotacao-aberta — Disparar para todos os fornecedores ativos
-router.post('/cotacao-aberta', async (req: Request & { prisma?: any; tenantId?: string }, res: Response, next: NextFunction) => {
+router.post('/cotacao-aberta', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = CotacaoAbertaSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
@@ -57,7 +57,7 @@ router.post('/cotacao-aberta', async (req: Request & { prisma?: any; tenantId?: 
     if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
 
     // Buscar todos os fornecedores ativos que aceitam cotacao aberta
-    const where: any = {
+    const where: Record<string, unknown> = {
       product_id: 'bid-frete',
       status: 'ATIVO',
       aceita_cotacao_aberta: true,
@@ -66,14 +66,14 @@ router.post('/cotacao-aberta', async (req: Request & { prisma?: any; tenantId?: 
       where.tipo = { in: parsed.data.tipos_fornecedor }
     }
 
-    const fornecedores = await req.prisma.fornecedor.findMany({ where, select: { id: true } })
-    const fornecedor_ids = fornecedores.map((f: any) => f.id)
+    const fornecedores = await (req.prisma as any).freteIntBidFornecedores.findMany({ where, select: { id: true } })
+    const fornecedor_ids = (fornecedores as Array<{ id: string }>).map((f) => f.id)
 
     if (fornecedor_ids.length === 0) {
       return res.json({ disparos: 0, message: 'Nenhum fornecedor ativo aceita cotacao aberta' })
     }
 
-    const resultado = await bidEngine.disparar(req.prisma, {
+    const resultado = await bidEngine.disparar(req.prisma!, {
       cotacao_id: parsed.data.cotacao_id,
       fornecedor_ids,
       canais: parsed.data.canais,
@@ -88,9 +88,9 @@ router.post('/cotacao-aberta', async (req: Request & { prisma?: any; tenantId?: 
 })
 
 // GET /cotacao/:id — Listar BidRequests de uma cotacao
-router.get('/cotacao/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/cotacao/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const requests = await req.prisma.bidRequest.findMany({
+    const requests = await (req.prisma as any).freteIntBidPedidoCotacoes.findMany({
       where: { cotacao_id: req.params.id },
       include: {
         fornecedor: { select: { id: true, nome: true, tipo: true, email: true, whatsapp: true } },

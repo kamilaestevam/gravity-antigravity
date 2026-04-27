@@ -13,31 +13,33 @@ export const ratingEngine = {
    */
   async recalcular(prisma: PrismaClient, fornecedorEmail: string) {
     // Buscar todos os BidRequests deste fornecedor (cross-tenant, usa basePrisma)
-    const allRequests = await (prisma as any).bidRequest.findMany({
+    const allRequests = await (prisma as any).freteIntBidPedidoCotacoes.findMany({
       where: { fornecedor: { email: fornecedorEmail } },
       include: { fornecedor: { select: { email: true } } },
     })
 
-    const allResponses = await (prisma as any).bidResponse.findMany({
+    const allResponses = await (prisma as any).freteIntBidPropostas.findMany({
       where: { fornecedor: { email: fornecedorEmail } },
     })
 
-    const allAvaliacoes = await (prisma as any).avaliacao.findMany({
+    const allAvaliacoes = await (prisma as any).freteIntBidFornecedoresAvaliacoes.findMany({
       where: { fornecedor: { email: fornecedorEmail } },
     })
 
     // Metricas automaticas
+    type RequestRow = { status?: string; enviado_em?: Date | string | null; respondido_em?: Date | string | null }
+    type ResponseRow = { status?: string }
     const totalRecebidas = allRequests.length
-    const totalRespondidas = allRequests.filter((r: any) => r.status === 'RESPONDIDO').length
-    const totalAprovadas = allResponses.filter((r: any) => r.status === 'APROVADA').length
+    const totalRespondidas = allRequests.filter((r: RequestRow) => r.status === 'RESPONDIDO').length
+    const totalAprovadas = allResponses.filter((r: ResponseRow) => r.status === 'APROVADA').length
 
     const taxaResposta = totalRecebidas > 0 ? (totalRespondidas / totalRecebidas) * 100 : 0
     const taxaAprovacao = totalRespondidas > 0 ? (totalAprovadas / totalRespondidas) * 100 : 0
 
     // Tempo medio de resposta
     const temposResposta = allRequests
-      .filter((r: any) => r.enviado_em && r.respondido_em)
-      .map((r: any) => (new Date(r.respondido_em).getTime() - new Date(r.enviado_em).getTime()) / (1000 * 60 * 60))
+      .filter((r: RequestRow) => r.enviado_em && r.respondido_em)
+      .map((r: RequestRow) => (new Date(r.respondido_em as string).getTime() - new Date(r.enviado_em as string).getTime()) / (1000 * 60 * 60))
     const tempoMedio = temposResposta.length > 0
       ? temposResposta.reduce((a: number, b: number) => a + b, 0) / temposResposta.length
       : 0
@@ -65,7 +67,7 @@ export const ratingEngine = {
       : scoreAuto
 
     // Upsert no RatingFornecedor (tabela global)
-    await (prisma as any).ratingFornecedor.upsert({
+    await (prisma as any).freteIntBidClassificacaoFornecedores.upsert({
       where: { fornecedor_email: fornecedorEmail },
       create: {
         fornecedor_email: fornecedorEmail,
@@ -102,7 +104,9 @@ export const ratingEngine = {
   },
 }
 
-function calcularMedia(avaliacoes: any[], campo: string): number {
-  const notas = avaliacoes.filter((a: any) => a[campo] != null).map((a: any) => a[campo])
+function calcularMedia(avaliacoes: Array<Record<string, unknown>>, campo: string): number {
+  const notas = avaliacoes
+    .filter((a: Record<string, unknown>) => a[campo] != null)
+    .map((a: Record<string, unknown>) => a[campo] as number)
   return notas.length > 0 ? notas.reduce((a: number, b: number) => a + b, 0) / notas.length : 0
 }

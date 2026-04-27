@@ -16,9 +16,9 @@ const router = Router()
 // GET /portos?q=&tipo=&pais=
 router.get('/portos', async (req: Request, res: Response) => {
   try {
-    const { q, tipo, pais, limit = '50' } = req.query as any
+    const { q, tipo, pais, limit = '50' } = req.query as { q?: string; tipo?: string; pais?: string; limit?: string }
 
-    const where: any = { ativo: true }
+    const where: Record<string, unknown> = { ativo: true }
     if (tipo) where.tipo = tipo
     if (pais) where.pais_codigo = pais
     if (q) {
@@ -28,7 +28,7 @@ router.get('/portos', async (req: Request, res: Response) => {
       ]
     }
 
-    const portos = await (prisma as any).porto.findMany({
+    const portos = await (prisma as any).freteIntBidPortosCadastro.findMany({
       where,
       take: Number(limit),
       orderBy: { nome: 'asc' },

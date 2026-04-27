@@ -25,7 +25,7 @@ const AvaliarSchema = z.object({
 })
 
 // POST / — Avaliar fornecedor
-router.post('/', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = AvaliarSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
@@ -38,7 +38,7 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
       .filter((n): n is number => n != null)
     const notaGeral = notas.length > 0 ? notas.reduce((a, b) => a + b, 0) / notas.length : null
 
-    const avaliacao = await req.prisma.avaliacao.create({
+    const avaliacao = await (req.prisma as any).freteIntBidFornecedoresAvaliacoes.create({
       data: {
         ...parsed.data,
         product_id: 'bid-frete',
@@ -48,7 +48,7 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
     })
 
     // Recalcular rating global
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { id: parsed.data.fornecedor_id },
       select: { email: true },
     })
@@ -72,9 +72,9 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
 })
 
 // GET /fornecedor/:id — Rating de um fornecedor
-router.get('/fornecedor/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/fornecedor/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { id: req.params.id },
       select: { email: true, nome: true },
     })
@@ -82,8 +82,8 @@ router.get('/fornecedor/:id', async (req: Request & { prisma?: any }, res: Respo
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
     const [rating, avaliacoes] = await Promise.all([
-      req.prisma.ratingFornecedor.findUnique({ where: { fornecedor_email: fornecedor.email } }).catch(() => null),
-      req.prisma.avaliacao.findMany({
+      (req.prisma as any).freteIntBidClassificacaoFornecedores.findUnique({ where: { fornecedor_email: fornecedor.email } }).catch(() => null),
+      (req.prisma as any).freteIntBidFornecedoresAvaliacoes.findMany({
         where: { fornecedor_id: req.params.id },
         orderBy: { created_at: 'desc' },
         take: 20,
@@ -97,31 +97,34 @@ router.get('/fornecedor/:id', async (req: Request & { prisma?: any }, res: Respo
 })
 
 // GET /ranking — Ranking global de fornecedores
-router.get('/ranking', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/ranking', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tipo, limit = '20' } = req.query as any
+    const { tipo, limit = '20' } = req.query as { tipo?: string; limit?: string }
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (tipo) where.tipo = tipo
 
-    const fornecedores = await req.prisma.fornecedor.findMany({
+    const fornecedores = await (req.prisma as any).freteIntBidFornecedores.findMany({
       where: { ...where, product_id: 'bid-frete', status: 'ATIVO' },
       select: { id: true, nome: true, tipo: true, email: true },
     })
 
     // Buscar ratings globais
-    const emails = fornecedores.map((f: any) => f.email)
-    let ratings: any[] = []
+    type FornecedorLite = { id: string; nome: string; tipo: string; email: string }
+    type RatingLite = Record<string, unknown> & { fornecedor_email: string }
+    const fornecedoresList = fornecedores as FornecedorLite[]
+    const emails = fornecedoresList.map((f) => f.email)
+    let ratings: RatingLite[] = []
     try {
-      ratings = await req.prisma.ratingFornecedor.findMany({
+      ratings = await (req.prisma as any).freteIntBidClassificacaoFornecedores.findMany({
         where: { fornecedor_email: { in: emails } },
         orderBy: { rating_global: 'desc' },
         take: Number(limit),
       })
     } catch { /* */ }
 
-    const ranking = ratings.map((r: any, idx: number) => {
-      const forn = fornecedores.find((f: any) => f.email === r.fornecedor_email)
+    const ranking = ratings.map((r: RatingLite, idx: number) => {
+      const forn = fornecedoresList.find((f) => f.email === r.fornecedor_email)
       return {
         posicao: idx + 1,
         fornecedor_id: forn?.id,

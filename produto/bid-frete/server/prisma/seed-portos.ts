@@ -138,7 +138,7 @@ async function seed() {
 
   for (const porto of PORTOS) {
     try {
-      await prisma.porto.upsert({
+      await prisma.freteIntBidPortosCadastro.upsert({
         where: { codigo: porto.codigo },
         create: { ...porto, ativo: true },
         update: { ...porto },

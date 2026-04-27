@@ -51,7 +51,7 @@ export const monetizacao = {
     }
   ): Promise<CobrancaFornecedor> {
     // Verificar quantas cotações o fornecedor já fechou (para free tier)
-    const totalFechadas = await (prisma as any).bidResponse.count({
+    const totalFechadas = await (prisma as any).freteIntBidPropostas.count({
       where: {
         fornecedor_id: data.fornecedor_id,
         status: 'APROVADA',
@@ -103,7 +103,7 @@ export const monetizacao = {
    * Retorna resumo de cobranças do fornecedor
    */
   async resumoFornecedor(prisma: PrismaClient, fornecedorId: string) {
-    const totalAprovadas = await (prisma as any).bidResponse.count({
+    const totalAprovadas = await (prisma as any).freteIntBidPropostas.count({
       where: { fornecedor_id: fornecedorId, status: 'APROVADA' },
     })
 

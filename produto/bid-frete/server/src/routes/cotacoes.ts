@@ -75,7 +75,7 @@ function gerarNumeroCotacao(): string {
 }
 
 // --- POST / — Criar cotacao ---
-router.post('/', async (req: Request & { prisma?: any; tenantId?: string }, res: Response, next: NextFunction) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = CriarCotacaoSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -87,7 +87,7 @@ router.post('/', async (req: Request & { prisma?: any; tenantId?: string }, res:
 
     const { fornecedor_ids, ...cotacaoData } = parsed.data
 
-    const cotacao = await req.prisma.cotacao.create({
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.create({
       data: {
         ...cotacaoData,
         product_id: 'bid-frete',
@@ -111,26 +111,27 @@ router.post('/', async (req: Request & { prisma?: any; tenantId?: string }, res:
 })
 
 // --- GET / — Listar cotacoes ---
-router.get('/', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filtros = FiltrosCotacaoSchema.parse(req.query)
 
-    const where: any = { product_id: 'bid-frete' }
+    const where: Record<string, unknown> = { product_id: 'bid-frete' }
     if (filtros.status) where.status = filtros.status
     if (filtros.modal) where.modal = filtros.modal
     if (filtros.tipo_operacao) where.tipo_operacao = filtros.tipo_operacao
     if (filtros.origem) where.origem_nome = { contains: filtros.origem, mode: 'insensitive' }
     if (filtros.destino) where.destino_nome = { contains: filtros.destino, mode: 'insensitive' }
     if (filtros.data_inicio || filtros.data_fim) {
-      where.created_at = {}
-      if (filtros.data_inicio) where.created_at.gte = new Date(filtros.data_inicio)
-      if (filtros.data_fim) where.created_at.lte = new Date(filtros.data_fim)
+      const createdAt: Record<string, unknown> = {}
+      if (filtros.data_inicio) createdAt.gte = new Date(filtros.data_inicio)
+      if (filtros.data_fim) createdAt.lte = new Date(filtros.data_fim)
+      where.created_at = createdAt
     }
 
     const skip = (filtros.page - 1) * filtros.limit
 
     const [cotacoes, total] = await Promise.all([
-      req.prisma.cotacao.findMany({
+      (req.prisma as any).freteIntBidCotacoes.findMany({
         where,
         skip,
         take: filtros.limit,
@@ -140,7 +141,7 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
           bid_responses: { select: { id: true, fornecedor_id: true, valor_total: true, transit_time_dias: true, status: true } },
         },
       }),
-      req.prisma.cotacao.count({ where }),
+      (req.prisma as any).freteIntBidCotacoes.count({ where }),
     ])
 
     res.json({
@@ -158,9 +159,9 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
 })
 
 // --- GET /:id — Detalhe da cotacao ---
-router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cotacao = await req.prisma.cotacao.findFirst({
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.findFirst({
       where: { id: req.params.id },
       include: {
         bid_requests: {
@@ -187,15 +188,15 @@ router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: 
 })
 
 // --- PATCH /:id — Atualizar cotacao ---
-router.patch('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await req.prisma.cotacao.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status !== 'RASCUNHO' && existing.status !== 'FALTA_INFORMACAO') {
       throw new AppError('So e possivel editar cotacoes em rascunho ou com falta de informacao', 400, 'INVALID_STATUS')
     }
 
-    const cotacao = await req.prisma.cotacao.update({
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.update({
       where: { id: req.params.id },
       data: req.body,
     })
@@ -207,15 +208,15 @@ router.patch('/:id', async (req: Request & { prisma?: any }, res: Response, next
 })
 
 // --- PATCH /:id/status — Aprovar/Reprovar/Cancelar ---
-router.patch('/:id/status', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.patch('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = AtualizarStatusSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const existing = await req.prisma.cotacao.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
 
-    const data: any = { status: parsed.data.status }
+    const data: Record<string, unknown> = { status: parsed.data.status }
 
     if (parsed.data.status === 'APROVADA') {
       data.data_aprovacao = new Date()
@@ -227,7 +228,7 @@ router.patch('/:id/status', async (req: Request & { prisma?: any }, res: Respons
       data.motivo_cancelamento = parsed.data.motivo_cancelamento
     }
 
-    const cotacao = await req.prisma.cotacao.update({
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.update({
       where: { id: req.params.id },
       data,
     })
@@ -239,15 +240,15 @@ router.patch('/:id/status', async (req: Request & { prisma?: any }, res: Respons
 })
 
 // --- DELETE /:id — Excluir rascunho ---
-router.delete('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const existing = await req.prisma.cotacao.findFirst({ where: { id: req.params.id } })
+    const existing = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')
     if (existing.status !== 'RASCUNHO') {
       throw new AppError('So e possivel excluir cotacoes em rascunho', 400, 'INVALID_STATUS')
     }
 
-    await req.prisma.cotacao.delete({ where: { id: req.params.id } })
+    await (req.prisma as any).freteIntBidCotacoes.delete({ where: { id: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -287,7 +288,7 @@ const ImportarBlocoSchema = z.object({
 })
 
 // --- POST /bloco — Importar cotações em bloco ---
-router.post('/bloco', async (req: Request & { prisma?: any; tenantId?: string }, res: Response, next: NextFunction) => {
+router.post('/bloco', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = ImportarBlocoSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -303,7 +304,7 @@ router.post('/bloco', async (req: Request & { prisma?: any; tenantId?: string },
       const item = parsed.data.itens[i]
       try {
         const numero = gerarNumeroCotacao()
-        const cotacao = await req.prisma.cotacao.create({
+        const cotacao = await (req.prisma as any).freteIntBidCotacoes.create({
           data: {
             ...item,
             product_id: 'bid-frete',
@@ -314,8 +315,9 @@ router.post('/bloco', async (req: Request & { prisma?: any; tenantId?: string },
           },
         })
         results.push({ linha: i + 1, id: cotacao.id, numero, status: 'ok' })
-      } catch (err: any) {
-        results.push({ linha: i + 1, status: 'erro', erro: err.message })
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err)
+        results.push({ linha: i + 1, status: 'erro', erro: errorMessage })
       }
     }
 

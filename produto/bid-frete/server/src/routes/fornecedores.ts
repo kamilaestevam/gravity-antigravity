@@ -55,14 +55,14 @@ const TabelaPrecoSchema = z.object({
 })
 
 // --- POST / — Cadastrar fornecedor ---
-router.post('/', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = CriarFornecedorSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError(`Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`, 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-user-id'] as string
 
-    const fornecedor = await req.prisma.fornecedor.create({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.create({
       data: {
         ...parsed.data,
         product_id: 'bid-frete',
@@ -71,8 +71,8 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
     })
 
     res.status(201).json({ fornecedor })
-  } catch (err: any) {
-    if (err.code === 'P2002') {
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === 'P2002') {
       return next(new AppError('Fornecedor com este email ja cadastrado neste tenant', 409, 'DUPLICATE'))
     }
     next(err)
@@ -80,10 +80,10 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
 })
 
 // --- GET / — Listar fornecedores ---
-router.get('/', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tipo, status, busca, page = '1', limit = '20' } = req.query as any
-    const where: any = { product_id: 'bid-frete' }
+    const { tipo, status, busca, page = '1', limit = '20' } = req.query as { tipo?: string; status?: string; busca?: string; page?: string; limit?: string }
+    const where: Record<string, unknown> = { product_id: 'bid-frete' }
 
     if (tipo) where.tipo = tipo
     if (status) where.status = status
@@ -98,7 +98,7 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
     const skip = (Number(page) - 1) * Number(limit)
 
     const [fornecedores, total] = await Promise.all([
-      req.prisma.fornecedor.findMany({
+      (req.prisma as any).freteIntBidFornecedores.findMany({
         where,
         skip,
         take: Number(limit),
@@ -107,7 +107,7 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
           _count: { select: { bid_requests: true, bid_responses: true, avaliacoes: true } },
         },
       }),
-      req.prisma.fornecedor.count({ where }),
+      (req.prisma as any).freteIntBidFornecedores.count({ where }),
     ])
 
     res.json({ fornecedores, pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) } })
@@ -117,9 +117,9 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
 })
 
 // --- GET /:id — Detalhe ---
-router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { id: req.params.id },
       include: {
         tabelas_preco: { where: { ativa: true }, orderBy: { origem_nome: 'asc' } },
@@ -133,7 +133,7 @@ router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: 
     // Buscar rating global
     let rating_global = null
     try {
-      rating_global = await req.prisma.ratingFornecedor.findUnique({
+      rating_global = await (req.prisma as any).freteIntBidClassificacaoFornecedores.findUnique({
         where: { fornecedor_email: fornecedor.email },
       })
     } catch { /* tabela pode nao existir ainda */ }
@@ -145,9 +145,9 @@ router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: 
 })
 
 // --- PUT /:id — Atualizar ---
-router.put('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const fornecedor = await req.prisma.fornecedor.update({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.update({
       where: { id: req.params.id },
       data: req.body,
     })
@@ -158,13 +158,13 @@ router.put('/:id', async (req: Request & { prisma?: any }, res: Response, next: 
 })
 
 // --- PATCH /:id/status ---
-router.patch('/:id/status', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.patch('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status } = req.body
     if (!['ATIVO', 'INATIVO', 'BLOQUEADO'].includes(status)) {
       throw new AppError('Status invalido', 400, 'VALIDATION_ERROR')
     }
-    const fornecedor = await req.prisma.fornecedor.update({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.update({
       where: { id: req.params.id },
       data: { status },
     })
@@ -175,9 +175,9 @@ router.patch('/:id/status', async (req: Request & { prisma?: any }, res: Respons
 })
 
 // --- DELETE /:id ---
-router.delete('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await req.prisma.fornecedor.delete({ where: { id: req.params.id } })
+    await (req.prisma as any).freteIntBidFornecedores.delete({ where: { id: req.params.id } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)
@@ -187,14 +187,14 @@ router.delete('/:id', async (req: Request & { prisma?: any }, res: Response, nex
 // ─── TABELA DE PRECOS ──────────────────────────────────────────────────────────
 
 // POST /:id/tabela
-router.post('/:id/tabela', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/:id/tabela', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = TabelaPrecoSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-user-id'] as string
 
-    const tabela = await req.prisma.tabelaPreco.create({
+    const tabela = await (req.prisma as any).freteIntBidTabelasProntas.create({
       data: {
         ...parsed.data,
         product_id: 'bid-frete',
@@ -212,9 +212,9 @@ router.post('/:id/tabela', async (req: Request & { prisma?: any }, res: Response
 })
 
 // GET /:id/tabela
-router.get('/:id/tabela', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/:id/tabela', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tabelas = await req.prisma.tabelaPreco.findMany({
+    const tabelas = await (req.prisma as any).freteIntBidTabelasProntas.findMany({
       where: { fornecedor_id: req.params.id },
       orderBy: { origem_nome: 'asc' },
     })
@@ -225,9 +225,9 @@ router.get('/:id/tabela', async (req: Request & { prisma?: any }, res: Response,
 })
 
 // PUT /:id/tabela/:tpId
-router.put('/:id/tabela/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.put('/:id/tabela/:tpId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tabela = await req.prisma.tabelaPreco.update({
+    const tabela = await (req.prisma as any).freteIntBidTabelasProntas.update({
       where: { id: req.params.tpId },
       data: req.body,
     })
@@ -238,9 +238,9 @@ router.put('/:id/tabela/:tpId', async (req: Request & { prisma?: any }, res: Res
 })
 
 // DELETE /:id/tabela/:tpId
-router.delete('/:id/tabela/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.delete('/:id/tabela/:tpId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await req.prisma.tabelaPreco.delete({ where: { id: req.params.tpId } })
+    await (req.prisma as any).freteIntBidTabelasProntas.delete({ where: { id: req.params.tpId } })
     res.json({ deleted: true })
   } catch (err) {
     next(err)

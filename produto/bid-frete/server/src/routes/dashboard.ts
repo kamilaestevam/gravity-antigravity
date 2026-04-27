@@ -11,12 +11,12 @@ import { savingsEngine } from '../services/savingsEngine.js'
 const router = Router()
 
 // GET / e GET /kpis — KPIs gerais
-async function handleKpis(req: Request & { prisma?: any }, res: Response, next: NextFunction) {
+async function handleKpis(req: Request, res: Response, next: NextFunction) {
   try {
-    const { company_id, data_inicio, data_fim } = req.query as any
+    const { company_id, data_inicio, data_fim } = req.query as { company_id?: string; data_inicio?: string; data_fim?: string }
 
     // Cotacoes em andamento
-    const cotacoesAndamento = await req.prisma.cotacao.count({
+    const cotacoesAndamento = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
         product_id: 'bid-frete',
         status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'FALTA_INFORMACAO'] },
@@ -25,7 +25,7 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
     })
 
     // Total de cotacoes passadas
-    const cotacoesPassadas = await req.prisma.cotacao.count({
+    const cotacoesPassadas = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
         product_id: 'bid-frete',
         status: { in: ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'] },
@@ -34,7 +34,7 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
     })
 
     // Valores totais das cotacoes em andamento
-    const valoresAndamento = await req.prisma.bidResponse.aggregate({
+    const valoresAndamento = await (req.prisma as any).freteIntBidPropostas.aggregate({
       where: {
         product_id: 'bid-frete',
         cotacao: {
@@ -46,7 +46,7 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
     })
 
     // Valores totais das cotacoes passadas (aprovadas)
-    const valoresPassadas = await req.prisma.bidResponse.aggregate({
+    const valoresPassadas = await (req.prisma as any).freteIntBidPropostas.aggregate({
       where: {
         product_id: 'bid-frete',
         status: 'APROVADA',
@@ -56,7 +56,7 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
     })
 
     // Cotacoes aprovadas por timing
-    const cotacoesAprovadas = await req.prisma.cotacao.findMany({
+    const cotacoesAprovadas = await (req.prisma as any).freteIntBidCotacoes.findMany({
       where: {
         product_id: 'bid-frete',
         status: 'APROVADA',
@@ -65,20 +65,21 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
       select: { data_aprovacao: true, data_limite_resposta: true },
     })
 
-    const emTempo = cotacoesAprovadas.filter((c: any) =>
+    type AprovadaRow = { data_aprovacao: Date; data_limite_resposta: Date | null }
+    const emTempo = (cotacoesAprovadas as AprovadaRow[]).filter((c) =>
       !c.data_limite_resposta || new Date(c.data_aprovacao) <= new Date(c.data_limite_resposta)
     ).length
     const fora = cotacoesAprovadas.length - emTempo
 
     // Savings
-    const savings = await savingsEngine.calcularMetricas(req.prisma, {
+    const savings = await savingsEngine.calcularMetricas(req.prisma!, {
       company_id,
       data_inicio: data_inicio ? new Date(data_inicio) : undefined,
       data_fim: data_fim ? new Date(data_fim) : undefined,
     })
 
     // Funil de status
-    const funil = await req.prisma.cotacao.groupBy({
+    const funil = await (req.prisma as any).freteIntBidCotacoes.groupBy({
       by: ['status'],
       where: { product_id: 'bid-frete', ...(company_id ? { company_id } : {}) },
       _count: true,
@@ -96,7 +97,7 @@ async function handleKpis(req: Request & { prisma?: any }, res: Response, next: 
         percentual_em_tempo: cotacoesAprovadas.length > 0 ? (emTempo / cotacoesAprovadas.length * 100).toFixed(1) : '0',
       },
       savings,
-      funil: funil.map((f: any) => ({ status: f.status, count: f._count })),
+      funil: (funil as Array<{ status: string; _count: number }>).map((f) => ({ status: f.status, count: f._count })),
     })
   } catch (err) {
     next(err)
@@ -107,14 +108,14 @@ router.get('/', handleKpis)
 router.get('/kpis', handleKpis)
 
 // GET /calendario — Alertas do calendario
-router.get('/calendario', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/calendario', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const agora = new Date()
     const em24h = new Date(Date.now() + 24 * 60 * 60 * 1000)
     const em48h = new Date(Date.now() + 48 * 60 * 60 * 1000)
 
     // Respostas de fornecedores recentes (ultimas 24h)
-    const respostasRecentes = await req.prisma.bidResponse.count({
+    const respostasRecentes = await (req.prisma as any).freteIntBidPropostas.count({
       where: {
         product_id: 'bid-frete',
         created_at: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
@@ -122,7 +123,7 @@ router.get('/calendario', async (req: Request & { prisma?: any }, res: Response,
     })
 
     // Proximo ao vencimento (1 dia)
-    const proximoVencimento = await req.prisma.cotacao.count({
+    const proximoVencimento = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
         product_id: 'bid-frete',
         status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
@@ -131,7 +132,7 @@ router.get('/calendario', async (req: Request & { prisma?: any }, res: Response,
     })
 
     // Data limite vence hoje
-    const venceHoje = await req.prisma.cotacao.count({
+    const venceHoje = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
         product_id: 'bid-frete',
         status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
@@ -143,7 +144,7 @@ router.get('/calendario', async (req: Request & { prisma?: any }, res: Response,
     })
 
     // Fora do prazo
-    const foraPrazo = await req.prisma.cotacao.count({
+    const foraPrazo = await (req.prisma as any).freteIntBidCotacoes.count({
       where: {
         product_id: 'bid-frete',
         status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },

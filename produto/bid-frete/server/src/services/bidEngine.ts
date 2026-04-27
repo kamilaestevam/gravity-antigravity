@@ -36,11 +36,11 @@ export const bidEngine = {
     const { cotacao_id, fornecedor_ids, canais, user_id, tenant_id } = options
 
     // Buscar cotacao
-    const cotacao = await (prisma as any).cotacao.findFirst({ where: { id: cotacao_id } })
+    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id: cotacao_id } })
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
     // Buscar fornecedores
-    const fornecedores = await (prisma as any).fornecedor.findMany({
+    const fornecedores = await (prisma as any).freteIntBidFornecedores.findMany({
       where: { id: { in: fornecedor_ids }, status: 'ATIVO' },
     })
 
@@ -55,7 +55,7 @@ export const bidEngine = {
         const tokenExpira = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 dias
 
         // Criar BidRequest
-        const bidRequest = await (prisma as any).bidRequest.create({
+        const bidRequest = await (prisma as any).freteIntBidPedidoCotacoes.create({
           data: {
             product_id: 'bid-frete',
             user_id,
@@ -76,13 +76,13 @@ export const bidEngine = {
             await this.dispararWhatsApp(cotacao, fornecedor, token, tenant_id)
           }
 
-          await (prisma as any).bidRequest.update({
+          await (prisma as any).freteIntBidPedidoCotacoes.update({
             where: { id: bidRequest.id },
             data: { status: 'ENVIADO', enviado_em: new Date() },
           })
         } catch (err: unknown) {
           const errorMessage = err instanceof Error ? err.message : String(err)
-          await (prisma as any).bidRequest.update({
+          await (prisma as any).freteIntBidPedidoCotacoes.update({
             where: { id: bidRequest.id },
             data: { status: 'ERRO_ENVIO', erro_envio: errorMessage },
           })
@@ -98,7 +98,7 @@ export const bidEngine = {
     }
 
     // Atualizar status da cotacao
-    await (prisma as any).cotacao.update({
+    await (prisma as any).freteIntBidCotacoes.update({
       where: { id: cotacao_id },
       data: { status: 'ENVIADA_FORNECEDORES' },
     })
@@ -115,7 +115,7 @@ export const bidEngine = {
     const fornecedor = _fornecedor as any
     const agora = new Date()
 
-    const tabela = await (prisma as any).tabelaPreco.findFirst({
+    const tabela = await (prisma as any).freteIntBidTabelasProntas.findFirst({
       where: {
         fornecedor_id: fornecedor.id,
         origem_codigo: cotacao.origem_codigo,
@@ -139,14 +139,14 @@ export const bidEngine = {
     const fornecedor = _fornecedor as any
     const tabela = _tabela as any
     // Buscar o bidRequest correspondente
-    const bidRequest = await (prisma as any).bidRequest.findFirst({
+    const bidRequest = await (prisma as any).freteIntBidPedidoCotacoes.findFirst({
       where: { cotacao_id: cotacao.id, fornecedor_id: fornecedor.id },
       orderBy: { created_at: 'desc' },
     })
 
     if (!bidRequest) return null
 
-    const response = await (prisma as any).bidResponse.create({
+    const response = await (prisma as any).freteIntBidPropostas.create({
       data: {
         product_id: 'bid-frete',
         bid_request_id: bidRequest.id,
@@ -165,7 +165,7 @@ export const bidEngine = {
     })
 
     // Atualizar bidRequest como respondido
-    await (prisma as any).bidRequest.update({
+    await (prisma as any).freteIntBidPedidoCotacoes.update({
       where: { id: bidRequest.id },
       data: { status: 'RESPONDIDO', respondido_em: new Date() },
     })

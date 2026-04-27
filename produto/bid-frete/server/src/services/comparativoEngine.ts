@@ -30,8 +30,25 @@ interface RankedResponse {
   ranking_geral: number
   rating_global: number | null
   tags: string[] // ["MELHOR_PRECO", "MELHOR_TRANSIT", "MELHOR_AVALIACAO"]
-  detalhes_taxas: any[]
+  detalhes_taxas: Array<Record<string, unknown>>
 }
+
+// Shapes dinâmicos vindos do Prisma — usados apenas internamente neste módulo.
+type CotacaoRow = {
+  id: string
+  numero: string
+  origem_nome: string
+  destino_nome: string
+  valor_target?: number | null
+  [key: string]: unknown
+}
+type ResponseRow = Record<string, unknown> & {
+  id: string
+  valor_total: number
+  transit_time_dias: number
+  fornecedor?: { email?: string }
+}
+type RatingRow = Record<string, unknown> & { fornecedor_email: string }
 
 export const comparativoEngine = {
   /**
@@ -40,16 +57,16 @@ export const comparativoEngine = {
   async ranquear(prisma: PrismaClient, cotacao_id: string): Promise<{
     ranking: RankedResponse[]
     saving: { vs_target: number | null; vs_media: number | null; percentual: number | null }
-    cotacao: any
+    cotacao: CotacaoRow
   }> {
     // Buscar cotacao com respostas
-    const cotacao = await (prisma as any).cotacao.findFirst({
+    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({
       where: { id: cotacao_id },
     })
 
     if (!cotacao) throw new Error('Cotacao nao encontrada')
 
-    const responses = await (prisma as any).bidResponse.findMany({
+    const responses = await (prisma as any).freteIntBidPropostas.findMany({
       where: { cotacao_id },
       include: {
         fornecedor: { select: { id: true, nome: true, tipo: true, email: true } },
@@ -63,33 +80,34 @@ export const comparativoEngine = {
     }
 
     // Buscar ratings globais
-    const emails = responses.map((r: any) => r.fornecedor.email)
-    let ratings: any[] = []
+    const emails = responses.map((r: ResponseRow) => r.fornecedor?.email).filter(Boolean)
+    let ratings: RatingRow[] = []
     try {
-      ratings = await (prisma as any).ratingFornecedor.findMany({
+      ratings = await (prisma as any).freteIntBidClassificacaoFornecedores.findMany({
         where: { fornecedor_email: { in: emails } },
       })
     } catch { /* tabela pode nao existir */ }
 
-    const ratingMap = new Map(ratings.map((r: any) => [r.fornecedor_email, r]))
+    const ratingMap = new Map(ratings.map((r: RatingRow) => [r.fornecedor_email, r as Record<string, unknown>]))
 
     // Ranking por preco (menor valor = melhor)
-    const byPreco = [...responses].sort((a: any, b: any) => a.valor_total - b.valor_total)
+    const byPreco = [...responses].sort((a: ResponseRow, b: ResponseRow) => a.valor_total - b.valor_total)
     // Ranking por transit time (menor = melhor)
-    const byTransit = [...responses].sort((a: any, b: any) => a.transit_time_dias - b.transit_time_dias)
+    const byTransit = [...responses].sort((a: ResponseRow, b: ResponseRow) => a.transit_time_dias - b.transit_time_dias)
     // Ranking por avaliacao (maior rating = melhor)
-    const byAvaliacao = [...responses].sort((a: any, b: any) => {
-      const rA = ratingMap.get(a.fornecedor?.email)?.rating_global ?? 0
-      const rB = ratingMap.get(b.fornecedor?.email)?.rating_global ?? 0
+    const byAvaliacao = [...responses].sort((a: ResponseRow, b: ResponseRow) => {
+      const rA = (ratingMap.get(a.fornecedor?.email ?? '')?.rating_global as number) ?? 0
+      const rB = (ratingMap.get(b.fornecedor?.email ?? '')?.rating_global as number) ?? 0
       return rB - rA
     })
 
     // Montar ranking
-    const ranking: RankedResponse[] = responses.map((r: any) => {
-      const rankPreco = byPreco.findIndex((x: any) => x.id === r.id) + 1
-      const rankTransit = byTransit.findIndex((x: any) => x.id === r.id) + 1
-      const rankAvaliacao = byAvaliacao.findIndex((x: any) => x.id === r.id) + 1
-      const ratingGlobal = ratingMap.get(r.fornecedor?.email)?.rating_global ?? null
+    const ranking: RankedResponse[] = responses.map((_r: ResponseRow) => {
+      const r = _r as any
+      const rankPreco = byPreco.findIndex((x: ResponseRow) => x.id === r.id) + 1
+      const rankTransit = byTransit.findIndex((x: ResponseRow) => x.id === r.id) + 1
+      const rankAvaliacao = byAvaliacao.findIndex((x: ResponseRow) => x.id === r.id) + 1
+      const ratingGlobal = (ratingMap.get(r.fornecedor?.email)?.rating_global as number | null) ?? null
 
       // Score geral: peso 40% preco, 30% transit, 30% avaliacao
       const rankGeral = Math.round(rankPreco * 0.4 + rankTransit * 0.3 + rankAvaliacao * 0.3)
@@ -130,19 +148,20 @@ export const comparativoEngine = {
 
     // Calcular saving
     const melhorPreco = ranking[0]?.valor_total ?? 0
-    const mediaPreco = responses.reduce((acc: number, r: any) => acc + r.valor_total, 0) / responses.length
+    const mediaPreco = responses.reduce((acc: number, r: ResponseRow) => acc + r.valor_total, 0) / responses.length
 
+    const cotacaoLoose = cotacao as Record<string, unknown> & { valor_target?: number }
     const saving = {
-      vs_target: cotacao.valor_target ? cotacao.valor_target - melhorPreco : null,
+      vs_target: cotacaoLoose.valor_target ? cotacaoLoose.valor_target - melhorPreco : null,
       vs_media: mediaPreco - melhorPreco,
-      percentual: cotacao.valor_target
-        ? ((cotacao.valor_target - melhorPreco) / cotacao.valor_target) * 100
+      percentual: cotacaoLoose.valor_target
+        ? ((cotacaoLoose.valor_target - melhorPreco) / cotacaoLoose.valor_target) * 100
         : mediaPreco > 0 ? ((mediaPreco - melhorPreco) / mediaPreco) * 100 : null,
     }
 
     // Atualizar rankings no banco
     for (const r of ranking) {
-      await (prisma as any).bidResponse.update({
+      await (prisma as any).freteIntBidPropostas.update({
         where: { id: r.id },
         data: {
           ranking_preco: r.ranking_preco,
@@ -163,32 +182,32 @@ export const comparativoEngine = {
    * Aprova cotacao com fornecedor vencedor (2 cliques)
    */
   async aprovar(prisma: PrismaClient, cotacao_id: string, response_id: string, user_id: string) {
-    const response = await (prisma as any).bidResponse.findFirst({
+    const response = await (prisma as any).freteIntBidPropostas.findFirst({
       where: { id: response_id, cotacao_id },
     })
 
     if (!response) throw new Error('Resposta nao encontrada')
 
     // Buscar cotacao para saving
-    const cotacao = await (prisma as any).cotacao.findFirst({ where: { id: cotacao_id } })
+    const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id: cotacao_id } })
 
     // Aprovar a resposta
-    await (prisma as any).bidResponse.update({
+    await (prisma as any).freteIntBidPropostas.update({
       where: { id: response_id },
       data: { status: 'APROVADA' },
     })
 
     // Reprovar todas as outras
-    await (prisma as any).bidResponse.updateMany({
+    await (prisma as any).freteIntBidPropostas.updateMany({
       where: { cotacao_id, id: { not: response_id } },
       data: { status: 'REPROVADA' },
     })
 
     // Atualizar cotacao
-    const allResponses = await (prisma as any).bidResponse.findMany({
+    const allResponses = await (prisma as any).freteIntBidPropostas.findMany({
       where: { cotacao_id },
     })
-    const media = allResponses.reduce((acc: number, r: any) => acc + r.valor_total, 0) / allResponses.length
+    const media = allResponses.reduce((acc: number, r: ResponseRow) => acc + r.valor_total, 0) / allResponses.length
 
     const savingVsTarget = cotacao.valor_target ? cotacao.valor_target - response.valor_total : null
     const savingVsMedia = media - response.valor_total
@@ -196,7 +215,7 @@ export const comparativoEngine = {
       ? ((cotacao.valor_target - response.valor_total) / cotacao.valor_target) * 100
       : media > 0 ? ((media - response.valor_total) / media) * 100 : null
 
-    await (prisma as any).cotacao.update({
+    await (prisma as any).freteIntBidCotacoes.update({
       where: { id: cotacao_id },
       data: {
         status: 'APROVADA',
@@ -208,7 +227,7 @@ export const comparativoEngine = {
     })
 
     // Registrar saving
-    await (prisma as any).saving.create({
+    await (prisma as any).freteIntBidGanhoEstimado.create({
       data: {
         product_id: 'bid-frete',
         user_id,

@@ -50,7 +50,7 @@ async function seed() {
   let inserted = 0
   for (const forn of FORNECEDORES) {
     try {
-      await prisma.fornecedor.create({
+      await prisma.freteIntBidFornecedores.create({
         data: {
           ...forn,
           tenant_id: tenantId,
@@ -59,11 +59,13 @@ async function seed() {
         } as any,
       } as any)
       inserted++
-    } catch (err: any) {
-      if (err.code === 'P2002') {
+    } catch (err: unknown) {
+      const errCode = err && typeof err === 'object' && 'code' in err ? (err as { code?: string }).code : undefined
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      if (errCode === 'P2002') {
         console.log(`  → Já existe: ${forn.nome_fantasia ?? forn.nome}`)
       } else {
-        console.warn(`  → Erro: ${forn.nome}: ${err.message}`)
+        console.warn(`  → Erro: ${forn.nome}: ${errorMessage}`)
       }
     }
   }

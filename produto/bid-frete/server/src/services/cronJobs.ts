@@ -28,7 +28,7 @@ async function expirarCotacoesVencidas() {
   const agora = new Date()
 
   // Leitura cross-tenant: buscar todas as cotações vencidas (necessário para cron)
-  const cotacoesVencidas = await cronPrisma.cotacao.findMany({
+  const cotacoesVencidas = await cronPrisma.freteIntBidCotacoes.findMany({
     where: {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { lt: agora },
@@ -40,7 +40,7 @@ async function expirarCotacoesVencidas() {
     // Escrita isolada por tenant
     const tenantDb = withTenantIsolation(cronPrisma, cotacao.tenant_id)
 
-    await tenantDb.cotacao.update({
+    await tenantDb.freteIntBidCotacoes.update({
       where: { id: cotacao.id },
       data: { status: 'EXPIRADA' } as any,
     } as any)
@@ -52,7 +52,7 @@ async function expirarCotacoesVencidas() {
     })
 
     // Expirar BidRequests pendentes — isolado por tenant
-    await tenantDb.bidRequest.updateMany({
+    await tenantDb.freteIntBidPedidoCotacoes.updateMany({
       where: {
         cotacao_id: cotacao.id,
         status: { in: ['PENDENTE', 'ENVIADO', 'VISUALIZADO'] },
@@ -74,7 +74,7 @@ async function alertarProximoVencimento() {
   const agora = new Date()
   const em24h = new Date(agora.getTime() + 24 * 60 * 60 * 1000)
 
-  const cotacoesVencendo = await cronPrisma.cotacao.findMany({
+  const cotacoesVencendo = await cronPrisma.freteIntBidCotacoes.findMany({
     where: {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { gte: agora, lte: em24h },
@@ -101,7 +101,7 @@ async function alertarProximoVencimento() {
 async function detectarSemResposta() {
   const ha48h = new Date(Date.now() - 48 * 60 * 60 * 1000)
 
-  const requestsSemResposta = await cronPrisma.bidRequest.findMany({
+  const requestsSemResposta = await cronPrisma.freteIntBidPedidoCotacoes.findMany({
     where: {
       status: 'ENVIADO',
       enviado_em: { lt: ha48h },
@@ -156,8 +156,9 @@ async function runAll() {
     await expirarCotacoesVencidas()
     await alertarProximoVencimento()
     await detectarSemResposta()
-  } catch (err: any) {
-    console.error('[Cron] Erro nos jobs:', err.message)
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    console.error('[Cron] Erro nos jobs:', errorMessage)
   }
 }
 

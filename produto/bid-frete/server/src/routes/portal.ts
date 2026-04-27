@@ -38,29 +38,29 @@ const ResponderSchema = z.object({
 })
 
 // GET /dashboard — Dashboard do fornecedor
-router.get('/dashboard', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/dashboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
     if (!userId) throw new AppError('x-user-id obrigatorio', 401)
 
     // Buscar fornecedor vinculado a este user
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado para este usuario', 404)
 
     const [pendentes, respondidas, aprovadas, totalRequests] = await Promise.all([
-      req.prisma.bidRequest.count({
+      (req.prisma as any).freteIntBidPedidoCotacoes.count({
         where: { fornecedor_id: fornecedor.id, status: { in: ['ENVIADO', 'VISUALIZADO'] } },
       }),
-      req.prisma.bidResponse.count({
+      (req.prisma as any).freteIntBidPropostas.count({
         where: { fornecedor_id: fornecedor.id },
       }),
-      req.prisma.bidResponse.count({
+      (req.prisma as any).freteIntBidPropostas.count({
         where: { fornecedor_id: fornecedor.id, status: 'APROVADA' },
       }),
-      req.prisma.bidRequest.count({
+      (req.prisma as any).freteIntBidPedidoCotacoes.count({
         where: { fornecedor_id: fornecedor.id },
       }),
     ])
@@ -68,7 +68,7 @@ router.get('/dashboard', async (req: Request & { prisma?: any }, res: Response, 
     // Rating global
     let rating = null
     try {
-      rating = await req.prisma.ratingFornecedor.findUnique({
+      rating = await (req.prisma as any).freteIntBidClassificacaoFornecedores.findUnique({
         where: { fornecedor_email: fornecedor.email },
       })
     } catch { /* pode nao existir */ }
@@ -91,16 +91,16 @@ router.get('/dashboard', async (req: Request & { prisma?: any }, res: Response, 
 })
 
 // GET /cotacoes-pendentes — Cotacoes aguardando resposta
-router.get('/cotacoes-pendentes', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
-    const requests = await req.prisma.bidRequest.findMany({
+    const requests = await (req.prisma as any).freteIntBidPedidoCotacoes.findMany({
       where: {
         fornecedor_id: fornecedor.id,
         status: { in: ['ENVIADO', 'VISUALIZADO', 'PENDENTE'] },
@@ -122,12 +122,13 @@ router.get('/cotacoes-pendentes', async (req: Request & { prisma?: any }, res: R
     })
 
     // Marcar como visualizado
-    const pendentesIds = requests
-      .filter((r: any) => r.status === 'ENVIADO' || r.status === 'PENDENTE')
-      .map((r: any) => r.id)
+    type RequestRow = { id: string; status: string }
+    const pendentesIds = (requests as RequestRow[])
+      .filter((r) => r.status === 'ENVIADO' || r.status === 'PENDENTE')
+      .map((r) => r.id)
 
     if (pendentesIds.length > 0) {
-      await req.prisma.bidRequest.updateMany({
+      await (req.prisma as any).freteIntBidPedidoCotacoes.updateMany({
         where: { id: { in: pendentesIds } },
         data: { status: 'VISUALIZADO', visualizado_em: new Date() },
       })
@@ -140,20 +141,20 @@ router.get('/cotacoes-pendentes', async (req: Request & { prisma?: any }, res: R
 })
 
 // GET /respostas — Historico de respostas
-router.get('/respostas', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/respostas', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
-    const { page = '1', limit = '20' } = req.query as any
+    const { page = '1', limit = '20' } = req.query as { page?: string; limit?: string }
     const skip = (Number(page) - 1) * Number(limit)
 
     const [respostas, total] = await Promise.all([
-      req.prisma.bidResponse.findMany({
+      (req.prisma as any).freteIntBidPropostas.findMany({
         where: { fornecedor_id: fornecedor.id },
         include: {
           cotacao: {
@@ -165,7 +166,7 @@ router.get('/respostas', async (req: Request & { prisma?: any }, res: Response, 
         skip,
         take: Number(limit),
       }),
-      req.prisma.bidResponse.count({ where: { fornecedor_id: fornecedor.id } }),
+      (req.prisma as any).freteIntBidPropostas.count({ where: { fornecedor_id: fornecedor.id } }),
     ])
 
     res.json({ respostas, pagination: { page: Number(page), limit: Number(limit), total, pages: Math.ceil(total / Number(limit)) } })
@@ -175,14 +176,14 @@ router.get('/respostas', async (req: Request & { prisma?: any }, res: Response, 
 })
 
 // POST /responder/:bidRequestId — Responder cotacao
-router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/responder/:bidRequestId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = ResponderSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
     const userId = req.headers['x-user-id'] as string
 
-    const bidRequest = await req.prisma.bidRequest.findFirst({
+    const bidRequest = await (req.prisma as any).freteIntBidPedidoCotacoes.findFirst({
       where: { id: req.params.bidRequestId },
     })
 
@@ -195,7 +196,7 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
     const valorTotal = responseData.valor_frete + responseData.taxas_origem + responseData.taxas_destino
 
     // Criar BidResponse
-    const response = await req.prisma.bidResponse.create({
+    const response = await (req.prisma as any).freteIntBidPropostas.create({
       data: {
         product_id: 'bid-frete',
         user_id: userId,
@@ -211,7 +212,7 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
 
     // Criar detalhes de taxas
     if (detalhes_taxas?.length) {
-      await req.prisma.detalheTaxa.createMany({
+      await (req.prisma as any).freteIntBidPropostasTaxasCambio.createMany({
         data: detalhes_taxas.map(t => ({
           response_id: response.id,
           ...t,
@@ -220,24 +221,24 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
     }
 
     // Atualizar BidRequest
-    await req.prisma.bidRequest.update({
+    await (req.prisma as any).freteIntBidPedidoCotacoes.update({
       where: { id: bidRequest.id },
       data: { status: 'RESPONDIDO', respondido_em: new Date() },
     })
 
     // Verificar se todas as respostas chegaram
-    const totalRequests = await req.prisma.bidRequest.count({
+    const totalRequests = await (req.prisma as any).freteIntBidPedidoCotacoes.count({
       where: { cotacao_id: bidRequest.cotacao_id },
     })
-    const totalRespondidos = await req.prisma.bidRequest.count({
+    const totalRespondidos = await (req.prisma as any).freteIntBidPedidoCotacoes.count({
       where: { cotacao_id: bidRequest.cotacao_id, status: 'RESPONDIDO' },
     })
 
     // Buscar cotacao para dados de notificação
-    const cotacao = await req.prisma.cotacao.findFirst({ where: { id: bidRequest.cotacao_id } })
+    const cotacao = await (req.prisma as any).freteIntBidCotacoes.findFirst({ where: { id: bidRequest.cotacao_id } })
 
     if (totalRespondidos >= totalRequests) {
-      await req.prisma.cotacao.update({
+      await (req.prisma as any).freteIntBidCotacoes.update({
         where: { id: bidRequest.cotacao_id },
         data: { status: 'AGUARDANDO_APROVACAO' },
       })
@@ -250,7 +251,7 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
         })
       }
     } else {
-      await req.prisma.cotacao.update({
+      await (req.prisma as any).freteIntBidCotacoes.update({
         where: { id: bidRequest.cotacao_id },
         data: { status: 'EM_COTACAO' },
       })
@@ -259,7 +260,7 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
     // Integrações S2S — notificar cliente que fornecedor respondeu
     if (cotacao) {
       const tenantId = (req as any).tenantId
-      const fornecedor = await req.prisma.fornecedor.findFirst({ where: { id: bidRequest.fornecedor_id }, select: { nome: true } })
+      const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({ where: { id: bidRequest.fornecedor_id }, select: { nome: true } })
       notificacoesIntegration.fornecedorRespondeu(tenantId, cotacao.user_id, {
         cotacao_numero: cotacao.numero,
         fornecedor_nome: fornecedor?.nome ?? 'Fornecedor',
@@ -278,20 +279,20 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
 })
 
 // GET /desempenho — Rating e metricas do fornecedor
-router.get('/desempenho', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/desempenho', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
     // Recalcular rating
-    const rating = await ratingEngine.recalcular(req.prisma, fornecedor.email)
+    const rating = await ratingEngine.recalcular(req.prisma!, fornecedor.email)
 
     // Avaliacoes recentes
-    const avaliacoes = await req.prisma.avaliacao.findMany({
+    const avaliacoes = await (req.prisma as any).freteIntBidFornecedoresAvaliacoes.findMany({
       where: { fornecedor_id: fornecedor.id },
       orderBy: { created_at: 'desc' },
       take: 20,
@@ -304,16 +305,16 @@ router.get('/desempenho', async (req: Request & { prisma?: any }, res: Response,
 })
 
 // GET /meu-billing — Resumo de cobranças do fornecedor
-router.get('/meu-billing', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/meu-billing', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
-    const fornecedor = await req.prisma.fornecedor.findFirst({
+    const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
 
     if (!fornecedor) throw new AppError('Fornecedor nao encontrado', 404)
 
-    const resumo = await monetizacao.resumoFornecedor(req.prisma, fornecedor.id)
+    const resumo = await monetizacao.resumoFornecedor(req.prisma!, fornecedor.id)
     res.json(resumo)
   } catch (err) {
     next(err)

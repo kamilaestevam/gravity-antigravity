@@ -36,7 +36,7 @@ const ResponderPublicSchema = z.object({
 // GET /:token_acesso — Ver cotacao via link publico
 router.get('/:token_acesso', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const bidRequest = await prisma.bidRequest.findFirst({
+    const bidRequest = await prisma.freteIntBidPedidoCotacoes.findFirst({
       where: { token_resposta: req.params.token_acesso } as any,
       include: {
         cotacao: {
@@ -65,7 +65,7 @@ router.get('/:token_acesso', async (req: Request, res: Response, next: NextFunct
     }
 
     // Marcar como visualizado
-    await prisma.bidRequest.update({
+    await prisma.freteIntBidPedidoCotacoes.update({
       where: { id: (bidRequest as any).id },
       data: { status: 'VISUALIZADO', visualizado_em: new Date() } as any,
     } as any)
@@ -82,7 +82,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
     const parsed = ResponderPublicSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const bidRequest = await prisma.bidRequest.findFirst({
+    const bidRequest = await prisma.freteIntBidPedidoCotacoes.findFirst({
       where: { token_resposta: req.params.token_acesso } as any,
     } as any)
 
@@ -97,7 +97,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
     const { detalhes_taxas, ...responseData } = parsed.data
     const valorTotal = responseData.valor_frete + responseData.taxas_origem + responseData.taxas_destino
 
-    const response = await prisma.bidResponse.create({
+    const response = await prisma.freteIntBidPropostas.create({
       data: {
         tenant_id: (bidRequest as any).tenant_id,
         product_id: 'bid-frete',
@@ -113,7 +113,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
 
     // Criar detalhes
     if (detalhes_taxas?.length) {
-      await prisma.detalheTaxa.createMany({
+      await prisma.freteIntBidPropostasTaxasCambio.createMany({
         data: detalhes_taxas.map(t => ({
           tenant_id: (bidRequest as any).tenant_id,
           response_id: (response as any).id,
@@ -123,7 +123,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
     }
 
     // Atualizar request
-    await prisma.bidRequest.update({
+    await prisma.freteIntBidPedidoCotacoes.update({
       where: { id: (bidRequest as any).id },
       data: { status: 'RESPONDIDO', respondido_em: new Date() } as any,
     } as any)

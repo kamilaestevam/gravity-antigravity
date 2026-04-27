@@ -27,18 +27,18 @@ datasource db {
 
 // ─── ENUMS ─────────────────────────────────────────────────────────────────────
 
-enum TipoOperacao {
+enum BidFreteTipoOperacao {
   IMPORTACAO
   EXPORTACAO
 }
 
-enum ModalFrete {
+enum BidFreteModalidade {
   MARITIMO
   AEREO
   RODOVIARIO
 }
 
-enum ModalidadeCarga {
+enum BidFreteCargaModalidade {
   FCL
   LCL
   AEREO_GERAL
@@ -46,7 +46,7 @@ enum ModalidadeCarga {
   RODOVIARIO_LTL
 }
 
-enum StatusCotacao {
+enum BidFreteCotacaoStatus {
   RASCUNHO
   ENVIADA_FORNECEDORES
   EM_COTACAO
@@ -58,14 +58,14 @@ enum StatusCotacao {
   EXPIRADA
 }
 
-enum CanalDisparo {
+enum BidFreteCotacaoFreteIntCanal {
   EMAIL
   WHATSAPP
   API
   PORTAL
 }
 
-enum StatusBidRequest {
+enum BidFreteCotacao {
   PENDENTE
   ENVIADO
   VISUALIZADO
@@ -74,7 +74,7 @@ enum StatusBidRequest {
   ERRO_ENVIO
 }
 
-enum StatusBidResponse {
+enum BidFretePropostaStatus {
   RECEBIDA
   EM_ANALISE
   MELHOR_PRECO
@@ -84,26 +84,26 @@ enum StatusBidResponse {
   REPROVADA
 }
 
-enum TipoFornecedor {
+enum BidFreteTipoFornecedor {
   AGENTE_CARGA
   ARMADOR
   CIA_AEREA
   TRANSPORTADORA
 }
 
-enum StatusFornecedor {
+enum BidFreteStatusFornecedor {
   ATIVO
   INATIVO
   PENDENTE_APROVACAO
   BLOQUEADO
 }
 
-enum VisibilidadeCotacao {
+enum BidFreteCotacaoVisibilidade {
   DIRECIONADA
   ABERTA
 }
 
-enum TipoConector {
+enum BidFreteIntegracao {
   API_REST
   API_SOAP
   ODATA
@@ -112,7 +112,7 @@ enum TipoConector {
 
 // ─── FORNECEDOR ────────────────────────────────────────────────────────────────
 
-model Fornecedor {
+model FreteIntBidFornecedores {
   id              String            @id @default(cuid())
   tenant_id       String            // OBRIGATORIO — nunca nullable
   product_id      String?           // "bid-frete"
@@ -121,7 +121,7 @@ model Fornecedor {
   // Dados cadastrais
   nome            String
   nome_fantasia   String?
-  tipo            TipoFornecedor
+  tipo            BidFreteTipoFornecedor
   cnpj            String?
   email           String
   telefone        String?
@@ -129,7 +129,7 @@ model Fornecedor {
   website         String?
   pais            String?
   cidade          String?
-  status          StatusFornecedor  @default(ATIVO)
+  status          BidFreteStatusFornecedor  @default(ATIVO)
 
   // Vinculo com usuario SUPPLIER no Gravity
   clerk_user_id   String?           // link com User.clerk_user_id do Configurador
@@ -142,11 +142,11 @@ model Fornecedor {
   updated_at      DateTime          @updatedAt
 
   // Relacoes
-  tabelas_preco   TabelaPreco[]
-  bid_requests    BidRequest[]
-  bid_responses   BidResponse[]
-  avaliacoes      Avaliacao[]
-  connectors      ConnectorConfig[]
+  tabelas_preco   FreteIntBidTabelasProntas[]
+  bid_requests    FreteIntBidPedidoCotacoes[]
+  bid_responses   FreteIntBidPropostas[]
+  avaliacoes      FreteIntBidFornecedoresAvaliacoes[]
+  connectors      FreteIntBidIntegracoes[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -160,7 +160,7 @@ model Fornecedor {
 
 // ─── COTACAO ───────────────────────────────────────────────────────────────────
 
-model Cotacao {
+model FreteIntBidCotacoes {
   id                  String              @id @default(cuid())
   tenant_id           String              // OBRIGATORIO
   product_id          String?             // "bid-frete"
@@ -172,9 +172,9 @@ model Cotacao {
   referencia_interna  String?             // PO do cliente (ex: IMP023/22)
 
   // Operacao
-  tipo_operacao       TipoOperacao
-  modal               ModalFrete
-  modalidade          ModalidadeCarga
+  tipo_operacao       BidFreteTipoOperacao
+  modal               BidFreteModalidade
+  modalidade          BidFreteCargaModalidade
 
   // Rota
   origem_codigo       String              // UN/LOCODE ou IATA
@@ -202,11 +202,11 @@ model Cotacao {
   moeda_target        String?             @default("USD")
 
   // Visibilidade
-  visibilidade        VisibilidadeCotacao @default(DIRECIONADA)
+  visibilidade        BidFreteCotacaoVisibilidade @default(DIRECIONADA)
   ocultar_nome_empresa Boolean            @default(false)  // anonimato
 
   // Status e datas
-  status              StatusCotacao       @default(RASCUNHO)
+  status              BidFreteCotacaoStatus       @default(RASCUNHO)
   data_limite_resposta DateTime?
   data_aprovacao      DateTime?
   data_cancelamento   DateTime?
@@ -222,8 +222,8 @@ model Cotacao {
   updated_at          DateTime            @updatedAt
 
   // Relacoes
-  bid_requests        BidRequest[]
-  bid_responses       BidResponse[]
+  bid_requests        FreteIntBidPedidoCotacoes[]
+  bid_responses       FreteIntBidPropostas[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -237,7 +237,7 @@ model Cotacao {
 
 // ─── BID REQUEST (Disparo para fornecedor) ─────────────────────────────────────
 
-model BidRequest {
+model FreteIntBidPedidoCotacoes {
   id              String            @id @default(cuid())
   tenant_id       String            // OBRIGATORIO
   product_id      String?           // "bid-frete"
@@ -247,8 +247,8 @@ model BidRequest {
   fornecedor_id   String
 
   // Disparo
-  canal           CanalDisparo      @default(EMAIL)
-  status          StatusBidRequest  @default(PENDENTE)
+  canal           BidFreteCotacaoFreteIntCanal      @default(EMAIL)
+  status          BidFreteCotacao  @default(PENDENTE)
   enviado_em      DateTime?
   visualizado_em  DateTime?
   respondido_em   DateTime?
@@ -265,9 +265,9 @@ model BidRequest {
   updated_at      DateTime          @updatedAt
 
   // Relacoes
-  cotacao         Cotacao           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
-  fornecedor      Fornecedor        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
-  response        BidResponse?
+  cotacao         FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  fornecedor      FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  response        FreteIntBidPropostas?
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -280,7 +280,7 @@ model BidRequest {
 
 // ─── BID RESPONSE (Resposta do fornecedor) ─────────────────────────────────────
 
-model BidResponse {
+model FreteIntBidPropostas {
   id                  String            @id @default(cuid())
   tenant_id           String            // OBRIGATORIO
   product_id          String?           // "bid-frete"
@@ -308,7 +308,7 @@ model BidResponse {
   observacoes         String?
 
   // Status e ranking
-  status              StatusBidResponse @default(RECEBIDA)
+  status              BidFretePropostaStatus @default(RECEBIDA)
   ranking_preco       Int?              // posicao no ranking de preco
   ranking_transit     Int?              // posicao no ranking de transit time
   ranking_avaliacao   Int?              // posicao no ranking de avaliacao do fornecedor
@@ -323,10 +323,10 @@ model BidResponse {
   updated_at          DateTime          @updatedAt
 
   // Relacoes
-  bid_request         BidRequest        @relation(fields: [bid_request_id], references: [id], onDelete: Cascade)
-  cotacao             Cotacao           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
-  fornecedor          Fornecedor        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
-  detalhes_taxas      DetalheTaxa[]
+  bid_request         FreteIntBidPedidoCotacoes        @relation(fields: [bid_request_id], references: [id], onDelete: Cascade)
+  cotacao             FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  fornecedor          FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  detalhes_taxas      FreteIntBidPropostasTaxasCambio[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -339,7 +339,7 @@ model BidResponse {
 
 // ─── DETALHE TAXA (breakdown de custos) ────────────────────────────────────────
 
-model DetalheTaxa {
+model FreteIntBidPropostasTaxasCambio {
   id              String        @id @default(cuid())
   tenant_id       String        // OBRIGATORIO
   response_id     String
@@ -349,7 +349,7 @@ model DetalheTaxa {
   valor           Float
   moeda           String        @default("USD")
 
-  response        BidResponse   @relation(fields: [response_id], references: [id], onDelete: Cascade)
+  response        FreteIntBidPropostas   @relation(fields: [response_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, response_id])
@@ -358,7 +358,7 @@ model DetalheTaxa {
 
 // ─── TABELA DE PRECOS PADRAO ───────────────────────────────────────────────────
 
-model TabelaPreco {
+model FreteIntBidTabelasProntas {
   id              String          @id @default(cuid())
   tenant_id       String          // OBRIGATORIO (tenant do fornecedor)
   product_id      String?         // "bid-frete"
@@ -371,8 +371,8 @@ model TabelaPreco {
   origem_nome     String
   destino_codigo  String
   destino_nome    String
-  modal           ModalFrete
-  modalidade      ModalidadeCarga
+  modal           BidFreteModalidade
+  modalidade      BidFreteCargaModalidade
 
   // Valores
   moeda           String          @default("USD")
@@ -393,7 +393,7 @@ model TabelaPreco {
   created_at      DateTime        @default(now())
   updated_at      DateTime        @updatedAt
 
-  fornecedor      Fornecedor      @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  fornecedor      FreteIntBidFornecedores      @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -406,7 +406,7 @@ model TabelaPreco {
 
 // ─── AVALIACAO (Rating manual + automatico) ────────────────────────────────────
 
-model Avaliacao {
+model FreteIntBidFornecedoresAvaliacoes {
   id              String        @id @default(cuid())
   tenant_id       String        // OBRIGATORIO
   product_id      String?       // "bid-frete"
@@ -427,7 +427,7 @@ model Avaliacao {
   created_at      DateTime      @default(now())
   updated_at      DateTime      @updatedAt
 
-  fornecedor      Fornecedor    @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  fornecedor      FreteIntBidFornecedores    @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -438,7 +438,7 @@ model Avaliacao {
 
 // ─── RATING AUTOMATICO (Calculado pelo sistema — GLOBAL cross-tenant) ──────────
 
-model RatingFornecedor {
+model FreteIntBidClassificacaoFornecedores {
   id                    String    @id @default(cuid())
   fornecedor_email      String    @unique  // chave global (cross-tenant)
 
@@ -470,7 +470,7 @@ model RatingFornecedor {
 
 // ─── SAVING (Registro de economia por cotacao) ─────────────────────────────────
 
-model Saving {
+model FreteIntBidGanhoEstimado {
   id              String    @id @default(cuid())
   tenant_id       String    // OBRIGATORIO
   product_id      String?   // "bid-frete"
@@ -500,7 +500,7 @@ model Saving {
 
 // ─── CONNECTOR CONFIG (Integracao com APIs externas) ───────────────────────────
 
-model ConnectorConfig {
+model FreteIntBidIntegracoes {
   id              String        @id @default(cuid())
   tenant_id       String        // OBRIGATORIO
   product_id      String?       // "bid-frete"
@@ -508,7 +508,7 @@ model ConnectorConfig {
 
   fornecedor_id   String?       // null = conector ERP/SAP do cliente
   nome            String        // ex: "MSC API", "Maersk Spot", "SAP OData"
-  tipo            TipoConector
+  tipo            BidFreteIntegracao
   ativo           Boolean       @default(false)
 
   // Configuracao (criptografada)
@@ -526,7 +526,7 @@ model ConnectorConfig {
   created_at      DateTime      @default(now())
   updated_at      DateTime      @updatedAt
 
-  fornecedor      Fornecedor?   @relation(fields: [fornecedor_id], references: [id], onDelete: SetNull)
+  fornecedor      FreteIntBidFornecedores?   @relation(fields: [fornecedor_id], references: [id], onDelete: SetNull)
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -537,7 +537,7 @@ model ConnectorConfig {
 
 // ─── CACHE DE PORTOS E AEROPORTOS ──────────────────────────────────────────────
 
-model Porto {
+model FreteIntBidPortosCadastro {
   codigo      String    @id        // UN/LOCODE (ex: BRSSZ, CNSHA)
   nome        String               // Santos, Shanghai
   pais        String

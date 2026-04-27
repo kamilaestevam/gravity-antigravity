@@ -14,9 +14,9 @@ import { notificacoesIntegration, historicoIntegration, gabiIntegration } from '
 const router = Router()
 
 // GET /:cotacaoId — Ranking comparativo
-router.get('/:cotacaoId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.get('/:cotacaoId', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const resultado = await comparativoEngine.ranquear(req.prisma, req.params.cotacaoId)
+    const resultado = await comparativoEngine.ranquear(req.prisma!, req.params.cotacaoId)
     res.json(resultado)
   } catch (err) {
     next(err)
@@ -24,7 +24,7 @@ router.get('/:cotacaoId', async (req: Request & { prisma?: any }, res: Response,
 })
 
 // POST /:cotacaoId/aprovar — Aprovar em 2 cliques
-router.post('/:cotacaoId/aprovar', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { response_id } = req.body
     if (!response_id) throw new AppError('response_id obrigatorio', 400, 'VALIDATION_ERROR')
@@ -32,7 +32,7 @@ router.post('/:cotacaoId/aprovar', async (req: Request & { prisma?: any }, res: 
     const userId = req.headers['x-user-id'] as string
     if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
 
-    const resultado = await comparativoEngine.aprovar(req.prisma, req.params.cotacaoId, response_id, userId)
+    const resultado = await comparativoEngine.aprovar(req.prisma!, req.params.cotacaoId, response_id, userId)
 
     // Integrações S2S (fire-and-forget)
     const tenantId = (req as any).tenantId
@@ -48,11 +48,11 @@ router.post('/:cotacaoId/aprovar', async (req: Request & { prisma?: any }, res: 
 })
 
 // POST /:cotacaoId/reprovar — Reprovar cotacao com justificativa
-router.post('/:cotacaoId/reprovar', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { motivo } = req.body
 
-    await req.prisma.cotacao.update({
+    await (req.prisma as any).freteIntBidCotacoes.update({
       where: { id: req.params.cotacaoId },
       data: {
         status: 'REPROVADA',
@@ -61,7 +61,7 @@ router.post('/:cotacaoId/reprovar', async (req: Request & { prisma?: any }, res:
     })
 
     // Marcar todas as respostas como reprovadas
-    await req.prisma.bidResponse.updateMany({
+    await (req.prisma as any).freteIntBidPropostas.updateMany({
       where: { cotacao_id: req.params.cotacaoId },
       data: { status: 'REPROVADA' },
     })
@@ -80,13 +80,13 @@ router.post('/:cotacaoId/reprovar', async (req: Request & { prisma?: any }, res:
 })
 
 // GET /:cotacaoId/analise-ia — Análise Gabi AI das propostas
-router.get('/:cotacaoId/analise-ia', async (req: Request & { prisma?: any; tenantId?: string }, res: Response, next: NextFunction) => {
+router.get('/:cotacaoId/analise-ia', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
     if (!userId) throw new AppError('x-user-id obrigatorio', 401)
 
     // Buscar ranking
-    const resultado = await comparativoEngine.ranquear(req.prisma, req.params.cotacaoId)
+    const resultado = await comparativoEngine.ranquear(req.prisma!, req.params.cotacaoId)
 
     if (resultado.ranking.length === 0) {
       return res.json({ analise: null, motivo: 'Nenhuma resposta para analisar' })

@@ -62,7 +62,7 @@ const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ResponderPublico() {
-  const { token } = useParams()
+  const { token_resposta: token } = useParams<{ token_resposta: string }>()
   const { t } = useTranslation()
 
   const [pageState, setPageState] = useState<PageState>('loading')

@@ -143,7 +143,7 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
 export default function DetalheCotacao() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [bids, setBids] = useState<BidRequest[]>([])
   const [carregando, setCarregando] = useState(true)

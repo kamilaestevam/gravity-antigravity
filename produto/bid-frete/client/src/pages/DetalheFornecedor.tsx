@@ -119,7 +119,7 @@ type TabKey = 'info' | 'precos' | 'avaliacoes'
 export default function DetalheFornecedor() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { id_fornecedor: id } = useParams<{ id_fornecedor: string }>()
   const [fornecedor, setFornecedor] = useState<Fornecedor | null>(null)
   const [tabela, setTabela] = useState<TabelaPreco[]>([])
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([])

@@ -136,7 +136,7 @@ function ModalOverlay({ aberto, titulo, icone, children, onFechar }: ModalProps)
 export default function Comparativo() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { id_cotacao: id } = useParams<{ id_cotacao: string }>()
 
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
   const [respostas, setRespostas] = useState<BidResponse[]>([])

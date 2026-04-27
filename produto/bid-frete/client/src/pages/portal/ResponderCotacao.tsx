@@ -62,7 +62,7 @@ const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ResponderCotacao() {
-  const { bidRequestId } = useParams()
+  const { id_cotacao: bidRequestId } = useParams<{ id_cotacao: string }>()
   const navigate = useNavigate()
   const { t } = useTranslation()
 

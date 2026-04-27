@@ -15,7 +15,7 @@ import { PRODUCT_CONFIG } from './shared/config'
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Cotacoes = lazy(() => import('./pages/Cotacoes'))
 const NovaCotacao = lazy(() => import('./pages/NovaCotacao'))
-const ImportarBloco = lazy(() => import('./pages/ImportarBloco'))
+const CotacoesImportar = lazy(() => import('./pages/CotacoesImportar'))
 const DetalheCotacao = lazy(() => import('./pages/DetalheCotacao'))
 const Comparativo = lazy(() => import('./pages/Comparativo'))
 const Fornecedores = lazy(() => import('./pages/Fornecedores'))
@@ -25,9 +25,9 @@ const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 // ─── Portal do Fornecedor (logado) ──────────────────────────────────────────
 const PortalDashboard = lazy(() => import('./pages/portal/PortalDashboard'))
 const CotacoesPendentes = lazy(() => import('./pages/portal/CotacoesPendentes'))
-const MinhasRespostas = lazy(() => import('./pages/portal/MinhasRespostas'))
+const Respostas = lazy(() => import('./pages/portal/Respostas'))
 const TabelaPrecos = lazy(() => import('./pages/portal/TabelaPrecos'))
-const MeuDesempenho = lazy(() => import('./pages/portal/MeuDesempenho'))
+const Desempenho = lazy(() => import('./pages/portal/Desempenho'))
 const ResponderCotacao = lazy(() => import('./pages/portal/ResponderCotacao'))
 
 // ─── Portal Público (sem login — via token) ─────────────────────────────────
@@ -57,24 +57,24 @@ export default function App() {
           <Route path="visao-geral" element={<Dashboard />} />
           <Route path="cotacoes" element={<Cotacoes />} />
           <Route path="cotacoes/nova" element={<NovaCotacao />} />
-          <Route path="cotacoes/importar" element={<ImportarBloco />} />
-          <Route path="cotacoes/:id" element={<DetalheCotacao />} />
-          <Route path="cotacoes/:id/comparativo" element={<Comparativo />} />
+          <Route path="cotacoes/importar" element={<CotacoesImportar />} />
+          <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />
+          <Route path="cotacoes/:id_cotacao/comparativo" element={<Comparativo />} />
           <Route path="fornecedores" element={<Fornecedores />} />
-          <Route path="fornecedores/:id" element={<DetalheFornecedor />} />
+          <Route path="fornecedores/:id_fornecedor" element={<DetalheFornecedor />} />
           <Route path="configuracoes" element={<Configuracoes />} />
 
           {/* Portal do Fornecedor (logado) */}
           <Route path="portal" element={<Navigate to="portal/dashboard" replace />} />
           <Route path="portal/dashboard" element={<PortalDashboard />} />
           <Route path="portal/pendentes" element={<CotacoesPendentes />} />
-          <Route path="portal/respostas" element={<MinhasRespostas />} />
+          <Route path="portal/respostas" element={<Respostas />} />
           <Route path="portal/tabela-precos" element={<TabelaPrecos />} />
-          <Route path="portal/desempenho" element={<MeuDesempenho />} />
-          <Route path="portal/responder/:bidRequestId" element={<ResponderCotacao />} />
+          <Route path="portal/desempenho" element={<Desempenho />} />
+          <Route path="portal/responder/:id_cotacao" element={<ResponderCotacao />} />
 
           {/* Portal Público */}
-          <Route path="portal/public/responder/:token" element={<ResponderPublico />} />
+          <Route path="portal/public/responder/:token_resposta" element={<ResponderPublico />} />
 
           {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG */}
           <Route path="*" element={<Navigate to="visao-geral" replace />} />

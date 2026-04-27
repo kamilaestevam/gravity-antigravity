@@ -182,15 +182,15 @@ Cada organizacao tem seus dados **completamente isolados** via **Schema-per-Orga
 
 > ⚠️ **Schema-per-Organizacao:** o schema PostgreSQL **é** a organizacao. Modelos de produto **NÃO** carregam `id_organizacao` — ver [Schema Composition](../../arquitetura/schema-composition/SKILL.md).
 
-> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields simplificados: `criado_em`/`atualizado_em` — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md). O `schema.prisma` é **intocável** (Mandamento 02 — schema.prisma Intocável); alterações via `fragment.prisma` por serviço.
+> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields com sufixo de entidade: `data_criacao_<entidade>`, `data_atualizacao_<entidade>` (ex: `data_criacao_pedido`) — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md) REGRA 3. O `schema.prisma` é **intocável** (Mandamento 02 — schema.prisma Intocável); alterações via `fragment.prisma` por serviço.
 
 ```prisma
 model Recurso {
   id_recurso    String   @id @default(cuid())
   id_usuario    String?
   // ... campos do domínio (sem id_organizacao — schema isola)
-  criado_em     DateTime @default(now())
-  atualizado_em DateTime @updatedAt
+  data_criacao_recurso     DateTime @default(now())
+  data_atualizacao_recurso DateTime @updatedAt
 
   @@index([id_usuario])
   @@map("recurso")

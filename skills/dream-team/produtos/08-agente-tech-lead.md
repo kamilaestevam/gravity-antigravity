@@ -193,15 +193,15 @@ produto/[nome-produto]/
 
 > ⚠️ **Schema-per-Organizacao:** o schema PostgreSQL **é** a organizacao. Modelos de produto **NÃO** carregam `id_organizacao` — ver [Schema Composition](../../arquitetura/schema-composition/SKILL.md).
 
-> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields simplificados: `criado_em`/`atualizado_em` — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md).
+> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields com sufixo de entidade: `data_criacao_<entidade>`, `data_atualizacao_<entidade>` (ex: `data_criacao_pedido`) — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md) REGRA 3.
 
 ```prisma
 model Recurso1 {
   id_recurso1   String   @id @default(cuid())
   id_usuario    String?
   // campos do domínio (sem id_organizacao — schema isola)
-  criado_em     DateTime @default(now())
-  atualizado_em DateTime @updatedAt
+  data_criacao_recurso1     DateTime @default(now())
+  data_atualizacao_recurso1 DateTime @updatedAt
 
   @@index([id_usuario])
   @@map("recurso1")

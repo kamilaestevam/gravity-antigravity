@@ -22,7 +22,7 @@ enum EmailDirecao {
   ENVIADO
 }
 
-enum EmailThreadStatus {
+enum EmailThreadAtiva {
   ABERTA
   ARQUIVADA
   RESOLVIDA
@@ -54,7 +54,7 @@ model EmailAssuntosParticipantes {
   id_usuario_email_assuntos_participantes      String?
 
   assunto_email_assuntos_participantes              String
-  status_email_assuntos_participantes               EmailThreadStatus @default(ABERTA)
+  status_email_assuntos_participantes               EmailThreadAtiva @default(ABERTA)
   sentimento_email_assuntos_participantes           Float             @default(0) // -1 a 1
   rotulo_sentimento_email_assuntos_participantes    EmailSentimento   @default(NEUTRO)
   contagem_mensagens_email_assuntos_participantes   Int               @default(0)
@@ -149,10 +149,10 @@ model EmailRegistroEnvio {
 }
 
 // ---------------------------------------------------------------------------
-// TemplateEmail — templates de email editáveis por tenant
+// EmailTemplate — templates de email editáveis por tenant
 // ---------------------------------------------------------------------------
 
-model TemplateEmail {
+model EmailTemplate {
   id_template_email              String  @id @default(cuid())
   id_organizacao_template_email  String
   id_produto_template_email      String?

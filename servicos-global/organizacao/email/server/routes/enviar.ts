@@ -41,7 +41,7 @@ enviarRouter.post(
 
     // Carregar e interpolar template se fornecido
     if (template_id) {
-      const tmpl = await prisma.templateEmail.findFirst({
+      const tmpl = await prisma.emailTemplate.findFirst({
         where: {
           id_template_email: template_id,
           id_organizacao_template_email: tenantId,

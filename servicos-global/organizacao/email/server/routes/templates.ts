@@ -35,7 +35,7 @@ templatesRouter.get(
   async (req: Request, res: Response, _next: NextFunction) => {
     const { tenantId } = req.auth
 
-    const templates = await prisma.templateEmail.findMany({
+    const templates = await prisma.emailTemplate.findMany({
       where: { id_organizacao_template_email: tenantId },
       orderBy: { nome_template_email: 'asc' },
     })
@@ -58,7 +58,7 @@ templatesRouter.post(
     const { tenantId, userId } = req.auth
 
     // Verificar slug duplicado no tenant
-    const existing = await prisma.templateEmail.findFirst({
+    const existing = await prisma.emailTemplate.findFirst({
       where: {
         id_organizacao_template_email: tenantId,
         slug_template_email: parse.data.slug,
@@ -68,7 +68,7 @@ templatesRouter.post(
       return next(new AppError(`Já existe um template com slug '${parse.data.slug}'`, 409, 'SLUG_CONFLICT'))
     }
 
-    const template = await prisma.templateEmail.create({
+    const template = await prisma.emailTemplate.create({
       data: {
         id_organizacao_template_email: tenantId,
         id_usuario_template_email: userId,
@@ -101,7 +101,7 @@ templatesRouter.put(
       return next(new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR'))
     }
 
-    const existing = await prisma.templateEmail.findFirst({
+    const existing = await prisma.emailTemplate.findFirst({
       where: {
         id_template_email: id_template_email,
         id_organizacao_template_email: tenantId,
@@ -113,7 +113,7 @@ templatesRouter.put(
 
     // Verificar conflito de slug se estiver sendo alterado
     if (parse.data.slug && parse.data.slug !== existing.slug_template_email) {
-      const slugConflict = await prisma.templateEmail.findFirst({
+      const slugConflict = await prisma.emailTemplate.findFirst({
         where: {
           id_organizacao_template_email: tenantId,
           slug_template_email: parse.data.slug,
@@ -135,7 +135,7 @@ templatesRouter.put(
     if (parse.data.descricao !== undefined) data.descricao_template_email = parse.data.descricao
     if (parse.data.ativo !== undefined) data.ativo_template_email = parse.data.ativo
 
-    const updated = await prisma.templateEmail.update({
+    const updated = await prisma.emailTemplate.update({
       where: { id_template_email: id_template_email },
       data,
     })
@@ -153,7 +153,7 @@ templatesRouter.delete(
     const { id_template_email } = req.params
     const { tenantId } = req.auth
 
-    const existing = await prisma.templateEmail.findFirst({
+    const existing = await prisma.emailTemplate.findFirst({
       where: {
         id_template_email: id_template_email,
         id_organizacao_template_email: tenantId,
@@ -163,7 +163,7 @@ templatesRouter.delete(
       return next(new AppError('Template não encontrado', 404, 'TEMPLATE_NOT_FOUND'))
     }
 
-    await prisma.templateEmail.delete({ where: { id_template_email: id_template_email } })
+    await prisma.emailTemplate.delete({ where: { id_template_email: id_template_email } })
 
     res.status(204).send()
   }

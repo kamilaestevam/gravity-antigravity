@@ -132,7 +132,7 @@ export function toMensagemDto(m: {
 }
 
 // ---------------------------------------------------------------------------
-// TemplateEmail
+// EmailTemplate
 // ---------------------------------------------------------------------------
 
 export interface TemplateDto {

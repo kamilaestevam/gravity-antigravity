@@ -5,7 +5,7 @@ description: "Use esta skill sempre que for executar migration destrutiva, alter
 
 # Gravity — Backup Policy (Lei)
 
-> **Lei absoluta.** Implementação (scripts pg_dump, S3, Railway CLI, restore procedures, plano de DR) está em `governanca/operacao/backup-disaster-recovery/SKILL.md`. Esta skill define apenas as **regras**.
+> **Lei absoluta.** Implementação (scripts pg_dump, S3, Railway CLI, restore procedures, plano de DR) está em [Backup & DR](../../operacao/backup-disaster-recovery/SKILL.md). Esta skill define apenas as **regras**.
 
 ## RPO e RTO
 
@@ -57,6 +57,6 @@ Backup semanal externo (S3) é a contingência contra falha do provedor.
 
 ## Onde Está a Implementação
 
-- **Scripts de backup (pg_dump), restore, S3 upload, cron** → `governanca/operacao/backup-disaster-recovery/SKILL.md`
-- **Plano de Disaster Recovery (4 cenários: serviço caiu, banco corrompido, Railway fora, dados deletados por erro)** → mesma skill
-- **Comandos detalhados de restore por cenário** → mesma skill
+- **Scripts de backup (pg_dump), restore, S3 upload, cron** → [Backup & DR](../../operacao/backup-disaster-recovery/SKILL.md)
+- **Plano de Disaster Recovery (4 cenários: serviço caiu, banco corrompido, Railway fora, dados deletados por erro)** → [Backup & DR](../../operacao/backup-disaster-recovery/SKILL.md)
+- **Comandos detalhados de restore por cenário** → [Backup & DR](../../operacao/backup-disaster-recovery/SKILL.md)

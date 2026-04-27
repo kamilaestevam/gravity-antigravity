@@ -1,6 +1,6 @@
 ---
 name: antigravity-dream-team-ajustes
-description: "Protocolo obrigatório para qualquer modificação em código existente. Antes de tocar uma linha, mapeia o contexto, lê skills relevantes com paths exatos, verifica histórico git, calcula raio de impacto, identifica causa raiz real e define plano de validação. Elimina o ciclo fix→regressão→fix. Ativar com /ajuste para toda correção, ajuste, refactor ou melhoria pontual em arquivo já existente."
+description: "Protocolo obrigatório para qualquer modificação em código existente. Antes de tocar uma linha, mapeia o contexto, lê skills relevantes com paths exatos, verifica histórico git, calcula raio de impacto, identifica causa raiz real e define plano de validação. Elimina o ciclo fix→regressão→fix. Ativar lendo esta skill antes de qualquer correção, ajuste, refactor ou melhoria pontual em arquivo já existente."
 ---
 
 # Gravity — Dream Team Ajustes
@@ -31,7 +31,7 @@ Ativar SEMPRE que o arquivo a modificar **já existe** e qualquer condição aba
 - A mudança afeta componente React usado em mais de uma tela
 - A mudança afeta CSS (classe ou variável de design token)
 - A mudança afeta query Prisma, campo de banco ou migration
-- A mudança afeta middleware (auth, organização, correlação)
+- A mudança afeta middleware (auth, organizacao, correlacao)
 - O mesmo sintoma retornou após fix anterior neste arquivo (sinal de ciclo)
 
 **Não se aplica apenas:** arquivo novo criado do zero, sem nenhum consumidor ainda.
@@ -68,7 +68,7 @@ skills/governanca/convencao-tecnica/code-standards/SKILL.md
 | Chamada entre serviços (S2S) | `skills/seguranca/autenticacao-s2s/SKILL.md` + `skills/arquitetura/resiliencia/SKILL.md` |
 | CSS compartilhado / design tokens | `skills/ux/design-system/SKILL.md` + `skills/ux/acessibilidade/SKILL.md` |
 | Migration Prisma | `skills/processos/deploy/SKILL.md` + `skills/governanca/convencao-tecnica/database-governance/SKILL.md` |
-| `shared/types.ts` | `skills/testes/contract-testing/SKILL.md` |
+| `<produto>/src/shared/types.ts` | `skills/testes/contract-testing/SKILL.md` |
 | Estado global (store/context) | `skills/arquitetura/estado/SKILL.md` |
 
 > **Regra:** se uma skill existe e é ignorada durante o ajuste, o ajuste está
@@ -212,7 +212,7 @@ Responsabilidades:
 - Testar **todos** os dependentes mapeados pelo Analista
 - Verificar SLA ≤ 200ms nos endpoints afetados
 - Validar o fluxo de UI que consome o código alterado
-- Testar cenário cross-organização se aplicável
+- Testar cenário cross-organizacao se aplicável
 - **Regressão histórica:** testar os cenários que quebraram nos últimos 5 commits
 
 ---
@@ -221,7 +221,7 @@ Responsabilidades:
 **Última barreira antes do handoff para o QA.**
 
 Verificar **todas** as skills lidas na Fase 0.1:
-- [ ] Isolamento de Organização intacto?
+- [ ] Isolamento de Organizacao intacto?
 - [ ] Nenhum `any` introduzido?
 - [ ] Nenhum `console.log` esquecido?
 - [ ] TypeScript compila limpo? (`npx tsc --noEmit`)
@@ -288,7 +288,7 @@ grep -r "NOME_DA_VAR" --include="*.ts" .
 - Quais outros services chamam este service?
 
 **Contratos (o mais crítico) — mapear:**
-- `shared/types.ts` — quem importa os tipos que mudarão?
+- `<produto>/src/shared/types.ts` — quem importa os tipos que mudarão?
 - Schemas Zod — algum schema exportado muda?
 - Endpoints — algum `api.ts` no frontend usa a rota alterada?
 
@@ -308,7 +308,7 @@ Todos os resultados devem ser listados no Relatório de Impacto.
 | **LOW** | ≤ 2 arquivos, sem dependentes externos, zero alteração de contrato | Executar + comunicar depois |
 | **MEDIUM** | 3–6 arquivos, dependentes internos ao módulo, sem mudança de contrato público | Comunicar antes + plano de rollback |
 | **HIGH** | Afeta contratos públicos (tipos, endpoints), múltiplos módulos ou shared | Aprovação do Líder antes + janela de mudança definida |
-| **CRITICAL** | Schema Prisma, middleware de auth, Isolamento de Organização, múltiplos produtos | Aprovação do Líder + staging obrigatório + janela de mudança + rollback testado em staging |
+| **CRITICAL** | Schema Prisma, middleware de auth, Isolamento de Organizacao, múltiplos produtos | Aprovação do Líder + staging obrigatório + janela de mudança + rollback testado em staging |
 
 **Regra:** em caso de dúvida sobre nível, classificar sempre para cima.
 
@@ -352,7 +352,7 @@ O problema **sai do escopo desta skill** e entra em escopo de refatoração/rees
 **Salvar obrigatoriamente em:**
 `documentos-tecnicos/ajustes/YYYY-MM-DD-[descrição-curta].md`
 
-Criar o diretório se não existir. O arquivo deve persistir no repositório —
+Criar o diretório se não existir (Ex: `mkdir -p documentos-tecnicos/ajustes/` ou `New-Item -ItemType Directory -Force -Path documentos-tecnicos/ajustes`). O arquivo deve persistir no repositório —
 não existe apenas na conversa.
 
 ```markdown
@@ -450,7 +450,7 @@ não existe apenas na conversa.
 
 ## GOVERNANÇA — PREENCHIDO PELO GUARDIÃO
 
-- [ ] Isolamento de Organização intacto
+- [ ] Isolamento de Organizacao intacto
 - [ ] Zero `any` introduzido
 - [ ] Zero `console.log` esquecido
 - [ ] TypeScript compila limpo
@@ -510,7 +510,7 @@ Skills verificadas: [lista]
 **Camada 3 — Obrigatória para HIGH+:**
 - [ ] Fluxo completo frontend → backend → DB funciona?
 - [ ] UI que consome o código alterado está funcionando?
-- [ ] Fluxo cross-organização: ação da organização A não afeta organização B?
+- [ ] Fluxo cross-organizacao: ação da organizacao A não afeta organizacao B?
 - [ ] Todos os módulos que importam os tipos alterados compilam?
 - [ ] Regressão histórica: cenários dos últimos 5 commits continuam funcionando?
 - [ ] E2E dos fluxos afetados pelo ajuste executado e aprovado?
@@ -572,7 +572,7 @@ HANDOFF: Guardião → QA Skill
 | Função utilitária (`utils/`) | Todos os callers da função | Unitários da função + smoke dos callers |
 | Endpoint API — shape do payload | Frontend que monta o request | Funcional de rota + smoke da UI |
 | Schema Zod exportado | Rota que usa + frontend que importa o type | TypeScript + funcional |
-| `shared/types.ts` | Todo arquivo que importa o tipo | TypeScript em todo o módulo (`tsc --noEmit`) |
+| `<produto>/src/shared/types.ts` | Todo arquivo que importa o tipo | TypeScript em todo o módulo (`tsc --noEmit`) |
 | Service / lógica de negócio | Rotas que chamam o service + testes | Unitário do service + funcional das rotas |
 | Schema Prisma / migration | Todas as queries do model afetado | Funcional completo + staging obrigatório |
 | Middleware de autenticação | Todas as rotas que passam pelo middleware | Funcional de todas as rotas protegidas |
@@ -592,7 +592,7 @@ Um fluxo é **crítico** se qualquer uma das condições abaixo for verdadeira:
 
 - Envolve criação, edição ou exclusão de dados financeiros ou fiscais
 - Está no caminho crítico da operação principal do produto (ex: criar pedido, emitir nota)
-- Cruza boundary de organização (lê ou escreve dados de mais de uma organização)
+- Cruza boundary de organizacao (lê ou escreve dados de mais de uma organizacao)
 - Envolve autenticação, permissão ou token
 - Uma falha nele impede o usuário de completar sua tarefa principal no produto
 
@@ -649,8 +649,8 @@ passam por ele.
 Mover função para outro arquivo pode criar dependência circular que só aparece
 no build.
 
-**Protocolo:** após mover qualquer função, rodar `npm run build` antes de
-testar manualmente.
+**Protocolo:** após mover qualquer função, rodar `npx tsc --noEmit` antes de
+testar manualmente — detecta dependência circular em tempo de tipagem, é mais leve e mais eficiente que `npm run build`.
 
 ### Armadilha 7 — A migration destrutiva sem rollback
 Renomear campo no Prisma sem migration explícita causa perda de dados em produção.
@@ -741,27 +741,3 @@ Esta skill ocupa uma posição específica no fluxo. Não substitui nenhuma outr
 10. **Handoff é documento salvo em disco, não conversa na sessão.**
 11. **Em caso de dúvida sobre nível de risco, classificar sempre para cima.**
 12. **Esta skill termina no Guardião. O QA skill começa depois.**
-
----
-
-## Slash Command `/ajuste`
-
-Ativa o protocolo completo. Uso:
-
-```
-/ajuste [descrição do problema]
-```
-
-O agente responde imediatamente com:
-1. Fase 0 executada — skills lidas, histórico verificado, ciclo descartado ou escalado
-2. Diagnóstico — sintoma vs. causa raiz com arquivo + linha
-3. Mapa de dependências — todos os consumidores do código afetado
-4. Raio de impacto calculado por área
-5. Nível de risco classificado (LOW / MEDIUM / HIGH / CRITICAL)
-6. Decisão Ajuste vs. Reescrita declarada:
-   - **AJUSTE** → prosseguir para execução
-   - **REESCRITA** → Relatório salvo com status "Problema Estrutural Identificado",
-     Líder escalado com o path do arquivo, nenhum código escrito
-7. Relatório de Impacto salvo em `documentos-tecnicos/ajustes/`
-
-**Nenhum código é escrito antes desse output existir.**

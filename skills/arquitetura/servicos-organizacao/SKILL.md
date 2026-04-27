@@ -1,22 +1,22 @@
 ---
 name: antigravity-servicos-organizacao
-description: "Use esta skill sempre que uma tarefa envolver criação, modificação ou uso de serviços da organização ou serviços de produto do projeto Gravity. Define a diferença entre as duas naturezas de serviço, a estrutura obrigatória de pastas, as regras de autocontido, como expor fragment.prisma (pós-pivô Schema-per-Organização) e como o frontend integra os serviços. Todo agente consulta esta skill antes de criar ou modificar qualquer serviço."
+description: "Use esta skill sempre que uma tarefa envolver criação, modificação ou uso de serviços da organizacao ou serviços de produto do projeto Gravity. Define a diferença entre as duas naturezas de serviço, a estrutura obrigatória de pastas, as regras de autocontido, como expor fragment.prisma (pós-pivô Schema-per-Organizacao) e como o frontend integra os serviços. Todo agente consulta esta skill antes de criar ou modificar qualquer serviço."
 ---
 
-# Gravity — Serviços Global
+# Gravity — Serviços de Organizacao e de Produto
 
 ## As Duas Naturezas de Serviço
 
 Dentro de `servicos-global` existem duas categorias fundamentalmente diferentes. Esta distinção define onde os dados vivem e como a experiência unificada entre produtos é possível.
 
-### Serviços da Organização
+### Serviços da Organizacao
 
-Existem uma vez por organização, independente de quantos produtos ela use. O email é da organização, não do produto. As atividades precisam aparecer unificadas em todos os produtos. O dashboard consolida KPIs de tudo.
+Existem uma vez por organizacao, independente de quantos produtos ela use. O email é da organizacao, não do produto. As atividades precisam aparecer unificadas em todos os produtos. O dashboard consolida KPIs de tudo.
 
-- **Todos os 11 serviços rodam em processo único — o super-servidor de organização (porta 3001)**
-- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/organização/server/index.ts`) é o único `app.listen()`
+- **Todos os 11 serviços rodam em processo único — o super-servidor de organizacao (porta 3001)**
+- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/organizacao/server/index.ts`) é o único `app.listen()`
 - Acessados por todos os produtos via API REST
-- Após o pivô Schema-per-Organização (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`); models não carregam mais `id_organizacao` como coluna
+- Após o pivô Schema-per-Organizacao (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`); models não carregam mais `id_organizacao` como coluna
 
 ### Serviços de Produto
 
@@ -30,31 +30,32 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 
 ## Tabela Comparativa
 
-| Característica | nucleo-global | servicos-global/organização | servicos-global/produto |
+| Característica | nucleo-global | servicos-global/organizacao | servicos-global/produto |
 |:---|:---|:---|:---|
 | Tem estado próprio? | ❌ Não | ✅ Sim | ✅ Sim |
 | Tem backend? | ❌ Nunca | ✅ Sempre | ✅ Sempre |
-| Banco próprio? | ❌ Nunca | ✅ Banco compartilhado da organização (schema-per-organização) | ❌ Banco do produto (schema-per-organização) |
+| Banco próprio? | ❌ Nunca | ✅ Banco compartilhado da organizacao (schema-per-organizacao) | ❌ Banco do produto (schema-per-organizacao) |
 | Chama API externa? | ❌ Nunca | ✅ Pode | ✅ Pode |
 | Funciona offline? | ✅ Sempre | ❌ Não | ❌ Não |
 | Roda onde? | No produto | Super-servidor `:3001` | Dentro do produto |
 
 ---
 
-## Catálogo de Serviços da Organização
+## Catálogo de Serviços da Organizacao
 
-| Serviço | Por que é da organização |
+| Serviço | Por que é da organizacao |
 |:---|:---|
 | atividade | "Minhas tarefas" precisa ser unificado entre produtos |
 | notificacao | Notificações do usuário transcendem o produto individual |
 | dashboard | Consolidação de dados de faturamento e operação global |
 | empresa | Dados cadastrais e governança do cliente |
 | cronometro | Tempo do usuário, independe do produto |
-| email | Uma inbox por organização, não por produto |
+| email | Uma inbox por organizacao, não por produto |
 | whatsapp | Uma conversa por contato, não por produto |
 | relatorios | Relatórios cruzados entre produtos |
 | historico | Auditoria completa, não fragmentada |
 | agendamento | Um calendário por usuário |
+| gabi | Assistente IA com contexto cross-produto da organizacao |
 
 ---
 
@@ -69,12 +70,12 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 
 ---
 
-## Super-Servidor da Organização — Padrão Monolito Modular
+## Super-Servidor da Organizacao — Padrão Monolito Modular
 
 Todos os 11 serviços compartilham um único processo Node.js. Isso elimina a sobrecarga de 11 portas, 11 processos e 11 conexões de banco separadas em dev e em produção.
 
 ```
-servicos-global/organização/
+servicos-global/organizacao/
 ├── server/
 │   ├── index.ts       ← ÚNICO app.listen() — monta todos os serviceRouters
 │   └── lib/
@@ -100,25 +101,14 @@ servicos-global/organização/
 
 ### Ordem dos Middlewares no Super-Servidor
 
-```typescript
-app.use(correlationMiddleware)          // 1. Gera/propaga x-id-correlacao
-app.get('/health', healthHandler)       // 2. Health check — sem auth
-app.use('/webhook', express.raw(...))   // 3. Raw body para webhooks (antes do json)
-app.use(express.json())                 // 4. Body parser
-app.use(authMiddleware)                 // 5. Exige x-tenant-id (header de protocolo) → 401 se ausente
-app.use(withInternalKeyValidation)      // 6. Valida x-chave-interna → 403 se inválida
-app.use(serviceRouter)                  // 7. Routers dos 11 serviços
-app.use(errorHandler)                   // 8. Handler global de erros
-```
-
-> **Nota:** o header `x-tenant-id` é nome de protocolo HTTP em uso e não é renomeado por compatibilidade. O valor que ele transporta corresponde ao `id_organizacao` da request.
+> ⚠️ **REGRA ABSOLUTA:** A ordem geral de middlewares (correlation → health → parse → auth → erro) vive em [Observabilidade](../observabilidade/SKILL.md). Específico do super-servidor da organizacao: o `authMiddleware` exige header `x-tenant-id` (legacy, preservado por compatibilidade — o valor corresponde a `id_organizacao`), e logo depois entra `withInternalKeyValidation` que faz `timingSafeEqual` em `x-chave-interna` e devolve 403 se inválida.
 
 ---
 
-## Estrutura Obrigatória — Serviço da Organização
+## Estrutura Obrigatória — Serviço da Organizacao
 
 ```text
-servicos-global/organização/[nome-do-servico]/
+servicos-global/organizacao/[nome-do-servico]/
 ├── src/
 │   ├── [NomeServico].tsx   ← componente principal
 │   └── index.ts            ← barrel export
@@ -152,26 +142,26 @@ Cada serviço deve ser **autocontido em termos de deploy e banco de dados**, mas
 
 ```typescript
 // ✅ correto — consumir outro serviço via API
-const timers = await fetch('/api/organização/timers?activity_id=123')
+const timers = await fetch('/api/organizacao/timers?activity_id=123')
 
-// ❌ proibido — importar código de outro serviço de organização
+// ❌ proibido — importar código de outro serviço de organizacao
 import { something } from '../cronometro/src/Cronometro'
 ```
 
 ---
 
-## Como Escrever o fragment.prisma (pós-pivô Schema-per-Organização)
+## Como Escrever o fragment.prisma (pós-pivô Schema-per-Organizacao)
 
 Cada serviço escreve apenas seu próprio fragment. Nunca edita o `schema.prisma` final.
 
 **Regras obrigatórias pós-pivô para todo model:**
-- **NÃO** carrega `id_organizacao` como coluna — o schema PostgreSQL **é** a organização
+- **NÃO** carrega `id_organizacao` como coluna — o schema PostgreSQL **é** a organizacao
 - `id_produto String?` nullable para tabelas que podem ter contexto de produto
 - Sem `@@index([id_organizacao, ...])` — desnecessário (schema isola fisicamente)
 - Acesso só via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`)
 
 ```prisma
-// servicos-global/organização/atividades/prisma/fragment.prisma
+// servicos-global/organizacao/atividades/prisma/fragment.prisma
 
 model Activity {
   id         String   @id @default(cuid())
@@ -189,12 +179,11 @@ model Activity {
 }
 ```
 
-
 ---
 
 ## Como Usar o id_produto nas Queries
 
-Acesso **sempre via SDK** — o `withTenant`/`withTenantContext` aplica `SET LOCAL search_path` para o schema da organização.
+Acesso **sempre via SDK** — o `withTenant`/`withTenantContext` aplica `SET LOCAL search_path` para o schema da organizacao.
 
 ```typescript
 // Dentro de um produto → só dados daquele produto
@@ -207,7 +196,7 @@ const activities = await withTenant(req, async (db) =>
   db.activity.findMany({ where: { id_usuario: currentUser } })
 )
 
-// No Dashboard consolidado → tudo da organização (schema isola)
+// No Dashboard consolidado → tudo da organizacao (schema isola)
 const count = await withTenant(req, async (db) =>
   db.activity.count({ where: { status: 'pending' } })
 )
@@ -215,21 +204,21 @@ const count = await withTenant(req, async (db) =>
 
 ---
 
-## Como o Frontend Integra Serviços da Organização
+## Como o Frontend Integra Serviços da Organizacao
 
 O shell carrega a navegação e delega para o módulo correto via lazy loading:
 
 ```typescript
 // nucleo-global/shell/navigation.tsx
 const tenantModules = {
-  activities: lazy(() => import('@tenant/atividades/src/Atividades')),
-  email:      lazy(() => import('@tenant/email/src/Email')),
-  whatsapp:   lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
-  dashboard:  lazy(() => import('@tenant/dashboard/src/Dashboard')),
-  reports:    lazy(() => import('@tenant/relatorios/src/Relatorios')),
-  history:    lazy(() => import('@tenant/historico/src/Historico')),
-  schedule:   lazy(() => import('@tenant/agendamento/src/Agendamento')),
-  gabi:       lazy(() => import('@tenant/gabi/src/Gabi')),
+  atividades:  lazy(() => import('@tenant/atividades/src/Atividades')),
+  email:       lazy(() => import('@tenant/email/src/Email')),
+  whatsapp:    lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
+  dashboard:   lazy(() => import('@tenant/dashboard/src/Dashboard')),
+  relatorios:  lazy(() => import('@tenant/relatorios/src/Relatorios')),
+  historico:   lazy(() => import('@tenant/historico/src/Historico')),
+  agendamento: lazy(() => import('@tenant/agendamento/src/Agendamento')),
+  gabi:        lazy(() => import('@tenant/gabi/src/Gabi')),
 }
 ```
 
@@ -237,11 +226,12 @@ const tenantModules = {
 
 ---
 
-## Como o Backend Integra Serviços da Organização
+## Como o Backend Integra Serviços da Organizacao
 
 ```typescript
 // produtos/simulador-comex/server/index.ts
-import { createOrgProxy } from '@tenant/proxy'
+// alias '@tenant/proxy' precisa estar em createTenantAliases(monorepoRoot, ['proxy', ...]) no vite.config
+import { createOrganizacaoProxy } from '@tenant/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
 // Rotas específicas do produto
@@ -250,10 +240,10 @@ app.use('/api/v1/simulacoes', simulacoesRoutes)
 // Serviços de produto (template local, banco deste produto)
 app.use('/api/v1/helpdesk', helpdeskRoutes)
 
-// Serviços da organização (proxy para servidor externo)
-app.use('/api/org', createOrgProxy({
-  baseUrl: process.env.TENANT_SERVICES_URL!,
-  services: PRODUCT_CONFIG.orgServices
+// Serviços da organizacao (proxy para servidor externo)
+app.use('/api/organizacao', createOrganizacaoProxy({
+  baseUrl: process.env.ORGANIZACAO_SERVICES_URL!,
+  services: PRODUCT_CONFIG.organizacaoServices
 }))
 ```
 
@@ -261,53 +251,42 @@ app.use('/api/org', createOrgProxy({
 
 ## Lidando com Latência — Chamadas Paralelas
 
-Quando uma tela precisa de dados de múltiplos serviços da organização, sempre usar `Promise.all` — nunca chamadas em série:
+> ⚠️ **REGRA ABSOLUTA:** Nunca usar `Promise.all` para chamadas em paralelo de serviços. O padrão oficial de degradação graciosa com `Promise.allSettled` vive em [Resiliência](../resiliencia/SKILL.md).
+
+Quando uma tela precisa de dados de múltiplos serviços da organizacao, sempre usar `Promise.allSettled` — assim uma falha pontual de um serviço não derruba a tela inteira:
 
 ```typescript
-// ✅ correto — 3 chamadas em paralelo
-const [activities, timers, emails] = await Promise.all([
-  orgAPI.get(`/activities?id_usuario=${idUsuario}&id_produto=simulador-comex`),
-  orgAPI.get(`/timers?id_usuario=${idUsuario}&active=true`),
-  orgAPI.get(`/email?unread=true&limit=5`)
+// ✅ correto — 3 chamadas em paralelo, cada falha isolada
+const [activitiesR, timersR, emailsR] = await Promise.allSettled([
+  organizacaoAPI.get(`/activities?id_usuario=${idUsuario}&id_produto=simulador-comex`),
+  organizacaoAPI.get(`/timers?id_usuario=${idUsuario}&active=true`),
+  organizacaoAPI.get(`/email?unread=true&limit=5`),
 ])
 
+const activities = activitiesR.status === 'fulfilled' ? activitiesR.value : null
+const timers     = timersR.status     === 'fulfilled' ? timersR.value     : null
+const emails     = emailsR.status     === 'fulfilled' ? emailsR.value     : null
+
 // ❌ proibido — chamadas em série desnecessárias
-const activities = await orgAPI.get('/activities')
-const timers = await orgAPI.get('/timers')
-const emails = await orgAPI.get('/email')
+const activities = await organizacaoAPI.get('/activities')
+const timers     = await organizacaoAPI.get('/timers')
+const emails     = await organizacaoAPI.get('/email')
 ```
 
 ---
 
 ## Tratamento de Indisponibilidade
 
-Se o servidor de serviços da organização cair, os produtos continuam funcionando para tudo que é local. Features da organização ficam temporariamente indisponíveis.
-
-```typescript
-function AtividadesWrapper() {
-  const { data, error, isLoading } = useOrgService('atividades')
-
-  if (isLoading) return <Loading />
-  if (error) return (
-    <ServiceUnavailable
-      service="atividades"
-      message="Serviço temporariamente indisponível. Dados do produto funcionam normalmente."
-      retryIn={30}
-    />
-  )
-
-  return <Atividades data={data} />
-}
-```
+> ⚠️ **REGRA ABSOLUTA:** O padrão de degradação graciosa (hook `useOrganizacaoService` retornando `{ data, error, isLoading }`, fallback `<ServiceUnavailable>` com retry) vive em [Resiliência](../resiliencia/SKILL.md).
 
 ---
 
 ## Comunicação entre Módulos — Event Bus
 
-Quando múltiplos serviços da organização estão na mesma tela, eles se comunicam via event bus sem importar código um do outro:
+Quando múltiplos serviços da organizacao estão na mesma tela, eles se comunicam via event bus sem importar código um do outro:
 
 ```typescript
-import { emit, on } from '@nucleo/shell'
+import { emit, on } from '@gravity/shell'
 
 // No Cronômetro: quando o tempo acaba, avisa o sistema
 emit('timer:stopped', { activity_id: '123', duration: 3600 })
@@ -322,11 +301,11 @@ on('timer:stopped', ({ activity_id, duration }) => {
 
 ## Checklist — Antes de Criar um Serviço
 
-- [ ] Definiu a natureza: organização ou produto?
-- [ ] Se da organização: dados pertencem à organização e precisam ser unificados?
+- [ ] Definiu a natureza: organizacao ou produto?
+- [ ] Se da organizacao: dados pertencem à organizacao e precisam ser unificados?
 - [ ] Se de produto: dados têm regras diferentes por produto?
 - [ ] Criou a estrutura `src/` + `server/` + `prisma/fragment.prisma`?
-- [ ] Fragment **não** tem `id_organizacao` como coluna (schema-per-organização isola fisicamente)?
+- [ ] Fragment **não** tem `id_organizacao` como coluna (schema-per-organizacao isola fisicamente)?
 - [ ] Acesso ao banco somente via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`)?
 - [ ] Índices apenas para campos de domínio (não há mais `@@index([id_organizacao, ...])`)?
 - [ ] O serviço não importa código de nenhum outro serviço?
@@ -334,6 +313,6 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - [ ] Rotas com prefixo `/api/v1/`?
 - [ ] `server/routes.ts` exporta `[nome]ServiceRouter` (sem `app.listen()`)?
 - [ ] Se tem pg-boss/workers/cron: extraiu para `server/init.ts`?
-- [ ] Registrou o `serviceRouter` em `servicos-global/organização/server/index.ts`?
+- [ ] Registrou o `serviceRouter` em `servicos-global/organizacao/server/index.ts`?
 - [ ] Validação Zod em todas as rotas?
 - [ ] Testes unitários e funcionais criados?

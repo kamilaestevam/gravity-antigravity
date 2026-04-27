@@ -160,7 +160,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 34 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `tenant:` |
 | 35 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
 | 36 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
-| 37 | i18n | `skills/arquitetura/i18n/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
+| 37 | Tradução (i18n) | `skills/arquitetura/traducao/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
 
 ### 7. Segurança (7) — Padrões da camada de segurança
 

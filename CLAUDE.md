@@ -244,7 +244,7 @@ const meResponseSchema = z.object({
 
 ---
 
-### 2. Governança › Convenção Técnica (7 skills) — Como escrever código
+### 2. Governança › Convenção Técnica (8 skills) — Como escrever código
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
@@ -255,6 +255,7 @@ const meResponseSchema = z.object({
 | API Design | `skills/governanca/convencao-tecnica/api-design/SKILL.md` | Convenções REST, versionamento, paginação, validação Zod |
 | Criptografia ⭐ | `skills/governanca/convencao-tecnica/criptografia/SKILL.md` | SHA-256 (tokens), AES-256-GCM (credenciais ERP), HMAC-SHA256 (webhooks) |
 | Observabilidade Mínima ⭐ | `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` | Métricas obrigatórias por serviço, ferramentas obrigatórias, log de auditoria de ações sensíveis |
+| Enum ⭐ | `skills/governanca/convencao-tecnica/enum/SKILL.md` | Criar/renomear enum, auditar a aba `4. mapa-enums` da planilha DDD, propor correção de nome na planilha (não toca em código) |
 
 ---
 
@@ -304,7 +305,7 @@ const meResponseSchema = z.object({
 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação por evento, prefixo `tenant:` (REGRA 4 do linter) |
 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
-| i18n | `skills/arquitetura/i18n/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
+| Tradução (i18n) | `skills/arquitetura/traducao/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
 
 ---
 

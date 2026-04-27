@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-sme
+name: antigravity-dream-team-sme
 description: "Skill completa do Especialista de Domínio (SME) do Dream Team de Produtos Gravity. Define como validar regras de negócio, legislação fiscal brasileira (II, IPI, PIS, COFINS, ICMS), SISCOMEX, BACEN, Receita Federal, como identificar armadilhas de domínio e como documentar exceções regulatórias. Consultada sempre que o agente SME precisa atuar."
 ---
 

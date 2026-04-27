@@ -1,33 +1,19 @@
 ---
-name: gravity-projeto-regras-gerais
-description: "Regras gerais do ecossistema Gravity que todo agente do Dream Team de Produtos deve conhecer antes de qualquer trabalho. Define design system, nucleo-global, componentes obrigatórios, padrões de código, apiGlobal.ts, autenticação Clerk, isolamento de organização, dark/light mode, Lucide icons, tipografia Plus Jakarta Sans e arquitetura do monorepo."
+name: antigravity-dream-team-projeto-regras-gerais
+description: "Regras gerais do ecossistema Gravity que todo agente do Dream Team de Produtos deve conhecer antes de qualquer trabalho. Define design system, nucleo-global, componentes obrigatórios, padrões de código, apiGlobal.ts, autenticação Clerk, isolamento de organizacao, dark/light mode, Lucide icons, tipografia Plus Jakarta Sans e arquitetura do monorepo."
 ---
 
 # Projeto Gravity — Regras Gerais do Ecossistema
 
 ## O Que É o Gravity
 
-Gravity é uma plataforma SaaS multi-organização que hospeda múltiplos produtos de comércio exterior e gestão empresarial. Cada organização tem seus dados completamente isolados (um schema PostgreSQL dedicado por organização). A plataforma é construída como um monorepo TypeScript com frontend React e backend Express.
+Gravity é uma plataforma SaaS multi-organizacao que hospeda múltiplos produtos de comércio exterior e gestão empresarial. Cada organizacao tem seus dados completamente isolados (um schema PostgreSQL dedicado por organizacao). A plataforma é construída como um monorepo TypeScript com frontend React e backend Express.
 
 ---
 
 ## Arquitetura do Monorepo
 
-```
-gravity/
-├── nucleo-global/           ← Componentes React puros, sem estado/servidor
-├── servicos-global/
-│   ├── organização/              ← Serviços 1x por organização (email, dashboard, etc.)
-│   ├── produto/             ← Templates reutilizáveis
-│   ├── configurador/        ← Auth (Clerk apenas autenticação), billing (provedor a definir), permissões via Prisma
-│   ├── marketplace/         ← Landing pública (sem auth)
-│   └── devops/              ← CI/CD, scripts, infra
-├── produto/                 ← Cada produto isolado (client/ + server/)
-├── scripts/                 ← Composição de schema, automações
-├── testes/                  ← Unitários, funcionais, E2E centralizados
-├── skills/                  ← Skills de todos os agentes
-└── documentos-tecnicos/     ← Documentação técnica
-```
+> ⚠️ **REGRA ABSOLUTA:** A estrutura do monorepo (pastas, responsabilidades, alias do Vite) é definida em [CLAUDE.md — Estrutura do Monorepo](../../../CLAUDE.md#estrutura-do-monorepo). Esta skill referencia, não redefine.
 
 ---
 
@@ -149,7 +135,7 @@ const result = await api.post('/api/v1/estimativas', payload)
 
 O Gravity usa **Clerk** como provedor de autenticação. Todo produto integra com Clerk via `@clerk/clerk-react` no frontend e `@clerk/backend` no backend.
 
-> **Mandamento 01 — inviolável:** Clerk responde APENAS por autenticação (login, senha, e-mail, `clerk_user_id`). Autorização (`tipo_usuario`, permissões, `id_organizacao`) é fonte exclusiva do Prisma do Configurador, sempre via `GET /api/v1/me`. **PROIBIDO** ler `publicMetadata.role`, `publicMetadata.tipoUsuario` ou qualquer campo do Clerk para decidir permissão.
+> **Mandamento 01 — Isolamento Total do Clerk (inviolável):** Clerk responde APENAS por autenticação (login, senha, e-mail, `clerk_user_id`). Autorização (`tipo_usuario`, permissões, `id_organizacao`) é fonte exclusiva do Prisma do Configurador, sempre via `GET /api/v1/me`. **PROIBIDO** ler `publicMetadata.role`, `publicMetadata.tipoUsuario` ou qualquer campo do Clerk para decidir permissão.
 
 ### Frontend
 
@@ -176,38 +162,37 @@ O Gravity usa **Clerk** como provedor de autenticação. Todo produto integra co
 
 ---
 
-## Isolamento de Organização (Multi-Organização)
+## Isolamento de Organizacao (Multi-Organizacao)
 
-Cada organização tem seus dados **completamente isolados** via **Schema-per-Organização** no PostgreSQL (cada organização ganha um schema dedicado, ex.: `tenant_<cuid>`). Esta é a regra mais crítica de segurança do Gravity.
+Cada organizacao tem seus dados **completamente isolados** via **Schema-per-Organizacao** no PostgreSQL (cada organizacao ganha um schema dedicado, ex.: `tenant_<cuid>`). Esta é a regra mais crítica de segurança do Gravity.
 
 ### Regras Absolutas
 
 1. **Todo model Prisma** tem campo `id_organizacao String` obrigatório (mapeado no banco; ver convenção abaixo)
-2. **Toda query** ao banco roda dentro de `withTenant`/`withTenantContext` do SDK `@gravity/tenant-resolver`
-3. **Schema-per-Organização** ativo no PostgreSQL — `SET LOCAL search_path` por requisição
-4. **Middleware do SDK** resolve a organização e expõe `req.organizacao.idOrganizacao` (API real do SDK — manter o nome)
-5. Nenhum endpoint retorna dados de outra organização — mesmo para Master/Super Admin (que acessam por contexto explícito, sem `UsuarioWorkspace`)
+2. **Toda query** ao banco roda dentro de `withOrganizacao`/`withOrganizacaoContext` do SDK `@gravity/tenant-resolver`
+3. **Schema-per-Organizacao** ativo no PostgreSQL — `SET LOCAL search_path` por requisição
+4. **Middleware do SDK** resolve a organizacao e expõe `req.organizacao.idOrganizacao` (API real do SDK — manter o nome)
+5. Nenhum endpoint retorna dados de outra organizacao — mesmo para Master/Super Admin (que acessam por contexto explícito, sem `UsuarioWorkspace`)
 6. Produtos NUNCA acessam banco de outro produto
 7. Produtos NUNCA acessam banco do Configurador diretamente
-8. Serviços por organização NUNCA importam código de outro serviço por organização
+8. Serviços por organizacao NUNCA importam código de outro serviço por organizacao
 9. Comunicação entre serviços APENAS via REST API
 
-### Índices Obrigatórios por Model
+### Estrutura Obrigatória de Model (pós-pivô Schema-per-Organizacao)
 
-> **Convenção de nomenclatura (DDD REGRA 2 — paridade Prisma↔PG):** o campo Prisma é exatamente o nome da coluna PG. **`@map` em coluna é PROIBIDO.** O nome do model é PascalCase em PT-BR, com `@@map("snake_case")` apontando para a tabela PG. O `schema.prisma` em si é **intocável** (Mandamento 02) — alterações são feitas pelo Coordenador via fragments.
+> ⚠️ **Schema-per-Organizacao:** o schema PostgreSQL **é** a organizacao. Modelos de produto **NÃO** carregam `id_organizacao` — ver [Schema Composition](../../arquitetura/schema-composition/SKILL.md).
+
+> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields simplificados: `criado_em`/`atualizado_em` — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md). O `schema.prisma` é **intocável** (Mandamento 02 — schema.prisma Intocável); alterações via `fragment.prisma` por serviço.
 
 ```prisma
 model Recurso {
-  id_recurso       String   @id @default(cuid())
-  id_organizacao   String
-  id_usuario       String?
-  // ... campos
-  data_criacao_recurso     DateTime @default(now())
-  data_atualizacao_recurso DateTime @updatedAt
+  id_recurso    String   @id @default(cuid())
+  id_usuario    String?
+  // ... campos do domínio (sem id_organizacao — schema isola)
+  criado_em     DateTime @default(now())
+  atualizado_em DateTime @updatedAt
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
-  @@index([id_organizacao, id_usuario])
+  @@index([id_usuario])
   @@map("recurso")
 }
 ```
@@ -226,17 +211,7 @@ model Recurso {
 
 ### Naming
 
-| Contexto | Convenção | Exemplo |
-|:---|:---|:---|
-| Componentes React | PascalCase | `TabelaGlobal` |
-| Hooks | camelCase com `use` | `useAuth` |
-| Funções/variáveis | camelCase | `calcularImposto` |
-| Constantes | UPPER_SNAKE_CASE | `API_URL` |
-| Pastas | kebab-case | `nucleo-global` |
-| Campos Prisma/payload | snake_case DDD | `id_organizacao`, `id_usuario`, `tipo_usuario` |
-| Colunas PG (paridade Prisma↔PG) | snake_case DDD idêntico ao campo Prisma | `id_organizacao`, `id_usuario` (sem `@map` — DDD REGRA 2) |
-| Tabelas PG (Model Prisma PascalCase) | snake_case via `@@map` | `model Pedido { … @@map("pedido") }` |
-| Booleans | adjetivo PT-BR sem prefixo | `ativo`, `gravity_admin`, `excluido` (nunca `is_*`) |
+> ⚠️ **REGRA ABSOLUTA:** Naming canônico (campos, tabelas, models, enums, headers, booleans) vive em [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md). Esta skill referencia, não redefine.
 
 ### Segurança
 
@@ -253,9 +228,9 @@ model Recurso {
 
 | Onda | O que constrói | Bloqueia |
 |:---|:---|:---|
-| **0 — Fundação** | Skeleton, Prisma base, RLS, Marketplace | Tudo da Onda 1 |
+| **0 — Fundação** | Skeleton, Prisma base, Schema-per-Organizacao (search_path), Marketplace | Tudo da Onda 1 |
 | **1 — Base** | Núcleo UI, Shell, Configurador | Tudo da Onda 2 |
-| **2 — Serviços** | 9 organização + 3 produto + 1 template | Tudo da Onda 3 |
+| **2 — Serviços** | 11 organizacao + 4 produto + 1 template | Tudo da Onda 3 |
 | **3 — Integração** | Proxy, Auth Flow, Produtos, DevOps | Plataforma completa |
 
 **Regra:** Onda N+1 só inicia após Onda N validada.
@@ -274,7 +249,7 @@ O Dream Team de Produtos (PM, SME, Data Analyst, Pesquisador, UX Researcher, Bus
 ### Restrições para o Dream Team de Produtos
 
 - Nunca propor telas que violem o design system Solid Slate
-- Nunca propor funcionalidades que quebrem o isolamento de organização
+- Nunca propor funcionalidades que quebrem o isolamento de organizacao
 - Nunca criar componentes visuais que já existam no nucleo-global
 - Sempre considerar dark/light mode em toda proposta visual
 - Sempre usar Lucide icons — nunca outra biblioteca
@@ -289,7 +264,7 @@ O Dream Team de Produtos (PM, SME, Data Analyst, Pesquisador, UX Researcher, Bus
 - [ ] Sei qual design system usar (Solid Slate)?
 - [ ] Sei que dark mode é o padrão?
 - [ ] Sei que devo usar Lucide icons e Plus Jakarta Sans?
-- [ ] Entendo o isolamento de organização (Schema-per-Organização) e o SDK `@gravity/tenant-resolver`?
+- [ ] Entendo o isolamento de organizacao (Schema-per-Organizacao) e o SDK `@gravity/tenant-resolver`?
 - [ ] Sei que devo reutilizar componentes do nucleo-global?
 - [ ] Entendo a arquitetura de ondas?
 - [ ] Sei onde cada tipo de código/serviço vive no monorepo?

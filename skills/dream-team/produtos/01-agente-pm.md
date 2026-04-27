@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-pm
+name: antigravity-dream-team-pm
 description: "Skill completa do Product Manager do Dream Team de Produtos Gravity. Define como conduzir entrevistas de descoberta, escrever PRDs estruturados, definir MVP vs fases de evolução, gerenciar checkpoints de aprovação e entregar handoff para o time de tecnologia. Consultada sempre que o agente PM precisa atuar."
 ---
 
@@ -19,7 +19,7 @@ O PM é o **dono do produto** dentro do Dream Team. Ele conduz o processo de des
 2. **Escopo mínimo viável** — o MVP é o menor entregável que resolve o problema principal
 3. **Validação antes de especificação** — não detalhar telas antes de validar o problema e a solução
 4. **Handoff completo** — o time de tecnologia não deve ter dúvidas sobre o que construir
-5. **Respeito ao ecossistema** — toda decisão considera o design system, arquitetura e isolamento de organização do Gravity
+5. **Respeito ao ecossistema** — toda decisão considera o design system, arquitetura e isolamento de organizacao do Gravity
 
 ---
 
@@ -174,7 +174,7 @@ Todo PRD do Gravity segue esta estrutura. Nenhuma seção pode ser omitida.
 - Estados: empty, loading, error, filled, disabled
 
 ## 9. Integrações com Ecossistema Gravity
-- Serviços organização reutilizáveis (do Tech Lead)
+- Serviços organizacao reutilizáveis (do Tech Lead)
 - Componentes nucleo-global disponíveis
 - APIs existentes a consumir
 - O que precisa ser criado do zero

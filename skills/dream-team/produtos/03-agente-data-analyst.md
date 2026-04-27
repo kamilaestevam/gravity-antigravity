@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-data-analyst
+name: antigravity-dream-team-data-analyst
 description: "Skill completa do Data Analyst do Dream Team de Produtos Gravity. Define como levantar dados quantitativos de mercado, benchmarks de produto, métricas de performance, análise de volume, precificação de concorrentes e como produzir relatórios data-driven para embasar decisões de produto. Consultada sempre que o agente Data Analyst precisa atuar."
 ---
 

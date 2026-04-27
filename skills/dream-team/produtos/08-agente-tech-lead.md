@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-tech-lead
+name: antigravity-dream-team-tech-lead
 description: "Skill completa do Tech Lead do Dream Team de Produtos Gravity. Define como validar viabilidade técnica, mapear serviços Gravity reutilizáveis, identificar o que criar do zero, definir arquitetura de novo produto, estimar complexidade e como trabalhar em tempo real com o Designer. Consultada sempre que o agente Tech Lead precisa atuar."
 ---
 
@@ -16,7 +16,7 @@ O Tech Lead é o **guardião da viabilidade técnica** no Dream Team de Produtos
 ## Princípios do Tech Lead Gravity
 
 1. **Reutilizar antes de criar** — o ecossistema Gravity já tem dezenas de serviços e componentes
-2. **Arquitetura Gravity** — todo novo produto segue a estrutura `client/server` com isolamento de organização
+2. **Arquitetura Gravity** — todo novo produto segue a estrutura `client/server` com isolamento de organizacao
 3. **Honestidade técnica** — se algo é complexo, dizer "é complexo"; se é simples, não inflar
 4. **Viabilidade > perfeição** — no MVP, o que funciona é melhor do que o que é perfeito
 5. **Colaboração em tempo real** — trabalhar junto com o Designer durante todo o processo
@@ -79,13 +79,13 @@ O Tech Lead mantém conhecimento atualizado de todos os serviços do Gravity.
 
 | Serviço | O que faz | Endpoint | Quando Usar |
 |:---|:---|:---|:---|
-| Check Access | Verifica se a organização tem acesso ao produto | `GET /api/check-access` | Login, acesso a features premium |
+| Check Access | Verifica se a organizacao tem acesso ao produto | `GET /api/check-access` | Login, acesso a features premium |
 | Me (fonte de verdade) | Dados do usuário logado (Prisma) — `id_usuario`, `tipo_usuario`, `id_organizacao`, `id_workspace`, `gravity_admin` | `GET /api/v1/me` (resposta validada com `meResponseSchema.parse()`) | Header, perfil, permissões — **NUNCA usar `publicMetadata` do Clerk** |
 | Billing | Status da assinatura (provedor de pagamento a definir) | `GET /api/billing/status` | Limites de plano, upgrade prompts |
 | Permissions | Permissões granulares do usuário | `GET /api/permissions` | Controle de acesso por feature |
-| Workspace | Dados do workspace da organização | `GET /api/workspace` | Configurações da organização |
+| Workspace | Dados do workspace da organizacao | `GET /api/workspace` | Configurações da organizacao |
 
-#### Serviços por Organização (1x por organização)
+#### Serviços por Organizacao (1x por organizacao)
 
 | Serviço | O que faz | Quando Reutilizar |
 |:---|:---|:---|
@@ -174,7 +174,7 @@ produto/[nome-produto]/
     │   │   └── [recurso2].ts
     │   ├── middleware/
     │   │   ├── requireInternalKey.ts
-    │   │   └── withTenant.ts          # SDK @gravity/tenant-resolver
+    │   │   └── withOrganizacao.ts          # SDK @gravity/tenant-resolver
     │   ├── services/
     │   │   └── [servicoX].ts
     │   ├── connectors/
@@ -187,24 +187,23 @@ produto/[nome-produto]/
     └── .env.example
 ```
 
-> **Mandamento 02:** `schema.prisma` é INTOCÁVEL pelo produto — apenas o Coordenador o regenera a partir dos `fragment.prisma` via script.
+> **Mandamento 02 — schema.prisma Intocável:** `schema.prisma` é INTOCÁVEL pelo produto — apenas o Coordenador o regenera a partir dos `fragment.prisma` via script.
 
-### Modelos de Dados (fragment.prisma)
+### Modelos de Dados (fragment.prisma — pós-pivô Schema-per-Organizacao)
 
-> **DDD REGRA 2 (paridade Prisma↔PG, atualizada 24/04/2026):** o campo Prisma é idêntico à coluna PG. **`@map` em coluna é PROIBIDO.** Model em PascalCase + `@@map("snake_case")` para a tabela PG. Audit fields em PT-BR (REGRA 3): `data_criacao_<entidade>`, `data_atualizacao_<entidade>`.
+> ⚠️ **Schema-per-Organizacao:** o schema PostgreSQL **é** a organizacao. Modelos de produto **NÃO** carregam `id_organizacao` — ver [Schema Composition](../../arquitetura/schema-composition/SKILL.md).
+
+> **Convenção de nomenclatura:** paridade Prisma↔PG (campo Prisma = coluna PG, sem `@map` em coluna). Model em PascalCase + `@@map("snake_case")` para a tabela. Audit fields simplificados: `criado_em`/`atualizado_em` — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md).
 
 ```prisma
 model Recurso1 {
-  id_recurso1     String   @id @default(cuid())
-  id_organizacao  String
-  id_usuario      String?
-  // campos do domínio
-  data_criacao_recurso1     DateTime @default(now())
-  data_atualizacao_recurso1 DateTime @updatedAt
+  id_recurso1   String   @id @default(cuid())
+  id_usuario    String?
+  // campos do domínio (sem id_organizacao — schema isola)
+  criado_em     DateTime @default(now())
+  atualizado_em DateTime @updatedAt
 
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
-  @@index([id_organizacao, id_usuario])
+  @@index([id_usuario])
   @@map("recurso1")
 }
 ```
@@ -212,11 +211,11 @@ model Recurso1 {
 ### Endpoints da API
 | Método | Endpoint | Descrição | Auth | Body (Zod) |
 |:---|:---|:---|:---|:---|
-| GET | `/api/v1/[recurso]` | Listar | S2S + organização (via SDK) | query params |
-| GET | `/api/v1/[recurso]/:id` | Detalhar | S2S + organização | — |
-| POST | `/api/v1/[recurso]` | Criar | S2S + organização | [schema] |
-| PUT | `/api/v1/[recurso]/:id` | Atualizar | S2S + organização | [schema] |
-| DELETE | `/api/v1/[recurso]/:id` | Excluir | S2S + organização | — |
+| GET | `/api/v1/[recurso]` | Listar | S2S + organizacao (via SDK) | query params |
+| GET | `/api/v1/[recurso]/:id` | Detalhar | S2S + organizacao | — |
+| POST | `/api/v1/[recurso]` | Criar | S2S + organizacao | [schema] |
+| PUT | `/api/v1/[recurso]/:id` | Atualizar | S2S + organizacao | [schema] |
+| DELETE | `/api/v1/[recurso]/:id` | Excluir | S2S + organizacao | — |
 
 ### Integrações Externas
 | API | Finalidade | Auth | Rate Limit | Fallback |
@@ -250,12 +249,12 @@ export const PRODUCT_CONFIG = {
 ```
 Usuário → Client (React) → Server (Express)
                                 ↓
-                          [DB do Produto] (Prisma + RLS)
+                          [DB do Produto] (Prisma + Schema-per-Organizacao)
                                 ↓
                      ┌──────────┼──────────┐
                      ↓          ↓          ↓
               Configurador   Serviços por      APIs Externas
-              (check-access) Organização       (SISCOMEX, etc.)
+              (check-access) Organizacao       (SISCOMEX, etc.)
 ```
 ```
 
@@ -337,20 +336,20 @@ Todo novo produto DEVE seguir as regras de segurança do Gravity. O Tech Lead va
 
 ### Checklist de Segurança por Produto
 
-- [ ] Todo model Prisma tem `id_organizacao` (campo + coluna PG idênticos, sem `@map` — DDD REGRA 2) e `@@map("snake_case")` na tabela?
-- [ ] Todo endpoint tem validação Zod (request E response — Mandamento 06)?
-- [ ] Toda query roda dentro de `withTenant` / `withTenantContext` do SDK `@gravity/tenant-resolver`?
+- [ ] Todo model Prisma de produto **NÃO** tem `id_organizacao` (schema-per-organizacao isola fisicamente) e tem `@@map("snake_case")` na tabela — ver [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md)?
+- [ ] Todo endpoint tem validação Zod (request E response — Mandamento 06 — Validação de Contrato Zod)?
+- [ ] Toda query roda dentro de `withOrganizacao` / `withOrganizacaoContext` do SDK?
 - [ ] `requireInternalKey` protege chamadas S2S?
-- [ ] JWT do Clerk é validado em rotas protegidas (apenas autenticação — Mandamento 01)?
+- [ ] JWT do Clerk é validado em rotas protegidas (apenas autenticação — Mandamento 01 — Isolamento Total do Clerk)?
 - [ ] Autorização (`tipo_usuario`, `gravity_admin`, permissões) vem **somente** do Prisma via `/api/v1/me`?
-- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão/organização?
-- [ ] Nenhuma query sem contexto de organização?
+- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão/organizacao?
+- [ ] Nenhuma query sem contexto de organizacao?
 - [ ] Health check sem autenticação em `/health`?
 - [ ] Nenhum `console.log` com dados sensíveis?
 - [ ] Variáveis de ambiente via `process.env`, nunca hardcoded?
 - [ ] Erros via `AppError`, nunca `res.status().json()` direto?
-- [ ] Sem fallback silencioso em autorização (Mandamento 08)?
-- [ ] `schema.prisma` permanece intocável (apenas `fragment.prisma` editado — Mandamento 02)?
+- [ ] Sem fallback silencioso em autorização (Mandamento 08 — Fim dos Fallbacks Silenciosos)?
+- [ ] `schema.prisma` permanece intocável (apenas `fragment.prisma` editado — Mandamento 02 — schema.prisma Intocável)?
 
 ---
 
@@ -381,7 +380,7 @@ Todo novo produto DEVE seguir as regras de segurança do Gravity. O Tech Lead va
 
 - ❌ Subestima complexidade para agradar o PM
 - ❌ Propõe criar do zero o que já existe no Gravity
-- ❌ Ignora isolamento de organização na arquitetura
+- ❌ Ignora isolamento de organizacao na arquitetura
 - ❌ Define requisitos de produto (isso é do PM)
 - ❌ Desenha telas (isso é do Designer)
 - ❌ Valida regras de negócio (isso é do SME)

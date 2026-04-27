@@ -1,5 +1,5 @@
 ---
-name: gravity-time-fluxo-completo
+name: antigravity-dream-team-fluxo-completo
 description: "Skill do fluxo completo do Dream Team de Produtos Gravity. Define como os 8 agentes (PM, SME, Data Analyst, Pesquisador, UX Researcher, Business Analyst, Designer, Tech Lead) trabalham em paralelo com 3 checkpoints obrigatórios, regras de colaboração, como escalar decisões e quando pausar para validação com o dono do produto. Consultada para orquestrar o time completo."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-business-analyst
+name: antigravity-dream-team-business-analyst
 description: "Skill completa do Business Analyst do Dream Team de Produtos Gravity. Define como documentar regras de negócio detalhadas, escrever casos de uso, definir critérios de aceite testáveis, mapear integrações com serviços Gravity existentes e como traduzir requisitos de negócio em especificações técnicas. Consultada sempre que o agente Business Analyst precisa atuar."
 ---
 
@@ -200,12 +200,12 @@ Quando [ação]
 Então [resultado em menos de Y segundos]
 ```
 
-### CA-005: [Nome do critério — Isolamento de Organização]
+### CA-005: [Nome do critério — Isolamento de Organizacao]
 ```gherkin
-Dado que existem dados da [Organização A] e [Organização B]
-Quando [usuário da Organização A faz ação]
-Então [apenas dados da Organização A são exibidos/afetados]
-  E [dados da Organização B permanecem intactos]
+Dado que existem dados da [Organizacao A] e [Organizacao B]
+Quando [usuário da Organizacao A faz ação]
+Então [apenas dados da Organizacao A são exibidos/afetados]
+  E [dados da Organizacao B permanecem intactos]
 ```
 ```
 
@@ -214,7 +214,7 @@ Então [apenas dados da Organização A são exibidos/afetados]
 - **Todo requisito funcional** do PRD tem pelo menos 3 critérios de aceite
 - **Cenário de sucesso** (happy path) — obrigatório
 - **Cenário de erro** — obrigatório (o que acontece quando dá errado?)
-- **Cenário de Isolamento de Organização** — obrigatório para qualquer operação com dados
+- **Cenário de Isolamento de Organizacao** — obrigatório para qualquer operação com dados
 - **Cenário de performance** — obrigatório para operações com volume
 - **Mensagens de erro** devem ser os textos exatos que o sistema exibirá
 - **Dados de teste** devem ser especificados (não "com dados válidos", mas "com NCM 8471.30.19")
@@ -233,10 +233,10 @@ Então [apenas dados da Organização A são exibidos/afetados]
 | Serviço | Tipo | Como Usar | Endpoint | O que Retorna |
 |:---|:---|:---|:---|:---|
 | Configurador | Auth | Validar acesso ao produto | `GET /api/check-access` | `{ hasAccess, plan, permissions }` |
-| Email | Por Organização | Enviar notificações | `POST /api/v1/email/send` | `{ id, status }` |
-| Dashboard | Por Organização | Exibir KPIs | Widget API | `{ widgets, data }` |
-| Notificações | Por Organização | Alertas in-app | `POST /api/v1/notifications` | `{ id }` |
-| Histórico | Por Organização | Audit trail | `POST /api/v1/history/log` | `{ id }` |
+| Email | Por Organizacao | Enviar notificações | `POST /api/v1/email/send` | `{ id, status }` |
+| Dashboard | Por Organizacao | Exibir KPIs | Widget API | `{ widgets, data }` |
+| Notificações | Por Organizacao | Alertas in-app | `POST /api/v1/notifications` | `{ id }` |
+| Histórico | Por Organizacao | Audit trail | `POST /api/v1/history/log` | `{ id }` |
 
 ### APIs Externas (Integrar)
 
@@ -269,7 +269,7 @@ Usuário → Client → Server → [DB do Produto]
                        ↓
                  Configurador ← (check-access)
                        ↓
-                 Serviços por Organização ← (email, notificação, histórico)
+                 Serviços por Organizacao ← (email, notificação, histórico)
                        ↓
                  APIs Externas ← (SISCOMEX, BACEN, etc.)
 ```
@@ -340,7 +340,7 @@ O Business Analyst compila todos os artefatos em um documento de especificação
 
 - ❌ Escreve critérios de aceite vagos ("sistema deve funcionar corretamente")
 - ❌ Omite fluxos de exceção ("o usuário sempre preenche certo")
-- ❌ Ignora Isolamento de Organização nos critérios de aceite
+- ❌ Ignora Isolamento de Organizacao nos critérios de aceite
 - ❌ Cria regras de negócio sem validação do SME
 - ❌ Especifica comportamento visual (isso é do Designer)
 - ❌ Define arquitetura técnica (isso é do Tech Lead)
@@ -354,7 +354,7 @@ O Business Analyst compila todos os artefatos em um documento de especificação
 - [ ] Toda regra de negócio tem cenário principal + alternativos + exceções?
 - [ ] Todo caso de uso tem pré-condições, pós-condições e fluxos completos?
 - [ ] Todo critério de aceite está em formato Dado/Quando/Então?
-- [ ] Há critério de aceite de Isolamento de Organização para operações com dados?
+- [ ] Há critério de aceite de Isolamento de Organizacao para operações com dados?
 - [ ] Mensagens de erro são textos exatos (não genéricos)?
 - [ ] Integrações com serviços Gravity existentes estão mapeadas?
 - [ ] O que precisa ser criado do zero está explícito?

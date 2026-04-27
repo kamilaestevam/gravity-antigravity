@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-pesquisador
+name: antigravity-dream-team-pesquisador
 description: "Skill completa do Pesquisador de Mercado do Dream Team de Produtos Gravity. Define como analisar concorrentes, mapear diferenciais competitivos, identificar tendências de mercado, produzir relatórios qualitativos e como posicionar o Gravity no cenário competitivo. Consultada sempre que o agente Pesquisador precisa atuar."
 ---
 

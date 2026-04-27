@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-designer
+name: antigravity-dream-team-designer
 description: "Skill completa do Product Designer do Dream Team de Produtos Gravity. Define como criar fluxos navegacionais, wireframes e telas de alta fidelidade usando obrigatoriamente o design system Solid Slate, componentes do nucleo-global, Lucide icons, dark/light mode, responsividade e a regra de nunca criar o que já existe. Consultada sempre que o agente Designer precisa atuar."
 ---
 

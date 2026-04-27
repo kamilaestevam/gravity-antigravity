@@ -1,5 +1,5 @@
 ---
-name: gravity-agente-ux-researcher
+name: antigravity-dream-team-ux-researcher
 description: "Skill completa do UX Researcher do Dream Team de Produtos Gravity. Define como criar personas detalhadas, mapear jornadas do usuário, identificar pontos de fricção, validar hipóteses com dados qualitativos e quantitativos, conduzir testes de usabilidade e como documentar insights para informar design e produto. Consultada sempre que o agente UX Researcher precisa atuar."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: gravity-entregaveis-handoff
+name: antigravity-dream-team-entregaveis-handoff
 description: "Skill de entregáveis e handoff do Dream Team de Produtos para o Dream Team de Tecnologia Gravity. Define a estrutura exata do PRD, documento de handoff, checklist de aceite por tela, formato do backlog priorizado, como documentar critérios de aceite e todos os artefatos necessários para uma entrega completa. Consultada para montar o pacote final de handoff."
 ---
 
@@ -269,7 +269,7 @@ Duração: 60-90 minutos
 - [ ] Código implementado seguindo code-standards
 - [ ] Critérios de aceite passando
 - [ ] Testes unitários (cobertura mín. 70%)
-- [ ] Testes de Isolamento de Organização
+- [ ] Testes de Isolamento de Organizacao
 - [ ] Validação Zod no endpoint
 - [ ] Dark mode e light mode funcionando
 - [ ] Responsividade verificada (desktop, tablet, mobile)
@@ -331,9 +331,9 @@ Cada tela do produto tem um checklist detalhado que o QA usa para validar a impl
 - [ ] Leitor de tela: todos os elementos importantes acessíveis
 
 ### Dados e Segurança
-- [ ] Dados filtrados por `id_organizacao` via SDK `@gravity/tenant-resolver` (sem dados de outra organização)
-- [ ] Toda resposta `fetch().json()` validada via `schema.parse()` (Mandamento 06)
-- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão (Mandamento 01)
+- [ ] Dados filtrados por `id_organizacao` via SDK `@gravity/tenant-resolver` (sem dados de outra organizacao)
+- [ ] Toda resposta `fetch().json()` validada via `schema.parse()` (Mandamento 06 — Validação de Contrato Zod)
+- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão (Mandamento 01 — Isolamento Total do Clerk)
 - [ ] Paginação funcionando (se aplicável)
 - [ ] Busca/filtros funcionando conforme spec
 - [ ] Nenhum dado sensível visível no console/network
@@ -395,22 +395,22 @@ Então o sistema exibe toast de erro "Erro ao [ação]. Tente novamente."
   E os dados do formulário NÃO são perdidos
 ```
 
-### Cenários de Isolamento de Organização
+### Cenários de Isolamento de Organizacao
 
 #### CA-005: [Nome — isolamento de dados]
 ```gherkin
-Dado que existem [recursos] da organização "Empresa A" e da organização "Empresa B"
-Quando o usuário da organização "Empresa A" acessa a lista de [recursos]
-Então apenas [recursos] da organização "Empresa A" são exibidos
-  E nenhum dado da organização "Empresa B" é visível
-  E nenhum dado da organização "Empresa B" é acessível via API
+Dado que existem [recursos] da organizacao "Empresa A" e da organizacao "Empresa B"
+Quando o usuário da organizacao "Empresa A" acessa a lista de [recursos]
+Então apenas [recursos] da organizacao "Empresa A" são exibidos
+  E nenhum dado da organizacao "Empresa B" é visível
+  E nenhum dado da organizacao "Empresa B" é acessível via API
 ```
 
 ### Cenários de Performance
 
 #### CA-006: [Nome — tempo de resposta]
 ```gherkin
-Dado que existem [X] registros de [recurso] para o organização
+Dado que existem [X] registros de [recurso] para o organizacao
 Quando o usuário acessa a lista de [recursos]
 Então a lista carrega em menos de [Y] milissegundos
   E a paginação é server-side
@@ -465,7 +465,7 @@ Então o foco segue a ordem: [elemento 1] → [elemento 2] → [elemento 3]
 - [ ] PRODUCT_CONFIG definido
 - [ ] Fragment.prisma rascunhado
 - [ ] Estimativas de complexidade por tela/funcionalidade
-- [ ] Segurança — Isolamento de Organização, Zod, auth planejados
+- [ ] Segurança — Isolamento de Organizacao, Zod, auth planejados
 
 ### Gestão
 

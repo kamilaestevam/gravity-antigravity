@@ -2,14 +2,15 @@
  * Rotas de OPE — APENAS leitura (Portal Único é fonte da verdade SISCOMEX).
  *
  * Onda 38 — DDD Cadastros: model Ope (renomeado de OPE) com fields físicos
- * sufixados em _ope; OpeHistoricoStatus com fields _ope_historico_status
- * casando com @@map. Contrato público preservado via toOpeDto/toEventoDto.
+ * sufixados em _ope; OPEHistoricoStatus (DB-1: era OpeHistoricoStatus) com
+ * fields _ope_historico_status casando com @@map. Contrato público preservado
+ * via toOpeDto/toEventoDto.
  *
  * O job de sincronização (não implementado nesta task) é o único autorizado
  * a escrever — edições manuais seriam sobrescritas no próximo ciclo.
  */
 import { Router } from 'express'
-import type { Ope as PrismaOpe, OpeHistoricoStatus as PrismaOpeEvento } from '../../../generated/index.js'
+import type { Ope as PrismaOpe, OPEHistoricoStatus as PrismaOpeEvento } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
@@ -122,7 +123,7 @@ router.get('/:id_operacao_comex/eventos', async (req, res, next) => {
       select: { suid_ope: true },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
-    const eventos = await prisma.opeHistoricoStatus.findMany({
+    const eventos = await prisma.oPEHistoricoStatus.findMany({
       where: { suid_ope_historico_status: req.params.id_operacao_comex },
       orderBy: { registrado_em_ope_historico_status: 'desc' },
       take: 100,

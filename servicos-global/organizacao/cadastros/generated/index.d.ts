@@ -39,10 +39,10 @@ export type Ncm = $Result.DefaultSelection<Prisma.$NcmPayload>
  */
 export type Ope = $Result.DefaultSelection<Prisma.$OpePayload>
 /**
- * Model OpeHistoricoStatus
+ * Model OPEHistoricoStatus
  * 
  */
-export type OpeHistoricoStatus = $Result.DefaultSelection<Prisma.$OpeHistoricoStatusPayload>
+export type OPEHistoricoStatus = $Result.DefaultSelection<Prisma.$OPEHistoricoStatusPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -218,14 +218,14 @@ export class PrismaClient<
   get ope(): Prisma.OpeDelegate<ExtArgs>;
 
   /**
-   * `prisma.opeHistoricoStatus`: Exposes CRUD operations for the **OpeHistoricoStatus** model.
+   * `prisma.oPEHistoricoStatus`: Exposes CRUD operations for the **OPEHistoricoStatus** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more OpeHistoricoStatuses
-    * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany()
+    * // Fetch zero or more OPEHistoricoStatuses
+    * const oPEHistoricoStatuses = await prisma.oPEHistoricoStatus.findMany()
     * ```
     */
-  get opeHistoricoStatus(): Prisma.OpeHistoricoStatusDelegate<ExtArgs>;
+  get oPEHistoricoStatus(): Prisma.OPEHistoricoStatusDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -672,7 +672,7 @@ export namespace Prisma {
     Unidade: 'Unidade',
     Ncm: 'Ncm',
     Ope: 'Ope',
-    OpeHistoricoStatus: 'OpeHistoricoStatus'
+    OPEHistoricoStatus: 'OPEHistoricoStatus'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -688,7 +688,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "moeda" | "unidade" | "ncm" | "ope" | "opeHistoricoStatus"
+      modelProps: "empresa" | "moeda" | "unidade" | "ncm" | "ope" | "oPEHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1042,73 +1042,73 @@ export namespace Prisma {
           }
         }
       }
-      OpeHistoricoStatus: {
-        payload: Prisma.$OpeHistoricoStatusPayload<ExtArgs>
-        fields: Prisma.OpeHistoricoStatusFieldRefs
+      OPEHistoricoStatus: {
+        payload: Prisma.$OPEHistoricoStatusPayload<ExtArgs>
+        fields: Prisma.OPEHistoricoStatusFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.OpeHistoricoStatusFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload> | null
+            args: Prisma.OPEHistoricoStatusFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           findFirst: {
-            args: Prisma.OpeHistoricoStatusFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload> | null
+            args: Prisma.OPEHistoricoStatusFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           findMany: {
-            args: Prisma.OpeHistoricoStatusFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>[]
+            args: Prisma.OPEHistoricoStatusFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>[]
           }
           create: {
-            args: Prisma.OpeHistoricoStatusCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           createMany: {
-            args: Prisma.OpeHistoricoStatusCreateManyArgs<ExtArgs>
+            args: Prisma.OPEHistoricoStatusCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>[]
+            args: Prisma.OPEHistoricoStatusCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>[]
           }
           delete: {
-            args: Prisma.OpeHistoricoStatusDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           update: {
-            args: Prisma.OpeHistoricoStatusUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           deleteMany: {
-            args: Prisma.OpeHistoricoStatusDeleteManyArgs<ExtArgs>
+            args: Prisma.OPEHistoricoStatusDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.OpeHistoricoStatusUpdateManyArgs<ExtArgs>
+            args: Prisma.OPEHistoricoStatusUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.OpeHistoricoStatusUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
+            args: Prisma.OPEHistoricoStatusUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OPEHistoricoStatusPayload>
           }
           aggregate: {
-            args: Prisma.OpeHistoricoStatusAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateOpeHistoricoStatus>
+            args: Prisma.OPEHistoricoStatusAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOPEHistoricoStatus>
           }
           groupBy: {
-            args: Prisma.OpeHistoricoStatusGroupByArgs<ExtArgs>
-            result: $Utils.Optional<OpeHistoricoStatusGroupByOutputType>[]
+            args: Prisma.OPEHistoricoStatusGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OPEHistoricoStatusGroupByOutputType>[]
           }
           count: {
-            args: Prisma.OpeHistoricoStatusCountArgs<ExtArgs>
-            result: $Utils.Optional<OpeHistoricoStatusCountAggregateOutputType> | number
+            args: Prisma.OPEHistoricoStatusCountArgs<ExtArgs>
+            result: $Utils.Optional<OPEHistoricoStatusCountAggregateOutputType> | number
           }
         }
       }
@@ -6178,16 +6178,16 @@ export namespace Prisma {
 
 
   /**
-   * Model OpeHistoricoStatus
+   * Model OPEHistoricoStatus
    */
 
-  export type AggregateOpeHistoricoStatus = {
-    _count: OpeHistoricoStatusCountAggregateOutputType | null
-    _min: OpeHistoricoStatusMinAggregateOutputType | null
-    _max: OpeHistoricoStatusMaxAggregateOutputType | null
+  export type AggregateOPEHistoricoStatus = {
+    _count: OPEHistoricoStatusCountAggregateOutputType | null
+    _min: OPEHistoricoStatusMinAggregateOutputType | null
+    _max: OPEHistoricoStatusMaxAggregateOutputType | null
   }
 
-  export type OpeHistoricoStatusMinAggregateOutputType = {
+  export type OPEHistoricoStatusMinAggregateOutputType = {
     id_ope_historico_status: string | null
     id_organizacao_ope_historico_status: string | null
     id_produto_ope_historico_status: string | null
@@ -6199,7 +6199,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status: Date | null
   }
 
-  export type OpeHistoricoStatusMaxAggregateOutputType = {
+  export type OPEHistoricoStatusMaxAggregateOutputType = {
     id_ope_historico_status: string | null
     id_organizacao_ope_historico_status: string | null
     id_produto_ope_historico_status: string | null
@@ -6211,7 +6211,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status: Date | null
   }
 
-  export type OpeHistoricoStatusCountAggregateOutputType = {
+  export type OPEHistoricoStatusCountAggregateOutputType = {
     id_ope_historico_status: number
     id_organizacao_ope_historico_status: number
     id_produto_ope_historico_status: number
@@ -6226,7 +6226,7 @@ export namespace Prisma {
   }
 
 
-  export type OpeHistoricoStatusMinAggregateInputType = {
+  export type OPEHistoricoStatusMinAggregateInputType = {
     id_ope_historico_status?: true
     id_organizacao_ope_historico_status?: true
     id_produto_ope_historico_status?: true
@@ -6238,7 +6238,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: true
   }
 
-  export type OpeHistoricoStatusMaxAggregateInputType = {
+  export type OPEHistoricoStatusMaxAggregateInputType = {
     id_ope_historico_status?: true
     id_organizacao_ope_historico_status?: true
     id_produto_ope_historico_status?: true
@@ -6250,7 +6250,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: true
   }
 
-  export type OpeHistoricoStatusCountAggregateInputType = {
+  export type OPEHistoricoStatusCountAggregateInputType = {
     id_ope_historico_status?: true
     id_organizacao_ope_historico_status?: true
     id_produto_ope_historico_status?: true
@@ -6264,79 +6264,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type OpeHistoricoStatusAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which OpeHistoricoStatus to aggregate.
+     * Filter which OPEHistoricoStatus to aggregate.
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OpeHistoricoStatuses to fetch.
+     * Determine the order of OPEHistoricoStatuses to fetch.
      */
-    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
+    orderBy?: OPEHistoricoStatusOrderByWithRelationInput | OPEHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: OpeHistoricoStatusWhereUniqueInput
+    cursor?: OPEHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
+     * Take `±n` OPEHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OpeHistoricoStatuses.
+     * Skip the first `n` OPEHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned OpeHistoricoStatuses
+     * Count returned OPEHistoricoStatuses
     **/
-    _count?: true | OpeHistoricoStatusCountAggregateInputType
+    _count?: true | OPEHistoricoStatusCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: OpeHistoricoStatusMinAggregateInputType
+    _min?: OPEHistoricoStatusMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: OpeHistoricoStatusMaxAggregateInputType
+    _max?: OPEHistoricoStatusMaxAggregateInputType
   }
 
-  export type GetOpeHistoricoStatusAggregateType<T extends OpeHistoricoStatusAggregateArgs> = {
-        [P in keyof T & keyof AggregateOpeHistoricoStatus]: P extends '_count' | 'count'
+  export type GetOPEHistoricoStatusAggregateType<T extends OPEHistoricoStatusAggregateArgs> = {
+        [P in keyof T & keyof AggregateOPEHistoricoStatus]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateOpeHistoricoStatus[P]>
-      : GetScalarType<T[P], AggregateOpeHistoricoStatus[P]>
+        : GetScalarType<T[P], AggregateOPEHistoricoStatus[P]>
+      : GetScalarType<T[P], AggregateOPEHistoricoStatus[P]>
   }
 
 
 
 
-  export type OpeHistoricoStatusGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: OpeHistoricoStatusWhereInput
-    orderBy?: OpeHistoricoStatusOrderByWithAggregationInput | OpeHistoricoStatusOrderByWithAggregationInput[]
-    by: OpeHistoricoStatusScalarFieldEnum[] | OpeHistoricoStatusScalarFieldEnum
-    having?: OpeHistoricoStatusScalarWhereWithAggregatesInput
+  export type OPEHistoricoStatusGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OPEHistoricoStatusWhereInput
+    orderBy?: OPEHistoricoStatusOrderByWithAggregationInput | OPEHistoricoStatusOrderByWithAggregationInput[]
+    by: OPEHistoricoStatusScalarFieldEnum[] | OPEHistoricoStatusScalarFieldEnum
+    having?: OPEHistoricoStatusScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: OpeHistoricoStatusCountAggregateInputType | true
-    _min?: OpeHistoricoStatusMinAggregateInputType
-    _max?: OpeHistoricoStatusMaxAggregateInputType
+    _count?: OPEHistoricoStatusCountAggregateInputType | true
+    _min?: OPEHistoricoStatusMinAggregateInputType
+    _max?: OPEHistoricoStatusMaxAggregateInputType
   }
 
-  export type OpeHistoricoStatusGroupByOutputType = {
+  export type OPEHistoricoStatusGroupByOutputType = {
     id_ope_historico_status: string
     id_organizacao_ope_historico_status: string | null
     id_produto_ope_historico_status: string | null
@@ -6347,26 +6347,26 @@ export namespace Prisma {
     origem_ope_historico_status: string
     payload_ope_historico_status: JsonValue
     registrado_em_ope_historico_status: Date
-    _count: OpeHistoricoStatusCountAggregateOutputType | null
-    _min: OpeHistoricoStatusMinAggregateOutputType | null
-    _max: OpeHistoricoStatusMaxAggregateOutputType | null
+    _count: OPEHistoricoStatusCountAggregateOutputType | null
+    _min: OPEHistoricoStatusMinAggregateOutputType | null
+    _max: OPEHistoricoStatusMaxAggregateOutputType | null
   }
 
-  type GetOpeHistoricoStatusGroupByPayload<T extends OpeHistoricoStatusGroupByArgs> = Prisma.PrismaPromise<
+  type GetOPEHistoricoStatusGroupByPayload<T extends OPEHistoricoStatusGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<OpeHistoricoStatusGroupByOutputType, T['by']> &
+      PickEnumerable<OPEHistoricoStatusGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof OpeHistoricoStatusGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof OPEHistoricoStatusGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], OpeHistoricoStatusGroupByOutputType[P]>
-            : GetScalarType<T[P], OpeHistoricoStatusGroupByOutputType[P]>
+              : GetScalarType<T[P], OPEHistoricoStatusGroupByOutputType[P]>
+            : GetScalarType<T[P], OPEHistoricoStatusGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type OpeHistoricoStatusSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OPEHistoricoStatusSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_ope_historico_status?: boolean
     id_organizacao_ope_historico_status?: boolean
     id_produto_ope_historico_status?: boolean
@@ -6377,9 +6377,9 @@ export namespace Prisma {
     origem_ope_historico_status?: boolean
     payload_ope_historico_status?: boolean
     registrado_em_ope_historico_status?: boolean
-  }, ExtArgs["result"]["opeHistoricoStatus"]>
+  }, ExtArgs["result"]["oPEHistoricoStatus"]>
 
-  export type OpeHistoricoStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OPEHistoricoStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_ope_historico_status?: boolean
     id_organizacao_ope_historico_status?: boolean
     id_produto_ope_historico_status?: boolean
@@ -6390,9 +6390,9 @@ export namespace Prisma {
     origem_ope_historico_status?: boolean
     payload_ope_historico_status?: boolean
     registrado_em_ope_historico_status?: boolean
-  }, ExtArgs["result"]["opeHistoricoStatus"]>
+  }, ExtArgs["result"]["oPEHistoricoStatus"]>
 
-  export type OpeHistoricoStatusSelectScalar = {
+  export type OPEHistoricoStatusSelectScalar = {
     id_ope_historico_status?: boolean
     id_organizacao_ope_historico_status?: boolean
     id_produto_ope_historico_status?: boolean
@@ -6406,8 +6406,8 @@ export namespace Prisma {
   }
 
 
-  export type $OpeHistoricoStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "OpeHistoricoStatus"
+  export type $OPEHistoricoStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OPEHistoricoStatus"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_ope_historico_status: string
@@ -6420,136 +6420,136 @@ export namespace Prisma {
       origem_ope_historico_status: string
       payload_ope_historico_status: Prisma.JsonValue
       registrado_em_ope_historico_status: Date
-    }, ExtArgs["result"]["opeHistoricoStatus"]>
+    }, ExtArgs["result"]["oPEHistoricoStatus"]>
     composites: {}
   }
 
-  type OpeHistoricoStatusGetPayload<S extends boolean | null | undefined | OpeHistoricoStatusDefaultArgs> = $Result.GetResult<Prisma.$OpeHistoricoStatusPayload, S>
+  type OPEHistoricoStatusGetPayload<S extends boolean | null | undefined | OPEHistoricoStatusDefaultArgs> = $Result.GetResult<Prisma.$OPEHistoricoStatusPayload, S>
 
-  type OpeHistoricoStatusCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<OpeHistoricoStatusFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: OpeHistoricoStatusCountAggregateInputType | true
+  type OPEHistoricoStatusCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OPEHistoricoStatusFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OPEHistoricoStatusCountAggregateInputType | true
     }
 
-  export interface OpeHistoricoStatusDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OpeHistoricoStatus'], meta: { name: 'OpeHistoricoStatus' } }
+  export interface OPEHistoricoStatusDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OPEHistoricoStatus'], meta: { name: 'OPEHistoricoStatus' } }
     /**
-     * Find zero or one OpeHistoricoStatus that matches the filter.
-     * @param {OpeHistoricoStatusFindUniqueArgs} args - Arguments to find a OpeHistoricoStatus
+     * Find zero or one OPEHistoricoStatus that matches the filter.
+     * @param {OPEHistoricoStatusFindUniqueArgs} args - Arguments to find a OPEHistoricoStatus
      * @example
-     * // Get one OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findUnique({
+     * // Get one OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends OpeHistoricoStatusFindUniqueArgs>(args: SelectSubset<T, OpeHistoricoStatusFindUniqueArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends OPEHistoricoStatusFindUniqueArgs>(args: SelectSubset<T, OPEHistoricoStatusFindUniqueArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one OpeHistoricoStatus that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one OPEHistoricoStatus that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {OpeHistoricoStatusFindUniqueOrThrowArgs} args - Arguments to find a OpeHistoricoStatus
+     * @param {OPEHistoricoStatusFindUniqueOrThrowArgs} args - Arguments to find a OPEHistoricoStatus
      * @example
-     * // Get one OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findUniqueOrThrow({
+     * // Get one OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends OpeHistoricoStatusFindUniqueOrThrowArgs>(args: SelectSubset<T, OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends OPEHistoricoStatusFindUniqueOrThrowArgs>(args: SelectSubset<T, OPEHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first OpeHistoricoStatus that matches the filter.
+     * Find the first OPEHistoricoStatus that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusFindFirstArgs} args - Arguments to find a OpeHistoricoStatus
+     * @param {OPEHistoricoStatusFindFirstArgs} args - Arguments to find a OPEHistoricoStatus
      * @example
-     * // Get one OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findFirst({
+     * // Get one OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends OpeHistoricoStatusFindFirstArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindFirstArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends OPEHistoricoStatusFindFirstArgs>(args?: SelectSubset<T, OPEHistoricoStatusFindFirstArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first OpeHistoricoStatus that matches the filter or
+     * Find the first OPEHistoricoStatus that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusFindFirstOrThrowArgs} args - Arguments to find a OpeHistoricoStatus
+     * @param {OPEHistoricoStatusFindFirstOrThrowArgs} args - Arguments to find a OPEHistoricoStatus
      * @example
-     * // Get one OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findFirstOrThrow({
+     * // Get one OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends OpeHistoricoStatusFindFirstOrThrowArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends OPEHistoricoStatusFindFirstOrThrowArgs>(args?: SelectSubset<T, OPEHistoricoStatusFindFirstOrThrowArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more OpeHistoricoStatuses that matches the filter.
+     * Find zero or more OPEHistoricoStatuses that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {OPEHistoricoStatusFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all OpeHistoricoStatuses
-     * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany()
+     * // Get all OPEHistoricoStatuses
+     * const oPEHistoricoStatuses = await prisma.oPEHistoricoStatus.findMany()
      * 
-     * // Get first 10 OpeHistoricoStatuses
-     * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany({ take: 10 })
+     * // Get first 10 OPEHistoricoStatuses
+     * const oPEHistoricoStatuses = await prisma.oPEHistoricoStatus.findMany({ take: 10 })
      * 
      * // Only select the `id_ope_historico_status`
-     * const opeHistoricoStatusWithId_ope_historico_statusOnly = await prisma.opeHistoricoStatus.findMany({ select: { id_ope_historico_status: true } })
+     * const oPEHistoricoStatusWithId_ope_historico_statusOnly = await prisma.oPEHistoricoStatus.findMany({ select: { id_ope_historico_status: true } })
      * 
      */
-    findMany<T extends OpeHistoricoStatusFindManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends OPEHistoricoStatusFindManyArgs>(args?: SelectSubset<T, OPEHistoricoStatusFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a OpeHistoricoStatus.
-     * @param {OpeHistoricoStatusCreateArgs} args - Arguments to create a OpeHistoricoStatus.
+     * Create a OPEHistoricoStatus.
+     * @param {OPEHistoricoStatusCreateArgs} args - Arguments to create a OPEHistoricoStatus.
      * @example
-     * // Create one OpeHistoricoStatus
-     * const OpeHistoricoStatus = await prisma.opeHistoricoStatus.create({
+     * // Create one OPEHistoricoStatus
+     * const OPEHistoricoStatus = await prisma.oPEHistoricoStatus.create({
      *   data: {
-     *     // ... data to create a OpeHistoricoStatus
+     *     // ... data to create a OPEHistoricoStatus
      *   }
      * })
      * 
      */
-    create<T extends OpeHistoricoStatusCreateArgs>(args: SelectSubset<T, OpeHistoricoStatusCreateArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends OPEHistoricoStatusCreateArgs>(args: SelectSubset<T, OPEHistoricoStatusCreateArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many OpeHistoricoStatuses.
-     * @param {OpeHistoricoStatusCreateManyArgs} args - Arguments to create many OpeHistoricoStatuses.
+     * Create many OPEHistoricoStatuses.
+     * @param {OPEHistoricoStatusCreateManyArgs} args - Arguments to create many OPEHistoricoStatuses.
      * @example
-     * // Create many OpeHistoricoStatuses
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.createMany({
+     * // Create many OPEHistoricoStatuses
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends OpeHistoricoStatusCreateManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends OPEHistoricoStatusCreateManyArgs>(args?: SelectSubset<T, OPEHistoricoStatusCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many OpeHistoricoStatuses and returns the data saved in the database.
-     * @param {OpeHistoricoStatusCreateManyAndReturnArgs} args - Arguments to create many OpeHistoricoStatuses.
+     * Create many OPEHistoricoStatuses and returns the data saved in the database.
+     * @param {OPEHistoricoStatusCreateManyAndReturnArgs} args - Arguments to create many OPEHistoricoStatuses.
      * @example
-     * // Create many OpeHistoricoStatuses
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.createManyAndReturn({
+     * // Create many OPEHistoricoStatuses
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many OpeHistoricoStatuses and only return the `id_ope_historico_status`
-     * const opeHistoricoStatusWithId_ope_historico_statusOnly = await prisma.opeHistoricoStatus.createManyAndReturn({ 
+     * // Create many OPEHistoricoStatuses and only return the `id_ope_historico_status`
+     * const oPEHistoricoStatusWithId_ope_historico_statusOnly = await prisma.oPEHistoricoStatus.createManyAndReturn({ 
      *   select: { id_ope_historico_status: true },
      *   data: [
      *     // ... provide data here
@@ -6559,28 +6559,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends OpeHistoricoStatusCreateManyAndReturnArgs>(args?: SelectSubset<T, OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends OPEHistoricoStatusCreateManyAndReturnArgs>(args?: SelectSubset<T, OPEHistoricoStatusCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a OpeHistoricoStatus.
-     * @param {OpeHistoricoStatusDeleteArgs} args - Arguments to delete one OpeHistoricoStatus.
+     * Delete a OPEHistoricoStatus.
+     * @param {OPEHistoricoStatusDeleteArgs} args - Arguments to delete one OPEHistoricoStatus.
      * @example
-     * // Delete one OpeHistoricoStatus
-     * const OpeHistoricoStatus = await prisma.opeHistoricoStatus.delete({
+     * // Delete one OPEHistoricoStatus
+     * const OPEHistoricoStatus = await prisma.oPEHistoricoStatus.delete({
      *   where: {
-     *     // ... filter to delete one OpeHistoricoStatus
+     *     // ... filter to delete one OPEHistoricoStatus
      *   }
      * })
      * 
      */
-    delete<T extends OpeHistoricoStatusDeleteArgs>(args: SelectSubset<T, OpeHistoricoStatusDeleteArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends OPEHistoricoStatusDeleteArgs>(args: SelectSubset<T, OPEHistoricoStatusDeleteArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one OpeHistoricoStatus.
-     * @param {OpeHistoricoStatusUpdateArgs} args - Arguments to update one OpeHistoricoStatus.
+     * Update one OPEHistoricoStatus.
+     * @param {OPEHistoricoStatusUpdateArgs} args - Arguments to update one OPEHistoricoStatus.
      * @example
-     * // Update one OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.update({
+     * // Update one OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6590,30 +6590,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends OpeHistoricoStatusUpdateArgs>(args: SelectSubset<T, OpeHistoricoStatusUpdateArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends OPEHistoricoStatusUpdateArgs>(args: SelectSubset<T, OPEHistoricoStatusUpdateArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more OpeHistoricoStatuses.
-     * @param {OpeHistoricoStatusDeleteManyArgs} args - Arguments to filter OpeHistoricoStatuses to delete.
+     * Delete zero or more OPEHistoricoStatuses.
+     * @param {OPEHistoricoStatusDeleteManyArgs} args - Arguments to filter OPEHistoricoStatuses to delete.
      * @example
-     * // Delete a few OpeHistoricoStatuses
-     * const { count } = await prisma.opeHistoricoStatus.deleteMany({
+     * // Delete a few OPEHistoricoStatuses
+     * const { count } = await prisma.oPEHistoricoStatus.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends OpeHistoricoStatusDeleteManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends OPEHistoricoStatusDeleteManyArgs>(args?: SelectSubset<T, OPEHistoricoStatusDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more OpeHistoricoStatuses.
+     * Update zero or more OPEHistoricoStatuses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {OPEHistoricoStatusUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many OpeHistoricoStatuses
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.updateMany({
+     * // Update many OPEHistoricoStatuses
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6623,56 +6623,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends OpeHistoricoStatusUpdateManyArgs>(args: SelectSubset<T, OpeHistoricoStatusUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends OPEHistoricoStatusUpdateManyArgs>(args: SelectSubset<T, OPEHistoricoStatusUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one OpeHistoricoStatus.
-     * @param {OpeHistoricoStatusUpsertArgs} args - Arguments to update or create a OpeHistoricoStatus.
+     * Create or update one OPEHistoricoStatus.
+     * @param {OPEHistoricoStatusUpsertArgs} args - Arguments to update or create a OPEHistoricoStatus.
      * @example
-     * // Update or create a OpeHistoricoStatus
-     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.upsert({
+     * // Update or create a OPEHistoricoStatus
+     * const oPEHistoricoStatus = await prisma.oPEHistoricoStatus.upsert({
      *   create: {
-     *     // ... data to create a OpeHistoricoStatus
+     *     // ... data to create a OPEHistoricoStatus
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the OpeHistoricoStatus we want to update
+     *     // ... the filter for the OPEHistoricoStatus we want to update
      *   }
      * })
      */
-    upsert<T extends OpeHistoricoStatusUpsertArgs>(args: SelectSubset<T, OpeHistoricoStatusUpsertArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends OPEHistoricoStatusUpsertArgs>(args: SelectSubset<T, OPEHistoricoStatusUpsertArgs<ExtArgs>>): Prisma__OPEHistoricoStatusClient<$Result.GetResult<Prisma.$OPEHistoricoStatusPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of OpeHistoricoStatuses.
+     * Count the number of OPEHistoricoStatuses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusCountArgs} args - Arguments to filter OpeHistoricoStatuses to count.
+     * @param {OPEHistoricoStatusCountArgs} args - Arguments to filter OPEHistoricoStatuses to count.
      * @example
-     * // Count the number of OpeHistoricoStatuses
-     * const count = await prisma.opeHistoricoStatus.count({
+     * // Count the number of OPEHistoricoStatuses
+     * const count = await prisma.oPEHistoricoStatus.count({
      *   where: {
-     *     // ... the filter for the OpeHistoricoStatuses we want to count
+     *     // ... the filter for the OPEHistoricoStatuses we want to count
      *   }
      * })
     **/
-    count<T extends OpeHistoricoStatusCountArgs>(
-      args?: Subset<T, OpeHistoricoStatusCountArgs>,
+    count<T extends OPEHistoricoStatusCountArgs>(
+      args?: Subset<T, OPEHistoricoStatusCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], OpeHistoricoStatusCountAggregateOutputType>
+          : GetScalarType<T['select'], OPEHistoricoStatusCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a OpeHistoricoStatus.
+     * Allows you to perform aggregations operations on a OPEHistoricoStatus.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {OPEHistoricoStatusAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -6692,13 +6692,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends OpeHistoricoStatusAggregateArgs>(args: Subset<T, OpeHistoricoStatusAggregateArgs>): Prisma.PrismaPromise<GetOpeHistoricoStatusAggregateType<T>>
+    aggregate<T extends OPEHistoricoStatusAggregateArgs>(args: Subset<T, OPEHistoricoStatusAggregateArgs>): Prisma.PrismaPromise<GetOPEHistoricoStatusAggregateType<T>>
 
     /**
-     * Group by OpeHistoricoStatus.
+     * Group by OPEHistoricoStatus.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OpeHistoricoStatusGroupByArgs} args - Group by arguments.
+     * @param {OPEHistoricoStatusGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -6713,14 +6713,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends OpeHistoricoStatusGroupByArgs,
+      T extends OPEHistoricoStatusGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: OpeHistoricoStatusGroupByArgs['orderBy'] }
-        : { orderBy?: OpeHistoricoStatusGroupByArgs['orderBy'] },
+        ? { orderBy: OPEHistoricoStatusGroupByArgs['orderBy'] }
+        : { orderBy?: OPEHistoricoStatusGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -6769,20 +6769,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, OpeHistoricoStatusGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOpeHistoricoStatusGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, OPEHistoricoStatusGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOPEHistoricoStatusGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the OpeHistoricoStatus model
+   * Fields of the OPEHistoricoStatus model
    */
-  readonly fields: OpeHistoricoStatusFieldRefs;
+  readonly fields: OPEHistoricoStatusFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for OpeHistoricoStatus.
+   * The delegate class that acts as a "Promise-like" for OPEHistoricoStatus.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__OpeHistoricoStatusClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__OPEHistoricoStatusClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -6810,304 +6810,304 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the OpeHistoricoStatus model
+   * Fields of the OPEHistoricoStatus model
    */ 
-  interface OpeHistoricoStatusFieldRefs {
-    readonly id_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly id_organizacao_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly id_produto_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly id_usuario_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly suid_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly status_anterior_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly status_novo_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly origem_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly payload_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'Json'>
-    readonly registrado_em_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'DateTime'>
+  interface OPEHistoricoStatusFieldRefs {
+    readonly id_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly id_organizacao_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly id_produto_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly id_usuario_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly suid_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly status_anterior_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly status_novo_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly origem_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'String'>
+    readonly payload_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'Json'>
+    readonly registrado_em_ope_historico_status: FieldRef<"OPEHistoricoStatus", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * OpeHistoricoStatus findUnique
+   * OPEHistoricoStatus findUnique
    */
-  export type OpeHistoricoStatusFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which OpeHistoricoStatus to fetch.
+     * Filter, which OPEHistoricoStatus to fetch.
      */
-    where: OpeHistoricoStatusWhereUniqueInput
+    where: OPEHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * OpeHistoricoStatus findUniqueOrThrow
+   * OPEHistoricoStatus findUniqueOrThrow
    */
-  export type OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which OpeHistoricoStatus to fetch.
+     * Filter, which OPEHistoricoStatus to fetch.
      */
-    where: OpeHistoricoStatusWhereUniqueInput
+    where: OPEHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * OpeHistoricoStatus findFirst
+   * OPEHistoricoStatus findFirst
    */
-  export type OpeHistoricoStatusFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which OpeHistoricoStatus to fetch.
+     * Filter, which OPEHistoricoStatus to fetch.
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OpeHistoricoStatuses to fetch.
+     * Determine the order of OPEHistoricoStatuses to fetch.
      */
-    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
+    orderBy?: OPEHistoricoStatusOrderByWithRelationInput | OPEHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for OpeHistoricoStatuses.
+     * Sets the position for searching for OPEHistoricoStatuses.
      */
-    cursor?: OpeHistoricoStatusWhereUniqueInput
+    cursor?: OPEHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
+     * Take `±n` OPEHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OpeHistoricoStatuses.
+     * Skip the first `n` OPEHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of OpeHistoricoStatuses.
+     * Filter by unique combinations of OPEHistoricoStatuses.
      */
-    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
+    distinct?: OPEHistoricoStatusScalarFieldEnum | OPEHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * OpeHistoricoStatus findFirstOrThrow
+   * OPEHistoricoStatus findFirstOrThrow
    */
-  export type OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which OpeHistoricoStatus to fetch.
+     * Filter, which OPEHistoricoStatus to fetch.
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OpeHistoricoStatuses to fetch.
+     * Determine the order of OPEHistoricoStatuses to fetch.
      */
-    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
+    orderBy?: OPEHistoricoStatusOrderByWithRelationInput | OPEHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for OpeHistoricoStatuses.
+     * Sets the position for searching for OPEHistoricoStatuses.
      */
-    cursor?: OpeHistoricoStatusWhereUniqueInput
+    cursor?: OPEHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
+     * Take `±n` OPEHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OpeHistoricoStatuses.
+     * Skip the first `n` OPEHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of OpeHistoricoStatuses.
+     * Filter by unique combinations of OPEHistoricoStatuses.
      */
-    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
+    distinct?: OPEHistoricoStatusScalarFieldEnum | OPEHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * OpeHistoricoStatus findMany
+   * OPEHistoricoStatus findMany
    */
-  export type OpeHistoricoStatusFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which OpeHistoricoStatuses to fetch.
+     * Filter, which OPEHistoricoStatuses to fetch.
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OpeHistoricoStatuses to fetch.
+     * Determine the order of OPEHistoricoStatuses to fetch.
      */
-    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
+    orderBy?: OPEHistoricoStatusOrderByWithRelationInput | OPEHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing OpeHistoricoStatuses.
+     * Sets the position for listing OPEHistoricoStatuses.
      */
-    cursor?: OpeHistoricoStatusWhereUniqueInput
+    cursor?: OPEHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
+     * Take `±n` OPEHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OpeHistoricoStatuses.
+     * Skip the first `n` OPEHistoricoStatuses.
      */
     skip?: number
-    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
+    distinct?: OPEHistoricoStatusScalarFieldEnum | OPEHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * OpeHistoricoStatus create
+   * OPEHistoricoStatus create
    */
-  export type OpeHistoricoStatusCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The data needed to create a OpeHistoricoStatus.
+     * The data needed to create a OPEHistoricoStatus.
      */
-    data: XOR<OpeHistoricoStatusCreateInput, OpeHistoricoStatusUncheckedCreateInput>
+    data: XOR<OPEHistoricoStatusCreateInput, OPEHistoricoStatusUncheckedCreateInput>
   }
 
   /**
-   * OpeHistoricoStatus createMany
+   * OPEHistoricoStatus createMany
    */
-  export type OpeHistoricoStatusCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many OpeHistoricoStatuses.
+     * The data used to create many OPEHistoricoStatuses.
      */
-    data: OpeHistoricoStatusCreateManyInput | OpeHistoricoStatusCreateManyInput[]
+    data: OPEHistoricoStatusCreateManyInput | OPEHistoricoStatusCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * OpeHistoricoStatus createManyAndReturn
+   * OPEHistoricoStatus createManyAndReturn
    */
-  export type OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelectCreateManyAndReturn<ExtArgs> | null
+    select?: OPEHistoricoStatusSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many OpeHistoricoStatuses.
+     * The data used to create many OPEHistoricoStatuses.
      */
-    data: OpeHistoricoStatusCreateManyInput | OpeHistoricoStatusCreateManyInput[]
+    data: OPEHistoricoStatusCreateManyInput | OPEHistoricoStatusCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * OpeHistoricoStatus update
+   * OPEHistoricoStatus update
    */
-  export type OpeHistoricoStatusUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The data needed to update a OpeHistoricoStatus.
+     * The data needed to update a OPEHistoricoStatus.
      */
-    data: XOR<OpeHistoricoStatusUpdateInput, OpeHistoricoStatusUncheckedUpdateInput>
+    data: XOR<OPEHistoricoStatusUpdateInput, OPEHistoricoStatusUncheckedUpdateInput>
     /**
-     * Choose, which OpeHistoricoStatus to update.
+     * Choose, which OPEHistoricoStatus to update.
      */
-    where: OpeHistoricoStatusWhereUniqueInput
+    where: OPEHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * OpeHistoricoStatus updateMany
+   * OPEHistoricoStatus updateMany
    */
-  export type OpeHistoricoStatusUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update OpeHistoricoStatuses.
+     * The data used to update OPEHistoricoStatuses.
      */
-    data: XOR<OpeHistoricoStatusUpdateManyMutationInput, OpeHistoricoStatusUncheckedUpdateManyInput>
+    data: XOR<OPEHistoricoStatusUpdateManyMutationInput, OPEHistoricoStatusUncheckedUpdateManyInput>
     /**
-     * Filter which OpeHistoricoStatuses to update
+     * Filter which OPEHistoricoStatuses to update
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
   }
 
   /**
-   * OpeHistoricoStatus upsert
+   * OPEHistoricoStatus upsert
    */
-  export type OpeHistoricoStatusUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The filter to search for the OpeHistoricoStatus to update in case it exists.
+     * The filter to search for the OPEHistoricoStatus to update in case it exists.
      */
-    where: OpeHistoricoStatusWhereUniqueInput
+    where: OPEHistoricoStatusWhereUniqueInput
     /**
-     * In case the OpeHistoricoStatus found by the `where` argument doesn't exist, create a new OpeHistoricoStatus with this data.
+     * In case the OPEHistoricoStatus found by the `where` argument doesn't exist, create a new OPEHistoricoStatus with this data.
      */
-    create: XOR<OpeHistoricoStatusCreateInput, OpeHistoricoStatusUncheckedCreateInput>
+    create: XOR<OPEHistoricoStatusCreateInput, OPEHistoricoStatusUncheckedCreateInput>
     /**
-     * In case the OpeHistoricoStatus was found with the provided `where` argument, update it with this data.
+     * In case the OPEHistoricoStatus was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<OpeHistoricoStatusUpdateInput, OpeHistoricoStatusUncheckedUpdateInput>
+    update: XOR<OPEHistoricoStatusUpdateInput, OPEHistoricoStatusUncheckedUpdateInput>
   }
 
   /**
-   * OpeHistoricoStatus delete
+   * OPEHistoricoStatus delete
    */
-  export type OpeHistoricoStatusDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter which OpeHistoricoStatus to delete.
+     * Filter which OPEHistoricoStatus to delete.
      */
-    where: OpeHistoricoStatusWhereUniqueInput
+    where: OPEHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * OpeHistoricoStatus deleteMany
+   * OPEHistoricoStatus deleteMany
    */
-  export type OpeHistoricoStatusDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which OpeHistoricoStatuses to delete
+     * Filter which OPEHistoricoStatuses to delete
      */
-    where?: OpeHistoricoStatusWhereInput
+    where?: OPEHistoricoStatusWhereInput
   }
 
   /**
-   * OpeHistoricoStatus without action
+   * OPEHistoricoStatus without action
    */
-  export type OpeHistoricoStatusDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OPEHistoricoStatusDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OpeHistoricoStatus
+     * Select specific fields to fetch from the OPEHistoricoStatus
      */
-    select?: OpeHistoricoStatusSelect<ExtArgs> | null
+    select?: OPEHistoricoStatusSelect<ExtArgs> | null
   }
 
 
@@ -7219,7 +7219,7 @@ export namespace Prisma {
   export type OpeScalarFieldEnum = (typeof OpeScalarFieldEnum)[keyof typeof OpeScalarFieldEnum]
 
 
-  export const OpeHistoricoStatusScalarFieldEnum: {
+  export const OPEHistoricoStatusScalarFieldEnum: {
     id_ope_historico_status: 'id_ope_historico_status',
     id_organizacao_ope_historico_status: 'id_organizacao_ope_historico_status',
     id_produto_ope_historico_status: 'id_produto_ope_historico_status',
@@ -7232,7 +7232,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status: 'registrado_em_ope_historico_status'
   };
 
-  export type OpeHistoricoStatusScalarFieldEnum = (typeof OpeHistoricoStatusScalarFieldEnum)[keyof typeof OpeHistoricoStatusScalarFieldEnum]
+  export type OPEHistoricoStatusScalarFieldEnum = (typeof OPEHistoricoStatusScalarFieldEnum)[keyof typeof OPEHistoricoStatusScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -7812,23 +7812,23 @@ export namespace Prisma {
     origem_ope?: StringWithAggregatesFilter<"Ope"> | string
   }
 
-  export type OpeHistoricoStatusWhereInput = {
-    AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    OR?: OpeHistoricoStatusWhereInput[]
-    NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    id_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    id_organizacao_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    id_produto_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    id_usuario_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    suid_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    status_anterior_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    origem_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    payload_ope_historico_status?: JsonFilter<"OpeHistoricoStatus">
-    registrado_em_ope_historico_status?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
+  export type OPEHistoricoStatusWhereInput = {
+    AND?: OPEHistoricoStatusWhereInput | OPEHistoricoStatusWhereInput[]
+    OR?: OPEHistoricoStatusWhereInput[]
+    NOT?: OPEHistoricoStatusWhereInput | OPEHistoricoStatusWhereInput[]
+    id_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    id_organizacao_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    origem_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonFilter<"OPEHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeFilter<"OPEHistoricoStatus"> | Date | string
   }
 
-  export type OpeHistoricoStatusOrderByWithRelationInput = {
+  export type OPEHistoricoStatusOrderByWithRelationInput = {
     id_ope_historico_status?: SortOrder
     id_organizacao_ope_historico_status?: SortOrderInput | SortOrder
     id_produto_ope_historico_status?: SortOrderInput | SortOrder
@@ -7841,23 +7841,23 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
-  export type OpeHistoricoStatusWhereUniqueInput = Prisma.AtLeast<{
+  export type OPEHistoricoStatusWhereUniqueInput = Prisma.AtLeast<{
     id_ope_historico_status?: string
-    AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    OR?: OpeHistoricoStatusWhereInput[]
-    NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    id_organizacao_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    id_produto_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    id_usuario_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    suid_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    status_anterior_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    origem_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
-    payload_ope_historico_status?: JsonFilter<"OpeHistoricoStatus">
-    registrado_em_ope_historico_status?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
+    AND?: OPEHistoricoStatusWhereInput | OPEHistoricoStatusWhereInput[]
+    OR?: OPEHistoricoStatusWhereInput[]
+    NOT?: OPEHistoricoStatusWhereInput | OPEHistoricoStatusWhereInput[]
+    id_organizacao_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableFilter<"OPEHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    origem_ope_historico_status?: StringFilter<"OPEHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonFilter<"OPEHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeFilter<"OPEHistoricoStatus"> | Date | string
   }, "id_ope_historico_status">
 
-  export type OpeHistoricoStatusOrderByWithAggregationInput = {
+  export type OPEHistoricoStatusOrderByWithAggregationInput = {
     id_ope_historico_status?: SortOrder
     id_organizacao_ope_historico_status?: SortOrderInput | SortOrder
     id_produto_ope_historico_status?: SortOrderInput | SortOrder
@@ -7868,25 +7868,25 @@ export namespace Prisma {
     origem_ope_historico_status?: SortOrder
     payload_ope_historico_status?: SortOrder
     registrado_em_ope_historico_status?: SortOrder
-    _count?: OpeHistoricoStatusCountOrderByAggregateInput
-    _max?: OpeHistoricoStatusMaxOrderByAggregateInput
-    _min?: OpeHistoricoStatusMinOrderByAggregateInput
+    _count?: OPEHistoricoStatusCountOrderByAggregateInput
+    _max?: OPEHistoricoStatusMaxOrderByAggregateInput
+    _min?: OPEHistoricoStatusMinOrderByAggregateInput
   }
 
-  export type OpeHistoricoStatusScalarWhereWithAggregatesInput = {
-    AND?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
-    OR?: OpeHistoricoStatusScalarWhereWithAggregatesInput[]
-    NOT?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
-    id_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    id_organizacao_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
-    id_produto_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
-    id_usuario_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
-    suid_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    status_anterior_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    origem_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    payload_ope_historico_status?: JsonWithAggregatesFilter<"OpeHistoricoStatus">
-    registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OpeHistoricoStatus"> | Date | string
+  export type OPEHistoricoStatusScalarWhereWithAggregatesInput = {
+    AND?: OPEHistoricoStatusScalarWhereWithAggregatesInput | OPEHistoricoStatusScalarWhereWithAggregatesInput[]
+    OR?: OPEHistoricoStatusScalarWhereWithAggregatesInput[]
+    NOT?: OPEHistoricoStatusScalarWhereWithAggregatesInput | OPEHistoricoStatusScalarWhereWithAggregatesInput[]
+    id_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
+    id_organizacao_ope_historico_status?: StringNullableWithAggregatesFilter<"OPEHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableWithAggregatesFilter<"OPEHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableWithAggregatesFilter<"OPEHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableWithAggregatesFilter<"OPEHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
+    origem_ope_historico_status?: StringWithAggregatesFilter<"OPEHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonWithAggregatesFilter<"OPEHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OPEHistoricoStatus"> | Date | string
   }
 
   export type EmpresaCreateInput = {
@@ -8442,7 +8442,7 @@ export namespace Prisma {
     origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
-  export type OpeHistoricoStatusCreateInput = {
+  export type OPEHistoricoStatusCreateInput = {
     id_ope_historico_status?: string
     id_organizacao_ope_historico_status?: string | null
     id_produto_ope_historico_status?: string | null
@@ -8455,7 +8455,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: Date | string
   }
 
-  export type OpeHistoricoStatusUncheckedCreateInput = {
+  export type OPEHistoricoStatusUncheckedCreateInput = {
     id_ope_historico_status?: string
     id_organizacao_ope_historico_status?: string | null
     id_produto_ope_historico_status?: string | null
@@ -8468,7 +8468,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: Date | string
   }
 
-  export type OpeHistoricoStatusUpdateInput = {
+  export type OPEHistoricoStatusUpdateInput = {
     id_ope_historico_status?: StringFieldUpdateOperationsInput | string
     id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8481,7 +8481,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type OpeHistoricoStatusUncheckedUpdateInput = {
+  export type OPEHistoricoStatusUncheckedUpdateInput = {
     id_ope_historico_status?: StringFieldUpdateOperationsInput | string
     id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8494,7 +8494,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type OpeHistoricoStatusCreateManyInput = {
+  export type OPEHistoricoStatusCreateManyInput = {
     id_ope_historico_status?: string
     id_organizacao_ope_historico_status?: string | null
     id_produto_ope_historico_status?: string | null
@@ -8507,7 +8507,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: Date | string
   }
 
-  export type OpeHistoricoStatusUpdateManyMutationInput = {
+  export type OPEHistoricoStatusUpdateManyMutationInput = {
     id_ope_historico_status?: StringFieldUpdateOperationsInput | string
     id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8520,7 +8520,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type OpeHistoricoStatusUncheckedUpdateManyInput = {
+  export type OPEHistoricoStatusUncheckedUpdateManyInput = {
     id_ope_historico_status?: StringFieldUpdateOperationsInput | string
     id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
     id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8953,7 +8953,7 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type OpeHistoricoStatusCountOrderByAggregateInput = {
+  export type OPEHistoricoStatusCountOrderByAggregateInput = {
     id_ope_historico_status?: SortOrder
     id_organizacao_ope_historico_status?: SortOrder
     id_produto_ope_historico_status?: SortOrder
@@ -8966,7 +8966,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
-  export type OpeHistoricoStatusMaxOrderByAggregateInput = {
+  export type OPEHistoricoStatusMaxOrderByAggregateInput = {
     id_ope_historico_status?: SortOrder
     id_organizacao_ope_historico_status?: SortOrder
     id_produto_ope_historico_status?: SortOrder
@@ -8978,7 +8978,7 @@ export namespace Prisma {
     registrado_em_ope_historico_status?: SortOrder
   }
 
-  export type OpeHistoricoStatusMinOrderByAggregateInput = {
+  export type OPEHistoricoStatusMinOrderByAggregateInput = {
     id_ope_historico_status?: SortOrder
     id_organizacao_ope_historico_status?: SortOrder
     id_produto_ope_historico_status?: SortOrder
@@ -9236,9 +9236,9 @@ export namespace Prisma {
      */
     export type OpeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OpeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use OpeHistoricoStatusDefaultArgs instead
+     * @deprecated Use OPEHistoricoStatusDefaultArgs instead
      */
-    export type OpeHistoricoStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OpeHistoricoStatusDefaultArgs<ExtArgs>
+    export type OPEHistoricoStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OPEHistoricoStatusDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

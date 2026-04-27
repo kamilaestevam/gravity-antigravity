@@ -177,11 +177,12 @@ model Ope {
 }
 
 // ---------------------------------------------------------------------
-// OpeHistoricoStatus — log de transições de status do OPE
+// OPEHistoricoStatus — log de transições de status do OPE
 // Onda 38: corrigido sufixo (era _historico_status_ope; correto é
 // _ope_historico_status casando com @@map "ope_historico_status").
+// Onda DB-1 (DDD): renomeado de OpeHistoricoStatus para OPEHistoricoStatus.
 // ---------------------------------------------------------------------
-model OpeHistoricoStatus {
+model OPEHistoricoStatus {
   id_ope_historico_status                String   @id @default(cuid())
 
   // Identificação tenant

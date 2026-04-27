@@ -201,7 +201,7 @@ exports.Prisma.OpeScalarFieldEnum = {
   origem_ope: 'origem_ope'
 };
 
-exports.Prisma.OpeHistoricoStatusScalarFieldEnum = {
+exports.Prisma.OPEHistoricoStatusScalarFieldEnum = {
   id_ope_historico_status: 'id_ope_historico_status',
   id_organizacao_ope_historico_status: 'id_organizacao_ope_historico_status',
   id_produto_ope_historico_status: 'id_produto_ope_historico_status',
@@ -246,7 +246,7 @@ exports.Prisma.ModelName = {
   Unidade: 'Unidade',
   Ncm: 'Ncm',
   Ope: 'Ope',
-  OpeHistoricoStatus: 'OpeHistoricoStatus'
+  OPEHistoricoStatus: 'OPEHistoricoStatus'
 };
 
 /**

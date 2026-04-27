@@ -1,3 +1,8 @@
+---
+name: antigravity-9-mandamentos
+description: "9 regras absolutas e não-negociáveis do Gravity. Ler antes de qualquer tarefa. Cada Mandamento existe porque já causou bug em produção. Violação = trabalho rejeitado pelo QA, sem exceção."
+---
+
 # 9 Mandamentos do Gravity
 
 > **OBRIGATÓRIA — Ler antes de qualquer tarefa.**
@@ -16,7 +21,7 @@ Nunca use `user.publicMetadata.role` no frontend ou backend.
 ✅ A **fonte da verdade** para permissões é o nosso Banco de Dados (Prisma).
 O Frontend deve ler a patente do usuário a partir do nosso próprio backend (ex: consumindo o JSON da rota `/api/v1/me` através de um estado global).
 
-**Por quê:** Clerk é provedor terceirizado. Manter autorização lá cria acoplamento, dificulta auditoria, viola o Isolamento de Organização e impede que o banco seja a fonte única de verdade.
+**Por quê:** Clerk é provedor terceirizado. Manter autorização lá cria acoplamento, dificulta auditoria, viola o Isolamento de Organizacao e impede que o banco seja a fonte única de verdade.
 
 ---
 
@@ -57,7 +62,7 @@ Usuários **Master** (`gravity_admin = true`) ou **Super Admins** (`tipo_usuario
 
 O código deve garantir que o **Frontend e o Backend** reconheçam o acesso global deles, **independentemente** de estarem vinculados fisicamente na tabela `UsuarioWorkspace`.
 
-**Por quê:** admins Gravity supervisionam todos os workspaces do organização — não precisam de membership formal. Tratá-los como usuários comuns os bloqueia da própria ferramenta de administração.
+**Por quê:** admins Gravity supervisionam todos os workspaces da organizacao — não precisam de membership formal. Tratá-los como usuários comuns os bloqueia da própria ferramenta de administração.
 
 ---
 
@@ -151,6 +156,8 @@ const role = meResponseSchema.parse(data).usuario.tipo_usuario
 const role = data?.usuario?.tipo_usuario ?? null
 if (!role) console.warn('[useLoadSystemRole] tipo_usuario ausente na resposta de /me', data)
 ```
+
+> ⚠️ **NOTA DE ARQUITETURA:** O uso de `console.warn` acima é tolerado APENAS no Frontend (React) onde o logger estruturado pode não estar disponível. No Backend, o uso de `console.*` é PROIBIDO; deve-se usar sempre o `logger` (ver [Observabilidade](../../../arquitetura/observabilidade/SKILL.md)).
 
 **Por quê:** nível de acesso errado não quebra a tela — exibe permissão falsa. A aplicação continua rodando e ninguém percebe. Autorização deve falhar alto ou deixar rastro, nunca engolir o problema em silêncio.
 

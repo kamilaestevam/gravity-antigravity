@@ -62,7 +62,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const where: Record<string, unknown> = { tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
-    const credenciais = await prisma.siscomexCredencial.findMany({
+    const credenciais = await prisma.portalCredencial.findMany({
       where,
       select: {
         id: true,
@@ -95,7 +95,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const body = CredencialCreateSchema.parse(req.body)
 
     // Verificar se ja existe credencial do mesmo tipo para essa empresa
-    const existente = await prisma.siscomexCredencial.findFirst({
+    const existente = await prisma.portalCredencial.findFirst({
       where: {
         tenant_id: tenantId,
         company_id: body.company_id,
@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
-    const credencial = await prisma.siscomexCredencial.create({ data })
+    const credencial = await prisma.portalCredencial.create({ data })
 
     res.status(201).json({
       id: credencial.id,
@@ -158,7 +158,7 @@ router.put('/:id_credencial_portal_unico', async (req: Request, res: Response, n
   try {
     const { tenantId, userId, prisma } = ctx(req)
 
-    const existing = await prisma.siscomexCredencial.findFirst({
+    const existing = await prisma.portalCredencial.findFirst({
       where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 
@@ -195,7 +195,7 @@ router.put('/:id_credencial_portal_unico', async (req: Request, res: Response, n
       throw new AppError('Nenhum campo para atualizar', 400, 'NO_FIELDS')
     }
 
-    await prisma.siscomexCredencial.update({
+    await prisma.portalCredencial.update({
       where: { id: req.params.id_credencial_portal_unico },
       data: updateData,
     })
@@ -214,13 +214,13 @@ router.delete('/:id_credencial_portal_unico', async (req: Request, res: Response
   try {
     const { tenantId, prisma } = ctx(req)
 
-    const existing = await prisma.siscomexCredencial.findFirst({
+    const existing = await prisma.portalCredencial.findFirst({
       where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')
 
-    await prisma.siscomexCredencial.update({
+    await prisma.portalCredencial.update({
       where: { id: req.params.id_credencial_portal_unico },
       data: { status: 'revogado' },
     })
@@ -239,7 +239,7 @@ router.post('/:id_credencial_portal_unico/testar', async (req: Request, res: Res
   try {
     const { tenantId, prisma } = ctx(req)
 
-    const existing = await prisma.siscomexCredencial.findFirst({
+    const existing = await prisma.portalCredencial.findFirst({
       where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
     })
 

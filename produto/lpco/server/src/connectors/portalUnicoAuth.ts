@@ -5,7 +5,7 @@
  * 1. Certificado Digital (e-CNPJ/e-CPF) — mTLS → JWT 1h
  * 2. Token OAuth2 (gov.br/Serpro) — client_credentials → Bearer token
  *
- * Credenciais armazenadas com AES-256-GCM (model SiscomexCredencial)
+ * Credenciais armazenadas com AES-256-GCM (model PortalCredencial)
  * JWT cacheado em memoria — NUNCA no banco
  */
 
@@ -146,7 +146,7 @@ export class PortalUnicoAuth {
     }
 
     // 2. Buscar credenciais do banco — priorizar certificado digital
-    const credenciais = await this.prisma.siscomexCredencial.findMany({
+    const credenciais = await this.prisma.portalCredencial.findMany({
       where: { tenant_id: tenantId, company_id: companyId, status: 'ativo' },
       orderBy: { tipo_auth: 'asc' }, // CERTIFICADO_DIGITAL vem antes de TOKEN_OAUTH2
     })
@@ -198,7 +198,7 @@ export class PortalUnicoAuth {
         this.tokenCache.set(cacheKey, result)
 
         // 5. Atualizar ultimo_uso
-        await this.prisma.siscomexCredencial.update({
+        await this.prisma.portalCredencial.update({
           where: { id: cred.id },
           data: { ultimo_uso: new Date() },
         }).catch(() => {})

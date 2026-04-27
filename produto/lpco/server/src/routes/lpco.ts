@@ -191,10 +191,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
       // Criar itens se fornecidos
       if (body.itens?.length) {
-        const itemCount = await tx.lpcoItem.count({ where: { tenant_id: tenantId } })
+        const itemCount = await tx.lpcoItens.count({ where: { tenant_id: tenantId } })
         for (let i = 0; i < body.itens.length; i++) {
           const item = body.itens[i]
-          await tx.lpcoItem.create({
+          await tx.lpcoItens.create({
             data: {
               id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
               tenant_id: tenantId,
@@ -425,10 +425,10 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
       })
 
       // Duplicar itens
-      const itemCount = await tx.lpcoItem.count({ where: { tenant_id: tenantId } })
+      const itemCount = await tx.lpcoItens.count({ where: { tenant_id: tenantId } })
       for (let i = 0; i < original.itens.length; i++) {
         const item = original.itens[i]
-        await tx.lpcoItem.create({
+        await tx.lpcoItens.create({
           data: {
             id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
             tenant_id: tenantId,

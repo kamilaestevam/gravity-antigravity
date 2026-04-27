@@ -6,7 +6,7 @@
  *
  * Prefixos:
  * - lpco_id_ — Lpco
- * - lpit_id_ — LpcoItem
+ * - lpit_id_ — LpcoItens
  * - lpex_id_ — LpcoExigencia
  * - lpvc_id_ — LpcoVinculo
  */

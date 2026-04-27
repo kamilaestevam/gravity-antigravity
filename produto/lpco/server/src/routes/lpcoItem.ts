@@ -21,7 +21,7 @@ function ctx(req: Request) {
 router.get('/:id/itens', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
-    const itens = await prisma.lpcoItem.findMany({
+    const itens = await prisma.lpcoItens.findMany({
       where: { lpco_id: req.params.id, tenant_id: tenantId },
       orderBy: { created_at: 'asc' },
     })
@@ -40,8 +40,8 @@ router.post('/:id/itens', async (req: Request, res: Response, next: NextFunction
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
     if (lpco.status !== 'rascunho') throw new AppError('Itens so podem ser adicionados em rascunho', 422, 'NOT_RASCUNHO')
 
-    const count = await prisma.lpcoItem.count({ where: { tenant_id: tenantId } })
-    const item = await prisma.lpcoItem.create({
+    const count = await prisma.lpcoItens.count({ where: { tenant_id: tenantId } })
+    const item = await prisma.lpcoItens.create({
       data: {
         id: gerarId(PREFIXOS.ITEM, count + 1),
         tenant_id: tenantId,
@@ -63,7 +63,7 @@ router.put('/:id/itens/:itemId', async (req: Request, res: Response, next: NextF
     const { tenantId, userId, prisma } = ctx(req)
     const body = LpcoItemUpdateSchema.parse(req.body)
 
-    const existing = await prisma.lpcoItem.findFirst({
+    const existing = await prisma.lpcoItens.findFirst({
       where: { id: req.params.itemId, lpco_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Item nao encontrado', 404, 'NOT_FOUND')
@@ -71,7 +71,7 @@ router.put('/:id/itens/:itemId', async (req: Request, res: Response, next: NextF
     const lpco = await prisma.lpco.findFirst({ where: { id: req.params.id, tenant_id: tenantId } })
     if (lpco?.status !== 'rascunho') throw new AppError('Itens so podem ser editados em rascunho', 422, 'NOT_RASCUNHO')
 
-    const item = await prisma.lpcoItem.update({
+    const item = await prisma.lpcoItens.update({
       where: { id: req.params.itemId },
       data: { ...body, atributos: body.atributos ?? undefined },
     })
@@ -84,7 +84,7 @@ router.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: Ne
   try {
     const { tenantId, prisma } = ctx(req)
 
-    const existing = await prisma.lpcoItem.findFirst({
+    const existing = await prisma.lpcoItens.findFirst({
       where: { id: req.params.itemId, lpco_id: req.params.id, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Item nao encontrado', 404, 'NOT_FOUND')
@@ -92,7 +92,7 @@ router.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: Ne
     const lpco = await prisma.lpco.findFirst({ where: { id: req.params.id, tenant_id: tenantId } })
     if (lpco?.status !== 'rascunho') throw new AppError('Itens so podem ser removidos em rascunho', 422, 'NOT_RASCUNHO')
 
-    await prisma.lpcoItem.delete({ where: { id: req.params.itemId } })
+    await prisma.lpcoItens.delete({ where: { id: req.params.itemId } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

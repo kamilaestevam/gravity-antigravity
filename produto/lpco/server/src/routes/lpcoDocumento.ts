@@ -19,7 +19,7 @@ function ctx(req: Request) {
 router.get('/:id/documentos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
-    const docs = await prisma.lpcoDocumento.findMany({
+    const docs = await prisma.lpcoAnexos.findMany({
       where: { lpco_id: req.params.id, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
     })
@@ -42,7 +42,7 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
       throw new AppError('nome_arquivo, tipo_documento e storage_key sao obrigatorios', 400, 'VALIDATION_ERROR')
     }
 
-    const doc = await prisma.lpcoDocumento.create({
+    const doc = await prisma.lpcoAnexos.create({
       data: {
         tenant_id: tenantId,
         company_id: lpco.company_id,
@@ -66,12 +66,12 @@ router.delete('/:id/documentos/:docId', async (req: Request, res: Response, next
   try {
     const { tenantId, prisma } = ctx(req)
 
-    const doc = await prisma.lpcoDocumento.findFirst({
+    const doc = await prisma.lpcoAnexos.findFirst({
       where: { id: req.params.docId, lpco_id: req.params.id, tenant_id: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 
-    await prisma.lpcoDocumento.delete({ where: { id: req.params.docId } })
+    await prisma.lpcoAnexos.delete({ where: { id: req.params.docId } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

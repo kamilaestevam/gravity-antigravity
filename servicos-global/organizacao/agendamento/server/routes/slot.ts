@@ -56,7 +56,7 @@ slotRouter.post('/', async (req, res, next) => {
       throw new AppError('id_agenda obrigatório', 400)
     }
 
-    const slot = await prisma.horarioDisponivel.create({
+    const slot = await prisma.usuarioHorarioDisponivel.create({
       data: {
         id_organizacao_horario_disponivel: tenantId,
         id_usuario_horario_disponivel: userId || null,
@@ -98,7 +98,7 @@ slotRouter.get('/', async (req, res, next) => {
     const { id_agenda } = req.params as { id_agenda: string }
     const { tenantId } = req.auth
 
-    const slots = await prisma.horarioDisponivel.findMany({
+    const slots = await prisma.usuarioHorarioDisponivel.findMany({
       where: {
         id_agenda_horario_disponivel: id_agenda,
         id_organizacao_horario_disponivel: tenantId,
@@ -116,7 +116,7 @@ slotRouter.delete('/:id_horario_disponivel', async (req, res, next) => {
     const { id_horario_disponivel } = req.params as { id_horario_disponivel: string }
     const { tenantId } = req.auth
 
-    const existing = await prisma.horarioDisponivel.findFirst({
+    const existing = await prisma.usuarioHorarioDisponivel.findFirst({
       where: {
         id_horario_disponivel: id_horario_disponivel,
         id_organizacao_horario_disponivel: tenantId,
@@ -126,7 +126,7 @@ slotRouter.delete('/:id_horario_disponivel', async (req, res, next) => {
       throw new AppError('Slot não encontrado', 404)
     }
 
-    await prisma.horarioDisponivel.delete({
+    await prisma.usuarioHorarioDisponivel.delete({
       where: { id_horario_disponivel: id_horario_disponivel },
     })
     res.status(204).send()

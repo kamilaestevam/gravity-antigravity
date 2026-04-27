@@ -3,7 +3,7 @@ import { AppError } from '../../server/lib/errors.js'
 
 export class AgendamentoService {
   async gerarSlots(tenant_id: string, agenda_id: string, dataInicio: Date, dataFim: Date) {
-    const config = await prisma.configDisponibilidadeAgenda.findUnique({
+    const config = await prisma.usuarioConfiguracaoAgenda.findUnique({
       where: { id_agenda_config_disponibilidade_agenda: agenda_id },
     })
 
@@ -76,7 +76,7 @@ export class AgendamentoService {
       return []
     }
 
-    await prisma.horarioDisponivel.createMany({
+    await prisma.usuarioHorarioDisponivel.createMany({
       data: slotsParaCriar,
     })
 

@@ -55,7 +55,7 @@ configRouter.post('/', async (req, res, next) => {
       throw new AppError('id_agenda obrigatório', 400)
     }
 
-    const config = await prisma.configDisponibilidadeAgenda.create({
+    const config = await prisma.usuarioConfiguracaoAgenda.create({
       data: {
         id_organizacao_config_disponibilidade_agenda: tenantId,
         id_usuario_config_disponibilidade_agenda: userId || null,
@@ -79,7 +79,7 @@ configRouter.get('/', async (req, res, next) => {
     const { id_agenda } = req.params as { id_agenda: string }
     const { tenantId } = req.auth
 
-    const config = await prisma.configDisponibilidadeAgenda.findFirst({
+    const config = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {
         id_agenda_config_disponibilidade_agenda: id_agenda,
         id_organizacao_config_disponibilidade_agenda: tenantId,
@@ -100,7 +100,7 @@ configRouter.put('/:id_configuracao_disponibilidade', async (req, res, next) => 
     const data = configSchema.partial().parse(req.body)
     const { tenantId } = req.auth
 
-    const existing = await prisma.configDisponibilidadeAgenda.findFirst({
+    const existing = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {
         id_config_disponibilidade_agenda: id_configuracao_disponibilidade,
         id_organizacao_config_disponibilidade_agenda: tenantId,
@@ -119,7 +119,7 @@ configRouter.put('/:id_configuracao_disponibilidade', async (req, res, next) => 
     if (data.diasSemana !== undefined) update.dias_semana_config_disponibilidade_agenda = data.diasSemana
     if (data.product_id !== undefined) update.id_produto_config_disponibilidade_agenda = data.product_id
 
-    const config = await prisma.configDisponibilidadeAgenda.update({
+    const config = await prisma.usuarioConfiguracaoAgenda.update({
       where: { id_config_disponibilidade_agenda: id_configuracao_disponibilidade },
       data: update,
     })
@@ -134,7 +134,7 @@ configRouter.delete('/:id_configuracao_disponibilidade', async (req, res, next) 
     const { id_configuracao_disponibilidade } = req.params as { id_configuracao_disponibilidade: string }
     const { tenantId } = req.auth
 
-    const existing = await prisma.configDisponibilidadeAgenda.findFirst({
+    const existing = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {
         id_config_disponibilidade_agenda: id_configuracao_disponibilidade,
         id_organizacao_config_disponibilidade_agenda: tenantId,
@@ -144,7 +144,7 @@ configRouter.delete('/:id_configuracao_disponibilidade', async (req, res, next) 
       throw new AppError('Configuração não encontrada', 404)
     }
 
-    await prisma.configDisponibilidadeAgenda.delete({
+    await prisma.usuarioConfiguracaoAgenda.delete({
       where: { id_config_disponibilidade_agenda: id_configuracao_disponibilidade },
     })
     res.status(204).send()

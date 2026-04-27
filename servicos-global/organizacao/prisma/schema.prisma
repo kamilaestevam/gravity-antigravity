@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T19:16:18.022Z
+// Gerado em: 2026-04-27T20:57:19.167Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -263,7 +263,7 @@ enum EmailDirecao {
   ENVIADO
 }
 
-enum EmailThreadStatus {
+enum EmailThreadAtiva {
   ABERTA
   ARQUIVADA
   RESOLVIDA
@@ -295,7 +295,7 @@ model EmailAssuntosParticipantes {
   id_usuario_email_assuntos_participantes      String?
 
   assunto_email_assuntos_participantes              String
-  status_email_assuntos_participantes               EmailThreadStatus @default(ABERTA)
+  status_email_assuntos_participantes               EmailThreadAtiva @default(ABERTA)
   sentimento_email_assuntos_participantes           Float             @default(0) // -1 a 1
   rotulo_sentimento_email_assuntos_participantes    EmailSentimento   @default(NEUTRO)
   contagem_mensagens_email_assuntos_participantes   Int               @default(0)
@@ -390,10 +390,10 @@ model EmailRegistroEnvio {
 }
 
 // ---------------------------------------------------------------------------
-// TemplateEmail — templates de email editáveis por tenant
+// EmailTemplate — templates de email editáveis por tenant
 // ---------------------------------------------------------------------------
 
-model TemplateEmail {
+model EmailTemplate {
   id_template_email              String  @id @default(cuid())
   id_organizacao_template_email  String
   id_produto_template_email      String?
@@ -1049,10 +1049,10 @@ model ExportarResultado {
 // AGENTE AGENDAMENTO — ONDA 33 (DDD Servicos)
 
 // ---------------------------------------------------------------------------
-// AgendaUsuario — agenda do usuário (calendário pessoal/empresa)
+// UsuarioAgenda — agenda do usuário (calendário pessoal/empresa)
 // ---------------------------------------------------------------------------
 
-model AgendaUsuario {
+model UsuarioAgenda {
   id_agenda_usuario             String  @id @default(cuid())
   id_organizacao_agenda_usuario String
   id_produto_agenda_usuario     String?
@@ -1065,8 +1065,8 @@ model AgendaUsuario {
   data_criacao_agenda_usuario     DateTime @default(now())
   data_atualizacao_agenda_usuario DateTime @updatedAt
 
-  horarios_agenda_usuario   HorarioDisponivel[]
-  config_agenda_usuario     ConfigDisponibilidadeAgenda?
+  horarios_agenda_usuario   UsuarioHorarioDisponivel[]
+  config_agenda_usuario     UsuarioConfiguracaoAgenda?
 
   @@index([id_organizacao_agenda_usuario], map: "au_org_idx")
   @@index([id_organizacao_agenda_usuario, id_produto_agenda_usuario], map: "au_org_prd_idx")
@@ -1075,10 +1075,10 @@ model AgendaUsuario {
 }
 
 // ---------------------------------------------------------------------------
-// HorarioDisponivel — slot de tempo disponível em uma agenda
+// UsuarioHorarioDisponivel — slot de tempo disponível em uma agenda
 // ---------------------------------------------------------------------------
 
-model HorarioDisponivel {
+model UsuarioHorarioDisponivel {
   id_horario_disponivel             String  @id @default(cuid())
   id_organizacao_horario_disponivel String
   id_produto_horario_disponivel     String?
@@ -1092,8 +1092,8 @@ model HorarioDisponivel {
   data_criacao_horario_disponivel     DateTime @default(now())
   data_atualizacao_horario_disponivel DateTime @updatedAt
 
-  agenda_horario_disponivel   AgendaUsuario @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
-  reservas_horario_disponivel ReservaAgenda[]
+  agenda_horario_disponivel   UsuarioAgenda @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
+  reservas_horario_disponivel UsuarioReservaAgenda[]
 
   @@index([id_organizacao_horario_disponivel], map: "hd_org_idx")
   @@index([id_organizacao_horario_disponivel, id_produto_horario_disponivel], map: "hd_org_prd_idx")
@@ -1103,10 +1103,10 @@ model HorarioDisponivel {
 }
 
 // ---------------------------------------------------------------------------
-// ReservaAgenda — reserva de um horário
+// UsuarioReservaAgenda — reserva de um horário
 // ---------------------------------------------------------------------------
 
-model ReservaAgenda {
+model UsuarioReservaAgenda {
   id_reserva_agenda             String  @id @default(cuid())
   id_organizacao_reserva_agenda String
   id_produto_reserva_agenda     String?
@@ -1121,7 +1121,7 @@ model ReservaAgenda {
   data_criacao_reserva_agenda     DateTime @default(now())
   data_atualizacao_reserva_agenda DateTime @updatedAt
 
-  horario_reserva_agenda  HorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
+  horario_reserva_agenda  UsuarioHorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
 
   @@index([id_organizacao_reserva_agenda], map: "rea_org_idx")
   @@index([id_organizacao_reserva_agenda, id_produto_reserva_agenda], map: "rea_org_prd_idx")
@@ -1132,10 +1132,10 @@ model ReservaAgenda {
 }
 
 // ---------------------------------------------------------------------------
-// ConfigDisponibilidadeAgenda — configuração de disponibilidade de uma agenda
+// UsuarioConfiguracaoAgenda — configuração de disponibilidade de uma agenda
 // ---------------------------------------------------------------------------
 
-model ConfigDisponibilidadeAgenda {
+model UsuarioConfiguracaoAgenda {
   id_config_disponibilidade_agenda             String  @id @default(cuid())
   id_organizacao_config_disponibilidade_agenda String
   id_produto_config_disponibilidade_agenda     String?
@@ -1151,7 +1151,7 @@ model ConfigDisponibilidadeAgenda {
   data_criacao_config_disponibilidade_agenda     DateTime @default(now())
   data_atualizacao_config_disponibilidade_agenda DateTime @updatedAt
 
-  agenda_config_disponibilidade_agenda  AgendaUsuario @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
+  agenda_config_disponibilidade_agenda  UsuarioAgenda @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
 
   @@index([id_organizacao_config_disponibilidade_agenda], map: "cda_org_idx")
   @@index([id_organizacao_config_disponibilidade_agenda, id_produto_config_disponibilidade_agenda], map: "cda_org_prd_idx")
@@ -1327,10 +1327,10 @@ model GabiPersonalizacao {
 // O Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// PreferenciaWorkspace — preferências de UI por usuário (cross-device)
+// WorkspacePreferenciaUsuario — preferências de UI por usuário (cross-device)
 // ---------------------------------------------------------------------------
 
-model PreferenciaWorkspace {
+model WorkspacePreferenciaUsuario {
   id_preferencia_workspace             String   @id @default(cuid())
 
   // Identificação — obrigatórios
@@ -1362,9 +1362,9 @@ model PreferenciaWorkspace {
 // servicos-global/tenant/ncm-sync/prisma/fragment.prisma
 // SERVIÇO NCM-SYNC — ONDA 36 (DDD Servicos)
 //
-// NcmItem        — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
-// NcmLog         — histórico de cada sincronização com o Portal Único
-// NcmAgendamento — configuração singleton do job de sincronização
+// NcmItem         — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmLog          — histórico de cada sincronização com o Portal Único
+// NCMAgendamento  — configuração singleton do job de sincronização
 
 // ---------------------------------------------------------------------------
 // NcmItem
@@ -1420,7 +1420,7 @@ model NcmLog {
   data_conclusao_ncm_log DateTime?
 
   // Status (enum PT)
-  status_ncm_log         NcmStatus @default(EXECUTANDO)
+  status_ncm_log         NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total_ncm_log        Int @default(0)
@@ -1429,7 +1429,7 @@ model NcmLog {
   removidos_ncm_log    Int @default(0)
 
   // Origem do trigger
-  origem_ncm_log        NcmOrigem @default(JOB)
+  origem_ncm_log        NCMOrigemSincronizacao @default(JOB)
   disparado_por_ncm_log String?   // user_id se MANUAL
 
   // Erro (apenas em caso de falha)
@@ -1448,12 +1448,12 @@ model NcmLog {
 }
 
 // ---------------------------------------------------------------------------
-// NcmAgendamento — configuração singleton do job de sincronização
+// NCMAgendamento — configuração singleton do job de sincronização
 // id = 'default' — registro único (singleton global)
 // id_organizacao_ncm_agendamento = '__system__' — satisfaz padrão de índices
 // ---------------------------------------------------------------------------
 
-model NcmAgendamento {
+model NCMAgendamento {
   id_ncm_agendamento             String   @id @default("default")
   id_organizacao_ncm_agendamento String   @default("__system__")
   id_produto_ncm_agendamento     String?
@@ -1476,13 +1476,13 @@ model NcmAgendamento {
 // Enums (valores em PT-BR)
 // ---------------------------------------------------------------------------
 
-enum NcmStatus {
+enum NCMStatusSincronizacao {
   EXECUTANDO
   SUCESSO
   ERRO
 }
 
-enum NcmOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }
@@ -1494,7 +1494,7 @@ enum NcmOrigem {
 //
 // NotificacoesTituloCorpo — sininho in-app + tracking de entrega (email/WhatsApp)
 // ContatoExterno          — agenda externa por organização (LGPD Art. 8)
-// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (master-only)
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (master-only)
 
 // ---------------------------------------------------------------------------
 // NotificacoesTituloCorpo
@@ -1572,12 +1572,12 @@ model ContatoExterno {
 }
 
 // ---------------------------------------------------------------------------
-// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (singleton por tenant)
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (singleton por tenant)
 // id_usuario_configuracao_canal_tenant: último master que alterou
 // REGRA 5: booleans usam o adjetivo (habilitado), sem prefixo is_/has_
 // ---------------------------------------------------------------------------
 
-model ConfiguracaoCanalTenant {
+model ConfiguracaoCanalOrganizacao {
   id_configuracao_canal_tenant String @id @default(cuid())
 
   // Identificação tenant — único por organização

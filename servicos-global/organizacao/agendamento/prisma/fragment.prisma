@@ -2,10 +2,10 @@
 // AGENTE AGENDAMENTO — ONDA 33 (DDD Servicos)
 
 // ---------------------------------------------------------------------------
-// AgendaUsuario — agenda do usuário (calendário pessoal/empresa)
+// UsuarioAgenda — agenda do usuário (calendário pessoal/empresa)
 // ---------------------------------------------------------------------------
 
-model AgendaUsuario {
+model UsuarioAgenda {
   id_agenda_usuario             String  @id @default(cuid())
   id_organizacao_agenda_usuario String
   id_produto_agenda_usuario     String?
@@ -18,8 +18,8 @@ model AgendaUsuario {
   data_criacao_agenda_usuario     DateTime @default(now())
   data_atualizacao_agenda_usuario DateTime @updatedAt
 
-  horarios_agenda_usuario   HorarioDisponivel[]
-  config_agenda_usuario     ConfigDisponibilidadeAgenda?
+  horarios_agenda_usuario   UsuarioHorarioDisponivel[]
+  config_agenda_usuario     UsuarioConfiguracaoAgenda?
 
   @@index([id_organizacao_agenda_usuario], map: "au_org_idx")
   @@index([id_organizacao_agenda_usuario, id_produto_agenda_usuario], map: "au_org_prd_idx")
@@ -28,10 +28,10 @@ model AgendaUsuario {
 }
 
 // ---------------------------------------------------------------------------
-// HorarioDisponivel — slot de tempo disponível em uma agenda
+// UsuarioHorarioDisponivel — slot de tempo disponível em uma agenda
 // ---------------------------------------------------------------------------
 
-model HorarioDisponivel {
+model UsuarioHorarioDisponivel {
   id_horario_disponivel             String  @id @default(cuid())
   id_organizacao_horario_disponivel String
   id_produto_horario_disponivel     String?
@@ -45,8 +45,8 @@ model HorarioDisponivel {
   data_criacao_horario_disponivel     DateTime @default(now())
   data_atualizacao_horario_disponivel DateTime @updatedAt
 
-  agenda_horario_disponivel   AgendaUsuario @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
-  reservas_horario_disponivel ReservaAgenda[]
+  agenda_horario_disponivel   UsuarioAgenda @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
+  reservas_horario_disponivel UsuarioReservaAgenda[]
 
   @@index([id_organizacao_horario_disponivel], map: "hd_org_idx")
   @@index([id_organizacao_horario_disponivel, id_produto_horario_disponivel], map: "hd_org_prd_idx")
@@ -56,10 +56,10 @@ model HorarioDisponivel {
 }
 
 // ---------------------------------------------------------------------------
-// ReservaAgenda — reserva de um horário
+// UsuarioReservaAgenda — reserva de um horário
 // ---------------------------------------------------------------------------
 
-model ReservaAgenda {
+model UsuarioReservaAgenda {
   id_reserva_agenda             String  @id @default(cuid())
   id_organizacao_reserva_agenda String
   id_produto_reserva_agenda     String?
@@ -74,7 +74,7 @@ model ReservaAgenda {
   data_criacao_reserva_agenda     DateTime @default(now())
   data_atualizacao_reserva_agenda DateTime @updatedAt
 
-  horario_reserva_agenda  HorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
+  horario_reserva_agenda  UsuarioHorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
 
   @@index([id_organizacao_reserva_agenda], map: "rea_org_idx")
   @@index([id_organizacao_reserva_agenda, id_produto_reserva_agenda], map: "rea_org_prd_idx")
@@ -85,10 +85,10 @@ model ReservaAgenda {
 }
 
 // ---------------------------------------------------------------------------
-// ConfigDisponibilidadeAgenda — configuração de disponibilidade de uma agenda
+// UsuarioConfiguracaoAgenda — configuração de disponibilidade de uma agenda
 // ---------------------------------------------------------------------------
 
-model ConfigDisponibilidadeAgenda {
+model UsuarioConfiguracaoAgenda {
   id_config_disponibilidade_agenda             String  @id @default(cuid())
   id_organizacao_config_disponibilidade_agenda String
   id_produto_config_disponibilidade_agenda     String?
@@ -104,7 +104,7 @@ model ConfigDisponibilidadeAgenda {
   data_criacao_config_disponibilidade_agenda     DateTime @default(now())
   data_atualizacao_config_disponibilidade_agenda DateTime @updatedAt
 
-  agenda_config_disponibilidade_agenda  AgendaUsuario @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
+  agenda_config_disponibilidade_agenda  UsuarioAgenda @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
 
   @@index([id_organizacao_config_disponibilidade_agenda], map: "cda_org_idx")
   @@index([id_organizacao_config_disponibilidade_agenda, id_produto_config_disponibilidade_agenda], map: "cda_org_prd_idx")

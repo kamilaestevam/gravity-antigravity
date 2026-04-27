@@ -6,10 +6,10 @@
 // O Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// PreferenciaWorkspace — preferências de UI por usuário (cross-device)
+// WorkspacePreferenciaUsuario — preferências de UI por usuário (cross-device)
 // ---------------------------------------------------------------------------
 
-model PreferenciaWorkspace {
+model WorkspacePreferenciaUsuario {
   id_preferencia_workspace             String   @id @default(cuid())
 
   // Identificação — obrigatórios

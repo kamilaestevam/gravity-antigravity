@@ -48,7 +48,7 @@ reservaRouter.post('/', async (req, res, next) => {
     const data = reservaSchema.parse(req.body)
     const { tenantId, userId } = req.auth
 
-    const slot = await prisma.horarioDisponivel.findFirst({
+    const slot = await prisma.usuarioHorarioDisponivel.findFirst({
       where: {
         id_horario_disponivel: data.slot_id,
         id_organizacao_horario_disponivel: tenantId,
@@ -64,7 +64,7 @@ reservaRouter.post('/', async (req, res, next) => {
       throw new AppError('Slot já está em sua capacidade máxima', 400)
     }
 
-    const reserva = await prisma.reservaAgenda.create({
+    const reserva = await prisma.usuarioReservaAgenda.create({
       data: {
         id_organizacao_reserva_agenda: tenantId,
         id_usuario_reserva_agenda: userId || null,
@@ -96,7 +96,7 @@ reservaRouter.post('/', async (req, res, next) => {
 reservaRouter.get('/', async (req, res, next) => {
   try {
     const { tenantId } = req.auth
-    const reservas = await prisma.reservaAgenda.findMany({
+    const reservas = await prisma.usuarioReservaAgenda.findMany({
       where: { id_organizacao_reserva_agenda: tenantId },
       include: { horario_reserva_agenda: true },
       orderBy: { data_criacao_reserva_agenda: 'desc' },
@@ -112,7 +112,7 @@ reservaRouter.get('/usuario/:id_usuario', async (req, res, next) => {
     const { id_usuario } = req.params as { id_usuario: string }
     const { tenantId } = req.auth
 
-    const reservas = await prisma.reservaAgenda.findMany({
+    const reservas = await prisma.usuarioReservaAgenda.findMany({
       where: {
         id_reservante_reserva_agenda: id_usuario,
         id_organizacao_reserva_agenda: tenantId,
@@ -133,7 +133,7 @@ reservaRouter.patch('/:id_reserva/status', async (req, res, next) => {
       .parse(req.body)
     const { tenantId } = req.auth
 
-    const existing = await prisma.reservaAgenda.findFirst({
+    const existing = await prisma.usuarioReservaAgenda.findFirst({
       where: {
         id_reserva_agenda: id_reserva,
         id_organizacao_reserva_agenda: tenantId,
@@ -143,7 +143,7 @@ reservaRouter.patch('/:id_reserva/status', async (req, res, next) => {
       throw new AppError('Reserva não encontrada', 404)
     }
 
-    const reserva = await prisma.reservaAgenda.update({
+    const reserva = await prisma.usuarioReservaAgenda.update({
       where: { id_reserva_agenda: id_reserva },
       data: { status_reserva_agenda: status },
     })
@@ -158,7 +158,7 @@ reservaRouter.delete('/:id_reserva', async (req, res, next) => {
     const { id_reserva } = req.params as { id_reserva: string }
     const { tenantId } = req.auth
 
-    const existing = await prisma.reservaAgenda.findFirst({
+    const existing = await prisma.usuarioReservaAgenda.findFirst({
       where: {
         id_reserva_agenda: id_reserva,
         id_organizacao_reserva_agenda: tenantId,
@@ -168,7 +168,7 @@ reservaRouter.delete('/:id_reserva', async (req, res, next) => {
       throw new AppError('Reserva não encontrada', 404)
     }
 
-    await prisma.reservaAgenda.delete({ where: { id_reserva_agenda: id_reserva } })
+    await prisma.usuarioReservaAgenda.delete({ where: { id_reserva_agenda: id_reserva } })
     res.status(204).send()
   } catch (error) {
     next(error)

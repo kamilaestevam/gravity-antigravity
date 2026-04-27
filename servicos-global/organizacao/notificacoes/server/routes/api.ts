@@ -430,7 +430,7 @@ apiRoutes.delete('/:id_notificacao', async (req, res, next) => {
 apiRoutes.get('/configuracao', async (req, res, next) => {
   try {
     const { tenant_id } = req
-    const config = await prisma.configuracaoCanalTenant.findUnique({
+    const config = await prisma.configuracaoCanalOrganizacao.findUnique({
       where: { id_organizacao_configuracao_canal_tenant: tenant_id },
     })
     res.json({
@@ -457,7 +457,7 @@ apiRoutes.patch('/configuracao', async (req, res, next) => {
       throw new AppError('Apenas usuários MASTER podem alterar a configuração de canais', 403)
     }
     const body = channelConfigBodySchema.parse(req.body)
-    const updated = await prisma.configuracaoCanalTenant.upsert({
+    const updated = await prisma.configuracaoCanalOrganizacao.upsert({
       where: { id_organizacao_configuracao_canal_tenant: tenant_id },
       create: {
         id_organizacao_configuracao_canal_tenant:      tenant_id,

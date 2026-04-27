@@ -3,7 +3,7 @@
 //
 // NotificacoesTituloCorpo — sininho in-app + tracking de entrega (email/WhatsApp)
 // ContatoExterno          — agenda externa por organização (LGPD Art. 8)
-// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (master-only)
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (master-only)
 
 // ---------------------------------------------------------------------------
 // NotificacoesTituloCorpo
@@ -81,12 +81,12 @@ model ContatoExterno {
 }
 
 // ---------------------------------------------------------------------------
-// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (singleton por tenant)
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (singleton por tenant)
 // id_usuario_configuracao_canal_tenant: último master que alterou
 // REGRA 5: booleans usam o adjetivo (habilitado), sem prefixo is_/has_
 // ---------------------------------------------------------------------------
 
-model ConfiguracaoCanalTenant {
+model ConfiguracaoCanalOrganizacao {
   id_configuracao_canal_tenant String @id @default(cuid())
 
   // Identificação tenant — único por organização

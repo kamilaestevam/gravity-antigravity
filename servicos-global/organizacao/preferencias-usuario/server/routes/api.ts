@@ -79,7 +79,7 @@ apiRoutes.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { user_id, tenant_id } = req
 
-    const prefs = await prisma.preferenciaWorkspace.upsert({
+    const prefs = await prisma.workspacePreferenciaUsuario.upsert({
       where: { id_usuario_preferencia_workspace: user_id },
       update: {},
       create: {
@@ -131,7 +131,7 @@ apiRoutes.put('/', async (req: AuthRequest, res: Response, _next: NextFunction) 
       updateData.sidebar_aberta_preferencia_workspace = payload.sidebar_open
     }
 
-    const updated = await prisma.preferenciaWorkspace.upsert({
+    const updated = await prisma.workspacePreferenciaUsuario.upsert({
       where: { id_usuario_preferencia_workspace: user_id },
       create: {
         id_usuario_preferencia_workspace: user_id,

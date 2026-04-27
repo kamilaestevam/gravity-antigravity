@@ -264,7 +264,7 @@ exports.Prisma.EmailRegistroEnvioScalarFieldEnum = {
   data_atualizacao_email_registro_envio: 'data_atualizacao_email_registro_envio'
 };
 
-exports.Prisma.TemplateEmailScalarFieldEnum = {
+exports.Prisma.EmailTemplateScalarFieldEnum = {
   id_template_email: 'id_template_email',
   id_organizacao_template_email: 'id_organizacao_template_email',
   id_produto_template_email: 'id_produto_template_email',
@@ -588,7 +588,7 @@ exports.Prisma.ExportarResultadoScalarFieldEnum = {
   expira_em_exportar_resultado: 'expira_em_exportar_resultado'
 };
 
-exports.Prisma.AgendaUsuarioScalarFieldEnum = {
+exports.Prisma.UsuarioAgendaScalarFieldEnum = {
   id_agenda_usuario: 'id_agenda_usuario',
   id_organizacao_agenda_usuario: 'id_organizacao_agenda_usuario',
   id_produto_agenda_usuario: 'id_produto_agenda_usuario',
@@ -600,7 +600,7 @@ exports.Prisma.AgendaUsuarioScalarFieldEnum = {
   data_atualizacao_agenda_usuario: 'data_atualizacao_agenda_usuario'
 };
 
-exports.Prisma.HorarioDisponivelScalarFieldEnum = {
+exports.Prisma.UsuarioHorarioDisponivelScalarFieldEnum = {
   id_horario_disponivel: 'id_horario_disponivel',
   id_organizacao_horario_disponivel: 'id_organizacao_horario_disponivel',
   id_produto_horario_disponivel: 'id_produto_horario_disponivel',
@@ -613,7 +613,7 @@ exports.Prisma.HorarioDisponivelScalarFieldEnum = {
   data_atualizacao_horario_disponivel: 'data_atualizacao_horario_disponivel'
 };
 
-exports.Prisma.ReservaAgendaScalarFieldEnum = {
+exports.Prisma.UsuarioReservaAgendaScalarFieldEnum = {
   id_reserva_agenda: 'id_reserva_agenda',
   id_organizacao_reserva_agenda: 'id_organizacao_reserva_agenda',
   id_produto_reserva_agenda: 'id_produto_reserva_agenda',
@@ -627,7 +627,7 @@ exports.Prisma.ReservaAgendaScalarFieldEnum = {
   data_atualizacao_reserva_agenda: 'data_atualizacao_reserva_agenda'
 };
 
-exports.Prisma.ConfigDisponibilidadeAgendaScalarFieldEnum = {
+exports.Prisma.UsuarioConfiguracaoAgendaScalarFieldEnum = {
   id_config_disponibilidade_agenda: 'id_config_disponibilidade_agenda',
   id_organizacao_config_disponibilidade_agenda: 'id_organizacao_config_disponibilidade_agenda',
   id_produto_config_disponibilidade_agenda: 'id_produto_config_disponibilidade_agenda',
@@ -718,7 +718,7 @@ exports.Prisma.GabiPersonalizacaoScalarFieldEnum = {
   data_atualizacao_gabi_personalizacao: 'data_atualizacao_gabi_personalizacao'
 };
 
-exports.Prisma.PreferenciaWorkspaceScalarFieldEnum = {
+exports.Prisma.WorkspacePreferenciaUsuarioScalarFieldEnum = {
   id_preferencia_workspace: 'id_preferencia_workspace',
   id_organizacao_preferencia_workspace: 'id_organizacao_preferencia_workspace',
   id_usuario_preferencia_workspace: 'id_usuario_preferencia_workspace',
@@ -806,7 +806,7 @@ exports.Prisma.ContatoExternoScalarFieldEnum = {
   data_atualizacao_contato_externo: 'data_atualizacao_contato_externo'
 };
 
-exports.Prisma.ConfiguracaoCanalTenantScalarFieldEnum = {
+exports.Prisma.ConfiguracaoCanalOrganizacaoScalarFieldEnum = {
   id_configuracao_canal_tenant: 'id_configuracao_canal_tenant',
   id_organizacao_configuracao_canal_tenant: 'id_organizacao_configuracao_canal_tenant',
   id_produto_configuracao_canal_tenant: 'id_produto_configuracao_canal_tenant',
@@ -846,7 +846,7 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.EmailThreadStatus = exports.$Enums.EmailThreadStatus = {
+exports.EmailThreadAtiva = exports.$Enums.EmailThreadAtiva = {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
   RESOLVIDA: 'RESOLVIDA'
@@ -946,7 +946,7 @@ exports.Prisma.ModelName = {
   EmailAssuntosParticipantes: 'EmailAssuntosParticipantes',
   EmailMensagem: 'EmailMensagem',
   EmailRegistroEnvio: 'EmailRegistroEnvio',
-  TemplateEmail: 'TemplateEmail',
+  EmailTemplate: 'EmailTemplate',
   EmailFilaEnvio: 'EmailFilaEnvio',
   WhatsappConversa: 'WhatsappConversa',
   WhatsappMensagem: 'WhatsappMensagem',
@@ -965,23 +965,23 @@ exports.Prisma.ModelName = {
   EventoAlerta: 'EventoAlerta',
   NotificacaoAlerta: 'NotificacaoAlerta',
   ExportarResultado: 'ExportarResultado',
-  AgendaUsuario: 'AgendaUsuario',
-  HorarioDisponivel: 'HorarioDisponivel',
-  ReservaAgenda: 'ReservaAgenda',
-  ConfigDisponibilidadeAgenda: 'ConfigDisponibilidadeAgenda',
+  UsuarioAgenda: 'UsuarioAgenda',
+  UsuarioHorarioDisponivel: 'UsuarioHorarioDisponivel',
+  UsuarioReservaAgenda: 'UsuarioReservaAgenda',
+  UsuarioConfiguracaoAgenda: 'UsuarioConfiguracaoAgenda',
   GabiConversa: 'GabiConversa',
   GabiMensagem: 'GabiMensagem',
   GabiLogUso: 'GabiLogUso',
   GabiTokenConsumido: 'GabiTokenConsumido',
   GabiTokenWorkspace: 'GabiTokenWorkspace',
   GabiPersonalizacao: 'GabiPersonalizacao',
-  PreferenciaWorkspace: 'PreferenciaWorkspace',
+  WorkspacePreferenciaUsuario: 'WorkspacePreferenciaUsuario',
   NcmItem: 'NcmItem',
   NcmLog: 'NcmLog',
   NcmAgendamento: 'NcmAgendamento',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ContatoExterno: 'ContatoExterno',
-  ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
+  ConfiguracaoCanalOrganizacao: 'ConfiguracaoCanalOrganizacao'
 };
 
 /**

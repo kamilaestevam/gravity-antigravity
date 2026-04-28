@@ -1,5 +1,6 @@
 /**
  * index.ts — Financeiro Comex Express Server
+ * Localização canônica: servicos-global/organizacao/financeiro-comex/server/
  * Porta: 8029
  */
 
@@ -9,7 +10,7 @@ import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
-dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
+dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../../.env') })
 
@@ -20,7 +21,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { createProductAuditPlugin } from '../../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { lancamentosRouter } from './routes/lancamentos.js'

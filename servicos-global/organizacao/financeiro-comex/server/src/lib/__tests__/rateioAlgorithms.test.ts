@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { calcularRateio } from '../../../../../../servicos-global/organizacao/nf-importacao/server/src/lib/rateioAlgorithms.js'
-import type { ItemRateio } from '../../../../../../servicos-global/organizacao/nf-importacao/server/src/lib/rateioAlgorithms.js'
+import { calcularRateio } from '../../../../../nf-importacao/server/src/lib/rateioAlgorithms.js'
+import type { ItemRateio } from '../../../../../nf-importacao/server/src/lib/rateioAlgorithms.js'
 
 const ITENS_EXEMPLO: ItemRateio[] = [
   { id: 'item-1', peso_liquido: 100, peso_bruto: 110, valor_cif: 5000, valor_fob: 4500, quantidade: 10, valor_ii: 500 },

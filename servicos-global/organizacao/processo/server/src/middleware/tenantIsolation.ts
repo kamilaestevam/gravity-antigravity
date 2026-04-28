@@ -1,9 +1,9 @@
 /**
- * tenantIsolation.ts — Middleware de Isolamento de Tenant
- * Injeta tenant_id em todas as queries via Prisma Extension.
+ * tenantIsolation.ts — Middleware de Isolamento de Organizacao
+ * Injeta id_organizacao em todas as queries via Prisma Extension.
  * Skill: antigravity-tenant-isolation
  *
- * REGRA ABSOLUTA: tenant_id NUNCA vem do payload — sempre do JWT/header propagado pelo Gateway.
+ * REGRA ABSOLUTA: id_organizacao NUNCA vem do payload — sempre do JWT/header propagado pelo Gateway.
  */
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
@@ -15,28 +15,28 @@ type PrismaQueryHookArgs = {
   query: (args: unknown) => Promise<unknown>
 }
 
-export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
+export function withTenantIsolation(prisma: PrismaClient, idOrganizacao: string) {
   return prisma.$extends({
     query: {
       $allModels: {
         async findMany({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: idOrganizacao }
           return query(args)
         },
         async findFirst({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: idOrganizacao }
           return query(args)
         },
         async create({ args, query }: PrismaQueryHookArgs) {
-          args.data = { ...args.data, tenant_id: tenantId }
+          args.data = { ...args.data, id_organizacao: idOrganizacao }
           return query(args)
         },
         async update({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: idOrganizacao }
           return query(args)
         },
         async delete({ args, query }: PrismaQueryHookArgs) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: idOrganizacao }
           return query(args)
         }
       }
@@ -45,21 +45,21 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
 }
 
 /**
- * Middleware Express: extrai tenant_id do header x-id-organizacao propagado pelo Gateway (JWT).
- * Nunca aceita tenant_id do body.
+ * Middleware Express: extrai id_organizacao do header x-id-organizacao propagado pelo Gateway (JWT).
+ * Nunca aceita id_organizacao do body.
  */
 export function tenantIsolationMiddleware(
   req: Request & { prisma?: PrismaClient; tenantId?: string },
   _res: Response,
   next: NextFunction
 ) {
-  const tenantId = req.headers['x-id-organizacao'] as string | undefined
+  const idOrganizacao = req.headers['x-id-organizacao'] as string | undefined
 
-  if (tenantId) {
-    req.tenantId = tenantId
-    req.prisma = withTenantIsolation(basePrisma, tenantId) as PrismaClient
+  if (idOrganizacao) {
+    req.tenantId = idOrganizacao
+    req.prisma = withTenantIsolation(basePrisma, idOrganizacao) as PrismaClient
   } else {
-    // Sem tenant_id: cliente raw para endpoints publicos (/health)
+    // Sem id_organizacao: cliente raw para endpoints publicos (/health)
     req.prisma = basePrisma
   }
 

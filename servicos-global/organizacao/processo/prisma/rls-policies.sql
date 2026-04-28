@@ -7,7 +7,7 @@
 -- ============================================================
 
 -- ============================================================
--- Ativar RLS em todas as tabelas com tenant_id
+-- Ativar RLS em todas as tabelas com id_organizacao
 -- ============================================================
 
 ALTER TABLE "processos"          ENABLE ROW LEVEL SECURITY;
@@ -24,25 +24,25 @@ ALTER TABLE "dados_tecnicos"     ENABLE ROW LEVEL SECURITY;
 -- ============================================================
 
 CREATE POLICY tenant_isolation_policy ON "processos"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "processo_etapas"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "pedidos"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "pedido_itens"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "follow_ups"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "documentos"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "estimativas_custo"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));
 
 CREATE POLICY tenant_isolation_policy ON "dados_tecnicos"
-  USING (tenant_id = current_setting('app.current_tenant_id', true));
+  USING (id_organizacao = current_setting('app.current_tenant_id', true));

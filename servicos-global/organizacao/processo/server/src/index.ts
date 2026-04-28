@@ -96,8 +96,8 @@ app.get('/health', async (_req: Request, res: Response) => {
 //    Em dev: INTERNAL_SERVICE_KEY=dev-key no .env
 app.use(requireInternalKey)
 
-// --- 7. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---------
-//    tenant_id vem do header x-id-organizacao propagado pelo Gateway (JWT)
+// --- 7. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ---
+//    id_organizacao vem do header x-id-organizacao propagado pelo Gateway (JWT)
 //    NUNCA vem do body da requisicao
 app.use(tenantIsolationMiddleware)
 
@@ -107,10 +107,12 @@ app.use(createProductAuditPlugin({
   product_id: 'processo',
   module: 'processo',
   getActorFromReq: (req) => {
-    const tenant_id = req.headers['x-id-organizacao'] as string | undefined
-    const actor_id  = req.headers['x-id-usuario']   as string | undefined
-    if (!tenant_id || !actor_id) return null
-    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+    // Nota: o contrato AuditActorContext (historico-global) ainda usa
+    // o nome `tenant_id` no payload — preservado intencionalmente.
+    const id_organizacao = req.headers['x-id-organizacao'] as string | undefined
+    const actor_id       = req.headers['x-id-usuario']    as string | undefined
+    if (!id_organizacao || !actor_id) return null
+    return { tenant_id: id_organizacao, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },
 }))
 

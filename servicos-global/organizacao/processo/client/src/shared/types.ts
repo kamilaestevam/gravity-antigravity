@@ -53,7 +53,7 @@ export type TipoDocumento =
 
 export interface Processo {
   id: string
-  tenant_id: string
+  id_organizacao: string
   numero: string
   referencia_cliente?: string
   importador_nome: string
@@ -96,7 +96,7 @@ export interface ProcessoEtapa {
 export interface Pedido {
   id: string
   processo_id: string
-  tenant_id: string
+  id_organizacao: string
   numero: string
   exportador_nome: string
   exportador_pais: string
@@ -133,7 +133,7 @@ export interface PedidoItem {
 export interface FollowUp {
   id: string
   processo_id: string
-  tenant_id: string
+  id_organizacao: string
   user_id: string
   user_nome: string
   tipo: TipoFollowUp
@@ -147,7 +147,7 @@ export interface FollowUp {
 export interface Documento {
   id: string
   processo_id: string
-  tenant_id: string
+  id_organizacao: string
   tipo: TipoDocumento
   nome: string
   arquivo_url: string
@@ -161,7 +161,7 @@ export interface Documento {
 export interface EstimativaCusto {
   id: string
   processo_id: string
-  tenant_id: string
+  id_organizacao: string
   categoria: string
   descricao: string
   valor_estimado: number
@@ -177,7 +177,7 @@ export interface EstimativaCusto {
 export interface DadosTecnicos {
   id: string
   processo_id: string
-  tenant_id: string
+  id_organizacao: string
   // Importador
   importador_nome: string
   importador_cnpj: string
@@ -266,7 +266,7 @@ export interface UploadDocumentoInput {
 
 export interface PedidoRico {
   id: string
-  tenant_id: string
+  id_organizacao: string
   numero: string              // numero PO
   exportador_nome?: string
   exportador_pais?: string

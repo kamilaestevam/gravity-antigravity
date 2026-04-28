@@ -106,7 +106,7 @@ export default function Workflow() {
   const [submitting, setSubmitting] = useState(false)
   const [docToDelete, setDocToDelete] = useState<{ id: string; nome: string } | null>(null)
 
-  const tenantId = processo?.tenant_id ?? ''
+  const tenantId = processo?.id_organizacao ?? ''
   const processoId = processo?.id ?? ''
 
   // ─── Fetch Follow-ups ───────────────────────────────────────────────

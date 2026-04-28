@@ -21,12 +21,12 @@ datasource db {
 
 // fragment.prisma — Processo
 // Composto via scripts/compose-schema.js no schema final do produto.
-// REGRA: todo model DEVE ter tenant_id (snake_case) e os indices obrigatorios.
+// REGRA: todo model DEVE ter id_organizacao (snake_case) e os indices obrigatorios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
 model ProcessoGravity {
   id                  String   @id @default(cuid())
-  tenant_id           String   // OBRIGATORIO — nunca nullable
+  id_organizacao           String   // OBRIGATORIO — nunca nullable
   product_id          String?  // "processo" — permite queries isoladas por produto
   user_id             String?  // clerk_id do usuario que criou
 
@@ -50,16 +50,16 @@ model ProcessoGravity {
   estimativaCusto     ProcessoEstimativaCusto?
   dadosTecnicos       ProcessoDadosTecnicos?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, numero])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, numero])
   @@map("processos")
 }
 
 model ProcessoEtapas {
   id             String    @id @default(cuid())
-  tenant_id      String
+  id_organizacao      String
   product_id     String?
   user_id        String?
 
@@ -72,15 +72,15 @@ model ProcessoEtapas {
 
   processo       ProcessoGravity  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, processo_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, processo_id])
   @@map("processo_etapas")
 }
 
 model ProcessoPedido {
   id              String   @id @default(cuid())
-  tenant_id       String
+  id_organizacao       String
   product_id      String?
   user_id         String?
 
@@ -101,17 +101,17 @@ model ProcessoPedido {
   processo        ProcessoGravity     @relation(fields: [processo_id], references: [id], onDelete: Cascade)
   itens           ProcessoPedidoItens[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, processo_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, status_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, processo_id])
+  @@index([id_organizacao, status])
+  @@index([id_organizacao, status_id])
   @@map("pedidos")
 }
 
 model ProcessoPedidoItens {
   id             String  @id @default(cuid())
-  tenant_id      String
+  id_organizacao      String
   product_id     String?
   user_id        String?
 
@@ -132,15 +132,15 @@ model ProcessoPedidoItens {
 
   pedido         ProcessoPedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, pedido_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, pedido_id])
   @@map("pedido_itens")
 }
 
 model ProcessoFollowup {
   id            String   @id @default(cuid())
-  tenant_id     String
+  id_organizacao     String
   product_id    String?
   user_id       String?
 
@@ -156,15 +156,15 @@ model ProcessoFollowup {
 
   processo      ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, processo_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, processo_id])
   @@map("follow_ups")
 }
 
 model ProcessoAnexos {
   id             String   @id @default(cuid())
-  tenant_id      String
+  id_organizacao      String
   product_id     String?
   user_id        String?
 
@@ -179,15 +179,15 @@ model ProcessoAnexos {
 
   processo       ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, processo_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, processo_id])
   @@map("documentos")
 }
 
 model ProcessoEstimativaCusto {
   id           String  @id @default(cuid())
-  tenant_id    String
+  id_organizacao    String
   product_id   String?
   user_id      String?
 
@@ -201,14 +201,14 @@ model ProcessoEstimativaCusto {
 
   processo     ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
   @@map("estimativas_custo")
 }
 
 model ProcessoDadosTecnicos {
   id                     String  @id @default(cuid())
-  tenant_id              String
+  id_organizacao              String
   product_id             String?
   user_id                String?
 
@@ -249,8 +249,8 @@ model ProcessoDadosTecnicos {
 
   processo               ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
   @@map("dados_tecnicos")
 }
 
@@ -259,7 +259,7 @@ model ProcessoDadosTecnicos {
 // Status customizáveis por tenant (geram as "abas" da tabela)
 model ProcessoStatus {
   id         String   @id @default(cuid())
-  tenant_id  String
+  id_organizacao  String
   product_id String?
 
   nome       String   // slug: "aguardando_embarque"
@@ -273,16 +273,16 @@ model ProcessoStatus {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@unique([tenant_id, nome])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@unique([id_organizacao, nome])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
   @@map("pedido_status")
 }
 
 // Colunas customizadas criadas pelo tenant (máx 30)
 model ProcessoColunas {
   id         String   @id @default(cuid())
-  tenant_id  String
+  id_organizacao  String
   product_id String?
 
   nome           String   // slug interno (imutável após criação)
@@ -298,16 +298,16 @@ model ProcessoColunas {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@unique([tenant_id, nome])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@unique([id_organizacao, nome])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
   @@map("pedido_colunas")
 }
 
 // Preferência de colunas por usuário (cross-device, no banco)
 model ProcessosPedidoPreferencia {
   id         String   @id @default(cuid())
-  tenant_id  String
+  id_organizacao  String
   product_id String?
   user_id    String
 
@@ -316,16 +316,16 @@ model ProcessosPedidoPreferencia {
 
   updated_at DateTime @updatedAt
 
-  @@unique([tenant_id, user_id])
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
+  @@unique([id_organizacao, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, user_id])
   @@map("pedido_preferencias_usuario")
 }
 
 // Preferência padrão de colunas por workspace (fallback)
 model ProcessoPedidoPadrao {
   id         String   @id @default(cuid())
-  tenant_id  String
+  id_organizacao  String
   product_id String?
 
   colunas_visiveis String[]
@@ -333,8 +333,8 @@ model ProcessoPedidoPadrao {
 
   updated_at DateTime @updatedAt
 
-  @@unique([tenant_id])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@unique([id_organizacao])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
   @@map("pedido_preferencias_padrao")
 }

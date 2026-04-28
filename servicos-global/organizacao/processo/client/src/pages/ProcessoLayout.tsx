@@ -66,7 +66,7 @@ export function useProcesso() {
 
 const MOCK_PROCESSO: ProcessoDetail = {
   id: 'core_id_000001',
-  tenant_id: 'tenant-demo',
+  id_organizacao: 'tenant-demo',
   numero: 'IMP-2026/0150',
   referencia_cliente: 'RC-4821',
   importador_nome: 'Acme Importacoes Ltda.',
@@ -99,16 +99,16 @@ const MOCK_PROCESSO: ProcessoDetail = {
   pedidos: [],
   followUps: [],
   documentos: [
-    { id: 'd1', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', tipo: 'invoice',           nome: 'Invoice_Proforma_PO2026001.pdf', arquivo_url: '#', tamanho_bytes: 251_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-01-20T00:00:00Z' },
-    { id: 'd2', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', tipo: 'packing_list',      nome: 'Packing_List_PO2026001.pdf',     arquivo_url: '#', tamanho_bytes: 128_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-02-10T00:00:00Z' },
-    { id: 'd3', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', tipo: 'bl',                nome: 'BL_MSKU1234567.pdf',             arquivo_url: '#', tamanho_bytes: 312_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-03-16T00:00:00Z' },
-    { id: 'd4', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', tipo: 'certificado_origem', nome: 'CO_Shanghai_Electronics.pdf',     arquivo_url: '#', tamanho_bytes: 95_000,  mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-02-15T00:00:00Z' },
+    { id: 'd1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'invoice',           nome: 'Invoice_Proforma_PO2026001.pdf', arquivo_url: '#', tamanho_bytes: 251_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-01-20T00:00:00Z' },
+    { id: 'd2', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'packing_list',      nome: 'Packing_List_PO2026001.pdf',     arquivo_url: '#', tamanho_bytes: 128_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-02-10T00:00:00Z' },
+    { id: 'd3', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'bl',                nome: 'BL_MSKU1234567.pdf',             arquivo_url: '#', tamanho_bytes: 312_000, mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-03-16T00:00:00Z' },
+    { id: 'd4', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', tipo: 'certificado_origem', nome: 'CO_Shanghai_Electronics.pdf',     arquivo_url: '#', tamanho_bytes: 95_000,  mime_type: 'application/pdf', uploaded_by: 'user1', created_at: '2026-02-15T00:00:00Z' },
   ],
   estimativasCusto: [
-    { id: 'c1', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', categoria: 'Frete',       descricao: 'Frete maritimo Shanghai-Santos',    valor_estimado: 4_200, valor_real: 4_350,    moeda: 'USD', status: 'confirmado', data_vencimento: '2026-04-10T00:00:00Z', created_at: '2026-01-10T00:00:00Z', updated_at: '2026-03-20T00:00:00Z' },
-    { id: 'c2', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', categoria: 'Seguro',      descricao: 'Seguro de transporte internacional', valor_estimado: 1_080, moeda: 'USD', status: 'estimado',   created_at: '2026-01-10T00:00:00Z', updated_at: '2026-01-10T00:00:00Z' },
-    { id: 'c3', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', categoria: 'Impostos',    descricao: 'II + IPI + ICMS + PIS/COFINS',      valor_estimado: 52_000, moeda: 'BRL', status: 'estimado',   created_at: '2026-01-10T00:00:00Z', updated_at: '2026-01-10T00:00:00Z' },
-    { id: 'c4', processo_id: 'core_id_000001', tenant_id: 'tenant-demo', categoria: 'Despachante', descricao: 'Honorarios de despacho aduaneiro',   valor_estimado: 3_500, valor_real: 3_500, moeda: 'BRL', status: 'pago',       data_vencimento: '2026-03-25T00:00:00Z', created_at: '2026-01-10T00:00:00Z', updated_at: '2026-03-25T00:00:00Z' },
+    { id: 'c1', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Frete',       descricao: 'Frete maritimo Shanghai-Santos',    valor_estimado: 4_200, valor_real: 4_350,    moeda: 'USD', status: 'confirmado', data_vencimento: '2026-04-10T00:00:00Z', created_at: '2026-01-10T00:00:00Z', updated_at: '2026-03-20T00:00:00Z' },
+    { id: 'c2', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Seguro',      descricao: 'Seguro de transporte internacional', valor_estimado: 1_080, moeda: 'USD', status: 'estimado',   created_at: '2026-01-10T00:00:00Z', updated_at: '2026-01-10T00:00:00Z' },
+    { id: 'c3', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Impostos',    descricao: 'II + IPI + ICMS + PIS/COFINS',      valor_estimado: 52_000, moeda: 'BRL', status: 'estimado',   created_at: '2026-01-10T00:00:00Z', updated_at: '2026-01-10T00:00:00Z' },
+    { id: 'c4', processo_id: 'core_id_000001', id_organizacao: 'tenant-demo', categoria: 'Despachante', descricao: 'Honorarios de despacho aduaneiro',   valor_estimado: 3_500, valor_real: 3_500, moeda: 'BRL', status: 'pago',       data_vencimento: '2026-03-25T00:00:00Z', created_at: '2026-01-10T00:00:00Z', updated_at: '2026-03-25T00:00:00Z' },
   ],
 }
 

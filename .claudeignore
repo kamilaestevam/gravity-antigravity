@@ -25,13 +25,13 @@
 *.tsbuildinfo
 *.timestamp-*.mjs
 
-# ── Coverage / test outputs ───────────────────────────────────────────
+# ── Coverage ──────────────────────────────────────────────────────────
 **/coverage/
-playwright-report/
-test-results/
-testes/**/resultados/
-*storybook.log
-storybook-static/
+
+# ── Test outputs (NAO ignorados — agente precisa de acesso para
+#    debug, traces, screenshots e relatorios)
+# Mantidos acessiveis: playwright-report/, test-results/,
+# testes/**/resultados/, *storybook.log, storybook-static/
 
 # ── Logs ──────────────────────────────────────────────────────────────
 *.log

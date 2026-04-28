@@ -56,7 +56,7 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="s3://gravity-backups/semanal"
 
 # Backup de cada banco
-for DB in configurador organização simula-custo bid-frete; do
+for DB in configurador organizacao simula-custo bid-frete; do
   railway run pg_dump ${DB^^}_DATABASE_URL \
     | gzip > ${DB}_${TIMESTAMP}.sql.gz
   aws s3 cp ${DB}_${TIMESTAMP}.sql.gz ${BACKUP_DIR}/${DB}/

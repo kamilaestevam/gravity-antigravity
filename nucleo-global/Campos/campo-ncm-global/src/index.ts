@@ -7,8 +7,8 @@
 export { NcmSelectGlobal } from './NcmSelectGlobal.js'
 export type { NcmSelectGlobalProps } from './NcmSelectGlobal.js'
 
-export { ModalBuscaNcm } from './ModalBuscaNcm.js'
-export type { ModalBuscaNcmProps, NcmOpcao } from './ModalBuscaNcm.js'
+export { ModalBuscaNcm } from './ModalNcmBusca.js'
+export type { ModalBuscaNcmProps, NcmOpcao } from './ModalNcmBusca.js'
 
 export { useNcmValidation } from './useNcmValidation.js'
 export type {

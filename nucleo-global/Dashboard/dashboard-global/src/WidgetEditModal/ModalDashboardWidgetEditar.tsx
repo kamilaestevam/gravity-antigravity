@@ -45,7 +45,7 @@ const DEFAULT_PERIOD_OPTS: PeriodOptionEdit[] = [
   { value: 'current_year',  label: 'Ano atual' },
 ]
 
-export interface WidgetEditModalProps {
+export interface ModalEditarWidgetProps {
   widget: DashboardWidgetConfig | null
   aberto: boolean
   onFechar: () => void
@@ -58,7 +58,7 @@ export interface WidgetEditModalProps {
   periodOptions?: PeriodOptionEdit[]
 }
 
-export function WidgetEditModal({
+export function ModalEditarWidget({
   widget,
   aberto,
   onFechar,
@@ -66,7 +66,7 @@ export function WidgetEditModal({
   fieldLabels = {},
   chartOptions = DEFAULT_CHART_OPTIONS,
   periodOptions = DEFAULT_PERIOD_OPTS,
-}: WidgetEditModalProps) {
+}: ModalEditarWidgetProps) {
   const [title,     setTitle]     = useState('')
   const [chartType, setChartType] = useState<ChartType>('LINE')
   const [period,    setPeriod]    = useState('30d')

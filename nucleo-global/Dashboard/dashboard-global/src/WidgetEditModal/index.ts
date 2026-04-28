@@ -1,2 +1,2 @@
-export { WidgetEditModal } from './WidgetEditModal.js'
-export type { WidgetEditModalProps, ChartOptionMeta, PeriodOptionEdit } from './WidgetEditModal.js'
+export { ModalEditarWidget, ModalEditarWidget as WidgetEditModal } from './ModalDashboardWidgetEditar.js'
+export type { ModalEditarWidgetProps, ModalEditarWidgetProps as WidgetEditModalProps, ChartOptionMeta, PeriodOptionEdit } from './ModalDashboardWidgetEditar.js'

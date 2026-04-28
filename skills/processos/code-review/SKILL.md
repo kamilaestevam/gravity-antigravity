@@ -31,12 +31,12 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Acesso ao banco de produto **exclusivamente** via `withOrganizacao(req, ...)` ou `withOrganizacaoContext(idOrganizacao, ...)` do `@gravity/resolver-organizacao`?
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK?
 - [ ] **Nenhum** `new PrismaClient(`?
-- [ ] **Nenhum** `WHERE id_organizacao = ?` em models de produto (o schema **é** a organização — Schema-per-Organização)?
+- [ ] **Nenhum** `WHERE id_organizacao = ?` em models de produto (o schema **é** a organizacao — Schema-per-Organizacao)?
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` ou fora de `$transaction`?
 - [ ] `idOrganizacao` lido de `req.organizacao` (API real do SDK) — **NUNCA** do `publicMetadata` do Clerk (Mandamento 01)?
 - [ ] **Nenhuma autorização** baseada em `currentUser.publicMetadata.role` — sempre via `/api/v1/me` + Prisma (Mandamento 01)?
 - [ ] `x-chave-interna` em chamadas S2S?
-- [ ] Chaves de cache prefixadas por `org:<idOrganizacao>:` ou `org:_global:`?
+- [ ] Chaves de cache prefixadas por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`?
 - [ ] Erros via `AppError` (nunca `res.status().json()` direto)?
 - [ ] Nenhum dado sensível em logs?
 - [ ] Nenhuma variável hardcoded?
@@ -59,7 +59,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 
 - [ ] Testes unitários presentes?
 - [ ] Testes funcionais para rotas?
-- [ ] Teste de cross-organização (se serviço da Organização)?
+- [ ] Teste de cross-organizacao (se serviço da Organizacao)?
 - [ ] Cobertura ≥ 70%?
 
 ### Arquitetura
@@ -67,7 +67,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Escopo respeitado (agente só escreveu na sua pasta)?
 - [ ] Sem import cruzado entre serviços?
 - [ ] Comunicação entre serviços via API (não import)?
-- [ ] Schema de produto segue padrão Schema-per-Organização (sem filtro por `id_organizacao` em queries — o schema **é** a organização)?
+- [ ] Schema de produto segue padrão Schema-per-Organizacao (sem filtro por `id_organizacao` em queries — o schema **é** a organizacao)?
 - [ ] Migrations de produto rodam via orquestrador `scripts/ativamente/migrate-all-tenants.ts` (nunca `prisma migrate dev` solto)?
 
 ### Documentação e Skills (inviolável — DoD §6)
@@ -77,7 +77,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Nova skill foi criada se a entrega introduz padrão novo (ex: novo SDK, novo middleware)?
 - [ ] PR contém commits visíveis em `documentos-tecnicos/` e/ou `skills/` quando aplicável?
 
-> Sem update de docs/skills quando a entrega muda padrão = **blocker**. Ver `antigravity-definition-of-done` §6.
+> Sem update de docs/skills quando a entrega muda padrão = **blocker**.
 
 ---
 

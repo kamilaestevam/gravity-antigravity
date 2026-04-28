@@ -9,11 +9,11 @@ import {
   MapPin
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SimulacaoInput } from '../../shared/types'
 
-interface ModalSimulacaoProps {
+interface ModalSimulacaoCustoProps {
   aberto: boolean
   aoFechar: () => void
   aoSimular: (dados: SimulacaoInput) => void
@@ -49,13 +49,13 @@ const FORM_DEFAULTS: SimulacaoInput = {
   aliquotaICMS: 0.18,
 }
 
-export function ModalSimulacao({
+export function ModalSimulacaoCusto({
   aberto,
   aoFechar,
   aoSimular,
   loading = false,
   dadosIniciais
-}: ModalSimulacaoProps) {
+}: ModalSimulacaoCustoProps) {
   const { t } = useTranslation()
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)
 
@@ -65,7 +65,7 @@ export function ModalSimulacao({
     }
   }, [aberto, dadosIniciais])
 
-  const update = (field: keyof SimulacaoInput, value: any) =>
+  const update = (field: keyof SimulacaoInput, value: SimulacaoInput[keyof SimulacaoInput]) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
   const handleSalvar = () => {
@@ -98,7 +98,7 @@ export function ModalSimulacao({
           />
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <GeralCampoGlobal label={t('simulacusto.formulario.ncm')} obrigatorio>
+            <CampoGeralGlobal label={t('simulacusto.formulario.ncm')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
@@ -109,9 +109,9 @@ export function ModalSimulacao({
                   onChange={e => update('ncm', e.target.value.replace(/\D/g, ''))}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal label={t('simulacusto.formulario.pais_origem')} obrigatorio>
+            <CampoGeralGlobal label={t('simulacusto.formulario.pais_origem')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <Globe size={16} />
                 <input
@@ -122,9 +122,9 @@ export function ModalSimulacao({
                   onChange={e => update('paisOrigem', e.target.value.toUpperCase())}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal label={t('simulacusto.formulario.uf_desembaraco')} obrigatorio>
+            <CampoGeralGlobal label={t('simulacusto.formulario.uf_desembaraco')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <MapPin size={16} />
                 <input
@@ -135,11 +135,11 @@ export function ModalSimulacao({
                   onChange={e => update('ufDesembaraco', e.target.value.toUpperCase())}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-            <GeralCampoGlobal label={t('simulacusto.formulario.valor_produto')} obrigatorio>
+            <CampoGeralGlobal label={t('simulacusto.formulario.valor_produto')} obrigatorio>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1 }}>
                   <CurrencyDollar size={16} />
@@ -156,13 +156,13 @@ export function ModalSimulacao({
                   <SelectGlobal
                     opcoes={MOEDAS}
                     valor={form.moedaProduto}
-                    aoMudarValor={(v: any) => update('moedaProduto', v)}
+                    aoMudarValor={(v: string) => update('moedaProduto', v)}
                   />
                 </div>
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal label={t('simulacusto.formulario.frete_internacional')}>
+            <CampoGeralGlobal label={t('simulacusto.formulario.frete_internacional')}>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1 }}>
                   <CurrencyDollar size={16} />
@@ -179,11 +179,11 @@ export function ModalSimulacao({
                   <SelectGlobal
                     opcoes={MOEDAS.filter(m => ['USD', 'EUR', 'BRL'].includes(m.valor))}
                     valor={form.moedaFrete}
-                    aoMudarValor={(v: any) => update('moedaFrete', v)}
+                    aoMudarValor={(v: string) => update('moedaFrete', v)}
                   />
                 </div>
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
 
@@ -195,51 +195,51 @@ export function ModalSimulacao({
           />
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-            <GeralCampoGlobal label="II (%)">
+            <CampoGeralGlobal label="II (%)">
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="16.00"
                 value={(form.aliquotaII * 100) || ''}
                 onChange={e => update('aliquotaII', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label="IPI (%)">
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label="IPI (%)">
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="0.00"
                 value={(form.aliquotaIPI * 100) || ''}
                 onChange={e => update('aliquotaIPI', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label="PIS (%)">
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label="PIS (%)">
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="2.10"
                 value={(form.aliquotaPIS * 100) || ''}
                 onChange={e => update('aliquotaPIS', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label="COFINS (%)">
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label="COFINS (%)">
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="9.65"
                 value={(form.aliquotaCOFINS * 100) || ''}
                 onChange={e => update('aliquotaCOFINS', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-            <GeralCampoGlobal label="ICMS (%)">
+            <CampoGeralGlobal label="ICMS (%)">
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="18.00"
                 value={(form.aliquotaICMS * 100) || ''}
                 onChange={e => update('aliquotaICMS', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label={t('simulacusto.formulario.reducao_ii')}>
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label={t('simulacusto.formulario.reducao_ii')}>
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="0.00"
                 value={((form.reducaoII ?? 0) * 100) || ''}
                 onChange={e => update('reducaoII', (parseFloat(e.target.value) || 0) / 100)} 
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
 

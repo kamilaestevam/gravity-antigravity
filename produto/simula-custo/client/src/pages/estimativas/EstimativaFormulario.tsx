@@ -28,7 +28,7 @@ import {
   TIPO_OPERACAO_LABELS,
   DOCUMENTO_LABELS,
 } from '../../shared/types'
-import { ModalSimulacao } from './ModalSimulacao'
+import { ModalSimulacaoCusto } from './ModalSimulacaoCusto'
 
 // ─── Formatacao ──────────────────────────────────────────────────────────────
 
@@ -511,7 +511,7 @@ export default function EstimativaFormulario() {
         )}
       </div>
 
-      <ModalSimulacao
+      <ModalSimulacaoCusto
         aberto={modalAberto}
         aoFechar={() => setModalAberto(false)}
         aoSimular={handleSimular}

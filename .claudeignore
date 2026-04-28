@@ -1,12 +1,83 @@
+# ──────────────────────────────────────────────────────────────────────
+# .claudeignore — Arquivos/pastas que Claude Code ignora ao indexar
+# ──────────────────────────────────────────────────────────────────────
+# Mantenha alinhado com .gitignore + adições específicas pra agente
+# (generated/, lockfiles, planilhas tmp, scratch).
+# Atualizado pos-Era Nova / Onda Gamma-3.
+
+# ── Dependencias ──────────────────────────────────────────────────────
 **/node_modules/
+
+# ── Git interno ───────────────────────────────────────────────────────
 **/.git/
+
+# ── Builds / outputs ──────────────────────────────────────────────────
 **/dist/
 **/build/
+**/out/
 **/.next/
+
+# ── Caches ────────────────────────────────────────────────────────────
 **/.cache/
 **/.turbo/
 **/.vite/
 **/.vite-temp/
+*.tsbuildinfo
+*.timestamp-*.mjs
+
+# ── Coverage / test outputs ───────────────────────────────────────────
 **/coverage/
+playwright-report/
+test-results/
+testes/**/resultados/
+*storybook.log
+storybook-static/
+
+# ── Logs ──────────────────────────────────────────────────────────────
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Variaveis de ambiente (NUNCA expor a agente) ─────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Prisma — generated client + DB local ──────────────────────────────
+**/generated/
+prisma/dev.db
+prisma/dev.db-journal
+*.tmp*
+
+# ── Lockfiles (massivos, baixo sinal) ─────────────────────────────────
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ── Sistema operacional ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ───────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+
+# ── Backups locais ───────────────────────────────────────────────────
+servicos-global/organizacao/pedido/server/backups/
+
+# ── Worktrees do Claude (proprio) ─────────────────────────────────────
 .claude/worktrees/
+
+# ── Arquivos temporarios de trabalho (planilhas, scratch) ─────────────
+.claude/planilha-tmp.xlsx
+.claude/*.tmp.*
+.claude/db1-mapping/
+.scratch_*
+gen_lote*.py
+lote*.tsv
+mapa_rotas_consolidado.tsv
+
+# ── Sync Google Drive (artefatos transientes) ────────────────────────
+.tmp.driveupload/
+.tmp.driveduplo/

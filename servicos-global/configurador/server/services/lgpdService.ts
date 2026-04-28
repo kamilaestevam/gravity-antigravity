@@ -108,7 +108,7 @@ export async function deleteUserData(
       } catch { return 0 }
     }
 
-    // Contar em todas as tabelas com user_id
+    // Contar em todas as tabelas com id_usuario
     await countFrom('userPermission', { tenant_id: tenantId, user_id: userId })
     await countFrom('historyLog', { tenant_id: tenantId, user_id: userId })
 

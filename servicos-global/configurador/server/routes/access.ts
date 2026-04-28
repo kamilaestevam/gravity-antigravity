@@ -52,11 +52,11 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
       )
     }
 
-    const { tenantId, userId, productId, companyId, productKey, resource, action } = parsed.data
+    const { tenantId: id_organizacao, userId: id_usuario, productId, companyId: id_workspace, productKey, resource, action } = parsed.data
 
-    // 1. Verifica se o tenant está ativo
+    // 1. Verifica se a organização está ativa
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: tenantId },
+      where: { id_organizacao },
       select: { status_organizacao: true },
     })
     if (!tenant || tenant.status_organizacao !== 'ATIVO') {
@@ -64,8 +64,8 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
       return
     }
 
-    // 2. Verifica se o produto está habilitado para o tenant
-    const productConfig = await productConfigService.getConfig(tenantId, productKey)
+    // 2. Verifica se o produto está habilitado para a organização
+    const productConfig = await productConfigService.getConfig(id_organizacao, productKey)
     if (!productConfig?.ativo_config_produto_gravity) {
       res.json({ allowed: false, reason: 'PRODUCT_NOT_ENABLED' })
       return
@@ -74,10 +74,10 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
     // 3. Verifica permissão granular (se solicitado)
     if (productId && resource && action) {
       const hasPermission = await permissionsService.checkPermission({
-        tenantId,
-        userId,
+        tenantId: id_organizacao,
+        userId: id_usuario,
         productId,
-        companyId,
+        companyId: id_workspace,
         resource,
         action: action || '',
       })
@@ -103,20 +103,20 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
  */
 accessRouter.get('/organizacao-produtos', async (req, res, next) => {
   try {
-    const tenantId = req.query.tenantId as string
-    if (!tenantId) {
+    const id_organizacao = req.query.tenantId as string
+    if (!id_organizacao) {
       throw new AppError('tenantId é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const products = await productConfigService.listActiveProducts(tenantId)
+    const products = await productConfigService.listActiveProducts(id_organizacao)
 
     // Retorna também os inativos para que o Shell saiba o que esconder
     const allConfigs = await prisma.produtoGravityConfig.findMany({
-      where: { tenant_id: tenantId },
+      where: { tenant_id: id_organizacao },
       select: { product_key: true, is_active: true, config: true, updated_at: true },
     })
 
-    res.json({ tenant_id: tenantId, products: allConfigs })
+    res.json({ tenant_id: id_organizacao, products: allConfigs })
   } catch (err) {
     next(err)
   }
@@ -129,13 +129,13 @@ accessRouter.get('/organizacao-produtos', async (req, res, next) => {
  */
 accessRouter.post('/organizacao-produtos/ativar', async (req, res, next) => {
   try {
-    const { tenantId, productKey, config: productConfig } = req.body
-    if (!tenantId || !productKey) {
+    const { tenantId: id_organizacao, productKey, config: productConfig } = req.body
+    if (!id_organizacao || !productKey) {
       throw new AppError('tenantId e productKey são obrigatórios', 400, 'VALIDATION_ERROR')
     }
 
     const result = await productConfigService.upsertConfig(
-      tenantId,
+      id_organizacao,
       productKey,
       productConfig ?? {},
       true
@@ -153,12 +153,12 @@ accessRouter.post('/organizacao-produtos/ativar', async (req, res, next) => {
  */
 accessRouter.post('/organizacao-produtos/desativar', async (req, res, next) => {
   try {
-    const { tenantId, productKey } = req.body
-    if (!tenantId || !productKey) {
+    const { tenantId: id_organizacao, productKey } = req.body
+    if (!id_organizacao || !productKey) {
       throw new AppError('tenantId e productKey são obrigatórios', 400, 'VALIDATION_ERROR')
     }
 
-    await productConfigService.disableProduct(tenantId, productKey)
+    await productConfigService.disableProduct(id_organizacao, productKey)
 
     res.json({ product_key: productKey, active: false })
   } catch (err) {

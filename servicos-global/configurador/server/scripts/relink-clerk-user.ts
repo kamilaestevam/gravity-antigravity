@@ -2,7 +2,7 @@
  * relink-clerk-user.ts
  *
  * Atualiza o clerk_user_id de um usuário do banco pelo email.
- * Usado quando a sessão ativa do Clerk está com user_id diferente do que
+ * Usado quando a sessão ativa do Clerk está com id_usuario diferente do que
  * está no banco (re-signup, migração, etc.) e o fallback automático do
  * requireAuth não consegue resolver.
  *

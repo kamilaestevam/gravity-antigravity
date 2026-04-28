@@ -39,7 +39,7 @@ import {
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
-import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../../../organizacao/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
 
@@ -280,9 +280,9 @@ export function Store() {
         body: JSON.stringify({ product_key: slug }),
       })
       if (res.ok) {
-        const companyId = sessionStorage.getItem('gravity_company_id')
-        if (companyId) {
-          await fetch(`${API_URL}/companies/${companyId}/products`, {
+        const id_workspace = sessionStorage.getItem('gravity_company_id')
+        if (id_workspace) {
+          await fetch(`${API_URL}/companies/${id_workspace}/products`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ product_key: slug }),

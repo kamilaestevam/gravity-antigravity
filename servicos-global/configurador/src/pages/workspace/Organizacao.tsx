@@ -90,8 +90,8 @@ const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
 // As opções de workspaces serão carregadas dinamicamente dentro do componente
 
 /** Chave do localStorage vinculada ao usuário */
-function storageKey(userId: string | undefined) {
-  return `gravity:workspace-ativo:${userId ?? 'anon'}`
+function storageKey(id_usuario: string | undefined) {
+  return `gravity:workspace-ativo:${id_usuario ?? 'anon'}`
 }
 
 export function Organizacao() {

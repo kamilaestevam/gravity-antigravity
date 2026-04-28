@@ -144,20 +144,20 @@ apiCockpitAdminRouter.get('/estatisticas-api', async (_req, res) => {
 /**
  * GET /api/v1/admin/uso-gabi
  * Proxy para GET /api/v1/gabi/uso do serviço Gabi (tenant super-server).
- * Quando tenant_id não é informado, retorna uso global (sem filtro).
+ * Quando id_organizacao não é informado, retorna uso global (sem filtro).
  */
 apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
   try {
     const month = (req.query.month as string) || ''
-    const tenantId = (req.query.tenant_id as string) || ''
+    const id_organizacao = (req.query.id_organizacao as string) || ''
     const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso`)
     if (month) url.searchParams.set('month', month)
-    if (tenantId) url.searchParams.set('tenant_id', tenantId)
+    if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
     const response = await fetch(url.toString(), {
       headers: {
         'x-internal-key': INTERNAL_SERVICE_KEY,
-        'x-tenant-id': tenantId || '__admin_global__',
+        'x-tenant-id': id_organizacao || '__admin_global__',
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -186,14 +186,14 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
  */
 apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
   try {
-    const tenantId = (req.query.tenant_id as string) || ''
+    const id_organizacao = (req.query.id_organizacao as string) || ''
     const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/uso/historico`)
-    if (tenantId) url.searchParams.set('tenant_id', tenantId)
+    if (id_organizacao) url.searchParams.set('id_organizacao', id_organizacao)
 
     const response = await fetch(url.toString(), {
       headers: {
         'x-internal-key': INTERNAL_SERVICE_KEY,
-        'x-tenant-id': tenantId || '__admin_global__',
+        'x-tenant-id': id_organizacao || '__admin_global__',
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),

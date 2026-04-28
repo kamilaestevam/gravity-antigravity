@@ -174,7 +174,7 @@ export function Usuarios() {
           }))
           setUsers(mappedUsers)
 
-          // Construir mapa de memberships: userId -> companyIds[]
+          // Construir mapa de memberships: id_usuario -> id_workspace[]
           const mMap: Record<string, string[]> = {}
           for (const u of apiUsers) {
             if (u.memberships && u.memberships.length > 0) {
@@ -375,8 +375,8 @@ export function Usuarios() {
   ]
 
   // Computa empresas vinculadas por usuário via memberships da API
-  function espacosDoUsuario(userId: string): EspacoTrabalho[] {
-    const ids = membershipsMap[userId] ?? []
+  function espacosDoUsuario(id_usuario: string): EspacoTrabalho[] {
+    const ids = membershipsMap[id_usuario] ?? []
     return espacos.filter(f => ids.includes(f.id))
   }
 

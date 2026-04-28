@@ -12,7 +12,7 @@ import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
-import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
+import { securityAudit } from '../../../organizacao/historico-global/server/lib/securityAuditLogger.js'
 
 export const usersRouter = Router()
 
@@ -203,20 +203,20 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
       )
     }
 
-    const { companyId, role } = parsed.data
-    const userId = req.params.id_usuario
+    const { companyId: id_workspace, role } = parsed.data
+    const id_usuario = req.params.id_usuario
 
-    // Garante que o usuário pertence ao mesmo tenant
+    // Garante que o usuário pertence à mesma organização
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario: userId, id_organizacao_usuario: req.auth.tenantId },
+      where: { id_usuario, id_organizacao_usuario: req.auth.tenantId },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    // Garante que a empresa filha pertence ao mesmo tenant
+    // Garante que o workspace pertence à mesma organização
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
+      where: { id_workspace, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
@@ -226,14 +226,14 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
       where: {
         id_organizacao_usuario_workspace_id_usuario_usuario_workspace_id_workspace_usuario_workspace: {
           id_organizacao_usuario_workspace: req.auth.tenantId,
-          id_usuario_usuario_workspace: userId,
-          id_workspace_usuario_workspace: companyId,
+          id_usuario_usuario_workspace: id_usuario,
+          id_workspace_usuario_workspace: id_workspace,
         },
       },
       create: {
         id_organizacao_usuario_workspace: req.auth.tenantId,
-        id_usuario_usuario_workspace: userId,
-        id_workspace_usuario_workspace: companyId,
+        id_usuario_usuario_workspace: id_usuario,
+        id_workspace_usuario_workspace: id_workspace,
         tipo_usuario_workspace: role,
         ativo_usuario_workspace: true,
       },
@@ -315,10 +315,10 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
     }
 
     const { workspaces: workspaceIds } = parsed.data
-    const userId = req.params.id_usuario
+    const id_usuario = req.params.id_usuario
 
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario: userId, id_organizacao_usuario: req.auth.tenantId },
+      where: { id_usuario, id_organizacao_usuario: req.auth.tenantId },
       select: { id_usuario: true, tipo_usuario: true },
     })
     if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -332,19 +332,19 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
       .findMany({
         where: {
           id_organizacao_usuario_workspace: req.auth.tenantId,
-          id_usuario_usuario_workspace: userId,
+          id_usuario_usuario_workspace: id_usuario,
         },
         select: { id_workspace_usuario_workspace: true },
       })
       .then((ws) => ws.map((w) => w.id_workspace_usuario_workspace))
 
-    await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.tipo_usuario)
+    await substituirWorkspacesAtomicamente(req.auth.tenantId, id_usuario, workspaceIds, user.tipo_usuario)
 
     const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
     const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
     if (adicionados.length > 0 || removidos.length > 0) {
       securityAudit.permissionChanged(req.auth.tenantId, req.auth.userId, {
-        targetUserId: userId,
+        targetUserId: id_usuario,
         permission: 'workspace_access',
         action: adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
       }).catch(() => {})

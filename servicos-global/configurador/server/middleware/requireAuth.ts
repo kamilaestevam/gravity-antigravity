@@ -1,16 +1,16 @@
 // server/middleware/requireAuth.ts
 // Valida JWT do Clerk em rotas protegidas
-// Injeta req.auth com { userId, tenantId } após validação
+// Injeta req.auth com { id_usuario, id_organizacao } após validação
 
 import type { Request, Response, NextFunction } from 'express'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
-import { auditLog } from '../../../tenant/historico-global/src/audit-client.js'
+import { auditLog } from '../../../organizacao/historico-global/src/audit-client.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { userId: string; tenantId: string; role: string; name: string; expiry: number }>()
+const userCache = new Map<string, { id_usuario: string; id_organizacao: string; role: string; name: string; expiry: number }>()
 
 declare global {
   namespace Express {
@@ -58,7 +58,7 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
-      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role, name: cached.name }
+      req.auth = { userId: cached.id_usuario, tenantId: cached.id_organizacao, clerkUserId: verified.sub, role: cached.role, name: cached.name }
       next()
       return
     }
@@ -115,8 +115,8 @@ export async function requireAuth(
     }
 
     userCache.set(cacheKey, {
-      userId: user.id_usuario,
-      tenantId: user.id_organizacao_usuario,
+      id_usuario: user.id_usuario,
+      id_organizacao: user.id_organizacao_usuario,
       role: user.tipo_usuario,
       name: user.nome_usuario ?? '',
       expiry: Date.now() + USER_CACHE_TTL,

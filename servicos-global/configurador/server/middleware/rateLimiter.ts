@@ -71,9 +71,9 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
 }
 
 function defaultKeyGenerator(req: Request): string {
-  const tenantId = req.headers['x-tenant-id'] || 'anonymous'
+  const id_organizacao = req.headers['x-tenant-id'] || 'anonymous'
   const ip = req.ip || req.socket.remoteAddress || 'unknown'
-  return `${tenantId}:${ip}`
+  return `${id_organizacao}:${ip}`
 }
 
 function defaultOnBlocked(key: string, req: Request): void {

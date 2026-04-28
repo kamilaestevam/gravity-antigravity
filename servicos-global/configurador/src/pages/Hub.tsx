@@ -154,7 +154,7 @@ export function Hub() {
   const navigate = useNavigate()
   const { isGravityAdmin: isAdmin, role: dbRole } = useLoadSystemRole()
 
-  const companyId   = sessionStorage.getItem('gravity_company_id')
+  const id_workspace   = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const userName      = currentUser.name || user?.fullName || user?.firstName || 'Usuário'
   const userEmail     = currentUser.email || user?.primaryEmailAddress?.emailAddress || ''
@@ -172,11 +172,11 @@ export function Hub() {
   // Carrega produtos ativos do workspace
   useEffect(() => {
     async function loadProducts() {
-      if (!companyId) { setLoading(false); return }
+      if (!id_workspace) { setLoading(false); return }
 
       try {
         const token = await getToken()
-        const res = await fetch(`${API_URL}/companies/${companyId}/products`, {
+        const res = await fetch(`${API_URL}/companies/${id_workspace}/products`, {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -196,7 +196,7 @@ export function Hub() {
               const tenantActive = (tenantData.products as CompanyProduct[] | undefined)?.filter(p => p.is_active) ?? []
 
               for (const tp of tenantActive) {
-                await fetch(`${API_URL}/companies/${companyId}/products`, {
+                await fetch(`${API_URL}/companies/${id_workspace}/products`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                   body: JSON.stringify({ product_key: tp.product_key }),
@@ -204,7 +204,7 @@ export function Hub() {
               }
 
               if (tenantActive.length > 0) {
-                const refresh = await fetch(`${API_URL}/companies/${companyId}/products`, {
+                const refresh = await fetch(`${API_URL}/companies/${id_workspace}/products`, {
                   headers: { Authorization: `Bearer ${token}` },
                 })
                 if (refresh.ok) {
@@ -222,7 +222,7 @@ export function Hub() {
       }
     }
     loadProducts()
-  }, [companyId])
+  }, [id_workspace])
 
   const handleOpenProduct = (slug: string) => navigate(`/produto/${slug}`)
 

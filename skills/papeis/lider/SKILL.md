@@ -65,7 +65,7 @@ Ao receber uma instrução do dono ("Faça X"), o Líder segue este fluxo:
 |:---|:---|:---|
 | Frontend | React, componentes, UI/UX | `antigravity-design-system` · `antigravity-componentes` · `antigravity-estado` |
 | Backend | APIs, Banco de Dados, Lógica | `antigravity-code-standards` · `antigravity-schema-composition` · `antigravity-autenticacao-s2s` |
-| Serviço por organização | Email, WhatsApp, Dashboard, etc. | skill específica do serviço (ex: `antigravity-email`) |
+| Serviço por organizacao | Email, WhatsApp, Dashboard, etc. | skill específica do serviço (ex: `antigravity-email`) |
 | Produto | Tela, regras de negócio do produto | skill específica do produto (ex: `antigravity-simulacusto`) |
 | DevOps | Railway, CI/CD, infraestrutura | `antigravity-deploy` · `antigravity-observabilidade` |
 | QA | Revisão completa pós-entrega | `antigravity-qa` |

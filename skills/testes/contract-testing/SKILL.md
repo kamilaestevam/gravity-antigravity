@@ -86,7 +86,7 @@ it('meResponseSchema rejeita payload com estrutura legada', () => {
 Para serviços com múltiplos endpoints, usar arquivo `contracts.ts` dedicado:
 
 ```typescript
-// servicos-global/tenant/atividades/server/contracts.ts
+// servicos-global/organizacao/atividades/server/contracts.ts
 import { z } from 'zod'
 
 // Contrato de Request
@@ -128,7 +128,7 @@ import { activityResponseContract } from '@tenant/atividades/server/contracts'
 
 describe('Contract: Atividades API', () => {
   it('GET /api/v1/activities response matches contract', async () => {
-    const response = await fetch(`${TENANT_URL}/api/v1/activities`, {
+    const response = await fetch(`${process.env.ORGANIZACAO_SERVICES_URL}/api/v1/activities`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     const data = await response.json()

@@ -224,7 +224,7 @@ on('venda-concluida', (dados) => { ... })
 ```typescript
 // Declarar no PRODUCT_CONFIG
 tenantServices: ['activities']
-navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'organização' }]
+navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'organizacao' }]
 // O shell carrega automaticamente via lazy loading
 ```
 **NÃO usar** para checklists internos de formulário ou steps de wizard.

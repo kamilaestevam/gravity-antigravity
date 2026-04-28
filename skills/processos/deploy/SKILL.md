@@ -18,7 +18,7 @@ Nenhuma operação de deploy é feita sem seguir este documento. Nenhuma migrati
 | Serviço | Porta | Banco |
 |:---|:---|:---|
 | `configurador` | 3000 | configurador-db |
-| `organização-services` | 3001 | organização-db (banco compartilhado dos serviços por organização) |
+| `organizacao-services` | 3001 | organizacao-db (banco compartilhado dos serviços por organizacao) |
 | `simulador-comex` | 3002 | simulador-comex-db |
 | `nf-importacao` | 3003 | nf-importacao-db |
 | `marketplace` | 3004 | — (estático ou SSR) |
@@ -40,7 +40,7 @@ feature branch → PR → merge na main → deploy automático em staging
 → testes E2E rodam → aprovação manual → promote para production
 ```
 
-Serviços compartilhados (configurador, organização-services) têm staging próprio. Produtos apontam para o staging dos serviços compartilhados no ambiente de staging.
+Serviços compartilhados (configurador, organizacao-services) têm staging próprio. Produtos apontam para o staging dos serviços compartilhados no ambiente de staging.
 
 ---
 
@@ -53,8 +53,8 @@ Padrão de naming: `SERVICO_PROVIDER_TIPO`
 DATABASE_URL=postgresql://...configurador-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 
-# === organização-services ===
-TENANT_DATABASE_URL=postgresql://...organização-db...
+# === organizacao-services ===
+ORGANIZACAO_DATABASE_URL=postgresql://...organizacao-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 RESEND_API_KEY=re_...
 META_WHATSAPP_TOKEN=...
@@ -63,14 +63,14 @@ OPENAI_API_KEY=sk-...
 # === simulador-comex (primeiro produto) ===
 DATABASE_URL=postgresql://...simulador-comex-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
-TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
+ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
 
 # === nf-importacao (próximo produto) ===
 DATABASE_URL=postgresql://...nf-importacao-db...
 CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
-TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
+ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
 ```
@@ -88,8 +88,8 @@ INTERNAL_SERVICE_KEY=...
 A ordem importa. Serviços dependentes só sobem após os serviços que dependem estarem saudáveis.
 
 1. **configurador** — sem dependências
-2. **organização-services** — depende do configurador para auth
-3. **produtos** — dependem do configurador + organização-services
+2. **organizacao-services** — depende do configurador para auth
+3. **produtos** — dependem do configurador + organizacao-services
 4. **marketplace** — sem dependências, pode subir a qualquer momento
 
 Verificar health check antes de subir o próximo:
@@ -111,7 +111,7 @@ O `requireAuth` do Configurador exige que o usuário exista na tabela `usuario` 
 A autenticação da Gravity opera em duas camadas independentes (Mandamento 01):
 
 - **Clerk** — prova de identidade APENAS (quem você é). Login, senha, e-mail, `clerk_user_id`. PROIBIDO usar para autorização.
-- **Banco `Usuario` (Prisma)** — prova de autorização (você tem acesso a este sistema). `tipo_usuario`, `is_gravity_admin` etc. lidos via `GET /api/v1/me`.
+- **Banco `Usuario` (Prisma)** — prova de autorização (você tem acesso a este sistema). `tipo_usuario`, `gravity_admin` etc. lidos via `GET /api/v1/me`.
 
 Um usuário pode existir no Clerk e não ter acesso à plataforma. Esse é o modelo correto: usuários só entram no sistema após provisionamento explícito no Prisma.
 
@@ -139,8 +139,8 @@ npx tsx server/scripts/seedProducts.ts
 ```
 
 O `bootstrap-seed.ts` cria:
-- A organização matriz (`slug: gravity`, `status: ACTIVE`)
-- O usuário Root Admin (`dmmltda@gmail.com`, `tipo_usuario: SUPER_ADMIN`, `is_gravity_admin: true`)
+- A organizacao matriz (`slug: gravity`, `status: ACTIVE`)
+- O usuário Root Admin (`dmmltda@gmail.com`, `tipo_usuario: SUPER_ADMIN`, `gravity_admin: true`)
 - Um `clerk_user_id` placeholder — o `requireAuth` auto-vincula ao ID real do Clerk no primeiro login, via fallback de email (1 candidato único = link seguro)
 
 O script é **idempotente**: pode ser executado múltiplas vezes sem duplicar dados.
@@ -168,8 +168,8 @@ Esse comportamento **não é um bug**. É a garantia de que nenhum usuário aces
 ### Migrations não destrutivas (adicionar coluna, nova tabela)
 
 ```bash
-# 1. Compor schema (se organização-services)
-npx ts-node scripts/ativamente/compose-organização-schema.ts
+# 1. Compor schema (se organizacao-services)
+npx ts-node scripts/compose-product-schema.ts
 
 # 2. Validar schema
 npx prisma validate
@@ -246,7 +246,7 @@ Comunicação entre serviços usa rede interna do Railway — nunca internet pú
 ```bash
 # Endereços internos (usar nas variáveis de ambiente)
 configurador.railway.internal:3000
-organização-services.railway.internal:3001
+organizacao-services.railway.internal:3001
 simulador-comex.railway.internal:3002
 ```
 
@@ -306,7 +306,7 @@ jobs:
 
 | Ferramenta | O que monitora |
 |:---|:---|
-| **Sentry** | Erros de aplicação (backend e frontend), stack traces, contexto do organização |
+| **Sentry** | Erros de aplicação (backend e frontend), stack traces, contexto do organizacao |
 | **UptimeRobot** | Health check de cada serviço a cada 5 minutos |
 | **Railway Metrics** | CPU, memória, conexões de banco |
 
@@ -340,14 +340,13 @@ Se um serviço em produção estiver fora do ar:
 
 ---
 
-## Auto-Scaling Rules (Dream Team)
-
+## Auto-Scaling Rules
 ### Railway — Configuração por serviço
 
 | Serviço | Min | Max | CPU trigger | RAM trigger |
 |:---|:---|:---|:---|:---|
 | configurador | 1 | 3 | 70% | 80% |
-| organização-services | 1 | 5 | 70% | 80% |
+| organizacao-services | 1 | 5 | 70% | 80% |
 | produtos | 1 | 3 | 70% | 80% |
 | marketplace | 0 | 2 | 60% | 70% |
 
@@ -368,8 +367,7 @@ Apenas **marketplace** pode ir a zero instâncias. Serviços com banco ativo **n
 
 ---
 
-## Fluxo Staging → Production com Aprovação Manual (Dream Team)
-
+## Fluxo Staging → Production com Aprovação Manual
 ```
 feature branch → PR → CI (lint + test:unit + test:functional + test:contracts)
   → merge main → deploy automático em staging
@@ -386,8 +384,7 @@ feature branch → PR → CI (lint + test:unit + test:functional + test:contract
 
 ---
 
-## Backup Antes de Migration Destrutiva (Dream Team)
-
+## Backup Antes de Migration Destrutiva
 **OBRIGATÓRIO** — antes de qualquer migration que remove ou altera colunas:
 
 ```bash

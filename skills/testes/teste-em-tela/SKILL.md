@@ -21,7 +21,7 @@ do zero ao fluxo finalizado, com print de cada estado significativo.
 - Após ajuste em componente que afeta layout ou fluxo
 - Após correção de bug reportado na interface
 - Quando o QA pede validação visual
-- Ao usar o comando `/teste-em-tela`
+- Quando o usuário pede explicitamente teste visual de uma tela
 
 ---
 
@@ -217,26 +217,14 @@ Ou usar o script global se existir em `testes/testes-e2e/`.
 |:------|:--------|
 | `antigravity-testes` | Esta skill é o complemento visual; aquela cobre unitários/funcionais |
 | `antigravity-qa` | QA pode solicitar `/teste-em-tela` para validar entrega |
-| `antigravity-dream-team-ajustes` | Fase 7 pode incluir `/teste-em-tela` para verificação visual |
+| `antigravity-dream-team-ajustes` | Fase 7 pode incluir teste visual para verificação |
 
 ---
 
-## Slash Command `/teste-em-tela`
+## Como o Agente Ativa o Modo
 
-Ativa o modo de teste visual. Uso:
+Não há slash command — o usuário ou o QA solicita explicitamente "fazer teste em tela de [fluxo]". O agente:
 
-```
-/teste-em-tela [descrição do fluxo a testar]
-```
-
-Exemplos:
-```
-/teste-em-tela modal de transferir pedido — fluxo completo
-/teste-em-tela dashboard — verificar KPIs após atualização
-/teste-em-tela kanban — criar coluna customizada
-```
-
-O agente:
 1. Define o plano (estados a capturar)
 2. Confirma com o usuário (opcional para fluxos simples)
 3. Executa com Playwright

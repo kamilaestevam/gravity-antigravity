@@ -1,7 +1,7 @@
 /**
  * config.ts — CRUD de configuracoes do NF Importacao
  * Sub-rotas: /despesas, /templates, /layouts, /favoritos-fiscais
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -47,7 +47,7 @@ router.get('/despesas', async (req: Request, res: Response, next: NextFunction) 
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const despesas = await prisma.nfDespesaCatalogo.findMany({
@@ -67,7 +67,7 @@ router.post('/despesas', async (req: Request, res: Response, next: NextFunction)
 
     // Verificar duplicata de codigo
     const existing = await prisma.nfDespesaCatalogo.findFirst({
-      where: { tenant_id: tenantId, company_id: body.company_id, codigo: body.codigo },
+      where: { id_organizacao: tenantId, company_id: body.company_id, codigo: body.codigo },
     })
     if (existing) {
       throw new AppError(`Despesa com codigo "${body.codigo}" ja existe`, 409, 'DUPLICATE')
@@ -75,7 +75,7 @@ router.post('/despesas', async (req: Request, res: Response, next: NextFunction)
 
     const despesa = await prisma.nfDespesaCatalogo.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: body.company_id,
         product_id: 'nf-importacao',
         codigo: body.codigo,
@@ -100,7 +100,7 @@ router.put('/despesas/:id', async (req: Request, res: Response, next: NextFuncti
     const body = DespesaCatalogoUpdateSchema.parse(req.body)
 
     const existing = await prisma.nfDespesaCatalogo.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Despesa catalogo nao encontrada', 404, 'NOT_FOUND')
 
@@ -119,7 +119,7 @@ router.delete('/despesas/:id', async (req: Request, res: Response, next: NextFun
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.nfDespesaCatalogo.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Despesa catalogo nao encontrada', 404, 'NOT_FOUND')
 
@@ -162,7 +162,7 @@ router.get('/templates', async (req: Request, res: Response, next: NextFunction)
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const templates = await prisma.nfDespesaTemplate.findMany({
@@ -184,7 +184,7 @@ router.post('/templates', async (req: Request, res: Response, next: NextFunction
     const template = await prisma.$transaction(async (tx: TxClient) => {
       const created = await tx.nfDespesaTemplate.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: body.company_id,
           product_id: 'nf-importacao',
           nome: body.nome,
@@ -198,7 +198,7 @@ router.post('/templates', async (req: Request, res: Response, next: NextFunction
         const item = body.itens[i]
         await tx.nfDespesaTemplateItem.create({
           data: {
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             template_id: created.id,
             tipo: item.tipo,
             descricao: item.descricao ?? null,
@@ -225,7 +225,7 @@ router.put('/templates/:id', async (req: Request, res: Response, next: NextFunct
     const body = TemplateUpdateSchema.parse(req.body)
 
     const existing = await prisma.nfDespesaTemplate.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Template nao encontrado', 404, 'NOT_FOUND')
 
@@ -250,7 +250,7 @@ router.put('/templates/:id', async (req: Request, res: Response, next: NextFunct
           const item = body.itens[i]
           await tx.nfDespesaTemplateItem.create({
             data: {
-              tenant_id: tenantId,
+              id_organizacao: tenantId,
               template_id: req.params.id,
               tipo: item.tipo,
               descricao: item.descricao ?? null,
@@ -277,7 +277,7 @@ router.delete('/templates/:id', async (req: Request, res: Response, next: NextFu
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.nfDespesaTemplate.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Template nao encontrado', 404, 'NOT_FOUND')
 
@@ -329,7 +329,7 @@ router.get('/layouts', async (req: Request, res: Response, next: NextFunction) =
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const layouts = await prisma.nfExportLayout.findMany({
@@ -351,7 +351,7 @@ router.post('/layouts', async (req: Request, res: Response, next: NextFunction) 
     const layout = await prisma.$transaction(async (tx: TxClient) => {
       const created = await tx.nfExportLayout.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: body.company_id,
           product_id: 'nf-importacao',
           nome: body.nome,
@@ -368,7 +368,7 @@ router.post('/layouts', async (req: Request, res: Response, next: NextFunction) 
         const campo = body.campos[i]
         await tx.nfExportLayoutCampo.create({
           data: {
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             layout_id: created.id,
             campo_origem: campo.campo_origem,
             campo_destino: campo.campo_destino,
@@ -397,7 +397,7 @@ router.put('/layouts/:id', async (req: Request, res: Response, next: NextFunctio
     const body = LayoutUpdateSchema.parse(req.body)
 
     const existing = await prisma.nfExportLayout.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Layout nao encontrado', 404, 'NOT_FOUND')
 
@@ -422,7 +422,7 @@ router.put('/layouts/:id', async (req: Request, res: Response, next: NextFunctio
           const campo = body.campos[i]
           await tx.nfExportLayoutCampo.create({
             data: {
-              tenant_id: tenantId,
+              id_organizacao: tenantId,
               layout_id: req.params.id,
               campo_origem: campo.campo_origem,
               campo_destino: campo.campo_destino,
@@ -451,7 +451,7 @@ router.delete('/layouts/:id', async (req: Request, res: Response, next: NextFunc
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.nfExportLayout.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Layout nao encontrado', 404, 'NOT_FOUND')
 
@@ -494,7 +494,7 @@ router.get('/favoritos-fiscais', async (req: Request, res: Response, next: NextF
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const favoritos = await prisma.nfFavoritoFiscal.findMany({
@@ -514,7 +514,7 @@ router.post('/favoritos-fiscais', async (req: Request, res: Response, next: Next
 
     const favorito = await prisma.nfFavoritoFiscal.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: body.company_id,
         product_id: 'nf-importacao',
         nome: body.nome,
@@ -547,7 +547,7 @@ router.put('/favoritos-fiscais/:id', async (req: Request, res: Response, next: N
     const body = FavoritoFiscalUpdateSchema.parse(req.body)
 
     const existing = await prisma.nfFavoritoFiscal.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Favorito fiscal nao encontrado', 404, 'NOT_FOUND')
 
@@ -566,7 +566,7 @@ router.delete('/favoritos-fiscais/:id', async (req: Request, res: Response, next
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.nfFavoritoFiscal.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Favorito fiscal nao encontrado', 404, 'NOT_FOUND')
 

@@ -1,6 +1,6 @@
 /**
  * nfHistorico.ts — Timeline de eventos da NF Importacao (append-only, somente leitura)
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -23,7 +23,7 @@ router.get('/:id/historico', async (req: Request, res: Response, next: NextFunct
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({
@@ -33,7 +33,7 @@ router.get('/:id/historico', async (req: Request, res: Response, next: NextFunct
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const historico = await prisma.nFImportacaoHistorico.findMany({
-      where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { nf_importacao_id: req.params.id, id_organizacao: tenantId },
       orderBy: { created_at: 'desc' },
       take: 100,
     })

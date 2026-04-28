@@ -67,7 +67,7 @@ enum NfImportacaoTipoAlinhamento {
 
 model NFImportacao {
   id                    String        @id                     // nfim_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   product_id            String        @default("nf-importacao")
   user_id               String
@@ -121,11 +121,11 @@ model NFImportacao {
   historico             NFImportacaoHistorico[]
 
   // 3 indices obrigatorios + indices de negocio
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, company_id, status])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, company_id, status])
   @@index([duimp_numero])
   @@index([processo_id])
 
@@ -138,7 +138,7 @@ model NFImportacao {
 
 model NFImportacaoItens {
   id                        String    @id                     // nfit_id_XXXXXXX/YY
-  tenant_id                 String
+  id_organizacao            String
   company_id                String
   nf_importacao_id          String
 
@@ -201,8 +201,8 @@ model NFImportacaoItens {
   rateios                   NFImportacaoRateio[]
 
   // Indices
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
   @@index([nf_importacao_id])
   @@index([ncm])
 
@@ -215,7 +215,7 @@ model NFImportacaoItens {
 
 model NFImportacaoDespesas {
   id                    String          @id                   // nfde_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   nf_importacao_id      String
 
@@ -247,8 +247,8 @@ model NFImportacaoDespesas {
   rateios               NFImportacaoRateio[]
 
   // Indices
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
   @@index([nf_importacao_id])
 
   @@map("nf_importacao_despesas")
@@ -260,7 +260,7 @@ model NFImportacaoDespesas {
 
 model NFImportacaoRateio {
   id                    String        @id                     // nfra_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   despesa_id            String
   item_id               String
@@ -285,8 +285,8 @@ model NFImportacaoRateio {
   @@unique([despesa_id, item_id])
 
   // Indices
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
   @@index([despesa_id])
   @@index([item_id])
 
@@ -299,7 +299,7 @@ model NFImportacaoRateio {
 
 model NFImportacaoAnexo {
   id                      String    @id @default(cuid())
-  tenant_id               String
+  id_organizacao          String
   company_id              String
   nf_importacao_id        String
 
@@ -323,8 +323,8 @@ model NFImportacaoAnexo {
   nf_importacao           NFImportacao @relation(fields: [nf_importacao_id], references: [id])
 
   // Indices
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
   @@index([nf_importacao_id])
 
   @@map("nf_importacao_documentos")
@@ -336,7 +336,7 @@ model NFImportacaoAnexo {
 
 model NFImportacaoHistorico {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   nf_importacao_id      String
 
@@ -357,8 +357,8 @@ model NFImportacaoHistorico {
   nf_importacao         NFImportacao @relation(fields: [nf_importacao_id], references: [id])
 
   // Indices
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
   @@index([nf_importacao_id])
   @@index([created_at])
 
@@ -371,7 +371,7 @@ model NFImportacaoHistorico {
 
 model NFImportacaoTipoDespesa {
   id                    String        @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
 
   nome                  String
@@ -385,10 +385,10 @@ model NFImportacaoTipoDespesa {
   created_at            DateTime      @default(now())
   updated_at            DateTime      @updatedAt
 
-  @@unique([tenant_id, company_id, nome])
+  @@unique([id_organizacao, company_id, nome])
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
 
   @@map("despesa_catalogos")
 }
@@ -399,7 +399,7 @@ model NFImportacaoTipoDespesa {
 
 model NFImportacaoTemplates {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
 
   nome                  String
@@ -414,10 +414,10 @@ model NFImportacaoTemplates {
   // Relacoes
   itens                 NFImportacaoTemplatesItens[]
 
-  @@unique([tenant_id, company_id, nome])
+  @@unique([id_organizacao, company_id, nome])
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
 
   @@map("despesa_templates")
 }
@@ -428,7 +428,7 @@ model NFImportacaoTemplates {
 
 model NFImportacaoTemplatesItens {
   id                    String        @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   template_id           String
 
@@ -442,7 +442,7 @@ model NFImportacaoTemplatesItens {
   template              NFImportacaoTemplates @relation(fields: [template_id], references: [id])
 
   // Indices
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@index([template_id])
 
   @@map("despesa_template_itens")
@@ -454,7 +454,7 @@ model NFImportacaoTemplatesItens {
 
 model NFImportacaoExportarLayout {
   id                    String          @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
 
   nome                  String
@@ -478,10 +478,10 @@ model NFImportacaoExportarLayout {
   // Relacoes
   campos                NFImportacaoLayoutCampos[]
 
-  @@unique([tenant_id, company_id, nome])
+  @@unique([id_organizacao, company_id, nome])
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
 
   @@map("export_layouts")
 }
@@ -492,7 +492,7 @@ model NFImportacaoExportarLayout {
 
 model NFImportacaoLayoutCampos {
   id                    String      @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
   layout_id             String
 
@@ -513,7 +513,7 @@ model NFImportacaoLayoutCampos {
 
   @@unique([layout_id, ordem])
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@index([layout_id])
 
   @@map("export_layout_campos")
@@ -525,7 +525,7 @@ model NFImportacaoLayoutCampos {
 
 model NFImportacaoFiscaisFavoritos {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String
   company_id            String
 
   ncm                   String
@@ -546,11 +546,11 @@ model NFImportacaoFiscaisFavoritos {
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
 
-  @@unique([tenant_id, company_id, ncm, uf_destino, tipo_operacao])
+  @@unique([id_organizacao, company_id, ncm, uf_destino, tipo_operacao])
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, company_id, ncm])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, company_id, ncm])
 
   @@map("favoritos_fiscais")
 }

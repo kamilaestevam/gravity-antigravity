@@ -1,6 +1,6 @@
 /**
  * nfDespesa.ts — CRUD de despesas da NF Importacao
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -63,7 +63,7 @@ const EDITABLE_STATUSES = ['rascunho', 'em_composicao']
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 async function findNfEditable(prisma: PrismaClient, nfId: string, tenantId: string, companyId: string) {
-  const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
+  const where: Record<string, unknown> = { id: nfId, id_organizacao: tenantId }
   if (companyId) where.company_id = companyId
 
   const nf = await prisma.nFImportacao.findFirst({ where })
@@ -84,14 +84,14 @@ router.get('/:id_nf/despesas', async (req: Request, res: Response, next: NextFun
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const despesas = await prisma.nFImportacaoDespesas.findMany({
-      where: { nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
+      where: { nf_importacao_id: req.params.id_nf, id_organizacao: tenantId },
       orderBy: { created_at: 'asc' },
       include: {
         rateios: { orderBy: { created_at: 'asc' } },
@@ -111,11 +111,11 @@ router.post('/:id_nf/despesas', async (req: Request, res: Response, next: NextFu
 
     const nf = await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
-    const count = await prisma.nFImportacaoDespesas.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.nFImportacaoDespesas.count({ where: { id_organizacao: tenantId } })
     const despesa = await prisma.nFImportacaoDespesas.create({
       data: {
         id: gerarId(PREFIXOS.DESPESA, count + 1),
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: nf.company_id,
         product_id: 'nf-importacao',
         user_id: userId,
@@ -163,7 +163,7 @@ router.put('/:id_nf/despesas/:id_despesa', async (req: Request, res: Response, n
     await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     const existing = await prisma.nFImportacaoDespesas.findFirst({
-      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
+      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
 
@@ -188,13 +188,13 @@ router.delete('/:id_nf/despesas/:id_despesa', async (req: Request, res: Response
     await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     const existing = await prisma.nFImportacaoDespesas.findFirst({
-      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
+      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, id_organizacao: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
 
     // Deletar rateios associados primeiro
     await prisma.nFImportacaoRateio.deleteMany({
-      where: { nf_despesa_id: req.params.id_despesa, tenant_id: tenantId },
+      where: { nf_despesa_id: req.params.id_despesa, id_organizacao: tenantId },
     })
 
     await prisma.nFImportacaoDespesas.delete({ where: { id: req.params.id_despesa } })
@@ -209,7 +209,7 @@ router.post('/:id_nf/despesas/smart-read', async (req: Request, res: Response, n
     const { tenantId, prisma, companyId } = ctx(req)
     const body = SmartReadSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true, status: true } })
@@ -241,7 +241,7 @@ router.post('/:id_nf/despesas/aplicar-template', async (req: Request, res: Respo
 
     // Buscar template com itens
     const template = await prisma.nfDespesaTemplate.findFirst({
-      where: { id: body.template_id, tenant_id: tenantId },
+      where: { id: body.template_id, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -251,14 +251,14 @@ router.post('/:id_nf/despesas/aplicar-template', async (req: Request, res: Respo
 
     // Criar despesas a partir dos itens do template
     const despesasCriadas: Array<Record<string, unknown>> = []
-    const despesaCount = await prisma.nFImportacaoDespesas.count({ where: { tenant_id: tenantId } })
+    const despesaCount = await prisma.nFImportacaoDespesas.count({ where: { id_organizacao: tenantId } })
 
     for (let i = 0; i < template.itens.length; i++) {
       const templateItem = template.itens[i]
       const despesa = await prisma.nFImportacaoDespesas.create({
         data: {
           id: gerarId(PREFIXOS.DESPESA, despesaCount + i + 1),
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: nf.company_id,
           product_id: 'nf-importacao',
           user_id: userId,

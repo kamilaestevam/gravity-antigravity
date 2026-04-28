@@ -1,6 +1,6 @@
 /**
  * nfDocumento.ts — Upload e gestao de documentos anexados a NF Importacao
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -35,14 +35,14 @@ router.get('/:id_nf/documentos', async (req: Request, res: Response, next: NextF
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const docs = await prisma.nFImportacaoAnexo.findMany({
-      where: { nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
+      where: { nf_importacao_id: req.params.id_nf, id_organizacao: tenantId },
       orderBy: { created_at: 'desc' },
     })
 
@@ -57,7 +57,7 @@ router.post('/:id_nf/documentos', async (req: Request, res: Response, next: Next
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = DocumentoCreateSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where })
@@ -65,7 +65,7 @@ router.post('/:id_nf/documentos', async (req: Request, res: Response, next: Next
 
     const doc = await prisma.nFImportacaoAnexo.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: nf.company_id,
         product_id: 'nf-importacao',
         user_id: userId,
@@ -89,14 +89,14 @@ router.delete('/:id_nf/documentos/:id_documento', async (req: Request, res: Resp
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const doc = await prisma.nFImportacaoAnexo.findFirst({
-      where: { id: req.params.id_documento, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
+      where: { id: req.params.id_documento, nf_importacao_id: req.params.id_nf, id_organizacao: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 

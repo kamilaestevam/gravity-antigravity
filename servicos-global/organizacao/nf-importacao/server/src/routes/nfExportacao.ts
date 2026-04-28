@@ -1,6 +1,6 @@
 /**
  * nfExportacao.ts — Rotas de exportacao de NF (gerar arquivo, preview)
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -29,7 +29,7 @@ const ExportarSchema = z.object({
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 async function findNfForExport(prisma: PrismaClient, nfId: string, tenantId: string, companyId: string) {
-  const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
+  const where: Record<string, unknown> = { id: nfId, id_organizacao: tenantId }
   if (companyId) where.company_id = companyId
 
   const nf = await prisma.nFImportacao.findFirst({
@@ -110,7 +110,7 @@ router.post('/:id/exportar', async (req: Request, res: Response, next: NextFunct
     let layout: Record<string, unknown> | null = null
     if (body.layout_id) {
       const layoutDb = await prisma.nfExportLayout.findFirst({
-        where: { id: body.layout_id, tenant_id: tenantId },
+        where: { id: body.layout_id, id_organizacao: tenantId },
         include: { campos: true },
       })
       if (!layoutDb) throw new AppError('Layout nao encontrado', 404, 'NOT_FOUND')
@@ -140,7 +140,7 @@ router.post('/:id/exportar', async (req: Request, res: Response, next: NextFunct
     // Registrar historico de exportacao
     await prisma.nFImportacaoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: nf.company_id,
         product_id: 'nf-importacao',
         user_id: userId,
@@ -170,7 +170,7 @@ router.get('/:id/exportar/preview', async (req: Request, res: Response, next: Ne
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({

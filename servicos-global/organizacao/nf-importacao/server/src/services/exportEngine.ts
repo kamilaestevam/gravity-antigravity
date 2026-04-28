@@ -50,7 +50,7 @@ interface PreviewResult {
 
 interface NfImportacaoRaw {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   status: string
   numero_nf: string | null
@@ -181,7 +181,7 @@ async function carregarDadosNf(
   rateios: NfRateioRaw[]
 }> {
   const nf = await prisma.nFImportacao.findFirst({
-    where: { id: nfId, tenant_id: tenantId, company_id: companyId },
+    where: { id: nfId, id_organizacao: tenantId, company_id: companyId },
   }) as NfImportacaoRaw | null
 
   if (!nf) {
@@ -190,20 +190,20 @@ async function carregarDadosNf(
 
   const [itens, despesas, rateios] = await Promise.all([
     prisma.nFImportacaoItens.findMany({
-      where: { nf_importacao_id: nfId, tenant_id: tenantId },
+      where: { nf_importacao_id: nfId, id_organizacao: tenantId },
       orderBy: { numero_item: 'asc' },
     }) as Promise<NfItemRaw[]>,
 
     prisma.nFImportacaoDespesas.findMany({
-      where: { nf_importacao_id: nfId, tenant_id: tenantId },
+      where: { nf_importacao_id: nfId, id_organizacao: tenantId },
     }) as Promise<NfDespesaRaw[]>,
 
     prisma.nFImportacaoRateio.findMany({
       where: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         nf_despesa: {
           nf_importacao_id: nfId,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
         },
       },
     }) as Promise<NfRateioRaw[]>,
@@ -222,7 +222,7 @@ async function resolverLayout(
   companyId: string
 ): Promise<LayoutConfig> {
   const layout = await prisma.nFImportacaoExportarLayout.findFirst({
-    where: { id: layoutId, tenant_id: tenantId, company_id: companyId },
+    where: { id: layoutId, id_organizacao: tenantId, company_id: companyId },
   }) as ExportLayoutRaw | null
 
   if (!layout) {
@@ -230,7 +230,7 @@ async function resolverLayout(
   }
 
   const campos = await prisma.nFImportacaoLayoutCampos.findMany({
-    where: { export_layout_id: layoutId, tenant_id: tenantId },
+    where: { export_layout_id: layoutId, id_organizacao: tenantId },
     orderBy: { ordem: 'asc' },
   }) as ExportLayoutCampoRaw[]
 

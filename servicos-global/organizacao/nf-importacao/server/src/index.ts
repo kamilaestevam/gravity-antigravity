@@ -101,7 +101,7 @@ app.use('/api/', apiLimiter)
 // --- 6. requireInternalKey — protege todas as rotas abaixo ---
 app.use('/api/', requireInternalKey)
 
-// --- 7. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---
+// --- 7. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ---
 app.use(tenantIsolationMiddleware)
 
 // --- 7.1. Observabilidade — captura metricas para API Cockpit ---

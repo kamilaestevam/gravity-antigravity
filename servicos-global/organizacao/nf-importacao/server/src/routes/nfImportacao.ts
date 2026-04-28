@@ -1,6 +1,6 @@
 /**
  * nfImportacao.ts — Rotas CRUD de NF Importacao
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  * Status muda apenas via nfStatusEngine
  */
 
@@ -79,7 +79,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const { tenantId, prisma, companyId } = ctx(req)
     const query = NfListaQuerySchema.parse(req.query)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
     if (query.status) where.status = query.status
     if (query.busca) {
@@ -118,14 +118,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const { tenantId, userId, prisma } = ctx(req)
     const body = NfCreateSchema.parse(req.body)
 
-    const count = await prisma.nFImportacao.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.nFImportacao.count({ where: { id_organizacao: tenantId } })
     const id = gerarId(PREFIXOS.NF, count + 1)
 
     const nf = await prisma.$transaction(async (tx: TxClient) => {
       const created = await tx.nFImportacao.create({
         data: {
           id,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: body.company_id,
           product_id: 'nf-importacao',
           user_id: userId,
@@ -162,7 +162,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
       await tx.nFImportacaoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: body.company_id,
           product_id: 'nf-importacao',
           user_id: userId,
@@ -186,7 +186,7 @@ router.get('/:id_nf', async (req: Request, res: Response, next: NextFunction) =>
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({
@@ -217,7 +217,7 @@ router.put('/:id_nf', async (req: Request, res: Response, next: NextFunction) =>
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = NfUpdateSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const existing = await prisma.nFImportacao.findFirst({ where })
@@ -253,7 +253,7 @@ router.delete('/:id_nf', async (req: Request, res: Response, next: NextFunction)
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const existing = await prisma.nFImportacao.findFirst({ where })
@@ -283,7 +283,7 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id, id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const original = await prisma.nFImportacao.findFirst({
@@ -295,14 +295,14 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
       throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
     }
 
-    const count = await prisma.nFImportacao.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.nFImportacao.count({ where: { id_organizacao: tenantId } })
     const novoId = gerarId(PREFIXOS.NF, count + 1)
 
     const novo = await prisma.$transaction(async (tx: TxClient) => {
       const created = await tx.nFImportacao.create({
         data: {
           id: novoId,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: original.company_id,
           product_id: 'nf-importacao',
           user_id: userId,
@@ -328,13 +328,13 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
       })
 
       // Duplicar itens
-      const itemCount = await tx.nFImportacaoItens.count({ where: { tenant_id: tenantId } })
+      const itemCount = await tx.nFImportacaoItens.count({ where: { id_organizacao: tenantId } })
       for (let i = 0; i < original.itens.length; i++) {
         const item = original.itens[i]
         await tx.nFImportacaoItens.create({
           data: {
             id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             company_id: original.company_id,
             product_id: 'nf-importacao',
             user_id: userId,
@@ -372,7 +372,7 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
 
       await tx.nFImportacaoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: original.company_id,
           product_id: 'nf-importacao',
           user_id: userId,

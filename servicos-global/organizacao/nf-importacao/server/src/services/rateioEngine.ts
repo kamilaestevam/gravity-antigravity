@@ -47,7 +47,7 @@ async function buscarNfValidada(
   tenantId: string
 ): Promise<{ id: string; status: string }> {
   const nf = await prisma.nFImportacao.findFirst({
-    where: { id: nfId, tenant_id: tenantId },
+    where: { id: nfId, id_organizacao: tenantId },
     select: { id: true, status: true },
   })
 
@@ -76,11 +76,11 @@ async function buscarDespesasEItens(
 ): Promise<{ despesas: DespesaComItens[]; itens: ItemRateio[] }> {
   const [despesas, itensRaw] = await Promise.all([
     prisma.nFImportacaoDespesas.findMany({
-      where: { nf_importacao_id: nfId, tenant_id: tenantId },
+      where: { nf_importacao_id: nfId, id_organizacao: tenantId },
       select: { id: true, tipo: true, valor_total: true, metodo_rateio: true },
     }),
     prisma.nFImportacaoItens.findMany({
-      where: { nf_importacao_id: nfId, tenant_id: tenantId },
+      where: { nf_importacao_id: nfId, id_organizacao: tenantId },
       select: {
         id: true,
         peso_liquido: true,
@@ -174,7 +174,7 @@ export async function aplicarRateio(
     await tx.nFImportacaoRateio.deleteMany({
       where: {
         nf_despesa_id: { in: despesas.map((d) => d.id) },
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
       },
     })
 
@@ -199,7 +199,7 @@ export async function aplicarRateio(
       for (const itemRateio of resultado.itens) {
         await tx.nFImportacaoRateio.create({
           data: {
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             product_id: 'nf-importacao',
             nf_despesa_id: despesa.id,
             nf_item_id: itemRateio.itemId,
@@ -238,7 +238,7 @@ export async function overrideManual(
   }
 
   const rateio = await prisma.nFImportacaoRateio.findFirst({
-    where: { id: rateioId, tenant_id: tenantId },
+    where: { id: rateioId, id_organizacao: tenantId },
     include: {
       nf_despesa: {
         select: {
@@ -258,7 +258,7 @@ export async function overrideManual(
   const nf = await prisma.nFImportacao.findFirst({
     where: {
       id: (rateio as Record<string, unknown> & { nf_despesa: { nf_importacao_id: string; valor_total: number } }).nf_despesa.nf_importacao_id,
-      tenant_id: tenantId,
+      id_organizacao: tenantId,
     },
     select: { status: true },
   })

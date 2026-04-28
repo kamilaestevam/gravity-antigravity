@@ -137,7 +137,7 @@ export type NfImportacaoTipoAlinhamento = (typeof NfImportacaoTipoAlinhamento)[k
 
 export interface NFImportacao {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   product_id: string
   user_id: string
@@ -186,7 +186,7 @@ export interface NFImportacao {
 
 export interface NFImportacaoItens {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   nf_importacao_id: string
 
@@ -240,7 +240,7 @@ export interface NFImportacaoItens {
 
 export interface NFImportacaoDespesas {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   nf_importacao_id: string
 
@@ -268,7 +268,7 @@ export interface NFImportacaoDespesas {
 
 export interface NFImportacaoRateio {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   despesa_id: string
   item_id: string
@@ -286,7 +286,7 @@ export interface NFImportacaoRateio {
 
 export interface NFImportacaoAnexo {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   nf_importacao_id: string
 
@@ -306,7 +306,7 @@ export interface NFImportacaoAnexo {
 
 export interface NFImportacaoHistorico {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   nf_importacao_id: string
 
@@ -323,7 +323,7 @@ export interface NFImportacaoHistorico {
 
 export interface NFImportacaoTipoDespesa {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
 
   nome: string
@@ -340,7 +340,7 @@ export interface NFImportacaoTipoDespesa {
 
 export interface NFImportacaoTemplates {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
 
   nome: string
@@ -357,7 +357,7 @@ export interface NFImportacaoTemplates {
 
 export interface NFImportacaoTemplatesItens {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   template_id: string
 
@@ -370,7 +370,7 @@ export interface NFImportacaoTemplatesItens {
 
 export interface NFImportacaoExportarLayout {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
 
   nome: string
@@ -396,7 +396,7 @@ export interface NFImportacaoExportarLayout {
 
 export interface NFImportacaoLayoutCampos {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   layout_id: string
 
@@ -415,7 +415,7 @@ export interface NFImportacaoLayoutCampos {
 
 export interface NFImportacaoFiscaisFavoritos {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
 
   ncm: string

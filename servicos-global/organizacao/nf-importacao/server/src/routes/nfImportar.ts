@@ -1,6 +1,6 @@
 /**
  * nfImportar.ts — Canais de importacao de NF (XML, Smart Read, Portal Unico, Processo)
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -54,14 +54,14 @@ async function criarNfFromImport(
   canalEntrada: string,
   dados: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const count = await prisma.nFImportacao.count({ where: { tenant_id: tenantId } })
+  const count = await prisma.nFImportacao.count({ where: { id_organizacao: tenantId } })
   const id = gerarId(PREFIXOS.NF, count + 1)
 
   const nf = await prisma.$transaction(async (tx: TxClient) => {
     const created = await tx.nFImportacao.create({
       data: {
         id,
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: companyId,
         product_id: 'nf-importacao',
         user_id: userId,
@@ -96,13 +96,13 @@ async function criarNfFromImport(
     // Criar itens se fornecidos
     const itens = (dados.itens as Array<Record<string, unknown>>) ?? []
     if (itens.length > 0) {
-      const itemCount = await tx.nFImportacaoItens.count({ where: { tenant_id: tenantId } })
+      const itemCount = await tx.nFImportacaoItens.count({ where: { id_organizacao: tenantId } })
       for (let i = 0; i < itens.length; i++) {
         const item = itens[i]
         await tx.nFImportacaoItens.create({
           data: {
             id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             company_id: companyId,
             product_id: 'nf-importacao',
             user_id: userId,
@@ -139,7 +139,7 @@ async function criarNfFromImport(
 
     await tx.nFImportacaoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: companyId,
         product_id: 'nf-importacao',
         user_id: userId,

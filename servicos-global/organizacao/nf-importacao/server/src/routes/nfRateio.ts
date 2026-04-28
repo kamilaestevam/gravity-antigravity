@@ -1,6 +1,6 @@
 /**
  * nfRateio.ts — Rotas de rateio (preview, aplicar, override manual)
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  * Usa rateioEngine para calculos
  */
 
@@ -30,7 +30,7 @@ const OverrideManualSchema = z.object({
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 async function validateNfAccess(prisma: PrismaClient, nfId: string, tenantId: string, companyId: string) {
-  const where: Record<string, unknown> = { id: nfId, tenant_id: tenantId }
+  const where: Record<string, unknown> = { id: nfId, id_organizacao: tenantId }
   if (companyId) where.company_id = companyId
 
   const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
@@ -75,7 +75,7 @@ router.put('/:id/rateio/:rateioId', async (req: Request, res: Response, next: Ne
 
     // Validar que o rateio pertence a uma despesa desta NF
     const rateio = await prisma.nFImportacaoRateio.findFirst({
-      where: { id: req.params.rateioId, tenant_id: tenantId },
+      where: { id: req.params.rateioId, id_organizacao: tenantId },
       include: {
         nf_despesa: {
           select: { nf_importacao_id: true },

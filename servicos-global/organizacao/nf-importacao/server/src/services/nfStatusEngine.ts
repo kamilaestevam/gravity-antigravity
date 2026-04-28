@@ -84,7 +84,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
 
   // Verificar se existem despesas
   const despesas = await (tx as Record<string, unknown> & { nFImportacaoDespesas: { findMany: (args: Record<string, unknown>) => Promise<Array<{ id: string }>> } }).nFImportacaoDespesas.findMany({
-    where: { nf_importacao_id: nfId, tenant_id: tenantId },
+    where: { nf_importacao_id: nfId, id_organizacao: tenantId },
     select: { id: true },
   })
 
@@ -99,7 +99,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
   // Verificar se todas as despesas possuem rateios
   for (const despesa of despesas) {
     const rateioCount = await (tx as Record<string, unknown> & { nFImportacaoRateio: { count: (args: Record<string, unknown>) => Promise<number> } }).nFImportacaoRateio.count({
-      where: { nf_despesa_id: despesa.id, tenant_id: tenantId },
+      where: { nf_despesa_id: despesa.id, id_organizacao: tenantId },
     })
 
     if (rateioCount === 0) {
@@ -113,7 +113,7 @@ async function validarTransicaoParaPronta(params: ValidacaoProntaParams): Promis
 
   // Verificar se existem itens
   const itemCount = await (tx as Record<string, unknown> & { nFImportacaoItens: { count: (args: Record<string, unknown>) => Promise<number> } }).nFImportacaoItens.count({
-    where: { nf_importacao_id: nfId, tenant_id: tenantId },
+    where: { nf_importacao_id: nfId, id_organizacao: tenantId },
   })
 
   if (itemCount === 0) {
@@ -130,7 +130,7 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
 
   return prisma.$transaction(async (tx: TxClient) => {
     const nf = await (tx as Record<string, unknown> & { nFImportacao: { findFirst: (args: Record<string, unknown>) => Promise<{ id: string; status: string } | null> } }).nFImportacao.findFirst({
-      where: { id: nfId, tenant_id: tenantId, company_id: companyId },
+      where: { id: nfId, id_organizacao: tenantId, company_id: companyId },
     })
 
     if (!nf) {
@@ -176,7 +176,7 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
     // Historico append-only
     await (tx as Record<string, unknown> & { nFImportacaoHistorico: { create: (args: Record<string, unknown>) => Promise<unknown> } }).nFImportacaoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: companyId,
         product_id: 'nf-importacao',
         user_id: userId,

@@ -37,10 +37,10 @@ Sentry.init({
   profilesSampleRate: 0.05,
 
   integrations: [
-    // Auto-instrumentar Express
-    new Sentry.Integrations.Express({ app }),
-    // Auto-instrumentar Prisma
-    new Sentry.Integrations.Prisma({ client: prisma }),
+    // Auto-instrumentar Express (Sentry v8+)
+    Sentry.expressIntegration(),
+    // Auto-instrumentar Prisma (Sentry v8+)
+    Sentry.prismaIntegration({ client: prisma }),
   ],
 })
 ```

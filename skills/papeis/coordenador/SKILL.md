@@ -30,12 +30,12 @@ O Coordenador é o agente técnico transversal do projeto. Não escreve código 
 
 A composição de schema único e global foi eliminada. Cada banco tem composição própria:
 
-### Banco `organização-shared` (super-servidor de serviços por organização)
+### Banco `organizacao-shared` (super-servidor de serviços por organização)
 
 Continua tendo composição via fragments (paralelismo dos agentes da Onda 3):
 
 ```text
-servicos-global/organização/
+servicos-global/organizacao/
 ├── prisma/schema.base.prisma                ← datasource + generator
 ├── atividades/prisma/fragment.prisma
 ├── cronometro/prisma/fragment.prisma
@@ -69,9 +69,9 @@ servicos-global/produto/helpdesk/prisma/
 npx tsx scripts/compose-product-schema.ts --product=pedido
 npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
-# Para organização-shared
-npx tsx scripts/ativamente/compose-organização-schema.ts
-npx prisma validate --schema=servicos-global/organização/prisma/schema.prisma
+# Para organizacao-shared
+npx tsx scripts/ativamente/compose-organizacao-schema.ts
+npx prisma validate --schema=servicos-global/organizacao/prisma/schema.prisma
 ```
 
 Ver `antigravity-schema-composition` para detalhes.
@@ -83,8 +83,8 @@ Ver `antigravity-schema-composition` para detalhes.
 Após compor cada schema, o Coordenador valida obrigatoriamente:
 
 - [ ] Nenhum nome de model duplicado entre fragments
-- [ ] **Models de produto NÃO têm campo de identificador de organização** ( — schema isola)
-- [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização** ()
+- [ ] **Models de produto NÃO têm campo de identificador de organização** (Schema-per-Organizacao isola)
+- [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização**
 - [ ] Convenção de naming respeitada: PascalCase para models, snake_case para campos
 - [ ] Nenhum `@map` ou `@@map` (mantém naming canônico)
 - [ ] `prisma validate` passa sem erros
@@ -197,8 +197,8 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 |:---|:---|
 | Estrutura do monorepo correta | Reexecutar agente 0A |
 | `@gravity/resolver-organizacao` SDK compila e tests passam | Reexecutar Tech Lead — bloqueia tudo |
-| Bancos `configurador-db` e `organização-shared` criados | DevOps recria via Railway |
-| Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-organização` |
+| Bancos `configurador-db` e `organizacao-shared` criados | DevOps recria via Railway |
+| Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-organizacao` |
 | ESLint custom rule (bloqueia `import { PrismaClient }`) ativa em CI | Reexecutar agente DevOps |
 
 ### Após Onda 2 — antes de iniciar Onda 3
@@ -216,8 +216,8 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Item | Rollback se falhar |
 |:---|:---|
 | Cada serviço por organização responde `GET /health` | Reexecutar serviço que falhou |
-| Todos os serviços usam **exclusivamente** `withTenant` ou `withOrganizacaoContext` | Reprovação imediata pelo lint CI |
-| Schema `organização-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
+| Todos os serviços usam **exclusivamente** `withOrganizacao` ou `withOrganizacaoContext` | Reprovação imediata pelo lint CI |
+| Schema `organizacao-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
 | Schema de cada produto compõe sem conflito | Coordenador resolve naming |
 | `contracts.json` atualizado com endpoints da Onda 3 | Coordenador atualiza |
 | Testes anti-cross-organização + pool leak passam para cada serviço | Reprovação imediata |
@@ -262,10 +262,10 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 ## Checklist — Antes de Liberar Cada Onda
 
 - [ ] Todos os fragments entregues pelos agentes?
-- [ ] Composição executada sem erros (por produto + organização-shared)?
+- [ ] Composição executada sem erros (por produto + organizacao-shared)?
 - [ ] `prisma validate` passou em todos os schemas?
 - [ ] Nenhum model duplicado entre fragments?
-- [ ] Nenhum model de produto com campo de identificador de organização ()?
+- [ ] Nenhum model de produto com campo de identificador de organização?
 - [ ] `contracts.json` atualizado?
 - [ ] Conflitos identificados e resolvidos?
 - [ ] Testes anti-cross-organização passando?

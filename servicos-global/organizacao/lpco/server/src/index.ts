@@ -18,11 +18,11 @@ import { lpcoExigenciaRouter } from './routes/lpcoExigencia.js'
 import { lpcoVinculoRouter } from './routes/lpcoVinculo.js'
 import { lpcoDocumentoRouter } from './routes/lpcoDocumento.js'
 import { lpcoHistoricoRouter } from './routes/lpcoHistorico.js'
-import { simuladorTARouter } from './routes/simuladorTA.js'
+import { simuladorTARouter } from './routes/simulador-tratamento-administrativo.js'
 import { lpcoPortalRouter } from './routes/lpcoPortal.js'
-import { credenciaisRouter } from './routes/credenciais.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { credenciaisRouter } from './routes/credenciais-portal-unico.js'
+import { apiObservability } from '../../../middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

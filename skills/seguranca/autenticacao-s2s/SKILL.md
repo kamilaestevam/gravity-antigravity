@@ -29,7 +29,7 @@ async function callTenantService(
   req: Request,
   body?: unknown
 ) {
-  return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
+  return fetch(`${process.env.ORGANIZACAO_SERVICES_URL}${endpoint}`, {
     method: body ? 'POST' : 'GET',
     headers: {
       'Authorization':    `Bearer ${req.auth.token}`,  // ← JWT do usuário
@@ -85,7 +85,7 @@ async function callTenantServiceAsync(
 ) {
   const serviceToken = await getServiceToken(idOrganizacao, idUsuario)
 
-  return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
+  return fetch(`${process.env.ORGANIZACAO_SERVICES_URL}${endpoint}`, {
     method: 'POST',
     headers: {
       'Authorization':     `Bearer ${serviceToken}`,
@@ -112,7 +112,7 @@ O `x-chave-interna` é uma camada adicional de defesa (defense-in-depth). **Todo
 **OBRIGATÓRIO: usar `timingSafeEqual` — nunca comparação direta (`!==`).** Comparação direta vaza informação sobre o tamanho correto da chave via timing attack.
 
 ```typescript
-// servicos-global/organização/middleware/withInternalKeyValidation.ts
+// servicos-global/organizacao/middleware/withInternalKeyValidation.ts
 import { timingSafeEqual } from 'node:crypto'
 import type { Request, Response, NextFunction } from 'express'
 import { AppError } from './appError.js'
@@ -156,7 +156,7 @@ export function withInternalKeyValidation(
 ## Ordem dos Middlewares no Super-Servidor Organização
 
 ```typescript
-// Ordem obrigatória em servicos-global/organização/server/index.ts
+// Ordem obrigatória em servicos-global/organizacao/server/index.ts
 app.use(correlationMiddleware)          // 1. Correlation ID (gera SUID se ausente)
 app.get('/health', healthHandler)       // 2. Health check — sem auth, antes dos guards
 app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))  // 3. Raw body para webhooks
@@ -213,16 +213,16 @@ async function processAction(idempotencyKey: string, payload: unknown) {
 
 ---
 
-## Validação JWT Independente — Cada Serviço Valida (Dream Team)
-
+## Validação JWT Independente — Cada Serviço Valida
 **Regra inviolável:** o servidor de organização NUNCA confia no produto cegamente. Ele valida o JWT de forma independente.
 
 ```typescript
-// Em CADA serviço — configurador, organização-services, produtos
-import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
+// Em CADA serviço — configurador, organizacao-services, produtos
+import { clerkMiddleware, requireAuth } from '@clerk/express'
 
 // O serviço valida o JWT por conta própria
-app.use(ClerkExpressRequireAuth())
+app.use(clerkMiddleware())
+app.use(requireAuth())
 
 // Não basta o produto dizer "o usuário é X" — o serviço confirma
 ```
@@ -231,12 +231,11 @@ Isso significa que mesmo se um produto for comprometido, ele não pode se passar
 
 ---
 
-## Proxy de Organização — Padrão para Produtos (Dream Team)
-
+## Proxy de Organização — Padrão para Produtos
 Todo produto que consome serviços de organização usa um proxy que encapsula autenticação e retry:
 
 ```typescript
-// servicos-global/organização/proxy/index.ts
+// servicos-global/organizacao/proxy/index.ts
 import { PRODUCT_CONFIG } from './config'
 
 export function createTenantProxy(config: {
@@ -273,8 +272,8 @@ export function createTenantProxy(config: {
 }
 
 // No servidor do produto:
-app.use('/api/organização', createTenantProxy({
-  baseUrl: process.env.TENANT_SERVICES_URL!,
+app.use('/api/organizacao', createTenantProxy({
+  baseUrl: process.env.ORGANIZACAO_SERVICES_URL!,
   services: PRODUCT_CONFIG.tenantServices,
 }))
 ```

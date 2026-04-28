@@ -26,51 +26,51 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
     query: {
       $allModels: {
         async findMany({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async findFirst({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async findUnique({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async create({ args, query }: PrismaExtensionContext) {
-          args.data = { ...(args.data as Record<string, unknown>), tenant_id: tenantId }
+          args.data = { ...(args.data as Record<string, unknown>), id_organizacao: tenantId }
           return query(args)
         },
         async createMany({ args, query }: PrismaExtensionContext) {
           if (Array.isArray(args.data)) {
-            args.data = (args.data as Record<string, unknown>[]).map((d) => ({ ...d, tenant_id: tenantId }))
+            args.data = (args.data as Record<string, unknown>[]).map((d) => ({ ...d, id_organizacao: tenantId }))
           } else {
-            args.data = { ...(args.data as Record<string, unknown>), tenant_id: tenantId }
+            args.data = { ...(args.data as Record<string, unknown>), id_organizacao: tenantId }
           }
           return query(args)
         },
         async update({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async updateMany({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async delete({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async deleteMany({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async count({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async aggregate({ args, query }: PrismaExtensionContext) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
       }

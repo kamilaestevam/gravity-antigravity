@@ -199,7 +199,7 @@ export const STATUS_BID_RESPONSE_BADGE: Record<StatusBidResponseCambio, 'info' |
 
 export interface CambioParcelas {
   id: string
-  tenant_id: string
+  id_organizacao: string
   product_id: string
   user_id: string
   referencia_processo: string | null
@@ -239,7 +239,7 @@ export interface CambioParcelas {
 
 export interface CambioAnexo {
   id: string
-  tenant_id: string
+  id_organizacao: string
   parcela_id: string
   nome_arquivo: string | null
   nome_original: string
@@ -251,7 +251,7 @@ export interface CambioAnexo {
 
 export interface CambioCotacoes {
   id: string
-  tenant_id: string
+  id_organizacao: string
   product_id: string
   user_id: string
   moeda: CambioMoeda
@@ -276,7 +276,7 @@ export interface CambioCotacoes {
 
 export interface CambioCotacoesPedidos {
   id: string
-  tenant_id: string
+  id_organizacao: string
   cotacao_id: string
   corretora_id: string
   corretora?: CambioCorretoras
@@ -294,7 +294,7 @@ export interface CambioCotacoesPedidos {
 
 export interface BidResponseCambio {
   id: string
-  tenant_id: string
+  id_organizacao: string
   cotacao_id: string
   corretora_id: string
   corretora?: CambioCorretoras
@@ -315,7 +315,7 @@ export interface BidResponseCambio {
 
 export interface CambioCorretoras {
   id: string
-  tenant_id: string
+  id_organizacao: string
   product_id: string
   user_id: string
   razao_social: string
@@ -338,7 +338,7 @@ export interface CambioCorretoras {
 
 export interface CambioCorretorasAvaliacoes {
   id: string
-  tenant_id: string
+  id_organizacao: string
   user_id: string
   corretora_id: string
   cotacao_id: string | null
@@ -369,7 +369,7 @@ export interface CambioCorretoraClassificao {
 
 export interface CambioGanho {
   id: string
-  tenant_id: string
+  id_organizacao: string
   cotacao_id: string
   corretora_id: string
   valor_operacao: number
@@ -384,7 +384,7 @@ export interface CambioGanho {
 
 export interface CambioPreferenciaUsuario {
   id: string
-  tenant_id: string
+  id_organizacao: string
   product_id: string
   mostrar_no_financeiro: boolean
   alerta_email_vencimento: boolean
@@ -396,7 +396,7 @@ export interface CambioPreferenciaUsuario {
 
 export interface CambioPreferenciaGrid {
   id: string
-  tenant_id: string
+  id_organizacao: string
   user_id: string
   colunas_visiveis: string
   ordem_colunas: string

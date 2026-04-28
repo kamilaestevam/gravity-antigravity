@@ -14,7 +14,7 @@ const DEMO_USER_ID = process.env.SEED_USER_ID ?? 'user-demo-001'
 async function seedCorretoras() {
   const corretoras = [
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       razao_social: 'Cambio Express Corretora de Cambio Ltda',
@@ -30,7 +30,7 @@ async function seedCorretoras() {
       moedas_operadas: 'USD,EUR,GBP',
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       razao_social: 'Banco Internacional do Comercio S.A.',
@@ -46,7 +46,7 @@ async function seedCorretoras() {
       moedas_operadas: 'USD,EUR,GBP,CHF,JPY',
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       razao_social: 'FastFX Cambio Digital Ltda',
@@ -65,14 +65,14 @@ async function seedCorretoras() {
 
   const created = await prisma.cambioCorretoras.createMany({ data: corretoras as any })
   console.log(`[seed] ${created.count} corretoras criadas`)
-  return prisma.cambioCorretoras.findMany({ where: { tenant_id: DEMO_TENANT_ID } })
+  return prisma.cambioCorretoras.findMany({ where: { id_organizacao: DEMO_TENANT_ID } })
 }
 
 async function seedParcelas() {
   const hoje = new Date()
   const parcelas = [
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       referencia_processo: 'IMP-2026-001',
@@ -92,7 +92,7 @@ async function seedParcelas() {
       data_embarque_final: new Date(hoje.getTime() - 15 * 86400000),
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       referencia_processo: 'IMP-2026-001',
@@ -111,7 +111,7 @@ async function seedParcelas() {
       data_vencimento: new Date(hoje.getTime() + 35 * 86400000),
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       referencia_processo: 'IMP-2026-001',
@@ -130,7 +130,7 @@ async function seedParcelas() {
       data_vencimento: new Date(hoje.getTime() + 60 * 86400000),
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       referencia_processo: 'IMP-2026-002',
@@ -148,7 +148,7 @@ async function seedParcelas() {
       data_agendamento: new Date(hoje.getTime() + 5 * 86400000),
     },
     {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       user_id: DEMO_USER_ID,
       referencia_processo: 'EXP-2026-003',
@@ -177,10 +177,10 @@ async function seedParcelas() {
 
 async function seedPreferencias() {
   await prisma.cambioPreferenciaUsuario.upsert({
-    where: { tenant_id: DEMO_TENANT_ID },
+    where: { id_organizacao: DEMO_TENANT_ID },
     update: {},
     create: {
-      tenant_id: DEMO_TENANT_ID,
+      id_organizacao: DEMO_TENANT_ID,
       product_id: 'bid-cambio',
       mostrar_no_financeiro: true,
       alerta_email_vencimento: true,

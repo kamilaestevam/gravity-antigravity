@@ -43,14 +43,14 @@ async function alertarVencimentosCambio() {
       dataLimiteAjustada = new Date(dataLimite.getTime() + 2 * 24 * 60 * 60 * 1000)
     }
 
-    const tenantDb = withTenantIsolation(cronPrisma, pref.tenant_id)
+    const tenantDb = withTenantIsolation(cronPrisma, pref.id_organizacao)
 
     const parcelasVencendo = await tenantDb.$queryRawUnsafe(`
       SELECT * FROM cambio_parcelas
-      WHERE tenant_id = $1
+      WHERE id_organizacao = $1
       AND status IN ('PENDENTE', 'AGENDADO')
       AND data_vencimento BETWEEN $2::timestamp AND $3::timestamp
-    `, pref.tenant_id, agora.toISOString(), dataLimiteAjustada.toISOString()) as any[]
+    `, pref.id_organizacao, agora.toISOString(), dataLimiteAjustada.toISOString()) as any[]
 
     if (parcelasVencendo.length === 0) continue
 
@@ -59,13 +59,13 @@ async function alertarVencimentosCambio() {
 
     // Fire-and-forget: notificacao + atividade
     for (const parcela of parcelasVencendo) {
-      atividadesIntegration.proximoVencimento(pref.tenant_id, parcela.user_id, {
+      atividadesIntegration.proximoVencimento(pref.id_organizacao, parcela.user_id, {
         referencia: parcela.referencia_processo ?? parcela.id,
         data_vencimento: parcela.data_vencimento?.toISOString().split('T')[0] ?? '',
       })
     }
 
-    console.log(`[Cron] Tenant ${pref.tenant_id}: ${parcelasVencendo.length} parcelas vencendo em ${diasAntecedencia} dias`)
+    console.log(`[Cron] Tenant ${pref.id_organizacao}: ${parcelasVencendo.length} parcelas vencendo em ${diasAntecedencia} dias`)
   }
 }
 
@@ -76,26 +76,26 @@ async function expirarCotacoesVencidas() {
   const agora = new Date()
 
   const cotacoesVencidas = await cronPrisma.$queryRawUnsafe(`
-    SELECT id, tenant_id, user_id FROM cambio_cotacoes
+    SELECT id, id_organizacao, user_id FROM cambio_cotacoes
     WHERE status IN ('ENVIADA_CORRETORAS', 'EM_COTACAO')
     AND data_expiracao < $1::timestamp
   `, agora.toISOString()) as any[]
 
   for (const cotacao of cotacoesVencidas) {
-    const tenantDb = withTenantIsolation(cronPrisma, cotacao.tenant_id)
+    const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
     await tenantDb.$executeRawUnsafe(`
       UPDATE cambio_cotacoes SET status = 'EXPIRADA', updated_at = NOW()
-      WHERE id = $1 AND tenant_id = $2
-    `, cotacao.id, cotacao.tenant_id)
+      WHERE id = $1 AND id_organizacao = $2
+    `, cotacao.id, cotacao.id_organizacao)
 
     await tenantDb.$executeRawUnsafe(`
       UPDATE cambio_bid_requests SET status = 'EXPIRADO', updated_at = NOW()
-      WHERE cotacao_id = $1 AND tenant_id = $2
+      WHERE cotacao_id = $1 AND id_organizacao = $2
       AND status IN ('PENDENTE', 'ENVIADO', 'VISUALIZADO')
-    `, cotacao.id, cotacao.tenant_id)
+    `, cotacao.id, cotacao.id_organizacao)
 
-    notificacoesIntegration.cotacaoExpirada(cotacao.tenant_id, cotacao.user_id, {
+    notificacoesIntegration.cotacaoExpirada(cotacao.id_organizacao, cotacao.user_id, {
       cotacao_id: cotacao.id,
     })
   }

@@ -1,2 +1,2 @@
-export { KpiValue } from './KpiValue.js'
-export type { KpiValueProps } from './KpiValue.js'
+export { DashboardValorKPI } from './DashboardValorKPI.js'
+export type { KpiValueProps } from './DashboardValorKPI.js'

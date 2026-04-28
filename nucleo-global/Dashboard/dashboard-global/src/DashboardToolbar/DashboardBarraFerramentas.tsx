@@ -1,5 +1,5 @@
 /**
- * DashboardToolbar — Barra de controles do dashboard
+ * DashboardBarraFerramentas — Barra de controles do dashboard
  *
  * Componente puro: recebe todo o estado via props, sem efeitos colaterais.
  * - Seletor de período (separado dos chips por divisor vertical)
@@ -259,7 +259,7 @@ export interface DashboardToolbarProps {
   className?: string
 }
 
-export function DashboardToolbar({
+export function DashboardBarraFerramentas({
   slicers,
   onPeriodChange,
   onStatusChange,

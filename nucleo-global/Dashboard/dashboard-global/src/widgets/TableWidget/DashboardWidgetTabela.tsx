@@ -1,5 +1,5 @@
 /**
- * TableWidget — Tabela de dados simples.
+ * DashboardWidgetTabela — Tabela de dados simples.
  * Aceita distribuição (Record<string, number>) ou array de objetos.
  * Gera colunas automaticamente a partir do primeiro item.
  * Limite de 10 linhas por padrão.
@@ -76,7 +76,7 @@ function SimpleTable({
   )
 }
 
-export function TableWidget({ data, fieldKey, columns }: TableWidgetProps) {
+export function DashboardWidgetTabela({ data, fieldKey, columns }: TableWidgetProps) {
   const raw = data[fieldKey]
 
   if (isDistribution(raw)) {

@@ -1,2 +1,2 @@
-export { CfgSectionLabel } from './CfgSectionLabel'
-export type { CfgSectionLabelProps } from './CfgSectionLabel'
+export { ConfiguracaoSecaoGlobal } from './ConfiguracaoSecaoGlobal'
+export type { CfgSectionLabelProps } from './ConfiguracaoSecaoGlobal'

@@ -1,44 +1,44 @@
 // @nucleo/dashboard — Gravity Design System
 // Componentes de Dashboard BI com suporte a drag & drop, gráficos e query builder.
 
-export { WidgetContainer } from './WidgetContainer/index.js'
-export type { WidgetContainerProps } from './WidgetContainer/index.js'
+export { DashboardPainelContainer } from './DashboardPainelContainer/index.js'
+export type { WidgetContainerProps } from './DashboardPainelContainer/index.js'
 
 export { DashboardGrid } from './DashboardGrid/index.js'
 export type { DashboardGridProps } from './DashboardGrid/index.js'
 
-export { KpiWidget } from './widgets/KpiWidget/index.js'
-export type { KpiWidgetProps } from './widgets/KpiWidget/index.js'
+export { DashboardWidgetKPI } from './widgets/DashboardWidgetKPI/index.js'
+export type { KpiWidgetProps } from './widgets/DashboardWidgetKPI/index.js'
 
-export { LineChartWidget } from './widgets/LineChartWidget/index.js'
-export type { LineChartWidgetProps, LineSeriesConfig } from './widgets/LineChartWidget/index.js'
+export { DashboardWidgetLinha } from './widgets/DashboardWidgetLinha/index.js'
+export type { LineChartWidgetProps, LineSeriesConfig } from './widgets/DashboardWidgetLinha/index.js'
 
-export { BarChartWidget } from './widgets/BarChartWidget/index.js'
-export type { BarChartWidgetProps, BarSeriesConfig } from './widgets/BarChartWidget/index.js'
+export { DashboardWidgetBarras } from './widgets/DashboardWidgetBarras/index.js'
+export type { BarChartWidgetProps, BarSeriesConfig } from './widgets/DashboardWidgetBarras/index.js'
 
-export { DistributionWidget } from './widgets/DistributionWidget/index.js'
-export type { DistributionWidgetProps } from './widgets/DistributionWidget/index.js'
+export { DashboardWidgetDistribuicao } from './widgets/DashboardWidgetDistribuicao/index.js'
+export type { DistributionWidgetProps } from './widgets/DashboardWidgetDistribuicao/index.js'
 
-export { DonutWidget } from './widgets/DonutWidget/index.js'
-export type { DonutWidgetProps } from './widgets/DonutWidget/index.js'
+export { DashboardWidgetDonut } from './widgets/DashboardWidgetDonut/index.js'
+export type { DonutWidgetProps } from './widgets/DashboardWidgetDonut/index.js'
 
-export { TableWidget } from './widgets/TableWidget/index.js'
-export type { TableWidgetProps } from './widgets/TableWidget/index.js'
+export { DashboardWidgetTabela } from './widgets/DashboardWidgetTabela/index.js'
+export type { TableWidgetProps } from './widgets/DashboardWidgetTabela/index.js'
 
-export { DashboardToolbar } from './DashboardToolbar/index.js'
-export type { DashboardToolbarProps, PeriodOption } from './DashboardToolbar/index.js'
+export { DashboardBarraFerramentas } from './DashboardBarraFerramentas/index.js'
+export type { DashboardToolbarProps, PeriodOption } from './DashboardBarraFerramentas/index.js'
 
-export { KpiValue } from './KpiValue/index.js'
-export type { KpiValueProps } from './KpiValue/index.js'
+export { DashboardValorKPI } from './DashboardValorKPI/index.js'
+export type { KpiValueProps } from './DashboardValorKPI/index.js'
 
 export { WidgetEditModal } from './WidgetEditModal/index.js'
 export type { WidgetEditModalProps, ChartOptionMeta, PeriodOptionEdit } from './WidgetEditModal/index.js'
 
-export { SuggestionsPanel } from './SuggestionsPanel/index.js'
-export type { SuggestionsPanelProps } from './SuggestionsPanel/index.js'
+export { DashboardPainelSugestoes } from './DashboardPainelSugestoes/index.js'
+export type { SuggestionsPanelProps } from './DashboardPainelSugestoes/index.js'
 
-export { QueryBuilder } from './QueryBuilder/index.js'
-export type { QueryBuilderProps } from './QueryBuilder/index.js'
+export { DashboardConstrutorConsulta } from './DashboardConstrutorConsulta/index.js'
+export type { QueryBuilderProps } from './DashboardConstrutorConsulta/index.js'
 
 export { resolveAxisAssignment, wouldExceedUnitLimit, formatValueByUnit, unitBadgeLabel, SERIES_COLORS } from './utils/axisUtils.js'
 export type { AxisAssignment, YAxisSide } from './utils/axisUtils.js'

@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import type { Layouts } from 'react-grid-layout'
 import {
   DashboardGrid,
-  DashboardToolbar,
-  WidgetContainer,
-  KpiWidget,
-  LineChartWidget,
-  BarChartWidget,
-  DonutWidget,
+  DashboardBarraFerramentas,
+  DashboardPainelContainer,
+  DashboardWidgetKPI,
+  DashboardWidgetLinha,
+  DashboardWidgetBarras,
+  DashboardWidgetDonut,
 } from '@nucleo/dashboard'
 import type {
   DashboardWidgetConfig,
@@ -134,18 +134,18 @@ export default function App() {
   function renderWidget(widget: DashboardWidgetConfig) {
     let children: React.ReactNode = null
     switch (widget.id) {
-      case 'kpi-1':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="total_pedidos" fieldType="number" />; break
-      case 'kpi-2':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="receita_total" fieldType="currency" />; break
-      case 'kpi-3':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="ticket_medio" fieldType="currency" />; break
-      case 'line-1':  children = <LineChartWidget series={lineSeriesPedidos} showArea />; break
-      case 'line-2':  children = <LineChartWidget series={lineSeriesDualAxis} dualAxis leftUnit="currency" rightUnit="number" />; break
-      case 'bar-1':   children = <BarChartWidget series={barSeries} mode="grouped" leftUnit="number" />; break
-      case 'donut-1': children = <DonutWidget data={donutData.series} />; break
+      case 'kpi-1':   children = <DashboardWidgetKPI title={widget.title} data={kpiResult.data} fieldKey="total_pedidos" fieldType="number" />; break
+      case 'kpi-2':   children = <DashboardWidgetKPI title={widget.title} data={kpiResult.data} fieldKey="receita_total" fieldType="currency" />; break
+      case 'kpi-3':   children = <DashboardWidgetKPI title={widget.title} data={kpiResult.data} fieldKey="ticket_medio" fieldType="currency" />; break
+      case 'line-1':  children = <DashboardWidgetLinha series={lineSeriesPedidos} showArea />; break
+      case 'line-2':  children = <DashboardWidgetLinha series={lineSeriesDualAxis} dualAxis leftUnit="currency" rightUnit="number" />; break
+      case 'bar-1':   children = <DashboardWidgetBarras series={barSeries} mode="grouped" leftUnit="number" />; break
+      case 'donut-1': children = <DashboardWidgetDonut data={donutData.series} />; break
     }
     return (
-      <WidgetContainer key={widget.id} widget={widget} result={kpiResult} editMode={editMode}>
+      <DashboardPainelContainer key={widget.id} widget={widget} result={kpiResult} editMode={editMode}>
         {children}
-      </WidgetContainer>
+      </DashboardPainelContainer>
     )
   }
 
@@ -163,7 +163,7 @@ export default function App() {
       </header>
 
       <div className="demo-content">
-        <DashboardToolbar
+        <DashboardBarraFerramentas
           slicers={slicers}
           onPeriodChange={(p) => setSlicers(s => ({ ...s, period: p }))}
           onStatusChange={(st) => setSlicers(s => ({ ...s, status: st }))}

@@ -1,5 +1,5 @@
 /**
- * LineChartWidget — Gráfico de linha/área com suporte a múltiplas séries
+ * DashboardWidgetLinha — Gráfico de linha/área com suporte a múltiplas séries
  *
  * v2 — 2026-04-03
  * - Aceita array de séries (multi-campo)
@@ -130,7 +130,7 @@ const axisProps = {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function LineChartWidget({
+export function DashboardWidgetLinha({
   series,
   dualAxis = false,
   leftUnit = 'number',

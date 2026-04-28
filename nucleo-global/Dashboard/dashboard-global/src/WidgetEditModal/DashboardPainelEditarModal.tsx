@@ -58,7 +58,7 @@ export interface ModalEditarWidgetProps {
   periodOptions?: PeriodOptionEdit[]
 }
 
-export function ModalEditarWidget({
+export function DashboardPainelEditarModal({
   widget,
   aberto,
   onFechar,

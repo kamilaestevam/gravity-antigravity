@@ -9,7 +9,7 @@ export interface CfgSectionLabelProps {
   style?: React.CSSProperties
 }
 
-export function CfgSectionLabel({ label, count, hint, action, style }: CfgSectionLabelProps) {
+export function ConfiguracaoSecaoGlobal({ label, count, hint, action, style }: CfgSectionLabelProps) {
   return (
     <div className="cfg-section-label-header" style={style}>
       <p className="cfg-section-label-text">

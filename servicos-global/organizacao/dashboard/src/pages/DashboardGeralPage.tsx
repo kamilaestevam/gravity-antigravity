@@ -2,7 +2,7 @@
  * DashboardGeralPage — Dashboard Geral multi-produto do tenant
  *
  * Renderiza a config de dashboard do modo GENERAL.
- * Suporta: grid dinâmico de widgets, modo de edição, QueryBuilder inline,
+ * Suporta: grid dinâmico de widgets, modo de edição, DashboardConstrutorConsulta inline,
  * SSE para updates em tempo real, e EmptyState quando não há widgets.
  */
 
@@ -20,10 +20,10 @@ import {
 } from '@phosphor-icons/react'
 
 import { DashboardGrid } from '@nucleo/dashboard/DashboardGrid/index.js'
-import { WidgetContainer } from '@nucleo/dashboard/WidgetContainer/index.js'
-import { KpiWidget } from '@nucleo/dashboard/widgets/KpiWidget/index.js'
-import { LineChartWidget } from '@nucleo/dashboard/widgets/LineChartWidget/index.js'
-import { BarChartWidget } from '@nucleo/dashboard/widgets/BarChartWidget/index.js'
+import { DashboardPainelContainer } from '@nucleo/dashboard/WidgetContainer/index.js'
+import { DashboardWidgetKPI } from '@nucleo/dashboard/widgets/KpiWidget/index.js'
+import { DashboardWidgetLinha } from '@nucleo/dashboard/widgets/LineChartWidget/index.js'
+import { DashboardWidgetBarras } from '@nucleo/dashboard/widgets/BarChartWidget/index.js'
 
 import { useDashboardStore } from '../store/dashboardStore.js'
 import { useDashboardData } from '../hooks/useDashboardData.js'
@@ -98,42 +98,42 @@ function WidgetRenderer({ widget, editMode }: { widget: DashboardWidgetConfig; e
     const value = result?.data?.value
     const numericValue = typeof value === 'number' ? value : 0
     return (
-      <WidgetContainer {...commonProps}>
-        <KpiWidget
+      <DashboardPainelContainer {...commonProps}>
+        <DashboardWidgetKPI
           value={numericValue}
           label={widget.title}
           config={widget.config}
         />
-      </WidgetContainer>
+      </DashboardPainelContainer>
     )
   }
 
   if (chartType === 'LINE' || chartType === 'AREA') {
     return (
-      <WidgetContainer {...commonProps}>
-        <LineChartWidget
+      <DashboardPainelContainer {...commonProps}>
+        <DashboardWidgetLinha
           data={result?.data ?? {}}
           config={widget.config}
         />
-      </WidgetContainer>
+      </DashboardPainelContainer>
     )
   }
 
   if (chartType === 'BAR' || chartType === 'BAR_HORIZONTAL') {
     return (
-      <WidgetContainer {...commonProps}>
-        <BarChartWidget
+      <DashboardPainelContainer {...commonProps}>
+        <DashboardWidgetBarras
           data={result?.data ?? {}}
           horizontal={chartType === 'BAR_HORIZONTAL'}
           config={widget.config}
         />
-      </WidgetContainer>
+      </DashboardPainelContainer>
     )
   }
 
   // Fallback genérico
   return (
-    <WidgetContainer {...commonProps}>
+    <DashboardPainelContainer {...commonProps}>
       <div style={{
         height: '100%',
         display: 'flex',
@@ -144,7 +144,7 @@ function WidgetRenderer({ widget, editMode }: { widget: DashboardWidgetConfig; e
       }}>
         {loading ? 'Carregando...' : (error ?? `Tipo ${chartType} não suportado`)}
       </div>
-    </WidgetContainer>
+    </DashboardPainelContainer>
   )
 }
 
@@ -197,7 +197,7 @@ function EmptyState({ onAddWidget }: { onAddWidget: () => void }) {
   )
 }
 
-// ─── QueryBuilder Modal simples ───────────────────────────────────────────────
+// ─── DashboardConstrutorConsulta Modal simples ───────────────────────────────────────────────
 
 interface QueryBuilderModalProps {
   configId: string
@@ -686,7 +686,7 @@ export function DashboardGeralPage() {
         />
       )}
 
-      {/* ── QueryBuilder Modal ── */}
+      {/* ── DashboardConstrutorConsulta Modal ── */}
       {showQueryBuilder && activeConfig && (
         <QueryBuilderModal
           configId={activeConfig.id}

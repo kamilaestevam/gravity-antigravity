@@ -1,5 +1,5 @@
 /**
- * DonutWidget — Donut chart reutilizando CardGraficoGlobal
+ * DashboardWidgetDonut — Donut chart reutilizando CardGraficoGlobal
  *
  * Aceita distribuição (Record<string, number>), calcula total e maior valor,
  * e delega renderização ao CardGraficoGlobal do design system.
@@ -34,7 +34,7 @@ function isDistribution(value: WidgetDataValue): value is Record<string, number>
   )
 }
 
-export function DonutWidget({ title, data, fieldKey }: DonutWidgetProps) {
+export function DashboardWidgetDonut({ title, data, fieldKey }: DonutWidgetProps) {
   const raw = data[fieldKey]
 
   if (!isDistribution(raw)) {

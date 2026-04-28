@@ -1,5 +1,5 @@
 /**
- * KpiWidget — Renderiza um KPI simples usando CardBasicoGlobal
+ * DashboardWidgetKPI — Renderiza um KPI simples usando CardBasicoGlobal
  *
  * Extrai o valor da chave especificada, formata conforme tipo do campo
  * e delega a renderização ao CardBasicoGlobal do design system.
@@ -44,7 +44,7 @@ function formatValue(value: number, fieldType: KpiWidgetProps['fieldType']): str
   return new Intl.NumberFormat('pt-BR').format(value)
 }
 
-export function KpiWidget({
+export function DashboardWidgetKPI({
   title,
   data,
   fieldKey,

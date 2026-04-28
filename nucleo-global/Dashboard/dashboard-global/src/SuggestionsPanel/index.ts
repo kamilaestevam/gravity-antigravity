@@ -1,2 +1,2 @@
-export { SuggestionsPanel } from './SuggestionsPanel.js'
-export type { SuggestionsPanelProps } from './SuggestionsPanel.js'
+export { DashboardPainelSugestoes } from './DashboardPainelSugestoes.js'
+export type { SuggestionsPanelProps } from './DashboardPainelSugestoes.js'

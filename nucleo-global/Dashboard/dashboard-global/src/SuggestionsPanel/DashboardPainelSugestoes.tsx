@@ -1,5 +1,5 @@
 /**
- * SuggestionsPanel — Painel de sugestões e métricas derivadas
+ * DashboardPainelSugestoes — Painel de sugestões e métricas derivadas
  *
  * Componente puro: recebe sugestões e métricas como props.
  * O produto é responsável por calcular as sugestões (via generateSuggestions)
@@ -16,11 +16,11 @@ export interface SuggestionsPanelProps {
   derivedMetrics: DerivedMetric[]
   onAdd: (widget: DashboardWidgetConfig) => void
   onClose: () => void
-  /** Callback para abrir o QueryBuilder (criar widget do zero) */
+  /** Callback para abrir o DashboardConstrutorConsulta (criar widget do zero) */
   onCreateCustom?: () => void
 }
 
-export function SuggestionsPanel({
+export function DashboardPainelSugestoes({
   suggestions,
   derivedMetrics,
   onAdd,

@@ -21,16 +21,16 @@ import { useNavigate } from 'react-router-dom'
 import { useShellStore } from '@shell'
 import {
   DashboardGrid,
-  WidgetContainer,
-  LineChartWidget,
-  BarChartWidget,
-  DistributionWidget,
-  DashboardToolbar,
+  DashboardPainelContainer,
+  DashboardWidgetLinha,
+  DashboardWidgetBarras,
+  DashboardWidgetDistribuicao,
+  DashboardBarraFerramentas,
   WidgetEditModal,
-  SuggestionsPanel,
-  KpiValue,
+  DashboardPainelSugestoes,
+  DashboardValorKPI,
 } from '@nucleo/dashboard'
-import { QueryBuilder } from '@nucleo/query-builder-global'
+import { DashboardConstrutorConsulta } from '@nucleo/query-builder-global'
 import type {
   DashboardWidgetConfig,
   WidgetResult,
@@ -127,7 +127,7 @@ function buildWidgetResult(
   return { data: { [fieldKey]: value }, chartType, partial: false, cached: false, computed_at: now }
 }
 
-// ── (KpiValue, WidgetEditModal e SuggestionsPanel migrados para @nucleo/dashboard) ──
+// ── (DashboardValorKPI, WidgetEditModal e DashboardPainelSugestoes migrados para @nucleo/dashboard) ──
 
 // ── Período anterior para comparação de tendência ────────────────────────────
 
@@ -1026,7 +1026,7 @@ export default function PedidosDashboard() {
     [widgets],
   )
 
-  // Sugestões computadas para o SuggestionsPanel
+  // Sugestões computadas para o DashboardPainelSugestoes
   const suggestions = useMemo(
     () => generateSuggestions(
       widgets.map(w => w.id),
@@ -1208,7 +1208,7 @@ export default function PedidosDashboard() {
       )
     }
 
-    // ── SECTION_LABEL — divisor de seção sem WidgetContainer ────────────────
+    // ── SECTION_LABEL — divisor de seção sem DashboardPainelContainer ────────────────
     if (chartType === 'SECTION_LABEL') {
       return (
         <div key={widget.id} style={sectionLabelStyle}>
@@ -1227,7 +1227,7 @@ export default function PedidosDashboard() {
     // ── Estado vazio detectado pela GABI ─────────────────────────────────────
     if (!loadingData && kpisData && isResultEmpty(result, isDerived)) {
       return (
-        <WidgetContainer
+        <DashboardPainelContainer
           key={widget.id}
           widget={widget}
           result={result}
@@ -1245,21 +1245,21 @@ export default function PedidosDashboard() {
             onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
             onRemove={() => removeWidget(widget.id)}
           />
-        </WidgetContainer>
+        </DashboardPainelContainer>
       )
     }
 
     // ── DISTRIBUTION ────────────────────────────────────────────────────────
     if (chartType === 'DISTRIBUTION') {
       return (
-        <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
 
         >
-          <DistributionWidget slices={result.slices ?? []} />
-        </WidgetContainer>
+          <DashboardWidgetDistribuicao slices={result.slices ?? []} />
+        </DashboardPainelContainer>
       )
     }
 
@@ -1283,20 +1283,20 @@ export default function PedidosDashboard() {
       })
 
       return (
-        <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
 
         >
-          <LineChartWidget
+          <DashboardWidgetLinha
             series={series}
             dualAxis={dualAxis}
             leftUnit={leftUnit ?? 'number'}
             rightUnit={rightUnit ?? undefined}
             showArea={chartType === 'AREA'}
           />
-        </WidgetContainer>
+        </DashboardPainelContainer>
       )
     }
 
@@ -1320,20 +1320,20 @@ export default function PedidosDashboard() {
       })
 
       return (
-        <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
 
         >
-          <BarChartWidget
+          <DashboardWidgetBarras
             series={series}
             dualAxis={dualAxis}
             leftUnit={leftUnit ?? 'number'}
             rightUnit={rightUnit ?? undefined}
             horizontal={chartType === 'BAR_HORIZONTAL'}
           />
-        </WidgetContainer>
+        </DashboardPainelContainer>
       )
     }
 
@@ -1351,7 +1351,7 @@ export default function PedidosDashboard() {
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
-        <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+        <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
@@ -1364,7 +1364,7 @@ export default function PedidosDashboard() {
             if (navRoute && !editMode) navigate(navRoute)
           }}
         >
-          <KpiValue
+          <DashboardValorKPI
             data={result.data}
             fieldKey={fieldKey}
             fieldType={fieldType}
@@ -1372,21 +1372,21 @@ export default function PedidosDashboard() {
             deltaPercent={deltaInfo.percent}
             deltaDirection={deltaInfo.direction}
           />
-        </WidgetContainer>
+        </DashboardPainelContainer>
       )
     }
 
     // ── Fallback ─────────────────────────────────────────────────────────────
     const fieldKey = fields[0]?.key ?? 'value'
     return (
-      <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
+      <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
         editMode={editMode}
         onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
         onRemove={removeWidget}
 
       >
-        <KpiValue data={result.data} fieldKey={fieldKey} fieldType="number" />
-      </WidgetContainer>
+        <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
+      </DashboardPainelContainer>
     )
   }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels])
 
@@ -1480,7 +1480,7 @@ export default function PedidosDashboard() {
 
 
       {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
-      <DashboardToolbar
+      <DashboardBarraFerramentas
         slicers={slicers}
         onPeriodChange={setPeriod}
         onStatusChange={setStatusFilter}
@@ -1686,7 +1686,7 @@ export default function PedidosDashboard() {
         }}
       />
 
-      <QueryBuilder
+      <DashboardConstrutorConsulta
         aberto={queryBuilderOpen}
         availableFields={DASHBOARD_CATALOG}
         onSave={handleQueryBuilderSave}
@@ -1702,7 +1702,7 @@ export default function PedidosDashboard() {
       />
 
       {suggestionsOpen && (
-        <SuggestionsPanel
+        <DashboardPainelSugestoes
           suggestions={suggestions}
           derivedMetrics={allDerived}
           onAdd={handleAddWidgetFromSuggestions}

@@ -1,5 +1,5 @@
 /**
- * WidgetContainer — Wrapper universal para widgets do Dashboard BI
+ * DashboardPainelContainer — Wrapper universal para widgets do Dashboard BI
  *
  * Responsabilidades:
  * - Estado de loading (skeleton animado)
@@ -118,7 +118,7 @@ function OptionsMenu({ onEdit, onRemove }: OptionsMenuProps) {
 
 // ─── Componente principal ──────────────────────────────────────────────────────
 
-export function WidgetContainer({
+export function DashboardPainelContainer({
   widget,
   result,
   loading = false,

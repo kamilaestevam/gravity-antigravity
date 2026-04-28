@@ -1,5 +1,5 @@
 /**
- * KpiValue — Display de valor único formatado para cards KPI
+ * DashboardValorKPI — Display de valor único formatado para cards KPI
  *
  * Componente puro: formata e exibe um valor numérico de acordo com seu tipo.
  * Usa formatValueByUnit do utilitário de eixos para consistência de formatação.
@@ -22,7 +22,7 @@ export interface KpiValueProps {
   deltaDirection?: 'up' | 'down' | 'neutral'
 }
 
-export function KpiValue({
+export function DashboardValorKPI({
   data, fieldKey, fieldType = 'number',
   delta, deltaPercent, deltaDirection,
 }: KpiValueProps) {

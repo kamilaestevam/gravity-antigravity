@@ -124,7 +124,7 @@ export interface CatalogField {
   chartTypes: ChartType[]
   /**
    * Dimensão de agrupamento (opcional).
-   * Quando presente, habilita futura rota de GROUP BY no QueryBuilder (Option B).
+   * Quando presente, habilita futura rota de GROUP BY no DashboardConstrutorConsulta (Option B).
    * Ex: campos de status de pedido → dimension: 'status_pedido'
    */
   dimension?: string

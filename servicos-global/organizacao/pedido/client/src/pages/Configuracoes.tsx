@@ -62,7 +62,7 @@ import type {
   EscopoColunaUsuario,
   VisibilidadeColunaUsuario,
 } from '../shared/types'
-import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
+import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
 import { PedidoSnapshotCadastros } from './configuracoes/PedidoSnapshotCadastros'
 import './Configuracoes.css'
@@ -2190,7 +2190,7 @@ export default function Configuracoes() {
               </div>
 
               {/* ── Período de comparação ── */}
-              <CfgSectionLabel label={t('pedido.config.cards.label_periodo')} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.label_periodo')} />
               <div className="cfg-periodo-pills" style={{ marginTop: '0.75rem' }}>
                 {PERIODOS.map(p => (
                   <button
@@ -2235,7 +2235,7 @@ export default function Configuracoes() {
               )}
 
               {/* ── Ativos ── */}
-              <CfgSectionLabel label={t('pedido.config.cards.ativos')} count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
 
               {prefs.length === 0 ? (
                 <p className="cfg-empty">{t('pedido.config.cards.vazio')}</p>
@@ -2257,7 +2257,7 @@ export default function Configuracoes() {
               )}
 
               {/* ── Disponíveis para adicionar ── */}
-              <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
 
               <div className="cfg-tabela-head">
                 <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">{t('pedido.config.cards.col_nome')}</span>
@@ -2322,7 +2322,7 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              <CfgSectionLabel label={t('pedido.config.tabela.linhas_por_pagina')} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.tabela.linhas_por_pagina')} />
               <div className="cfg-periodo-pills" style={{ marginBottom: '1.5rem' }}>
                 {([25, 50, 100, 200] as const).map(n => (
                   <button
@@ -2336,7 +2336,7 @@ export default function Configuracoes() {
                 ))}
               </div>
 
-              <CfgSectionLabel label={t('pedido.config.tabela.preferencias')} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.tabela.preferencias')} />
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="tb-atrasados"
@@ -2437,7 +2437,7 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Ativos ── */}
-                    <CfgSectionLabel
+                    <ConfiguracaoSecaoGlobal
                       label={t('pedido.config.cards.ativos')}
                       count={`${campos.length}/${limite} ${t('pedido.config.kanban.campos_label')}`}
                       action={
@@ -2484,7 +2484,7 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Disponíveis para adicionar ── */}
-                    <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
                     <div className="cfg-kanban-disponivel-lista">
                       {disponiveis.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
                         const cheio = campos.length >= limite
@@ -2514,7 +2514,7 @@ export default function Configuracoes() {
 
                     {/* Aba fixa Lembrete — informativa */}
                     <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginTop: '1.5rem' }}>
-                      <CfgSectionLabel
+                      <ConfiguracaoSecaoGlobal
                         label={t('pedido.config.kanban.aba_lembrete_titulo')}
                         action={<span className="cfg-kanban-aba-fixa-badge">{t('pedido.config.kanban.badge_fixa')}</span>}
                       />
@@ -2578,7 +2578,7 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Ativos ── */}
-                    <CfgSectionLabel label={t('pedido.config.cards.ativos')} count={`${ativos.length + 1} ${t('pedido.config.kanban.campos_label')}`} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.ativos')} count={`${ativos.length + 1} ${t('pedido.config.kanban.campos_label')}`} />
                     <p className="cfg-hint">{t('pedido.config.kanban.card_ativos_hint')}</p>
                     <div className="cfg-kanban-campos-lista">
                       {/* Campo fixo sempre no topo */}
@@ -2616,7 +2616,7 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Disponíveis para adicionar ── */}
-                    <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
                     <div className="cfg-kanban-disponivel-lista">
                       <div className="cfg-kanban-disponivel-header">
                         <span>{t('pedido.config.kanban.col_campo')}</span>
@@ -2647,7 +2647,7 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Data crítica ── */}
-                    <CfgSectionLabel label={t('pedido.config.kanban.data_critica')} style={{ marginTop: '1.5rem' }} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.kanban.data_critica')} style={{ marginTop: '1.5rem' }} />
                     <p className="cfg-hint">{t('pedido.config.kanban.data_critica_hint')}</p>
                     <select
                       className="cfg-select"
@@ -3573,7 +3573,7 @@ export default function Configuracoes() {
 
               {/* Body — grupo Pedido */}
               <div className="cfg-colunas-lista">
-                <CfgSectionLabel label={t('pedido.config.colunas.casas_decimais.grupo_pedido')} hint={t('pedido.config.colunas.casas_decimais.grupo_pedido_hint')} />
+                <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.casas_decimais.grupo_pedido')} hint={t('pedido.config.colunas.casas_decimais.grupo_pedido_hint')} />
                 {COLUNAS_NUMERICAS.map(col => {
                   const val = pendingCasas[col.campo] ?? col.padrao
                   return (
@@ -3596,7 +3596,7 @@ export default function Configuracoes() {
                 {/* Grupo de colunas personalizadas numéricas (se houver) */}
                 {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
                   <>
-                    <CfgSectionLabel label={t('pedido.config.colunas.casas_decimais.grupo_personalizadas')} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.casas_decimais.grupo_personalizadas')} />
                     {colunasUsuarioApi_
                       .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
                       .map(col => {
@@ -3714,7 +3714,7 @@ export default function Configuracoes() {
               </div>
 
               {/* ── Ativas ── */}
-              <CfgSectionLabel
+              <ConfiguracaoSecaoGlobal
                 label={t('pedido.config.colunas.personalizadas.label_ativas')}
                 count={pendingColunas.length}
                 hint={t('pedido.config.colunas.personalizadas.hint_ativas')}
@@ -3766,7 +3766,7 @@ export default function Configuracoes() {
                 return (
                   <>
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
-                    <CfgSectionLabel label={t('pedido.config.colunas.personalizadas.label_editar_coluna')} />
+                    <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.personalizadas.label_editar_coluna')} />
                     <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
                       <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
 
@@ -3885,7 +3885,7 @@ export default function Configuracoes() {
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
 
               {/* ── Nova Coluna ── */}
-              <CfgSectionLabel label={t('pedido.config.colunas.personalizadas.label_nova_coluna')} />
+              <ConfiguracaoSecaoGlobal label={t('pedido.config.colunas.personalizadas.label_nova_coluna')} />
               <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
 
                 {/* ── Campos do formulário ── */}

@@ -1,5 +1,5 @@
 /**
- * BarChartWidget — Gráfico de barras com suporte a múltiplas séries
+ * DashboardWidgetBarras — Gráfico de barras com suporte a múltiplas séries
  *
  * v2 — 2026-04-03
  * - Aceita array de séries (multi-campo)
@@ -150,7 +150,7 @@ const axisStyle = {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function BarChartWidget({
+export function DashboardWidgetBarras({
   series,
   mode = 'grouped',
   dualAxis = false,

@@ -1,2 +1,2 @@
-export { DistributionWidget } from './DistributionWidget.js'
-export type { DistributionWidgetProps } from './DistributionWidget.js'
+export { DashboardWidgetDistribuicao } from './DashboardWidgetDistribuicao.js'
+export type { DistributionWidgetProps } from './DashboardWidgetDistribuicao.js'

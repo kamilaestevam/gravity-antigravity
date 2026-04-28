@@ -1,2 +1,2 @@
-export { LineChartWidget } from './LineChartWidget.js'
-export type { LineChartWidgetProps, LineSeriesConfig } from './LineChartWidget.js'
+export { DashboardWidgetLinha } from './DashboardWidgetLinha.js'
+export type { LineChartWidgetProps, LineSeriesConfig } from './DashboardWidgetLinha.js'

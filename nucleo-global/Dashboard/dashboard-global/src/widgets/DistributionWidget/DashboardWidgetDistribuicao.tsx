@@ -1,8 +1,8 @@
 /**
- * DistributionWidget — Gráfico donut para distribuição multi-campo
+ * DashboardWidgetDistribuicao — Gráfico donut para distribuição multi-campo
  *
  * Cada campo selecionado = uma fatia.
- * Todos os campos devem ter a mesma unidade (enforced pelo QueryBuilder).
+ * Todos os campos devem ter a mesma unidade (enforced pelo DashboardConstrutorConsulta).
  * Fatias com value === 0 são ocultadas.
  * Tooltip: label + valor absoluto + percentagem do total.
  */
@@ -51,7 +51,7 @@ const tooltipStyles = {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function DistributionWidget({ slices }: DistributionWidgetProps) {
+export function DashboardWidgetDistribuicao({ slices }: DistributionWidgetProps) {
   // Ocultar fatias com valor zero
   const visibleSlices = slices.filter(s => s.value > 0)
 

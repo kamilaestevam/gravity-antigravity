@@ -1,2 +1,2 @@
-export { KpiWidget } from './KpiWidget.js'
-export type { KpiWidgetProps } from './KpiWidget.js'
+export { DashboardWidgetKPI } from './DashboardWidgetKPI.js'
+export type { KpiWidgetProps } from './DashboardWidgetKPI.js'

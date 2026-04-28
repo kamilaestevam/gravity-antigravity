@@ -12,7 +12,7 @@ import React from 'react'
 import { Eye, Plus, SquaresFour, X, Info } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
-import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
+import { ConfiguracaoSecaoGlobal } from '@nucleo/cabecalho-secao-global'
 import type { PedidoStatusConfig } from '../shared/types'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ export function SecaoKanbanColunas({
           </div>
 
           {/* ── Ativos ── */}
-          <CfgSectionLabel label="ATIVOS" count={`${ativos.length} coluna${ativos.length !== 1 ? 's' : ''}`} />
+          <ConfiguracaoSecaoGlobal label="ATIVOS" count={`${ativos.length} coluna${ativos.length !== 1 ? 's' : ''}`} />
           <p className="cfg-hint">Olho para ocultar a coluna no Kanban</p>
           <div className="cfg-kanban-campos-lista">
             {ativos.length === 0 && (
@@ -134,7 +134,7 @@ export function SecaoKanbanColunas({
           </div>
 
           {/* ── Disponíveis para adicionar ── */}
-          <CfgSectionLabel
+          <ConfiguracaoSecaoGlobal
             label="DISPONÍVEIS PARA ADICIONAR"
             hint="clique em + para adicionar"
             style={{ marginTop: '1.5rem' }}

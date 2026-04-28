@@ -1,5 +1,5 @@
 /**
- * QueryBuilder — UI em 3 passos para criar/editar um widget customizado
+ * DashboardConstrutorConsulta — UI em 3 passos para criar/editar um widget customizado
  *
  * v2 — 2026-04-03
  * Passo 1: Selecionar campos com badges de tipo e validação de unidade (D3)
@@ -414,7 +414,7 @@ function Step3Visualization({ chartType, selectedFields, onSelect }: Step3Props)
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function QueryBuilder({
+export function DashboardConstrutorConsulta({
   aberto,
   availableFields,
   onSave,

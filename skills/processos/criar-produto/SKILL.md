@@ -1,6 +1,6 @@
 ---
 name: antigravity-criar-produto
-description: "Use esta skill para criar novos produtos na plataforma Gravity. Define os 23 passos obrigatórios: desde o registro em contracts.json até o seed de dados demo, passando por estrutura client/server, PRODUCT_CONFIG completo, 11 middlewares, composição Prisma com 3 índices, Clerk, i18n, testes, segurança 5 camadas, rate limiting e Definition of Done. Todo agente consulta esta skill antes de criar qualquer produto do zero."
+description: "Use esta skill para criar novos produtos na plataforma Gravity. Define os 23 passos obrigatórios: desde o registro em contracts.json até o seed de dados demo, passando por estrutura client/server, PRODUCT_CONFIG completo, 11 middlewares, composição Prisma Schema-per-Organizacao (sem id_organizacao em models de produto), Clerk, i18n, testes, segurança 5 camadas, rate limiting e Definition of Done. Todo agente consulta esta skill antes de criar qualquer produto do zero."
 ---
 
 # Gravity — Criar Novo Produto (Guia Completo)
@@ -21,7 +21,7 @@ Antes de criar qualquer produto, ler **obrigatoriamente**:
 | `antigravity-code-standards` | Padrões de código |
 | `antigravity-service-registry` | PRODUCT_CONFIG e navegação |
 | `antigravity-ambiente` | Portas e dev servers |
-| `antigravity-isolamento-organizacao` | Schema-per-Organizacao e 3 índices |
+| `antigravity-isolamento-organizacao` | Schema-per-Organizacao (models de produto NÃO carregam id_organizacao nem índices de organizacao — o schema isola fisicamente) |
 | `antigravity-seguranca-5-camadas` | 5 camadas de segurança |
 | `antigravity-schema-composition` | Prisma fragments |
 | `antigravity-observabilidade` | Logs, health check, Sentry |
@@ -89,7 +89,7 @@ produto/meu-produto/
 │       └── lib/                    ← Motores puros (calculators)
 │   └── prisma/
 │       ├── schema.base.prisma      ← Header (provider/db)
-│       ├── fragment.prisma         ← Models (campos DDD: id_organizacao, id_produto, id_usuario + 3 índices)
+│       ├── fragment.prisma         ← Models de produto (Schema-per-Organizacao: SEM id_organizacao, SEM índices de organizacao)
 │       └── schema.prisma           ← GERADO (INTOCÁVEL — Mandamento 02; .gitignore)
 │
 └── scripts/

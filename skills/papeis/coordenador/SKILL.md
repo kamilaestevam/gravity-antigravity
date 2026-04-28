@@ -86,7 +86,7 @@ Após compor cada schema, o Coordenador valida obrigatoriamente:
 - [ ] **Models de produto NÃO têm campo de identificador de organização** (Schema-per-Organizacao isola)
 - [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização**
 - [ ] Convenção de naming respeitada: PascalCase para models, snake_case para campos
-- [ ] Nenhum `@map` ou `@@map` (mantém naming canônico)
+- [ ] PascalCase nos models + `@@map("snake_case")` obrigatório (regra atualizada 2026-04-24, ver memory feedback_prisma_casing); `@map` de **coluna** continua proibido
 - [ ] `prisma validate` passa sem erros
 - [ ] Nenhuma relação cross-fragment não-arbitrada
 - [ ] **Mandamento 02 respeitado:** nenhum agente alterou `schema.prisma` final manualmente

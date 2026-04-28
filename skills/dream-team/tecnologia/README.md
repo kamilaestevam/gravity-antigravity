@@ -120,7 +120,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 11 | Code Standards | `skills/governanca/convencao-tecnica/code-standards/SKILL.md` | TypeScript strict, Zod, AppError, naming, env vars |
 | 12 | Monorepo | `skills/governanca/convencao-tecnica/monorepo/SKILL.md` | NPM workspaces, aliases, tsconfig, dependências |
 | 13 | Lint Tenant-Safety | `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo `organizacao:` |
-| 14 | Database Governance | `skills/governanca/convencao-tecnica/database-governance/SKILL.md` | Paridade Prisma↔PG, Database-per-Service, schema `public` vazio, CUID |
+| 14 | Database Governance | `skills/governanca/lei/database-governance/SKILL.md` | Paridade Prisma↔PG, Database-per-Service, schema `public` vazio, CUID (promovida de convenção-técnica para lei em 2026-04-28) |
 | 15 | API Design | `skills/governanca/convencao-tecnica/api-design/SKILL.md` | Convenções REST, versionamento, paginação, validação Zod |
 | 16 | Criptografia ⭐ | `skills/governanca/convencao-tecnica/criptografia/SKILL.md` | SHA-256 (tokens), AES-256-GCM (credenciais ERP), HMAC-SHA256 (webhooks) |
 | 17 | Observabilidade Mínima ⭐ | `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` | Métricas obrigatórias por serviço, ferramentas obrigatórias, log de auditoria |

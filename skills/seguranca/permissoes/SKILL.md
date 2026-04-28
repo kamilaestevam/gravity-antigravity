@@ -295,8 +295,9 @@ async function checkAccess(
     return { allowed: has, reason: has ? 'admin_permission' : 'admin_no_write_permission' }
   }
 
-  // 3. Master da organização — acesso total à sua organização
-  // Master tem UsuarioWorkspace para cada Workspace (Bulk Insert no convite) — basta verificar id_organizacao
+  // 3. Master da organização — acesso total à sua organização (Mandamento 04)
+  // O usuário Master tem acesso global. Ele NÃO precisa e NÃO DEVE ter vínculo
+  // na tabela UsuarioWorkspace — basta pertencer à organização.
   if (usuario.tipo_usuario === 'MASTER') {
     const isMemberOfOrg = await prisma.usuario.findFirst({
       where: { id: usuario.id, id_organizacao: context.idOrganizacao }
@@ -373,10 +374,10 @@ Master convida Standard para Workspace B
         ├── Produto A: email:read, email:write, relatorios:read
         └── Produto B: atividades:read (sem write)
 
-Master é convidado para a organização
+Master é convidado para a organização (Mandamento 04 — acesso global)
   │
-  ├── Sistema cria UsuarioWorkspace para CADA Workspace ativo da organização (Bulk Insert snapshot)
-  │   → Master tem acesso imediato a todos os Workspaces sem nenhuma FK nullable
+  ├── Sistema NÃO cria UsuarioWorkspace para Master — acesso global vem do tipo_usuario
+  │   → Master tem acesso imediato a todos os Workspaces sem precisar de vínculo
   │
   └── Master NÃO passa por verificação granular — tem acesso total à organização
 ```
@@ -393,7 +394,7 @@ Após o convite, um Master pode alterar quais Workspaces um Standard ou Supplier
 
 | Regra | Comportamento |
 |---|---|
-| **Alvo é MASTER** | `400 INVALID_OPERATION` — Master tem acesso implícito via Bulk Insert snapshot; não editar via este endpoint |
+| **Alvo é MASTER** | `400 INVALID_OPERATION` — Master tem acesso global por `tipo_usuario` (Mandamento 04). Master NÃO tem `UsuarioWorkspace`; não editar via este endpoint |
 | **Usuário não encontrado na organização** | `404 NOT_FOUND` — sem vazar existência |
 | **IDs de Workspace de outra organização (IDOR)** | `403 FORBIDDEN` — `workspace.findMany` filtra por `id_organizacao` antes de qualquer escrita |
 | **Atomicidade** | `$transaction(deleteMany + createMany)` — nunca estado parcial |
@@ -411,13 +412,13 @@ z.object({
 })
 ```
 
-### MASTER: Bulk Insert vs. PUT
+### MASTER vs. Standard/Supplier — Vínculos com Workspace
 
-| Momento | Operação | Por quê |
+| Tipo | Vínculo na tabela `UsuarioWorkspace` | Por quê |
 |---|---|---|
-| **Convite (novo usuário Master)** | `Bulk Insert` em todos os Workspaces ativos | Snapshot — Master precisa de acesso imediato e completo |
-| **Edição de Master existente** | **PROIBIDO via PUT** — `400 INVALID_OPERATION` | Master tem acesso global via UsuarioWorkspace; redesenhar via invite se necessário |
-| **Edição de Standard/Supplier** | `PUT /api/v1/usuarios/:id/workspaces` | Substituição atômica dos vínculos |
+| **MASTER** | **Nenhum** — Master NÃO tem `UsuarioWorkspace` (Mandamento 04) | Acesso global vem de `tipo_usuario === 'MASTER'`; vínculo seria redundante e cria risco de drift |
+| **STANDARD / SUPPLIER** | `UsuarioWorkspace` por Workspace selecionado no convite | Acesso restrito aos Workspaces explícitos; editável via `PUT /api/v1/usuarios/:id/workspaces` (substituição atômica) |
+| **Edição de Master existente via PUT** | **PROIBIDO** — `400 INVALID_OPERATION` | Não há `UsuarioWorkspace` para editar; o acesso é por `tipo_usuario`, alterado apenas em fluxo de mudança de patente |
 
 ---
 
@@ -431,7 +432,7 @@ z.object({
 - [ ] Permissões são indexadas por `[id_organizacao, id_workspace, id_usuario]`?
 - [ ] O produto registrou suas permissões específicas além dos módulos universais?
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?
-- [ ] Master recebe UsuarioWorkspace para TODOS os Workspaces via Bulk Insert no convite (sem FK nullable)?
+- [ ] Master NÃO recebe `UsuarioWorkspace` no convite (Mandamento 04 — acesso global por `tipo_usuario`)?
 - [ ] `usuario.id` nos checks de permissão é o CUID do Prisma — não o `clerk_user_id`?
 - [ ] Edição de workspaces de Standard/Supplier via PUT rejeita alvos Master (400)?
 - [ ] PUT /workspaces valida IDs via `workspace.findMany` com `id_organizacao` antes de escrever (prevenção IDOR)?

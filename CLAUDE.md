@@ -239,19 +239,19 @@ const meResponseSchema = z.object({
 | SLA Metas ⭐ | `skills/governanca/lei/sla-metas/SKILL.md` | 200ms p95, 50k req/s, 99,9% uptime, budget de latência por camada |
 | Cost Budget ⭐ | `skills/governanca/lei/cost-budget/SKILL.md` | Limites mensais por ambiente, thresholds 70/80/90/95%, bloqueio de scaling em 95% |
 | Backup Policy ⭐ | `skills/governanca/lei/backup-policy/SKILL.md` | RPO 24h, RTO 1h, backup pré-migration obrigatório, teste de restauração mensal |
+| Database Governance ⭐ | `skills/governanca/lei/database-governance/SKILL.md` | **Criar/alterar models Prisma** — paridade Front=Back=Banco, schema-per-org, public vazio, CUID, FK Nullable Proibida (promovida de convenção-técnica em 2026-04-28) |
 
 > ⭐ = nova skill (Fase C1 da reorganização SSOT)
 
 ---
 
-### 2. Governança › Convenção Técnica (8 skills) — Como escrever código
+### 2. Governança › Convenção Técnica (7 skills) — Como escrever código
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
 | Code Standards | `skills/governanca/convencao-tecnica/code-standards/SKILL.md` | **SEMPRE — antes de escrever código** |
 | Monorepo | `skills/governanca/convencao-tecnica/monorepo/SKILL.md` | **Qualquer alteração em package.json, tsconfig, vite.config, dependências** |
 | Lint Tenant-Safety | `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia `PrismaClient` direto, cache sem prefixo |
-| Database Governance | `skills/governanca/convencao-tecnica/database-governance/SKILL.md` | **Criar/alterar models Prisma** — paridade nominal Front=Back=Banco, schema-per-org, public vazio, CUID |
 | API Design | `skills/governanca/convencao-tecnica/api-design/SKILL.md` | Convenções REST, versionamento, paginação, validação Zod |
 | Criptografia ⭐ | `skills/governanca/convencao-tecnica/criptografia/SKILL.md` | SHA-256 (tokens), AES-256-GCM (credenciais ERP), HMAC-SHA256 (webhooks) |
 | Observabilidade Mínima ⭐ | `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` | Métricas obrigatórias por serviço, ferramentas obrigatórias, log de auditoria de ações sensíveis |

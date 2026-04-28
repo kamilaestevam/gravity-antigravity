@@ -1,0 +1,340 @@
+// schema.prisma — GERADO AUTOMATICAMENTE por compose-schema.js
+// NAO EDITAR DIRETAMENTE. Edite schema.base.prisma ou fragment.prisma.
+
+// schema.base.prisma — Processo
+// Composto via scripts/compose-schema.js -> gera schema.prisma final
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos especificos do Processo sao definidos em fragment.prisma
+// e compostos automaticamente pelo script compose-schema.js
+
+
+// fragment.prisma — Processo
+// Composto via scripts/compose-schema.js no schema final do produto.
+// REGRA: todo model DEVE ter tenant_id (snake_case) e os indices obrigatorios.
+// Skill: antigravity-tenant-isolation, antigravity-schema-composition
+
+model ProcessoGravity {
+  id                  String   @id @default(cuid())
+  tenant_id           String   // OBRIGATORIO — nunca nullable
+  product_id          String?  // "processo" — permite queries isoladas por produto
+  user_id             String?  // clerk_id do usuario que criou
+
+  numero              String   // Numero do processo (ex: IMP-2024-001)
+  referencia_interna  String?  // Referencia interna do cliente
+  referencia_dati     String?  // Referencia do sistema Dati legado
+  status              String   @default("aberto") // aberto | em_andamento | concluido | cancelado
+  tipo                String   // importacao | exportacao
+  responsavel_id      String?  // clerk_id do responsavel
+  vendedor_id         String?  // clerk_id do vendedor
+  setor_responsavel   String?  // Setor responsavel pelo processo
+
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  // Relacoes
+  etapas              ProcessoEtapas[]
+  pedidos             ProcessoPedido[]
+  followUps           ProcessoFollowup[]
+  documentos          ProcessoAnexos[]
+  estimativaCusto     ProcessoEstimativaCusto?
+  dadosTecnicos       ProcessoDadosTecnicos?
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, numero])
+  @@map("processos")
+}
+
+model ProcessoEtapas {
+  id             String    @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+
+  processo_id    String
+  nome           String    // pedido | carga | embarque | chegada | liberacao | entrega
+  status         String    @default("pendente") // concluido | atual | pendente
+  data_prevista  DateTime?
+  data_realizada DateTime?
+  observacao     String?
+
+  processo       ProcessoGravity  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, processo_id])
+  @@map("processo_etapas")
+}
+
+model ProcessoPedido {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
+
+  processo_id     String
+  numero          String   // Numero da PO
+  exportador_nome String?
+  exportador_pais String?  // ISO 2 letras
+  valor_fob       Decimal  @default(0) @db.Decimal(18,6)
+  moeda           String   @default("USD")
+  peso_bruto      Decimal  @default(0) @db.Decimal(18,6)
+  status          String   @default("pendente") // pendente | confirmado | embarcado
+  status_id       String?  // FK to ProcessoStatus (null = status built-in)
+  campos_custom   Json?    // Colunas customizadas do tenant (JSONB + GIN index)
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  processo        ProcessoGravity     @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  itens           ProcessoPedidoItens[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, processo_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, status_id])
+  @@map("pedidos")
+}
+
+model ProcessoPedidoItens {
+  id             String  @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+
+  pedido_id      String
+  numero_item    String  // Numero sequencial do item
+  descricao      String
+  ncm            String? // NCM do item
+  quantidade     Decimal @default(0) @db.Decimal(18,6)
+  unidade        String  @default("UN") // UN | KG | M | etc
+  valor_unitario Decimal @default(0) @db.Decimal(18,6)
+  valor_total    Decimal @default(0) @db.Decimal(18,6)
+  moeda          String  @default("USD")
+  status_li      String  @default("pendente") // pendente | deferida | indeferida
+  campos_custom  Json?   // Colunas customizadas do tenant
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  pedido         ProcessoPedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, pedido_id])
+  @@map("pedido_itens")
+}
+
+model ProcessoFollowup {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  user_id       String?
+
+  processo_id   String
+  titulo        String
+  descricao     String?
+  tipo          String   @default("info") // info | desvio | atualizacao | documento
+  categoria     String   @default("sistema") // exportador | logistica | despachante | financeiro | sistema
+  usuario_id    String?  // clerk_id de quem registrou
+  usuario_nome  String?  // Nome de quem registrou (desnormalizado para timeline)
+
+  created_at    DateTime @default(now())
+
+  processo      ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, processo_id])
+  @@map("follow_ups")
+}
+
+model ProcessoAnexos {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+
+  processo_id    String
+  nome           String   // Nome do arquivo
+  tipo_arquivo   String   // pdf | xlsx | xml | img
+  tamanho_bytes  Int      @default(0)
+  url            String   // URL do arquivo no storage
+  categoria      String   @default("outro") // bl | po | di | li | nfe | outro
+
+  created_at     DateTime @default(now())
+
+  processo       ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, processo_id])
+  @@map("documentos")
+}
+
+model ProcessoEstimativaCusto {
+  id           String  @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
+
+  processo_id  String  @unique
+  impostos     Float   @default(0)
+  frete        Float   @default(0)
+  despacho     Float   @default(0)
+  outros       Float   @default(0)
+  total        Float   @default(0)
+  moeda        String  @default("BRL")
+
+  processo     ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("estimativas_custo")
+}
+
+model ProcessoDadosTecnicos {
+  id                     String  @id @default(cuid())
+  tenant_id              String
+  product_id             String?
+  user_id                String?
+
+  processo_id            String  @unique
+
+  // Importador
+  importador_nome        String?
+  importador_cnpj        String?
+  importador_endereco    String?
+
+  // Exportador
+  exportador_nome        String?
+  exportador_pais        String?
+  exportador_endereco    String?
+
+  // Transporte
+  modal                  String? // maritimo | aereo | rodoviario | ferroviario
+  porto_embarque         String?
+  porto_destino          String?
+  navio_voo              String?
+  data_embarque          DateTime?
+  data_chegada_prevista  DateTime?
+  data_chegada_real      DateTime?
+  bl_numero              String?
+  container_numero       String?
+
+  // Despacho
+  despachante_nome       String?
+  despachante_contato    String?
+  di_numero              String?
+  di_data                DateTime?
+  canal                  String? // verde | amarelo | vermelho | cinza
+
+  // Seguro
+  seguro_apolice         String?
+  seguro_valor           Float?
+  seguro_moeda           String?
+
+  processo               ProcessoGravity @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("dados_tecnicos")
+}
+
+// ─── Configuração da Tabela de Pedidos ─────────────────────────────────────────
+
+// Status customizáveis por tenant (geram as "abas" da tabela)
+model ProcessoStatus {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  nome       String   // slug: "aguardando_embarque"
+  rotulo     String   // label: "Aguardando Embarque"
+  cor        String   // hex: "#6366F1"
+  icone      String?
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false)
+  is_sistema Boolean  @default(false) // built-in — não pode ser deletado
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_status")
+}
+
+// Colunas customizadas criadas pelo tenant (máx 30)
+model ProcessoColunas {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  nome           String   // slug interno (imutável após criação)
+  rotulo         String   // label exibido ao usuário
+  tipo           String   // 'texto' | 'numero' | 'data' | 'select' | 'booleano'
+  casas_decimais Int      @default(2)
+  opcoes         Json?    // para tipo 'select': [{valor, rotulo}]
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false) // expression index no PG
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_colunas")
+}
+
+// Preferência de colunas por usuário (cross-device, no banco)
+model ProcessosPedidoPreferencia {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+
+  colunas_visiveis String[]
+  colunas_largura  Json?    // { key: larguraEmPx }
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("pedido_preferencias_usuario")
+}
+
+// Preferência padrão de colunas por workspace (fallback)
+model ProcessoPedidoPadrao {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  colunas_visiveis String[]
+  colunas_largura  Json?
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_preferencias_padrao")
+}

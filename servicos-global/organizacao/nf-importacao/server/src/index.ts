@@ -6,19 +6,17 @@
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
-dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
+dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../../.env') })
 
 import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
@@ -31,8 +29,8 @@ import { nfImportarRouter } from './routes/nfImportar.js'
 import { nfDocumentoRouter } from './routes/nfDocumento.js'
 import { nfHistoricoRouter } from './routes/nfHistorico.js'
 import { configRouter } from './routes/config.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

@@ -9,22 +9,22 @@
 | Campo | Valor |
 |---|---|
 | Data inicial | 2026-04-28 |
-| Última atualização | 2026-04-28 (sincronização com master após sessão skills agent) |
+| Última atualização | 2026-04-28 (alinhamento de paths para reduzir conflitos no merge com master) |
 | Skills totais | **68 (master)** após Fase 3 — promoção de `database-governance` para `lei/` + 4 outros itens consolidados |
 | Total de entradas | **68 skills + 11 produtos físicos + ddd-atlas (10 arq) + meta = ~90** |
 | Branch atual | `claude/cool-elbakyan-ff8ae6` |
-| Status vs master | Divergente — meu mirror tree em `documentos-tecnicos/{governanca,arquitetura,...}/` vs master flat em `documentos-tecnicos/{UX,ddd,gabi,...}/` |
+| Status vs master | Estrutural divergente (mirror tree vs flat) MAS paths-chave alinhados: `auditoria-skills/`, `historico-alteracoes/`, `ddd-atlas/`, `seguranca/auditoria-seguranca-*.md` agora batem com onde master skills apontam |
 
 ---
 
 ## Sincronização com Master (2026-04-28)
 
 Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
-- `_meta/auditoria-skills/00-matriz.md` — atualizado com 68 skills, 4 conflitos resolvidos
-- `_meta/auditoria-skills/01-duplicacoes.md` — 9 grupos com SDK renomeado para `withOrganizacao` (master usa novo nome)
-- `_meta/auditoria-skills/02-conflitos.md` — C1, C2, C4, C5 marcados ✅ Resolvido com greps forenses
-- `_meta/auditoria-skills/03-violacoes-ssot.md` — S10 ✅ Resolvido (database-governance promovido para lei/)
-- `_meta/auditoria-skills/04-lacunas-divida.md` — renomeado de `04-lacunas.md`; L1/L2/L3 + dívidas técnicas
+- `auditoria-skills/00-matriz.md` — atualizado com 68 skills, 4 conflitos resolvidos
+- `auditoria-skills/01-duplicacoes.md` — 9 grupos com SDK renomeado para `withOrganizacao` (master usa novo nome)
+- `auditoria-skills/02-conflitos.md` — C1, C2, C4, C5 marcados ✅ Resolvido com greps forenses
+- `auditoria-skills/03-violacoes-ssot.md` — S10 ✅ Resolvido (database-governance promovido para lei/)
+- `auditoria-skills/04-lacunas-divida.md` — renomeado de `04-lacunas.md`; L1/L2/L3 + dívidas técnicas
 - `ddd-atlas/` — 10 arquivos novos (atlas DDD gerado da planilha mestre, fonte única dos nomes)
 
 ---
@@ -37,7 +37,7 @@ Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
 | ⚠️ desatualizado | Doc existe mas precisa atualização (após ondas A-D) |
 | ❌ pendente | Sem doc — produzir durante onda correspondente |
 | n/a | Sem doc previsto (skill normativa, meta-agente, etc.) |
-| 🚫 bloqueado | Aguarda decisão (ver `_meta/auditoria-skills/02-conflitos.md`) |
+| 🚫 bloqueado | Aguarda decisão (ver `auditoria-skills/02-conflitos.md`) |
 
 ---
 
@@ -70,7 +70,7 @@ Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
 | `governanca/convencao-tecnica/criptografia/` | n/a (lei pura) | n/a |
 | `governanca/convencao-tecnica/observabilidade-minima/` | n/a (lei pura) | n/a |
 
-> Outros 4 mapas adicionados na Fase 3 (mapa-componentes-locais, mapa-nucleo-global, mapa-paginas, modais) — ver lista completa em `_meta/auditoria-skills/00-matriz.md`.
+> Outros 4 mapas adicionados na Fase 3 (mapa-componentes-locais, mapa-nucleo-global, mapa-paginas, modais) — ver lista completa em `auditoria-skills/00-matriz.md`.
 
 ---
 
@@ -126,7 +126,7 @@ Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
 | `seguranca/autenticacao-s2s/` | técnico (a produzir nas ondas) | ❌ pendente |
 | `seguranca/cross-boundary/` | n/a (referência) | n/a |
 | `seguranca/rate-limiting/` | n/a (referência) | n/a |
-| `seguranca/pentest/` | auditoria-2026-03-29.md (renomeado de auditoria-seguranca-2026-03-29.md) | ✅ migrado |
+| `seguranca/pentest/` | n/a (auditoria-seguranca-2026-03-29.md restaurada para `seguranca/` raiz, alinhada com refs em master skills) | n/a |
 | `seguranca/tier1-security/` | 🚫 bloqueado — ver S5 em `auditoria-skills/03-violacoes-ssot.md` | 🚫 bloqueado |
 
 > **Pendente skill nova (P0):** `seguranca/webhooks-recebidos/` — ver `04-lacunas-divida.md` L1 (risco ALTO).
@@ -179,12 +179,13 @@ Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
 
 | Caminho | Conteúdo | Status |
 |---|---|---|
-| `_meta/auditoria-skills/` | 5 relatórios sincronizados de master | ✅ atualizado |
+| `auditoria-skills/` (root) | 5 relatórios sincronizados de master — alinhado com path de master skills | ✅ atualizado |
+| `historico-alteracoes/` (root) | 2 arquivos — alinhado com path em master `dream-team/ajustes/SKILL.md` | ✅ migrado |
+| `seguranca/auditoria-seguranca-2026-03-29.md` | arquivo restaurado ao path original (raiz de `seguranca/`) — alinhado com ref em master `governanca/lei/isolamento-organizacao/SKILL.md` | ✅ migrado |
 | `_meta/INDEX.md` | este arquivo | ✅ existe |
-| `_meta/historico-alteracoes/` | 2 arquivos | ✅ migrado |
-| `_meta/auditorias-historicas/` | ~17 artefatos antigos | ✅ migrado |
+| `_meta/auditorias-historicas/` | ~17 artefatos antigos (CSVs, JSONs, baselines, mapas) | ✅ migrado |
 | `_legado/` | 3 arquivos sem destino claro | ✅ existe |
-| **`ddd-atlas/`** | 10 arquivos — atlas DDD consolidado (campos/rotas/models/enums/paginas/modais/componentes) gerado da planilha mestre | ✅ trazido de master |
+| **`ddd-atlas/`** (root) | 10 arquivos — atlas DDD consolidado (campos/rotas/models/enums/paginas/modais/componentes) gerado da planilha mestre | ✅ trazido de master |
 
 ---
 

@@ -1,5 +1,5 @@
 /**
- * ImportarMassa.tsx — Tela de Importação em Massa
+ * EstimativasImportar.tsx — Tela de Importação em Massa de Estimativas
  * Fase 2 do produto — usa PaginaGlobal + CabecalhoGlobal.
  */
 import React from 'react'
@@ -8,7 +8,7 @@ import { Upload } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
-export default function ImportarMassa() {
+export default function EstimativasImportar() {
   const { t } = useTranslation()
   return (
     <PaginaGlobal

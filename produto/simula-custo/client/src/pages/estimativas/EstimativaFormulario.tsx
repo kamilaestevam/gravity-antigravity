@@ -1,5 +1,5 @@
 /**
- * Estimativas.tsx — Formulario de Criacao / Edicao de Estimativa
+ * EstimativaFormulario.tsx — Formulario de Criacao / Edicao de Estimativa
  * Skill: antigravity-simulacusto
  *
  * Formulario completo de entrada + resultado do calculo fiscal (Landed Cost).
@@ -71,10 +71,10 @@ const MOEDAS = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'BRL']
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export default function Estimativas() {
+export default function EstimativaFormulario() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
+  const { id_estimativa: id } = useParams<{ id_estimativa: string }>()
   const isEdicao = Boolean(id)
   const [view, setView] = useState<ViewMode>('lista')
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)

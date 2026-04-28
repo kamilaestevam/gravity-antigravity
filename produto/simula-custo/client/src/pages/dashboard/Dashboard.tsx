@@ -1,5 +1,5 @@
 /**
- * DashboardSimulaCusto.tsx — Visão Dashboard
+ * Dashboard.tsx — Visão Dashboard SimulaCusto
  * Produto: SimulaCusto
  *
  * Cards configuráveis pelo usuário via Configurações → Cards.
@@ -22,7 +22,7 @@ import type { EstimativasKpis } from '../../shared/types'
 import { useCardPreferences } from '../../shared/useCardPreferences'
 import { useCardValues } from '../../shared/useCardValues'
 import type { CardVariante } from '@nucleo/card-global'
-import './DashboardSimulaCusto.css'
+import './Dashboard.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ const CARD_VARIANTE: Record<string, CardVariante> = {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export default function DashboardSimulaCusto() {
+export default function Dashboard() {
   const [kpis, setKpis] = useState<EstimativasKpis>({
     total: 0, em_criacao: 0, criadas: 0, arquivadas: 0,
     landed_cost_medio: 0, total_tributos_acumulado: 0,

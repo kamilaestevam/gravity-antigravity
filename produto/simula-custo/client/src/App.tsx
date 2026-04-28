@@ -29,11 +29,11 @@ import {
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const EstimativasDashboard = lazy(() => import('./pages/estimativas/EstimativasDashboard'))
-const ImportarMassa        = lazy(() => import('./pages/importar/ImportarMassa'))
+const EstimativasImportar  = lazy(() => import('./pages/importar/EstimativasImportar'))
 const Configuracoes        = lazy(() => import('./pages/Configuracoes'))
 
-import DashboardSimulaCusto from './pages/dashboard/DashboardSimulaCusto'
-import EstimativasPage from './pages/estimativas/Estimativas'
+import Dashboard from './pages/dashboard/Dashboard'
+import EstimativaFormulario from './pages/estimativas/EstimativaFormulario'
 import RelatoriosPage from './pages/relatorios/Relatorios'
 import { Dashboard as GlobalDashboard } from '@tenant/dashboard/src/Dashboard'
 
@@ -193,11 +193,11 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard"        element={<DashboardSimulaCusto />} />
-          <Route path="estimativas"      element={<EstimativasDashboard />} />
-          <Route path="estimativas/nova" element={<EstimativasPage />} />
-          <Route path="estimativas/:id"  element={<EstimativasPage />} />
-          <Route path="importar"         element={<ImportarMassa />} />
+          <Route path="dashboard"                  element={<Dashboard />} />
+          <Route path="estimativas"                element={<EstimativasDashboard />} />
+          <Route path="estimativas/nova"           element={<EstimativaFormulario />} />
+          <Route path="estimativas/:id_estimativa" element={<EstimativaFormulario />} />
+          <Route path="importar"                   element={<EstimativasImportar />} />
           <Route path="relatorios"       element={<RelatoriosPage />} />
           <Route path="configuracoes"    element={<Configuracoes />} />
           <Route path="kanban"           element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />

@@ -937,8 +937,8 @@ Quando liberado:
 - `skills/produtos-gravity/configurador/SKILL.md`
 - `skills/governanca/lei/isolamento-organizacao/SKILL.md`
 - `skills/testes/padroes-vitest-playwright/SKILL.md`
-- `skills/agentes/qa/SKILL.md`
-- `skills/agentes/coordenador/SKILL.md`
-- `skills/agentes/lider/SKILL.md`
+- `skills/papeis/qa/SKILL.md`
+- `skills/papeis/coordenador/SKILL.md`
+- `skills/papeis/lider/SKILL.md`
 - `documentos-tecnicos/produto/bid-frete/ARQUITETURA.md`
 - `documentos-tecnicos/produto/bid-frete/bid-frete.md`

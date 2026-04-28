@@ -171,7 +171,7 @@ Nenhuma onda pode iniciar sem que estas tarefas estejam concluídas.
 
 | ID | Tarefa | Responsável | Dependência |
 |----|--------|-------------|-------------|
-| 5-01 | Atualizar `documentos-tecnicos/gabi/GABI-TECNICO.md` com nova arquitetura de pacotes | Líder Técnico | Onda 4 completa |
+| 5-01 | Atualizar `documentos-tecnicos/produtos-gravity/gabi/GABI-TECNICO.md` com nova arquitetura de pacotes | Líder Técnico | Onda 4 completa |
 | 5-02 | Escrever `nucleo-global/Gabi/gabi-formula-global/README.md` com exemplo mínimo de uso por produto novo | Líder Técnico | 5-01 |
 | 5-03 | Atualizar skill `skills/arquitetura/nucleo-global/SKILL.md` com os dois novos pacotes no catálogo | Líder Técnico | 5-02 |
 | 5-04 | Implementação de referência: um segundo produto consumindo `@nucleo/gabi-formula-global` com seus próprios SEMANTICA_CAMPOS | Líder Técnico + PO | 5-03 |

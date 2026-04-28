@@ -839,6 +839,6 @@ O ambiente de desenvolvimento tinha uma migração anterior quebrada (`202604060
 |:----------|:-----------|
 | Relatório de Impacto | `documentos-tecnicos/ajustes/2026-04-09-gabi-insights-personalizados.md` |
 | Resultado dos Testes em Tela | `documentos-tecnicos/testes-em-tela/2026-04-09-gabi-insights.md` |
-| GABI — Técnico (Fórmulas) | `documentos-tecnicos/gabi/GABI-TECNICO.md` |
-| GABI — On-demand Tokens | `documentos-tecnicos/gabi/GABI-ONDEMAND-TOKENS.md` |
+| GABI — Técnico (Fórmulas) | `documentos-tecnicos/produtos-gravity/gabi/GABI-TECNICO.md` |
+| GABI — On-demand Tokens | `documentos-tecnicos/produtos-gravity/gabi/GABI-ONDEMAND-TOKENS.md` |
 | Migration SQL | `produto/pedido/server/prisma/migrations/20260409120000_add_user_behavior_events/migration.sql` |

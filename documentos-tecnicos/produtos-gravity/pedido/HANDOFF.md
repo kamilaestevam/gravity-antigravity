@@ -519,11 +519,11 @@ Cenario: Autenticacao S2S
 | # | Artefato | Local | Status |
 |---|---------|-------|--------|
 | 1 | Especificacao Tecnica (PDF) | `C:\Users\danie\Downloads\pedido.pdf` | Completo |
-| 2 | Arquitetura 3-Tier | `documentos-tecnicos/produto/itens-pedido-processo/arquitetura-3-tier.md` | Completo |
+| 2 | Arquitetura 3-Tier | `documentos-tecnicos/produtos-gravity/processo/arquitetura-3-tier.md` | Completo |
 | 3 | Fragment Prisma (Models) | `servicos-global/tenant/processos-core/prisma/fragment.prisma` | Completo |
 | 4 | PedidosPage (referencia dentro do Processo) | `produto/processo/client/src/pages/pedidos/PedidosPage.tsx` | Referencia |
 | 5 | TabelaCamadasGlobal (componente de grid) | `nucleo-global/Tabelas/tabela-camadas-global/src/TabelaCamadasGlobal.tsx` | Pronto |
-| 6 | HANDOFF | `documentos-tecnicos/produto/pedido/HANDOFF.md` | Este documento |
+| 6 | HANDOFF | `documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md` | Este documento |
 
 ---
 
@@ -548,7 +548,7 @@ Cenario: Autenticacao S2S
 
 Depois:
 
-> **"Novo produto: Pedido. O handoff completo esta em `documentos-tecnicos/produto/pedido/HANDOFF.md`. O fragment.prisma ja existe em `servicos-global/tenant/processos-core/prisma/fragment.prisma`. A referencia visual esta em `produto/processo/client/src/pages/pedidos/PedidosPage.tsx` e o componente de grid em `nucleo-global/Tabelas/tabela-camadas-global/`. Leiam o handoff e comecem pela implementacao."**
+> **"Novo produto: Pedido. O handoff completo esta em `documentos-tecnicos/produtos-gravity/pedido/HANDOFF.md`. O fragment.prisma ja existe em `servicos-global/tenant/processos-core/prisma/fragment.prisma`. A referencia visual esta em `produto/processo/client/src/pages/pedidos/PedidosPage.tsx` e o componente de grid em `nucleo-global/Tabelas/tabela-camadas-global/`. Leiam o handoff e comecem pela implementacao."**
 
 ### Ordem sugerida de implementacao
 

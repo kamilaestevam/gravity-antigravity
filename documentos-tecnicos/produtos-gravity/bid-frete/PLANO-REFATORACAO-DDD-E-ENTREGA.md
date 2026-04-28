@@ -2,7 +2,7 @@
 
 > Status: documento de planejamento, sem alteracao de codigo.
 > Produto: `bid-frete`
-> Diretorio tecnico: `documentos-tecnicos/produto/bid-frete/`
+> Diretorio tecnico: `documentos-tecnicos/produtos-gravity/bid-frete/`
 > Diretorio de codigo: `produto/bid-frete/`
 > Branch recomendada para execucao futura: `bid-frete-ddd`
 > Data-base: 2026-04-24
@@ -684,9 +684,9 @@ Entregaveis:
 
 ### Documentacao
 
-- `documentos-tecnicos/produto/bid-frete/ARQUITETURA.md`
-- `documentos-tecnicos/produto/bid-frete/bid-frete.md`
-- `documentos-tecnicos/produto/bid-frete/PLANO-REFATORACAO-DDD-E-ENTREGA.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/ARQUITETURA.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/bid-frete.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/PLANO-REFATORACAO-DDD-E-ENTREGA.md`
 
 ### Testes
 
@@ -940,5 +940,5 @@ Quando liberado:
 - `skills/agentes/qa/SKILL.md`
 - `skills/agentes/coordenador/SKILL.md`
 - `skills/agentes/lider/SKILL.md`
-- `documentos-tecnicos/produto/bid-frete/ARQUITETURA.md`
-- `documentos-tecnicos/produto/bid-frete/bid-frete.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/ARQUITETURA.md`
+- `documentos-tecnicos/produtos-gravity/bid-frete/bid-frete.md`

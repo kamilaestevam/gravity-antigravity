@@ -389,6 +389,6 @@ rascunho → em_composicao → pronta → exportada → duplicada (cria nova)
 | Testes unitarios | `testes/testes-unitarios/nf-importacao/` |
 | Testes funcionais | `testes/testes-funcionais/nf-importacao/` |
 | Skill IA | `skills/produtos/nf-importacao/SKILL.md` |
-| PRD | `documentos-tecnicos/produto/nf-importacao/PRD.md` |
-| Arquitetura | `documentos-tecnicos/produto/nf-importacao/ARQUITETURA.md` |
+| PRD | `documentos-tecnicos/produtos-gravity/nf-importacao/PRD.md` |
+| Arquitetura | `documentos-tecnicos/produtos-gravity/nf-importacao/ARQUITETURA.md` |
 | Registro | `servicos-global/contracts.json` → `nf-importacao` |

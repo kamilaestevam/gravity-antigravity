@@ -240,7 +240,7 @@ produto/bid-cambio/
 
 ### Documento tecnico completo
 
-Ver `documentos-tecnicos/produto/bid-cambio/ARQUITETURA.md` para:
+Ver `documentos-tecnicos/produtos-gravity/bid-cambio/ARQUITETURA.md` para:
 - PRODUCT_CONFIG completo
 - fragment.prisma completo
 - Todos os endpoints detalhados
@@ -366,7 +366,7 @@ Cenario: Autenticacao S2S
 
 | # | Artefato | Local | Status |
 |---|---------|-------|--------|
-| 1 | PRD final | `documentos-tecnicos/produto/bid-cambio/PRD.md` | Completo |
+| 1 | PRD final | `documentos-tecnicos/produtos-gravity/bid-cambio/PRD.md` | Completo |
 | 2 | Personas | PRD secao 3 | 4 personas com JTBD |
 | 3 | Mapas de Jornada | PRD secao 7 | 4 fluxos completos |
 | 4 | Regras de Negocio | PRD secao 4 | RN-001 a RN-110 |
@@ -377,7 +377,7 @@ Cenario: Autenticacao S2S
 | 9 | Hi-Fi Dark | Codigo React com CSS vars dark-first | 16 telas |
 | 10 | Hi-Fi Light | Variaveis CSS suportam toggle | Via CSS vars |
 | 11 | Specs por Tela | PRD secao 8 + ARQUITETURA secao 6 | Componentes mapeados |
-| 12 | Arquitetura Tecnica | `documentos-tecnicos/produto/bid-cambio/ARQUITETURA.md` | Completo |
+| 12 | Arquitetura Tecnica | `documentos-tecnicos/produtos-gravity/bid-cambio/ARQUITETURA.md` | Completo |
 | 13 | Mapa de Reuso | ARQUITETURA secao 6 | 9 servicos + 7 componentes |
 | 14 | Estimativas | ARQUITETURA secao 7 + este documento secao 8 | P/M/G/GG |
 | 15 | Analise de Mercado | PRD secao 2 + Fase 1 (TAM/SAM/SOM) | Completo |
@@ -410,7 +410,7 @@ Cenario: Autenticacao S2S
 
 Depois:
 
-> **"Novo produto: BID Cambio. O handoff completo esta em `documentos-tecnicos/produto/bid-cambio/HANDOFF.md`. O codigo scaffoldado esta em `produto/bid-cambio/`. Leiam o handoff e comecem pela implementacao."**
+> **"Novo produto: BID Cambio. O handoff completo esta em `documentos-tecnicos/produtos-gravity/bid-cambio/HANDOFF.md`. O codigo scaffoldado esta em `produto/bid-cambio/`. Leiam o handoff e comecem pela implementacao."**
 
 ### Ordem sugerida de implementacao
 

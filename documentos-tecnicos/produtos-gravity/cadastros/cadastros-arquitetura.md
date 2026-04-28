@@ -314,7 +314,7 @@ Sem FK física entre Configurador e Cadastros. `suid_empresa` é cópia.
 
 ### Fase 0 — Aprovação deste documento (BLOQUEIA tudo abaixo)
 - [x] Daniel revisa e aprova versão final do documento
-- [x] Documento salvo em `documentos-tecnicos/banco-dados/cadastros-arquitetura.md`
+- [x] Documento salvo em `documentos-tecnicos/produtos-gravity/cadastros/cadastros-arquitetura.md`
 - [ ] Coordenador valida que documento está executável
 
 ### Fase 1 — Criação do banco Cadastros (não toca em produtos existentes)

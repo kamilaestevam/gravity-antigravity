@@ -341,14 +341,14 @@ Entao apenas LPCOs que atendem AMBOS filtros sao exibidos
 | # | Artefato | Responsavel | Arquivo |
 |---|---------|-------------|---------|
 | 1 | SKILL (regras de negocio) | PM + SME | `skills/produtos/lpco/SKILL.md` |
-| 2 | PRD (13 secoes) | PM | `documentos-tecnicos/produto/lpco/PRD.md` |
-| 3 | Arquitetura Tecnica | Tech Lead | `documentos-tecnicos/produto/lpco/ARQUITETURA.md` |
-| 4 | Handoff | PM | `documentos-tecnicos/produto/lpco/HANDOFF.md` |
-| 5 | Backlog Priorizado (23 stories, RICE) | PM | `documentos-tecnicos/produto/lpco/BACKLOG.md` |
-| 6 | Criterios de Aceite (Gherkin) | Business Analyst | `documentos-tecnicos/produto/lpco/CRITERIOS-ACEITE.md` |
-| 7 | Metricas e Instrumentacao | Data Analyst | `documentos-tecnicos/produto/lpco/METRICAS.md` |
-| 8 | Specs por Tela (15 telas) | Designer + Tech Lead | `documentos-tecnicos/produto/lpco/SPECS-TELAS.md` |
-| 9 | Sign-Off Regulatorio | SME | `documentos-tecnicos/produto/lpco/SIGNOFF-REGULATORIO.md` |
+| 2 | PRD (13 secoes) | PM | `documentos-tecnicos/produtos-gravity/lpco/PRD.md` |
+| 3 | Arquitetura Tecnica | Tech Lead | `documentos-tecnicos/produtos-gravity/lpco/ARQUITETURA.md` |
+| 4 | Handoff | PM | `documentos-tecnicos/produtos-gravity/lpco/HANDOFF.md` |
+| 5 | Backlog Priorizado (23 stories, RICE) | PM | `documentos-tecnicos/produtos-gravity/lpco/BACKLOG.md` |
+| 6 | Criterios de Aceite (Gherkin) | Business Analyst | `documentos-tecnicos/produtos-gravity/lpco/CRITERIOS-ACEITE.md` |
+| 7 | Metricas e Instrumentacao | Data Analyst | `documentos-tecnicos/produtos-gravity/lpco/METRICAS.md` |
+| 8 | Specs por Tela (15 telas) | Designer + Tech Lead | `documentos-tecnicos/produtos-gravity/lpco/SPECS-TELAS.md` |
+| 9 | Sign-Off Regulatorio | SME | `documentos-tecnicos/produtos-gravity/lpco/SIGNOFF-REGULATORIO.md` |
 | 10 | Scaffold de Codigo (36 arquivos) | Tech Lead | `produto/lpco/` |
 | 11 | Registro em contracts.json | Tech Lead | `servicos-global/contracts.json` (porta 8027) |
 

@@ -1,0 +1,59 @@
+{
+  "id": "TST-FUN-CONFIG-WSUP-001",
+  "versao": "1.0",
+  "geradoEm": "2026-04-20T12:00:00Z",
+  "geradoPor": "agente-plano-teste-funcional",
+  "escopo": "CONFIG",
+  "modulo": "users-workspaces-put",
+  "tipoModulo": "rota_crud",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/users.ts",
+  "criticidade": "alta",
+  "temDinheiro": false,
+  "endpoints": [
+    {
+      "metodo": "PUT",
+      "rota": "/api/v1/usuarios/:id/workspaces",
+      "auth": "requireMasterRole",
+      "zod": "UpdateWorkspacesSchema",
+      "descricao": "Substitui atomicamente os workspaces de um usuário STANDARD/SUPPLIER"
+    }
+  ],
+  "mocksNecessarios": [
+    { "modulo": "prisma.usuario.findFirst",           "motivo": "verificar existência e role do usuário no tenant"       },
+    { "modulo": "prisma.empresa.findMany",            "motivo": "IDOR — validar que os workspace IDs pertencem ao tenant" },
+    { "modulo": "prisma.usuarioWorkspace.findMany",   "motivo": "computar diff para audit trail (antesIds)"              },
+    { "modulo": "prisma.$transaction",                "motivo": "executa deleteMany + createMany atomicamente"            },
+    { "modulo": "securityAudit.permissionChanged",    "motivo": "verificar chamada de audit trail"                       },
+    { "modulo": "requireAuth",                        "motivo": "bypass — injeta req.auth diretamente"                   },
+    { "modulo": "requireMasterRole",                  "motivo": "bypass — não há JWT real nos testes funcionais"          }
+  ],
+  "buildTestApp": "express() + express.json() + mockRequireAuth + usersRouter (/api/v1/usuarios) + errorHandler real",
+  "categorias": [
+    { "nome": "happy",      "total": 6  },
+    { "nome": "validation", "total": 5  },
+    { "nome": "business",   "total": 4  },
+    { "nome": "isolation",  "total": 3  }
+  ],
+  "casos": [
+    { "id": "TST-FUN-CONFIG-WSUP-001", "categoria": "happy",      "descricao": "STANDARD + workspaces válidos → 200 { workspaces: [...] }",                              "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-002", "categoria": "happy",      "descricao": "deleteMany chamado com tenant_id e user_id do req.auth",                                "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-003", "categoria": "happy",      "descricao": "createMany com tenant_id, user_id, is_active: true, skipDuplicates: true",               "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-004", "categoria": "happy",      "descricao": "workspace adicionado → permissionChanged com action: GRANTED",                          "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-005", "categoria": "happy",      "descricao": "workspace removido (só remoção) → permissionChanged com action: REVOKED",               "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-006", "categoria": "happy",      "descricao": "workspaces idênticos aos anteriores → permissionChanged NÃO chamado",                   "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-007", "categoria": "validation", "descricao": "workspaces: [] → 400 VALIDATION_ERROR sem stack trace",                                 "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-008", "categoria": "validation", "descricao": "campo workspaces ausente → 400 VALIDATION_ERROR",                                       "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-009", "categoria": "validation", "descricao": "workspace ID não-CUID → 400 VALIDATION_ERROR",                                         "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-010", "categoria": "validation", "descricao": "CUIDs duplicados no array → 400 VALIDATION_ERROR",                                      "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-011", "categoria": "validation", "descricao": "adversarial: <script>alert(1)</script> → 400 VALIDATION_ERROR sem stack trace",         "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-012", "categoria": "business",   "descricao": "usuário MASTER → 400 INVALID_OPERATION",                                                "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-013", "categoria": "business",   "descricao": "usuário não encontrado no tenant → 404 NOT_FOUND",                                      "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-014", "categoria": "business",   "descricao": "workspace IDs cross-tenant (IDOR) → 403 FORBIDDEN, transaction NÃO chamada",           "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-015", "categoria": "business",   "descricao": "$transaction falha → 500 INTERNAL_ERROR sem stack trace",                               "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-016", "categoria": "isolation",  "descricao": "usuario.findFirst WHERE tenant_id = req.auth.tenantId",                                  "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-017", "categoria": "isolation",  "descricao": "empresa.findMany WHERE tenant_id = req.auth.tenantId (prevenção IDOR)",                  "origem": "agente-adicionado" },
+    { "id": "TST-FUN-CONFIG-WSUP-018", "categoria": "isolation",  "descricao": "usuarioWorkspace.findMany (antesIds) WHERE tenant_id = req.auth.tenantId",               "origem": "agente-adicionado" }
+  ],
+  "specFile": "testes/testes-funcionais/configurador/usuarios/workspaces-put.test.ts",
+  "resumoExecutivo": "18 casos cobrindo o endpoint PUT /:id/workspaces: happy path com verificação de atomicidade e audit trail, validação Zod real (5 casos incluindo adversarial), regras de negócio (MASTER, NOT_FOUND, IDOR, falha de DB), e isolamento cross-tenant verificado no nível de WHERE das queries Prisma."
+}

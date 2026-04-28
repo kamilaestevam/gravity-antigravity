@@ -1,0 +1,16 @@
+// servicos-global/tenant/prisma/schema.base.prisma
+// ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
+// Contém apenas datasource e generator.
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-tenant-schema.ts
+// adicionando todos os fragment.prisma dos serviços de tenant.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DATABASE_URL")
+}

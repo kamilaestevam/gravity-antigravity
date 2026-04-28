@@ -59,7 +59,7 @@ export function useModalStack(): ModalManagerState {
  * @example
  * const { aberto, abrir, fechar } = useModalLocal()
  * <button onClick={abrir}>Abrir</button>
- * <ModalGlobal aberto={aberto} aoFechar={fechar} titulo="..." />
+ * <ModalOverlay aberto={aberto} aoFechar={fechar} titulo="..." />
  */
 export function useModalLocal(abertoPadrao = false) {
   const [aberto, setAberto] = useState(abertoPadrao)

@@ -26,7 +26,7 @@ import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LogoHub } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import {
@@ -138,7 +138,7 @@ export function Hub() {
   const prodVisual = getProdVisual(t)
   const defaultVisual = getDefaultVisual(t)
   const addNotification = useShellStore((s) => s.addNotification)
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, currentUser } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
 
   useEffect(() => {
@@ -156,8 +156,8 @@ export function Hub() {
 
   const companyId   = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
-  const userName      = user?.fullName ?? user?.firstName ?? 'Usuário'
-  const userEmail     = user?.primaryEmailAddress?.emailAddress ?? ''
+  const userName      = currentUser.name || user?.fullName || user?.firstName || 'Usuário'
+  const userEmail     = currentUser.email || user?.primaryEmailAddress?.emailAddress || ''
   const userInitials  = userName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
   const isLight       = currentTheme === 'light'
   const ROLE_LABELS: Record<string, string> = {
@@ -188,7 +188,7 @@ export function Hub() {
             setProducts(active)
           } else {
             // Auto-habilita produtos do tenant nesta company
-            const tenantRes = await fetch(`${API_URL}/tenants/products`, {
+            const tenantRes = await fetch(`${API_URL}/assinaturas`, {
               headers: { Authorization: `Bearer ${token}` },
             })
             if (tenantRes.ok) {
@@ -316,7 +316,7 @@ export function Hub() {
           />
 
           {/* Seletor de idioma */}
-          <LanguageSwitcherGlobal iconOnly />
+          <SeletorIdiomaGlobal iconOnly />
 
           <div className="hb-topbar-sep" />
 

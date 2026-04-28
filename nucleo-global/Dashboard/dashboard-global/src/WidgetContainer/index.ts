@@ -1,2 +1,2 @@
-export { WidgetContainer } from './WidgetContainer.js'
-export type { WidgetContainerProps } from './WidgetContainer.js'
+export { DashboardPainelContainer } from './DashboardPainelContainer.js'
+export type { WidgetContainerProps } from './DashboardPainelContainer.js'

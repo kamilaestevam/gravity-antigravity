@@ -1,4 +1,4 @@
-export { TabelaGlobal } from './tabela'
+export { TabelaGlobal } from './TabelaGlobal'
 export type {
   TabelaGlobalProps,
   TabelaGlobalColuna,
@@ -7,4 +7,4 @@ export type {
   TabelaKanbanConfig,
   ColType,
   SortDir
-} from './tabela'
+} from './TabelaGlobal'

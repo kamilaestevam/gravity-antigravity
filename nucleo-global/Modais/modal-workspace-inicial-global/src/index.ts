@@ -1,1 +1,1 @@
-export * from './WorkspaceSelecaoGlobal'
+export * from './ModalWorkspaceInicialGlobal'

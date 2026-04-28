@@ -15,8 +15,8 @@ const FADE_CLASSES = ['', 'ws-fade-up-d1', 'ws-fade-up-d2', 'ws-fade-up-d3'] as 
  * @example
  * <SecaoGlobal titulo="Dados Gerais" icone={<Buildings weight="duotone" size={14} />} card>
  *   <GridGlobal colunas={2} gap={5}>
- *     <GeralCampoGlobal label="Nome" ... />
- *     <GeralCampoGlobal label="CNPJ" ... />
+ *     <CampoGeralGlobal label="Nome" ... />
+ *     <CampoGeralGlobal label="CNPJ" ... />
  *   </GridGlobal>
  * </SecaoGlobal>
  */

@@ -5,12 +5,12 @@ import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubButton } from '../../components/HubButton'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
@@ -30,6 +30,7 @@ import {
   Info,
   ShieldCheck,
   ArrowsClockwise,
+  Database,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -60,12 +61,13 @@ export function AdminLayout() {
     { to: '/admin/api-cockpit',  label: t('admin.layout.api-cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
     { to: '/admin/seguranca-admin', label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
+    { to: '/admin/cadastros-globais', label: t('admin.layout.cadastros_globais', 'Cadastros Globais'), icon: <Database weight="duotone" size={18} /> },
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
-  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
-  useSyncClerkToShell()
+  // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
+  useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
 
@@ -93,7 +95,7 @@ export function AdminLayout() {
     async function loadAdminProducts() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/admin/products', {
+        const res = await fetch('/api/v1/admin/produtos-gravity', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -159,7 +161,7 @@ export function AdminLayout() {
         <div className="ws-global-actions">
           <HubButton onClick={() => navigate('/hub')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -220,7 +222,7 @@ export function AdminLayout() {
             iconOnly
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           {/* Divisor visual */}
           <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />

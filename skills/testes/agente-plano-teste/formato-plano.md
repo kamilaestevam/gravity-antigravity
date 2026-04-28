@@ -51,7 +51,7 @@ const InteracaoSchema = z.discriminatedUnion('tipo', [
   z.object({ tipo: z.literal('press'),   tecla: z.string() }),
   z.object({ tipo: z.literal('reload') }),
   z.object({ tipo: z.literal('resize'),  largura: z.number(), altura: z.number() }),
-  z.object({ tipo: z.literal('setRole'), role: z.string() }),  // troca de usuário
+  z.object({ tipo: z.literal('setTipoUsuario'), tipoUsuario: z.string() }),  // troca de usuário (tipo_usuario lido de /api/v1/me — Mandamento 01)
   z.object({ tipo: z.literal('setLocale'), locale: z.enum(['pt','en','es']) }),
   z.object({ tipo: z.literal('verificacao') }),  // só verifica, não interage
 ])
@@ -87,7 +87,7 @@ const PreRequisitosSchema = z.object({
   ambiente:       AmbienteSchema,
   organizacao:    z.string(),
   workspace:      z.string(),
-  roleUsuario:    z.enum(['USER', 'ADMIN', 'SUPER_ADMIN']),
+  tipoUsuario:    z.enum(['USUARIO', 'ADMIN', 'SUPER_ADMIN', 'MASTER']),  // sempre lido de /api/v1/me (Mandamento 01)
   dadosNecessarios: z.array(z.object({
     descricao: z.string(),
     fixture:   z.string().optional(),
@@ -188,12 +188,12 @@ export type PlanoTeste = z.infer<typeof PlanoTesteSchema>
   "ambientes": ["Local", "Staging", "Producao"],
   "criticidade": "alta",
   "temDinheiro": false,
-  "resumoExecutivo": "Tela de edição da organização do tenant (dados básicos: nome, CNPJ, estado, cidade, segmento, tipo de empresa, workspace padrão). Risco principal: vazamento de CNPJ entre tenants. Cobertura: 18/20 categorias. Categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis — organização é única por tenant.",
+  "resumoExecutivo": "Tela de edição da Organização (dados básicos: nome, CNPJ, estado, cidade, segmento, tipo de empresa, Workspace padrão). Risco principal: vazamento de CNPJ entre Organizações. Cobertura: 18/20 categorias. Categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis — Organização é única por instalação.",
   "preRequisitos": {
     "ambiente": "Local",
     "organizacao": "Gravity Ltda",
     "workspace": "Importador ABC",
-    "roleUsuario": "ADMIN",
+    "tipoUsuario": "ADMIN",
     "servicosAtivos": ["configurador-server-8005", "configurador-front-8000"]
   },
   "mapeamentoTestids": {
@@ -227,7 +227,7 @@ export type PlanoTeste = z.infer<typeof PlanoTesteSchema>
   "cobertura": [
     { "categoria": 1, "nome": "Carregamento da tela", "status": "coberta", "passosAssociados": [1,2,3,4] },
     { "categoria": 2, "nome": "Identidade visual", "status": "coberta", "passosAssociados": [5,6,7,8,9,10,11] },
-    { "categoria": 6, "nome": "Create / Criação", "status": "nao_aplicavel", "justificativa": "Organização é única por tenant — criação acontece via onboarding (TST-E2E-CONFIG-000010)" }
+    { "categoria": 6, "nome": "Create / Criação", "status": "nao_aplicavel", "justificativa": "Organização é única — criação acontece via onboarding (TST-E2E-CONFIG-000010)" }
   ],
   "coberturaPercentual": 90,
   "passos": [

@@ -5,7 +5,7 @@
  *  - Só valida se o código tiver exatamente 8 dígitos numéricos
  *  - Debounce de 600ms para não disparar em cada tecla
  *  - Nunca impede o salvamento — apenas avisa o usuário
- *  - Aceita `onValidar` customizado (prod → usa /api/v1/ncm/validar/:codigo)
+ *  - Aceita `onValidar` customizado (prod → usa /api/v1/ncm/:id_ncm/validar)
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -39,7 +39,7 @@ export interface UseNcmValidationReturn {
 const NCM_REGEX = /^\d{8}$/
 
 async function validarNcmDefault(codigo: string, baseUrl: string): Promise<NcmValidacaoResultado> {
-  const res = await fetch(`${baseUrl}/validar/${encodeURIComponent(codigo)}`, {
+  const res = await fetch(`${baseUrl}/${encodeURIComponent(codigo)}/validar`, {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
   })

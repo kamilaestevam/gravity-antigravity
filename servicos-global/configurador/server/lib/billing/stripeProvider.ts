@@ -54,9 +54,9 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   }
 
   // Tenta casar com tenant do Gravity
-  const tenant = await prisma.tenant.findFirst({
+  const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, name: true },
+    select: { id_organizacao: true, nome_organizacao: true },
   })
 
   // Stripe pode ter customer email direto
@@ -68,12 +68,12 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   }
 
   return {
-    id: tenant?.id ?? stripeCustomerId,
-    name: tenant?.name ?? (typeof inv.customer !== 'string' && inv.customer && 'name' in inv.customer
+    id: tenant?.id_organizacao ?? stripeCustomerId,
+    name: tenant?.nome_organizacao ?? (typeof inv.customer !== 'string' && inv.customer && 'name' in inv.customer
       ? (inv.customer as Stripe.Customer).name ?? 'Sem nome'
       : 'Órfão (Stripe)'),
     email,
-    tenant_id: tenant?.id ?? null,
+    tenant_id: tenant?.id_organizacao ?? null,
   }
 }
 
@@ -169,15 +169,15 @@ export class StripeProvider implements BillingProvider {
       // customer_id DEVE ser tenant_id do Gravity — valida existência antes de
       // passar pro Stripe, impedindo enumeration cross-tenant e evitando que
       // IDs Stripe crus sejam injetados via query string.
-      const tenant = await prisma.tenant.findUnique({
-        where: { id: params.customer_id },
+      const tenant = await prisma.organizacao.findUnique({
+        where: { id_organizacao: params.customer_id },
         select: { stripe_customer_id: true },
       })
       if (!tenant) {
-        throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
+        throw new AppError('Organizacao não encontrado', 404, 'TENANT_NOT_FOUND')
       }
       if (!tenant.stripe_customer_id) {
-        // Tenant existe mas nunca teve fatura — retorna vazio em vez de erro
+        // Organizacao existe mas nunca teve fatura — retorna vazio em vez de erro
         return { invoices: [], has_more: false, next_cursor: null }
       }
       listParams.customer = tenant.stripe_customer_id
@@ -234,28 +234,28 @@ export class StripeProvider implements BillingProvider {
 
   async createInvoice(params: CreateInvoiceParams): Promise<GravityInvoice> {
     // 1. Resolver stripe_customer_id do tenant
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: params.customer_tenant_id },
-      select: { id: true, name: true, stripe_customer_id: true },
+    const tenant = await prisma.organizacao.findUnique({
+      where: { id_organizacao: params.customer_tenant_id },
+      select: { id_organizacao: true, nome_organizacao: true, stripe_customer_id: true },
     })
 
     if (!tenant) {
-      throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'TENANT_NOT_FOUND')
     }
 
     let stripeCustomerId = tenant.stripe_customer_id
     if (!stripeCustomerId) {
       // Cria customer on-the-fly se o tenant não tinha
       const created = await stripe.customers.create({
-        name: tenant.name,
-        metadata: { tenant_id: tenant.id },
+        name: tenant.nome_organizacao,
+        metadata: { tenant_id: tenant.id_organizacao },
       })
       stripeCustomerId = created.id
-      await prisma.tenant.update({
-        where: { id: tenant.id },
+      await prisma.organizacao.update({
+        where: { id_organizacao: tenant.id_organizacao },
         data: { stripe_customer_id: stripeCustomerId },
       })
-      log.info('stripe customer created', { tenant_id: tenant.id, stripe_customer_id: stripeCustomerId })
+      log.info('stripe customer created', { tenant_id: tenant.id_organizacao, stripe_customer_id: stripeCustomerId })
     }
 
     const currency = params.currency?.toLowerCase() ?? 'brl'
@@ -290,7 +290,7 @@ export class StripeProvider implements BillingProvider {
 
     log.info('invoice created', {
       stripe_invoice_id: finalInvoice.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       amount_due: finalInvoice.amount_due,
       auto_finalized: !!params.auto_finalize,
     })

@@ -29,9 +29,9 @@ async function main() {
     process.exit(1)
   }
 
-  const user = await prisma.user.findFirst({
-    where: { email },
-    select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
+  const user = await prisma.usuario.findFirst({
+    where: { email_usuario: email },
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
   })
 
   if (!user) {
@@ -40,10 +40,10 @@ async function main() {
   }
 
   console.log(`\nAntes:`)
-  console.log(`  id:            ${user.id}`)
-  console.log(`  email:         ${user.email}`)
-  console.log(`  role:          ${user.role}`)
-  console.log(`  tenant_id:     ${user.tenant_id}`)
+  console.log(`  id:            ${user.id_usuario}`)
+  console.log(`  email:         ${user.email_usuario}`)
+  console.log(`  role:          ${user.tipo_usuario}`)
+  console.log(`  tenant_id:     ${user.id_organizacao_usuario}`)
   console.log(`  clerk_user_id: ${user.clerk_user_id}`)
 
   if (user.clerk_user_id === newClerkId) {
@@ -51,10 +51,10 @@ async function main() {
     return
   }
 
-  const updated = await prisma.user.update({
-    where: { id: user.id },
+  const updated = await prisma.usuario.update({
+    where: { id_usuario: user.id_usuario },
     data: { clerk_user_id: newClerkId },
-    select: { id: true, email: true, clerk_user_id: true },
+    select: { id_usuario: true, email_usuario: true, clerk_user_id: true },
   })
 
   console.log(`\n✓ Atualizado:`)

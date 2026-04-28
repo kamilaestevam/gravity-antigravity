@@ -26,7 +26,7 @@ export default defineConfig({
       '@tenant/historico': path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
-      ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades']),
+      ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades', 'cadastros']),
       // peerDeps do kanban-global — npm workspaces hoista para o root
       '@dnd-kit/core': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/core'),
       '@dnd-kit/sortable': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/sortable'),
@@ -91,8 +91,24 @@ export default defineConfig({
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
-      '/api/v1/analytics/pedido': {
+      '/api/v1/pedidos/analytics': {
         target: 'http://localhost:8030',
+        changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      // Cadastros (Fase 5 DDD) — serviço tenant com CRUD de Empresa, Moeda,
+      // Unidade, NCM. Porta 8031 (8030 é do Pedido). Todas as chamadas levam
+      // x-internal-key; o id_organizacao é injetado pelo frontend via header
+      // x-organizacao-id (não pelo proxy — vem do currentUser do ShellStore).
+      '/api/v1/cadastros': {
+        target: 'http://localhost:8031',
         changeOrigin: true,
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {

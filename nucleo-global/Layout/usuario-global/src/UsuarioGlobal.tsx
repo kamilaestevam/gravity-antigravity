@@ -44,10 +44,11 @@ export function UsuarioGlobal({
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  const isSuperAdmin = userRole.toLowerCase() === 'super admin'
+  const normalizedRole = userRole.toLowerCase().replace(/_/g, ' ')
+  const isSuperAdmin = normalizedRole === 'super admin'
   const displayRole = userRole
   const hasAdminPrivileges = !!isAdmin
-  const canAccessWorkspace = userRole.toLowerCase() === 'master' || !!isAdmin
+  const canAccessWorkspace = normalizedRole === 'master' || !!isAdmin
 
   const roleSlug: Record<string, string> = {
     'super admin': 'super-admin',
@@ -59,7 +60,7 @@ export function UsuarioGlobal({
     'membro':      'standard',
     'member':      'standard',
   }
-  const roleClass = `ws-global-user__role--${roleSlug[userRole.toLowerCase()] ?? 'default'}`
+  const roleClass = `ws-global-user__role--${roleSlug[normalizedRole] ?? 'default'}`
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -108,7 +109,7 @@ export function UsuarioGlobal({
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className={`ws-profile-badge ws-profile-badge--${isSuperAdmin ? 'super-admin' : (roleSlug[userRole.toLowerCase()] ?? 'standard')}`}>
+              <span className={`ws-profile-badge ws-profile-badge--${isSuperAdmin ? 'super-admin' : (roleSlug[normalizedRole] ?? 'standard')}`}>
                 {displayRole}
               </span>
             </div>

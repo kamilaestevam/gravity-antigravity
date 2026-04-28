@@ -1,0 +1,211 @@
+// servicos-global/tenant/email/prisma/fragment.prisma
+// AGENTE EMAIL — ONDA 28 (DDD Servicos)
+//
+// Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EmailStatus {
+  PENDENTE
+  PROCESSANDO
+  ENVIADO
+  FALHOU
+  CANCELADO
+}
+
+enum EmailDirecao {
+  RECEBIDO
+  ENVIADO
+}
+
+enum EmailThreadAtiva {
+  ABERTA
+  ARQUIVADA
+  RESOLVIDA
+}
+
+enum EmailSentimento {
+  MUITO_POSITIVO
+  POSITIVO
+  NEUTRO
+  NEGATIVO
+  MUITO_NEGATIVO
+}
+
+enum EmailFilaPrioridade {
+  BAIXA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+// ---------------------------------------------------------------------------
+// EmailAssuntosParticipantes — thread de conversa (agrupa mensagens de ida e volta)
+// ---------------------------------------------------------------------------
+
+model EmailAssuntosParticipantes {
+  id_email_assuntos_participantes              String  @id @default(cuid())
+  id_organizacao_email_assuntos_participantes  String
+  id_produto_email_assuntos_participantes      String?
+  id_usuario_email_assuntos_participantes      String?
+
+  assunto_email_assuntos_participantes              String
+  status_email_assuntos_participantes               EmailThreadAtiva @default(ABERTA)
+  sentimento_email_assuntos_participantes           Float             @default(0) // -1 a 1
+  rotulo_sentimento_email_assuntos_participantes    EmailSentimento   @default(NEUTRO)
+  contagem_mensagens_email_assuntos_participantes   Int               @default(0)
+  ultimo_contato_email_assuntos_participantes       DateTime?
+  deep_link_email_assuntos_participantes            String?           // ex: /email/thread/{id}
+
+  data_criacao_email_assuntos_participantes     DateTime @default(now())
+  data_atualizacao_email_assuntos_participantes DateTime @updatedAt
+
+  mensagens_email_assuntos_participantes EmailMensagem[]
+
+  @@index([id_organizacao_email_assuntos_participantes], map: "eap_org_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_produto_email_assuntos_participantes], map: "eap_org_prd_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_usuario_email_assuntos_participantes], map: "eap_org_usr_idx")
+  @@map("email_assuntos_participantes")
+}
+
+// ---------------------------------------------------------------------------
+// EmailMensagem — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
+
+model EmailMensagem {
+  id_email_mensagem               String  @id @default(cuid())
+  id_organizacao_email_mensagem   String
+  id_produto_email_mensagem       String?
+  id_usuario_email_mensagem       String?
+
+  id_thread_email_mensagem        String
+  thread_email_mensagem           EmailAssuntosParticipantes @relation(fields: [id_thread_email_mensagem], references: [id_email_assuntos_participantes])
+
+  id_resend_email_mensagem        String?       @unique(map: "em_resend_unq")
+  direcao_email_mensagem          EmailDirecao  @default(ENVIADO)
+  remetente_email_mensagem        String
+  destinatario_email_mensagem     String
+  assunto_email_mensagem          String?
+  corpo_email_mensagem            String        @db.Text
+  corpo_html_email_mensagem       String?       @db.Text
+  chave_dedup_email_mensagem      String?       @unique(map: "em_dedup_unq")
+  id_mensagem_pai_email_mensagem  String?
+
+  // Análise Gabi
+  resposta_gabi_email_mensagem    String? @db.Text
+  confianca_gabi_email_mensagem   Float?
+  acao_gabi_email_mensagem        String? // auto_replied | escalated_to_human | none
+
+  data_envio_email_mensagem       DateTime @default(now())
+  data_criacao_email_mensagem     DateTime @default(now())
+  data_atualizacao_email_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_email_mensagem], map: "em_org_idx")
+  @@index([id_organizacao_email_mensagem, id_produto_email_mensagem], map: "em_org_prd_idx")
+  @@index([id_organizacao_email_mensagem, id_usuario_email_mensagem], map: "em_org_usr_idx")
+  @@index([id_thread_email_mensagem], map: "em_thread_idx")
+  @@index([chave_dedup_email_mensagem], map: "em_dedup_idx")
+  @@map("email_mensagem")
+}
+
+// ---------------------------------------------------------------------------
+// EmailRegistroEnvio — log de todos os envios realizados (auditoria completa)
+// ---------------------------------------------------------------------------
+
+model EmailRegistroEnvio {
+  id_email_registro_envio              String  @id @default(cuid())
+  id_organizacao_email_registro_envio  String
+  id_produto_email_registro_envio      String?
+  id_usuario_email_registro_envio      String?
+
+  destinatario_email_registro_envio       String
+  remetente_email_registro_envio          String
+  reply_to_email_registro_envio           String?
+  assunto_email_registro_envio            String
+  id_template_email_registro_envio        String?
+  status_email_registro_envio             EmailStatus @default(PENDENTE)
+  id_resend_email_registro_envio          String?     @unique(map: "ere_resend_unq")
+  chave_dedup_email_registro_envio        String      @unique(map: "ere_dedup_unq")
+
+  tentativas_email_registro_envio         Int       @default(0)
+  max_tentativas_email_registro_envio     Int       @default(5)
+  proxima_tentativa_em_email_registro_envio DateTime?
+  mensagem_erro_email_registro_envio      String?   @db.Text
+  data_envio_email_registro_envio         DateTime?
+
+  data_criacao_email_registro_envio       DateTime @default(now())
+  data_atualizacao_email_registro_envio   DateTime @updatedAt
+
+  @@index([id_organizacao_email_registro_envio], map: "ere_org_idx")
+  @@index([id_organizacao_email_registro_envio, id_produto_email_registro_envio], map: "ere_org_prd_idx")
+  @@index([id_organizacao_email_registro_envio, id_usuario_email_registro_envio], map: "ere_org_usr_idx")
+  @@index([status_email_registro_envio], map: "ere_status_idx")
+  @@index([chave_dedup_email_registro_envio], map: "ere_dedup_idx")
+  @@map("email_registro_envio")
+}
+
+// ---------------------------------------------------------------------------
+// EmailTemplate — templates de email editáveis por tenant
+// ---------------------------------------------------------------------------
+
+model EmailTemplate {
+  id_template_email              String  @id @default(cuid())
+  id_organizacao_template_email  String
+  id_produto_template_email      String?
+  id_usuario_template_email      String?
+
+  nome_template_email        String
+  slug_template_email        String   // ex: boas-vindas, recuperacao-senha
+  assunto_template_email     String
+  corpo_html_template_email  String   @db.Text
+  corpo_texto_template_email String?  @db.Text
+  variaveis_template_email   String[] // ex: ["nome", "plano", "url"]
+  ativo_template_email       Boolean  @default(true)
+  descricao_template_email   String?
+
+  data_criacao_template_email     DateTime @default(now())
+  data_atualizacao_template_email DateTime @updatedAt
+
+  @@unique([id_organizacao_template_email, slug_template_email], map: "te_org_slug_unq")
+  @@index([id_organizacao_template_email], map: "te_org_idx")
+  @@index([id_organizacao_template_email, id_produto_template_email], map: "te_org_prd_idx")
+  @@index([id_organizacao_template_email, id_usuario_template_email], map: "te_org_usr_idx")
+  @@map("template_email")
+}
+
+// ---------------------------------------------------------------------------
+// EmailFilaEnvio — fila de envio com controle de retry e backoff exponencial
+// ---------------------------------------------------------------------------
+
+model EmailFilaEnvio {
+  id_email_fila_envio              String  @id @default(cuid())
+  id_organizacao_email_fila_envio  String
+  id_produto_email_fila_envio      String?
+  id_usuario_email_fila_envio      String?
+
+  status_email_fila_envio       EmailStatus         @default(PENDENTE)
+  prioridade_email_fila_envio   EmailFilaPrioridade @default(NORMAL)
+  payload_email_fila_envio      String              @db.Text // JSON: { to, subject, body, ... }
+  id_template_email_fila_envio  String?
+  id_email_enviado_email_fila_envio String?
+
+  tentativas_email_fila_envio          Int       @default(0)
+  max_tentativas_email_fila_envio      Int       @default(5)
+  proxima_tentativa_em_email_fila_envio DateTime?
+  processado_em_email_fila_envio       DateTime?
+  erro_email_fila_envio                String?   @db.Text
+
+  data_criacao_email_fila_envio     DateTime @default(now())
+  data_atualizacao_email_fila_envio DateTime @updatedAt
+
+  @@index([id_organizacao_email_fila_envio], map: "efe_org_idx")
+  @@index([id_organizacao_email_fila_envio, id_produto_email_fila_envio], map: "efe_org_prd_idx")
+  @@index([id_organizacao_email_fila_envio, id_usuario_email_fila_envio], map: "efe_org_usr_idx")
+  @@index([status_email_fila_envio, proxima_tentativa_em_email_fila_envio], map: "efe_status_retry_idx")
+  @@index([id_organizacao_email_fila_envio, status_email_fila_envio], map: "efe_org_status_idx")
+  @@map("email_fila_envio")
+}

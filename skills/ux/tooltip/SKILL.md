@@ -1,6 +1,6 @@
 ---
-name: Escrita de Tooltips — Gravity Platform
-description: Regras para escrever tooltips com TooltipGlobal em todo o workspace. Deve ser lida antes de escrever qualquer titulo ou descricao de tooltip na plataforma.
+name: antigravity-tooltip
+description: "Use esta skill antes de escrever qualquer titulo ou descricao de TooltipGlobal na plataforma. Define a filosofia central (tooltip responde 'o que esse campo faz pela minha empresa', nunca como funciona internamente), as 5 regras invioláveis (sem ponto final, idioma do usuario, max 90 chars na descricao, titulo vs descricao, sem jargao), padroes por contexto (campo editavel, dependente, somente-leitura, coluna de tabela, botao), anti-padroes e exemplos aprovados do Workspace Gravity."
 ---
 
 # Skill: Escrita de Tooltips
@@ -63,11 +63,11 @@ O `titulo` pode ser igual ao label do campo. A `descricao` é onde está o valor
 Use linguagem que um gerente administrativo entenderia.
 
 ```
-❌ "Define o slug do tenant no multi-tenant router"
+❌ "Define o slug da organização no multi-organização router"
 ✅ "Endereço exclusivo da sua conta — não pode ser alterado após a criação"
 
 ❌ "Foreign key vinculada ao registro pai"
-✅ "Empresa à qual este usuário está vinculado"
+✅ "Workspace ao qual este usuário está vinculado"
 ```
 
 ---

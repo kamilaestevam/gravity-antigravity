@@ -1,0 +1,555 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// schema.prisma — ARQUIVO AUTO-GERADO
+// NÃO EDITAR MANUALMENTE. Edite schema.base.prisma ou fragment.prisma
+// Gerado por: node prisma/compose-schema.js
+// ──────────────────────────────────────────────────────────────────────────────
+
+// schema.base.prisma — BID Frete Internacional
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos específicos do BID Frete são definidos em fragment.prisma
+
+
+// ─── Fragment: BID Frete Internacional ──────────────────────────────────────────
+
+// fragment.prisma — BID Frete Internacional
+// REGRA: todo model DEVE ter tenant_id (snake_case) e os 3 índices obrigatórios.
+// Skill: antigravity-tenant-isolation, antigravity-schema-composition
+
+// ─── ENUMS ─────────────────────────────────────────────────────────────────────
+
+enum BidFreteTipoOperacao {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum BidFreteModalidade {
+  MARITIMO
+  AEREO
+  RODOVIARIO
+}
+
+enum BidFreteCargaModalidade {
+  FCL
+  LCL
+  AEREO_GERAL
+  RODOVIARIO_FTL
+  RODOVIARIO_LTL
+}
+
+enum BidFreteCotacaoStatus {
+  RASCUNHO
+  ENVIADA_FORNECEDORES
+  EM_COTACAO
+  AGUARDANDO_APROVACAO
+  APROVADA
+  REPROVADA
+  CANCELADA
+  FALTA_INFORMACAO
+  EXPIRADA
+}
+
+enum BidFreteCotacaoFreteIntCanal {
+  EMAIL
+  WHATSAPP
+  API
+  PORTAL
+}
+
+enum BidFreteCotacao {
+  PENDENTE
+  ENVIADO
+  VISUALIZADO
+  RESPONDIDO
+  EXPIRADO
+  ERRO_ENVIO
+}
+
+enum BidFretePropostaStatus {
+  RECEBIDA
+  EM_ANALISE
+  MELHOR_PRECO
+  MELHOR_TRANSIT
+  MELHOR_AVALIACAO
+  APROVADA
+  REPROVADA
+}
+
+enum BidFreteTipoFornecedor {
+  AGENTE_CARGA
+  ARMADOR
+  CIA_AEREA
+  TRANSPORTADORA
+}
+
+enum BidFreteStatusFornecedor {
+  ATIVO
+  INATIVO
+  PENDENTE_APROVACAO
+  BLOQUEADO
+}
+
+enum BidFreteCotacaoVisibilidade {
+  DIRECIONADA
+  ABERTA
+}
+
+enum BidFreteIntegracao {
+  API_REST
+  API_SOAP
+  ODATA
+  MANUAL
+}
+
+// ─── FORNECEDOR ────────────────────────────────────────────────────────────────
+
+model FreteIntBidFornecedores {
+  id              String            @id @default(cuid())
+  tenant_id       String            // OBRIGATORIO — nunca nullable
+  product_id      String?           // "bid-frete"
+  user_id         String?           // clerk_id se fornecedor logado (SUPPLIER)
+
+  // Dados cadastrais
+  nome            String
+  nome_fantasia   String?
+  tipo            BidFreteTipoFornecedor
+  cnpj            String?
+  email           String
+  telefone        String?
+  whatsapp        String?
+  website         String?
+  pais            String?
+  cidade          String?
+  status          BidFreteStatusFornecedor  @default(ATIVO)
+
+  // Vinculo com usuario SUPPLIER no Gravity
+  clerk_user_id   String?           // link com User.clerk_user_id do Configurador
+
+  // Flags
+  aceita_cotacao_aberta  Boolean    @default(true)
+  cotacao_automatica     Boolean    @default(false)  // usa tabela padrao automaticamente
+
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  // Relacoes
+  tabelas_preco   FreteIntBidTabelasProntas[]
+  bid_requests    FreteIntBidPedidoCotacoes[]
+  bid_responses   FreteIntBidPropostas[]
+  avaliacoes      FreteIntBidFornecedoresAvaliacoes[]
+  connectors      FreteIntBidIntegracoes[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, tipo])
+  @@index([tenant_id, status])
+  @@index([email])
+  @@unique([tenant_id, email])
+  @@map("bid_fornecedores")
+}
+
+// ─── COTACAO ───────────────────────────────────────────────────────────────────
+
+model FreteIntBidCotacoes {
+  id                  String              @id @default(cuid())
+  tenant_id           String              // OBRIGATORIO
+  product_id          String?             // "bid-frete"
+  user_id             String              // clerk_id do solicitante
+  company_id          String?             // workspace/filial
+
+  // Referencia
+  numero              String              // auto-gerado: BID-YYYYMMDD-NNNN
+  referencia_interna  String?             // PO do cliente (ex: IMP023/22)
+
+  // Operacao
+  tipo_operacao       BidFreteTipoOperacao
+  modal               BidFreteModalidade
+  modalidade          BidFreteCargaModalidade
+
+  // Rota
+  origem_codigo       String              // UN/LOCODE ou IATA
+  origem_nome         String              // Nome legivel (ex: Shanghai)
+  origem_pais         String
+  destino_codigo      String
+  destino_nome        String              // ex: Santos
+  destino_pais        String
+
+  // Mercadoria
+  descricao_mercadoria String
+  ncm                 String?
+  quantidade          Int                 @default(1)
+  tipo_container      String?             // ex: 20' DRY, 40' HC
+  peso_kg             Float?
+  cubagem_m3          Float?
+
+  // Termos
+  incoterm            String              // FOB, EXW, CIF, etc.
+  zip_code_origem     String?             // para EXW
+  zip_code_destino    String?
+
+  // Target
+  valor_target        Float?              // valor referencial que quer atingir
+  moeda_target        String?             @default("USD")
+
+  // Visibilidade
+  visibilidade        BidFreteCotacaoVisibilidade @default(DIRECIONADA)
+  ocultar_nome_empresa Boolean            @default(false)  // anonimato
+
+  // Status e datas
+  status              BidFreteCotacaoStatus       @default(RASCUNHO)
+  data_limite_resposta DateTime?
+  data_aprovacao      DateTime?
+  data_cancelamento   DateTime?
+  motivo_reprovacao   String?
+  motivo_cancelamento String?
+
+  // Fornecedor vencedor
+  fornecedor_vencedor_id String?
+  saving_valor        Float?              // economia vs target ou media
+  saving_percentual   Float?
+
+  created_at          DateTime            @default(now())
+  updated_at          DateTime            @updatedAt
+
+  // Relacoes
+  bid_requests        FreteIntBidPedidoCotacoes[]
+  bid_responses       FreteIntBidPropostas[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, created_at])
+  @@index([numero])
+  @@map("bid_cotacoes")
+}
+
+// ─── BID REQUEST (Disparo para fornecedor) ─────────────────────────────────────
+
+model FreteIntBidPedidoCotacoes {
+  id              String            @id @default(cuid())
+  tenant_id       String            // OBRIGATORIO
+  product_id      String?           // "bid-frete"
+  user_id         String            // quem disparou
+
+  cotacao_id      String
+  fornecedor_id   String
+
+  // Disparo
+  canal           BidFreteCotacaoFreteIntCanal      @default(EMAIL)
+  status          BidFreteCotacao  @default(PENDENTE)
+  enviado_em      DateTime?
+  visualizado_em  DateTime?
+  respondido_em   DateTime?
+
+  // Link seguro para resposta externa (sem login)
+  token_resposta  String?           @unique  // UUID para link publico
+  token_expira_em DateTime?
+
+  // Mensagem enviada
+  mensagem_id     String?           // ID da mensagem no Resend/WhatsApp
+  erro_envio      String?
+
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  // Relacoes
+  cotacao         FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  fornecedor      FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  response        FreteIntBidPropostas?
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([tenant_id, fornecedor_id])
+  @@index([token_resposta])
+  @@map("bid_requests")
+}
+
+// ─── BID RESPONSE (Resposta do fornecedor) ─────────────────────────────────────
+
+model FreteIntBidPropostas {
+  id                  String            @id @default(cuid())
+  tenant_id           String            // OBRIGATORIO
+  product_id          String?           // "bid-frete"
+  user_id             String?           // clerk_id do fornecedor (se logado)
+
+  bid_request_id      String            @unique
+  cotacao_id          String
+  fornecedor_id       String
+
+  // Valores cotados
+  moeda               String            @default("USD")
+  valor_frete         Float             // frete internacional
+  taxas_origem        Float             @default(0)
+  taxas_destino       Float             @default(0)
+  valor_total         Float             // frete + taxas origem + taxas destino
+
+  // Prazos
+  transit_time_dias   Int               // tempo de transito em dias
+  free_time_dias      Int?              // free time demurrage
+  validade_cotacao    DateTime          // data limite de validade da proposta
+
+  // Logistica
+  transbordos         Int               @default(0)
+  escalas             String?           // descricao das escalas
+  observacoes         String?
+
+  // Status e ranking
+  status              BidFretePropostaStatus @default(RECEBIDA)
+  ranking_preco       Int?              // posicao no ranking de preco
+  ranking_transit     Int?              // posicao no ranking de transit time
+  ranking_avaliacao   Int?              // posicao no ranking de avaliacao do fornecedor
+
+  // Origem da resposta
+  via_tabela_padrao   Boolean           @default(false)  // veio da tabela de precos
+  via_api             Boolean           @default(false)   // veio de API do fornecedor
+  via_portal          Boolean           @default(false)   // fornecedor preencheu no portal
+  via_email           Boolean           @default(false)   // parseado do email
+
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+
+  // Relacoes
+  bid_request         FreteIntBidPedidoCotacoes        @relation(fields: [bid_request_id], references: [id], onDelete: Cascade)
+  cotacao             FreteIntBidCotacoes           @relation(fields: [cotacao_id], references: [id], onDelete: Cascade)
+  fornecedor          FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+  detalhes_taxas      FreteIntBidPropostasTaxasCambio[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([tenant_id, fornecedor_id])
+  @@index([tenant_id, valor_total])
+  @@map("bid_responses")
+}
+
+// ─── DETALHE TAXA (breakdown de custos) ────────────────────────────────────────
+
+model FreteIntBidPropostasTaxasCambio {
+  id              String        @id @default(cuid())
+  tenant_id       String        // OBRIGATORIO
+  response_id     String
+
+  tipo            String        // "origem" | "destino" | "frete"
+  nome            String        // ex: "THC", "BL Fee", "ISPS", "Bunker"
+  valor           Float
+  moeda           String        @default("USD")
+
+  response        FreteIntBidPropostas   @relation(fields: [response_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, response_id])
+  @@map("bid_detalhe_taxas")
+}
+
+// ─── TABELA DE PRECOS PADRAO ───────────────────────────────────────────────────
+
+model FreteIntBidTabelasProntas {
+  id              String          @id @default(cuid())
+  tenant_id       String          // OBRIGATORIO (tenant do fornecedor)
+  product_id      String?         // "bid-frete"
+  user_id         String?         // clerk_id do fornecedor
+
+  fornecedor_id   String
+
+  // Rota
+  origem_codigo   String
+  origem_nome     String
+  destino_codigo  String
+  destino_nome    String
+  modal           BidFreteModalidade
+  modalidade      BidFreteCargaModalidade
+
+  // Valores
+  moeda           String          @default("USD")
+  valor_frete     Float
+  taxas_origem    Float           @default(0)
+  taxas_destino   Float           @default(0)
+  valor_total     Float
+
+  // Prazos
+  transit_time_dias Int
+  free_time_dias    Int?
+
+  // Validade
+  validade_inicio DateTime
+  validade_fim    DateTime
+  ativa           Boolean         @default(true)
+
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  fornecedor      FreteIntBidFornecedores      @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, fornecedor_id])
+  @@index([origem_codigo, destino_codigo, modal])
+  @@index([validade_fim])
+  @@map("bid_tabelas_preco")
+}
+
+// ─── AVALIACAO (Rating manual + automatico) ────────────────────────────────────
+
+model FreteIntBidFornecedoresAvaliacoes {
+  id              String        @id @default(cuid())
+  tenant_id       String        // OBRIGATORIO
+  product_id      String?       // "bid-frete"
+  user_id         String        // quem avaliou
+
+  fornecedor_id   String
+  cotacao_id      String?       // cotacao vinculada (opcional)
+
+  // Notas manuais (1-5)
+  nota_frete      Int?          // qualidade do preco
+  nota_atendimento Int?         // qualidade do atendimento
+  nota_resposta   Int?          // velocidade de resposta
+  nota_confiabilidade Int?      // cumpriu o combinado
+  nota_geral      Float?        // media calculada
+
+  comentario      String?
+
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  fornecedor      FreteIntBidFornecedores    @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([fornecedor_id])
+  @@map("bid_avaliacoes")
+}
+
+// ─── RATING AUTOMATICO (Calculado pelo sistema — GLOBAL cross-tenant) ──────────
+
+model FreteIntBidClassificacaoFornecedores {
+  id                    String    @id @default(cuid())
+  fornecedor_email      String    @unique  // chave global (cross-tenant)
+
+  // Metricas agregadas
+  total_cotacoes_recebidas  Int   @default(0)
+  total_cotacoes_respondidas Int  @default(0)
+  total_cotacoes_aprovadas  Int   @default(0)
+  taxa_resposta             Float @default(0)  // % respondidas
+  taxa_aprovacao            Float @default(0)  // % aprovadas
+  tempo_medio_resposta_horas Float @default(0)
+  aderencia_target          Float @default(0)  // % dentro do target
+
+  // Rating consolidado (0-5)
+  rating_global             Float @default(0)
+
+  // Notas manuais agregadas (media de todos os tenants)
+  media_frete               Float @default(0)
+  media_atendimento         Float @default(0)
+  media_resposta            Float @default(0)
+  media_confiabilidade      Float @default(0)
+  total_avaliacoes          Int   @default(0)
+
+  updated_at                DateTime @updatedAt
+
+  @@index([rating_global])
+  @@index([fornecedor_email])
+  @@map("bid_rating_fornecedor_global")
+}
+
+// ─── SAVING (Registro de economia por cotacao) ─────────────────────────────────
+
+model FreteIntBidGanhoEstimado {
+  id              String    @id @default(cuid())
+  tenant_id       String    // OBRIGATORIO
+  product_id      String?   // "bid-frete"
+  user_id         String
+
+  cotacao_id      String
+  company_id      String?
+
+  // Valores
+  valor_target    Float?    // valor referencial
+  valor_aprovado  Float     // valor do fornecedor aprovado
+  valor_medio     Float?    // media de todas as respostas
+  saving_vs_target    Float?  // economia vs target
+  saving_vs_media     Float?  // economia vs media
+  saving_percentual   Float?
+  moeda           String    @default("USD")
+
+  created_at      DateTime  @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, created_at])
+  @@map("bid_savings")
+}
+
+// ─── CONNECTOR CONFIG (Integracao com APIs externas) ───────────────────────────
+
+model FreteIntBidIntegracoes {
+  id              String        @id @default(cuid())
+  tenant_id       String        // OBRIGATORIO
+  product_id      String?       // "bid-frete"
+  user_id         String?
+
+  fornecedor_id   String?       // null = conector ERP/SAP do cliente
+  nome            String        // ex: "MSC API", "Maersk Spot", "SAP OData"
+  tipo            BidFreteIntegracao
+  ativo           Boolean       @default(false)
+
+  // Configuracao (criptografada)
+  base_url        String?
+  api_key_hash    String?       // AES-256-GCM
+  auth_type       String?       // "bearer" | "basic" | "oauth2" | "api_key"
+  headers_extra   String?       // JSON de headers adicionais
+  config_extra    String?       // JSON livre para configs especificas
+
+  // Health
+  ultimo_teste_em   DateTime?
+  ultimo_teste_ok   Boolean?
+  erro_ultimo_teste String?
+
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  fornecedor      FreteIntBidFornecedores?   @relation(fields: [fornecedor_id], references: [id], onDelete: SetNull)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, fornecedor_id])
+  @@map("bid_connector_configs")
+}
+
+// ─── CACHE DE PORTOS E AEROPORTOS ──────────────────────────────────────────────
+
+model FreteIntBidPortosCadastro {
+  codigo      String    @id        // UN/LOCODE (ex: BRSSZ, CNSHA)
+  nome        String               // Santos, Shanghai
+  pais        String
+  pais_codigo String               // BR, CN
+  tipo        String               // "porto" | "aeroporto" | "rodoviario"
+  latitude    Float?
+  longitude   Float?
+  ativo       Boolean   @default(true)
+
+  @@index([pais_codigo])
+  @@index([tipo])
+  @@index([nome])
+  @@map("bid_portos")
+}
+

@@ -3,7 +3,7 @@
  * Modal com tabela de unidades de medida Siscomex + InputUnidade composto.
  *
  * Exportações:
- *   - ModalTabelaUnidades  — modal completo com tabela e busca
+ *   - ModalTabelaUnidadesGlobal  — modal completo com tabela e busca
  *   - InputUnidade         — campo número + select de unidade (lado a lado)
  *   - UNIDADES_SISCOMEX    — lista completa de unidades Siscomex
  *   - OPCOES_UOM           — formato SelectOpcao para SelectGlobal
@@ -11,8 +11,8 @@
  *   - UnidadeMedida        — tipo TypeScript
  */
 
-export { ModalTabelaUnidades } from './ModalTabelaUnidades.js'
-export type { ModalTabelaUnidadesProps } from './ModalTabelaUnidades.js'
+export { ModalTabelaUnidadesGlobal } from './ModalTabelaUnidadesGlobal.js'
+export type { ModalTabelaUnidadesProps } from './ModalTabelaUnidadesGlobal.js'
 
 export { InputUnidade } from './InputUnidade.js'
 export type { InputUnidadeProps } from './InputUnidade.js'

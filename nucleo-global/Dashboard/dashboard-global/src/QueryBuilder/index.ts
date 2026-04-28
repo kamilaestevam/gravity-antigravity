@@ -1,2 +1,2 @@
-export { QueryBuilder } from './QueryBuilder.js'
-export type { QueryBuilderProps } from './QueryBuilder.js'
+export { DashboardConstrutorConsulta } from './DashboardConstrutorConsulta.js'
+export type { QueryBuilderProps } from './DashboardConstrutorConsulta.js'

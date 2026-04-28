@@ -1,9 +1,9 @@
 // server/routes/tenantProducts.ts
-// Ativação/desativação de produtos por tenant — gravity_admin only
-// Montado em /api/admin/tenants pelo index.ts
-// Ex: POST /api/admin/tenants/:tenantId/products/:productKey/activate
+// Ativação/desativação de produtos por organização — gravity_admin only
+// Montado em /api/v1/admin/organizacoes pelo index.ts
+// Ex: POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/ativar
 //
-// Gestão de produtos contratados por um tenant (self-service)
+// Self-service (montado em /api/v1/assinaturas — fora de escopo da API-1):
 // POST /api/v1/assinaturas/subscribe  — Contratar produto
 // GET  /api/v1/assinaturas            — Listar produtos contratados
 // DELETE /api/v1/assinaturas/:key     — Cancelar produto
@@ -15,6 +15,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { productConfigService } from '../services/productConfigService.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { StatusProdutoGravity } from '../../../../configurador/generated/index.js'
 
 export const tenantProductsRouter = Router()
 
@@ -30,38 +31,48 @@ const SubscribeSchema = z.object({
  */
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const configs = await prisma.productConfig.findMany({
-      where: { tenant_id: req.auth.tenantId },
-      orderBy: { created_at: 'desc' },
+    const configs = await prisma.produtoGravityConfiguracao.findMany({
+      where: { id_organizacao_config_produto_gravity: req.auth.tenantId },
+      orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
     // Enriquece com dados do catálogo
-    const slugs = configs.map(c => c.product_key)
-    const catalog = await prisma.product.findMany({
-      where: { slug: { in: slugs } },
+    const slugs = configs.map(c => c.chave_produto_config_produto_gravity)
+    const catalogRows = await prisma.produtoGravity.findMany({
+      where: { slug_produto_gravity: { in: slugs } },
     })
+    // DTO: ProdutoGravity rename → contrato legado (apenas chaves usadas pelo consumer)
+    const catalog = catalogRows.map(p => ({
+      id: p.id_produto_gravity,
+      name: p.nome_produto_gravity,
+      slug: p.slug_produto_gravity,
+      description: p.descricao_produto_gravity,
+      status: p.status_produto_gravity,
+    }))
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
+    // DTO: ConfiguracaoProduto rename → contrato legado
     const products = configs.map(c => ({
-      product_key: c.product_key,
-      is_active: c.is_active,
-      config: c.config,
-      subscribed_at: c.created_at,
-      catalog: catalogMap.get(c.product_key) ?? null,
+      product_key: c.chave_produto_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      subscribed_at: c.data_criacao_config_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
     }))
 
     res.json({ products })
   } catch {
-    // globalProduct ou productConfig pode não existir — retorna vazio
+    // configuracaoProduto pode não existir — retorna vazio
     res.json({ products: [] })
   }
 })
 
 /**
- * POST /api/v1/assinaturas/subscribe
- * Contrata um produto do catálogo para o tenant autenticado
+ * POST /api/v1/admin/organizacoes/assinar-produto
+ * (Self-service em /api/v1/assinaturas/assinar-produto — mesma rota, dois mounts)
+ * Contrata um produto do catálogo para a organização autenticada
  */
-tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
+tenantProductsRouter.post('/assinar-produto', requireAuth, async (req, res, next) => {
   try {
     const parsed = SubscribeSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -72,28 +83,33 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.product.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
+      await prisma.produtoGravity.findFirst({
+        where: {
+          slug_produto_gravity: product_key,
+          status_produto_gravity: { in: [StatusProdutoGravity.ATIVO] },
+        },
+      }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')
     }
 
     // Cria ou reativa o ProductConfig
-    const config = await prisma.productConfig.upsert({
+    const config = await prisma.produtoGravityConfiguracao.upsert({
       where: {
-        tenant_id_product_key: {
-          tenant_id: req.auth.tenantId,
-          product_key,
+        id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
+          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          chave_produto_config_produto_gravity: product_key,
         },
       },
       create: {
-        tenant_id: req.auth.tenantId,
-        product_key,
-        config: {},
-        is_active: true,
+        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        chave_produto_config_produto_gravity: product_key,
+        configuracao_config_produto_gravity: {},
+        ativo_config_produto_gravity: true,
       },
       update: {
-        is_active: true,
+        ativo_config_produto_gravity: true,
       },
     })
 
@@ -104,17 +120,18 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/assinaturas/:key
- * Cancela (desativa) um produto do tenant
+ * DELETE /api/v1/admin/organizacoes/:id_organizacao
+ * (Self-service em /api/v1/assinaturas/:id_organizacao — mesma rota, dois mounts)
+ * Cancela (desativa) um produto da organização
  */
-tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {
+tenantProductsRouter.delete('/:id_organizacao', requireAuth, async (req, res, next) => {
   try {
-    await prisma.productConfig.updateMany({
+    await prisma.produtoGravityConfiguracao.updateMany({
       where: {
-        tenant_id: req.auth.tenantId,
-        product_key: req.params.key,
+        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        chave_produto_config_produto_gravity: req.params.id_organizacao,
       },
-      data: { is_active: false },
+      data: { ativo_config_produto_gravity: false },
     })
     res.json({ ok: true })
   } catch (err) {
@@ -129,36 +146,48 @@ const ActivateProductSchema = z.object({
 })
 
 /**
- * GET /api/admin/tenants/:tenantId/products
- * Lista produtos ativados para um tenant específico
+ * GET /api/v1/admin/organizacoes/:id_organizacao/produtos
+ * Lista produtos ativados para uma organização específica
  */
-tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin, async (req, res, next) => {
+tenantProductsRouter.get('/:id_organizacao/produtos', requireAuth, requireGravityAdmin, async (req, res, next) => {
   try {
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: req.params.tenantId },
-      select: { id: true, name: true },
+    const { id_organizacao: tenantId } = req.params
+    const tenant = await prisma.organizacao.findUnique({
+      where: { id_organizacao: tenantId },
+      select: { id_organizacao: true, nome_organizacao: true },
     })
     if (!tenant) {
-      throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    const configs = await prisma.productConfig.findMany({
-      where: { tenant_id: req.params.tenantId },
-      orderBy: { created_at: 'desc' },
+    const configs = await prisma.produtoGravityConfiguracao.findMany({
+      where: { id_organizacao_config_produto_gravity: tenantId },
+      orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
-    res.json({ tenant_id: tenant.id, tenant_name: tenant.name, products: configs })
+    // DTO: ConfiguracaoProduto rename → contrato legado para painel admin
+    const productsDto = configs.map(c => ({
+      id: c.id_config_produto_gravity,
+      tenant_id: c.id_organizacao_config_produto_gravity,
+      product_key: c.chave_produto_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      created_at: c.data_criacao_config_produto_gravity,
+      updated_at: c.data_atualizacao_config_produto_gravity,
+    }))
+
+    res.json({ tenant_id: tenant.id_organizacao, tenant_name: tenant.nome_organizacao, products: productsDto })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * POST /api/admin/tenants/:tenantId/products/:productKey/activate
- * Ativa um produto para um tenant
+ * POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/ativar
+ * Ativa um produto para uma organização
  */
 tenantProductsRouter.post(
-  '/:tenantId/products/:productKey/activate',
+  '/:id_organizacao/produtos/:id_produto_gravity/ativar',
   requireAuth,
   requireGravityAdmin,
   async (req, res, next) => {
@@ -172,23 +201,23 @@ tenantProductsRouter.post(
         )
       }
 
-      const tenant = await prisma.tenant.findUnique({
-        where: { id: req.params.tenantId },
+      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+
+      const tenant = await prisma.organizacao.findUnique({
+        where: { id_organizacao: tenantId },
       })
       if (!tenant) {
-        throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+        throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       const config = await productConfigService.upsertConfig(
-        req.params.tenantId,
-        req.params.productKey,
+        tenantId,
+        productKey,
         parsed.data.config,
         true
       )
 
-      console.log(
-        `[admin] Produto "${req.params.productKey}" ativado para tenant "${tenant.name}" por ${req.auth.clerkUserId}`
-      )
+      console.info(`[admin] produto ativado tenant_id=${tenantId} product_key=${productKey}`)
 
       res.json({ activated: true, config })
     } catch (err) {
@@ -198,30 +227,30 @@ tenantProductsRouter.post(
 )
 
 /**
- * POST /api/admin/tenants/:tenantId/products/:productKey/deactivate
- * Desativa um produto para um tenant
+ * POST /api/v1/admin/organizacoes/:id_organizacao/produtos/:id_produto_gravity/desativar
+ * Desativa um produto para uma organização
  */
 tenantProductsRouter.post(
-  '/:tenantId/products/:productKey/deactivate',
+  '/:id_organizacao/produtos/:id_produto_gravity/desativar',
   requireAuth,
   requireGravityAdmin,
   async (req, res, next) => {
     try {
-      const tenant = await prisma.tenant.findUnique({
-        where: { id: req.params.tenantId },
+      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+
+      const tenant = await prisma.organizacao.findUnique({
+        where: { id_organizacao: tenantId },
       })
       if (!tenant) {
-        throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+        throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       await productConfigService.disableProduct(
-        req.params.tenantId,
-        req.params.productKey
+        tenantId,
+        productKey
       )
 
-      console.log(
-        `[admin] Produto "${req.params.productKey}" desativado para tenant "${tenant.name}" por ${req.auth.clerkUserId}`
-      )
+      console.info(`[admin] produto desativado tenant_id=${tenantId} product_key=${productKey}`)
 
       res.json({ deactivated: true })
     } catch (err) {

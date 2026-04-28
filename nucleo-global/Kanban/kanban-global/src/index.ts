@@ -1,6 +1,6 @@
 export { KanbanGlobal } from './KanbanGlobal'
 export { KanbanConfiguracoes } from './KanbanConfiguracoes'
-export { CardKanbanModal } from './CardKanbanModal'
+export { ModalCardKanban, ModalCardKanban as CardKanbanModal } from './ModalKanbanCard'
 export { avaliarRegras, OPERADORES_POR_TIPO } from './regras'
 export type {
   KanbanColunaDef,
@@ -22,5 +22,5 @@ export type {
 } from './KanbanConfiguracoes'
 export type {
   CardKanbanItem,
-  CardKanbanModalProps,
-} from './CardKanbanModal'
+  ModalCardKanbanProps as CardKanbanModalProps,
+} from './ModalKanbanCard'

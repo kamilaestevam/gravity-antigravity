@@ -1,9 +1,9 @@
 // server/routes/users.ts
-// Gestão de usuários e permissões no tenant
-// GET  /api/v1/usuarios          — listar usuários do tenant
-// POST /api/v1/usuarios/invite   — convidar usuário
-// POST /api/v1/usuarios/:id/memberships — habilitar em empresa filha
-// PATCH /api/v1/usuarios/:id/role — definir role
+// Gestão de usuários e permissões na organização
+// GET  /api/v1/usuarios                              — listar usuários da organização
+// POST /api/v1/usuarios/convidar                     — convidar usuário
+// POST /api/v1/usuarios/:id_usuario/vinculos         — habilitar em workspace
+// PATCH /api/v1/usuarios/:id_usuario/patente         — definir patente
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -13,7 +13,6 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 
 export const usersRouter = Router()
 
@@ -25,12 +24,25 @@ usersRouter.use(requireAuth)
 const InviteUserSchema = z.object({
   email: z.string().email().max(255),
   name: z.string().min(1).max(200),
-  role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
-})
+  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
+  workspaces: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
+}).refine(
+  (data) => data.role === 'MASTER' || data.workspaces !== undefined,
+  { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces'] },
+)
 
 const MembershipSchema = z.object({
   companyId: z.string(),
-  role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
+  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
+})
+
+export const UpdateWorkspacesSchema = z.object({
+  workspaces: z
+    .array(z.string().cuid())
+    .min(1, 'Selecione pelo menos um workspace')
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Workspaces duplicados não são permitidos',
+    }),
 })
 
 // ─── Rotas ──────────────────────────────────────────────────────────────────
@@ -41,36 +53,51 @@ const MembershipSchema = z.object({
  */
 usersRouter.get('/', async (req, res, next) => {
   try {
-    const users = await prisma.user.findMany({
-      where: { tenant_id: req.auth.tenantId },
+    const users = await prisma.usuario.findMany({
+      where: { id_organizacao_usuario: req.auth.tenantId },
       select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        created_at: true,
+        id_usuario: true,
+        nome_usuario: true,
+        email_usuario: true,
+        tipo_usuario: true,
+        data_criacao_usuario: true,
         memberships: {
           select: {
-            id: true,
-            company_id: true,
-            role: true,
-            is_active: true,
+            id_usuario_workspace: true,
+            id_workspace_usuario_workspace: true,
+            tipo_usuario_workspace: true,
+            ativo_usuario_workspace: true,
           },
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_usuario: 'desc' },
     })
-    res.json({ users })
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_usuario, ...rest }) => ({
+      ...rest,
+      id: id_usuario,
+      created_at: data_criacao_usuario,
+      email: email_usuario,
+      name: nome_usuario,
+      // DTO: UsuarioWorkspace rename → contrato externo legado
+      memberships: memberships.map((m) => ({
+        id: m.id_usuario_workspace,
+        company_id: m.id_workspace_usuario_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        is_active: m.ativo_usuario_workspace,
+      })),
+    }))
+    res.json({ users: usuarios })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * POST /api/v1/usuarios/invite
- * Convida um usuário para o tenant — dispara e-mail via Clerk
+ * POST /api/v1/usuarios/convidar
+ * Convida um usuário para a organização — dispara e-mail via Clerk
  */
-usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = InviteUserSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -84,37 +111,77 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     const { email, name, role } = parsed.data
 
     // Verifica se usuário já existe no tenant
-    const existing = await prisma.user.findFirst({
-      where: { tenant_id: req.auth.tenantId, email },
+    const existing = await prisma.usuario.findFirst({
+      where: { id_organizacao_usuario: req.auth.tenantId, email_usuario: email },
     })
     if (existing) {
       throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
-      publicMetadata: {
-        tenantId: req.auth.tenantId,
-        role,
-        invitedBy: req.auth.clerkUserId,
-      },
     })
 
-    // Cria registro antecipado no banco (será completado no webhook de user.created)
-    const user = await prisma.user.create({
-      data: {
-        tenant_id: req.auth.tenantId,
-        clerk_user_id: `pending_${invitation.id}`,
-        email,
-        name,
-        role,
-      },
+    // Pré-computa empresas fora da transação — evita lock de longa duração em reads
+    const workspacesPayload = parsed.data.workspaces
+    let empresasParaVincular: { id_workspace: string }[] = []
+
+    if (role === 'MASTER' || workspacesPayload === 'all') {
+      empresasParaVincular = await prisma.workspace.findMany({
+        where: { id_organizacao_workspace: req.auth.tenantId, status_workspace: 'ATIVO' },
+        select: { id_workspace: true },
+      })
+    } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
+      // IDOR prevention: valida que todos os IDs pertencem ao tenant antes do insert
+      empresasParaVincular = await prisma.workspace.findMany({
+        where: {
+          id_workspace: { in: workspacesPayload },
+          id_organizacao_workspace: req.auth.tenantId,
+          status_workspace: 'ATIVO',
+        },
+        select: { id_workspace: true },
+      })
+      if (empresasParaVincular.length !== workspacesPayload.length) {
+        throw new AppError(
+          'Um ou mais workspaces não pertencem a esta organização',
+          403,
+          'FORBIDDEN',
+        )
+      }
+    }
+
+    // Cria usuário + vínculos atomicamente — se o createMany falhar, o usuário não é criado
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.usuario.create({
+        data: {
+          id_organizacao_usuario: req.auth.tenantId,
+          clerk_user_id: `pending_${invitation.id}`,
+          email_usuario: email,
+          nome_usuario:  name,
+          tipo_usuario: role,
+        },
+      })
+
+      if (empresasParaVincular.length > 0) {
+        await tx.usuarioWorkspace.createMany({
+          data: empresasParaVincular.map((e) => ({
+            id_organizacao_usuario_workspace: req.auth.tenantId,
+            id_usuario_usuario_workspace: created.id_usuario,
+            id_workspace_usuario_workspace: e.id_workspace,
+            tipo_usuario_workspace: role,
+            ativo_usuario_workspace: true,
+          })),
+          skipDuplicates: true,
+        })
+      }
+
+      return created
     })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id_usuario, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
     })
   } catch (err) {
     next(err)
@@ -122,10 +189,10 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/usuarios/:id/memberships
- * Habilita usuário em uma empresa filha com um papel específico
+ * POST /api/v1/usuarios/:id_usuario/vinculos
+ * Habilita usuário em um workspace com um papel específico
  */
-usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) => {
+usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = MembershipSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -137,90 +204,195 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     }
 
     const { companyId, role } = parsed.data
-    const userId = req.params.id
+    const userId = req.params.id_usuario
 
     // Garante que o usuário pertence ao mesmo tenant
-    const user = await prisma.user.findFirst({
-      where: { id: userId, tenant_id: req.auth.tenantId },
+    const user = await prisma.usuario.findFirst({
+      where: { id_usuario: userId, id_organizacao_usuario: req.auth.tenantId },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
     // Garante que a empresa filha pertence ao mesmo tenant
-    const company = await prisma.company.findFirst({
-      where: { id: companyId, tenant_id: req.auth.tenantId },
+    const company = await prisma.workspace.findFirst({
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
     }
 
-    const membership = await prisma.userMembership.upsert({
+    const membership = await prisma.usuarioWorkspace.upsert({
       where: {
-        tenant_id_user_id_company_id: {
-          tenant_id: req.auth.tenantId,
-          user_id: userId,
-          company_id: companyId,
+        id_organizacao_usuario_workspace_id_usuario_usuario_workspace_id_workspace_usuario_workspace: {
+          id_organizacao_usuario_workspace: req.auth.tenantId,
+          id_usuario_usuario_workspace: userId,
+          id_workspace_usuario_workspace: companyId,
         },
       },
       create: {
-        tenant_id: req.auth.tenantId,
-        user_id: userId,
-        company_id: companyId,
-        role,
-        is_active: true,
+        id_organizacao_usuario_workspace: req.auth.tenantId,
+        id_usuario_usuario_workspace: userId,
+        id_workspace_usuario_workspace: companyId,
+        tipo_usuario_workspace: role,
+        ativo_usuario_workspace: true,
       },
-      update: { role, is_active: true },
+      update: { tipo_usuario_workspace: role, ativo_usuario_workspace: true },
     })
 
-    res.status(201).json({ membership })
+    // DTO: UsuarioWorkspace rename → contrato externo legado
+    const membershipDto = {
+      id: membership.id_usuario_workspace,
+      tenant_id: membership.id_organizacao_usuario_workspace,
+      user_id: membership.id_usuario_usuario_workspace,
+      company_id: membership.id_workspace_usuario_workspace,
+      role: membership.tipo_usuario_workspace,
+      is_active: membership.ativo_usuario_workspace,
+      created_at: membership.data_criacao_usuario_workspace,
+      updated_at: membership.data_atualizacao_usuario_workspace,
+    }
+    res.status(201).json({ membership: membershipDto })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── Helpers privados para PUT /:id/workspaces ──────────────────────────────
+
+async function validarWorkspacesDoTenant(
+  tenantId: string,
+  workspaceIds: string[],
+): Promise<void> {
+  const empresas = await prisma.workspace.findMany({
+    where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: tenantId, status_workspace: 'ATIVO' },
+    select: { id_workspace: true },
+  })
+  if (empresas.length !== workspaceIds.length) {
+    throw new AppError(
+      'Um ou mais workspaces não pertencem a esta organização',
+      403,
+      'FORBIDDEN',
+    )
+  }
+}
+
+async function substituirWorkspacesAtomicamente(
+  tenantId: string,
+  userId: string,
+  workspaceIds: string[],
+  role: string,
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await tx.usuarioWorkspace.deleteMany({
+      where: {
+        id_organizacao_usuario_workspace: tenantId,
+        id_usuario_usuario_workspace: userId,
+      },
+    })
+    await tx.usuarioWorkspace.createMany({
+      // tipo_usuario_workspace é o enum TipoUsuarioEmpresa — cast para preservar a baseline pré-onda
+      data: workspaceIds.map((companyId) => ({
+        id_organizacao_usuario_workspace: tenantId,
+        id_usuario_usuario_workspace: userId,
+        id_workspace_usuario_workspace: companyId,
+        tipo_usuario_workspace: role as 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+        ativo_usuario_workspace: true,
+      })),
+      skipDuplicates: true,
+    })
+  })
+}
+
+/**
+ * PUT /api/v1/usuarios/:id_usuario/workspaces
+ * Substitui atomicamente os workspaces vinculados a um usuário STANDARD/SUPPLIER
+ */
+usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, next) => {
+  try {
+    const parsed = UpdateWorkspacesSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const { workspaces: workspaceIds } = parsed.data
+    const userId = req.params.id_usuario
+
+    const user = await prisma.usuario.findFirst({
+      where: { id_usuario: userId, id_organizacao_usuario: req.auth.tenantId },
+      select: { id_usuario: true, tipo_usuario: true },
+    })
+    if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    if (user.tipo_usuario === 'MASTER') {
+      throw new AppError('Usuário Master tem acesso a todos os workspaces automaticamente', 400, 'INVALID_OPERATION')
+    }
+
+    await validarWorkspacesDoTenant(req.auth.tenantId, workspaceIds)
+
+    const antesIds = await prisma.usuarioWorkspace
+      .findMany({
+        where: {
+          id_organizacao_usuario_workspace: req.auth.tenantId,
+          id_usuario_usuario_workspace: userId,
+        },
+        select: { id_workspace_usuario_workspace: true },
+      })
+      .then((ws) => ws.map((w) => w.id_workspace_usuario_workspace))
+
+    await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.tipo_usuario)
+
+    const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
+    const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
+    if (adicionados.length > 0 || removidos.length > 0) {
+      securityAudit.permissionChanged(req.auth.tenantId, req.auth.userId, {
+        targetUserId: userId,
+        permission: 'workspace_access',
+        action: adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
+      }).catch(() => {})
+    }
+
+    res.json({ workspaces: workspaceIds })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * PATCH /api/v1/usuarios/:id/role
- * Atualiza o role de um usuário no tenant
+ * PATCH /api/v1/usuarios/:id_usuario/patente
+ * Atualiza a patente de um usuário na organização
  */
-usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
+usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, next) => {
   try {
     const RoleSchema = z.object({
-      role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+      role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
     })
     const parsed = RoleSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError('Role inválido', 400, 'VALIDATION_ERROR')
     }
 
-    const user = await prisma.user.findFirst({
-      where: { id: req.params.id, tenant_id: req.auth.tenantId },
-      select: { id: true, clerk_user_id: true, role: true },
+    const user = await prisma.usuario.findFirst({
+      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.tenantId },
+      select: { id_usuario: true, clerk_user_id: true, tipo_usuario: true },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.user.update({
-      where: { id: req.params.id, tenant_id: req.auth.tenantId },
-      data: { role: parsed.data.role },
-      select: { id: true, email: true, role: true },
+    const updated = await prisma.usuario.update({
+      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.tenantId },
+      data: { tipo_usuario: parsed.data.role },
+      select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
-      targetUserId: req.params.id,
-      oldRole: user.role,
+      targetUserId: req.params.id_usuario,
+      oldRole: user.tipo_usuario,
       newRole: parsed.data.role,
     }).catch(() => {})
 
-    // Sincroniza o novo role para o Clerk (badge e useSyncClerkToShell leem daqui)
-    if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
-      syncRoleToClerk(user.clerk_user_id, req.auth.tenantId, parsed.data.role).catch((err) => {
-        console.error('[users.patch.role] syncRoleToClerk falhou:', err)
-      })
-    }
-
-    res.json({ user: updated })
+    // DTO DDD: Prisma `email_usuario` → `email`, `id_usuario` → `id`
+    const { email_usuario, id_usuario, ...rest } = updated
+    res.json({ user: { ...rest, id: id_usuario, email: email_usuario } })
   } catch (err) {
     next(err)
   }

@@ -1,0 +1,15 @@
+{
+  "extends": ["../../../../tsconfig.json", "../../../../tsconfig.paths-organizacao.json"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../processos-core/**",
+    "../../middleware/**",
+    "../../historico-global/**"
+  ]
+}

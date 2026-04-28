@@ -9,7 +9,7 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { ModalEditarWorkspace } from './ModalEditarWorkspace'
+import { ModalEditarWorkspace } from './ModalWorkspaceEditar'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { extractApiError, extractCatchError } from '../../utils/extractApiError'
@@ -57,7 +57,7 @@ export function Workspaces() {
       try {
         setCarregando(true)
         const headers = await getAuthHeaders()
-        const res = await fetch('/api/v1/organizacao/companies', { headers })
+        const res = await fetch('/api/v1/organizacoes/me/workspaces', { headers })
         if (res.ok) {
           const { companies } = await res.json()
           setWorkspaces(companies.map((c: Record<string, unknown>) => ({
@@ -65,7 +65,7 @@ export function Workspaces() {
             nome: c.name,
             subdominio: c.subdomain ?? '',
             usuarios: c._count?.memberships ?? 0,
-            status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
+            status: c.status === 'ATIVO' ? 'Ativa' : 'Suspensa',
             criadaEm: c.created_at
               ? new Date(c.created_at).toLocaleDateString('pt-BR')
               : '',
@@ -108,7 +108,7 @@ export function Workspaces() {
   async function handleAdd(dados: { nome: string; subdominio: string }) {
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch('/api/v1/organizacao/companies', {
+      const res = await fetch('/api/v1/organizacoes/me/workspaces', {
         method: 'POST',
         headers,
         body: JSON.stringify({ name: dados.nome, subdomain: dados.subdominio }),
@@ -148,7 +148,7 @@ export function Workspaces() {
       if (dados.subdominio) body.subdomain = dados.subdominio
       if (dados.cnpj) body.cnpj = dados.cnpj
 
-      const res = await fetch(`/api/v1/organizacao/companies/${empresaEditando.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${empresaEditando.id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify(body),
@@ -170,22 +170,22 @@ export function Workspaces() {
   }
 
   async function handleSuspend(linha: Empresa) {
-    const novoStatus = linha.status === 'Ativa' ? 'INACTIVE' : 'ACTIVE'
+    const novoStatus = linha.status === 'Ativa' ? 'INATIVO' : 'ATIVO'
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacao/companies/${linha.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${linha.id}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({ status: novoStatus }),
       })
       if (res.ok) {
-        const statusLabel = novoStatus === 'INACTIVE' ? 'Suspensa' : 'Ativa'
+        const statusLabel = novoStatus === 'INATIVO' ? 'Suspensa' : 'Ativa'
         setWorkspaces(prev =>
           prev.map(e => e.id === linha.id ? { ...e, status: statusLabel } : e)
         )
         addNotification({
-          type: novoStatus === 'INACTIVE' ? 'warning' : 'success',
-          message: `Workspace "${linha.nome}" ${novoStatus === 'INACTIVE' ? 'suspenso' : 'reativado'} com sucesso.`,
+          type: novoStatus === 'INATIVO' ? 'warning' : 'success',
+          message: `Workspace "${linha.nome}" ${novoStatus === 'INATIVO' ? 'suspenso' : 'reativado'} com sucesso.`,
         })
       } else {
         const msg = await extractApiError(res, 'Falha ao alterar status do workspace.')
@@ -200,7 +200,7 @@ export function Workspaces() {
     if (!confirm(`Tem certeza que deseja excluir "${linha.nome}"? Esta ação não pode ser desfeita.`)) return
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/organizacao/companies/${linha.id}`, {
+      const res = await fetch(`/api/v1/organizacoes/me/workspaces/${linha.id}`, {
         method: 'DELETE',
         headers,
       })

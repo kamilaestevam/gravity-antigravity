@@ -33,13 +33,13 @@ import {
 } from '@phosphor-icons/react'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { HubButton } from '../components/HubButton'
+import { HubBotao } from '../components/HubBotao'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystemNodes'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { invalidateRoleCache, useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
@@ -62,7 +62,7 @@ export function Core() {
   const { getToken } = useAuth()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
 
-  useSyncClerkToShell()
+  useMeSync()
 
   const companyId = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
@@ -86,12 +86,12 @@ export function Core() {
     async function fetchTipoEmpresa() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/organizacao/me', {
+        const res = await fetch('/api/v1/organizacoes/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
           const { tenant } = await res.json()
-          setTipoEmpresa(tenant.tipo_empresa ?? '')
+          setTipoEmpresa(tenant.tipo_empresa_organizacao ?? '')
         }
       } catch { /* silencioso */ }
     }
@@ -100,7 +100,7 @@ export function Core() {
 
   useUserPreferences({
     userId: user?.id,
-    tenantId: user?.publicMetadata?.tenantId as string | undefined,
+    tenantId: currentUser.tenantId,
   })
 
   const isLight = currentTheme === 'light'
@@ -117,7 +117,7 @@ export function Core() {
     async function loadProducts() {
       try {
         const token = await getToken()
-        const res = await fetch(`/api/v1/companies/${companyId}/products`, {
+        const res = await fetch(`/api/v1/workspaces/${companyId}/produtos`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -262,9 +262,9 @@ export function Core() {
         {/* ── Header ── */}
         <div className="ws-global-actions">
           {/* ?select=1: escape hatch que força SelecionarWorkspace mesmo com workspace preferido */}
-          <HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
+          <HubBotao onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const flat = navItems.flatMap(i => i.children ? i.children : [i])
@@ -301,7 +301,7 @@ export function Core() {
             }}
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           <React.Suspense fallback={null}>
             <Notificacoes />

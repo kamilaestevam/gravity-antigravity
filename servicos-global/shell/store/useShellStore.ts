@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell } from './types'
+import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell, MeStatus } from './types'
 
 // Gera ID único para cada notificação
 function generateId(): string {
@@ -33,6 +33,7 @@ export const useShellStore = create<ShellState>()(
       notifications: [],
       avisos: [],
       linkContextual: null,
+      meStatus: 'idle' as MeStatus,
 
       // ─── Sidebar ──────────────────────────────────────────────────────────
       toggleSidebar: () =>
@@ -68,7 +69,7 @@ export const useShellStore = create<ShellState>()(
         set({ currentUser: user }),
 
       clearCurrentUser: () =>
-        set({ currentUser: DEFAULT_USER, allowedProducts: [], productsLoaded: false }),
+        set({ currentUser: DEFAULT_USER, allowedProducts: [], productsLoaded: false, meStatus: 'idle' }),
 
       // ─── Produtos permitidos ──────────────────────────────────────────────
       setAllowedProducts: (products: AllowedProduct[]) =>
@@ -148,6 +149,9 @@ export const useShellStore = create<ShellState>()(
 
       setLinkContextual: (link: string | null) =>
         set({ linkContextual: link }),
+
+      setMeStatus: (status: MeStatus) =>
+        set({ meStatus: status }),
     }),
     {
       name: 'gravity-shell-state',

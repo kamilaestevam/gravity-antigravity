@@ -1,0 +1,172 @@
+// servicos-global/tenant/dashboard/prisma/fragment.prisma
+// AGENTE DASHBOARD — ONDA 30 (DDD Servicos)
+//
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+enum DashboardModo {
+  PRODUTO
+  GERAL
+}
+
+enum DashboardTipo {
+  CATALOGO
+  CUSTOMIZADO
+  GABI
+}
+
+enum GraficoTipo {
+  KPI_CARD
+  LINHA
+  BARRA
+  BARRA_HORIZONTAL
+  ROSCA
+  HISTOGRAMA
+  FUNIL
+  MEDIDOR
+  MAPA
+  TABELA
+  AREA
+}
+
+// ---------------------------------------------------------------------------
+// DashboardConfiguracao
+// ---------------------------------------------------------------------------
+
+model DashboardConfiguracao {
+  id_dashboard_configuracao             String  @id @default(cuid())
+  id_organizacao_dashboard_configuracao String
+  id_produto_dashboard_configuracao     String?
+  id_usuario_dashboard_configuracao     String
+
+  nome_dashboard_configuracao    String        @default("Meu Dashboard")
+  modo_dashboard_configuracao    DashboardModo @default(PRODUTO)
+  layout_dashboard_configuracao  Json          @default("[]")
+  filtros_dashboard_configuracao Json?
+  padrao_dashboard_configuracao  Boolean       @default(false)
+
+  widgets_dashboard_configuracao DashboardCriar[]
+  alertas_dashboard_configuracao DashboardAlertas[]
+  shares_dashboard_configuracao  DashboardCompartilhar[]
+
+  data_criacao_dashboard_configuracao     DateTime @default(now())
+  data_atualizacao_dashboard_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_configuracao], map: "dco_org_idx")
+  @@index([id_organizacao_dashboard_configuracao, id_produto_dashboard_configuracao], map: "dco_org_prd_idx")
+  @@index([id_organizacao_dashboard_configuracao, id_usuario_dashboard_configuracao], map: "dco_org_usr_idx")
+  @@map("dashboard_configuracao")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardCriar — widgets que compõem o dashboard
+// ---------------------------------------------------------------------------
+
+model DashboardCriar {
+  id_dashboard_criar             String  @id @default(cuid())
+  id_organizacao_dashboard_criar String
+  id_produto_dashboard_criar     String?
+  id_usuario_dashboard_criar     String
+
+  id_dashboard_dashboard_criar   String
+  chave_widget_dashboard_criar   String
+  tipo_widget_dashboard_criar    DashboardTipo @default(CATALOGO)
+  tipo_grafico_dashboard_criar   GraficoTipo   @default(KPI_CARD)
+  titulo_dashboard_criar         String
+  query_spec_dashboard_criar     Json
+  posicao_dashboard_criar        Json    @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
+  config_dashboard_criar         Json?
+
+  dashboard_dashboard_criar      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_criar], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_criar     DateTime @default(now())
+  data_atualizacao_dashboard_criar DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_criar], map: "dcr_org_idx")
+  @@index([id_organizacao_dashboard_criar, id_produto_dashboard_criar], map: "dcr_org_prd_idx")
+  @@index([id_organizacao_dashboard_criar, id_usuario_dashboard_criar], map: "dcr_org_usr_idx")
+  @@map("dashboard_criar")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardMetricas — snapshot de métricas pré-computadas
+// ---------------------------------------------------------------------------
+
+model DashboardMetricas {
+  id_dashboard_metricas             String  @id @default(cuid())
+  id_organizacao_dashboard_metricas String
+  id_produto_dashboard_metricas     String
+  id_usuario_dashboard_metricas     String?
+
+  chave_metrica_dashboard_metricas  String
+  dimensoes_dashboard_metricas      Json?
+  valor_dashboard_metricas          Json
+  periodo_inicio_dashboard_metricas DateTime
+  periodo_fim_dashboard_metricas    DateTime
+  capturado_em_dashboard_metricas   DateTime @default(now())
+
+  @@unique([id_organizacao_dashboard_metricas, id_produto_dashboard_metricas, chave_metrica_dashboard_metricas, periodo_inicio_dashboard_metricas, periodo_fim_dashboard_metricas], map: "dme_unq_metric")
+  @@index([id_organizacao_dashboard_metricas], map: "dme_org_idx")
+  @@index([id_organizacao_dashboard_metricas, id_produto_dashboard_metricas], map: "dme_org_prd_idx")
+  @@index([id_organizacao_dashboard_metricas, id_usuario_dashboard_metricas], map: "dme_org_usr_idx")
+  @@map("dashboard_metricas")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardAlertas
+// ---------------------------------------------------------------------------
+
+model DashboardAlertas {
+  id_dashboard_alertas             String  @id @default(cuid())
+  id_organizacao_dashboard_alertas String
+  id_produto_dashboard_alertas     String?
+  id_usuario_dashboard_alertas     String
+
+  id_dashboard_dashboard_alertas   String
+  id_widget_dashboard_alertas      String?
+  chave_metrica_dashboard_alertas  String
+  condicao_dashboard_alertas       String
+  limiar_dashboard_alertas         Json
+  canais_dashboard_alertas         String[] @default([])
+  ativa_dashboard_alertas          Boolean  @default(true)
+  ultimo_disparo_dashboard_alertas DateTime?
+
+  dashboard_dashboard_alertas      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_alertas], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_alertas     DateTime @default(now())
+  data_atualizacao_dashboard_alertas DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_alertas], map: "dal_org_idx")
+  @@index([id_organizacao_dashboard_alertas, id_produto_dashboard_alertas], map: "dal_org_prd_idx")
+  @@index([id_organizacao_dashboard_alertas, id_usuario_dashboard_alertas], map: "dal_org_usr_idx")
+  @@map("dashboard_alertas")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardCompartilhar
+// ---------------------------------------------------------------------------
+
+model DashboardCompartilhar {
+  id_dashboard_compartilhar             String  @id @default(cuid())
+  id_organizacao_dashboard_compartilhar String
+  id_produto_dashboard_compartilhar     String?
+  id_usuario_dashboard_compartilhar     String
+
+  id_dashboard_dashboard_compartilhar   String
+  token_share_dashboard_compartilhar    String  @unique(map: "dcp_token_unq") @default(cuid())
+  canal_dashboard_compartilhar          String
+  email_destinatario_dashboard_compartilhar String?
+  telefone_destinatario_dashboard_compartilhar String?
+  snapshot_dashboard_compartilhar       Json?
+  expira_em_dashboard_compartilhar      DateTime?
+
+  dashboard_dashboard_compartilhar      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_compartilhar], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_compartilhar   DateTime @default(now())
+
+  @@index([id_organizacao_dashboard_compartilhar], map: "dcp_org_idx")
+  @@index([id_organizacao_dashboard_compartilhar, id_produto_dashboard_compartilhar], map: "dcp_org_prd_idx")
+  @@index([token_share_dashboard_compartilhar], map: "dcp_token_idx")
+  @@index([id_organizacao_dashboard_compartilhar, id_usuario_dashboard_compartilhar], map: "dcp_org_usr_idx")
+  @@map("dashboard_compartilhar")
+}

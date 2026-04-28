@@ -1,6 +1,6 @@
 // server/routes/adminProducts.ts
 // CRUD do catálogo master de produtos — exclusivo para gravity_admin.
-// Montado em /api/admin/products pelo index.ts.
+// Montado em /api/v1/admin/produtos-gravity pelo index.ts.
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -76,7 +76,7 @@ const CreateProductSchema = z.object({
   name: z.string().min(2).max(100),
   slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/),
   description: z.string().min(3).max(500),
-  status: z.enum(['ACTIVE', 'SUSPENDED', 'COMING_SOON', 'LEGACY', 'INACTIVE']).default('ACTIVE'),
+  status: z.enum(['ATIVO', 'SUSPENSO', 'EM_BREVE', 'LEGADO', 'INATIVO']).default('ATIVO'),
   launch_date: z.string().datetime().optional(),
 
   has_setup: z.boolean().default(false),
@@ -84,9 +84,9 @@ const CreateProductSchema = z.object({
   setup_currency: z.string().length(3).default('BRL'),
 
   billing_type: z.enum([
-    'MONTHLY', 'PER_PROCESS', 'PER_DOCUMENT', 'PER_ESTIMATE',
-    'PER_DI_DUIMP', 'PER_DUE', 'PER_PRODUCT', 'PER_FLOW', 'PER_LPCO',
-  ]).default('MONTHLY'),
+    'MENSAL', 'POR_PROCESSO', 'POR_DOCUMENTO', 'POR_ESTIMATIVA',
+    'POR_DI_DUIMP', 'POR_DUE', 'POR_PRODUTO', 'POR_FLUXO', 'POR_LPCO',
+  ]).default('MENSAL'),
   unit_price: z.number().min(0),
   unit_currency: z.string().length(3).default('BRL'),
   minimum_price: z.number().min(0).default(0),
@@ -94,7 +94,7 @@ const CreateProductSchema = z.object({
   total_price: z.number().min(0).optional(),
   total_currency: z.string().length(3).default('BRL'),
 
-  user_limit_type: z.enum(['UNLIMITED', 'LIMITED']).default('UNLIMITED'),
+  user_limit_type: z.enum(['ILIMITADO', 'LIMITADO']).default('ILIMITADO'),
   base_users_qty: z.number().int().min(0).optional(),
   extra_user_price: z.number().min(0).optional(),
   extra_user_currency: z.string().length(3).default('BRL'),
@@ -116,10 +116,10 @@ const UpdateProductSchema = CreateProductSchema.partial()
 // ─── Rotas ─────────────────────────────────────────────────────────────────
 
 /**
- * GET /api/admin/products/available-slugs
+ * GET /api/v1/admin/produtos-gravity/slugs-disponiveis
  * Retorna slugs de contracts.json que ainda não têm produto cadastrado.
  */
-adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
+adminProductsRouter.get('/slugs-disponiveis', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
     const usedSlugs = await productCatalogService.listUsedSlugs()
@@ -131,7 +131,7 @@ adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
 })
 
 /**
- * GET /api/admin/products
+ * GET /api/v1/admin/produtos-gravity
  * Lista todos os produtos do catálogo com paginação.
  */
 adminProductsRouter.get('/', async (req, res, next) => {
@@ -149,12 +149,12 @@ adminProductsRouter.get('/', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/products/:id
+ * GET /api/v1/admin/produtos-gravity/:id_produto_gravity
  * Detalhes de um produto específico.
  */
-adminProductsRouter.get('/:id', async (req, res, next) => {
+adminProductsRouter.get('/:id_produto_gravity', async (req, res, next) => {
   try {
-    const product = await productCatalogService.getById(req.params.id)
+    const product = await productCatalogService.getById(req.params.id_produto_gravity)
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
@@ -165,7 +165,7 @@ adminProductsRouter.get('/:id', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/products
+ * POST /api/v1/admin/produtos-gravity
  * Cria um novo produto no catálogo.
  * Retorna 409 se o slug já existe (não faz upsert silencioso).
  */
@@ -180,8 +180,8 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
       )
     }
 
-    // Se status ACTIVE, o slug deve existir em contracts.json (tem infraestrutura)
-    if (parsed.data.status === 'ACTIVE') {
+    // Se status ATIVO, o slug deve existir em contracts.json (tem infraestrutura)
+    if (parsed.data.status === 'ATIVO') {
       const contractsSlugs = getContractsSlugs()
       const moduleSlug = parsed.data.backend_module ?? parsed.data.slug
       if (!contractsSlugs.includes(moduleSlug)) {
@@ -196,7 +196,7 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
     const existing = await productCatalogService.getBySlug(parsed.data.slug)
     if (existing) {
       throw new AppError(
-        `Já existe um produto com o slug "${parsed.data.slug}". Use PUT /admin/products/:id para atualizar.`,
+        `Já existe um produto com o slug "${parsed.data.slug}". Use PUT /api/v1/admin/produtos-gravity/:id_produto_gravity para atualizar.`,
         409,
         'SLUG_CONFLICT',
       )
@@ -217,10 +217,10 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
 })
 
 /**
- * PUT /api/admin/products/:id
+ * PUT /api/v1/admin/produtos-gravity/:id_produto_gravity
  * Atualiza um produto existente.
  */
-adminProductsRouter.put('/:id', adminRateLimit, async (req, res, next) => {
+adminProductsRouter.put('/:id_produto_gravity', adminRateLimit, async (req, res, next) => {
   try {
     const parsed = UpdateProductSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -231,7 +231,7 @@ adminProductsRouter.put('/:id', adminRateLimit, async (req, res, next) => {
       )
     }
 
-    const existing = await productCatalogService.getById(req.params.id)
+    const existing = await productCatalogService.getById(req.params.id_produto_gravity)
     if (!existing) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
@@ -243,7 +243,7 @@ adminProductsRouter.put('/:id', adminRateLimit, async (req, res, next) => {
       }
     }
 
-    const product = await productCatalogService.update(req.params.id, parsed.data)
+    const product = await productCatalogService.update(req.params.id_produto_gravity, parsed.data)
 
     log.info('product updated', {
       actor_id: req.auth.clerkUserId,
@@ -257,12 +257,12 @@ adminProductsRouter.put('/:id', adminRateLimit, async (req, res, next) => {
 })
 
 /**
- * PATCH /api/admin/products/:id/status
+ * PATCH /api/v1/admin/produtos-gravity/:id_produto_gravity/status
  * Alterna status Ativo/Suspenso de um produto.
  */
-adminProductsRouter.patch('/:id/status', adminRateLimit, async (req, res, next) => {
+adminProductsRouter.patch('/:id_produto_gravity/status', adminRateLimit, async (req, res, next) => {
   try {
-    const product = await productCatalogService.toggleStatus(req.params.id)
+    const product = await productCatalogService.toggleStatus(req.params.id_produto_gravity)
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
@@ -280,18 +280,18 @@ adminProductsRouter.patch('/:id/status', adminRateLimit, async (req, res, next) 
 })
 
 /**
- * DELETE /api/admin/products/:id
+ * DELETE /api/v1/admin/produtos-gravity/:id_produto_gravity
  * Soft-delete (marca deleted_at). Bloqueia se houver negociações ativas.
  * Use ?force=true + ?ack_negotiations=true para remover mesmo assim (hard delete).
  */
-adminProductsRouter.delete('/:id', adminRateLimit, async (req, res, next) => {
+adminProductsRouter.delete('/:id_produto_gravity', adminRateLimit, async (req, res, next) => {
   try {
-    const existing = await productCatalogService.getById(req.params.id)
+    const existing = await productCatalogService.getById(req.params.id_produto_gravity)
     if (!existing) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    const negotiationCount = await productCatalogService.countActiveNegotiations(req.params.id)
+    const negotiationCount = await productCatalogService.countActiveNegotiations(req.params.id_produto_gravity)
     const force = req.query.force === 'true'
     const ack = req.query.ack_negotiations === 'true'
 
@@ -304,18 +304,18 @@ adminProductsRouter.delete('/:id', adminRateLimit, async (req, res, next) => {
     }
 
     if (force) {
-      await productCatalogService.hardDelete(req.params.id)
+      await productCatalogService.hardDelete(req.params.id_produto_gravity)
     } else {
-      await productCatalogService.softDelete(req.params.id)
+      await productCatalogService.softDelete(req.params.id_produto_gravity)
     }
 
     log.info('product deleted', {
       actor_id: req.auth.clerkUserId,
-      resource_id: req.params.id,
+      resource_id: req.params.id_produto_gravity,
       action: force ? 'HARD_DELETE' : 'SOFT_DELETE',
       negotiation_count: negotiationCount,
     })
-    res.json({ deleted: true, id: req.params.id, mode: force ? 'hard' : 'soft' })
+    res.json({ deleted: true, id: req.params.id_produto_gravity, mode: force ? 'hard' : 'soft' })
   } catch (err) {
     next(err)
   }

@@ -66,6 +66,23 @@ async function request<T>(
   return res.json()
 }
 
+/** fetch autenticado com token Clerk — retorna Response bruta (como fetch nativo) */
+export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const { headers: extraHeaders, ...restOptions } = options
+  const authHeaders: Record<string, string> = {}
+  const token = await getAuthToken()
+  if (token) authHeaders['Authorization'] = `Bearer ${token}`
+
+  return fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders,
+      ...(extraHeaders as Record<string, string>),
+    },
+    ...restOptions,
+  })
+}
+
 // ─── Tipos de resposta ──────────────────────────────────────────────────────
 
 export interface ProductApi {
@@ -73,7 +90,7 @@ export interface ProductApi {
   name: string
   slug: string
   description: string
-  status: 'ACTIVE' | 'SUSPENDED' | 'COMING_SOON' | 'LEGACY' | 'INACTIVE'
+  status: 'ATIVO' | 'SUSPENSO' | 'EM_BREVE' | 'LEGADO' | 'INATIVO'
   launch_date: string | null
   has_setup: boolean
   setup_price: string | null
@@ -85,7 +102,7 @@ export interface ProductApi {
   minimum_currency: string
   total_price: string | null
   total_currency: string
-  user_limit_type: 'UNLIMITED' | 'LIMITED'
+  user_limit_type: 'ILIMITADO' | 'LIMITADO'
   base_users_qty: number | null
   extra_user_price: string | null
   extra_user_currency: string
@@ -98,11 +115,11 @@ export interface ProductApi {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  price_tiers: PriceTierApi[]
+  price_tiers: FaixaPrecoApi[]
   negotiations?: NegotiationApi[]
 }
 
-export interface PriceTierApi {
+export interface FaixaPrecoApi {
   id: string
   product_id: string
   range_from: number
@@ -124,14 +141,14 @@ export interface NegotiationApi {
 
 export interface TenantApi {
   id: string
-  name: string
-  slug: string
-  status: string
-  created_at: string
+  nome_organizacao: string
+  subdominio_organizacao: string
+  status_organizacao: string
+  data_criacao_organizacao: string
   _count?: { users: number; companies: number }
   subscriptions?: Array<{ plan: string; status: string }>
-  users?: Array<{ id: string; name: string; email: string; role: string; created_at: string }>
-  companies?: Array<{ id: string; name: string; subdomain: string | null; status: string }>
+  users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
+  companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
   product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
 }
 
@@ -142,7 +159,7 @@ export interface PaginationApi {
   pages: number
 }
 
-export interface ProductConfigApi {
+export interface ConfigProdutoApi {
   id: string
   tenant_id: string
   product_key: string
@@ -225,11 +242,32 @@ export const adminTenantsApi = {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`)
   },
 
-  async updateStatus(id: string, status: string) {
+  async create(data: { nome_organizacao: string; subdominio_organizacao: string; plano?: string; cnpj_organizacao?: string }) {
+    return request<{ tenant: TenantApi }>('/admin/tenants', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateStatus(id: string, status_organizacao: string) {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status_organizacao }),
     })
+  },
+
+  async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string; plano?: string }) {
+    return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateWorkspaceStatus(id: string, status: 'ATIVO' | 'INATIVO') {
+    return request<{ workspace: { id: string; name: string; status: string; tenant_id: string } }>(
+      `/admin/workspaces/${id}`,
+      { method: 'PATCH', body: JSON.stringify({ status }) }
+    )
   },
 
   async getStats() {
@@ -250,14 +288,14 @@ export interface GlobalUserApi {
   id: string
   name: string
   email: string
-  role: string
+  tipo_usuario: string
   created_at: string
   tenant_id: string
-  tenant: { name: string; slug: string }
+  tenant: { nome_organizacao: string; subdominio_organizacao: string }
   memberships: Array<{
     id: string
     company_id: string
-    role: string
+    tipo_usuario: string
     is_active: boolean
     company: { name: string; subdomain: string | null }
   }>
@@ -275,14 +313,14 @@ export const adminUsersApi = {
   },
 
   async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
-    return request<{ user: { id: string; email: string; role: string } }>(
+    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
       `/admin/usuarios-globais/${userId}/promote`,
       { method: 'POST', body: JSON.stringify({ role }) }
     )
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string; role: string } }>(
+    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
       '/admin/usuarios-globais/invite',
       { method: 'POST', body: JSON.stringify(data) }
     )
@@ -405,10 +443,10 @@ export const adminBillingApi = {
 // ─── Admin: Deploy Logs ─────────────────────────────────────────────────────
 // Histórico manual de deploys da plataforma Gravity.
 
-export type DeployEnvironment = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'ALL'
-export type DeployStatus = 'SUCCESS' | 'FAILED' | 'ROLLBACK' | 'IN_PROGRESS'
+export type DeployEnvironment = 'DESENVOLVIMENTO' | 'HOMOLOGACAO' | 'PRODUCAO' | 'TODOS'
+export type DeployStatus = 'SUCESSO' | 'FALHOU' | 'REVERTIDO' | 'EM_ANDAMENTO'
 
-export interface DeployLogApi {
+export interface DeployApi {
   id: string
   deploy_number: number
   area: string
@@ -423,7 +461,7 @@ export interface DeployLogApi {
 }
 
 export interface ListDeploysResponseApi {
-  deploys: DeployLogApi[]
+  deploys: DeployApi[]
   pagination: PaginationApi
 }
 
@@ -461,7 +499,7 @@ export const adminDeploysApi = {
   },
 
   async create(data: CreateDeployRequest) {
-    return request<{ deploy: DeployLogApi }>('/admin/deploy', {
+    return request<{ deploy: DeployApi }>('/admin/deploy', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -476,7 +514,7 @@ export const adminDeploysApi = {
 
 // ─── Admin: Test Logs ───────────────────────────────────────────────────────
 
-export interface TestLogApi {
+export interface TestesApi {
   id: string
   created_at: string
   type: string
@@ -488,7 +526,7 @@ export interface TestLogApi {
   ai_analysis: Record<string, unknown> | null
 }
 
-export interface TestPlanApi {
+export interface TestePlanoApi {
   id: string
   name: string
   product: string
@@ -498,9 +536,9 @@ export interface TestPlanApi {
   steps: string[]
 }
 
-export const adminTestLogsApi = {
+export const adminTestesApi = {
   async list() {
-    return request<{ logs: TestLogApi[] }>('/admin/testes-gerais/logs')
+    return request<{ logs: TestesApi[] }>('/admin/testes-gerais/logs')
   },
   async runTests(opts?: { planos?: string[]; modulos?: string[] }) {
     return request<{ started: boolean }>('/admin/testes-gerais/run', {
@@ -514,7 +552,7 @@ export const adminTestLogsApi = {
   },
   async listPlans(product?: string) {
     const qs = product ? `?product=${encodeURIComponent(product)}` : ''
-    return request<{ plans: TestPlanApi[] }>(`/admin/testes-gerais/plans${qs}`)
+    return request<{ plans: TestePlanoApi[] }>(`/admin/testes-gerais/plans${qs}`)
   },
   async reanalyze(id: string) {
     return request<{ analysis: Record<string, unknown> }>(`/admin/testes-gerais/logs/${id}/reanalyze`, { method: 'POST' })
@@ -561,14 +599,14 @@ export const adminTestLogsApi = {
 
 export interface PlatformConfigApi {
   id: string
-  name: string
-  slug: string
-  cnpj: string | null
-  state: string | null
-  city: string | null
-  segment: string | null
-  tipo_empresa: string | null
-  created_at: string
+  nome_organizacao: string
+  subdominio_organizacao: string
+  cnpj_organizacao: string | null
+  estado_organizacao: string | null
+  cidade_organizacao: string | null
+  segmento_organizacao: string | null
+  tipo_empresa_organizacao: string | null
+  data_criacao_organizacao: string
   subscriptions?: Array<{ plan: string }>
 }
 
@@ -578,12 +616,12 @@ export const adminPlatformApi = {
   },
 
   async updateConfig(data: {
-    name?: string
-    cnpj?: string
-    state?: string
-    city?: string
-    segment?: string
-    tipo_empresa?: string
+    nome_organizacao?: string
+    cnpj_organizacao?: string
+    estado_organizacao?: string
+    cidade_organizacao?: string
+    segmento_organizacao?: string
+    tipo_empresa_organizacao?: string
   }) {
     return request<{ config: PlatformConfigApi }>('/admin/visao-geral', {
       method: 'PUT',
@@ -596,13 +634,13 @@ export const adminPlatformApi = {
 
 export const tenantProductsApi = {
   async listProducts(tenantId: string) {
-    return request<{ tenant_id: string; tenant_name: string; products: ProductConfigApi[] }>(
+    return request<{ tenant_id: string; tenant_name: string; products: ConfigProdutoApi[] }>(
       `/admin/tenants/${tenantId}/products`
     )
   },
 
   async activate(tenantId: string, productKey: string, config?: Record<string, unknown>) {
-    return request<{ activated: boolean; config: ProductConfigApi }>(
+    return request<{ activated: boolean; config: ConfigProdutoApi }>(
       `/admin/tenants/${tenantId}/products/${productKey}/activate`,
       { method: 'POST', body: JSON.stringify({ config: config ?? {} }) }
     )
@@ -751,7 +789,7 @@ export const workspaceApi = {
   },
 
   async getUsers() {
-    return request<{ users: Array<{ id: string; name: string; email: string; role: string; created_at: string; memberships: Array<{ company_id: string; role: string; is_active: boolean }> }> }>(
+    return request<{ users: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string; memberships: Array<{ company_id: string; tipo_usuario: string; is_active: boolean }> }> }>(
       '/v1/usuarios'
     )
   },
@@ -771,7 +809,7 @@ export const workspaceApi = {
   },
 
   async updateUserRole(userId: string, role: string) {
-    return request<{ user: { id: string; role: string } }>(`/v1/usuarios/${userId}/role`, {
+    return request<{ user: { id: string; tipo_usuario: string } }>(`/v1/usuarios/${userId}/role`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     })

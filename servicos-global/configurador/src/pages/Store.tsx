@@ -36,7 +36,7 @@ import {
   buildEcosystemNodes,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
@@ -197,7 +197,7 @@ export function Store() {
   const [searchParams] = useSearchParams()
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
@@ -220,9 +220,9 @@ export function Store() {
     }
   }, [isLight])
 
-  const userName = user?.fullName ?? user?.firstName ?? t('shell.usuario_padrao')
+  const userName = currentUser.name || user?.fullName || user?.firstName || t('shell.usuario_padrao')
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = user?.primaryEmailAddress?.emailAddress ?? t('shell.email_padrao')
+  const userEmail = currentUser.email || user?.primaryEmailAddress?.emailAddress || t('shell.email_padrao')
 
   const [catalog, setCatalog] = useState<CatalogProduct[]>([])
   const [subscribed, setSubscribed] = useState<Map<string, SubscribedProduct>>(new Map())
@@ -236,13 +236,13 @@ export function Store() {
       try {
         const [catRes, subRes] = await Promise.all([
           fetch(`${API_URL}/products`),
-          fetch(`${API_URL}/tenants/products`, {
+          fetch(`${API_URL}/assinaturas`, {
             headers: { Authorization: `Bearer ${await getToken()}` },
           }).catch(() => null),
         ])
         if (catRes.ok) {
           const catData = await catRes.json()
-          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ACTIVE' || p.status === 'Ativo' || p.status === 'COMING_SOON'))
+          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
         }
         if (subRes?.ok) {
           const subData = await subRes.json()
@@ -274,7 +274,7 @@ export function Store() {
     setSubscribing(slug)
     try {
       const token = await getToken()
-      const res = await fetch(`${API_URL}/tenants/products/subscribe`, {
+      const res = await fetch(`${API_URL}/assinaturas/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ product_key: slug }),
@@ -443,7 +443,7 @@ export function Store() {
           />
 
           {/* Seletor de idioma */}
-          <LanguageSwitcherGlobal iconOnly />
+          <SeletorIdiomaGlobal iconOnly />
 
           <div className="hb-topbar-sep" />
 

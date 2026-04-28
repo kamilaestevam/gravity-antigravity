@@ -1,8 +1,17 @@
 import { prisma } from '../lib/prisma.js'
 async function main() {
-  const configs = await prisma.productConfig.findMany()
+  const configs = await prisma.produtoGravityConfiguracao.findMany()
   console.log('Total ProductConfig:', configs.length)
-  configs.forEach(c => console.log(' -', c.tenant_id, '|', c.product_key, '| ativo:', c.is_active))
+  configs.forEach(c =>
+    console.log(
+      ' -',
+      c.id_organizacao_config_produto_gravity,
+      '|',
+      c.chave_produto_config_produto_gravity,
+      '| ativo:',
+      c.ativo_config_produto_gravity,
+    ),
+  )
   await prisma.$disconnect()
 }
 main().catch(console.error)

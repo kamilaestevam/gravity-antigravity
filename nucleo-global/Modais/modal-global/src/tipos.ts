@@ -1,6 +1,6 @@
 /**
  * @nucleo/modal-global — tipos
- * Definições de tipos para ModalGlobal.
+ * Definições de tipos para ModalOverlay.
  */
 
 import type { ReactNode } from 'react'
@@ -47,7 +47,7 @@ export interface BotaoModal {
 
 export type TamanhoModal = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
-// ─── Props do ModalGlobal ─────────────────────────────────────────────────────
+// ─── Props do ModalOverlay ─────────────────────────────────────────────────────
 
 export interface ModalProps {
   /** Identificador único (para o modal-manager) */

@@ -9,7 +9,7 @@ export interface PaginaGlobalProps {
   cabecalho?: ReactNode;
   
   /**
-   * Informações de painel ou listagem de métricas, ex: [StatCardGlobal, StatCardGlobal].
+   * Informações de painel ou listagem de métricas, ex: [CardEstatisticaGlobal, CardEstatisticaGlobal].
    * Se os cards não preencherem tudo e "acoes" for definido, as "acoes" ficarão ancoradas na base dessa linha.
    */
   stats?: ReactNode;

@@ -1,7 +1,7 @@
 /**
  * ModalPassoPassoGlobal — Modal com navegação em passos (wizard)
  * Design System § 12 — Wizard Timeline (Stepper)
- * Design System § 14 — Modal (alinhado com ModalGlobal)
+ * Design System § 14 — Modal (alinhado com ModalOverlay)
  */
 
 import React, { useEffect } from 'react'
@@ -22,7 +22,7 @@ export interface PassoConfig {
   icone?: React.ReactNode
 }
 
-export interface ModalPassoPassoGlobalProps {
+export interface ModalPassoPassoProps {
   titulo: string
   aberto: boolean
   passos: PassoConfig[]
@@ -33,7 +33,7 @@ export interface ModalPassoPassoGlobalProps {
   podeAvancar?: boolean
   labelBotaoFinal?: string
   labelProximo?: string
-  /** Padrão: 'md' (560px). Usa sistema de tamanhos do ModalGlobal. */
+  /** Padrão: 'md' (560px). Usa sistema de tamanhos do ModalOverlay. */
   tamanho?: 'sm' | 'md' | 'lg' | 'xl'
   /** Altura explícita — opcional */
   altura?: string
@@ -54,7 +54,7 @@ export function ModalPassoPassoGlobal({
   tamanho = 'md',
   altura,
   children,
-}: ModalPassoPassoGlobalProps) {
+}: ModalPassoPassoProps) {
   useEffect(() => {
     if (!aberto) return
     document.body.style.overflow = 'hidden'

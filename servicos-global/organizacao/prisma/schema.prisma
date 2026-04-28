@@ -1,0 +1,1600 @@
+// ============================================================================
+// schema.prisma — GERADO AUTOMATICAMENTE
+// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
+// Gerado em: 2026-04-27T21:15:37.358Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
+// Serviços ausentes (fragment não encontrado): processos-core
+// ============================================================================
+
+// servicos-global/tenant/prisma/schema.base.prisma
+// ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
+// Contém apenas datasource e generator.
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-tenant-schema.ts
+// adicionando todos os fragment.prisma dos serviços de tenant.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DATABASE_URL")
+}
+
+
+// --- Fragment: atividades ---
+// servicos-global/tenant/atividades/prisma/fragment.prisma
+// AGENTE ATIVIDADES — Minhas Atividades (Tasks Board)
+//
+// Fragment Prisma para o serviço de Atividades — portado do Journey tasks-board.
+// Suporta Kanban (4 colunas), drag-and-drop, timer, participantes e vínculo a processo.
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// AtividadeDados — tarefas e interações cross-produto do usuário logado
+// ---------------------------------------------------------------------------
+
+model AtividadeDados {
+  id_atividades_dados             String  @id @default(cuid())
+  id_organizacao_atividades_dados String
+  id_usuario_atividades_dados     String? // criador da atividade
+
+  // Conteúdo
+  titulo_atividades_dados    String
+  descricao_atividades_dados String?
+
+  // Tipo de atividade (igual ao Journey)
+  // Valores: "Comentário" | "Reunião" | "Chamados HD" | "Chamados CS" | "Ação necessária" | "Tarefa" | "Outros"
+  tipo_atividades_dados String @default("Tarefa")
+
+  // Status Kanban (colunas do board)
+  // Valores: "A Fazer" | "Em Andamento" | "Concluída" | "Cancelada"
+  status_atividades_dados String @default("A Fazer")
+
+  // Prioridade
+  // Valores: "baixa" | "média" | "alta" | "urgente"
+  prioridade_atividades_dados String?
+
+  // Temporal
+  data_atividade_atividades_dados  DateTime?
+  data_vencimento_atividades_dados DateTime?
+
+  // Tempo trabalhado (acumulado de todas as sessões)
+  tempo_gasto_minutos_atividades_dados Int @default(0)
+
+  // Próximo passo
+  proximo_passo_titulo_atividades_dados String?
+  proximo_passo_data_atividades_dados   DateTime?
+
+  // Lembrete
+  lembrete_em_atividades_dados       DateTime?
+  lembrete_email_atividades_dados    Boolean @default(false)
+  lembrete_whatsapp_atividades_dados Boolean @default(false)
+
+  // Notificação ao atribuir
+  notificar_ao_atribuir_atividades_dados Boolean @default(false)
+
+  // Vínculos opcionais
+  id_processo_atividades_dados String? // link opcional a um Processo Comex (para navegar)
+
+  // Metadados
+  data_criacao_atividades_dados    DateTime @default(now())
+  data_atualizacao_atividades_dados DateTime @updatedAt
+
+  // Relações
+  participantes_atividades_dados UsuariosAtividades[]
+  sessoes_timer_atividades_dados UsuariosAtividadesTempo[]
+
+  @@index([id_organizacao_atividades_dados], map: "ad_org_idx")
+  @@index([id_organizacao_atividades_dados, id_usuario_atividades_dados], map: "ad_org_user_idx")
+  @@index([id_organizacao_atividades_dados, status_atividades_dados], map: "ad_org_status_idx")
+  @@map("atividades_dados")
+}
+
+// ---------------------------------------------------------------------------
+// UsuariosAtividades — usuários atribuídos à atividade (M2M)
+// ---------------------------------------------------------------------------
+
+model UsuariosAtividades {
+  id_atividades_participantes              String  @id @default(cuid())
+  id_atividades_dados_atividades_participantes String
+  id_usuario_atividades_participantes      String
+  nome_usuario_atividades_participantes    String? // cache de nome para exibição sem JOIN extra
+
+  atividade_atividades_participantes AtividadeDados @relation(fields: [id_atividades_dados_atividades_participantes], references: [id_atividades_dados], onDelete: Cascade)
+
+  @@unique([id_atividades_dados_atividades_participantes, id_usuario_atividades_participantes], map: "ap_atv_user_unq")
+  @@index([id_atividades_dados_atividades_participantes], map: "ap_atv_idx")
+  @@map("atividades_participantes")
+}
+
+// ---------------------------------------------------------------------------
+// UsuariosAtividadesTempo — sessões do cronômetro registradas
+// ---------------------------------------------------------------------------
+
+model UsuariosAtividadesTempo {
+  id_atividades_tempo              String   @id @default(cuid())
+  id_atividades_dados_atividades_tempo String
+  iniciado_em_atividades_tempo     DateTime
+  duracao_min_atividades_tempo     Int
+  assunto_atividades_tempo         String?
+
+  atividade_atividades_tempo AtividadeDados @relation(fields: [id_atividades_dados_atividades_tempo], references: [id_atividades_dados], onDelete: Cascade)
+
+  @@index([id_atividades_dados_atividades_tempo], map: "at_atv_idx")
+  @@map("atividades_tempo")
+}
+
+
+// --- Fragment: cronometro ---
+// servicos-global/tenant/cronometro/prisma/fragment.prisma
+// AGENTE CRONÔMETRO — ONDA 27 (DDD Servicos)
+//
+// Fragment Prisma do serviço de Cronômetro.
+// Não editar schema.prisma diretamente — apenas este fragment.
+// O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// UsuarioHistoricoCronometro
+// Sessão de tempo registrada (concluída ou manual).
+// ---------------------------------------------------------------------------
+
+model UsuarioHistoricoCronometro {
+  id_atividades_cronometro             String  @id @default(cuid())
+
+  // Campos de isolamento — obrigatórios
+  id_organizacao_atividades_cronometro String
+  id_produto_atividades_cronometro     String?
+  id_usuario_atividades_cronometro     String
+
+  // Relacionamento
+  id_atividade_atividades_cronometro   String
+
+  // Dados da sessão
+  data_inicio_atividades_cronometro    DateTime
+  data_fim_atividades_cronometro       DateTime?
+  duracao_minutos_atividades_cronometro Int?     // null = timer ainda ativo (em progresso)
+  manual_atividades_cronometro         Boolean  @default(false)
+
+  // Assunto e vínculo
+  assunto_atividades_cronometro        String?  // texto livre do assunto
+  tipo_vinculo_atividades_cronometro   String?  // nf | meeting | process | custom
+  id_vinculo_atividades_cronometro     String?  // ID do item vinculado
+  rotulo_vinculo_atividades_cronometro String?  // label de exibição do item vinculado
+
+  // Timestamps
+  data_criacao_atividades_cronometro     DateTime @default(now())
+  data_atualizacao_atividades_cronometro DateTime @updatedAt
+
+  // Índices obrigatórios — padrão do projeto
+  @@index([id_organizacao_atividades_cronometro], map: "ac_org_idx")
+  @@index([id_organizacao_atividades_cronometro, id_produto_atividades_cronometro], map: "ac_org_prd_idx")
+  @@index([id_organizacao_atividades_cronometro, id_usuario_atividades_cronometro], map: "ac_org_usr_idx")
+  @@index([id_organizacao_atividades_cronometro, id_usuario_atividades_cronometro, data_inicio_atividades_cronometro], map: "ac_org_usr_dt_idx")
+  @@index([id_organizacao_atividades_cronometro, id_atividade_atividades_cronometro], map: "ac_org_atv_idx")
+  @@map("atividades_cronometro")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioStatusCronometro
+// Estado do timer em execução (um por usuário).
+// Removido quando a sessão é finalizada — o histórico fica em UsuarioHistoricoCronometro.
+// ---------------------------------------------------------------------------
+
+model UsuarioStatusCronometro {
+  id_atividades_timer                  String  @id @default(cuid())
+
+  // Campos de isolamento
+  id_organizacao_atividades_timer      String
+  id_usuario_atividades_timer          String  @unique(map: "atm_usr_unq") // um timer ativo por usuário
+
+  // Relacionamento
+  id_atividade_atividades_timer        String
+
+  // Estado do timer
+  data_inicio_atividades_timer         DateTime
+  data_pausa_atividades_timer          DateTime?
+  segundos_acumulados_atividades_timer Int      @default(0) // segundos acumulados antes de pausas
+
+  // Timestamps
+  data_criacao_atividades_timer        DateTime @default(now())
+  data_atualizacao_atividades_timer    DateTime @updatedAt
+
+  // Índices obrigatórios
+  @@index([id_organizacao_atividades_timer], map: "atm_org_idx")
+  @@index([id_organizacao_atividades_timer, id_usuario_atividades_timer], map: "atm_org_usr_idx")
+  @@index([id_usuario_atividades_timer], map: "atm_usr_idx")
+  @@map("atividades_timer")
+}
+
+// ---------------------------------------------------------------------------
+// RelatorioTempoPeriodo
+// Cache de relatórios de tempo pré-computados para performance.
+// ---------------------------------------------------------------------------
+
+model RelatorioTempoPeriodo {
+  id_tempo_criacao_relatorio             String @id @default(cuid())
+
+  id_organizacao_tempo_criacao_relatorio String
+  id_usuario_tempo_criacao_relatorio     String?
+  id_produto_tempo_criacao_relatorio     String?
+
+  periodo_inicio_tempo_criacao_relatorio DateTime
+  periodo_fim_tempo_criacao_relatorio    DateTime
+  total_minutos_tempo_criacao_relatorio  Int
+  payload_tempo_criacao_relatorio        String  // JSON serializado com breakdown por atividade
+
+  data_computacao_tempo_criacao_relatorio DateTime @default(now())
+  data_expiracao_tempo_criacao_relatorio  DateTime
+
+  @@index([id_organizacao_tempo_criacao_relatorio], map: "tcr_org_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, id_produto_tempo_criacao_relatorio], map: "tcr_org_prd_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, id_usuario_tempo_criacao_relatorio], map: "tcr_org_usr_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, periodo_inicio_tempo_criacao_relatorio, periodo_fim_tempo_criacao_relatorio], map: "tcr_org_per_idx")
+  @@map("tempo_criacao_relatorio")
+}
+
+
+// --- Fragment: email ---
+// servicos-global/tenant/email/prisma/fragment.prisma
+// AGENTE EMAIL — ONDA 28 (DDD Servicos)
+//
+// Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EmailStatus {
+  PENDENTE
+  PROCESSANDO
+  ENVIADO
+  FALHOU
+  CANCELADO
+}
+
+enum EmailDirecao {
+  RECEBIDO
+  ENVIADO
+}
+
+enum EmailThreadAtiva {
+  ABERTA
+  ARQUIVADA
+  RESOLVIDA
+}
+
+enum EmailSentimento {
+  MUITO_POSITIVO
+  POSITIVO
+  NEUTRO
+  NEGATIVO
+  MUITO_NEGATIVO
+}
+
+enum EmailFilaPrioridade {
+  BAIXA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+// ---------------------------------------------------------------------------
+// EmailAssuntosParticipantes — thread de conversa (agrupa mensagens de ida e volta)
+// ---------------------------------------------------------------------------
+
+model EmailAssuntosParticipantes {
+  id_email_assuntos_participantes              String  @id @default(cuid())
+  id_organizacao_email_assuntos_participantes  String
+  id_produto_email_assuntos_participantes      String?
+  id_usuario_email_assuntos_participantes      String?
+
+  assunto_email_assuntos_participantes              String
+  status_email_assuntos_participantes               EmailThreadAtiva @default(ABERTA)
+  sentimento_email_assuntos_participantes           Float             @default(0) // -1 a 1
+  rotulo_sentimento_email_assuntos_participantes    EmailSentimento   @default(NEUTRO)
+  contagem_mensagens_email_assuntos_participantes   Int               @default(0)
+  ultimo_contato_email_assuntos_participantes       DateTime?
+  deep_link_email_assuntos_participantes            String?           // ex: /email/thread/{id}
+
+  data_criacao_email_assuntos_participantes     DateTime @default(now())
+  data_atualizacao_email_assuntos_participantes DateTime @updatedAt
+
+  mensagens_email_assuntos_participantes EmailMensagem[]
+
+  @@index([id_organizacao_email_assuntos_participantes], map: "eap_org_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_produto_email_assuntos_participantes], map: "eap_org_prd_idx")
+  @@index([id_organizacao_email_assuntos_participantes, id_usuario_email_assuntos_participantes], map: "eap_org_usr_idx")
+  @@map("email_assuntos_participantes")
+}
+
+// ---------------------------------------------------------------------------
+// EmailMensagem — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
+
+model EmailMensagem {
+  id_email_mensagem               String  @id @default(cuid())
+  id_organizacao_email_mensagem   String
+  id_produto_email_mensagem       String?
+  id_usuario_email_mensagem       String?
+
+  id_thread_email_mensagem        String
+  thread_email_mensagem           EmailAssuntosParticipantes @relation(fields: [id_thread_email_mensagem], references: [id_email_assuntos_participantes])
+
+  id_resend_email_mensagem        String?       @unique(map: "em_resend_unq")
+  direcao_email_mensagem          EmailDirecao  @default(ENVIADO)
+  remetente_email_mensagem        String
+  destinatario_email_mensagem     String
+  assunto_email_mensagem          String?
+  corpo_email_mensagem            String        @db.Text
+  corpo_html_email_mensagem       String?       @db.Text
+  chave_dedup_email_mensagem      String?       @unique(map: "em_dedup_unq")
+  id_mensagem_pai_email_mensagem  String?
+
+  // Análise Gabi
+  resposta_gabi_email_mensagem    String? @db.Text
+  confianca_gabi_email_mensagem   Float?
+  acao_gabi_email_mensagem        String? // auto_replied | escalated_to_human | none
+
+  data_envio_email_mensagem       DateTime @default(now())
+  data_criacao_email_mensagem     DateTime @default(now())
+  data_atualizacao_email_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_email_mensagem], map: "em_org_idx")
+  @@index([id_organizacao_email_mensagem, id_produto_email_mensagem], map: "em_org_prd_idx")
+  @@index([id_organizacao_email_mensagem, id_usuario_email_mensagem], map: "em_org_usr_idx")
+  @@index([id_thread_email_mensagem], map: "em_thread_idx")
+  @@index([chave_dedup_email_mensagem], map: "em_dedup_idx")
+  @@map("email_mensagem")
+}
+
+// ---------------------------------------------------------------------------
+// EmailRegistroEnvio — log de todos os envios realizados (auditoria completa)
+// ---------------------------------------------------------------------------
+
+model EmailRegistroEnvio {
+  id_email_registro_envio              String  @id @default(cuid())
+  id_organizacao_email_registro_envio  String
+  id_produto_email_registro_envio      String?
+  id_usuario_email_registro_envio      String?
+
+  destinatario_email_registro_envio       String
+  remetente_email_registro_envio          String
+  reply_to_email_registro_envio           String?
+  assunto_email_registro_envio            String
+  id_template_email_registro_envio        String?
+  status_email_registro_envio             EmailStatus @default(PENDENTE)
+  id_resend_email_registro_envio          String?     @unique(map: "ere_resend_unq")
+  chave_dedup_email_registro_envio        String      @unique(map: "ere_dedup_unq")
+
+  tentativas_email_registro_envio         Int       @default(0)
+  max_tentativas_email_registro_envio     Int       @default(5)
+  proxima_tentativa_em_email_registro_envio DateTime?
+  mensagem_erro_email_registro_envio      String?   @db.Text
+  data_envio_email_registro_envio         DateTime?
+
+  data_criacao_email_registro_envio       DateTime @default(now())
+  data_atualizacao_email_registro_envio   DateTime @updatedAt
+
+  @@index([id_organizacao_email_registro_envio], map: "ere_org_idx")
+  @@index([id_organizacao_email_registro_envio, id_produto_email_registro_envio], map: "ere_org_prd_idx")
+  @@index([id_organizacao_email_registro_envio, id_usuario_email_registro_envio], map: "ere_org_usr_idx")
+  @@index([status_email_registro_envio], map: "ere_status_idx")
+  @@index([chave_dedup_email_registro_envio], map: "ere_dedup_idx")
+  @@map("email_registro_envio")
+}
+
+// ---------------------------------------------------------------------------
+// EmailTemplate — templates de email editáveis por tenant
+// ---------------------------------------------------------------------------
+
+model EmailTemplate {
+  id_template_email              String  @id @default(cuid())
+  id_organizacao_template_email  String
+  id_produto_template_email      String?
+  id_usuario_template_email      String?
+
+  nome_template_email        String
+  slug_template_email        String   // ex: boas-vindas, recuperacao-senha
+  assunto_template_email     String
+  corpo_html_template_email  String   @db.Text
+  corpo_texto_template_email String?  @db.Text
+  variaveis_template_email   String[] // ex: ["nome", "plano", "url"]
+  ativo_template_email       Boolean  @default(true)
+  descricao_template_email   String?
+
+  data_criacao_template_email     DateTime @default(now())
+  data_atualizacao_template_email DateTime @updatedAt
+
+  @@unique([id_organizacao_template_email, slug_template_email], map: "te_org_slug_unq")
+  @@index([id_organizacao_template_email], map: "te_org_idx")
+  @@index([id_organizacao_template_email, id_produto_template_email], map: "te_org_prd_idx")
+  @@index([id_organizacao_template_email, id_usuario_template_email], map: "te_org_usr_idx")
+  @@map("template_email")
+}
+
+// ---------------------------------------------------------------------------
+// EmailFilaEnvio — fila de envio com controle de retry e backoff exponencial
+// ---------------------------------------------------------------------------
+
+model EmailFilaEnvio {
+  id_email_fila_envio              String  @id @default(cuid())
+  id_organizacao_email_fila_envio  String
+  id_produto_email_fila_envio      String?
+  id_usuario_email_fila_envio      String?
+
+  status_email_fila_envio       EmailStatus         @default(PENDENTE)
+  prioridade_email_fila_envio   EmailFilaPrioridade @default(NORMAL)
+  payload_email_fila_envio      String              @db.Text // JSON: { to, subject, body, ... }
+  id_template_email_fila_envio  String?
+  id_email_enviado_email_fila_envio String?
+
+  tentativas_email_fila_envio          Int       @default(0)
+  max_tentativas_email_fila_envio      Int       @default(5)
+  proxima_tentativa_em_email_fila_envio DateTime?
+  processado_em_email_fila_envio       DateTime?
+  erro_email_fila_envio                String?   @db.Text
+
+  data_criacao_email_fila_envio     DateTime @default(now())
+  data_atualizacao_email_fila_envio DateTime @updatedAt
+
+  @@index([id_organizacao_email_fila_envio], map: "efe_org_idx")
+  @@index([id_organizacao_email_fila_envio, id_produto_email_fila_envio], map: "efe_org_prd_idx")
+  @@index([id_organizacao_email_fila_envio, id_usuario_email_fila_envio], map: "efe_org_usr_idx")
+  @@index([status_email_fila_envio, proxima_tentativa_em_email_fila_envio], map: "efe_status_retry_idx")
+  @@index([id_organizacao_email_fila_envio, status_email_fila_envio], map: "efe_org_status_idx")
+  @@map("email_fila_envio")
+}
+
+
+// --- Fragment: whatsapp ---
+// servicos-global/tenant/whatsapp/prisma/fragment.prisma
+// AGENTE WHATSAPP — ONDA 29 (DDD Servicos)
+//
+// Fragment Prisma para o serviço de WhatsApp (Meta Cloud API + Gabi).
+// Não editar o schema.prisma final — apenas este fragment.
+
+// ---------------------------------------------------------------------------
+// WhatsappConversa — conversa de ida/volta com um contato
+// ---------------------------------------------------------------------------
+
+model WhatsappConversa {
+  id_whatsapp_conversa             String  @id @default(cuid())
+  id_organizacao_whatsapp_conversa String
+  id_produto_whatsapp_conversa     String?
+  id_usuario_whatsapp_conversa     String?
+
+  telefone_wa_whatsapp_conversa     String
+  status_whatsapp_conversa          String    @default("open")
+  id_contato_whatsapp_conversa      String?
+  id_empresa_whatsapp_conversa      String?
+  nome_contato_whatsapp_conversa    String?
+  nome_empresa_whatsapp_conversa    String?
+  id_atividade_whatsapp_conversa    String?
+  ia_habilitada_whatsapp_conversa   Boolean   @default(false)
+  aberta_em_whatsapp_conversa       DateTime  @default(now())
+  fechada_em_whatsapp_conversa      DateTime?
+
+  gabi_temperatura_whatsapp_conversa       String?
+  gabi_temperatura_score_whatsapp_conversa Int?
+  gabi_resumo_whatsapp_conversa            String?
+  gabi_acoes_sugeridas_whatsapp_conversa   Json?
+
+  data_criacao_whatsapp_conversa     DateTime @default(now())
+  data_atualizacao_whatsapp_conversa DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_conversa], map: "wc_org_idx")
+  @@index([id_organizacao_whatsapp_conversa, id_produto_whatsapp_conversa], map: "wc_org_prd_idx")
+  @@index([id_organizacao_whatsapp_conversa, id_usuario_whatsapp_conversa], map: "wc_org_usr_idx")
+  @@index([id_organizacao_whatsapp_conversa, status_whatsapp_conversa], map: "wc_org_status_idx")
+  @@index([id_organizacao_whatsapp_conversa, telefone_wa_whatsapp_conversa], map: "wc_org_tel_idx")
+  @@map("whatsapp_conversa")
+}
+
+// ---------------------------------------------------------------------------
+// WhatsappMensagem — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
+
+model WhatsappMensagem {
+  id_whatsapp_mensagem             String  @id @default(cuid())
+  id_organizacao_whatsapp_mensagem String
+  id_produto_whatsapp_mensagem     String?
+  id_usuario_whatsapp_mensagem     String?
+
+  id_conversa_whatsapp_mensagem    String
+  id_wa_mensagem_whatsapp_mensagem String?  @unique(map: "wm_wa_msg_unq")
+  direcao_whatsapp_mensagem        String
+  tipo_conteudo_whatsapp_mensagem  String   @default("text")
+  conteudo_whatsapp_mensagem       String
+  origem_whatsapp_mensagem         String   @default("agent")
+  enviado_por_whatsapp_mensagem    String?
+  status_whatsapp_mensagem         String   @default("sent")
+
+  data_criacao_whatsapp_mensagem     DateTime @default(now())
+  data_atualizacao_whatsapp_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_mensagem], map: "wm_org_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_produto_whatsapp_mensagem], map: "wm_org_prd_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_usuario_whatsapp_mensagem], map: "wm_org_usr_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_conversa_whatsapp_mensagem], map: "wm_org_conv_idx")
+  @@index([id_wa_mensagem_whatsapp_mensagem], map: "wm_wa_msg_idx")
+  @@map("whatsapp_mensagem")
+}
+
+// ---------------------------------------------------------------------------
+// WhatsappLog — log de custos por conversa (Meta cobra por categoria)
+// ---------------------------------------------------------------------------
+
+model WhatsappLog {
+  id_whatsapp_log             String  @id @default(cuid())
+  id_organizacao_whatsapp_log String
+  id_produto_whatsapp_log     String?
+  id_usuario_whatsapp_log     String?
+
+  id_conversa_whatsapp_log         String?
+  id_empresa_whatsapp_log          String?
+  categoria_conversa_whatsapp_log  String
+  origem_whatsapp_log              String
+  custo_usd_whatsapp_log           Decimal
+
+  data_criacao_whatsapp_log     DateTime @default(now())
+  data_atualizacao_whatsapp_log DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_log], map: "wl_org_idx")
+  @@index([id_organizacao_whatsapp_log, id_produto_whatsapp_log], map: "wl_org_prd_idx")
+  @@index([id_organizacao_whatsapp_log, id_usuario_whatsapp_log], map: "wl_org_usr_idx")
+  @@map("whatsapp_log")
+}
+
+// ---------------------------------------------------------------------------
+// WhatsappRegra — automações trigger→template
+// ---------------------------------------------------------------------------
+
+model WhatsappRegra {
+  id_whatsapp_regra             String  @id @default(cuid())
+  id_organizacao_whatsapp_regra String
+  id_produto_whatsapp_regra     String?
+  id_usuario_whatsapp_regra     String?
+
+  nome_whatsapp_regra        String
+  gatilho_whatsapp_regra     String
+  condicoes_whatsapp_regra   Json?
+  id_template_whatsapp_regra String
+  destinatario_whatsapp_regra String
+  ativa_whatsapp_regra       Boolean  @default(true)
+
+  data_criacao_whatsapp_regra     DateTime @default(now())
+  data_atualizacao_whatsapp_regra DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_regra], map: "wr_org_idx")
+  @@index([id_organizacao_whatsapp_regra, id_produto_whatsapp_regra], map: "wr_org_prd_idx")
+  @@index([id_organizacao_whatsapp_regra, id_usuario_whatsapp_regra], map: "wr_org_usr_idx")
+  @@index([id_organizacao_whatsapp_regra, ativa_whatsapp_regra], map: "wr_org_ativa_idx")
+  @@map("whatsapp_regra")
+}
+
+
+// --- Fragment: dashboard ---
+// servicos-global/tenant/dashboard/prisma/fragment.prisma
+// AGENTE DASHBOARD — ONDA 30 (DDD Servicos)
+//
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+enum DashboardModo {
+  PRODUTO
+  GERAL
+}
+
+enum DashboardTipo {
+  CATALOGO
+  CUSTOMIZADO
+  GABI
+}
+
+enum GraficoTipo {
+  KPI_CARD
+  LINHA
+  BARRA
+  BARRA_HORIZONTAL
+  ROSCA
+  HISTOGRAMA
+  FUNIL
+  MEDIDOR
+  MAPA
+  TABELA
+  AREA
+}
+
+// ---------------------------------------------------------------------------
+// DashboardConfiguracao
+// ---------------------------------------------------------------------------
+
+model DashboardConfiguracao {
+  id_dashboard_configuracao             String  @id @default(cuid())
+  id_organizacao_dashboard_configuracao String
+  id_produto_dashboard_configuracao     String?
+  id_usuario_dashboard_configuracao     String
+
+  nome_dashboard_configuracao    String        @default("Meu Dashboard")
+  modo_dashboard_configuracao    DashboardModo @default(PRODUTO)
+  layout_dashboard_configuracao  Json          @default("[]")
+  filtros_dashboard_configuracao Json?
+  padrao_dashboard_configuracao  Boolean       @default(false)
+
+  widgets_dashboard_configuracao DashboardCriar[]
+  alertas_dashboard_configuracao DashboardAlertas[]
+  shares_dashboard_configuracao  DashboardCompartilhar[]
+
+  data_criacao_dashboard_configuracao     DateTime @default(now())
+  data_atualizacao_dashboard_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_configuracao], map: "dco_org_idx")
+  @@index([id_organizacao_dashboard_configuracao, id_produto_dashboard_configuracao], map: "dco_org_prd_idx")
+  @@index([id_organizacao_dashboard_configuracao, id_usuario_dashboard_configuracao], map: "dco_org_usr_idx")
+  @@map("dashboard_configuracao")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardCriar — widgets que compõem o dashboard
+// ---------------------------------------------------------------------------
+
+model DashboardCriar {
+  id_dashboard_criar             String  @id @default(cuid())
+  id_organizacao_dashboard_criar String
+  id_produto_dashboard_criar     String?
+  id_usuario_dashboard_criar     String
+
+  id_dashboard_dashboard_criar   String
+  chave_widget_dashboard_criar   String
+  tipo_widget_dashboard_criar    DashboardTipo @default(CATALOGO)
+  tipo_grafico_dashboard_criar   GraficoTipo   @default(KPI_CARD)
+  titulo_dashboard_criar         String
+  query_spec_dashboard_criar     Json
+  posicao_dashboard_criar        Json    @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
+  config_dashboard_criar         Json?
+
+  dashboard_dashboard_criar      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_criar], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_criar     DateTime @default(now())
+  data_atualizacao_dashboard_criar DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_criar], map: "dcr_org_idx")
+  @@index([id_organizacao_dashboard_criar, id_produto_dashboard_criar], map: "dcr_org_prd_idx")
+  @@index([id_organizacao_dashboard_criar, id_usuario_dashboard_criar], map: "dcr_org_usr_idx")
+  @@map("dashboard_criar")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardMetricas — snapshot de métricas pré-computadas
+// ---------------------------------------------------------------------------
+
+model DashboardMetricas {
+  id_dashboard_metricas             String  @id @default(cuid())
+  id_organizacao_dashboard_metricas String
+  id_produto_dashboard_metricas     String
+  id_usuario_dashboard_metricas     String?
+
+  chave_metrica_dashboard_metricas  String
+  dimensoes_dashboard_metricas      Json?
+  valor_dashboard_metricas          Json
+  periodo_inicio_dashboard_metricas DateTime
+  periodo_fim_dashboard_metricas    DateTime
+  capturado_em_dashboard_metricas   DateTime @default(now())
+
+  @@unique([id_organizacao_dashboard_metricas, id_produto_dashboard_metricas, chave_metrica_dashboard_metricas, periodo_inicio_dashboard_metricas, periodo_fim_dashboard_metricas], map: "dme_unq_metric")
+  @@index([id_organizacao_dashboard_metricas], map: "dme_org_idx")
+  @@index([id_organizacao_dashboard_metricas, id_produto_dashboard_metricas], map: "dme_org_prd_idx")
+  @@index([id_organizacao_dashboard_metricas, id_usuario_dashboard_metricas], map: "dme_org_usr_idx")
+  @@map("dashboard_metricas")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardAlertas
+// ---------------------------------------------------------------------------
+
+model DashboardAlertas {
+  id_dashboard_alertas             String  @id @default(cuid())
+  id_organizacao_dashboard_alertas String
+  id_produto_dashboard_alertas     String?
+  id_usuario_dashboard_alertas     String
+
+  id_dashboard_dashboard_alertas   String
+  id_widget_dashboard_alertas      String?
+  chave_metrica_dashboard_alertas  String
+  condicao_dashboard_alertas       String
+  limiar_dashboard_alertas         Json
+  canais_dashboard_alertas         String[] @default([])
+  ativa_dashboard_alertas          Boolean  @default(true)
+  ultimo_disparo_dashboard_alertas DateTime?
+
+  dashboard_dashboard_alertas      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_alertas], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_alertas     DateTime @default(now())
+  data_atualizacao_dashboard_alertas DateTime @updatedAt
+
+  @@index([id_organizacao_dashboard_alertas], map: "dal_org_idx")
+  @@index([id_organizacao_dashboard_alertas, id_produto_dashboard_alertas], map: "dal_org_prd_idx")
+  @@index([id_organizacao_dashboard_alertas, id_usuario_dashboard_alertas], map: "dal_org_usr_idx")
+  @@map("dashboard_alertas")
+}
+
+// ---------------------------------------------------------------------------
+// DashboardCompartilhar
+// ---------------------------------------------------------------------------
+
+model DashboardCompartilhar {
+  id_dashboard_compartilhar             String  @id @default(cuid())
+  id_organizacao_dashboard_compartilhar String
+  id_produto_dashboard_compartilhar     String?
+  id_usuario_dashboard_compartilhar     String
+
+  id_dashboard_dashboard_compartilhar   String
+  token_share_dashboard_compartilhar    String  @unique(map: "dcp_token_unq") @default(cuid())
+  canal_dashboard_compartilhar          String
+  email_destinatario_dashboard_compartilhar String?
+  telefone_destinatario_dashboard_compartilhar String?
+  snapshot_dashboard_compartilhar       Json?
+  expira_em_dashboard_compartilhar      DateTime?
+
+  dashboard_dashboard_compartilhar      DashboardConfiguracao @relation(fields: [id_dashboard_dashboard_compartilhar], references: [id_dashboard_configuracao], onDelete: Cascade)
+
+  data_criacao_dashboard_compartilhar   DateTime @default(now())
+
+  @@index([id_organizacao_dashboard_compartilhar], map: "dcp_org_idx")
+  @@index([id_organizacao_dashboard_compartilhar, id_produto_dashboard_compartilhar], map: "dcp_org_prd_idx")
+  @@index([token_share_dashboard_compartilhar], map: "dcp_token_idx")
+  @@index([id_organizacao_dashboard_compartilhar, id_usuario_dashboard_compartilhar], map: "dcp_org_usr_idx")
+  @@map("dashboard_compartilhar")
+}
+
+
+// --- Fragment: relatorios ---
+// servicos-global/tenant/relatorios/prisma/fragment.prisma
+// AGENTE RELATORIOS — ONDA 31 (DDD Servicos)
+
+// ---------------------------------------------------------------------------
+// RelatoriosSalvosUsuario — relatórios customizados salvos por usuário
+// ---------------------------------------------------------------------------
+
+model RelatoriosSalvosUsuario {
+  id_relatorios_salvos             String  @id @default(cuid())
+  id_organizacao_relatorios_salvos String
+  id_produto_relatorios_salvos     String?
+  id_usuario_relatorios_salvos     String?
+
+  nome_relatorios_salvos        String
+  tabelas_relatorios_salvos     Json    @default("[]")  // [{"productId":"simulador-comex", "tableId":"simulacoes"}]
+  colunas_relatorios_salvos     Json    @default("[]")  // Colunas visíveis
+  filtros_relatorios_salvos     Json    @default("{}")  // Filtros salvos
+  tipo_join_relatorios_salvos   String  @default("left")
+  compartilhado_relatorios_salvos Boolean @default(false)
+
+  data_criacao_relatorios_salvos     DateTime @default(now())
+  data_atualizacao_relatorios_salvos DateTime @updatedAt
+
+  @@index([id_organizacao_relatorios_salvos], map: "rs_org_idx")
+  @@index([id_organizacao_relatorios_salvos, id_produto_relatorios_salvos], map: "rs_org_prd_idx")
+  @@index([id_organizacao_relatorios_salvos, id_usuario_relatorios_salvos], map: "rs_org_usr_idx")
+  @@map("relatorios_salvos")
+}
+
+// ---------------------------------------------------------------------------
+// RelatoriosConfiguracaoUsuario — agendamento e canais de envio
+// ---------------------------------------------------------------------------
+
+model RelatoriosConfiguracaoUsuario {
+  id_relatorios_configuracao             String  @id @default(cuid())
+  id_organizacao_relatorios_configuracao String
+  id_produto_relatorios_configuracao     String?
+  id_usuario_relatorios_configuracao     String?
+
+  id_relatorio_relatorios_configuracao   String
+  frequencia_relatorios_configuracao     String   // once | daily | weekly | monthly
+  canais_relatorios_configuracao         Json     // { email:[], whatsapp:[] }
+  formato_relatorios_configuracao        String   @default("csv") // csv | excel | pdf
+  ativo_relatorios_configuracao          Boolean  @default(true)
+
+  data_criacao_relatorios_configuracao     DateTime @default(now())
+  data_atualizacao_relatorios_configuracao DateTime @updatedAt
+
+  @@index([id_organizacao_relatorios_configuracao], map: "rc_org_idx")
+  @@index([id_organizacao_relatorios_configuracao, id_produto_relatorios_configuracao], map: "rc_org_prd_idx")
+  @@index([id_organizacao_relatorios_configuracao, id_usuario_relatorios_configuracao], map: "rc_org_usr_idx")
+  @@map("relatorios_configuracao")
+}
+
+// ---------------------------------------------------------------------------
+// RelatorioExportar — job de exportação assíncrona de relatório
+// ---------------------------------------------------------------------------
+
+model RelatorioExportar {
+  id_exportar_job             String  @id @default(cuid())
+  id_organizacao_exportar_job String
+  id_produto_exportar_job     String?
+  id_usuario_exportar_job     String?
+
+  id_relatorio_exportar_job   String
+  status_exportar_job         String   @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
+  formato_exportar_job        String   @default("csv")
+  url_arquivo_exportar_job    String?
+  erro_exportar_job           String?
+  iniciado_em_exportar_job    DateTime?
+  concluido_em_exportar_job   DateTime?
+
+  data_criacao_exportar_job     DateTime @default(now())
+  data_atualizacao_exportar_job DateTime @updatedAt
+
+  @@index([id_organizacao_exportar_job], map: "ej_org_idx")
+  @@index([id_organizacao_exportar_job, id_produto_exportar_job], map: "ej_org_prd_idx")
+  @@index([id_organizacao_exportar_job, id_usuario_exportar_job], map: "ej_org_usr_idx")
+  @@map("exportar_job")
+}
+
+
+// --- Fragment: historico-global ---
+// servicos-global/tenant/historico-global/prisma/fragment.prisma
+// AGENTE HISTORICO-GLOBAL — ONDA 32 (DDD Servicos)
+//
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+enum AcaoExecutadaPor {
+  USUARIO
+  API
+  IA
+  JOB
+  INTEGRACAO
+}
+
+enum EventoStatus {
+  SUCESSO
+  FALHA
+  PARCIAL
+}
+
+enum AlertaStatus {
+  PENDENTE
+  REVISADO
+  ESCALADO
+}
+
+// ---------------------------------------------------------------------------
+// HistoricoLog — registro imutável de auditoria
+// ---------------------------------------------------------------------------
+
+model HistoricoLog {
+  id_historico_log             String  @id @default(cuid())
+  id_organizacao_historico_log String
+  id_produto_historico_log     String?
+  id_usuario_historico_log     String?
+
+  tipo_ator_historico_log      AcaoExecutadaPor
+  id_ator_historico_log        String
+  nome_ator_historico_log      String
+  ip_ator_historico_log        String?
+  metadata_ator_historico_log  Json?
+
+  modulo_historico_log         String
+  tipo_recurso_historico_log   String
+  id_recurso_historico_log     String?
+
+  acao_historico_log           String
+  detalhe_acao_historico_log   String
+
+  estado_anterior_historico_log Json?
+  estado_posterior_historico_log Json?
+
+  status_historico_log         EventoStatus @default(SUCESSO)
+  mensagem_erro_historico_log  String?
+
+  hash_integridade_historico_log String
+
+  data_criacao_historico_log   DateTime @default(now()) @db.Timestamptz
+
+  @@index([id_organizacao_historico_log], map: "hl_org_idx")
+  @@index([id_organizacao_historico_log, id_produto_historico_log], map: "hl_org_prd_idx")
+  @@index([id_organizacao_historico_log, id_usuario_historico_log], map: "hl_org_usr_idx")
+  @@index([id_organizacao_historico_log, data_criacao_historico_log], map: "hl_org_dt_idx")
+  @@index([id_organizacao_historico_log, modulo_historico_log, data_criacao_historico_log], map: "hl_org_mod_dt_idx")
+  @@index([id_ator_historico_log, data_criacao_historico_log], map: "hl_ator_dt_idx")
+  @@map("historico_log")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaRegra — definição de regra que dispara alertas
+// ---------------------------------------------------------------------------
+
+model AlertaRegra {
+  id_regra_alerta             String   @id @default(cuid())
+  id_organizacao_regra_alerta String?
+  id_produto_regra_alerta     String?
+  id_usuario_regra_alerta     String?
+
+  nome_regra_alerta           String
+  descricao_regra_alerta      String?
+  habilitada_regra_alerta     Boolean  @default(true)
+
+  tipo_ator_regra_alerta      AcaoExecutadaPor?
+  acao_regra_alerta           String?
+  modulo_regra_alerta         String?
+  filtro_status_regra_alerta  EventoStatus?
+
+  limiar_contagem_regra_alerta        Int?
+  limiar_janela_segundos_regra_alerta Int?
+
+  canal_inapp_regra_alerta    Boolean  @default(true)
+  canal_email_regra_alerta    Boolean  @default(false)
+  canal_whatsapp_regra_alerta Boolean  @default(false)
+
+  destinatarios_email_regra_alerta    String[]
+  destinatarios_whatsapp_regra_alerta String[]
+  destinatarios_usuarios_regra_alerta String[]
+
+  data_criacao_regra_alerta     DateTime @default(now())
+  data_atualizacao_regra_alerta DateTime @updatedAt
+
+  eventos_regra_alerta          AlertaData[]
+
+  @@index([id_organizacao_regra_alerta], map: "ra_org_idx")
+  @@index([id_organizacao_regra_alerta, id_produto_regra_alerta], map: "ra_org_prd_idx")
+  @@index([id_organizacao_regra_alerta, id_usuario_regra_alerta], map: "ra_org_usr_idx")
+  @@index([id_organizacao_regra_alerta, habilitada_regra_alerta], map: "ra_org_hab_idx")
+  @@map("regra_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaData — disparos de regra
+// ---------------------------------------------------------------------------
+
+model AlertaData {
+  id_evento_alerta             String  @id @default(cuid())
+  id_organizacao_evento_alerta String
+  id_produto_evento_alerta     String?
+  id_usuario_evento_alerta     String?
+
+  id_regra_evento_alerta       String
+  regra_evento_alerta          AlertaRegra @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
+
+  tipo_ator_evento_alerta      AcaoExecutadaPor
+  id_ator_evento_alerta        String
+  nome_ator_evento_alerta      String
+  modulo_evento_alerta         String
+  acao_evento_alerta           String
+  contagem_eventos_evento_alerta Int
+  janela_segundos_evento_alerta  Int
+  ids_logs_auditoria_evento_alerta String[]
+
+  status_evento_alerta         AlertaStatus @default(PENDENTE)
+  revisado_por_evento_alerta   String?
+  revisado_em_evento_alerta    DateTime?
+  notas_evento_alerta          String?
+
+  data_criacao_evento_alerta   DateTime @default(now())
+
+  notificacoes_evento_alerta   AlertaRegistro[]
+
+  @@index([id_organizacao_evento_alerta], map: "ea_org_idx")
+  @@index([id_organizacao_evento_alerta, id_produto_evento_alerta], map: "ea_org_prd_idx")
+  @@index([id_organizacao_evento_alerta, id_usuario_evento_alerta], map: "ea_org_usr_idx")
+  @@index([id_organizacao_evento_alerta, status_evento_alerta], map: "ea_org_st_idx")
+  @@index([id_organizacao_evento_alerta, data_criacao_evento_alerta], map: "ea_org_dt_idx")
+  @@map("evento_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaRegistro — registro de envio por canal
+// ---------------------------------------------------------------------------
+
+model AlertaRegistro {
+  id_notificacao_alerta             String   @id @default(cuid())
+  id_organizacao_notificacao_alerta String
+  id_produto_notificacao_alerta     String?
+  id_usuario_notificacao_alerta     String?
+
+  id_evento_notificacao_alerta      String
+  evento_notificacao_alerta         AlertaData @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
+
+  canal_notificacao_alerta          String
+  destinatario_notificacao_alerta   String
+  status_notificacao_alerta         String   @default("pending")
+  tentativas_notificacao_alerta     Int      @default(1)
+  mensagem_erro_notificacao_alerta  String?
+  enviado_em_notificacao_alerta     DateTime?
+
+  data_criacao_notificacao_alerta   DateTime @default(now())
+
+  @@index([id_organizacao_notificacao_alerta], map: "na_org_idx")
+  @@index([id_organizacao_notificacao_alerta, id_produto_notificacao_alerta], map: "na_org_prd_idx")
+  @@index([id_organizacao_notificacao_alerta, id_usuario_notificacao_alerta], map: "na_org_usr_idx")
+  @@index([id_evento_notificacao_alerta], map: "na_evt_idx")
+  @@map("notificacao_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// ExportarResultado — resultado de exportação assíncrona (>10k registros)
+// ---------------------------------------------------------------------------
+
+model ExportarResultado {
+  id_exportar_resultado             String   @id @default(cuid())
+  id_organizacao_exportar_resultado String
+  id_produto_exportar_resultado     String?
+  id_usuario_exportar_resultado     String?
+
+  formato_exportar_resultado    String   // 'csv' | 'json'
+  conteudo_exportar_resultado   String   @db.Text
+  status_exportar_resultado     String   @default("processing") // 'processing' | 'ready' | 'failed'
+  contagem_registros_exportar_resultado Int @default(0)
+  filtros_exportar_resultado    Json?
+  erro_exportar_resultado       String?
+  data_criacao_exportar_resultado DateTime @default(now())
+  expira_em_exportar_resultado    DateTime // cleanup job remove após 24h
+
+  @@index([id_organizacao_exportar_resultado], map: "er_org_idx")
+  @@index([id_organizacao_exportar_resultado, id_produto_exportar_resultado], map: "er_org_prd_idx")
+  @@index([id_organizacao_exportar_resultado, id_usuario_exportar_resultado], map: "er_org_usr_idx")
+  @@index([id_organizacao_exportar_resultado, status_exportar_resultado], map: "er_org_st_idx")
+  @@index([expira_em_exportar_resultado], map: "er_exp_idx")
+  @@map("exportar_resultado")
+}
+
+
+// --- Fragment: agendamento ---
+// servicos-global/tenant/agendamento/prisma/fragment.prisma
+// AGENTE AGENDAMENTO — ONDA 33 (DDD Servicos)
+
+// ---------------------------------------------------------------------------
+// UsuarioAgenda — agenda do usuário (calendário pessoal/empresa)
+// ---------------------------------------------------------------------------
+
+model UsuarioAgenda {
+  id_agenda_usuario             String  @id @default(cuid())
+  id_organizacao_agenda_usuario String
+  id_produto_agenda_usuario     String?
+  id_usuario_agenda_usuario     String?
+
+  nome_agenda_usuario       String
+  descricao_agenda_usuario  String?
+  tipo_agenda_usuario       String   // reuniao | consulta | etc
+
+  data_criacao_agenda_usuario     DateTime @default(now())
+  data_atualizacao_agenda_usuario DateTime @updatedAt
+
+  horarios_agenda_usuario   UsuarioHorarioDisponivel[]
+  config_agenda_usuario     UsuarioConfiguracaoAgenda?
+
+  @@index([id_organizacao_agenda_usuario], map: "au_org_idx")
+  @@index([id_organizacao_agenda_usuario, id_produto_agenda_usuario], map: "au_org_prd_idx")
+  @@index([id_organizacao_agenda_usuario, id_usuario_agenda_usuario], map: "au_org_usr_idx")
+  @@map("agenda_usuario")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioHorarioDisponivel — slot de tempo disponível em uma agenda
+// ---------------------------------------------------------------------------
+
+model UsuarioHorarioDisponivel {
+  id_horario_disponivel             String  @id @default(cuid())
+  id_organizacao_horario_disponivel String
+  id_produto_horario_disponivel     String?
+  id_usuario_horario_disponivel     String?
+
+  id_agenda_horario_disponivel      String
+  inicio_horario_disponivel         DateTime
+  fim_horario_disponivel            DateTime
+  capacidade_horario_disponivel     Int      @default(1)
+
+  data_criacao_horario_disponivel     DateTime @default(now())
+  data_atualizacao_horario_disponivel DateTime @updatedAt
+
+  agenda_horario_disponivel   UsuarioAgenda @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
+  reservas_horario_disponivel UsuarioReservaAgenda[]
+
+  @@index([id_organizacao_horario_disponivel], map: "hd_org_idx")
+  @@index([id_organizacao_horario_disponivel, id_produto_horario_disponivel], map: "hd_org_prd_idx")
+  @@index([id_organizacao_horario_disponivel, id_usuario_horario_disponivel], map: "hd_org_usr_idx")
+  @@index([id_agenda_horario_disponivel], map: "hd_agd_idx")
+  @@map("horario_disponivel")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioReservaAgenda — reserva de um horário
+// ---------------------------------------------------------------------------
+
+model UsuarioReservaAgenda {
+  id_reserva_agenda             String  @id @default(cuid())
+  id_organizacao_reserva_agenda String
+  id_produto_reserva_agenda     String?
+  id_usuario_reserva_agenda     String?
+
+  id_horario_reserva_agenda     String
+  id_reservante_reserva_agenda  String   // ID do usuário/contato que reservou
+  nome_reservante_reserva_agenda  String?
+  email_reservante_reserva_agenda String?
+  status_reserva_agenda         String   @default("confirmado") // confirmado | cancelado | pendente
+
+  data_criacao_reserva_agenda     DateTime @default(now())
+  data_atualizacao_reserva_agenda DateTime @updatedAt
+
+  horario_reserva_agenda  UsuarioHorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
+
+  @@index([id_organizacao_reserva_agenda], map: "rea_org_idx")
+  @@index([id_organizacao_reserva_agenda, id_produto_reserva_agenda], map: "rea_org_prd_idx")
+  @@index([id_organizacao_reserva_agenda, id_usuario_reserva_agenda], map: "rea_org_usr_idx")
+  @@index([id_horario_reserva_agenda], map: "rea_hor_idx")
+  @@index([id_reservante_reserva_agenda], map: "rea_rsv_idx")
+  @@map("reserva_agenda")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioConfiguracaoAgenda — configuração de disponibilidade de uma agenda
+// ---------------------------------------------------------------------------
+
+model UsuarioConfiguracaoAgenda {
+  id_config_disponibilidade_agenda             String  @id @default(cuid())
+  id_organizacao_config_disponibilidade_agenda String
+  id_produto_config_disponibilidade_agenda     String?
+  id_usuario_config_disponibilidade_agenda     String?
+
+  id_agenda_config_disponibilidade_agenda      String  @unique
+  horario_inicio_config_disponibilidade_agenda String  // "HH:mm"
+  horario_fim_config_disponibilidade_agenda    String  // "HH:mm"
+  duracao_slot_config_disponibilidade_agenda   Int     // minutos
+  intervalo_config_disponibilidade_agenda      Int     @default(0) // tempo entre slots em minutos
+  dias_semana_config_disponibilidade_agenda    Int[]   // [1,2,3,4,5]
+
+  data_criacao_config_disponibilidade_agenda     DateTime @default(now())
+  data_atualizacao_config_disponibilidade_agenda DateTime @updatedAt
+
+  agenda_config_disponibilidade_agenda  UsuarioAgenda @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
+
+  @@index([id_organizacao_config_disponibilidade_agenda], map: "cda_org_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_produto_config_disponibilidade_agenda], map: "cda_org_prd_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_usuario_config_disponibilidade_agenda], map: "cda_org_usr_idx")
+  @@map("config_disponibilidade_agenda")
+}
+
+
+// --- Fragment: gabi ---
+// servicos-global/tenant/gabi/prisma/fragment.prisma
+// AGENTE GABI — ONDA 34 (DDD Servicos)
+//
+// Fragment Prisma para o serviço da Gabi AI (agente autônomo).
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// GabiConversaCompleta — conversa principal da Gabi com o usuário
+// ---------------------------------------------------------------------------
+
+model GabiConversaCompleta {
+  id_gabi_conversa             String  @id @default(cuid())
+  id_organizacao_gabi_conversa String
+  id_produto_gabi_conversa     String?
+  id_usuario_gabi_conversa     String?
+
+  titulo_gabi_conversa         String?
+
+  data_criacao_gabi_conversa     DateTime @default(now())
+  data_atualizacao_gabi_conversa DateTime @updatedAt
+
+  mensagens_gabi_conversa  GabiMensagemIndividual[]
+
+  @@index([id_organizacao_gabi_conversa], map: "gco_org_idx")
+  @@index([id_organizacao_gabi_conversa, id_produto_gabi_conversa], map: "gco_org_prd_idx")
+  @@index([id_organizacao_gabi_conversa, id_usuario_gabi_conversa], map: "gco_org_usr_idx")
+  @@map("gabi_conversa")
+}
+
+// ---------------------------------------------------------------------------
+// GabiMensagemIndividual — mensagem individual da conversa
+// ---------------------------------------------------------------------------
+
+model GabiMensagemIndividual {
+  id_gabi_mensagem             String  @id @default(cuid())
+  id_organizacao_gabi_mensagem String
+  id_produto_gabi_mensagem     String?
+  id_usuario_gabi_mensagem     String?
+
+  id_conversa_gabi_mensagem    String
+  conversa_gabi_mensagem       GabiConversaCompleta @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
+
+  papel_gabi_mensagem          String   // 'user' | 'assistant' | 'system'
+  conteudo_gabi_mensagem       String   @db.Text
+  anexos_gabi_mensagem         String?  // JSON encodado com links/detalhes de arquivos
+
+  data_criacao_gabi_mensagem     DateTime @default(now())
+  data_atualizacao_gabi_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_mensagem], map: "gme_org_idx")
+  @@index([id_organizacao_gabi_mensagem, id_produto_gabi_mensagem], map: "gme_org_prd_idx")
+  @@index([id_organizacao_gabi_mensagem, id_usuario_gabi_mensagem], map: "gme_org_usr_idx")
+  @@index([id_conversa_gabi_mensagem], map: "gme_cnv_idx")
+  @@map("gabi_mensagem")
+}
+
+// ---------------------------------------------------------------------------
+// GabiLogUso — auditoria obrigatória de toda execução da Gabi
+// ---------------------------------------------------------------------------
+
+model GabiLogUso {
+  id_gabi_log_uso             String  @id @default(cuid())
+  id_organizacao_gabi_log_uso String
+  id_produto_gabi_log_uso     String?
+  id_usuario_gabi_log_uso     String?
+
+  acao_gabi_log_uso              String
+  snapshot_conversa_gabi_log_uso String  @db.Text
+  tipo_ator_gabi_log_uso         String  @default("gabi")
+  disparado_por_gabi_log_uso     String
+
+  modelo_gabi_log_uso         String?
+  tokens_input_gabi_log_uso   Int     @default(0)
+  tokens_output_gabi_log_uso  Int     @default(0)
+  custo_usd_gabi_log_uso      Float   @default(0)
+
+  data_criacao_gabi_log_uso   DateTime @default(now())
+
+  @@index([id_organizacao_gabi_log_uso], map: "glu_org_idx")
+  @@index([id_organizacao_gabi_log_uso, id_produto_gabi_log_uso], map: "glu_org_prd_idx")
+  @@index([id_organizacao_gabi_log_uso, id_usuario_gabi_log_uso], map: "glu_org_usr_idx")
+  @@map("gabi_log_uso")
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenConsumido — registro de cada chamada field-help (on-demand)
+// ---------------------------------------------------------------------------
+
+model GabiTokenConsumido {
+  id_gabi_token_consumido             String   @id @default(cuid())
+  id_organizacao_gabi_token_consumido String
+  id_produto_gabi_token_consumido     String
+  id_usuario_gabi_token_consumido     String
+
+  campo_gabi_token_consumido         String
+  tokens_input_gabi_token_consumido  Int
+  tokens_output_gabi_token_consumido Int
+  tokens_total_gabi_token_consumido  Int
+  mes_ref_gabi_token_consumido       String   // "2026-04" — agrupamento mensal
+
+  data_criacao_gabi_token_consumido  DateTime @default(now())
+
+  @@index([id_organizacao_gabi_token_consumido], map: "gtc_org_idx")
+  @@index([id_organizacao_gabi_token_consumido, id_produto_gabi_token_consumido], map: "gtc_org_prd_idx")
+  @@index([id_organizacao_gabi_token_consumido, id_usuario_gabi_token_consumido], map: "gtc_org_usr_idx")
+  @@index([id_organizacao_gabi_token_consumido, mes_ref_gabi_token_consumido], map: "gtc_org_mes_idx")
+  @@map("gabi_token_consumido")
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenOrganizacao — quota mensal por tenant
+// ---------------------------------------------------------------------------
+
+model GabiTokenOrganizacao {
+  id_gabi_token_workspace             String   @id @default(cuid())
+  id_organizacao_gabi_token_workspace String
+  id_produto_gabi_token_workspace     String
+
+  quota_mensal_gabi_token_workspace   Int
+  mes_ref_gabi_token_workspace        String   // "2026-04"
+  tokens_usados_gabi_token_workspace  Int      @default(0)
+
+  data_atualizacao_gabi_token_workspace DateTime @updatedAt
+
+  @@unique([id_organizacao_gabi_token_workspace, id_produto_gabi_token_workspace, mes_ref_gabi_token_workspace], map: "gtw_unq_quota")
+  @@index([id_organizacao_gabi_token_workspace], map: "gtw_org_idx")
+  @@index([id_organizacao_gabi_token_workspace, id_produto_gabi_token_workspace], map: "gtw_org_prd_idx")
+  @@index([id_organizacao_gabi_token_workspace, mes_ref_gabi_token_workspace], map: "gtw_org_mes_idx")
+  @@map("gabi_token_workspace")
+}
+
+// ---------------------------------------------------------------------------
+// GabiPersonalizacaoOrganizacao — persona/comportamento Gabi por tenant
+// ---------------------------------------------------------------------------
+
+model GabiPersonalizacaoOrganizacao {
+  id_gabi_personalizacao             String   @id @default(cuid())
+  id_organizacao_gabi_personalizacao String   @unique
+  id_produto_gabi_personalizacao     String?
+  id_usuario_gabi_personalizacao     String?
+
+  prompt_sistema_gabi_personalizacao   String?  @db.Text
+  tom_voz_gabi_personalizacao          String?
+  limitacoes_gabi_personalizacao       String?  @db.Text
+  instrucoes_extras_gabi_personalizacao String? @db.Text
+  ativa_gabi_personalizacao            Boolean  @default(true)
+
+  data_criacao_gabi_personalizacao     DateTime @default(now())
+  data_atualizacao_gabi_personalizacao DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_personalizacao], map: "gpe_org_idx")
+  @@index([id_organizacao_gabi_personalizacao, id_produto_gabi_personalizacao], map: "gpe_org_prd_idx")
+  @@index([id_organizacao_gabi_personalizacao, id_usuario_gabi_personalizacao], map: "gpe_org_usr_idx")
+  @@map("gabi_personalizacao")
+}
+
+
+// --- Fragment: preferencias-usuario ---
+// servicos-global/tenant/preferencias-usuario/prisma/fragment.prisma
+// SERVIÇO PREFERÊNCIAS DO USUÁRIO — ONDA 35 (DDD Servicos)
+//
+// Fragment Prisma para persistência cross-device de preferências de UI.
+// id_usuario_* vem do Clerk (clerk_user_id).
+// O Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// WorkspacePreferenciaUsuario — preferências de UI por usuário (cross-device)
+// ---------------------------------------------------------------------------
+
+model WorkspacePreferenciaUsuario {
+  id_preferencia_workspace             String   @id @default(cuid())
+
+  // Identificação — obrigatórios
+  id_organizacao_preferencia_workspace String
+  id_usuario_preferencia_workspace     String   @unique
+
+  // ── Preferências de UI ───────────────────────────────────────────────────
+  // Visibilidade global das tooltips/dicas (REGRA 5: adjetivo, sem is_/has_)
+  tooltips_desabilitado_preferencia_workspace Boolean @default(false)
+
+  // Tema preferido ('dark' | 'light')
+  tema_preferencia_workspace                  String  @default("dark")
+
+  // Sidebar aberta ou fechada (REGRA 5: adjetivo)
+  sidebar_aberta_preferencia_workspace        Boolean @default(true)
+
+  // Timestamps
+  data_criacao_preferencia_workspace     DateTime @default(now())
+  data_atualizacao_preferencia_workspace DateTime @updatedAt
+
+  @@index([id_usuario_preferencia_workspace],                                                map: "pwk_usr_idx")
+  @@index([id_organizacao_preferencia_workspace],                                            map: "pwk_org_idx")
+  @@index([id_organizacao_preferencia_workspace, id_usuario_preferencia_workspace],          map: "pwk_org_usr_idx")
+  @@map("preferencia_workspace")
+}
+
+
+// --- Fragment: ncm-sync ---
+// servicos-global/tenant/ncm-sync/prisma/fragment.prisma
+// SERVIÇO NCM-SYNC — ONDA 36 (DDD Servicos)
+//
+// NcmItem         — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmLog          — histórico de cada sincronização com o Portal Único
+// NCMAgendamento  — configuração singleton do job de sincronização
+
+// ---------------------------------------------------------------------------
+// NcmItem
+// ---------------------------------------------------------------------------
+
+model NcmItem {
+  id_ncm_item             String   @id @default(cuid())
+
+  // Identificação tenant
+  id_organizacao_ncm_item String
+  id_produto_ncm_item     String?
+  id_usuario_ncm_item     String?
+
+  // Dados NCM
+  codigo_ncm_item         String   // 8 dígitos — ex: "84713019"
+  descricao_ncm_item      String
+  ativo_ncm_item          Boolean  @default(true)
+
+  // Metadados do Portal Único
+  data_inicio_ncm_item    DateTime?
+  data_fim_ncm_item       DateTime?
+
+  // Referência ao NcmLog que inseriu/atualizou este item
+  id_sincronizacao_ncm_item String
+
+  // Timestamps
+  data_criacao_ncm_item     DateTime @default(now())
+  data_atualizacao_ncm_item DateTime @updatedAt
+
+  @@unique([id_organizacao_ncm_item, codigo_ncm_item],                                 map: "ni_unq_org_codigo")
+  @@index([id_organizacao_ncm_item],                                                   map: "ni_org_idx")
+  @@index([id_organizacao_ncm_item, id_produto_ncm_item],                              map: "ni_org_prd_idx")
+  @@index([id_organizacao_ncm_item, id_usuario_ncm_item],                              map: "ni_org_usr_idx")
+  @@index([id_organizacao_ncm_item, ativo_ncm_item],                                   map: "ni_org_ativo_idx")
+  @@index([id_organizacao_ncm_item, codigo_ncm_item],                                  map: "ni_org_codigo_idx")
+  @@map("ncm_item")
+}
+
+// ---------------------------------------------------------------------------
+// NcmLog — histórico de sincronização
+// ---------------------------------------------------------------------------
+
+model NcmLog {
+  id_ncm_log             String    @id @default(cuid())
+
+  // Identificação tenant
+  id_organizacao_ncm_log String
+  id_produto_ncm_log     String?
+  id_usuario_ncm_log     String?
+
+  // Timestamps de execução
+  data_inicio_ncm_log    DateTime  @default(now())
+  data_conclusao_ncm_log DateTime?
+
+  // Status (enum PT)
+  status_ncm_log         NCMStatusSincronizacao @default(EXECUTANDO)
+
+  // Totais do diff
+  total_ncm_log        Int @default(0)
+  adicionados_ncm_log  Int @default(0)
+  alterados_ncm_log    Int @default(0)
+  removidos_ncm_log    Int @default(0)
+
+  // Origem do trigger
+  origem_ncm_log        NCMOrigemSincronizacao @default(JOB)
+  disparado_por_ncm_log String?   // user_id se MANUAL
+
+  // Erro (apenas em caso de falha)
+  mensagem_erro_ncm_log String?
+
+  // Timestamps
+  data_criacao_ncm_log     DateTime @default(now())
+  data_atualizacao_ncm_log DateTime @updatedAt
+
+  @@index([id_organizacao_ncm_log],                                map: "nl_org_idx")
+  @@index([id_organizacao_ncm_log, id_produto_ncm_log],            map: "nl_org_prd_idx")
+  @@index([id_organizacao_ncm_log, id_usuario_ncm_log],            map: "nl_org_usr_idx")
+  @@index([id_organizacao_ncm_log, status_ncm_log],                map: "nl_org_status_idx")
+  @@index([id_organizacao_ncm_log, data_inicio_ncm_log],           map: "nl_org_inicio_idx")
+  @@map("ncm_log")
+}
+
+// ---------------------------------------------------------------------------
+// NCMAgendamento — configuração singleton do job de sincronização
+// id = 'default' — registro único (singleton global)
+// id_organizacao_ncm_agendamento = '__system__' — satisfaz padrão de índices
+// ---------------------------------------------------------------------------
+
+model NCMAgendamento {
+  id_ncm_agendamento             String   @id @default("default")
+  id_organizacao_ncm_agendamento String   @default("__system__")
+  id_produto_ncm_agendamento     String?
+  id_usuario_ncm_agendamento     String?
+
+  ativo_ncm_agendamento          Boolean  @default(false)
+  cron_expressao_ncm_agendamento String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
+  notificadores_ncm_agendamento  Json     @default("[]")            // Array<NcmNotificador>
+
+  data_criacao_ncm_agendamento     DateTime @default(now())
+  data_atualizacao_ncm_agendamento DateTime @updatedAt
+
+  @@index([id_organizacao_ncm_agendamento],                                       map: "nag_org_idx")
+  @@index([id_organizacao_ncm_agendamento, id_produto_ncm_agendamento],           map: "nag_org_prd_idx")
+  @@index([id_organizacao_ncm_agendamento, id_usuario_ncm_agendamento],           map: "nag_org_usr_idx")
+  @@map("ncm_agendamento")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (valores em PT-BR)
+// ---------------------------------------------------------------------------
+
+enum NCMStatusSincronizacao {
+  EXECUTANDO
+  SUCESSO
+  ERRO
+}
+
+enum NCMOrigemSincronizacao {
+  JOB
+  MANUAL
+}
+
+
+// --- Fragment: notificacoes ---
+// servicos-global/tenant/notificacoes/prisma/fragment.prisma
+// SERVIÇO NOTIFICACOES — ONDA 37 (DDD Servicos)
+//
+// NotificacoesTituloCorpo — sininho in-app + tracking de entrega (email/WhatsApp)
+// ContatoExterno          — agenda externa por organização (LGPD Art. 8)
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (master-only)
+
+// ---------------------------------------------------------------------------
+// NotificacoesTituloCorpo
+// ---------------------------------------------------------------------------
+
+model NotificacoesTituloCorpo {
+  id_notificacoes_titulo_corpo String @id @default(cuid())
+
+  // Identificação tenant
+  id_organizacao_notificacoes_titulo_corpo String
+  id_produto_notificacoes_titulo_corpo     String?
+  id_usuario_notificacoes_titulo_corpo     String   // destinatário (Clerk ID ou email)
+
+  // Conteúdo
+  tipo_notificacoes_titulo_corpo     String   // mencao | tarefa | sistema | aviso | compartilhamento | enviado
+  titulo_notificacoes_titulo_corpo   String?
+  mensagem_notificacoes_titulo_corpo String
+
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  lida_notificacoes_titulo_corpo Boolean @default(false)
+
+  // Pilar 2 — link contextual (entidade + id, NUNCA URL)
+  entidade_alvo_notificacoes_titulo_corpo String?
+  id_alvo_notificacoes_titulo_corpo       String?
+
+  // Pilar 3 — tracking de entrega
+  // pending → sent → delivered | bounced | failed
+  status_entrega_notificacoes_titulo_corpo String  @default("pending")
+  id_externo_notificacoes_titulo_corpo     String? // Resend message id (para reconciliar webhooks)
+
+  // Timestamps
+  data_criacao_notificacoes_titulo_corpo     DateTime @default(now())
+  data_atualizacao_notificacoes_titulo_corpo DateTime @updatedAt
+
+  @@index([id_organizacao_notificacoes_titulo_corpo],                                                                              map: "nt_org_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_produto_notificacoes_titulo_corpo],                                        map: "nt_org_prd_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_usuario_notificacoes_titulo_corpo],                                        map: "nt_org_usr_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_usuario_notificacoes_titulo_corpo, lida_notificacoes_titulo_corpo],        map: "nt_org_usr_lida_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, data_criacao_notificacoes_titulo_corpo],                                      map: "nt_org_data_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, status_entrega_notificacoes_titulo_corpo],                                    map: "nt_org_status_idx")
+  @@index([id_externo_notificacoes_titulo_corpo],                                                                                  map: "nt_externo_idx")
+  @@map("notificacoes_titulo_corpo")
+}
+
+// ---------------------------------------------------------------------------
+// ContatoExterno — agenda de contatos para envio externo (LGPD Art. 8)
+// id_usuario_contato_externo: Clerk user_id que criou o contato
+// ---------------------------------------------------------------------------
+
+model ContatoExterno {
+  id_contato_externo String @id @default(cuid())
+
+  // Identificação tenant
+  id_organizacao_contato_externo String
+  id_produto_contato_externo     String?
+  id_usuario_contato_externo     String   // criador (Clerk user_id)
+
+  // Dados do contato
+  nome_contato_externo               String    @db.VarChar(200)
+  email_contato_externo              String?   @db.VarChar(255)
+  whatsapp_telefone_contato_externo  String?   @db.VarChar(20)   // E.164: +5511999999999
+  whatsapp_opt_in_em_contato_externo DateTime? // LGPD Art. 8 — consentimento explícito
+  observacoes_contato_externo        String?   @db.VarChar(500)
+
+  // Timestamps
+  data_criacao_contato_externo     DateTime @default(now())
+  data_atualizacao_contato_externo DateTime @updatedAt
+
+  @@index([id_organizacao_contato_externo],                                       map: "cex_org_idx")
+  @@index([id_organizacao_contato_externo, id_produto_contato_externo],           map: "cex_org_prd_idx")
+  @@index([id_organizacao_contato_externo, id_usuario_contato_externo],           map: "cex_org_usr_idx")
+  @@index([id_organizacao_contato_externo, email_contato_externo],                map: "cex_org_email_idx")
+  @@index([id_organizacao_contato_externo, whatsapp_telefone_contato_externo],    map: "cex_org_whats_idx")
+  @@map("contato_externo")
+}
+
+// ---------------------------------------------------------------------------
+// ConfiguracaoCanalOrganizacao — toggle email/whatsapp por organização (singleton por tenant)
+// id_usuario_configuracao_canal_tenant: último master que alterou
+// REGRA 5: booleans usam o adjetivo (habilitado), sem prefixo is_/has_
+// ---------------------------------------------------------------------------
+
+model ConfiguracaoCanalOrganizacao {
+  id_configuracao_canal_tenant String @id @default(cuid())
+
+  // Identificação tenant — único por organização
+  id_organizacao_configuracao_canal_tenant String  @unique
+  id_produto_configuracao_canal_tenant     String?
+  id_usuario_configuracao_canal_tenant     String? // último master que atualizou
+
+  // Toggles (REGRA 5)
+  email_habilitado_configuracao_canal_tenant    Boolean @default(true)
+  whatsapp_habilitado_configuracao_canal_tenant Boolean @default(false)
+
+  // Timestamps
+  data_criacao_configuracao_canal_tenant     DateTime @default(now())
+  data_atualizacao_configuracao_canal_tenant DateTime @updatedAt
+
+  @@index([id_organizacao_configuracao_canal_tenant],                                       map: "cct_org_idx")
+  @@index([id_organizacao_configuracao_canal_tenant, id_produto_configuracao_canal_tenant], map: "cct_org_prd_idx")
+  @@index([id_organizacao_configuracao_canal_tenant, id_usuario_configuracao_canal_tenant], map: "cct_org_usr_idx")
+  @@map("configuracao_canal_tenant")
+}

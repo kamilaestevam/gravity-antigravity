@@ -1,2 +1,2 @@
-export * from './selecao-excluir'
+export * from './ModalConfirmarExcluirGlobal'
 export * from './tipos'

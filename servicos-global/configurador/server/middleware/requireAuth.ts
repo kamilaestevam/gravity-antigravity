@@ -10,7 +10,7 @@ import { auditLog } from '../../../tenant/historico-global/src/audit-client.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { userId: string; tenantId: string; role: string; expiry: number }>()
+const userCache = new Map<string, { userId: string; tenantId: string; role: string; name: string; expiry: number }>()
 
 declare global {
   namespace Express {
@@ -20,6 +20,7 @@ declare global {
         tenantId: string
         clerkUserId: string
         role: string
+        name: string
       }
     }
   }
@@ -57,59 +58,37 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
-      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role }
+      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role, name: cached.name }
       next()
       return
     }
 
-    let user = await prisma.user.findFirst({
+    let user = await prisma.usuario.findFirst({
       where: { clerk_user_id: verified.sub },
-      select: { id: true, tenant_id: true, role: true },
+      select: { id_usuario: true, id_organizacao_usuario: true, tipo_usuario: true, nome_usuario: true },
     })
 
-    // Fallback: se não encontrou pelo clerk_user_id, tenta por email.
-    // SEGURANÇA:
-    //   1) Preferencial: filtra por tenant_id do publicMetadata do Clerk.
-    //   2) Fallback seguro: se metadata não tiver tenantId, aceita match por email
-    //      somente se houver EXATAMENTE UM usuário com esse email no DB inteiro
-    //      (sem ambiguidade → impossível cruzar tenant boundaries).
-    //      Isso resolve o caso bootstrap/pós-migração onde a metadata do Clerk
-    //      ficou sem tenantId mas o usuário já existe no DB com role definido.
+    // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
+    // Seguro: aceita apenas se houver exatamente um usuário com esse email no sistema
+    // (sem ambiguidade → impossível cruzar tenant boundaries).
     if (!user) {
       try {
         const clerkUser = await clerkClient.users.getUser(verified.sub)
-        const tenantIdFromMeta = clerkUser.publicMetadata?.tenantId as string | undefined
         const primaryEmail = clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
           ?? clerkUser.emailAddresses[0]?.emailAddress
 
         if (primaryEmail) {
-          if (tenantIdFromMeta) {
-            // Caminho 1: metadata tem tenantId → match estrito
-            const byEmail = await prisma.user.findFirst({
-              where: { email: primaryEmail, tenant_id: tenantIdFromMeta },
-              select: { id: true, tenant_id: true, role: true },
+          const candidates = await prisma.usuario.findMany({
+            where: { email_usuario: primaryEmail },
+            select: { id_usuario: true, id_organizacao_usuario: true, tipo_usuario: true, nome_usuario: true },
+          })
+          if (candidates.length === 1) {
+            const only = candidates[0]
+            await prisma.usuario.update({
+              where: { id_usuario: only.id_usuario },
+              data: { clerk_user_id: verified.sub },
             })
-            if (byEmail) {
-              await prisma.user.update({
-                where: { id: byEmail.id },
-                data: { clerk_user_id: verified.sub },
-              })
-              user = byEmail
-            }
-          } else {
-            // Caminho 2: metadata sem tenantId → aceita só se match único global
-            const candidates = await prisma.user.findMany({
-              where: { email: primaryEmail },
-              select: { id: true, tenant_id: true, role: true },
-            })
-            if (candidates.length === 1) {
-              const only = candidates[0]
-              await prisma.user.update({
-                where: { id: only.id },
-                data: { clerk_user_id: verified.sub },
-              })
-              user = only
-            }
+            user = only
           }
         }
       } catch {
@@ -136,17 +115,19 @@ export async function requireAuth(
     }
 
     userCache.set(cacheKey, {
-      userId: user.id,
-      tenantId: user.tenant_id,
-      role: user.role,
+      userId: user.id_usuario,
+      tenantId: user.id_organizacao_usuario,
+      role: user.tipo_usuario,
+      name: user.nome_usuario ?? '',
       expiry: Date.now() + USER_CACHE_TTL,
     })
 
     req.auth = {
-      userId: user.id,
-      tenantId: user.tenant_id,
+      userId: user.id_usuario,
+      tenantId: user.id_organizacao_usuario,
       clerkUserId: verified.sub,
-      role: user.role,
+      role: user.tipo_usuario,
+      name: user.nome_usuario ?? '',
     }
 
     next()

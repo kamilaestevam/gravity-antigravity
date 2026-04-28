@@ -21,17 +21,17 @@ const SYNC_MINUTE = 3
 let _lastFiredHour = -1  // evita disparar duas vezes na mesma hora
 
 async function executarSync(motivo: string) {
-  console.log(`[TaxaCambio] Iniciando sync automático — ${motivo}`)
+  console.log(`[Cambio] Iniciando sync automático — ${motivo}`)
 
   for (const moeda of MOEDAS_SUPORTADAS) {
     try {
-      const { data } = await axios.get(`${BID_CAMBIO_URL}/api/v1/master-data/ptax`, {
+      const { data } = await axios.get(`${BID_CAMBIO_URL}/api/v1/cotacoes-ptax`, {
         params: { moeda },
         timeout: 12000,
       })
 
       if (!data.compra || !data.venda || !data.data) {
-        console.warn(`[TaxaCambio] ${moeda}: PTAX indisponível no BCB`)
+        console.warn(`[Cambio] ${moeda}: PTAX indisponível no BCB`)
         continue
       }
 
@@ -48,18 +48,18 @@ async function executarSync(motivo: string) {
         data.fonte ?? 'BCB/PTAX',
       )
 
-      console.log(`[TaxaCambio] ${moeda} ${boletim} → compra ${data.compra} / venda ${data.venda}`)
+      console.log(`[Cambio] ${moeda} ${boletim} → compra ${data.compra} / venda ${data.venda}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro desconhecido'
-      console.warn(`[TaxaCambio] ${moeda}: falha no sync — ${msg}`)
+      console.warn(`[Cambio] ${moeda}: falha no sync — ${msg}`)
     }
   }
 
-  console.log(`[TaxaCambio] Sync concluído`)
+  console.log(`[Cambio] Sync concluído`)
 }
 
 export function startTaxaCambioSyncWorker() {
-  console.log('[TaxaCambio] Worker iniciado — sync automático às 10h03 / 11h03 / 12h03 / 13h03 BRT (dias úteis)')
+  console.log('[Cambio] Worker iniciado — sync automático às 10h03 / 11h03 / 12h03 / 13h03 BRT (dias úteis)')
 
   setInterval(() => {
     const now = new Date()

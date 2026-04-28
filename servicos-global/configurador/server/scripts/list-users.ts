@@ -6,14 +6,14 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const users = await prisma.user.findMany({
-    select: { id: true, email: true, role: true, tenant_id: true, clerk_user_id: true },
+  const users = await prisma.usuario.findMany({
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_organizacao_usuario: true, clerk_user_id: true },
   })
   console.log(`Total usuários: ${users.length}`)
   users.forEach(u => {
-    console.log(`  email: ${u.email}`)
-    console.log(`  role:  ${u.role}`)
-    console.log(`  tenant_id: ${u.tenant_id}`)
+    console.log(`  email: ${u.email_usuario}`)
+    console.log(`  role:  ${u.tipo_usuario}`)
+    console.log(`  tenant_id: ${u.id_organizacao_usuario}`)
     console.log(`  clerk_user_id: ${u.clerk_user_id ?? '(vazio)'}`)
     console.log()
   })

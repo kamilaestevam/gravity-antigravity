@@ -19,7 +19,7 @@ import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 type DadosMae = {
@@ -133,22 +133,22 @@ export function Organizacao() {
 
         // Busca tenant e companies em paralelo
         const [tenantRes, companiesRes] = await Promise.all([
-          fetch('/api/v1/organizacao/me', { headers }),
-          fetch('/api/v1/organizacao/companies', { headers }),
+          fetch('/api/v1/organizacoes/me', { headers }),
+          fetch('/api/v1/organizacoes/me/workspaces', { headers }),
         ])
 
         if (tenantRes.ok) {
           const { tenant } = await tenantRes.json()
           const dadosApi: DadosMae = {
-            nome:       tenant.name ?? '',
-            cnpj:       tenant.cnpj ?? '',
-            estado:     tenant.state ?? '',
-            cidade:     tenant.city ?? '',
-            segmento:     tenant.segment ?? '',
-            tipo_empresa: tenant.tipo_empresa ?? '',
-            subdominio: tenant.slug ?? '',
-            criadaEm:   tenant.created_at
-              ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
+            nome:       tenant.nome_organizacao ?? '',
+            cnpj:       tenant.cnpj_organizacao ?? '',
+            estado:     tenant.estado_organizacao ?? '',
+            cidade:     tenant.cidade_organizacao ?? '',
+            segmento:     tenant.segmento_organizacao ?? '',
+            tipo_empresa: tenant.tipo_empresa_organizacao ?? '',
+            subdominio: tenant.subdominio_organizacao ?? '',
+            criadaEm:   tenant.data_criacao_organizacao
+              ? new Date(tenant.data_criacao_organizacao).toLocaleDateString('pt-BR')
               : '',
           }
           setDadosIniciaisLocal(dadosApi)
@@ -221,16 +221,16 @@ export function Organizacao() {
         } catch { /* sem token */ }
       }
 
-      const res = await fetch('/api/v1/organizacao/me', {
+      const res = await fetch('/api/v1/organizacoes/me', {
         method: 'PATCH',
         headers,
         body: JSON.stringify({
           name: dados.nome,
-          cnpj: dados.cnpj,
-          state: dados.estado,
-          city: dados.cidade,
-          segment: dados.segmento,
-          tipo_empresa: dados.tipo_empresa,
+          cnpj_organizacao: dados.cnpj,
+          estado_organizacao: dados.estado,
+          cidade_organizacao: dados.cidade,
+          segmento_organizacao: dados.segmento,
+          tipo_empresa_organizacao: dados.tipo_empresa,
         }),
       })
 
@@ -336,7 +336,7 @@ export function Organizacao() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_nome')}
             obrigatorio
             tooltipTitulo={t('workspace.organization.campo_nome')}
@@ -350,8 +350,8 @@ export function Organizacao() {
                 onChange={e => set('nome', e.target.value)}
               />
             </div>
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_cnpj')}
             tooltipTitulo={t('workspace.organization.campo_cnpj')}
             tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
@@ -364,10 +364,10 @@ export function Organizacao() {
                 onChange={e => set('cnpj', e.target.value)}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_estado')}
             tooltipTitulo={t('workspace.organization.campo_estado')}
             tooltipDescricao="Estado onde a empresa tem sua sede principal"
@@ -383,8 +383,8 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_cidade')}
             tooltipTitulo={t('workspace.organization.campo_cidade')}
             tooltipDescricao="A lista de cidades aparece após você escolher o estado"
@@ -399,8 +399,8 @@ export function Organizacao() {
               desabilitado={!dados.estado}
               carregando={carregandoCidades}
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_segmento')}
             tooltipTitulo={t('workspace.organization.campo_segmento')}
             tooltipDescricao="Usado para categorizar a empresa nos relatórios da plataforma"
@@ -413,8 +413,8 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_tipo_empresa')}
             tooltipTitulo={t('workspace.organization.campo_tipo_empresa')}
             tooltipDescricao="Categoria que define a atuação da empresa no comércio exterior"
@@ -426,7 +426,7 @@ export function Organizacao() {
               aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
               placeholder="Selecione..."
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       </div>
 

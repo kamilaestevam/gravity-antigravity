@@ -181,7 +181,7 @@ O registry mantém um campo `deletados: ["TST-E2E-CONFIG-000001"]` pra rastreabi
 
 ## Regra 9 — Validador automático
 
-Existe um script em `scripts/validate-test-ids.ts` que:
+Existe um script em `scripts/ativamente/validate-test-ids.ts` que:
 1. Lê todos os arquivos `testes/**/TST-*` do projeto
 2. Valida cada ID contra o regex
 3. Detecta duplicatas

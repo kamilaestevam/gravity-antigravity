@@ -2,7 +2,12 @@ import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { useLoadSystemRole } from './hooks/useLoadSystemRole'
-import { AuthPage } from './pages/AuthPage'
+import { AutenticacaoPage } from './pages/AutenticacaoPage'
+
+// Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
+const E2ENotificacoesHarness = import.meta.env.DEV
+  ? React.lazy(() => import('./pages/E2ENotificacoesHarness').then(m => ({ default: m.E2ENotificacoesHarness })))
+  : null
 
 // Lazy-load — Gabi é pesado e não é crítico para o primeiro render
 const GabiOnboardingWidget = React.lazy(() =>
@@ -17,7 +22,7 @@ export type Page =
 
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
-import { Waitlist } from './pages/Waitlist'
+import { ListaEspera } from './pages/ListaEspera'
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
@@ -28,7 +33,7 @@ const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'S
 
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
-const AdminPanel = lazy(() => import('./pages/AdminPanel'), 'AdminPanel')
+const OrganizacoesAdmin = lazy(() => import('./pages/OrganizacoesAdmin'), 'OrganizacoesAdmin')
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'), 'AdminLayout')
 const VisaoGeralAdmin = lazy(() => import('./pages/admin/VisaoGeralAdmin'), 'VisaoGeralAdmin')
 const ProdutosGravityAdmin = lazy(() => import('./pages/admin/ProdutosGravityAdmin'), 'ProdutosGravityAdmin')
@@ -37,19 +42,21 @@ const FinanceiroAdmin = lazy(() => import('./pages/admin/FinanceiroAdmin'), 'Fin
 const TestesGeraisAdmin = lazy(() => import('./pages/admin/TestesGeraisAdmin'), 'TestesGeraisAdmin')
 const ApiCockpitAdmin = lazy(() => import('./pages/admin/ApiCockpitAdmin'), 'ApiCockpitAdmin')
 const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdmin'), 'UsuariosGlobaisAdmin')
-const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
+const OrganizacaoDetalheAdmin = lazy(() => import('./pages/OrganizacaoDetalheAdmin'), 'OrganizacaoDetalheAdmin')
 const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
 const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
+const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
 const Usuarios = lazy(() => import('./pages/workspace/Usuarios'), 'Usuarios')
+const EmpresasParceiras = lazy(() => import('./pages/workspace/EmpresasParceiras'), 'EmpresasParceiras')
 const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinaturas')
 const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeiro')
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
-const TaxaCambioPage = lazy(() => import('./pages/workspace/TaxaCambio'), 'TaxaCambio')
+const TaxasCambioPage = lazy(() => import('./pages/workspace/TaxasCambio'), 'TaxasCambio')
 const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao'), 'HistoricoOrganizacao')
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
@@ -60,11 +67,11 @@ const HistoricoTenant = React.lazy(() =>
 )
 
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
-const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
-const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/src/App'))
-const BidFreteApp = React.lazy(() => import('../../../produto/bid-frete/client/src/App'))
-const BidCambioApp = React.lazy(() => import('../../../produto/bid-cambio/client/src/App'))
-const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
+const SimulaCustoApp = React.lazy(() => import('../../organizacao/simula-custo/client/src/App'))
+const ProcessoApp = React.lazy(() => import('../../organizacao/processo/client/src/App'))
+const BidFreteApp = React.lazy(() => import('../../organizacao/bid-frete/client/src/App'))
+const BidCambioApp = React.lazy(() => import('../../organizacao/bid-cambio/client/src/App'))
+const PedidoApp = React.lazy(() => import('../../organizacao/pedido/client/src/App'))
 
 /**
  * Guard contra routing loop do catch-all do Pedido.
@@ -135,13 +142,13 @@ class ProductErrorBoundary extends React.Component<
   }
 }
 
-function TenantDetailWrapper() {
-  const { id } = useParams()
+function OrganizacaoDetalheWrapper() {
+  const { id_organizacao } = useParams()
   const navigate = useNavigate()
-  return <TenantDetail tenantId={id!} onBack={() => navigate('/admin/tenants')} />
+  return <OrganizacaoDetalheAdmin tenantId={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
 }
 
-/** Rota raiz: se logado → /hub, se não → AuthPage */
+/** Rota raiz: se logado → /hub, se não → AutenticacaoPage */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
   const [clerkTimeout, setClerkTimeout] = React.useState(false)
@@ -164,7 +171,7 @@ function RootRedirect() {
   return isSignedIn ? (
     <Navigate to="/hub" replace />
   ) : (
-    <AuthPage />
+    <AutenticacaoPage />
   )
 }
 
@@ -241,8 +248,8 @@ export default function App() {
   const routerNavigate = useNavigate()
 
   const adminNavigate = (next: Page) => {
-    if (next.name === 'admin') routerNavigate('/admin/tenants')
-    if (next.name === 'tenant-detail') routerNavigate(`/admin/tenant/${next.tenantId}`)
+    if (next.name === 'admin') routerNavigate('/admin/organizacoes')
+    if (next.name === 'tenant-detail') routerNavigate(`/admin/organizacoes/${next.tenantId}`)
   }
 
   return (
@@ -250,14 +257,14 @@ export default function App() {
       <Routes>
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
-        <Route path="/sign-in/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
-        <Route path="/sign-up/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
-        <Route path="/forgot-password/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
+        <Route path="/login/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
+        <Route path="/cadastro/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
+        <Route path="/recuperar-senha/*" element={<PublicRoute><AutenticacaoPage /></PublicRoute>} />
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />
         <Route path="/contato" element={<Contato />} />
-        <Route path="/waitlist" element={<Waitlist />} />
+        <Route path="/waitlist" element={<ListaEspera />} />
 
         {/* Redirect legado — Clerk antigo redirecionava para /selecionar-workspace */}
         <Route path="/selecionar-workspace" element={<Navigate to="/hub" replace />} />
@@ -294,15 +301,16 @@ export default function App() {
           <Route path="visao-geral" element={<React.Suspense fallback={<ProductLoading />}><VisaoGeralAdmin /></React.Suspense>} />
           <Route path="usuarios-globais" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />
           <Route path="produtos-gravity" element={<React.Suspense fallback={<ProductLoading />}><ProdutosGravityAdmin /></React.Suspense>} />
-          <Route path="financeiro-admin" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroAdmin /></React.Suspense>} />
+          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroAdmin /></React.Suspense>} />
           <Route path="historico-global" element={<React.Suspense fallback={<ProductLoading />}><HistoricoGlobalAdmin /></React.Suspense>} />
           <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployAdmin /></React.Suspense>} />
           <Route path="testes-gerais" element={<React.Suspense fallback={<ProductLoading />}><TestesGeraisAdmin /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdmin /></React.Suspense>} />
-          <Route path="seguranca-admin" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
+          <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
-          <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
-          <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
+          <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
+          <Route path="organizacoes" element={<React.Suspense fallback={<ProductLoading />}><OrganizacoesAdmin navigate={adminNavigate} /></React.Suspense>} />
+          <Route path="organizacoes/:id_organizacao" element={<React.Suspense fallback={<ProductLoading />}><OrganizacaoDetalheWrapper /></React.Suspense>} />
         </Route>
 
         {/* Workspace — área do cliente */}
@@ -311,13 +319,26 @@ export default function App() {
           <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
           <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
+          <Route path="empresas-parceiras" element={<React.Suspense fallback={<ProductLoading />}><EmpresasParceiras /></React.Suspense>} />
           <Route path="assinaturas" element={<React.Suspense fallback={<ProductLoading />}><Assinaturas /></React.Suspense>} />
           <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><Financeiro /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
-          <Route path="taxa-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxaCambioPage /></React.Suspense>} />
+          <Route path="taxas-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxasCambioPage /></React.Suspense>} />
           <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />
         </Route>
+
+        {/* Harness E2E — dev-only, sem autenticação */}
+        {E2ENotificacoesHarness && (
+          <Route
+            path="/e2e-notificacoes"
+            element={
+              <React.Suspense fallback={null}>
+                <E2ENotificacoesHarness />
+              </React.Suspense>
+            }
+          />
+        )}
 
         {/* 404 — rota nao encontrada */}
         <Route path="*" element={

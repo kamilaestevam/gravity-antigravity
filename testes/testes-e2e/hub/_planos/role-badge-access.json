@@ -1,0 +1,277 @@
+{
+  "id": "TST-E2E-HUB-000001",
+  "versao": "1.1",
+  "geradoEm": "2026-04-20T12:00:00Z",
+  "atualizadoEm": "2026-04-20T14:00:00Z",
+  "geradoPor": "agente-plano-teste",
+  "dataExecucaoEstimada": "pós-desbloqueio dos itens em bloqueadores",
+  "responsavelExecucao": "agente-plano-teste-e2e (gerador de specs)",
+  "escopo": "HUB",
+  "sublocal": "Role Badge — Acesso",
+  "tela": "Selecionar Workspace (Hub)",
+  "rota": "/hub",
+  "componenteFilePath": "servicos-global/configurador/src/pages/SelecionarWorkspace.tsx",
+  "ambientes": ["Local", "Staging"],
+  "criticidade": "alta",
+  "contexto": {
+    "bug": "Badge 'USUÁRIO' aparece tanto para usuário STANDARD (intencional) quanto quando há problema de acesso (bug — dbRole=null, roleReady=true)",
+    "causa_raiz": "SelecionarWorkspace.tsx:282 — `(roleReady ? 'Usuário' : '…')` — o fallback de 'Usuário' é indistinguível do label intencional de STANDARD",
+    "hook": "useLoadSystemRole — retorna { role, isGravityAdmin, isReady }. Quando há problema de acesso, role=null e isReady=true",
+    "local_role_labels": "SelecionarWorkspace.tsx tem ROLE_LABELS local: STANDARD → 'Usuário', SUPPLIER → 'Fornecedor', etc.",
+    "diferenca_shell": "useMeSync.ts usa STANDARD → 'Standard'. SelecionarWorkspace usa STANDARD → 'Usuário'. São dois sistemas distintos.",
+    "fix_esperado": "O fallback quando dbRole=null e roleReady=true deve ser diferente de 'Usuário' para distinguir 'access error' de 'STANDARD user'"
+  },
+  "preRequisitos": {
+    "ambiente": "Local (localhost:8000/hub)",
+    "usuarios_necessarios": [
+      { "role": "SUPER_ADMIN", "descricao": "Admin Gravity — para validar badge 'Super Admin'" },
+      { "role": "MASTER", "descricao": "Master de workspace — para validar badge 'Master'" },
+      { "role": "STANDARD", "descricao": "Usuário padrão — para validar badge 'Usuário' intencional" },
+      { "role": "null", "descricao": "Usuário autenticado mas sem role no DB (access problem) — para validar que badge é DIFERENTE de 'Usuário'" }
+    ],
+    "nota": "Para o caso de role=null, usar page.route('**/api/v1/me', ...) para interceptar e retornar 403"
+  },
+  "bloqueadores": [
+    {
+      "id": "BLQ-001",
+      "descricao": "data-testid='user-role-badge' ausente em UsuarioGlobal.tsx",
+      "arquivo": "nucleo-global/Layout/usuario-global/src/UsuarioGlobal.tsx",
+      "onde": "linha do <span> que renderiza displayRole",
+      "status": "pendente",
+      "responsavel": "agente nucleo-global ou dev frontend",
+      "impacto": "TODOS os passos 1–12 dependem deste testid — spec não pode ser criado sem ele",
+      "obrigatorio": true
+    },
+    {
+      "id": "BLQ-002",
+      "descricao": "Atributo data-access-status='ok'|'error'|'loading' ausente no badge",
+      "arquivo": "servicos-global/configurador/src/pages/SelecionarWorkspace.tsx OU nucleo-global/Layout/usuario-global/src/UsuarioGlobal.tsx",
+      "onde": "prop ou atributo dinâmico no <span> do badge",
+      "status": "pendente",
+      "responsavel": "agente configurador",
+      "impacto": "Passo 12 (guarda de regressão) depende deste atributo para distinguir os dois estados",
+      "obrigatorio": true
+    }
+  ],
+  "mapeamentoTestids": {
+    "badge_role": "user-role-badge (a adicionar em UsuarioGlobal — BLQ-001)",
+    "avatar_button": "user-avatar-trigger (abre dropdown do usuário)",
+    "dropdown_profile": "user-profile-dropdown",
+    "nota": "SelecionarWorkspace não adiciona testids próprios ao badge — ele herda do UsuarioGlobal. Adicionar data-testid antes de gerar o spec."
+  },
+  "requerNovosTestids": [
+    {
+      "elemento": "badge de role no header",
+      "sugestao": "data-testid=\"user-role-badge\"",
+      "onde": "nucleo-global/Layout/usuario-global/src/UsuarioGlobal.tsx — linha do <span> que renderiza displayRole",
+      "obrigatorio": true,
+      "bloqueador": "BLQ-001"
+    },
+    {
+      "elemento": "atributo de status de acesso no badge",
+      "sugestao": "data-access-status=\"ok\" | \"error\" | \"loading\"",
+      "onde": "SelecionarWorkspace.tsx — prop passada para UsuarioGlobal com base em dbRole + roleReady",
+      "obrigatorio": true,
+      "bloqueador": "BLQ-002"
+    },
+    {
+      "elemento": "estado de erro de acesso no hub (alternativa ao atributo)",
+      "sugestao": "data-testid=\"hub-access-error\"",
+      "onde": "SelecionarWorkspace.tsx — quando roleReady=true e dbRole=null, renderizar elemento de erro distinto",
+      "obrigatorio": false
+    }
+  ],
+  "cobertura": {
+    "CRUD": {
+      "status": "nao_aplicavel",
+      "motivo": "Tela de seleção de workspace é read-only — não há operações de criação, edição ou deleção nesta view"
+    },
+    "FiltrosBusca": {
+      "status": "parcial",
+      "motivo": "Busca de workspace existe na tela mas não é foco deste plano — coberta em plano separado de Workspaces"
+    },
+    "Selects": {
+      "status": "nao_aplicavel",
+      "motivo": "Não há dropdowns ou selects no fluxo de seleção de workspace relevantes para o badge de role"
+    },
+    "ImportacaoExportacao": {
+      "status": "nao_aplicavel",
+      "motivo": "Tela não possui funcionalidade de importação ou exportação de dados"
+    },
+    "NavegacaoLayout": {
+      "status": "coberta",
+      "motivo": "Badge no header é elemento de layout — passo 8 verifica consistência entre header e dropdown"
+    },
+    "ModaisFormularios": {
+      "status": "nao_aplicavel",
+      "motivo": "Não há modais ou formulários no fluxo de seleção de workspace relevantes para o badge de role"
+    },
+    "EstadosInterface": {
+      "status": "coberta",
+      "motivo": "Passos 1–10 cobrem todos os estados: loading (5), roles válidas (1–3, 6), access error (4, 9, 10)"
+    },
+    "OperacoesEmMassa": {
+      "status": "nao_aplicavel",
+      "motivo": "Tela não possui operações em massa — cada workspace é selecionado individualmente"
+    },
+    "Visualizacoes": {
+      "status": "nao_aplicavel",
+      "motivo": "Não há alternância de views (lista/kanban) no hub — layout único de cards"
+    },
+    "ValidacaoVisual": {
+      "status": "parcial",
+      "motivo": "Passo 11 verifica diferença visual entre badge de erro e badge de STANDARD. Percy não está configurado para o hub neste plano — pode ser adicionado em versão futura"
+    },
+    "TestesEspecificosProduto": {
+      "status": "coberta",
+      "motivo": "Passo 12 é o guarda de regressão permanente do bug reportado — distinguir access-error de STANDARD é o fluxo crítico específico desta tela"
+    }
+  },
+  "passos": [
+    {
+      "numero": 1,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Acessar /hub com usuário SUPER_ADMIN autenticado",
+      "resultadoEsperado": "Página carrega, badge de role no header mostra 'Super Admin'",
+      "assercao": { "tipo": "text", "testid": "user-role-badge", "valor": "Super Admin" },
+      "screenshot": "01_hub_super_admin_badge"
+    },
+    {
+      "numero": 2,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Acessar /hub com usuário MASTER autenticado",
+      "resultadoEsperado": "Badge mostra 'Master'",
+      "assercao": { "tipo": "text", "testid": "user-role-badge", "valor": "Master" },
+      "screenshot": "02_hub_master_badge"
+    },
+    {
+      "numero": 3,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Acessar /hub com usuário STANDARD autenticado (acesso OK, role carregada)",
+      "resultadoEsperado": "Badge mostra 'Usuário' — este é o label INTENCIONAL para STANDARD com acesso OK",
+      "assercao": { "tipo": "text", "testid": "user-role-badge", "valor": "Usuário" },
+      "screenshot": "03_hub_standard_badge_ok"
+    },
+    {
+      "numero": 4,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "prioridade": "CRITICA",
+      "acao": "Acessar /hub com usuário autenticado mas sem role no DB (useLoadSystemRole retorna role=null, isReady=true) — simular via page.route interceptando /api/v1/me para retornar 403",
+      "resultadoEsperado": "Badge NÃO mostra 'Usuário' — deve mostrar estado de erro ou label diferente (ex: 'Sem Acesso', '—', ícone de aviso)",
+      "assercao": {
+        "tipo": "not_text",
+        "testid": "user-role-badge",
+        "valor_proibido": "Usuário",
+        "nota": "O badge de erro deve ser VISUALMENTE DIFERENTE do badge de STANDARD (passo 3)"
+      },
+      "screenshot": "04_hub_access_error_badge",
+      "nota_bug": "COM A IMPLEMENTAÇÃO ATUAL ESTE TESTE FALHA — badge mostra 'Usuário' tanto para STANDARD (passo 3) quanto para access error (este passo)"
+    },
+    {
+      "numero": 5,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Acessar /hub e interceptar /api/v1/me com delay para simular roleReady=false (loading em andamento)",
+      "resultadoEsperado": "Badge mostra '…' enquanto role não foi carregada",
+      "assercao": { "tipo": "text", "testid": "user-role-badge", "valor": "…" },
+      "screenshot": "05_hub_loading_badge"
+    },
+    {
+      "numero": 6,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Acessar /hub com usuário SUPPLIER autenticado",
+      "resultadoEsperado": "Badge mostra 'Fornecedor'",
+      "assercao": { "tipo": "text", "testid": "user-role-badge", "valor": "Fornecedor" },
+      "screenshot": "06_hub_supplier_badge"
+    },
+    {
+      "numero": 7,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "prioridade": "CRITICA",
+      "acao": "Para usuários com ACESSO OK em cada role válida, verificar que badge exibe valor da allowlist de labels",
+      "resultadoEsperado": "Badge text ∈ {'Super Admin', 'Admin', 'Master', 'Usuário', 'Fornecedor', 'Admin Gravity', '…'} SOMENTE para usuários com acesso OK",
+      "assercao": {
+        "tipo": "in_set",
+        "testid": "user-role-badge",
+        "valores_validos": ["Super Admin", "Admin", "Master", "Usuário", "Fornecedor", "Admin Gravity", "…"],
+        "nota": "ATENÇÃO: este passo cobre apenas usuários com acesso OK. Ele NÃO valida que 'Usuário' é proibido em access-error — isso é responsabilidade dos passos 4, 9 e 10. Um badge de access-error pode exibir um valor fora desta allowlist (ex: '⚠ Sem Acesso') — isso é esperado e correto pós-fix."
+      },
+      "screenshot": "07_hub_badge_allowlist_acesso_ok"
+    },
+    {
+      "numero": 8,
+      "categoria": "NavegacaoLayout",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Clicar no avatar do usuário para abrir dropdown — verificar que role exibida no dropdown bate com badge no header",
+      "resultadoEsperado": "Dropdown abre, role exibida no dropdown é a mesma do header",
+      "assercao": { "tipo": "visible", "testid": "user-profile-dropdown" },
+      "screenshot": "08_hub_dropdown_role_consistency"
+    },
+    {
+      "numero": 9,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "prioridade": "CRITICA",
+      "acao": "Interceptar /api/v1/me retornando 403 via page.route — carregar hub — verificar badge",
+      "resultadoEsperado": "Badge NÃO mostra 'Usuário' — mostra estado de erro distinguível de STANDARD",
+      "assercao": {
+        "tipo": "not_text",
+        "testid": "user-role-badge",
+        "valor_proibido": "Usuário",
+        "implementacao_playwright": "await page.route('**/api/v1/me', route => route.fulfill({ status: 403, body: JSON.stringify({ error: { code: 'FORBIDDEN' } }) }))\nawait page.goto('/hub')\nawait expect(page.getByTestId('user-role-badge')).not.toHaveText('Usuário')"
+      },
+      "screenshot": "09_hub_api_403_badge",
+      "nota_bug": "COM A IMPLEMENTAÇÃO ATUAL ESTE TESTE FALHA"
+    },
+    {
+      "numero": 10,
+      "categoria": "EstadosInterface",
+      "tiposAplicaveis": ["E2E"],
+      "prioridade": "CRITICA",
+      "acao": "Interceptar /api/v1/me retornando 500 via page.route — carregar hub — verificar badge",
+      "resultadoEsperado": "Badge NÃO mostra 'Usuário' — mostra estado de erro ou '—'",
+      "assercao": {
+        "tipo": "not_text",
+        "testid": "user-role-badge",
+        "valor_proibido": "Usuário",
+        "implementacao_playwright": "await page.route('**/api/v1/me', route => route.fulfill({ status: 500 }))\nawait page.goto('/hub')\nawait expect(page.getByTestId('user-role-badge')).not.toHaveText('Usuário')"
+      },
+      "screenshot": "10_hub_api_500_badge",
+      "nota_bug": "COM A IMPLEMENTAÇÃO ATUAL ESTE TESTE FALHA"
+    },
+    {
+      "numero": 11,
+      "categoria": "ValidacaoVisual",
+      "tiposAplicaveis": ["E2E"],
+      "acao": "Comparar screenshot do badge STANDARD (passo 3) com screenshot do badge de access-error (passo 4) — verificar diferença visual",
+      "resultadoEsperado": "Badge de erro tem cor, ícone ou texto diferente do badge STANDARD (ex: amarelo/vermelho vs cor normal)",
+      "assercao": { "tipo": "visual_diff", "testid": "user-role-badge", "nota": "Comparar snapshot-03 vs snapshot-04" },
+      "screenshot": "11_hub_error_badge_vs_standard_badge"
+    },
+    {
+      "numero": 12,
+      "categoria": "TestesEspecificosProduto",
+      "tiposAplicaveis": ["E2E"],
+      "prioridade": "CRITICA",
+      "acao": "Teste de regressão permanente: usuário STANDARD com acesso OK (data-access-status='ok') e usuário com access error (data-access-status='error') devem ter badges distinguíveis",
+      "resultadoEsperado": "Os dois elementos de badge têm atributos data-access-status diferentes — nunca ambos com o mesmo texto 'Usuário'",
+      "assercao": {
+        "tipo": "nao_igual",
+        "testid_a": "user-role-badge[data-access-status='ok']",
+        "testid_b": "user-role-badge[data-access-status='error']",
+        "nota": "Este é o guarda de regressão principal — falha se o bug for reintroduzido"
+      },
+      "screenshot": "12_hub_badge_regression_guard",
+      "nota_implementacao": "Requer BLQ-002: atributo data-access-status='ok'|'error'|'loading' no badge. O componente deve receber prop de status baseado em { dbRole, roleReady } de SelecionarWorkspace.tsx"
+    }
+  ],
+  "resumoExecutivo": "Plano E2E v1.1 para o bug do badge 'USUÁRIO' no Hub. A causa raiz está em SelecionarWorkspace.tsx:282 — o fallback `(roleReady ? 'Usuário' : '…')` usa o mesmo label que STANDARD, tornando impossível distinguir 'acesso OK para STANDARD' de 'acesso quebrado para qualquer role'. Os passos 4, 9 e 10 devem FALHAR com a implementação atual. O passo 12 é o guarda de regressão permanente. BLOQUEADORES para implementação do spec: BLQ-001 (data-testid='user-role-badge' em UsuarioGlobal.tsx) e BLQ-002 (atributo data-access-status no badge) devem ser resolvidos antes de gerar o .spec.ts. Cobertura: 12 passos, categorias não-aplicáveis justificadas individualmente.",
+  "smeRevisadoPor": null,
+  "smeRevisadoEm": null
+}

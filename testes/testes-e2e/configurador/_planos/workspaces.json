@@ -570,7 +570,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/companies",
+        "rota": "/api/v1/organizacoes/me/workspaces",
         "status": 200
       },
       "resultadoEsperado": "API retorna 200",
@@ -810,7 +810,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/companies",
+        "rota": "/api/v1/organizacoes/me/workspaces",
         "status": 200
       },
       "resultadoEsperado": "API atualiza corretamente",
@@ -912,7 +912,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/companies",
+        "rota": "/api/v1/organizacoes/me/workspaces",
         "status": 201
       },
       "resultadoEsperado": "API retorna 201",
@@ -1009,7 +1009,7 @@
       },
       "assercao": {
         "tipo": "apiResponse",
-        "rota": "/api/v1/tenants/companies",
+        "rota": "/api/v1/organizacoes/me/workspaces",
         "status": 200
       },
       "resultadoEsperado": "API retorna 200",

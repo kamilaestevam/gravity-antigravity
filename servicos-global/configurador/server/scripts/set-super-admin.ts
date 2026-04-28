@@ -13,7 +13,6 @@
 
 import 'dotenv/config'
 import { PrismaClient } from '../../../../configurador/generated/index.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 
 const prisma = new PrismaClient({
   datasources: { db: { url: process.env.CONFIGURADOR_DATABASE_URL } },
@@ -33,9 +32,9 @@ async function main() {
     process.exit(1)
   }
 
-  const user = await prisma.user.findFirst({
-    where: { email },
-    select: { id: true, email: true, role: true, tenant_id: true, clerk_user_id: true },
+  const user = await prisma.usuario.findFirst({
+    where: { email_usuario: email },
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_organizacao_usuario: true, clerk_user_id: true },
   })
 
   if (!user) {
@@ -44,32 +43,25 @@ async function main() {
   }
 
   console.log(`\nUsuário encontrado:`)
-  console.log(`  ID:       ${user.id}`)
-  console.log(`  Email:    ${user.email}`)
-  console.log(`  Role atual: ${user.role}`)
-  console.log(`  TenantID: ${user.tenant_id}`)
+  console.log(`  ID:       ${user.id_usuario}`)
+  console.log(`  Email:    ${user.email_usuario}`)
+  console.log(`  Role atual: ${user.tipo_usuario}`)
+  console.log(`  TenantID: ${user.id_organizacao_usuario}`)
 
-  if (user.role === role) {
+  if (user.tipo_usuario === role) {
     console.log(`\nNada a fazer — usuário já possui role ${role}.`)
     return
   }
 
-  const updated = await prisma.user.update({
-    where: { id: user.id },
-    data: { role },
-    select: { id: true, email: true, role: true },
+  const updated = await prisma.usuario.update({
+    where: { id_usuario: user.id_usuario },
+    data: { tipo_usuario: role },
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
   })
 
-  console.log(`\n✓ Role atualizado: ${user.role} → ${updated.role}`)
-  console.log(`  Usuário: ${updated.email}`)
-
-  // Sincroniza publicMetadata no Clerk para que o frontend reflita o novo role imediatamente.
-  if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
-    await syncRoleToClerk(user.clerk_user_id, user.tenant_id, role)
-    console.log(`✓ Clerk publicMetadata sincronizado`)
-  } else {
-    console.log(`⚠ clerk_user_id ausente ou pendente — Clerk não sincronizado`)
-  }
+  console.log(`\n✓ Role atualizado: ${user.tipo_usuario} → ${updated.tipo_usuario}`)
+  console.log(`  Usuário: ${updated.email_usuario}`)
+  console.log(`  Frontend lerá o novo role na próxima chamada a /api/v1/me`)
 }
 
 main()

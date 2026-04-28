@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 
-export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLIER' | null
+export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR' | null
 
 const roleCache = new Map<string, SystemRole>()
 
@@ -54,7 +54,7 @@ export function useLoadSystemRole() {
         })
           .then(r => (r.ok ? r.json() : null))
           .then(data => {
-            const dbRole = (data?.user?.role ?? null) as SystemRole
+            const dbRole = (data?.usuario?.tipo_usuario ?? null) as SystemRole
             roleCache.set(userId, dbRole)
             setRole(dbRole)
             setIsReady(true)

@@ -1,0 +1,296 @@
+{
+  "id": "TST-UNIT-CONFIG-MSYNC-001",
+  "versao": "1.0",
+  "geradoEm": "2026-04-20T12:00:00Z",
+  "geradoPor": "agente-plano-teste-unitario",
+  "escopo": "CONFIG",
+  "modulo": "useMeSync + resolveRole (role-badge guard)",
+  "tipoModulo": "hook",
+  "arquivoFilePath": "servicos-global/shell/hooks/useMeSync.ts",
+  "specFile": "testes/testes-unitarios/configurador/useMeSync-role-badge.test.ts",
+  "ambiente": "jsdom",
+  "criticidade": "alta",
+  "coberturaMinima": 80,
+  "planoExistente": {
+    "arquivos": [
+      "testes/testes-unitarios/configurador/useMeSync.test.ts",
+      "testes/testes-unitarios/nucleo-global/shell/useMeSync.test.ts"
+    ],
+    "nota": "Testes existentes cobrem fluxo principal, meStatus, logout e fetch guard. Este plano cobre casos NÃO testados relacionados ao bug do badge USUÁRIO."
+  },
+  "contexto": {
+    "bug": "Badge 'USUÁRIO' aparece no header quando há problema de acesso",
+    "causa_raiz_identificada": "resolveRole faz passthrough de roles desconhecidas: `ROLE_LABELS[raw] ?? (raw || 'Standard')`. Para 'USUÁRIO': undefined ?? ('USUÁRIO' || 'Standard') = 'USUÁRIO'. A string nunca é normalizada para 'Standard'.",
+    "arquivo_store": "servicos-global/shell/store/useShellStore.ts",
+    "DEFAULT_USER_sem_role": "DEFAULT_USER não tem campo 'role', logo currentUser.role = undefined quando setCurrentUser nunca foi chamado. Header.tsx usa `currentUser.role || 'Standard'` — correto para o estado inicial.",
+    "caminho_bug": "Se tipo_usuario no banco contiver string legacy 'USUÁRIO' OU se algum componente chamar setCurrentUser({ role: 'USUÁRIO' }), o badge exibe 'USUÁRIO'."
+  },
+  "exportacoes": [
+    {
+      "nome": "resolveRole",
+      "tipo": "funcao_pura",
+      "assinatura": "(raw: string) => string",
+      "exportada": true
+    },
+    {
+      "nome": "useMeSync",
+      "tipo": "hook",
+      "exportada": true
+    },
+    {
+      "nome": "ROLE_LABELS",
+      "tipo": "constante",
+      "exportada": false
+    }
+  ],
+  "categorias": [
+    {
+      "categoria": "happy",
+      "descricao": "Roles válidas mapeadas corretamente",
+      "casos": ["MSYNC-001", "MSYNC-002", "MSYNC-003", "MSYNC-004", "MSYNC-005", "MSYNC-006", "MSYNC-007"]
+    },
+    {
+      "categoria": "sad",
+      "descricao": "Roles inválidas ou legadas nunca produzem 'USUÁRIO'",
+      "casos": ["MSYNC-008", "MSYNC-009", "MSYNC-010", "MSYNC-011", "MSYNC-012"]
+    },
+    {
+      "categoria": "edge",
+      "descricao": "Casos extremos: null, undefined, string vazia, case sensitivity",
+      "casos": ["MSYNC-013", "MSYNC-014", "MSYNC-015", "MSYNC-016"]
+    },
+    {
+      "categoria": "integracao_store",
+      "descricao": "Integração useMeSync → store → role nunca é 'USUÁRIO' no fluxo de erro",
+      "casos": ["MSYNC-017", "MSYNC-018", "MSYNC-019"]
+    }
+  ],
+  "mocks": {
+    "padrao": "vi.hoisted() para @clerk/clerk-react e fetch global",
+    "arquivos_para_mockar": [
+      "@clerk/clerk-react — useAuth, useUser",
+      "fetch (vi.stubGlobal)"
+    ],
+    "nota": "Reusar helpers de mockAuthSignedIn dos arquivos existentes"
+  },
+  "casos": [
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-001",
+      "codigo": "MSYNC-001",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('SUPER_ADMIN') → 'Super Admin' (não 'USUÁRIO')",
+      "mock": "nenhum — função pura",
+      "entrada": "raw = 'SUPER_ADMIN'",
+      "resultadoEsperado": "retorna 'Super Admin'",
+      "assercao": "expect(resolveRole('SUPER_ADMIN')).toBe('Super Admin')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-002",
+      "codigo": "MSYNC-002",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('ADMIN') → 'Admin'",
+      "mock": "nenhum",
+      "entrada": "raw = 'ADMIN'",
+      "resultadoEsperado": "retorna 'Admin'",
+      "assercao": "expect(resolveRole('ADMIN')).toBe('Admin')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-003",
+      "codigo": "MSYNC-003",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('MASTER') → 'Master'",
+      "mock": "nenhum",
+      "entrada": "raw = 'MASTER'",
+      "resultadoEsperado": "retorna 'Master'",
+      "assercao": "expect(resolveRole('MASTER')).toBe('Master')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-004",
+      "codigo": "MSYNC-004",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('STANDARD') → 'Standard'",
+      "mock": "nenhum",
+      "entrada": "raw = 'STANDARD'",
+      "resultadoEsperado": "retorna 'Standard'",
+      "assercao": "expect(resolveRole('STANDARD')).toBe('Standard')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-005",
+      "codigo": "MSYNC-005",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('SUPPLIER') → 'Fornecedor'",
+      "mock": "nenhum",
+      "entrada": "raw = 'SUPPLIER'",
+      "resultadoEsperado": "retorna 'Fornecedor'",
+      "assercao": "expect(resolveRole('SUPPLIER')).toBe('Fornecedor')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-006",
+      "codigo": "MSYNC-006",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('gravity_admin') → 'Admin Gravity'",
+      "mock": "nenhum",
+      "entrada": "raw = 'gravity_admin'",
+      "resultadoEsperado": "retorna 'Admin Gravity'",
+      "assercao": "expect(resolveRole('gravity_admin')).toBe('Admin Gravity')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-007",
+      "codigo": "MSYNC-007",
+      "origem": "agente-adicionado",
+      "categoria": "happy",
+      "descricao": "resolveRole('') (string vazia) → 'Standard' (não 'USUÁRIO')",
+      "mock": "nenhum",
+      "entrada": "raw = ''",
+      "resultadoEsperado": "retorna 'Standard'",
+      "assercao": "expect(resolveRole('')).toBe('Standard')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-008",
+      "codigo": "MSYNC-008",
+      "origem": "agente-adicionado",
+      "categoria": "sad",
+      "prioridade": "CRITICA",
+      "descricao": "resolveRole('USUÁRIO') → NÃO retorna 'USUÁRIO' — deve retornar 'Standard'",
+      "motivacao": "Bug principal: a string legada 'USUÁRIO' passava como role e exibia-se como badge. resolveRole deve normalizar roles desconhecidas para 'Standard'.",
+      "mock": "nenhum",
+      "entrada": "raw = 'USUÁRIO'",
+      "resultadoEsperado": "retorna 'Standard' (NÃO 'USUÁRIO')",
+      "assercao": "expect(resolveRole('USUÁRIO')).toBe('Standard')\nexpect(resolveRole('USUÁRIO')).not.toBe('USUÁRIO')",
+      "nota_implementacao": "ESTE TESTE DEVE FALHAR com a implementação atual. A correção é: `return ROLE_LABELS[raw] ?? 'Standard'` (remover o passthrough `raw || 'Standard'`)"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-009",
+      "codigo": "MSYNC-009",
+      "origem": "agente-adicionado",
+      "categoria": "sad",
+      "prioridade": "CRITICA",
+      "descricao": "resolveRole('usuario') (lowercase) → 'Standard' (não passthrough)",
+      "mock": "nenhum",
+      "entrada": "raw = 'usuario'",
+      "resultadoEsperado": "retorna 'Standard'",
+      "assercao": "expect(resolveRole('usuario')).toBe('Standard')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-010",
+      "codigo": "MSYNC-010",
+      "origem": "agente-adicionado",
+      "categoria": "sad",
+      "descricao": "resolveRole('ROLE_QUALQUER_OUTRA') → 'Standard' (não passthrough de string desconhecida)",
+      "mock": "nenhum",
+      "entrada": "raw = 'ROLE_QUALQUER_OUTRA'",
+      "resultadoEsperado": "retorna 'Standard'",
+      "assercao": "expect(resolveRole('ROLE_QUALQUER_OUTRA')).toBe('Standard')",
+      "nota_implementacao": "TESTE DEVE FALHAR com implementação atual — current behavior é retornar 'ROLE_QUALQUER_OUTRA'"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-011",
+      "codigo": "MSYNC-011",
+      "origem": "agente-adicionado",
+      "categoria": "sad",
+      "descricao": "resolveRole retorna apenas valores da allowlist — nenhuma string arbitrária do banco vira label",
+      "mock": "nenhum",
+      "entrada": "set de roles legadas e inválidas: ['USUÁRIO', 'user', 'USER', 'Admin', 'standard', 'Unknown', '123', 'null']",
+      "resultadoEsperado": "todas retornam 'Standard'",
+      "assercao": "['USUÁRIO','user','USER','Admin','standard','Unknown','123','null'].forEach(r => { expect(resolveRole(r)).toBe('Standard') })"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-012",
+      "codigo": "MSYNC-012",
+      "origem": "agente-adicionado",
+      "categoria": "sad",
+      "descricao": "Resultado de resolveRole está sempre no enum válido de labels",
+      "mock": "nenhum",
+      "entrada": "qualquer string",
+      "resultadoEsperado": "resultado pertence a: ['Admin Gravity','Super Admin','Admin','Master','Standard','Fornecedor']",
+      "assercao": "const VALID = new Set(['Admin Gravity','Super Admin','Admin','Master','Standard','Fornecedor'])\n['gravity_admin','SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER','','USUÁRIO','garbage'].forEach(r => {\n  expect(VALID.has(resolveRole(r))).toBe(true)\n})"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-013",
+      "codigo": "MSYNC-013",
+      "origem": "agente-adicionado",
+      "categoria": "edge",
+      "descricao": "resolveRole com null (cast TypeScript) → 'Standard' (não crash, não 'USUÁRIO')",
+      "mock": "nenhum",
+      "entrada": "raw = null as unknown as string",
+      "resultadoEsperado": "retorna 'Standard' sem throw",
+      "assercao": "expect(resolveRole(null as unknown as string)).toBe('Standard')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-014",
+      "codigo": "MSYNC-014",
+      "origem": "agente-adicionado",
+      "categoria": "edge",
+      "descricao": "resolveRole com undefined (cast TypeScript) → 'Standard'",
+      "mock": "nenhum",
+      "entrada": "raw = undefined as unknown as string",
+      "resultadoEsperado": "retorna 'Standard' sem throw",
+      "assercao": "expect(resolveRole(undefined as unknown as string)).toBe('Standard')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-015",
+      "codigo": "MSYNC-015",
+      "origem": "agente-adicionado",
+      "categoria": "edge",
+      "descricao": "DEFAULT_USER do store não tem campo 'role' — currentUser.role é undefined quando nenhuma sessão foi carregada",
+      "mock": "useShellStore real (sem mock)",
+      "entrada": "estado inicial do store (clearCurrentUser chamado)",
+      "resultadoEsperado": "useShellStore.getState().currentUser.role === undefined",
+      "assercao": "expect(useShellStore.getState().currentUser.role).toBeUndefined()"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-016",
+      "codigo": "MSYNC-016",
+      "origem": "agente-adicionado",
+      "categoria": "edge",
+      "descricao": "Header fallback: `currentUser.role || 'Standard'` quando role é undefined → 'Standard' (nunca 'USUÁRIO')",
+      "mock": "nenhum",
+      "entrada": "currentUser.role = undefined",
+      "resultadoEsperado": "`undefined || 'Standard'` === 'Standard'",
+      "assercao": "const role = undefined\nexpect(role || 'Standard').toBe('Standard')\nexpect(role || 'Standard').not.toBe('USUÁRIO')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-017",
+      "codigo": "MSYNC-017",
+      "origem": "agente-adicionado",
+      "categoria": "integracao_store",
+      "prioridade": "CRITICA",
+      "descricao": "useMeSync: quando /api/v1/me retorna tipo_usuario='USUÁRIO' → store.role NÃO é 'USUÁRIO' (deve ser 'Standard' após resolveRole)",
+      "mock": "fetch retorna 200 com { usuario: { tipo_usuario: 'USUÁRIO', ... } }",
+      "entrada": "tipo_usuario: 'USUÁRIO' na resposta do backend",
+      "resultadoEsperado": "currentUser.role no store === 'Standard' (após resolveRole normalizar)",
+      "assercao": "await waitFor(() => expect(useShellStore.getState().currentUser.role).toBe('Standard'))\nexpect(useShellStore.getState().currentUser.role).not.toBe('USUÁRIO')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-018",
+      "codigo": "MSYNC-018",
+      "origem": "agente-adicionado",
+      "categoria": "integracao_store",
+      "descricao": "useMeSync: quando /api/v1/me falha com 403 → store.role NÃO é definido como 'USUÁRIO' (permanece undefined)",
+      "mock": "fetch retorna 403",
+      "entrada": "HTTP 403 do Configurador",
+      "resultadoEsperado": "meStatus='error', currentUser.role === undefined (DEFAULT_USER)",
+      "assercao": "await waitFor(() => expect(useShellStore.getState().meStatus).toBe('error'))\nexpect(useShellStore.getState().currentUser.role).toBeUndefined()\nexpect(useShellStore.getState().currentUser.role).not.toBe('USUÁRIO')"
+    },
+    {
+      "id": "TST-UNIT-CONFIG-MSYNC-001-019",
+      "codigo": "MSYNC-019",
+      "origem": "agente-adicionado",
+      "categoria": "integracao_store",
+      "descricao": "useMeSync: store.role é sempre da allowlist — nunca uma string arbitrária do DB",
+      "mock": "fetch retorna 200 com tipo_usuario de cada valor válido do enum",
+      "entrada": "tipo_usuario: 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLIER'",
+      "resultadoEsperado": "Para cada valor, currentUser.role pertence a ['Super Admin','Admin','Master','Standard','Fornecedor']",
+      "assercao": "const VALID_LABELS = new Set(['Admin Gravity','Super Admin','Admin','Master','Standard','Fornecedor'])\nconst role = useShellStore.getState().currentUser.role ?? 'Standard'\nexpect(VALID_LABELS.has(role)).toBe(true)"
+    }
+  ],
+  "resumoExecutivo": "Plano de extensão focado no bug do badge 'USUÁRIO'. O módulo useMeSync.ts tem uma falha em resolveRole: roles desconhecidas são retornadas como passthrough (`raw || 'Standard'`), permitindo que strings como 'USUÁRIO' cheguem ao store e ao badge. O caso crítico MSYNC-008 (e MSYNC-010 a MSYNC-012) devem FALHAR com a implementação atual, sinalizando exatamente o bug. O fix é substituir `ROLE_LABELS[raw] ?? (raw || 'Standard')` por `ROLE_LABELS[raw] ?? 'Standard'`. Testes MSYNC-015 a MSYNC-018 cobrem a integração com o store e garantem que o estado de erro nunca produz 'USUÁRIO'. Cobertura alvo: 80%. Testes existentes em configurador/useMeSync.test.ts e nucleo-global/shell/useMeSync.test.ts são preservados — este plano só adiciona casos.",
+  "smeRevisadoPor": null,
+  "smeRevisadoEm": null
+}

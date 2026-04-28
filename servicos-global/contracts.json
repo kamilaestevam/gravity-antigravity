@@ -5,7 +5,10 @@
     "bid-cambio",
     "pedido",
     "nf-importacao",
-    "financeiro-comex"
+    "financeiro-comex",
+    "processo",
+    "lpco",
+    "taxas-cambio"
   ],
   "services": {
     "_nota": "Todos os serviços tenant rodam em processo único na porta 3001 (super-servidor).",
@@ -180,6 +183,14 @@
     "financeiro-comex": {
       "baseUrl": "http://localhost:8029",
       "pathPrefix": "/api/v1/financeiro"
+    },
+    "processo": {
+      "baseUrl": "http://localhost:8026",
+      "pathPrefix": "/api/v1/processos"
+    },
+    "taxas-cambio": {
+      "baseUrl": "http://localhost:8031",
+      "pathPrefix": "/api/v1/taxas-cambio"
     }
   }
 }

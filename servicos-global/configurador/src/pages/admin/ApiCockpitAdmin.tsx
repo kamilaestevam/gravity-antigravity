@@ -11,12 +11,12 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 
 // ─── Tipos do backend api-cockpit ────────────────────────────────────────
 
-/** Resposta do GET /api/admin/cockpit/services */
+/** Resposta do GET /api/v1/admin/servicos-api */
 interface CockpitServiceResponse {
   name: string
   status: 'online' | 'degraded' | 'offline'
@@ -31,7 +31,7 @@ interface ServicesPayload {
   error?: string
 }
 
-/** Resposta do GET /api/admin/cockpit/logs */
+/** Resposta do GET /api/v1/admin/logs-api */
 interface CockpitLogResponse {
   id: string
   timestamp: string
@@ -54,7 +54,7 @@ interface LogsPayload {
   error?: string
 }
 
-/** Resposta do GET /api/admin/api-cockpit/gabi-usage */
+/** Resposta do GET /api/v1/admin/uso-gabi */
 interface GabiUsagePayload {
   month?: string
   total_calls?: number
@@ -142,8 +142,8 @@ export function ApiCockpitAdmin() {
       setLoading(true)
       setErroCarregar(null)
       const [svcRes, logsRes] = await Promise.all([
-        fetch('/api/admin/cockpit/services', { credentials: 'include', signal }),
-        fetch('/api/admin/cockpit/logs?limit=50', { credentials: 'include', signal }),
+        fetch('/api/v1/admin/servicos-api', { credentials: 'include', signal }),
+        fetch('/api/v1/admin/logs-api?limit=50', { credentials: 'include', signal }),
       ])
 
       if (!svcRes.ok) throw new Error(`services ${svcRes.status} ${svcRes.statusText}`)
@@ -176,7 +176,7 @@ export function ApiCockpitAdmin() {
   const carregarGabiUsage = useCallback(async (signal?: AbortSignal) => {
     try {
       setGabiLoading(true)
-      const res = await fetch('/api/admin/api-cockpit/gabi-usage', {
+      const res = await fetch('/api/v1/admin/uso-gabi', {
         credentials: 'include',
         signal,
       })
@@ -276,22 +276,22 @@ export function ApiCockpitAdmin() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.monitor.apis_online')}
             valor={String(apisOnline)}
             variante="sucesso"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.monitor.requisicoes_24h')}
             valor={String(totalRequisicoes)}
             variante="primario"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo="GABI IA · Chamadas"
             valor={gabiLoading ? '…' : String(gabiCalls)}
             variante="primario"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo="GABI IA · Custo Mês"
             valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
             variante="aviso"

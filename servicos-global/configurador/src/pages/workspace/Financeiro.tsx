@@ -8,13 +8,13 @@ import {
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { exportarExcel, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
 import { ProdutoCatalogo, NegociacaoEspecial } from '../../types/entidades'
@@ -337,7 +337,7 @@ export function Financeiro() {
   // ─── Campo Somente-Leitura Helper ──────────────────────────────────────────
 
   const ReadOnlyField = ({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) => (
-    <GeralCampoGlobal label={label}>
+    <CampoGeralGlobal label={label}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '0.5rem',
         padding: '0.5rem 0.75rem', borderRadius: '8px',
@@ -348,7 +348,7 @@ export function Financeiro() {
         {icon && <span style={{ color: 'var(--ws-muted)', display: 'flex', alignItems: 'center' }}>{icon}</span>}
         {value}
       </div>
-    </GeralCampoGlobal>
+    </CampoGeralGlobal>
   )
 
   // ─── Negociação para o produto em visualização ─────────────────────────────
@@ -377,7 +377,7 @@ export function Financeiro() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.proximo_vencimento')}
             icone={<CalendarBlank weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{vencimento?.vencimento ?? '—'}</span>}
@@ -396,7 +396,7 @@ export function Financeiro() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.valor_pagar')}
             valor={<span style={{ fontSize: '1.5rem' }}>{emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
             variante={emAberto.length ? 'aviso' : 'sucesso'}
@@ -414,7 +414,7 @@ export function Financeiro() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.faturas_abertas')}
             valor={<span style={{ fontSize: '1.75rem' }}>{emAberto.length}</span>}
             subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}
@@ -603,7 +603,7 @@ export function Financeiro() {
           rotulo: 'Dados Básicos',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação do produto no catálogo Gravity" />
+              <SecaoFormulario icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação do produto no catálogo Gravity" />
 
               <ReadOnlyField label="Nome do Produto" value={produtoVisualizando.nome} icon={<ShoppingBagOpen size={16} />} />
               <ReadOnlyField label="Descrição Curta" value={produtoVisualizando.descricao} icon={<Tag size={16} />} />
@@ -637,7 +637,7 @@ export function Financeiro() {
           rotulo: 'Setup',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo="Setup" />
+              <SecaoFormulario icone={<Wrench size={16} weight="duotone" />} titulo="Setup" />
 
               <ReadOnlyField label="Tem Setup?" value={
                 <span style={{
@@ -675,7 +675,7 @@ export function Financeiro() {
           rotulo: 'Valor do Produto',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
+              <SecaoFormulario icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
 
               <ReadOnlyField label="Tipo de Cobrança" value={produtoVisualizando.tipoCobranca} icon={<Sliders size={16} />} />
 
@@ -737,7 +737,7 @@ export function Financeiro() {
           rotulo: 'Usuários',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo="Usuários" />
+              <SecaoFormulario icone={<Users size={16} weight="duotone" />} titulo="Usuários" />
 
               <ReadOnlyField label="Quantidade de Usuários" value={
                 <span style={{
@@ -773,7 +773,7 @@ export function Financeiro() {
           rotulo: 'Help Desk',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo="Help Desk" />
+              <SecaoFormulario icone={<Headset size={16} weight="duotone" />} titulo="Help Desk" />
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <ReadOnlyField label="Total de Horas Mensais" value={
@@ -803,7 +803,7 @@ export function Financeiro() {
           rotulo: 'Negociação',
           conteudo: produtoVisualizando ? (
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para sua organização" />
+              <SecaoFormulario icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para sua organização" />
 
               {negProdutoAtual ? (
                 <>

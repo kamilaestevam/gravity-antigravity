@@ -1,0 +1,266 @@
+/* MatrizSnapshotCadastros.css — padrão visual do Configuracoes do Pedido */
+
+.msc-header-actions {
+  display: flex;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.msc-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+
+.msc-mini-btn:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--ws-accent, #818cf8);
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.msc-feedback {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+  padding: 1rem 0 0.25rem;
+}
+
+.msc-feedback--aviso {
+  color: #fbbf24;
+}
+
+.msc-feedback--aviso strong {
+  color: #f1f5f9;
+}
+
+/* ── Loading spinner ─────────────────────────────────────────────────────── */
+
+.msc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 2rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.msc-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(129, 140, 248, 0.2);
+  border-top-color: var(--ws-accent, #818cf8);
+  animation: msc-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes msc-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Tabela da matriz ─────────────────────────────────────────────────────── */
+
+.msc-tabela-wrapper {
+  margin-top: 0.5rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.msc-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.msc-th,
+.msc-td {
+  padding: 0.625rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.msc-tabela tbody tr:last-child .msc-td { border-bottom: none; }
+.msc-th:last-child,
+.msc-td:last-child { border-right: none; }
+
+/* Cabeçalho */
+.msc-th {
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.msc-th--papel {
+  text-align: left;
+  min-width: 220px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.msc-th--status {
+  min-width: 130px;
+  max-width: 180px;
+}
+
+.msc-status-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.375rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 120ms;
+}
+
+.msc-status-header:hover { background: rgba(129, 140, 248, 0.08); }
+
+.msc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.msc-status-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Linha de papel */
+.msc-td--papel {
+  text-align: left;
+  font-weight: 500;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.msc-papel-label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.25rem 0.375rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+  transition: background 120ms;
+}
+
+.msc-papel-label:hover { background: rgba(129, 140, 248, 0.08); }
+
+.msc-papel-icone {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.msc-papel-nome {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.8125rem;
+}
+
+.msc-papel-desc {
+  display: block;
+  font-weight: 400;
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 1px;
+  line-height: 1.35;
+}
+
+/* Zebra sutil */
+.msc-tabela tbody tr:nth-child(even) .msc-td--cell {
+  background: rgba(255, 255, 255, 0.012);
+}
+
+/* Célula com switch */
+.msc-td--cell {
+  padding: 0.5rem;
+}
+
+/* Legenda */
+.msc-legenda {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.55;
+  background: rgba(255, 255, 255, 0.015);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.msc-legenda strong {
+  color: var(--text-primary, #f1f5f9);
+  font-weight: 600;
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+
+body.light-theme .msc-tabela-wrapper {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .msc-th,
+body.light-theme .msc-td { border-color: rgba(0, 0, 0, 0.06); }
+
+body.light-theme .msc-th { background: rgba(0, 0, 0, 0.02); color: #1e293b; }
+body.light-theme .msc-th--papel,
+body.light-theme .msc-td--papel { background: #fff; color: #1e293b; }
+
+body.light-theme .msc-papel-nome { color: #1e293b; }
+body.light-theme .msc-papel-desc { color: #64748b; }
+
+body.light-theme .msc-tabela tbody tr:nth-child(even) .msc-td--cell {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+body.light-theme .msc-legenda {
+  background: rgba(0, 0, 0, 0.02);
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .msc-legenda strong { color: #1e293b; }
+
+body.light-theme .msc-mini-btn {
+  background: rgba(0, 0, 0, 0.025);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+body.light-theme .msc-mini-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  color: #6366f1;
+  border-color: rgba(129, 140, 248, 0.35);
+}

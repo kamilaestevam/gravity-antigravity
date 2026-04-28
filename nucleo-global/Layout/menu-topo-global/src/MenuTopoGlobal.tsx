@@ -4,7 +4,7 @@ import { MagnifyingGlass, Info, X, Gear } from '@phosphor-icons/react'
 import { LogoHub, LogoCore } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   LocalizadorGlobal,
@@ -240,7 +240,7 @@ export function MenuTopoGlobal({
         </div>
 
         {/* Seletor de idioma */}
-        <LanguageSwitcherGlobal iconOnly />
+        <SeletorIdiomaGlobal iconOnly />
 
         {/* Atalho para Configurações do produto */}
         {onNavigateSettings && (

@@ -21,7 +21,7 @@ export interface PaginaTabelaProps<T extends RegistroTabela = RegistroTabela> {
   viewToggle?: ReactNode
 
   /* ─── Métricas ─── */
-  /** Cards de estatísticas (StatCardGlobal) */
+  /** Cards de estatísticas (CardEstatisticaGlobal) */
   stats?: ReactNode
 
   /* ─── Toolbar ─── */

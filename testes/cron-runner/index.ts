@@ -151,7 +151,7 @@ async function main(): Promise<void> {
 
   if (allResults.length > 0) {
     try {
-      const response = await fetch(`${API_URL}/api/admin/test-logs`, {
+      const response = await fetch(`${API_URL}/api/v1/admin/test-logs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,0 +1,7597 @@
+{
+  "stats": {
+    "rename": 1140,
+    "delete": 244,
+    "create": 4,
+    "noop": 162,
+    "total": 1550
+  },
+  "modulos": {
+    "Banco de Dados - Serviços": [
+      "Agenda",
+      "AlertEvent",
+      "AlertaEvento",
+      "AlertaLog",
+      "AlertaRegra",
+      "AtividadesCronometro",
+      "AtividadesDados",
+      "AtividadesParticipantes",
+      "AtividadesTempo",
+      "AtividadesTimer",
+      "ConexaoErp",
+      "Contato",
+      "ConversaCompletaGabi",
+      "DashboardAlertas",
+      "DashboardCompartilhar",
+      "DashboardConfiguracao",
+      "DashboardCriar",
+      "DashboardMetricas",
+      "DisponibilidadeConfig",
+      "EmailAssuntosParticipantes",
+      "EmailDirecao",
+      "EmailFilaEnvio",
+      "EmailMensagem",
+      "EmailRegistroEnvio",
+      "EmailTemplate",
+      "Empresa",
+      "ExportarJob",
+      "ExportarResultado",
+      "ExternalContact",
+      "GabiConversaCompleta",
+      "GabiLogUso",
+      "GabiMensagemIndividual",
+      "GabiPersonalizacaoOrganizacao",
+      "GabiTokensConsumidos",
+      "GabiTokensWorkspace",
+      "HistoricoLog",
+      "Kanban",
+      "MapeamentoErp",
+      "ModoDashboard",
+      "NcmItem",
+      "NcmScheduleConfig",
+      "NcmSyncLog",
+      "NotificacaoCanalConfiguracao",
+      "NotificacoesInterna",
+      "NotificacoesTituloCorpo",
+      "RelatorioTempoCriacao",
+      "RelatoriosConfiguracao",
+      "RelatoriosSalvos",
+      "Reserva",
+      "Slot",
+      "UsuarioPreferencias",
+      "WhatsappConversa",
+      "WhatsappLog",
+      "WhatsappMensagem",
+      "WhatsappRegra"
+    ],
+    "Banco de Dados - Configurador": [
+      "AmbienteDeploy",
+      "AssinaturaProdutoGravity",
+      "Cambio",
+      "Deploy",
+      "EscopoTokenServico",
+      "FaturaStatus",
+      "LlmMetricas",
+      "NegociacaoEspecial",
+      "Organizacao",
+      "OrganizacaoFornecedor",
+      "PermissaoAdminGravity",
+      "ProdutoGravity",
+      "ProdutoGravityAssinatura",
+      "ProdutoGravityConfiguracao",
+      "ProdutoGravityFaixaPreco",
+      "ProdutoGravityFatura",
+      "ProdutoGravityNegociacaoEspecial",
+      "ProdutoGravityWorkspace",
+      "Requisicoes",
+      "Seguranca",
+      "Servicos",
+      "StatusAssinatura",
+      "StatusDeploy",
+      "StatusEmpresa",
+      "StatusOrganizacao",
+      "StatusProduto",
+      "Teste",
+      "TesteAgendamento",
+      "Testes",
+      "TipoCobranca",
+      "TipoLimiteUsuario",
+      "TipoMembroEmpresa",
+      "TipoUsuario",
+      "Usuario",
+      "UsuarioPermissao",
+      "UsuarioWorkspace",
+      "Workspace"
+    ],
+    "Banco de Dados - Pedido": [
+      "AprendizadoImportacaoDados",
+      "KanbanPreferencias",
+      "Pedido",
+      "PedidoAnexo",
+      "PedidoCasasDecimais",
+      "PedidoColuna",
+      "PedidoColunaUsuario",
+      "PedidoConfigAtualizacaoCadastros",
+      "PedidoDashboardPainel",
+      "PedidoDashboardPreferencias",
+      "PedidoGeral",
+      "PedidoItem",
+      "PedidoNovoAprendizado",
+      "PedidoPreferenciaPadrao",
+      "PedidoPreferenciaUsuario",
+      "PedidoSaldoFormula",
+      "PedidoSnapshotConfiguracao",
+      "PedidoSnapshotEmpresa",
+      "PedidoSnapshotOpe",
+      "PedidoStatus",
+      "PedidoTemplate",
+      "PedidoValorColunaUsuario",
+      "TrackingItemsTransferidos"
+    ],
+    "Banco de Dados - Processo": [
+      "Processo",
+      "ProcessoContainer",
+      "ProcessoFatura",
+      "ProcessoItem"
+    ],
+    "Banco de Dados - Cadastros": [
+      "Empresa",
+      "Moeda",
+      "NCM",
+      "OPE",
+      "OPEHistóricoStatus",
+      "Unidade"
+    ]
+  },
+  "tabelas": {
+    "Agenda": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_agenda",
+          "row": 2
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 3
+        },
+        {
+          "de": "nome",
+          "para": "nome_agenda",
+          "row": 4
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_agenda",
+          "row": 5
+        },
+        {
+          "de": "tipo",
+          "para": "tipo_agenda",
+          "row": 6
+        },
+        {
+          "de": "criadoEm",
+          "para": "criadoEm_agenda",
+          "row": 7
+        },
+        {
+          "de": "atualizadoEm",
+          "para": "atualizadoEm_agenda",
+          "row": 8
+        },
+        {
+          "de": "slots",
+          "para": "slots_agenda",
+          "row": 9
+        },
+        {
+          "de": "config",
+          "para": "config_agenda",
+          "row": 10
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 11
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AlertaEvento": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_alert_evento",
+          "row": 12
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 13
+        },
+        {
+          "de": "rule_id",
+          "para": "id_alerta_regra",
+          "row": 14
+        },
+        {
+          "de": "rule",
+          "para": "regra_alerta_evento",
+          "row": 15
+        },
+        {
+          "de": "actor_type",
+          "para": "tipo_ator_alerta_evento",
+          "row": 16
+        },
+        {
+          "de": "actor_id",
+          "para": "id_ator_alerta_evento",
+          "row": 17
+        },
+        {
+          "de": "actor_name",
+          "para": "nome_ator_alerta_evento",
+          "row": 18
+        },
+        {
+          "de": "module",
+          "para": "modulo_alerta_evento",
+          "row": 19
+        },
+        {
+          "de": "action",
+          "para": "acao_alerta_evento",
+          "row": 20
+        },
+        {
+          "de": "event_count",
+          "para": "contagem_eventos_alerta_evento",
+          "row": 21
+        },
+        {
+          "de": "window_seconds",
+          "para": "janela_segundos_alerta_evento",
+          "row": 22
+        },
+        {
+          "de": "audit_log_ids",
+          "para": "ids_log_auditoria_alerta_evento",
+          "row": 23
+        },
+        {
+          "de": "status",
+          "para": "status_alerta_evento",
+          "row": 24
+        },
+        {
+          "de": "reviewed_by",
+          "para": "revisado_por_alerta_evento",
+          "row": 25
+        },
+        {
+          "de": "reviewed_at",
+          "para": "data_revisao_alerta_evento",
+          "row": 26
+        },
+        {
+          "de": "notes",
+          "para": "notas_alerta_evento",
+          "row": 27
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_alerta_evento",
+          "row": 28
+        },
+        {
+          "de": "notifications",
+          "para": "logs_alerta_evento",
+          "row": 29
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "AlertaLog": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_alerta_log",
+          "row": 30
+        },
+        {
+          "de": "alert_event_id",
+          "para": "id_alert_evento",
+          "row": 31
+        },
+        {
+          "de": "alert_event",
+          "para": "alerta_evento_log",
+          "row": 32
+        },
+        {
+          "de": "channel",
+          "para": "canal_alerta_log",
+          "row": 33
+        },
+        {
+          "de": "recipient",
+          "para": "destinatario_alerta_log",
+          "row": 34
+        },
+        {
+          "de": "status",
+          "para": "status_alerta_log",
+          "row": 35
+        },
+        {
+          "de": "attempts",
+          "para": "tentativas_alerta_log",
+          "row": 36
+        },
+        {
+          "de": "error_message",
+          "para": "mensagem_erro_alerta_log",
+          "row": 37
+        },
+        {
+          "de": "sent_at",
+          "para": "data_envio_alerta_log",
+          "row": 38
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_alerta_log",
+          "row": 39
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "AlertaRegra": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_alerta_regra",
+          "row": 40
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 41
+        },
+        {
+          "de": "name",
+          "para": "nome_alerta_regra",
+          "row": 42
+        },
+        {
+          "de": "description",
+          "para": "descricao_alerta_regra",
+          "row": 43
+        },
+        {
+          "de": "enabled",
+          "para": "ativa_alerta_regra",
+          "row": 44
+        },
+        {
+          "de": "actor_type",
+          "para": "tipo_ator_alerta_regra",
+          "row": 45
+        },
+        {
+          "de": "action",
+          "para": "acao_alerta_regra",
+          "row": 46
+        },
+        {
+          "de": "module",
+          "para": "modulo_alerta_regra",
+          "row": 47
+        },
+        {
+          "de": "status_filter",
+          "para": "filtro_status_alerta_regra",
+          "row": 48
+        },
+        {
+          "de": "threshold_count",
+          "para": "contagem_limite_alerta_regr",
+          "row": 49
+        },
+        {
+          "de": "threshold_window_seconds",
+          "para": "janela_segundos_alerta_regra",
+          "row": 50
+        },
+        {
+          "de": "channel_inapp",
+          "para": "channel_inapp_alert_rule",
+          "row": 51
+        },
+        {
+          "de": "channel_email",
+          "para": "canal_inapp_alerta_regra",
+          "row": 52
+        },
+        {
+          "de": "channel_whatsapp",
+          "para": "canal_whatsapp_alerta_regra",
+          "row": 53
+        },
+        {
+          "de": "recipients_email",
+          "para": "destinatarios_email_alerta_regra",
+          "row": 54
+        },
+        {
+          "de": "recipients_whatsapp",
+          "para": "destinatarios_whatsapp_alerta_regra",
+          "row": 55
+        },
+        {
+          "de": "recipients_user_ids",
+          "para": "ids_usuarios_destinatarios_alerta_regra",
+          "row": 56
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_alerta_regra",
+          "row": 57
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_alerta_regra",
+          "row": 58
+        },
+        {
+          "de": "alerts",
+          "para": "eventos_alerta_regra",
+          "row": 59
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "AlertEvent": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 60
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AmbienteDeploy": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "AssinaturaProdutoGravity": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [
+        {
+          "col": "stripe_subscription_id",
+          "row": 62
+        },
+        {
+          "col": "stripe_price_id",
+          "row": 63
+        },
+        {
+          "col": "trial_ends_at",
+          "row": 64
+        },
+        {
+          "col": "current_period_start",
+          "row": 65
+        },
+        {
+          "col": "current_period_end",
+          "row": 66
+        },
+        {
+          "col": "cancelled_at",
+          "row": 67
+        },
+        {
+          "col": "created_at",
+          "row": 68
+        },
+        {
+          "col": "updated_at",
+          "row": 69
+        },
+        {
+          "col": "tenant",
+          "row": 70
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AtividadesCronometro": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 71
+        },
+        {
+          "col": "tenant_id",
+          "row": 72
+        },
+        {
+          "col": "product_id",
+          "row": 73
+        },
+        {
+          "col": "user_id",
+          "row": 74
+        },
+        {
+          "col": "activity_id",
+          "row": 75
+        },
+        {
+          "col": "started_at",
+          "row": 76
+        },
+        {
+          "col": "ended_at",
+          "row": 77
+        },
+        {
+          "col": "duration_minutes",
+          "row": 78
+        },
+        {
+          "col": "is_manual",
+          "row": 79
+        },
+        {
+          "col": "subject",
+          "row": 80
+        },
+        {
+          "col": "linked_type",
+          "row": 81
+        },
+        {
+          "col": "linked_id",
+          "row": 82
+        },
+        {
+          "col": "linked_label",
+          "row": 83
+        },
+        {
+          "col": "created_at",
+          "row": 84
+        },
+        {
+          "col": "updated_at",
+          "row": 85
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 86
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 87
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 88
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AtividadesDados": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 89
+        },
+        {
+          "col": "tenant_id",
+          "row": 90
+        },
+        {
+          "col": "user_id",
+          "row": 91
+        },
+        {
+          "col": "titulo",
+          "row": 92
+        },
+        {
+          "col": "descricao",
+          "row": 93
+        },
+        {
+          "col": "tipo",
+          "row": 94
+        },
+        {
+          "col": "status",
+          "row": 95
+        },
+        {
+          "col": "prioridade",
+          "row": 96
+        },
+        {
+          "col": "data_atividade",
+          "row": 97
+        },
+        {
+          "col": "data_vencimento",
+          "row": 98
+        },
+        {
+          "col": "tempo_gasto_minutos",
+          "row": 99
+        },
+        {
+          "col": "proximo_passo_titulo",
+          "row": 100
+        },
+        {
+          "col": "proximo_passo_data",
+          "row": 101
+        },
+        {
+          "col": "lembrete_em",
+          "row": 102
+        },
+        {
+          "col": "lembrete_email",
+          "row": 103
+        },
+        {
+          "col": "lembrete_whatsapp",
+          "row": 104
+        },
+        {
+          "col": "notificar_ao_atribuir",
+          "row": 105
+        },
+        {
+          "col": "processo_id",
+          "row": 106
+        },
+        {
+          "col": "created_at",
+          "row": 107
+        },
+        {
+          "col": "updated_at",
+          "row": 108
+        },
+        {
+          "col": "participantes",
+          "row": 109
+        },
+        {
+          "col": "sessoes_timer",
+          "row": 110
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 111
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 112
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 113
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 114
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 115
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 116
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 117
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 118
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 119
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AtividadesParticipantes": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 120
+        },
+        {
+          "col": "atividade_id",
+          "row": 121
+        },
+        {
+          "col": "user_id",
+          "row": 122
+        },
+        {
+          "col": "user_nome",
+          "row": 123
+        },
+        {
+          "col": "atividade",
+          "row": 124
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AtividadesTempo": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 125
+        },
+        {
+          "col": "atividade_id",
+          "row": 126
+        },
+        {
+          "col": "iniciado_em",
+          "row": 127
+        },
+        {
+          "col": "duracao_min",
+          "row": 128
+        },
+        {
+          "col": "assunto",
+          "row": 129
+        },
+        {
+          "col": "atividade",
+          "row": 130
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "AtividadesTimer": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 131
+        },
+        {
+          "col": "tenant_id",
+          "row": 132
+        },
+        {
+          "col": "user_id",
+          "row": 133
+        },
+        {
+          "col": "activity_id",
+          "row": 134
+        },
+        {
+          "col": "started_at",
+          "row": 135
+        },
+        {
+          "col": "paused_at",
+          "row": 136
+        },
+        {
+          "col": "accumulated_seconds",
+          "row": 137
+        },
+        {
+          "col": "created_at",
+          "row": 138
+        },
+        {
+          "col": "updated_at",
+          "row": 139
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "Cambio": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_cambio",
+          "row": 140
+        },
+        {
+          "de": "moeda",
+          "para": "moeda_cambio",
+          "row": 141
+        },
+        {
+          "de": "compra",
+          "para": "compra_cambio",
+          "row": 142
+        },
+        {
+          "de": "venda",
+          "para": "venda_cambio",
+          "row": 143
+        },
+        {
+          "de": "data_cotacao",
+          "para": "data_cotacao_cambio",
+          "row": 144
+        },
+        {
+          "de": "hora_cotacao",
+          "para": "hora_cotacao_cambio",
+          "row": 145
+        },
+        {
+          "de": "boletim",
+          "para": "boletim_cambio",
+          "row": 146
+        },
+        {
+          "de": "fonte",
+          "para": "fonte_cambio",
+          "row": 147
+        },
+        {
+          "de": "criado_em",
+          "para": "criado_em_cambio",
+          "row": 148
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ConexaoErp": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 149
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 150
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 151
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 152
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 153
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 154
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 155
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 156
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 157
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "Contato": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 158
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 159
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 160
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "ConversaCompletaGabi": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 161
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "DashboardAlertas": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_dashboard_alertas",
+          "row": 162
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 163
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 164
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 165
+        },
+        {
+          "de": "dashboard_id",
+          "para": "id_dashboard_configuracao",
+          "row": 166
+        },
+        {
+          "de": "widget_id",
+          "para": "id_dashboard_criar",
+          "row": 167
+        },
+        {
+          "de": "metric_key",
+          "para": "chave_metrica_dashboard_alertas",
+          "row": 168
+        },
+        {
+          "de": "condition",
+          "para": "condicao_dashboard_alertas",
+          "row": 169
+        },
+        {
+          "de": "threshold",
+          "para": "limite_dashboard_alertas",
+          "row": 170
+        },
+        {
+          "de": "channels",
+          "para": "canais_dashboard_alertas",
+          "row": 171
+        },
+        {
+          "de": "is_active",
+          "para": "ativo_dashboard_alertas",
+          "row": 172
+        },
+        {
+          "de": "last_triggered",
+          "para": "data_ultimo_disparo_dashboard_alertas",
+          "row": 173
+        },
+        {
+          "de": "dashboard",
+          "para": "dashboard_configuracao",
+          "row": 174
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_alertas",
+          "row": 175
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_dashboard_alertas",
+          "row": 176
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "DashboardCompartilhar": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_dashboard_compartilhar",
+          "row": 177
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 178
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 179
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 180
+        },
+        {
+          "de": "dashboard_id",
+          "para": "id_dashboard_configuracao",
+          "row": 181
+        },
+        {
+          "de": "share_token",
+          "para": "token_compartilhamento_dashboard",
+          "row": 182
+        },
+        {
+          "de": "channel",
+          "para": "canal_dashboard_compartilhar",
+          "row": 183
+        },
+        {
+          "de": "recipient_email",
+          "para": "email_destinatario_dashboard_compartilhar",
+          "row": 184
+        },
+        {
+          "de": "recipient_phone",
+          "para": "telefone_destinatario_dashboard_compartilhar",
+          "row": 185
+        },
+        {
+          "de": "snapshot_data",
+          "para": "dados_snapshot_dashboard_compartilhar",
+          "row": 186
+        },
+        {
+          "de": "expires_at",
+          "para": "data_expiracao_dashboard_compartilhar",
+          "row": 187
+        },
+        {
+          "de": "dashboard",
+          "para": "dashboard_configuracao",
+          "row": 188
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_compartilhar",
+          "row": 189
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "DashboardConfiguracao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_dashboard_configuracao",
+          "row": 190
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 191
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 192
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 193
+        },
+        {
+          "de": "name",
+          "para": "nome_dashboard_configuracao",
+          "row": 194
+        },
+        {
+          "de": "mode",
+          "para": "modo_dashboard_configuracao",
+          "row": 195
+        },
+        {
+          "de": "layout",
+          "para": "layout_dashboard_configuracao",
+          "row": 196
+        },
+        {
+          "de": "filters",
+          "para": "filtros_dashboard_configuracao",
+          "row": 197
+        },
+        {
+          "de": "is_default",
+          "para": "padrao_dashboard_configuracao",
+          "row": 198
+        },
+        {
+          "de": "widgets",
+          "para": "dashboard_criar",
+          "row": 199
+        },
+        {
+          "de": "alerts",
+          "para": "dashboard_alertas",
+          "row": 200
+        },
+        {
+          "de": "shares",
+          "para": "dashboard_compartilhar",
+          "row": 201
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_configuracao",
+          "row": 202
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_dashboard_configuracao",
+          "row": 203
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "DashboardCriar": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_dashboard_criar",
+          "row": 204
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 205
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 206
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 207
+        },
+        {
+          "de": "dashboard_id",
+          "para": "id_dashboard_configuracao",
+          "row": 208
+        },
+        {
+          "de": "widget_key",
+          "para": "chave_widget_dashboard_criar",
+          "row": 209
+        },
+        {
+          "de": "widget_type",
+          "para": "tipo_widget_dashboard_criar",
+          "row": 210
+        },
+        {
+          "de": "chart_type",
+          "para": "tipo_grafico_dashboard_criar",
+          "row": 211
+        },
+        {
+          "de": "title",
+          "para": "titulo_dashboard_criar",
+          "row": 212
+        },
+        {
+          "de": "query_spec",
+          "para": "especificacao_query_dashboard_criar",
+          "row": 213
+        },
+        {
+          "de": "position",
+          "para": "posicao_dashboard_criar",
+          "row": 214
+        },
+        {
+          "de": "config",
+          "para": "configuracao_dashboard_criar",
+          "row": 215
+        },
+        {
+          "de": "dashboard",
+          "para": "dashboard_configuracao",
+          "row": 216
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_criar",
+          "row": 217
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_dashboard_criar",
+          "row": 218
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 4
+    },
+    "DashboardMetricas": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_dashboard_metricas",
+          "row": 223
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 224
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 225
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 226
+        },
+        {
+          "de": "metric_key",
+          "para": "metric_key_dashboard_metricas",
+          "row": 227
+        },
+        {
+          "de": "dimensions",
+          "para": "dimensions_dashboard_metricas",
+          "row": 228
+        },
+        {
+          "de": "value",
+          "para": "value_dashboard_metricas",
+          "row": 229
+        },
+        {
+          "de": "period_from",
+          "para": "period_from_dashboard_metricas",
+          "row": 230
+        },
+        {
+          "de": "period_to",
+          "para": "period_to_dashboard_metricas",
+          "row": 231
+        },
+        {
+          "de": "captured_at",
+          "para": "captured_at_dashboard_metricas",
+          "row": 232
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Deploy": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_deploy",
+          "row": 233
+        },
+        {
+          "de": "deploy_number",
+          "para": "deploy_number_deploy",
+          "row": 234
+        },
+        {
+          "de": "area",
+          "para": "area_deploy",
+          "row": 235
+        },
+        {
+          "de": "status",
+          "para": "status_deploy",
+          "row": 239
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_deploy",
+          "row": 244
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 6
+    },
+    "DisponibilidadeConfig": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 246
+        },
+        {
+          "col": "tenant_id",
+          "row": 247
+        },
+        {
+          "col": "agenda_id",
+          "row": 248
+        },
+        {
+          "col": "horarioInicio",
+          "row": 249
+        },
+        {
+          "col": "horarioFim",
+          "row": 250
+        },
+        {
+          "col": "duracaoSlot",
+          "row": 251
+        },
+        {
+          "col": "intervalo",
+          "row": 252
+        },
+        {
+          "col": "diasSemana",
+          "row": 253
+        },
+        {
+          "col": "criadoEm",
+          "row": 254
+        },
+        {
+          "col": "atualizadoEm",
+          "row": 255
+        },
+        {
+          "col": "agenda",
+          "row": 256
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 257
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 258
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 259
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 260
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 261
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "EmailAssuntosParticipantes": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_email_assuntos_participantes",
+          "row": 262
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 263
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 264
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 265
+        },
+        {
+          "de": "subject",
+          "para": "assunto_email_assuntos_participantes",
+          "row": 266
+        },
+        {
+          "de": "status",
+          "para": "status_email_assuntos_participantes",
+          "row": 267
+        },
+        {
+          "de": "sentiment",
+          "para": "sentimento_email_assuntos_participantes",
+          "row": 268
+        },
+        {
+          "de": "sentiment_label",
+          "para": "rotulo_sentimento_email_assuntos_participantes",
+          "row": 269
+        },
+        {
+          "de": "mensagens_count",
+          "para": "quantidade_mensagens_email_assuntos_participantes",
+          "row": 270
+        },
+        {
+          "de": "ultimo_contato",
+          "para": "data_ultimo_contato_email_assuntos_participantes",
+          "row": 271
+        },
+        {
+          "de": "deep_link",
+          "para": "deep_link_email_assuntos_participantes",
+          "row": 272
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_email_assuntos_participantes",
+          "row": 273
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_email_assuntos_participantes",
+          "row": 274
+        },
+        {
+          "de": "mensagens",
+          "para": "mensagens_email_assuntos_participantes",
+          "row": 275
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "EmailDirecao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "EmailFilaEnvio": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_email_fila_envio",
+          "row": 277
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 278
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 279
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 280
+        },
+        {
+          "de": "status",
+          "para": "status_email_fila_envio",
+          "row": 281
+        },
+        {
+          "de": "prioridade",
+          "para": "prioridade_email_fila_envio",
+          "row": 282
+        },
+        {
+          "de": "payload",
+          "para": "payload_email_fila_envio",
+          "row": 283
+        },
+        {
+          "de": "template_id",
+          "para": "id_template_email",
+          "row": 284
+        },
+        {
+          "de": "email_enviado_id",
+          "para": "id_email_enviado",
+          "row": 285
+        },
+        {
+          "de": "tentativas",
+          "para": "tentativas_email_fila_envio",
+          "row": 286
+        },
+        {
+          "de": "max_tentativas",
+          "para": "max_tentativas_email_fila_envio",
+          "row": 287
+        },
+        {
+          "de": "next_retry_at",
+          "para": "data_proxima_tentativa_email_fila_envio",
+          "row": 288
+        },
+        {
+          "de": "processado_at",
+          "para": "data_processamento_email_fila_envio",
+          "row": 289
+        },
+        {
+          "de": "erro",
+          "para": "mensagem_erro_email_fila_envio",
+          "row": 290
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_email_fila_envio",
+          "row": 291
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_email_fila_envio",
+          "row": 292
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "EmailMensagem": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_email_mensagem",
+          "row": 293
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 294
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 295
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 296
+        },
+        {
+          "de": "thread_id",
+          "para": "id_email_assuntos_participantes",
+          "row": 297
+        },
+        {
+          "de": "thread",
+          "para": "email_assuntos_participantes",
+          "row": 298
+        },
+        {
+          "de": "resend_id",
+          "para": "id_resend_email_mensagem",
+          "row": 299
+        },
+        {
+          "de": "direction",
+          "para": "direcao_email_mensagem",
+          "row": 300
+        },
+        {
+          "de": "from",
+          "para": "remetente_email_mensagem",
+          "row": 301
+        },
+        {
+          "de": "to",
+          "para": "destinatario_email_mensagem",
+          "row": 302
+        },
+        {
+          "de": "subject",
+          "para": "assunto_email_mensagem",
+          "row": 303
+        },
+        {
+          "de": "body",
+          "para": "corpo_texto_email_mensagem",
+          "row": 304
+        },
+        {
+          "de": "body_html",
+          "para": "corpo_html_email_mensagem",
+          "row": 817
+        },
+        {
+          "de": "dedup_key",
+          "para": "chave_deduplicacao_email_mensagem",
+          "row": 818
+        },
+        {
+          "de": "parent_message_id",
+          "para": "id_mensagem_pai_email_mensagem",
+          "row": 819
+        },
+        {
+          "de": "gabi_response",
+          "para": "resposta_gabi_email_mensagem",
+          "row": 820
+        },
+        {
+          "de": "gabi_confidence",
+          "para": "confianca_gabi_email_mensagem",
+          "row": 821
+        },
+        {
+          "de": "gabi_action",
+          "para": "acao_gabi_email_mensagem",
+          "row": 822
+        },
+        {
+          "de": "sent_at",
+          "para": "data_envio_email_mensagem",
+          "row": 823
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_email_mensagem",
+          "row": 824
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_email_mensagem",
+          "row": 825
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoAnexo": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "vinculo",
+          "para": "vinculo_anexo_pedido",
+          "row": 305
+        },
+        {
+          "de": "tipo_documento",
+          "para": "tipo_documento_anexo_pedido",
+          "row": 306
+        },
+        {
+          "de": "tipo_arquivo",
+          "para": "tipo_arquivo_anexo_pedido",
+          "row": 307
+        },
+        {
+          "de": "tamanho_bytes",
+          "para": "tamanho_bytes_anexo_pedido",
+          "row": 308
+        },
+        {
+          "de": "nome_arquivo",
+          "para": "nome_arquivo_anexo_pedido",
+          "row": 309
+        },
+        {
+          "de": "vinculo_id",
+          "para": "id_vinculo_anexo_pedido",
+          "row": 310
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 311
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 312
+        },
+        {
+          "de": "id",
+          "para": "id_anexo_pedido",
+          "row": 313
+        },
+        {
+          "de": "uploaded_by",
+          "para": "enviado_por_anexo_pedido",
+          "row": 314
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_anexo_pedido",
+          "row": 315
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_anexo_pedido",
+          "row": 316
+        },
+        {
+          "de": "storage_key",
+          "para": "chave_storage_anexo_pedido",
+          "row": 317
+        },
+        {
+          "de": "categoria",
+          "para": "categoria_anexo_pedido",
+          "row": 318
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoNovoAprendizado": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "mapeamento",
+          "para": "mapeamento_aprendizado_importacao_dados",
+          "row": 319
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 320
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 321
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 322
+        },
+        {
+          "de": "id",
+          "para": "id_aprendizado_importacao_dados",
+          "row": 323
+        },
+        {
+          "de": "hash_colunas",
+          "para": "hash_colunas_aprendizado_importacao_dados",
+          "row": 324
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_aprendizado_importacao_dados",
+          "row": 325
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_aprendizado_importacao_dados",
+          "row": 326
+        },
+        {
+          "de": "uso_count",
+          "para": "contagem_uso_aprendizado_importacao_dados",
+          "row": 327
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "AprendizadoImportacaoDados": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 328
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 329
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 330
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoColunaUsuario": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "visibilidade",
+          "para": "visibilidade_coluna_usuario_pedido",
+          "row": 331
+        },
+        {
+          "de": "valores",
+          "para": "valores_coluna_usuario_pedido",
+          "row": 332
+        },
+        {
+          "de": "valor_padrao",
+          "para": "valor_padrao_coluna_usuario_pedido",
+          "row": 333
+        },
+        {
+          "de": "roles_permitidas",
+          "para": "tipos_usuario_workspace_permitidos_coluna_usuario_pedido",
+          "row": 334
+        },
+        {
+          "de": "tipo",
+          "para": "tipo_coluna_usuario_pedido",
+          "row": 335
+        },
+        {
+          "de": "ordem",
+          "para": "ordem_coluna_usuario_pedido",
+          "row": 336
+        },
+        {
+          "de": "opcoes",
+          "para": "opcoes_coluna_usuario_pedido",
+          "row": 337
+        },
+        {
+          "de": "obrigatorio",
+          "para": "obrigatorio_coluna_usuario_pedido",
+          "row": 338
+        },
+        {
+          "de": "nome",
+          "para": "nome_coluna_usuario_pedido",
+          "row": 339
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 340
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 341
+        },
+        {
+          "de": "id",
+          "para": "id_coluna_usuario_pedido",
+          "row": 342
+        },
+        {
+          "de": "escopo",
+          "para": "escopo_coluna_usuario_pedido",
+          "row": 343
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_coluna_usuario_pedido",
+          "row": 344
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_coluna_usuario_pedido",
+          "row": 345
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_coluna_usuario_pedido",
+          "row": 346
+        },
+        {
+          "de": "created_by",
+          "para": "criado_por_coluna_usuario_pedid",
+          "row": 347
+        },
+        {
+          "de": "chave",
+          "para": "chave_coluna_usuario_pedido",
+          "row": 348
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_coluna_usuario_pedido",
+          "row": 349
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 350
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoDashboardPainel": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "widgets_json",
+          "para": "widgets_json_dashboard_painel",
+          "row": 351
+        },
+        {
+          "de": "ordem",
+          "para": "ordem_dashboard_painel",
+          "row": 352
+        },
+        {
+          "de": "nome",
+          "para": "nome_dashboard_painel",
+          "row": 353
+        },
+        {
+          "de": "is_visivel",
+          "para": "is_visivel_dashboard_painel",
+          "row": 354
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 355
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 356
+        },
+        {
+          "de": "id",
+          "para": "id_dashboard_painel",
+          "row": 357
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_painel",
+          "row": 358
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_dashboard_painel",
+          "row": 359
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoDashboardPreferencias": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "widgets_json",
+          "para": "widgets_json_dashboard_preferencias",
+          "row": 360
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 361
+        },
+        {
+          "de": "id",
+          "para": "id_dashboard_preferencias",
+          "row": 362
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_dashboard_preferencias",
+          "row": 363
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_dashboard_preferencias",
+          "row": 364
+        },
+        {
+          "de": "product_id",
+          "para": "chave_produto_gravity_dashboard_preferencias",
+          "row": 365
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "KanbanPreferencias": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "preferencias",
+          "para": "preferencias_kanban_preferencias",
+          "row": 366
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 367
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 368
+        },
+        {
+          "de": "id",
+          "para": "id_kanban_preferencias",
+          "row": 369
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_kanban_preferencias",
+          "row": 370
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_kanban_preferencias",
+          "row": 371
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoGeral": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "transferencias",
+          "para": "transferencias_pedido",
+          "row": 375
+        },
+        {
+          "de": "tipo_operacao",
+          "para": "tipo_operacao_pedido",
+          "row": 376
+        },
+        {
+          "de": "taxa_cambio_estimada",
+          "para": "taxa_cambio_estimada_pedido",
+          "row": 377
+        },
+        {
+          "de": "status",
+          "para": "status_pedido",
+          "row": 378
+        },
+        {
+          "de": "snapshots_ope",
+          "para": "snapshots_ope_pedido",
+          "row": 379
+        },
+        {
+          "de": "snapshots_empresa",
+          "para": "snapshots_empresa_pedido",
+          "row": 380
+        },
+        {
+          "de": "referencia_importador",
+          "para": "referencia_importador_pedido",
+          "row": 381
+        },
+        {
+          "de": "referencia_fabricante",
+          "para": "referencia_fabricante_pedido",
+          "row": 382
+        },
+        {
+          "de": "referencia_exportador",
+          "para": "referencia_exportador_pedido",
+          "row": 383
+        },
+        {
+          "de": "numero_proforma",
+          "para": "numero_proforma_pedido",
+          "row": 388
+        },
+        {
+          "de": "numero_invoice",
+          "para": "numero_invoice_pedido",
+          "row": 390
+        },
+        {
+          "de": "itens",
+          "para": "itens_pedido",
+          "row": 393
+        },
+        {
+          "de": "incoterm",
+          "para": "incoterm_pedido",
+          "row": 394
+        },
+        {
+          "de": "pedidos_origem_id",
+          "para": "ids_origem_consolidacao_pedido",
+          "row": 395
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 396
+        },
+        {
+          "de": "status_id",
+          "para": "id_status_pedido",
+          "row": 397
+        },
+        {
+          "de": "id",
+          "para": "id_pedido",
+          "row": 398
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 399
+        },
+        {
+          "de": "importacao_exportador_id",
+          "para": "id_importacao_exportador_pedido",
+          "row": 400
+        },
+        {
+          "de": "fabricante_id",
+          "para": "id_fabricante_pedido",
+          "row": 401
+        },
+        {
+          "de": "exportacao_importador_id",
+          "para": "id_exportacao_importador_pedido",
+          "row": 402
+        },
+        {
+          "de": "detalhes_operacionais",
+          "para": "detalhes_operacionais_pedido",
+          "row": 403
+        },
+        {
+          "de": "data_prev_recebimento_original_proforma",
+          "para": "data_previsao_recebimento_original_proforma_pedido",
+          "row": 407
+        },
+        {
+          "de": "data_prev_recebimento_original_invoice",
+          "para": "data_previsao_recebimento_original_invoice_pedido",
+          "row": 408
+        },
+        {
+          "de": "data_prev_recebimento_draft_proforma",
+          "para": "data_previsao_recebimento_draft_proforma_pedido",
+          "row": 409
+        },
+        {
+          "de": "data_prev_recebimento_draft_pedido",
+          "para": "data_previsao_recebimento_draft_pedido",
+          "row": 410
+        },
+        {
+          "de": "data_prev_recebimento_draft_invoice",
+          "para": "data_previsao_recebimento_draft_invoice_pedido",
+          "row": 411
+        },
+        {
+          "de": "data_prev_envio_original_proforma",
+          "para": "data_previsao_envio_original_proforma_pedido",
+          "row": 412
+        },
+        {
+          "de": "data_prev_envio_original_invoice",
+          "para": "data_previsao_envio_original_invoice_pedido",
+          "row": 413
+        },
+        {
+          "de": "data_prev_aprovacao_draft_proforma",
+          "para": "data_previsao_aprovacao_draft_proforma_pedido",
+          "row": 414
+        },
+        {
+          "de": "data_prev_aprovacao_draft_pedido",
+          "para": "data_previsao_aprovacao_draft_pedido",
+          "row": 415
+        },
+        {
+          "de": "data_prev_aprovacao_draft_invoice",
+          "para": "data_previsao_aprovacao_draft_invoice_pedido",
+          "row": 416
+        },
+        {
+          "de": "data_meta_recebimento_original_proforma",
+          "para": "data_meta_recebimento_original_proforma_pedido",
+          "row": 417
+        },
+        {
+          "de": "data_meta_recebimento_original_invoice",
+          "para": "data_meta_recebimento_original_invoice_pedido",
+          "row": 418
+        },
+        {
+          "de": "data_meta_recebimento_draft_proforma",
+          "para": "data_meta_recebimento_draft_proforma_pedido",
+          "row": 419
+        },
+        {
+          "de": "data_meta_recebimento_draft_invoice",
+          "para": "data_meta_recebimento_draft_invoice_pedido",
+          "row": 421
+        },
+        {
+          "de": "data_meta_envio_original_proforma",
+          "para": "data_meta_envio_original_proforma_pedido",
+          "row": 424
+        },
+        {
+          "de": "data_meta_envio_original_invoice",
+          "para": "data_meta_envio_original_invoice_pedido",
+          "row": 425
+        },
+        {
+          "de": "data_meta_aprovacao_draft_proforma",
+          "para": "data_meta_aprovacao_draft_proforma_pedido",
+          "row": 427
+        },
+        {
+          "de": "data_meta_aprovacao_draft_invoice",
+          "para": "data_meta_aprovacao_draft_invoice_pedido",
+          "row": 429
+        },
+        {
+          "de": "deleted_at",
+          "para": "data_exclusao_pedido",
+          "row": 430
+        },
+        {
+          "de": "data_documento_proforma",
+          "para": "data_documento_proforma_pedido",
+          "row": 432
+        },
+        {
+          "de": "data_documento_invoice",
+          "para": "data_documento_invoice_pedido",
+          "row": 434
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_pedido",
+          "row": 435
+        },
+        {
+          "de": "data_conf_recebimento_original_proforma",
+          "para": "data_confirmacao_recebimento_original_proforma_pedido",
+          "row": 440
+        },
+        {
+          "de": "data_conf_recebimento_original_invoice",
+          "para": "data_confirmacao_recebimento_original_invoice_pedido",
+          "row": 441
+        },
+        {
+          "de": "data_conf_recebimento_draft_proforma",
+          "para": "data_confirmacao_recebimento_draft_proforma_pedido",
+          "row": 442
+        },
+        {
+          "de": "data_conf_recebimento_draft_pedido",
+          "para": "data_confirmacao_recebimento_draft_pedido",
+          "row": 443
+        },
+        {
+          "de": "data_conf_recebimento_draft_invoice",
+          "para": "data_confirmacao_recebimento_draft_invoice_pedido",
+          "row": 444
+        },
+        {
+          "de": "data_conf_envio_original_proforma",
+          "para": "data_confirmacao_envio_original_proforma_pedido",
+          "row": 445
+        },
+        {
+          "de": "data_conf_envio_original_invoice",
+          "para": "data_confirmacao_envio_original_invoice_pedido",
+          "row": 446
+        },
+        {
+          "de": "data_conf_aprovacao_draft_proforma",
+          "para": "data_confirmacao_aprovacao_draft_proforma_pedido",
+          "row": 447
+        },
+        {
+          "de": "data_conf_aprovacao_draft_pedido",
+          "para": "data_confirmacao_aprovacao_draft_pedido",
+          "row": 448
+        },
+        {
+          "de": "data_conf_aprovacao_draft_invoice",
+          "para": "data_confirmacao_aprovacao_draft_invoice_pedido",
+          "row": 449
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido",
+          "row": 450
+        },
+        {
+          "de": "campos_custom",
+          "para": "dados_extras_importacao_pedido",
+          "row": 451
+        },
+        {
+          "de": "condicao_pagamento",
+          "para": "condicao_pagamento_pedido",
+          "row": 454
+        },
+        {
+          "de": "cnpj_importador",
+          "para": "cnpj_importador_pedido",
+          "row": 456
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Pedido": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 461
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 462
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 463
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 464
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 465
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 466
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 467
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoCasasDecimais": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "quantidade_transferida_total",
+          "para": "quantidade_transferida_total_pedido_casas_decimais",
+          "row": 471
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_casas_decimais",
+          "row": 478
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 479
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 13
+    },
+    "PedidoColuna": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "tipo",
+          "para": "tipo_pedido_coluna",
+          "row": 484
+        },
+        {
+          "de": "rotulo",
+          "para": "rotulo_pedido_coluna",
+          "row": 485
+        },
+        {
+          "de": "ordem",
+          "para": "ordem_pedido_coluna",
+          "row": 486
+        },
+        {
+          "de": "opcoes",
+          "para": "opcoes_pedido_coluna",
+          "row": 487
+        },
+        {
+          "de": "nome",
+          "para": "nome_pedido_coluna",
+          "row": 488
+        },
+        {
+          "de": "index_criado",
+          "para": "index_criado_pedido_coluna",
+          "row": 489
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 490
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_coluna",
+          "row": 491
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 492
+        },
+        {
+          "de": "filtravel",
+          "para": "filtravel_pedido_coluna",
+          "row": 493
+        },
+        {
+          "de": "exibida_padrao",
+          "para": "exibida_padrao_pedido_coluna",
+          "row": 494
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_pedido_coluna",
+          "row": 495
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido_coluna",
+          "row": 496
+        },
+        {
+          "de": "casas_decimais",
+          "para": "casas_decimais_pedido_coluna",
+          "row": 497
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoSnapshotConfiguracao": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "atualiza_importador",
+          "para": "matriz_snapshot_politica_snapshot_cadastros",
+          "row": 498
+        },
+        {
+          "de": "id",
+          "para": "id_politica_snapshot_cadastros",
+          "row": 500
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_politica_snapshot_cadastros",
+          "row": 505
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_politica_snapshot_cadastros",
+          "row": 506
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoConfigAtualizacaoCadastros": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [],
+      "delete": [
+        {
+          "col": "resnap_em_emissao",
+          "row": 502
+        },
+        {
+          "col": "resnap_em_embarque",
+          "row": 503
+        },
+        {
+          "col": "resnap_em_desembaraco",
+          "row": 504
+        },
+        {
+          "col": "atualiza_ope",
+          "row": 507
+        },
+        {
+          "col": "atualiza_fabricante",
+          "row": 508
+        },
+        {
+          "col": "atualiza_exportador",
+          "row": 509
+        },
+        {
+          "col": "atualiza_despachante",
+          "row": 510
+        },
+        {
+          "col": "atualiza_armador",
+          "row": 511
+        },
+        {
+          "col": "atualiza_agente",
+          "row": 512
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoItem": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 535
+        },
+        {
+          "de": "pedido_id",
+          "para": "id_pedido",
+          "row": 536
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 537
+        }
+      ],
+      "delete": [
+        {
+          "col": "embarques_efetivos",
+          "row": 539
+        }
+      ],
+      "create": [],
+      "noop_count": 35
+    },
+    "PedidoPreferenciaPadrao": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 552
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_preferencia_padrao",
+          "row": 553
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 554
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido_preferencia_padrao",
+          "row": 555
+        },
+        {
+          "de": "colunas_visiveis",
+          "para": "colunas_visiveis_pedido_preferencia_padrao",
+          "row": 556
+        },
+        {
+          "de": "colunas_largura",
+          "para": "colunas_largura_pedido_preferencia_padrao",
+          "row": 557
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoPreferenciaUsuario": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 558
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 559
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_colunas_preferencia_usuario",
+          "row": 560
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 561
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido_preferencia_usuario",
+          "row": 562
+        },
+        {
+          "de": "colunas_visiveis",
+          "para": "colunas_visiveis_pedido_preferencia_usuario",
+          "row": 563
+        },
+        {
+          "de": "colunas_largura",
+          "para": "colunas_largura_pedido_preferencia_usuario",
+          "row": 564
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoSaldoFormula": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "product_id",
+          "para": "id_produto",
+          "row": 565
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_saldo_formula",
+          "row": 566
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 567
+        },
+        {
+          "de": "formula_expressao",
+          "para": "formula_expressao_pedido_saldo_formula",
+          "row": 568
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_pedido_saldo_formula",
+          "row": 569
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido_saldo_formula",
+          "row": 570
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoSnapshotEmpresa": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "tipo_documento",
+          "para": "tipo_documento_pedido_snapshot_empresa",
+          "row": 571
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_snapshot_empresa",
+          "row": 581
+        },
+        {
+          "de": "documento_principal",
+          "para": "documento_principal_pedido_snapshot_empresa",
+          "row": 590
+        },
+        {
+          "de": "cnpj_raiz",
+          "para": "cnpj_raiz_pedido_snapshot_empresa",
+          "row": 597
+        }
+      ],
+      "delete": [
+        {
+          "col": "relacao_exportador_fabricante",
+          "row": 573
+        },
+        {
+          "col": "pedido",
+          "row": 574
+        },
+        {
+          "col": "nome_fantasia",
+          "row": 578
+        },
+        {
+          "col": "motivo_congelamento",
+          "row": 579
+        },
+        {
+          "col": "exportador_e_fabricante",
+          "row": 584
+        },
+        {
+          "col": "endereco_numero",
+          "row": 587
+        },
+        {
+          "col": "endereco_complemento",
+          "row": 588
+        },
+        {
+          "col": "endereco_bairro",
+          "row": 589
+        },
+        {
+          "col": "contato_whatsapp",
+          "row": 591
+        },
+        {
+          "col": "contato_nome",
+          "row": 592
+        },
+        {
+          "col": "contato_email",
+          "row": 593
+        },
+        {
+          "col": "contato_departamento",
+          "row": 594
+        },
+        {
+          "col": "contato_cargo",
+          "row": 595
+        },
+        {
+          "col": "congelado_em",
+          "row": 596
+        }
+      ],
+      "create": [],
+      "noop_count": 11
+    },
+    "PedidoSnapshotOpe": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "motivo_congelamento",
+          "para": "motivo_congelamento_pedido_snapshot_ope",
+          "row": 606
+        },
+        {
+          "de": "congelado_em",
+          "para": "congelado_em_pedido_snapshot_ope",
+          "row": 614
+        },
+        {
+          "de": "pedido",
+          "para": "acesso_pedido_snapshot_ope",
+          "row": 618
+        }
+      ],
+      "delete": [
+        {
+          "col": "zip_ope",
+          "row": 600
+        },
+        {
+          "col": "versao_ope",
+          "row": 601
+        },
+        {
+          "col": "tin_ope",
+          "row": 602
+        },
+        {
+          "col": "situacao_ope",
+          "row": 603
+        },
+        {
+          "col": "pais_ope",
+          "row": 604
+        },
+        {
+          "col": "nome_ope",
+          "row": 605
+        },
+        {
+          "col": "id_workspace",
+          "row": 607
+        },
+        {
+          "col": "id",
+          "row": 608
+        },
+        {
+          "col": "id_pedido",
+          "row": 609
+        },
+        {
+          "col": "id_organizacao",
+          "row": 610
+        },
+        {
+          "col": "estado_ope",
+          "row": 611
+        },
+        {
+          "col": "endereco_ope",
+          "row": 612
+        },
+        {
+          "col": "email_ope",
+          "row": 613
+        },
+        {
+          "col": "codigo_ope",
+          "row": 615
+        },
+        {
+          "col": "cnpj_raiz_empresa",
+          "row": 616
+        },
+        {
+          "col": "cidade_ope",
+          "row": 617
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoStatus": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "rotulo",
+          "para": "rotulo_pedido_status",
+          "row": 619
+        },
+        {
+          "de": "ordem",
+          "para": "ordem_pedido_status",
+          "row": 621
+        },
+        {
+          "de": "nome",
+          "para": "nome_pedido_status",
+          "row": 622
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 623
+        },
+        {
+          "de": "id",
+          "para": "id_pedido_status",
+          "row": 624
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 786
+        },
+        {
+          "de": "icone",
+          "para": "icone_pedido_status",
+          "row": 787
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_pedido_status",
+          "row": 789
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_pedido_status",
+          "row": 790
+        },
+        {
+          "de": "cor",
+          "para": "cor_pedido_status",
+          "row": 791
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 2
+    },
+    "Processo": {
+      "modulo": "Banco de Dados - Processo",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_processo",
+          "row": 625
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 626
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 627
+        },
+        {
+          "de": "estimativa_custo_id",
+          "para": "id_estimativa_custo",
+          "row": 628
+        },
+        {
+          "de": "cotacao_frete_id",
+          "para": "id_cotacao_frete",
+          "row": 629
+        },
+        {
+          "de": "status_embarque",
+          "para": "status_embarque_processo",
+          "row": 630
+        },
+        {
+          "de": "tipo_operacao",
+          "para": "tipo_operacao_processo",
+          "row": 631
+        },
+        {
+          "de": "referencia_processo",
+          "para": "referencia_processo_processo",
+          "row": 632
+        },
+        {
+          "de": "id_processo",
+          "para": "id_processo_processo",
+          "row": 633
+        },
+        {
+          "de": "responsavel_processo",
+          "para": "responsavel_processo_processo",
+          "row": 634
+        },
+        {
+          "de": "responsavel_rotina",
+          "para": "responsavel_rotina_processo",
+          "row": 635
+        },
+        {
+          "de": "setor_responsavel",
+          "para": "setor_responsavel_processo",
+          "row": 636
+        },
+        {
+          "de": "vendedor_responsavel",
+          "para": "vendedor_responsavel_processo",
+          "row": 637
+        },
+        {
+          "de": "canal_parametrizacao",
+          "para": "canal_parametrizacao_processo",
+          "row": 638
+        },
+        {
+          "de": "importacao_exportador_id",
+          "para": "id_importacao_exportador",
+          "row": 639
+        },
+        {
+          "de": "exportacao_importador_id",
+          "para": "id_exportacao_importador",
+          "row": 640
+        },
+        {
+          "de": "agente_carga_id",
+          "para": "id_agente_carga",
+          "row": 641
+        },
+        {
+          "de": "armador_id",
+          "para": "id_armador",
+          "row": 642
+        },
+        {
+          "de": "cia_aerea_id",
+          "para": "id_cia_aerea",
+          "row": 643
+        },
+        {
+          "de": "transportador_rodo_internacional_id",
+          "para": "id_transportador_rodo_internacional",
+          "row": 644
+        },
+        {
+          "de": "transportador_rodo_nacional_id",
+          "para": "id_transportador_rodo_nacional",
+          "row": 645
+        },
+        {
+          "de": "transportador_ferroviario_id",
+          "para": "id_transportador_ferroviario",
+          "row": 646
+        },
+        {
+          "de": "despachante_id",
+          "para": "id_despachante",
+          "row": 647
+        },
+        {
+          "de": "armazem_alfandegado_id",
+          "para": "id_armazem_alfandegado",
+          "row": 648
+        },
+        {
+          "de": "securadora_internacional_id",
+          "para": "id_securadora_internacional",
+          "row": 649
+        },
+        {
+          "de": "banco_id",
+          "para": "id_banco",
+          "row": 650
+        },
+        {
+          "de": "corretora_cambio_id",
+          "para": "id_corretora_cambio",
+          "row": 651
+        },
+        {
+          "de": "moeda_pedido",
+          "para": "moeda_pedido_processo",
+          "row": 652
+        },
+        {
+          "de": "valor_total_pedido",
+          "para": "valor_total_pedido_processo",
+          "row": 653
+        },
+        {
+          "de": "incoterm",
+          "para": "incoterm_processo",
+          "row": 654
+        },
+        {
+          "de": "premio_seguro_internacional",
+          "para": "premio_seguro_internacional_processo",
+          "row": 655
+        },
+        {
+          "de": "modal_frete_internacional",
+          "para": "modal_frete_internacional_processo",
+          "row": 656
+        },
+        {
+          "de": "porto_origem",
+          "para": "porto_origem_processo",
+          "row": 657
+        },
+        {
+          "de": "porto_transbordo",
+          "para": "porto_transbordo_processo",
+          "row": 658
+        },
+        {
+          "de": "porto_destino",
+          "para": "porto_destino_processo",
+          "row": 659
+        },
+        {
+          "de": "aeroporto_origem",
+          "para": "aeroporto_origem_processo",
+          "row": 660
+        },
+        {
+          "de": "aeroporto_escala",
+          "para": "aeroporto_escala_processo",
+          "row": 661
+        },
+        {
+          "de": "aeroporto_destino",
+          "para": "aeroporto_destino_processo",
+          "row": 662
+        },
+        {
+          "de": "transit_time_previsto_frete_internacional",
+          "para": "transit_time_previsto_frete_internacional_processo",
+          "row": 663
+        },
+        {
+          "de": "moeda_frete_internacional",
+          "para": "moeda_frete_internacional_processo",
+          "row": 664
+        },
+        {
+          "de": "tipo_frete_internacional",
+          "para": "tipo_frete_internacional_processo",
+          "row": 665
+        },
+        {
+          "de": "proposta_frete_internacional",
+          "para": "proposta_frete_internacional_processo",
+          "row": 666
+        },
+        {
+          "de": "valor_frete_internacional_estimado",
+          "para": "valor_frete_internacional_estimado_processo",
+          "row": 667
+        },
+        {
+          "de": "valor_total_frete_internacional",
+          "para": "valor_total_frete_internacional_processo",
+          "row": 668
+        },
+        {
+          "de": "valor_total_taxas_origem_frete_internacional",
+          "para": "valor_total_taxas_origem_frete_internacional_processo",
+          "row": 669
+        },
+        {
+          "de": "valor_total_taxas_destino_frete_internacional",
+          "para": "valor_total_taxas_destino_frete_internacional_processo",
+          "row": 670
+        },
+        {
+          "de": "tipo_volume",
+          "para": "tipo_volume_processo",
+          "row": 671
+        },
+        {
+          "de": "quantidade_total_volumes",
+          "para": "quantidade_total_volumes_processo",
+          "row": 672
+        },
+        {
+          "de": "peso_bruto_total",
+          "para": "peso_bruto_total_processo",
+          "row": 673
+        },
+        {
+          "de": "peso_liquido_total",
+          "para": "peso_liquido_total_processo",
+          "row": 674
+        },
+        {
+          "de": "data_pedido",
+          "para": "data_pedido_processo",
+          "row": 675
+        },
+        {
+          "de": "data_pedido_aberto",
+          "para": "data_pedido_aberto_processo",
+          "row": 676
+        },
+        {
+          "de": "data_previsao_pedido",
+          "para": "data_previsao_pedido_processo",
+          "row": 677
+        },
+        {
+          "de": "data_pedido_pronto",
+          "para": "data_pedido_pronto_processo",
+          "row": 678
+        },
+        {
+          "de": "data_pedido_consolidado",
+          "para": "data_pedido_consolidado_processo",
+          "row": 679
+        },
+        {
+          "de": "data_previsao_coleta_pedido_origem",
+          "para": "data_previsao_coleta_pedido_origem_processo",
+          "row": 680
+        },
+        {
+          "de": "data_coleta_pedido_origem",
+          "para": "data_coleta_pedido_origem_processo",
+          "row": 681
+        },
+        {
+          "de": "data_previsao_entrega_pedido_origem",
+          "para": "data_previsao_entrega_pedido_origem_processo",
+          "row": 682
+        },
+        {
+          "de": "data_entrega_pedido_origem",
+          "para": "data_entrega_pedido_origem_processo",
+          "row": 683
+        },
+        {
+          "de": "data_previsao_carregamento_container",
+          "para": "data_previsao_carregamento_container_processo",
+          "row": 684
+        },
+        {
+          "de": "data_carregamento_container",
+          "para": "data_carregamento_container_processo",
+          "row": 685
+        },
+        {
+          "de": "data_previsao_coleta_embarque_origem",
+          "para": "data_previsao_coleta_embarque_origem_processo",
+          "row": 686
+        },
+        {
+          "de": "data_coleta_embarque_origem",
+          "para": "data_coleta_embarque_origem_processo",
+          "row": 687
+        },
+        {
+          "de": "data_previsao_entrega_embarque_origem",
+          "para": "data_previsao_entrega_embarque_origem_processo",
+          "row": 688
+        },
+        {
+          "de": "data_entrega_embarque_origem",
+          "para": "data_entrega_embarque_origem_processo",
+          "row": 689
+        },
+        {
+          "de": "data_previsao_coleta_container_origem",
+          "para": "data_previsao_coleta_container_origem_processo",
+          "row": 690
+        },
+        {
+          "de": "data_coleta_container_origem",
+          "para": "data_coleta_container_origem_processo",
+          "row": 691
+        },
+        {
+          "de": "data_previsao_entrega_container_origem",
+          "para": "data_previsao_entrega_container_origem_processo",
+          "row": 692
+        },
+        {
+          "de": "data_entrega_container_origem",
+          "para": "data_entrega_container_origem_processo",
+          "row": 693
+        },
+        {
+          "de": "data_previsao_embarque_origem_etd",
+          "para": "data_previsao_embarque_origem_etd_processo",
+          "row": 694
+        },
+        {
+          "de": "data_embarque_origem",
+          "para": "data_embarque_origem_processo",
+          "row": 695
+        },
+        {
+          "de": "data_previsao_transbordo_embarque",
+          "para": "data_previsao_transbordo_embarque_processo",
+          "row": 696
+        },
+        {
+          "de": "data_transbordo_embarque",
+          "para": "data_transbordo_embarque_processo",
+          "row": 697
+        },
+        {
+          "de": "data_previsao_chegada_destino_eta",
+          "para": "data_previsao_chegada_destino_eta_processo",
+          "row": 698
+        },
+        {
+          "de": "data_chegada_destino_eta",
+          "para": "data_chegada_destino_eta_processo",
+          "row": 699
+        },
+        {
+          "de": "data_previsao_presenca_carga_destino",
+          "para": "data_previsao_presenca_carga_destino_processo",
+          "row": 700
+        },
+        {
+          "de": "data_presenca_carga_destino",
+          "para": "data_presenca_carga_destino_processo",
+          "row": 701
+        },
+        {
+          "de": "data_previsao_registro_duimp",
+          "para": "data_previsao_registro_duimp_processo",
+          "row": 702
+        },
+        {
+          "de": "data_registro_duimp",
+          "para": "data_registro_duimp_processo",
+          "row": 703
+        },
+        {
+          "de": "data_previsao_liberacao_duimp",
+          "para": "data_previsao_liberacao_duimp_processo",
+          "row": 704
+        },
+        {
+          "de": "data_liberacao_duimp",
+          "para": "data_liberacao_duimp_processo",
+          "row": 705
+        },
+        {
+          "de": "data_consulta_liberacao_duimp",
+          "para": "data_consulta_liberacao_duimp_processo",
+          "row": 706
+        },
+        {
+          "de": "data_previsao_registro_lpco",
+          "para": "data_previsao_registro_lpco_processo",
+          "row": 707
+        },
+        {
+          "de": "data_registro_lpco",
+          "para": "data_registro_lpco_processo",
+          "row": 708
+        },
+        {
+          "de": "data_deferimento_lpco",
+          "para": "data_deferimento_lpco_processo",
+          "row": 709
+        },
+        {
+          "de": "data_indeferimento_lpco",
+          "para": "data_indeferimento_lpco_processo",
+          "row": 710
+        },
+        {
+          "de": "data_pendencia_lpco",
+          "para": "data_pendencia_lpco_processo",
+          "row": 711
+        },
+        {
+          "de": "data_consulta_liberacao_lpco",
+          "para": "data_consulta_liberacao_lpco_processo",
+          "row": 712
+        },
+        {
+          "de": "numero_certificado_origem",
+          "para": "numero_certificado_origem_processo",
+          "row": 713
+        },
+        {
+          "de": "numero_bl",
+          "para": "numero_bl_processo",
+          "row": 714
+        },
+        {
+          "de": "numero_mbl",
+          "para": "numero_mbl_processo",
+          "row": 715
+        },
+        {
+          "de": "numero_hbl",
+          "para": "numero_hbl_processo",
+          "row": 716
+        },
+        {
+          "de": "numero_awb",
+          "para": "numero_awb_processo",
+          "row": 717
+        },
+        {
+          "de": "numero_mawb",
+          "para": "numero_mawb_processo",
+          "row": 718
+        },
+        {
+          "de": "numero_hawb",
+          "para": "numero_hawb_processo",
+          "row": 719
+        },
+        {
+          "de": "numero_crt",
+          "para": "numero_crt_processo",
+          "row": 720
+        },
+        {
+          "de": "numero_cim",
+          "para": "numero_cim_processo",
+          "row": 721
+        },
+        {
+          "de": "numero_ce_mercante",
+          "para": "numero_ce_mercante_processo",
+          "row": 722
+        },
+        {
+          "de": "numero_presenca_carga_destino",
+          "para": "numero_presenca_carga_destino_processo",
+          "row": 723
+        },
+        {
+          "de": "numero_duimp",
+          "para": "numero_duimp_processo",
+          "row": 724
+        },
+        {
+          "de": "numero_nfe",
+          "para": "numero_nfe_processo",
+          "row": 725
+        },
+        {
+          "de": "chave_acesso_nfe",
+          "para": "chave_acesso_nfe_processo",
+          "row": 726
+        },
+        {
+          "de": "total_imposto_ii",
+          "para": "total_imposto_ii_processo",
+          "row": 727
+        },
+        {
+          "de": "total_imposto_ipi",
+          "para": "total_imposto_ipi_processo",
+          "row": 728
+        },
+        {
+          "de": "total_imposto_pis",
+          "para": "total_imposto_pis_processo",
+          "row": 729
+        },
+        {
+          "de": "total_imposto_cofins",
+          "para": "total_imposto_cofins_processo",
+          "row": 730
+        },
+        {
+          "de": "total_imposto_icms",
+          "para": "total_imposto_icms_processo",
+          "row": 731
+        },
+        {
+          "de": "detalhes_fiscais",
+          "para": "detalhes_fiscais_processo",
+          "row": 732
+        },
+        {
+          "de": "detalhes_logisticos",
+          "para": "detalhes_logisticos_processo",
+          "row": 733
+        },
+        {
+          "de": "detalhes_financeiros",
+          "para": "detalhes_financeiros_processo",
+          "row": 734
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_processo",
+          "row": 735
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_processo",
+          "row": 736
+        },
+        {
+          "de": "containers",
+          "para": "containers_processo",
+          "row": 737
+        },
+        {
+          "de": "faturas",
+          "para": "faturas_processo",
+          "row": 738
+        },
+        {
+          "de": "itens_processo",
+          "para": "itens_processo_processo",
+          "row": 739
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProcessoContainer": {
+      "modulo": "Banco de Dados - Processo",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_processo_container",
+          "row": 740
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 741
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 742
+        },
+        {
+          "de": "processo_id",
+          "para": "id_processo",
+          "row": 743
+        },
+        {
+          "de": "container_numero",
+          "para": "container_numero_processo_container",
+          "row": 744
+        },
+        {
+          "de": "container_lacre",
+          "para": "container_lacre_processo_container",
+          "row": 745
+        },
+        {
+          "de": "container_tipo",
+          "para": "container_tipo_processo_container",
+          "row": 746
+        },
+        {
+          "de": "container_tara",
+          "para": "container_tara_processo_container",
+          "row": 747
+        },
+        {
+          "de": "container_peso_bruto",
+          "para": "container_peso_bruto_processo_container",
+          "row": 748
+        },
+        {
+          "de": "container_peso_liquido",
+          "para": "container_peso_liquido_processo_container",
+          "row": 749
+        },
+        {
+          "de": "container_metragem_cubica",
+          "para": "container_metragem_cubica_processo_container",
+          "row": 750
+        },
+        {
+          "de": "data_devolucao_prevista",
+          "para": "data_devolucao_prevista_processo_container",
+          "row": 751
+        },
+        {
+          "de": "data_devolucao_real",
+          "para": "data_devolucao_real_processo_container",
+          "row": 752
+        },
+        {
+          "de": "local_devolucao",
+          "para": "local_devolucao_processo_container",
+          "row": 753
+        },
+        {
+          "de": "processo",
+          "para": "processo_processo_container",
+          "row": 754
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProcessoFatura": {
+      "modulo": "Banco de Dados - Processo",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_processo_fatura",
+          "row": 755
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 756
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 757
+        },
+        {
+          "de": "processo_id",
+          "para": "id_processo",
+          "row": 758
+        },
+        {
+          "de": "tipo_fatura",
+          "para": "tipo_fatura_processo_fatura",
+          "row": 759
+        },
+        {
+          "de": "numero_fatura",
+          "para": "numero_fatura_processo_fatura",
+          "row": 760
+        },
+        {
+          "de": "moeda_fatura",
+          "para": "moeda_fatura_processo_fatura",
+          "row": 761
+        },
+        {
+          "de": "valor_total",
+          "para": "valor_total_processo_fatura",
+          "row": 762
+        },
+        {
+          "de": "valor_pago",
+          "para": "valor_pago_processo_fatura",
+          "row": 763
+        },
+        {
+          "de": "data_vencimento",
+          "para": "data_vencimento_processo_fatura",
+          "row": 764
+        },
+        {
+          "de": "status_pagamento",
+          "para": "status_pagamento_processo_fatura",
+          "row": 765
+        },
+        {
+          "de": "processo",
+          "para": "processo_processo_fatura",
+          "row": 766
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProcessoItem": {
+      "modulo": "Banco de Dados - Processo",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_processo_item",
+          "row": 767
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 768
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 769
+        },
+        {
+          "de": "processo_id",
+          "para": "id_processo",
+          "row": 770
+        },
+        {
+          "de": "pedido_item_id",
+          "para": "id_pedido_item",
+          "row": 771
+        },
+        {
+          "de": "sequencia_item",
+          "para": "sequencia_item_processo_item",
+          "row": 772
+        },
+        {
+          "de": "part_number",
+          "para": "part_number_processo_item",
+          "row": 773
+        },
+        {
+          "de": "ncm",
+          "para": "ncm_processo_item",
+          "row": 774
+        },
+        {
+          "de": "descricao_po",
+          "para": "descricao_po_processo_item",
+          "row": 775
+        },
+        {
+          "de": "descricao_en",
+          "para": "descricao_en_processo_item",
+          "row": 776
+        },
+        {
+          "de": "quantidade",
+          "para": "quantidade_processo_item",
+          "row": 777
+        },
+        {
+          "de": "unidade_comercializada_item",
+          "para": "unidade_comercializada_item_processo_item",
+          "row": 778
+        },
+        {
+          "de": "valor_unitario",
+          "para": "valor_unitario_processo_item",
+          "row": 779
+        },
+        {
+          "de": "valor_total",
+          "para": "valor_total_processo_item",
+          "row": 780
+        },
+        {
+          "de": "peso_liquido_unitario",
+          "para": "peso_liquido_unitario_processo_item",
+          "row": 781
+        },
+        {
+          "de": "peso_bruto_unitario",
+          "para": "peso_bruto_unitario_processo_item",
+          "row": 782
+        },
+        {
+          "de": "detalhes_do_produto",
+          "para": "detalhes_do_produto_processo_item",
+          "row": 783
+        },
+        {
+          "de": "pedido_item",
+          "para": "pedido_item_processo_item",
+          "row": 784
+        },
+        {
+          "de": "processo",
+          "para": "processo_processo_item",
+          "row": 785
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoTemplate": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "nome",
+          "para": "nome_template_pedido",
+          "row": 792
+        },
+        {
+          "de": "id",
+          "para": "id_template_pedido",
+          "row": 793
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 794
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 795
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_template_pedido",
+          "row": 796
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_template_pedido",
+          "row": 797
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_template_pedido",
+          "row": 798
+        },
+        {
+          "de": "conteudo_html",
+          "para": "conteudo_html_template_pedido",
+          "row": 799
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "TrackingItemsTransferidos": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "revertido",
+          "para": "revertido_tracking_items_transferidos",
+          "row": 800
+        },
+        {
+          "de": "revertido_por",
+          "para": "revertido_por_tracking_items_transferidos",
+          "row": 801
+        },
+        {
+          "de": "revertido_em",
+          "para": "revertido_em_tracking_items_transferidos",
+          "row": 802
+        },
+        {
+          "de": "id",
+          "para": "id_tracking_items_transferidos",
+          "row": 805
+        },
+        {
+          "de": "pedido_origem_id",
+          "para": "id_pedido_origem",
+          "row": 807
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 808
+        },
+        {
+          "de": "item_origem_id",
+          "para": "id_item_origem",
+          "row": 809
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_tracking_items_transferidos",
+          "row": 812
+        },
+        {
+          "de": "cenario",
+          "para": "cenario_tracking_items_transferidos",
+          "row": 814
+        }
+      ],
+      "delete": [
+        {
+          "col": "data_transferencia_qtd",
+          "row": 811
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 815
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 816
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1543
+        }
+      ],
+      "create": [],
+      "noop_count": 5
+    },
+    "EmailRegistroEnvio": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_email_registro_envio",
+          "row": 826
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 827
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 828
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 829
+        },
+        {
+          "de": "to",
+          "para": "destinatario_email_registro_envio",
+          "row": 830
+        },
+        {
+          "de": "from",
+          "para": "remetente_email_registro_envio",
+          "row": 831
+        },
+        {
+          "de": "reply_to",
+          "para": "responder_para_email_registro_envio",
+          "row": 832
+        },
+        {
+          "de": "subject",
+          "para": "assunto_email_registro_envio",
+          "row": 833
+        },
+        {
+          "de": "template_id",
+          "para": "id_template_email",
+          "row": 834
+        },
+        {
+          "de": "status",
+          "para": "status_email_registro_envio",
+          "row": 835
+        },
+        {
+          "de": "resend_id",
+          "para": "id_resend",
+          "row": 836
+        },
+        {
+          "de": "dedup_key",
+          "para": "dedup_key_email_registro_envio",
+          "row": 837
+        },
+        {
+          "de": "tentativas",
+          "para": "tentativas_email_registro_envio",
+          "row": 838
+        },
+        {
+          "de": "max_tentativas",
+          "para": "max_tentativas_email_registro_envio",
+          "row": 839
+        },
+        {
+          "de": "next_retry_at",
+          "para": "data_proxima_tentativa_email_registro_envio",
+          "row": 840
+        },
+        {
+          "de": "error_message",
+          "para": "mensagem_erro_email_registro_envio",
+          "row": 841
+        },
+        {
+          "de": "enviado_at",
+          "para": "data_envio_email_registro_envio",
+          "row": 842
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_email_registro_envio",
+          "row": 843
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_email_registro_envio",
+          "row": 844
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "EscopoTokenServico": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "EmailTemplate": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_template_email",
+          "row": 846
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 847
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 848
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 849
+        },
+        {
+          "de": "nome",
+          "para": "nome_template_email",
+          "row": 850
+        },
+        {
+          "de": "slug",
+          "para": "slug_template_email",
+          "row": 851
+        },
+        {
+          "de": "assunto",
+          "para": "assunto_template_email",
+          "row": 852
+        },
+        {
+          "de": "corpo_html",
+          "para": "corpo_html_template_email",
+          "row": 853
+        },
+        {
+          "de": "corpo_texto",
+          "para": "corpo_texto_template_email",
+          "row": 854
+        },
+        {
+          "de": "variaveis",
+          "para": "variaveis_template_email",
+          "row": 855
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_template_email",
+          "row": 856
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_template_email",
+          "row": 857
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_template_email",
+          "row": 858
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_template_email",
+          "row": 859
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Empresa": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "suid",
+          "para": "suid_empresa",
+          "row": 1383
+        },
+        {
+          "de": "cnpj",
+          "para": "cnpj_empresa",
+          "row": 1386
+        },
+        {
+          "de": "tin",
+          "para": "tin_empresa",
+          "row": 1387
+        },
+        {
+          "de": "pais",
+          "para": "pais_empresa",
+          "row": 1388
+        },
+        {
+          "de": "estado",
+          "para": "estado_empresa",
+          "row": 1389
+        },
+        {
+          "de": "cidade",
+          "para": "cidade_empresa",
+          "row": 1390
+        },
+        {
+          "de": "endereco",
+          "para": "endereco_empresa",
+          "row": 1391
+        },
+        {
+          "de": "zipcode",
+          "para": "zipcode_empresa",
+          "row": 1392
+        },
+        {
+          "de": "email",
+          "para": "email_empresa",
+          "row": 1393
+        },
+        {
+          "de": "telefone",
+          "para": "telefone_empresa",
+          "row": 1394
+        },
+        {
+          "de": "whatsapp",
+          "para": "whatsapp_empresa",
+          "row": 1395
+        },
+        {
+          "de": "pode_ser_importador",
+          "para": "pode_ser_importador_empresa",
+          "row": 1396
+        },
+        {
+          "de": "pode_ser_exportador",
+          "para": "pode_ser_exportador_empresa",
+          "row": 1397
+        },
+        {
+          "de": "pode_ser_fabricante",
+          "para": "pode_ser_fabricante_empresa",
+          "row": 1398
+        },
+        {
+          "de": "pode_ser_agente",
+          "para": "pode_ser_agente_empresa",
+          "row": 1399
+        },
+        {
+          "de": "pode_ser_despachante",
+          "para": "pode_ser_despachante_empresa",
+          "row": 1400
+        },
+        {
+          "de": "pode_ser_armazem_alfandegado",
+          "para": "pode_ser_armazem_alfandegado_empresa",
+          "row": 1401
+        },
+        {
+          "de": "pode_ser_transportadora_rodoviaria_nacional",
+          "para": "pode_ser_transportadora_rodoviaria_nacional_empresa",
+          "row": 1402
+        },
+        {
+          "de": "pode_ser_armador",
+          "para": "pode_ser_armador_empresa",
+          "row": 1403
+        },
+        {
+          "de": "pode_ser_cia_aerea",
+          "para": "pode_ser_cia_aerea_empresa",
+          "row": 1404
+        },
+        {
+          "de": "pode_ser_transportadora_rodoviaria_internacional",
+          "para": "pode_ser_transportadora_rodoviaria_internacional_empresa",
+          "row": 1405
+        },
+        {
+          "de": "pode_ser_seguradora_internacional",
+          "para": "pode_ser_seguradora_internacional_empresa",
+          "row": 1406
+        },
+        {
+          "de": "pode_ser_banco",
+          "para": "pode_ser_banco_empresa",
+          "row": 1408
+        },
+        {
+          "de": "pode_ser_armazem_nacional",
+          "para": "pode_ser_armazem_nacional_empresa",
+          "row": 1409
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_empresa",
+          "row": 1410
+        },
+        {
+          "de": "criado_em",
+          "para": "criado_em_empresa",
+          "row": 1411
+        },
+        {
+          "de": "atualizado_em",
+          "para": "atualizado_em_empresa",
+          "row": 1412
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 860
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1492
+        }
+      ],
+      "create": [],
+      "noop_count": 3
+    },
+    "ExportarJob": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_exportar_job",
+          "row": 861
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 862
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 863
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 864
+        },
+        {
+          "de": "relatorio_id",
+          "para": "id_relatorios_salvos",
+          "row": 865
+        },
+        {
+          "de": "status",
+          "para": "status_exportar_job",
+          "row": 866
+        },
+        {
+          "de": "formato",
+          "para": "formato_exportar_job",
+          "row": 867
+        },
+        {
+          "de": "url_arquivo",
+          "para": "url_arquivo_exportar_job",
+          "row": 868
+        },
+        {
+          "de": "erro",
+          "para": "erro_exportar_job",
+          "row": 869
+        },
+        {
+          "de": "started_at",
+          "para": "data_inicio_exportar_job",
+          "row": 870
+        },
+        {
+          "de": "completed_at",
+          "para": "data_conclusao_exportar_job",
+          "row": 871
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_exportar_job",
+          "row": 872
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_exportar_job",
+          "row": 873
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ExportarResultado": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_exportar_resultado",
+          "row": 874
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 875
+        },
+        {
+          "de": "format",
+          "para": "formato_exportar_resultado",
+          "row": 876
+        },
+        {
+          "de": "content",
+          "para": "conteudo_exportar_resultado",
+          "row": 877
+        },
+        {
+          "de": "status",
+          "para": "status_exportar_resultado",
+          "row": 878
+        },
+        {
+          "de": "record_count",
+          "para": "quantidade_registros_exportar_resultado",
+          "row": 880
+        },
+        {
+          "de": "filters",
+          "para": "filtros_exportar_resultado",
+          "row": 881
+        },
+        {
+          "de": "error",
+          "para": "erro_exportar_resultado",
+          "row": 882
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_exportar_resultado",
+          "row": 883
+        },
+        {
+          "de": "expires_at",
+          "para": "data_expiracao_exportar_resultado",
+          "row": 884
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "FaturaStatus": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ExternalContact": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_contato",
+          "row": 885
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 886
+        },
+        {
+          "de": "created_by",
+          "para": "id_usuario_criador_contato",
+          "row": 887
+        },
+        {
+          "de": "name",
+          "para": "nome_contato",
+          "row": 888
+        },
+        {
+          "de": "email",
+          "para": "email_contato",
+          "row": 889
+        },
+        {
+          "de": "whatsapp_phone",
+          "para": "whatsapp_telefone_contato",
+          "row": 890
+        },
+        {
+          "de": "whatsapp_opt_in_at",
+          "para": "data_consentimento_whatsapp_contato",
+          "row": 891
+        },
+        {
+          "de": "notes",
+          "para": "notas_contato",
+          "row": 892
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_contato",
+          "row": 893
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_contato",
+          "row": 894
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiConversaCompleta": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_conversa_completa_gabi",
+          "row": 895
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 896
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 897
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 898
+        },
+        {
+          "de": "title",
+          "para": "titulo_conversa_completa_gabi",
+          "row": 899
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_conversa_completa_gabi",
+          "row": 900
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_conversa_completa_gabi",
+          "row": 901
+        },
+        {
+          "de": "messages",
+          "para": "mensagens_conversa_completa_gabi",
+          "row": 902
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiLogUso": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_gabi_log_uso",
+          "row": 903
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 904
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 905
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 906
+        },
+        {
+          "de": "action_taken",
+          "para": "id_produto_gravity",
+          "row": 907
+        },
+        {
+          "de": "conversation_snapshot",
+          "para": "snapshot_conversa_gabi_log_uso",
+          "row": 908
+        },
+        {
+          "de": "actor_type",
+          "para": "tipo_ator_gabi_log_uso",
+          "row": 909
+        },
+        {
+          "de": "triggered_by",
+          "para": "disparado_por_gabi_log_uso",
+          "row": 910
+        },
+        {
+          "de": "model_used",
+          "para": "modelo_usado_gabi_log_uso",
+          "row": 911
+        },
+        {
+          "de": "tokens_input",
+          "para": "tokens_entrada_gabi_log_uso",
+          "row": 912
+        },
+        {
+          "de": "tokens_output",
+          "para": "tokens_saida_gabi_log_uso",
+          "row": 913
+        },
+        {
+          "de": "cost_usd",
+          "para": "custo_usd_gabi_log_uso",
+          "row": 914
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_gabi_log_uso",
+          "row": 915
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiMensagemIndividual": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_mensagem_individual_gabi",
+          "row": 916
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 917
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 918
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 919
+        },
+        {
+          "de": "conversation_id",
+          "para": "id_conversa_completa_gabi",
+          "row": 920
+        },
+        {
+          "de": "conversation",
+          "para": "conversa_completa_gabi",
+          "row": 921
+        },
+        {
+          "de": "role",
+          "para": "papel_mensagem_individual_gabi",
+          "row": 922
+        },
+        {
+          "de": "content",
+          "para": "conteudo_mensagem_individual_gabi",
+          "row": 923
+        },
+        {
+          "de": "attachments",
+          "para": "anexos_mensagem_individual_gabi",
+          "row": 924
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_mensagem_individual_gabi",
+          "row": 925
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_mensagem_individual_gabi",
+          "row": 926
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiPersonalizacaoOrganizacao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_personalizacao_organizacao_gabiai",
+          "row": 927
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 928
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 929
+        },
+        {
+          "de": "system_prompt",
+          "para": "prompt_sistema_personalizacao_organizacao_gabi",
+          "row": 930
+        },
+        {
+          "de": "tom_voz",
+          "para": "tom_voz_personalizacao_organizacao_gabi",
+          "row": 931
+        },
+        {
+          "de": "limitacoes",
+          "para": "limitacoes_personalizacao_organizacao_gabi",
+          "row": 932
+        },
+        {
+          "de": "instrucoes_extras",
+          "para": "instrucoes_extras_personalizacao_organizacao_gabi",
+          "row": 933
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_personalizacao_organizacao_gabi",
+          "row": 934
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_personalizacao_organizacao_gabi",
+          "row": 935
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_personalizacao_organizacao_gabi",
+          "row": 936
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiTokensConsumidos": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_gabi_token_consumidos",
+          "row": 937
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 938
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 939
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 940
+        },
+        {
+          "de": "campo",
+          "para": "nome_campo_gabi_token_consumidos",
+          "row": 941
+        },
+        {
+          "de": "tokens_input",
+          "para": "tokens_entrada_gabi_token_consumidos",
+          "row": 942
+        },
+        {
+          "de": "tokens_output",
+          "para": "tokens_saida_gabi_token_consumidos",
+          "row": 943
+        },
+        {
+          "de": "tokens_total",
+          "para": "tokens_total_gabi_token_consumidos",
+          "row": 944
+        },
+        {
+          "de": "mes_ref",
+          "para": "mes_referencia_gabi_token_consumidos",
+          "row": 945
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_gabi_token_consumidos",
+          "row": 946
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "GabiTokensWorkspace": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_gabi_token_workspace",
+          "row": 947
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 948
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 949
+        },
+        {
+          "de": "quota_mensal",
+          "para": "quota_mensal_gabi_token_workspace",
+          "row": 950
+        },
+        {
+          "de": "mes_ref",
+          "para": "mes_referencia_gabi_token_workspace",
+          "row": 951
+        },
+        {
+          "de": "tokens_usados",
+          "para": "tokens_usados_gabi_token_workspace",
+          "row": 952
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_gabi_token_workspace",
+          "row": 953
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "HistoricoLog": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_historico_log",
+          "row": 954
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 955
+        },
+        {
+          "de": "actor_type",
+          "para": "tipo_ator_historico_log",
+          "row": 956
+        },
+        {
+          "de": "actor_id",
+          "para": "id_ator",
+          "row": 969
+        },
+        {
+          "de": "actor_name",
+          "para": "nome_ator_historico_log",
+          "row": 970
+        },
+        {
+          "de": "actor_ip",
+          "para": "ip_ator_historico_log",
+          "row": 971
+        },
+        {
+          "de": "actor_metadata",
+          "para": "metadados_ator_historico_log",
+          "row": 972
+        },
+        {
+          "de": "module",
+          "para": "modulo_historico_log",
+          "row": 973
+        },
+        {
+          "de": "resource_type",
+          "para": "tipo_recurso_historico_log",
+          "row": 974
+        },
+        {
+          "de": "resource_id",
+          "para": "id_recurso",
+          "row": 975
+        },
+        {
+          "de": "action",
+          "para": "acao_historico_log",
+          "row": 976
+        },
+        {
+          "de": "action_detail",
+          "para": "detalhe_acao_historico_log",
+          "row": 977
+        },
+        {
+          "de": "before",
+          "para": "antes_historico_log",
+          "row": 978
+        },
+        {
+          "de": "after",
+          "para": "depois_historico_log",
+          "row": 979
+        },
+        {
+          "de": "status",
+          "para": "status_historico_log",
+          "row": 980
+        },
+        {
+          "de": "error_message",
+          "para": "mensagem_erro_historico_log",
+          "row": 981
+        },
+        {
+          "de": "integrity_hash",
+          "para": "hash_integridade_historico_log",
+          "row": 982
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 983
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 984
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_historico_log",
+          "row": 985
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "LlmMetricas": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_metricas_gemini",
+          "row": 957
+        },
+        {
+          "de": "nome_llm",
+          "para": "nome_llm_metricas",
+          "row": 958
+        },
+        {
+          "de": "data_analise_llm",
+          "para": "data_analise_llm_metrica",
+          "row": 959
+        },
+        {
+          "de": "total_analise_llm",
+          "para": "total_analise_llm_metricas",
+          "row": 960
+        },
+        {
+          "de": "total_token_llm",
+          "para": "total_token_llm_metricas",
+          "row": 961
+        },
+        {
+          "de": "custo_llm",
+          "para": "custo_llm_metricas",
+          "row": 962
+        },
+        {
+          "de": "latencia_llm",
+          "para": "latencia_llm_metricas",
+          "row": 963
+        },
+        {
+          "de": "confianca_alta_llm",
+          "para": "confianca_alta_llm_metricas",
+          "row": 964
+        },
+        {
+          "de": "confianca_media_llm",
+          "para": "confianca_media_llm_metricas",
+          "row": 965
+        },
+        {
+          "de": "confianca_baixa_llm",
+          "para": "confianca_baixa_llm_metricas",
+          "row": 966
+        },
+        {
+          "de": "quantidade_codigo_validado_llm",
+          "para": "quantidade_codigo_validado_llm_metricas",
+          "row": 967
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_metricas",
+          "row": 968
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Kanban": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 986
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 987
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 988
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 989
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 990
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 991
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 992
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 993
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 994
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 995
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 996
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 997
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 998
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 999
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1000
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1001
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1002
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1003
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1004
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "MapeamentoErp": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1005
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1006
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1007
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1008
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1009
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "ModoDashboard": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "ModoDashboard",
+          "row": 1010
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "NcmItem": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_ncm_item",
+          "row": 1011
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1012
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1013
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1014
+        },
+        {
+          "de": "codigo",
+          "para": "codigo_ncm_item",
+          "row": 1015
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_ncm_item",
+          "row": 1016
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_ncm_item",
+          "row": 1017
+        },
+        {
+          "de": "data_inicio",
+          "para": "data_inicio_ncm_item",
+          "row": 1018
+        },
+        {
+          "de": "data_fim",
+          "para": "data_fim_ncm_item",
+          "row": 1019
+        },
+        {
+          "de": "sync_id",
+          "para": "id_ncm_sync_log",
+          "row": 1020
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_ncm_item",
+          "row": 1021
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_ncm_item",
+          "row": 1022
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1023
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1024
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1025
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1026
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1027
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1028
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1029
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1030
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "NcmScheduleConfig": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_ncm_schedule_config",
+          "row": 1031
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1033
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1034
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1035
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_ncm_schedule_config",
+          "row": 1036
+        },
+        {
+          "de": "cron_expressao",
+          "para": "cron_expressao_ncm_schedule_config",
+          "row": 1037
+        },
+        {
+          "de": "notificadores",
+          "para": "notificadores_ncm_schedule_config",
+          "row": 1038
+        },
+        {
+          "de": "criado_em",
+          "para": "data_criacao_ncm_schedule_config",
+          "row": 1039
+        },
+        {
+          "de": "atualizado_em",
+          "para": "data_atualizacao_ncm_schedule_config",
+          "row": 1040
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "NegociacaoEspecial": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [
+        {
+          "col": "agreement",
+          "row": 1032
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "NcmSyncLog": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_ncm_sync_log",
+          "row": 1041
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1042
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1043
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1044
+        },
+        {
+          "de": "iniciado_em",
+          "para": "data_inicio_ncm_sync_log",
+          "row": 1045
+        },
+        {
+          "de": "concluido_em",
+          "para": "data_conclusao_ncm_sync_log",
+          "row": 1046
+        },
+        {
+          "de": "status",
+          "para": "status_ncm_sync_log",
+          "row": 1047
+        },
+        {
+          "de": "total",
+          "para": "total_ncm_sync_log",
+          "row": 1048
+        },
+        {
+          "de": "adicionados",
+          "para": "adicionados_ncm_sync_log",
+          "row": 1049
+        },
+        {
+          "de": "alterados",
+          "para": "alterados_ncm_sync_log",
+          "row": 1050
+        },
+        {
+          "de": "removidos",
+          "para": "removidos_ncm_sync_log",
+          "row": 1051
+        },
+        {
+          "de": "origem",
+          "para": "origem_ncm_sync_log",
+          "row": 1052
+        },
+        {
+          "de": "disparado_por",
+          "para": "disparado_por_ncm_sync_log",
+          "row": 1053
+        },
+        {
+          "de": "erro_msg",
+          "para": "mensagem_erro_ncm_sync_log",
+          "row": 1054
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_ncm_sync_log",
+          "row": 1088
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_ncm_sync_log",
+          "row": 1089
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Organizacao": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_organizacao",
+          "row": 1055
+        },
+        {
+          "de": "slug",
+          "para": "slug_organizacao",
+          "row": 1057
+        },
+        {
+          "de": "status",
+          "para": "status_organizacao",
+          "row": 1058
+        },
+        {
+          "de": "suid_empresa",
+          "para": "suid_empresa_organizacao",
+          "row": 1061
+        },
+        {
+          "de": "cnpj",
+          "para": "cnpj_organizacao",
+          "row": 1062
+        },
+        {
+          "de": "tipo_empresa",
+          "para": "tipo_empresa_organizacao",
+          "row": 1066
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_organizacao",
+          "row": 1067
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_organizacao",
+          "row": 1068
+        }
+      ],
+      "delete": [
+        {
+          "col": "clerk_org_id",
+          "row": 1059
+        },
+        {
+          "col": "stripe_customer_id",
+          "row": 1060
+        }
+      ],
+      "create": [],
+      "noop_count": 10
+    },
+    "OrganizacaoFornecedor": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_fornecedor_organizacao",
+          "row": 1075
+        },
+        {
+          "de": "clerk_user_id",
+          "para": "id_usuario_clerk",
+          "row": 1076
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1077
+        },
+        {
+          "de": "status",
+          "para": "status_organizacao_fornecedor",
+          "row": 1078
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_organizacao_fornecedor",
+          "row": 1079
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_organizacao_fornecedor",
+          "row": 1080
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PermissaoAdminGravity": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 7
+    },
+    "NotificacoesInterna": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_notificacoes_titulo_corpo",
+          "row": 1090
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1091
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1092
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1093
+        },
+        {
+          "de": "type",
+          "para": "tipo_notificacoes_titulo_corpo",
+          "row": 1094
+        },
+        {
+          "de": "title",
+          "para": "titulo_notificacoes_titulo_corpo",
+          "row": 1095
+        },
+        {
+          "de": "message",
+          "para": "mensagem_notificacoes_titulo_corpo",
+          "row": 1096
+        },
+        {
+          "de": "read",
+          "para": "lida_notificacoes_titulo_corpo",
+          "row": 1178
+        },
+        {
+          "de": "target_entity",
+          "para": "tipo_alvo_notificacoes_titulo_corpo",
+          "row": 1179
+        },
+        {
+          "de": "target_id",
+          "para": "id_alvo_notificacoes_titulo_corpo",
+          "row": 1180
+        },
+        {
+          "de": "delivery_status",
+          "para": "status_entrega_notificacoes_titulo_corpo",
+          "row": 1181
+        },
+        {
+          "de": "external_id",
+          "para": "id_externo_notificacoes_titulo_corpo",
+          "row": 1182
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_notificacoes_titulo_corpo",
+          "row": 1183
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_notificacoes_titulo_corpo",
+          "row": 1184
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravity": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_produto_gravity",
+          "row": 1097
+        },
+        {
+          "de": "slug",
+          "para": "slug_produto_gravity",
+          "row": 1099
+        },
+        {
+          "de": "status",
+          "para": "status_produto_gravity",
+          "row": 1101
+        }
+      ],
+      "delete": [
+        {
+          "col": "target_audience",
+          "row": 1122
+        }
+      ],
+      "create": [],
+      "noop_count": 27
+    },
+    "ProdutoGravityAssinatura": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_assinatura_produto_gravity",
+          "row": 1128
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1129
+        },
+        {
+          "de": "status",
+          "para": "status_assinatura",
+          "row": 1130
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravityConfiguracao": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_configuracao_produto",
+          "row": 1131
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1132
+        },
+        {
+          "de": "product_key",
+          "para": "product_key_configuracao_produto",
+          "row": 1133
+        },
+        {
+          "de": "config",
+          "para": "parametros_configuracao_produto",
+          "row": 1134
+        },
+        {
+          "de": "is_active",
+          "para": "e_ativo_configuracao_produto",
+          "row": 1135
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_configuracao_produto",
+          "row": 1136
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_configuracao_produto",
+          "row": 1137
+        },
+        {
+          "de": "tenant",
+          "para": "id_organizacao",
+          "row": 1138
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravityFaixaPreco": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_faixa_preco_produto_gravity",
+          "row": 1139
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1140
+        },
+        {
+          "de": "range_from",
+          "para": "faixa_de_preco_produto_gravity",
+          "row": 1141
+        },
+        {
+          "de": "range_to",
+          "para": "faixa_ate_preco_produto_gravity",
+          "row": 1142
+        },
+        {
+          "de": "price",
+          "para": "preco_faixa_produto_gravity",
+          "row": 1143
+        },
+        {
+          "de": "currency",
+          "para": "moeda_faixa_preco_produto_gravity",
+          "row": 1144
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_faixa_preco_produto_gravity",
+          "row": 1145
+        },
+        {
+          "de": "product",
+          "para": "produto_gravity_faixa_preco",
+          "row": 1146
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravityFatura": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_fatura_produtos_gravity",
+          "row": 1147
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1148
+        },
+        {
+          "de": "numero_fatura_servicos_gravity",
+          "para": "numero_fatura_produtos_gravity",
+          "row": 1149
+        },
+        {
+          "de": "status_fatura_servicos_gravity",
+          "para": "status_fatura_produtos_gravity",
+          "row": 1150
+        },
+        {
+          "de": "organizacao_fatura_servicos_gravity",
+          "para": "organizacao_fatura_produtos_gravity",
+          "row": 1151
+        },
+        {
+          "de": "email_organizacao_fatura_servicos_gravity",
+          "para": "email_organizacao_fatura_produtos_gravity",
+          "row": 1152
+        },
+        {
+          "de": "valor_total_fatura_servicos_gravity",
+          "para": "valor_total_fatura_produtos_gravity",
+          "row": 1153
+        },
+        {
+          "de": "moeda_fatura_servicos_gravity",
+          "para": "moeda_fatura_produtos_gravity",
+          "row": 1154
+        },
+        {
+          "de": "competencia_fatura_servicos_gravity",
+          "para": "competencia_fatura_produtos_gravity",
+          "row": 1155
+        },
+        {
+          "de": "data_fatura_servicos_gravity",
+          "para": "data_fatura_produtos_gravity",
+          "row": 1156
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_fatura_produtos_gravity",
+          "row": 1157
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_fatura_produtos_gravity",
+          "row": 1158
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravityNegociacaoEspecial": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_negociacao_especial",
+          "row": 1159
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1160
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1161
+        },
+        {
+          "de": "tenant_name",
+          "para": "nome_workspace_negociacao_especial",
+          "row": 1162
+        },
+        {
+          "de": "starts_at",
+          "para": "inicio_negociacao_especial_valor_produto_gravity",
+          "row": 1163
+        },
+        {
+          "de": "ends_at",
+          "para": "fim_negociacao_especial_valor_produto_gravity",
+          "row": 1164
+        },
+        {
+          "de": "is_unlimited",
+          "para": "ilimitado_negociacao_especial_valor_produto_gravity",
+          "row": 1165
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_negociacao_especial_valor_produto_gravity",
+          "row": 1166
+        },
+        {
+          "de": "updated_at",
+          "para": "data_utilizacao_negociacao_especial_valor_produto_gravity",
+          "row": 1167
+        },
+        {
+          "de": "product",
+          "para": "produto_negociacao_especial_valor_produto_gravity",
+          "row": 1168
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "ProdutoGravityWorkspace": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_produto_gravity_workspace",
+          "row": 1169
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1170
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 1171
+        },
+        {
+          "de": "product_key",
+          "para": "id_produto_gravity_workspace",
+          "row": 1172
+        },
+        {
+          "de": "is_active",
+          "para": "ativo_produto_gravity_workspace",
+          "row": 1173
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_produto_gravity_workspace",
+          "row": 1174
+        },
+        {
+          "de": "updated_at",
+          "para": "ata_atualizacao_produto_gravity_workspace",
+          "row": 1175
+        },
+        {
+          "de": "tenant",
+          "para": "id_organizacao",
+          "row": 1176
+        },
+        {
+          "de": "company",
+          "para": "id_workspace",
+          "row": 1177
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "NotificacoesTituloCorpo": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1185
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1186
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1187
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1188
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1189
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1190
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1191
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "RelatoriosConfiguracao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_relatorios_configuracao",
+          "row": 1192
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1193
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1194
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1195
+        },
+        {
+          "de": "relatorio_id",
+          "para": "id_relatorios_salvos",
+          "row": 1196
+        },
+        {
+          "de": "frequencia",
+          "para": "frequencia_relatorios_configuracao",
+          "row": 1197
+        },
+        {
+          "de": "canais",
+          "para": "canais_relatorios_configuracao",
+          "row": 1198
+        },
+        {
+          "de": "formato",
+          "para": "formato_relatorios_configuracao",
+          "row": 1199
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_relatorios_configuracao",
+          "row": 1200
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_relatorios_configuracao",
+          "row": 1201
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_relatorios_configuracao",
+          "row": 1202
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "RelatoriosSalvos": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_relatorios_salvos",
+          "row": 1203
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1204
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1215
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1216
+        },
+        {
+          "de": "nome",
+          "para": "nome_relatorios_salvos",
+          "row": 1217
+        },
+        {
+          "de": "tabelas",
+          "para": "tabelas_relatorios_salvos",
+          "row": 1218
+        },
+        {
+          "de": "colunas",
+          "para": "colunas_relatorios_salvos",
+          "row": 1219
+        },
+        {
+          "de": "filtros",
+          "para": "filtros_relatorios_salvos",
+          "row": 1220
+        },
+        {
+          "de": "join_type",
+          "para": "tipo_join_relatorios_salvos",
+          "row": 1221
+        },
+        {
+          "de": "is_shared",
+          "para": "compartilhado_relatorios_salvos",
+          "row": 1222
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_relatorios_salvos",
+          "row": 1223
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_relatorios_salvos",
+          "row": 1224
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1249
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1250
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1251
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1252
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "Requisicoes": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_requisicoes",
+          "row": 1205
+        },
+        {
+          "de": "key",
+          "para": "key_requisicoes",
+          "row": 1206
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1207
+        },
+        {
+          "de": "ip",
+          "para": "ip_requisicoes",
+          "row": 1208
+        },
+        {
+          "de": "endpoint",
+          "para": "endpoint_requisicoes",
+          "row": 1209
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 5
+    },
+    "Seguranca": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_seguranca",
+          "row": 1225
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1226
+        },
+        {
+          "de": "status",
+          "para": "status_seguranca",
+          "row": 1231
+        },
+        {
+          "de": "ip",
+          "para": "ip_seguranca",
+          "row": 1233
+        },
+        {
+          "de": "endpoint",
+          "para": "endpoint_seguranca",
+          "row": 1234
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1235
+        },
+        {
+          "de": "metadata",
+          "para": "metadados_seguranca",
+          "row": 1238
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_seguranca",
+          "row": 1239
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 7
+    },
+    "Servicos": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_servicos",
+          "row": 1240
+        },
+        {
+          "de": "url",
+          "para": "url_servicos",
+          "row": 1242
+        },
+        {
+          "de": "status",
+          "para": "status_servicos",
+          "row": 1243
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_servicos",
+          "row": 1247
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_servicos",
+          "row": 1248
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 4
+    },
+    "RelatorioTempoCriacao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_tempo_criacao_relatorio",
+          "row": 1253
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1254
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1255
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1256
+        },
+        {
+          "de": "periodo_inicio",
+          "para": "data_inicio_periodo_tempo_criacao_relatorio",
+          "row": 1257
+        },
+        {
+          "de": "periodo_fim",
+          "para": "data_fim_periodo_tempo_criacao_relatorio",
+          "row": 1258
+        },
+        {
+          "de": "total_minutos",
+          "para": "total_minutos_tempo_criacao_relatorio",
+          "row": 1259
+        },
+        {
+          "de": "payload",
+          "para": "payload_tempo_criacao_relatorio",
+          "row": 1260
+        },
+        {
+          "de": "computed_at",
+          "para": "data_calculo_tempo_criacao_relatorio",
+          "row": 1261
+        },
+        {
+          "de": "expires_at",
+          "para": "data_expiracao_tempo_criacao_relatorio",
+          "row": 1262
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "StatusAssinatura": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "StatusDeploy": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Reserva": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 1265
+        },
+        {
+          "col": "tenant_id",
+          "row": 1267
+        },
+        {
+          "col": "slot_id",
+          "row": 1268
+        },
+        {
+          "col": "usuario_id",
+          "row": 1271
+        },
+        {
+          "col": "nome",
+          "row": 1272
+        },
+        {
+          "col": "email",
+          "row": 1273
+        },
+        {
+          "col": "status",
+          "row": 1274
+        },
+        {
+          "col": "criadoEm",
+          "row": 1275
+        },
+        {
+          "col": "atualizadoEm",
+          "row": 1276
+        },
+        {
+          "col": "slot",
+          "row": 1277
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "StatusEmpresa": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "StatusOrganizacao": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "StatusProduto": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Slot": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [],
+      "delete": [
+        {
+          "col": "id",
+          "row": 1278
+        },
+        {
+          "col": "tenant_id",
+          "row": 1279
+        },
+        {
+          "col": "agenda_id",
+          "row": 1280
+        },
+        {
+          "col": "inicio",
+          "row": 1281
+        },
+        {
+          "col": "fim",
+          "row": 1282
+        },
+        {
+          "col": "capacidade",
+          "row": 1283
+        },
+        {
+          "col": "criadoEm",
+          "row": 1284
+        },
+        {
+          "col": "atualizadoEm",
+          "row": 1285
+        },
+        {
+          "col": "agenda",
+          "row": 1286
+        },
+        {
+          "col": "reservas",
+          "row": 1287
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1288
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1289
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1290
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "NotificacaoCanalConfiguracao": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_notificacao_canal_configuracao",
+          "row": 1291
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1292
+        },
+        {
+          "de": "email_enabled",
+          "para": "email_habilitado_notificacao_canal_configuracao",
+          "row": 1293
+        },
+        {
+          "de": "whatsapp_enabled",
+          "para": "whatsapp_habilitado_notificacao_canal_configuracao",
+          "row": 1294
+        },
+        {
+          "de": "updated_by",
+          "para": "id_usuario_atualizador_notificacao_canal_configuracao",
+          "row": 1295
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_notificacao_canal_configuracao",
+          "row": 1296
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_notificacao_canal_configuracao",
+          "row": 1297
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Teste": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_plano_teste",
+          "row": 1298
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1299
+        },
+        {
+          "de": "versao",
+          "para": "versao_plano_teste",
+          "row": 1300
+        },
+        {
+          "de": "tipo",
+          "para": "tipo_plano_teste",
+          "row": 1301
+        },
+        {
+          "de": "escopo",
+          "para": "escopo_plano_teste",
+          "row": 1302
+        },
+        {
+          "de": "sublocal",
+          "para": "sublocal_plano_teste",
+          "row": 1303
+        },
+        {
+          "de": "tela",
+          "para": "tela_plano_teste",
+          "row": 1304
+        },
+        {
+          "de": "rota",
+          "para": "rota_plano_teste",
+          "row": 1305
+        },
+        {
+          "de": "criticidade",
+          "para": "criticidade_plano_teste",
+          "row": 1306
+        },
+        {
+          "de": "ambientes",
+          "para": "ambientes_plano_teste",
+          "row": 1307
+        },
+        {
+          "de": "componente_path",
+          "para": "componente_path_plano_teste",
+          "row": 1308
+        },
+        {
+          "de": "spec_path",
+          "para": "spec_path_plano_teste",
+          "row": 1309
+        },
+        {
+          "de": "mapeamento_path",
+          "para": "mapeamento_path_plano_teste",
+          "row": 1310
+        },
+        {
+          "de": "cobertura_pct",
+          "para": "cobertura_pct_plano_teste",
+          "row": 1311
+        },
+        {
+          "de": "passos_total",
+          "para": "passos_total_plano_teste",
+          "row": 1312
+        },
+        {
+          "de": "resumo_executivo",
+          "para": "resumo_executivo_plano_teste",
+          "row": 1313
+        },
+        {
+          "de": "plano_completo",
+          "para": "plano_completo_plano_teste",
+          "row": 1314
+        },
+        {
+          "de": "status",
+          "para": "status_plano_teste",
+          "row": 1315
+        },
+        {
+          "de": "ultima_execucao",
+          "para": "ultima_execucao_plano_teste",
+          "row": 1316
+        },
+        {
+          "de": "ultimo_resultado",
+          "para": "ultimo_resultado_plano_teste",
+          "row": 1317
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_plano_teste",
+          "row": 1318
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_plano_teste",
+          "row": 1319
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "TesteAgendamento": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_agendamento_teste",
+          "row": 1320
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1321
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_teste",
+          "row": 1322
+        },
+        {
+          "de": "frequencia",
+          "para": "frequencia_teste",
+          "row": 1323
+        },
+        {
+          "de": "hora",
+          "para": "hora_teste",
+          "row": 1324
+        },
+        {
+          "de": "minuto",
+          "para": "minuto_teste",
+          "row": 1325
+        },
+        {
+          "de": "tipos",
+          "para": "tipos_teste",
+          "row": 1326
+        },
+        {
+          "de": "escopos",
+          "para": "escopos_teste",
+          "row": 1327
+        },
+        {
+          "de": "ambiente",
+          "para": "ambiente_teste",
+          "row": 1328
+        },
+        {
+          "de": "alertas",
+          "para": "alertas_teste",
+          "row": 1329
+        },
+        {
+          "de": "ultima_exec",
+          "para": "ultima_execucao_teste",
+          "row": 1330
+        },
+        {
+          "de": "proxima_exec",
+          "para": "proxima_execucao_teste",
+          "row": 1331
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_teste",
+          "row": 1332
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_teste",
+          "row": 1333
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Testes": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_testes",
+          "row": 1334
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1335
+        },
+        {
+          "de": "escopo",
+          "para": "escopo_testes",
+          "row": 1337
+        },
+        {
+          "de": "sublocal",
+          "para": "sublocal_testes",
+          "row": 1338
+        },
+        {
+          "de": "screenshot",
+          "para": "screenshot_testes",
+          "row": 1346
+        },
+        {
+          "de": "ambiente",
+          "para": "ambiente_testes",
+          "row": 1347
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_testes",
+          "row": 1350
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 10
+    },
+    "TipoCobranca": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "TipoLimiteUsuario": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "TipoMembroEmpresa": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "TipoUsuario": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "UsuarioPreferencias": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_preferencias_usuario",
+          "row": 1355
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1356
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1357
+        },
+        {
+          "de": "tooltips_disabled",
+          "para": "tooltips_desabilitadas_preferencias_usuario",
+          "row": 1358
+        },
+        {
+          "de": "theme",
+          "para": "tema_preferencias_usuario",
+          "row": 1359
+        },
+        {
+          "de": "sidebar_open",
+          "para": "sidebar_aberta_preferencias_usuario",
+          "row": 1360
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_preferencias_usuario",
+          "row": 1361
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_preferencias_usuario",
+          "row": 1362
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1363
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1364
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1365
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "Usuario": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_usuario",
+          "row": 1366
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1367
+        },
+        {
+          "de": "email",
+          "para": "email_usuario",
+          "row": 1369
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_usuario",
+          "row": 1373
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_usuario",
+          "row": 1374
+        },
+        {
+          "de": "tenant",
+          "para": "id_organizacao",
+          "row": 1375
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 7
+    },
+    "UsuarioPermissao": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1380
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 1381
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1382
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_usuario_permissao",
+          "row": 1454
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_usuario_permissao",
+          "row": 1455
+        },
+        {
+          "de": "tenant",
+          "para": "id_organizacao",
+          "row": 1456
+        },
+        {
+          "de": "user",
+          "para": "id_usuario",
+          "row": 1457
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 4
+    },
+    "OPEHistóricoStatus": {
+      "modulo": "Banco de Dados - Cadastros",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_historico_status_ope",
+          "row": 1413
+        },
+        {
+          "de": "suid_ope",
+          "para": "suid_ope_",
+          "row": 1414
+        },
+        {
+          "de": "status_anterior",
+          "para": "status_anterior_historico_status_ope",
+          "row": 1415
+        },
+        {
+          "de": "status_novo",
+          "para": "status_novo_historico_status_ope",
+          "row": 1416
+        },
+        {
+          "de": "origem",
+          "para": "origem_historico_status_ope",
+          "row": 1417
+        },
+        {
+          "de": "payload",
+          "para": "payload_historico_status_ope",
+          "row": 1418
+        },
+        {
+          "de": "registrado_em",
+          "para": "registrado_em_historico_status_ope",
+          "row": 1419
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Moeda": {
+      "modulo": "Banco de Dados - Cadastros",
+      "rename": [
+        {
+          "de": "codigo",
+          "para": "codigo_moeda",
+          "row": 1420
+        },
+        {
+          "de": "simbolo",
+          "para": "simbolo_moeda",
+          "row": 1422
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_moeda",
+          "row": 1423
+        }
+      ],
+      "delete": [
+        {
+          "col": "nome",
+          "row": 1421
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "NCM": {
+      "modulo": "Banco de Dados - Cadastros",
+      "rename": [
+        {
+          "de": "codigo",
+          "para": "codigo_ncm",
+          "row": 1424
+        },
+        {
+          "de": "descricao",
+          "para": "descricao_ncm",
+          "row": 1425
+        },
+        {
+          "de": "ii",
+          "para": "ii_ncm",
+          "row": 1426
+        },
+        {
+          "de": "ipi",
+          "para": "ipi_ncm",
+          "row": 1427
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_ncm",
+          "row": 1430
+        }
+      ],
+      "delete": [],
+      "create": [
+        {
+          "col": "pis_ncm",
+          "desc": "Float? com a alíquota de PIS-Importação desse NCM, em percentual (default ~2.1%). Opcional. Cobrado na importação junto com COFINS. Substitui o PIS doméstico no fluxo de importação. No código está como pis_ncm. [pis_ncm Float? — schema",
+          "row": 1428
+        },
+        {
+          "col": "cofins_ncm",
+          "desc": "Float? com a alíquota de COFINS-Importação desse NCM, em percentual (default ~9.65%). Opcional. Cobrado junto com PIS na importação. Compõe o conjunto de tributos federais sobre importação. No código está como cofins_ncm. [cofins_ncm Float? — schema linha",
+          "row": 1429
+        }
+      ],
+      "noop_count": 0
+    },
+    "OPE": {
+      "modulo": "Banco de Dados - Cadastros",
+      "rename": [
+        {
+          "de": "suid",
+          "para": "suid_ope",
+          "row": 1431
+        },
+        {
+          "de": "id_organizacao",
+          "para": "id_organizacao_ope",
+          "row": 1432
+        },
+        {
+          "de": "codigo_portal_unico",
+          "para": "codigo_portal_unico_ope",
+          "row": 1433
+        },
+        {
+          "de": "situacao",
+          "para": "situacao_ope",
+          "row": 1434
+        },
+        {
+          "de": "versao",
+          "para": "versao_ope",
+          "row": 1435
+        },
+        {
+          "de": "nome_ope",
+          "para": "nome_ope_ope",
+          "row": 1436
+        },
+        {
+          "de": "cnpj_raiz_empresa",
+          "para": "cnpj_raiz_empresa_ope",
+          "row": 1437
+        },
+        {
+          "de": "pais",
+          "para": "pais_ope",
+          "row": 1438
+        },
+        {
+          "de": "estado",
+          "para": "estado_ope",
+          "row": 1439
+        },
+        {
+          "de": "cidade",
+          "para": "cidade_ope",
+          "row": 1440
+        },
+        {
+          "de": "endereco",
+          "para": "endereco_ope",
+          "row": 1441
+        },
+        {
+          "de": "zip",
+          "para": "zip_ope",
+          "row": 1442
+        },
+        {
+          "de": "tin",
+          "para": "tin_ope",
+          "row": 1443
+        },
+        {
+          "de": "email",
+          "para": "email_ope",
+          "row": 1444
+        },
+        {
+          "de": "ultima_sincronizacao",
+          "para": "ultima_sincronizacao_ope",
+          "row": 1445
+        },
+        {
+          "de": "origem",
+          "para": "origem_ope",
+          "row": 1446
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Unidade": {
+      "modulo": "Banco de Dados - Cadastros",
+      "rename": [
+        {
+          "de": "codigo",
+          "para": "codigo_unidade",
+          "row": 1447
+        },
+        {
+          "de": "nome",
+          "para": "nome_unidade",
+          "row": 1448
+        },
+        {
+          "de": "tipo",
+          "para": "tipo_unidade",
+          "row": 1449
+        },
+        {
+          "de": "ativo",
+          "para": "ativo_unidade",
+          "row": 1450
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "UsuarioWorkspace": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_usuario",
+          "row": 1458
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1459
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1460
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 1461
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_usuario_workspace",
+          "row": 1464
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_usuario_workspace",
+          "row": 1465
+        },
+        {
+          "de": "user",
+          "para": "id_usuario",
+          "row": 1466
+        },
+        {
+          "de": "company",
+          "para": "id_workspace",
+          "row": 1467
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 2
+    },
+    "WhatsappConversa": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_whatsapp_conversa",
+          "row": 1468
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1469
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1470
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1471
+        },
+        {
+          "de": "wa_phone_number",
+          "para": "numero_telefone_whatsapp_conversa",
+          "row": 1472
+        },
+        {
+          "de": "status",
+          "para": "status_whatsapp_conversa",
+          "row": 1473
+        },
+        {
+          "de": "contact_id",
+          "para": "id_contato_externo",
+          "row": 1474
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 1475
+        },
+        {
+          "de": "contact_nome",
+          "para": "nome_contato_whatsapp_conversa",
+          "row": 1476
+        },
+        {
+          "de": "company_nome",
+          "para": "nome_workspace_whatsapp_conversa",
+          "row": 1477
+        },
+        {
+          "de": "activity_id",
+          "para": "id_atividade_whatsapp_conversa",
+          "row": 1478
+        },
+        {
+          "de": "ai_enabled",
+          "para": "ia_habilitada_whatsapp_conversa",
+          "row": 1479
+        },
+        {
+          "de": "opened_at",
+          "para": "data_abertura_whatsapp_conversa",
+          "row": 1480
+        },
+        {
+          "de": "closed_at",
+          "para": "data_fechamento_whatsapp_conversa",
+          "row": 1481
+        },
+        {
+          "de": "gabi_temperatura",
+          "para": "gabi_temperatura_whatsapp_conversa",
+          "row": 1482
+        },
+        {
+          "de": "gabi_temperatura_score",
+          "para": "gabi_temperatura_score_whatsapp_conversa",
+          "row": 1483
+        },
+        {
+          "de": "gabi_resumo",
+          "para": "gabi_resumo_whatsapp_conversa",
+          "row": 1484
+        },
+        {
+          "de": "gabi_acoes_sugeridas",
+          "para": "gabi_acoes_sugeridas_whatsapp_conversa",
+          "row": 1485
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_whatsapp_conversa",
+          "row": 1486
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_whatsapp_conversa",
+          "row": 1487
+        }
+      ],
+      "delete": [
+        {
+          "col": "— (não existe no banco)",
+          "row": 1488
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1489
+        },
+        {
+          "col": "— (não existe no banco)",
+          "row": 1490
+        }
+      ],
+      "create": [],
+      "noop_count": 0
+    },
+    "WhatsappLog": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_whatsapp_log",
+          "row": 1491
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1493
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1494
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1495
+        },
+        {
+          "de": "conversation_id",
+          "para": "id_whatsapp_conversa",
+          "row": 1496
+        },
+        {
+          "de": "company_id",
+          "para": "id_workspace",
+          "row": 1497
+        },
+        {
+          "de": "conversation_category",
+          "para": "categoria_conversa_whatsapp_log",
+          "row": 1498
+        },
+        {
+          "de": "origin",
+          "para": "origem_whatsapp_log",
+          "row": 1499
+        },
+        {
+          "de": "cost_usd",
+          "para": "custo_usd_whatsapp_log",
+          "row": 1500
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_whatsapp_log",
+          "row": 1501
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_whatsapp_log",
+          "row": 1502
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "WhatsappMensagem": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_whatsapp_mensagem",
+          "row": 1503
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1504
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1505
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1506
+        },
+        {
+          "de": "conversation_id",
+          "para": "id_whatsapp_conversa",
+          "row": 1507
+        },
+        {
+          "de": "wa_message_id",
+          "para": "id_wa_mensagem_whatsapp_mensagem",
+          "row": 1508
+        },
+        {
+          "de": "direction",
+          "para": "direcao_whatsapp_mensagem",
+          "row": 1509
+        },
+        {
+          "de": "content_type",
+          "para": "tipo_conteudo_whatsapp_mensagem",
+          "row": 1510
+        },
+        {
+          "de": "content",
+          "para": "conteudo_whatsapp_mensagem",
+          "row": 1511
+        },
+        {
+          "de": "origin",
+          "para": "origem_whatsapp_mensagem",
+          "row": 1512
+        },
+        {
+          "de": "sent_by",
+          "para": "enviado_por_whatsapp_mensagem",
+          "row": 1513
+        },
+        {
+          "de": "status",
+          "para": "status_whatsapp_mensagem",
+          "row": 1514
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_whatsapp_mensagem",
+          "row": 1515
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_whatsapp_mensagem",
+          "row": 1516
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "WhatsappRegra": {
+      "modulo": "Banco de Dados - Serviços",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_whatsapp_regra",
+          "row": 1517
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1518
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1519
+        },
+        {
+          "de": "user_id",
+          "para": "id_usuario",
+          "row": 1520
+        },
+        {
+          "de": "name",
+          "para": "nome_whatsapp_regra",
+          "row": 1521
+        },
+        {
+          "de": "trigger",
+          "para": "gatilho_whatsapp_regra",
+          "row": 1522
+        },
+        {
+          "de": "conditions",
+          "para": "condicoes_whatsapp_regra",
+          "row": 1523
+        },
+        {
+          "de": "template_id",
+          "para": "id_template_email",
+          "row": 1524
+        },
+        {
+          "de": "recipient",
+          "para": "destinatario_whatsapp_regra",
+          "row": 1525
+        },
+        {
+          "de": "active",
+          "para": "ativa_whatsapp_regra",
+          "row": 1526
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_whatsapp_regra",
+          "row": 1527
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_whatsapp_regra",
+          "row": 1528
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "Workspace": {
+      "modulo": "Banco de Dados - Configurador",
+      "rename": [
+        {
+          "de": "id",
+          "para": "id_workspace",
+          "row": 1529
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao_workspace",
+          "row": 1530
+        },
+        {
+          "de": "name",
+          "para": "nome_workspace",
+          "row": 1531
+        },
+        {
+          "de": "subdomain",
+          "para": "subdominio_workspace",
+          "row": 1532
+        },
+        {
+          "de": "cnpj",
+          "para": "cnpj_workspace",
+          "row": 1533
+        },
+        {
+          "de": "status",
+          "para": "status_workspace",
+          "row": 1534
+        },
+        {
+          "de": "created_at",
+          "para": "data_criacao_workspace",
+          "row": 1535
+        },
+        {
+          "de": "updated_at",
+          "para": "data_atualizacao_workspace",
+          "row": 1536
+        },
+        {
+          "de": "tenant",
+          "para": "organizacao_workspace",
+          "row": 1537
+        },
+        {
+          "de": "memberships",
+          "para": "vinculos_usuario_workspace",
+          "row": 1538
+        },
+        {
+          "de": "company_products",
+          "para": "produtos_gravity_workspace",
+          "row": 1539
+        },
+        {
+          "de": "preferred_by_users",
+          "para": "usuario_preferenciais_workspace",
+          "row": 1540
+        },
+        {
+          "de": "— (não existe no banco)",
+          "para": "— (não existe no banco)_workspace",
+          "row": 1541
+        },
+        {
+          "de": "— (não existe no banco)",
+          "para": "— (não existe no banco)_workspace",
+          "row": 1542
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    },
+    "PedidoValorColunaUsuario": {
+      "modulo": "Banco de Dados - Pedido",
+      "rename": [
+        {
+          "de": "vinculo",
+          "para": "vinculo_valor_coluna_usuario_pedido",
+          "row": 1544
+        },
+        {
+          "de": "valor",
+          "para": "valor_coluna_usuario_pedido",
+          "row": 1545
+        },
+        {
+          "de": "vinculo_id",
+          "para": "id_vinculo_valor_coluna_usuario_pedido",
+          "row": 1546
+        },
+        {
+          "de": "id",
+          "para": "id_valor_coluna_usuario_pedido",
+          "row": 1547
+        },
+        {
+          "de": "product_id",
+          "para": "id_produto_gravity",
+          "row": 1548
+        },
+        {
+          "de": "tenant_id",
+          "para": "id_organizacao",
+          "row": 1549
+        },
+        {
+          "de": "coluna_id",
+          "para": "id_coluna_usuario_pedido",
+          "row": 1550
+        },
+        {
+          "de": "coluna",
+          "para": "coluna_valor_coluna_usuario_pedido",
+          "row": 1551
+        }
+      ],
+      "delete": [],
+      "create": [],
+      "noop_count": 0
+    }
+  }
+}

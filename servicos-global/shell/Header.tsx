@@ -13,7 +13,7 @@ import {
 import { useShellStore } from './store'
 import { Notificacoes } from '../tenant/notificacoes/src/Notificacoes'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import {
   LocalizadorGlobal,
   useLocalizadorHistory,
@@ -266,7 +266,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
         />
 
         {/* Seletor de idioma */}
-        <LanguageSwitcherGlobal />
+        <SeletorIdiomaGlobal />
 
         {/* Divisor visual */}
         <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />

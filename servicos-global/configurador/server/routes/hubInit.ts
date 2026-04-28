@@ -13,16 +13,30 @@ import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsSe
 export const hubRouter = Router()
 
 /**
- * GET /api/v1/hub/catalog
+ * GET /api/v1/hub/catalogo
  * Catálogo global de produtos — público, sem auth.
  * Qualquer usuário autenticado ou não pode ver o que existe na plataforma.
  */
-hubRouter.get('/catalog', async (_req, res, next) => {
+hubRouter.get('/catalogo', async (_req, res, next) => {
   try {
-    const catalog = await prisma.product.findMany({
-      select: { id: true, name: true, slug: true, description: true, status: true },
-      orderBy: { created_at: 'desc' },
+    const rows = await prisma.produtoGravity.findMany({
+      select: {
+        id_produto_gravity: true,
+        nome_produto_gravity: true,
+        slug_produto_gravity: true,
+        descricao_produto_gravity: true,
+        status_produto_gravity: true,
+      },
+      orderBy: { data_criacao_produto_gravity: 'desc' },
     })
+    // DTO: ProdutoGravity rename → contrato legado público
+    const catalog = rows.map(p => ({
+      id: p.id_produto_gravity,
+      name: p.nome_produto_gravity,
+      slug: p.slug_produto_gravity,
+      description: p.descricao_produto_gravity,
+      status: p.status_produto_gravity,
+    }))
     res.json({ catalog })
   } catch (err) {
     next(err)
@@ -44,19 +58,31 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
-      prisma.productConfig.findMany({
-        where: { tenant_id: tenantId },
-        orderBy: { created_at: 'desc' },
+      prisma.produtoGravityConfiguracao.findMany({
+        where: { id_organizacao_config_produto_gravity: tenantId },
+        orderBy: { data_criacao_config_produto_gravity: 'desc' },
       }).catch(() => []),
-      prisma.product.findMany({
-        select: { id: true, name: true, slug: true, description: true, status: true },
-        orderBy: { created_at: 'desc' },
-      }).catch(() => []),
+      prisma.produtoGravity.findMany({
+        select: {
+          id_produto_gravity: true,
+          nome_produto_gravity: true,
+          slug_produto_gravity: true,
+          descricao_produto_gravity: true,
+          status_produto_gravity: true,
+        },
+        orderBy: { data_criacao_produto_gravity: 'desc' },
+      }).then(rows => rows.map(p => ({
+        id: p.id_produto_gravity,
+        name: p.nome_produto_gravity,
+        slug: p.slug_produto_gravity,
+        description: p.descricao_produto_gravity,
+        status: p.status_produto_gravity,
+      }))).catch(() => [] as Array<{ id: string; name: string; slug: string; description: string; status: string }>),
       // Fornecedor nunca tem preferido — evita round-trip desnecessário
-      role === 'SUPPLIER'
+      role === 'FORNECEDOR'
         ? Promise.resolve(null)
-        : prisma.user.findUnique({
-            where: { id: userId },
+        : prisma.usuario.findUnique({
+            where: { id_usuario: userId },
             select: { preferred_company_id: true },
           }).catch(() => null),
     ])
@@ -64,12 +90,13 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     // Enriquece produtos contratados com dados do catálogo
     const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))
 
+    // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub
     const products = configs.map(c => ({
-      product_key: c.product_key,
-      is_active: c.is_active,
-      config: c.config,
-      subscribed_at: c.created_at,
-      catalog: catalogMap.get(c.product_key) ?? null,
+      product_key: c.chave_produto_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      subscribed_at: c.data_criacao_config_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
     }))
 
     // Workspace preferido — valida que ainda aponta para company ATIVA
@@ -79,15 +106,15 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     if (userPref?.preferred_company_id) {
       const stillValid = companies.some(
         (c: { id: string; status?: string }) =>
-          c.id === userPref.preferred_company_id && c.status !== 'INACTIVE',
+          c.id === userPref.preferred_company_id && c.status !== 'INATIVO',
       )
       if (stillValid) {
         preferredCompanyId = userPref.preferred_company_id
       } else {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
-        prisma.user
+        prisma.usuario
           .update({
-            where: { id: userId },
+            where: { id_usuario: userId },
             data: { preferred_company_id: null },
           })
           .catch(() => {
@@ -96,8 +123,25 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       }
     }
 
+    // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
+    const tenantDto = tenant
+      ? (() => {
+          const { id_organizacao, _count, subscriptions_organizacao, ...rest } = tenant
+          return {
+            id: id_organizacao,
+            ...rest,
+            _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+            // DTO: AssinaturaProdutoGravity rename → contrato externo legado
+            subscriptions: subscriptions_organizacao.map((s) => ({
+              status: s.status_assinatura_produto_gravity,
+              trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
+            })),
+          }
+        })()
+      : null
+
     res.json({
-      tenant,
+      tenant: tenantDto,
       companies,
       products,
       catalog: mergedCatalog,
@@ -122,12 +166,15 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const role = normalizeHubRole(req.auth.role)
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
-    const configs = await prisma.productConfig.findMany({
-      where: { tenant_id: tenantId, is_active: true },
-      select: { product_key: true },
+    const configs = await prisma.produtoGravityConfiguracao.findMany({
+      where: {
+        id_organizacao_config_produto_gravity: tenantId,
+        ativo_config_produto_gravity: true,
+      },
+      select: { chave_produto_config_produto_gravity: true },
     })
 
-    const activeProductKeys = new Set(configs.map(c => c.product_key))
+    const activeProductKeys = new Set(configs.map(c => c.chave_produto_config_produto_gravity))
 
     const insights = await generateHubInsights(
       tenantId,

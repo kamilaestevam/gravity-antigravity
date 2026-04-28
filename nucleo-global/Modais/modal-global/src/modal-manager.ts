@@ -23,7 +23,7 @@ function notificar() {
 /**
  * Abre um modal empilhando-o no stack.
  * @param id    ID único do modal
- * @param props Props do ModalGlobal (exceto aberto/aoFechar)
+ * @param props Props do ModalOverlay (exceto aberto/aoFechar)
  * @param dados Dados opcionais passados ao modal
  */
 export function abrirModal(

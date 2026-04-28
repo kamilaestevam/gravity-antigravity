@@ -1,0 +1,249 @@
+{
+  "id": "TST-FUN-CONFIG-ME-001",
+  "versao": "1.0",
+  "geradoEm": "2026-04-20T12:00:00Z",
+  "geradoPor": "agente-plano-teste-funcional",
+  "escopo": "CONFIG",
+  "modulo": "GET /api/v1/me — contrato de role",
+  "tipoModulo": "contrato_api",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/me.ts",
+  "specFile": "testes/testes-funcionais/configurador/me-role-contract.test.ts",
+  "criticidade": "critica",
+  "temDinheiro": false,
+  "contexto": {
+    "bug": "Badge 'USUÁRIO' aparece quando tipo_usuario retornado por /api/v1/me não está no enum válido",
+    "contrato_exportado": "meResponseSchema (z.object) — exportado de me.ts para consumo por testes e frontend",
+    "enum_tipo_usuario": ["SUPER_ADMIN", "ADMIN", "MASTER", "STANDARD", "SUPPLIER"],
+    "nota": "O Zod schema já define tipo_usuario como z.enum([...]) — se o banco retornar 'USUÁRIO', a rota quebraria antes de responder. Este plano testa que o contrato é honrado em todos os cenários."
+  },
+  "endpoints": [
+    {
+      "metodo": "GET",
+      "rota": "/api/v1/me",
+      "descricao": "Contexto completo do usuário autenticado",
+      "auth": "requireAuth (JWT Clerk)"
+    },
+    {
+      "metodo": "GET",
+      "rota": "/api/v1/me/preferences",
+      "descricao": "Workspace preferido do usuário",
+      "auth": "requireAuth (JWT Clerk)"
+    },
+    {
+      "metodo": "PUT",
+      "rota": "/api/v1/me/preferences",
+      "descricao": "Atualizar workspace preferido",
+      "auth": "requireAuth (JWT Clerk)"
+    }
+  ],
+  "mocksNecessarios": {
+    "prisma": {
+      "mock": "vi.hoisted() + vi.mock('@prisma/client' ou lib/prisma.js)",
+      "metodos": ["usuario.findUnique", "empresa.findFirst", "usuarioWorkspace.findFirst", "usuario.update"],
+      "nota": "Nunca subir banco real — Prisma 100% mockado"
+    },
+    "requireAuth": {
+      "mock": "middleware bypass que injeta req.auth com { userId, tenantId, role }",
+      "padrao": "vi.mock('../middleware/requireAuth.js', () => ({ requireAuth: mockRequireAuth }))"
+    },
+    "clerk": {
+      "mock": "vi.mock('../lib/clerk.js', () => ({ clerkClient: {} }))",
+      "nota": "clerk.ts lança Error se CLERK_SECRET_KEY não estiver definida — mockar antes do import"
+    }
+  },
+  "setupApp": {
+    "padrao": "function buildTestApp() { const app = express(); app.use(express.json()); app.use(mockRequireAuth); app.use('/api/v1/me', meRouter); app.use(errorHandler); return app; }",
+    "nota": "errorHandler REAL — não mockado. Zod validation REAL via meResponseSchema."
+  },
+  "categorias": [
+    {
+      "categoria": "contrato_response",
+      "descricao": "Response de GET /api/v1/me passa em meResponseSchema.safeParse()",
+      "casos": ["ME-001", "ME-002", "ME-003"]
+    },
+    {
+      "categoria": "tipo_usuario_enum",
+      "descricao": "tipo_usuario nunca é 'USUÁRIO' nem valor fora do enum",
+      "casos": ["ME-004", "ME-005", "ME-006", "ME-007"]
+    },
+    {
+      "categoria": "auth",
+      "descricao": "Auth ausente ou inválido → 401",
+      "casos": ["ME-008", "ME-009"]
+    },
+    {
+      "categoria": "not_found",
+      "descricao": "Usuário não encontrado → 404",
+      "casos": ["ME-010"]
+    },
+    {
+      "categoria": "erro_banco",
+      "descricao": "DB falha → 500 sem stack trace",
+      "casos": ["ME-011"]
+    },
+    {
+      "categoria": "preferencias",
+      "descricao": "GET/PUT /preferences — SUPPLIER bloqueado, fallback silencioso",
+      "casos": ["ME-012", "ME-013", "ME-014", "ME-015"]
+    }
+  ],
+  "casos": [
+    {
+      "id": "TST-FUN-CONFIG-ME-001-001",
+      "codigo": "ME-001",
+      "categoria": "contrato_response",
+      "prioridade": "CRITICA",
+      "descricao": "GET /api/v1/me happy path — response válido contra meResponseSchema",
+      "mock": "usuario.findUnique retorna usuário MASTER com organização e workspaces",
+      "request": "GET /api/v1/me com req.auth.userId preenchido",
+      "resultadoEsperado": "status 200, meResponseSchema.safeParse(res.body).success === true",
+      "assercao": "expect(res.status).toBe(200)\nconst parsed = meResponseSchema.safeParse(res.body)\nexpect(parsed.success).toBe(true)"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-002",
+      "codigo": "ME-002",
+      "categoria": "contrato_response",
+      "descricao": "Response não contém campos legados (ex: user.role em vez de usuario.tipo_usuario)",
+      "mock": "usuario.findUnique retorna usuário ADMIN",
+      "request": "GET /api/v1/me",
+      "resultadoEsperado": "res.body.usuario.tipo_usuario definido, res.body.usuario.role === undefined",
+      "assercao": "expect(res.body.usuario.tipo_usuario).toBeDefined()\nexpect((res.body.usuario as Record<string, unknown>).role).toBeUndefined()"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-003",
+      "codigo": "ME-003",
+      "categoria": "contrato_response",
+      "descricao": "Response para SUPER_ADMIN — contrato DDD completo com organizacao e workspaces",
+      "mock": "usuario.findUnique retorna SUPER_ADMIN com org e 2 workspaces ativos",
+      "request": "GET /api/v1/me com role SUPER_ADMIN",
+      "resultadoEsperado": "tipo_usuario === 'SUPER_ADMIN', organizacao não nulo, workspaces.length === 2",
+      "assercao": "expect(res.body.usuario.tipo_usuario).toBe('SUPER_ADMIN')\nexpect(res.body.organizacao).not.toBeNull()\nexpect(res.body.workspaces).toHaveLength(2)"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-004",
+      "codigo": "ME-004",
+      "categoria": "tipo_usuario_enum",
+      "prioridade": "CRITICA",
+      "descricao": "tipo_usuario retornado é sempre um dos 5 valores válidos — nunca 'USUÁRIO'",
+      "mock": "usuario.findUnique retorna { role: 'MASTER', ... }",
+      "request": "GET /api/v1/me",
+      "resultadoEsperado": "res.body.usuario.tipo_usuario ∈ ['SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER']",
+      "assercao": "const VALID = ['SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER']\nexpect(VALID).toContain(res.body.usuario.tipo_usuario)\nexpect(res.body.usuario.tipo_usuario).not.toBe('USUÁRIO')"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-005",
+      "codigo": "ME-005",
+      "categoria": "tipo_usuario_enum",
+      "prioridade": "CRITICA",
+      "descricao": "Se banco retornar role inválida (ex: 'USUÁRIO'), Zod enum reject e rota retorna 500 — NÃO vaza para o cliente como badge",
+      "mock": "usuario.findUnique retorna { role: 'USUÁRIO', ... } (valor legacy no banco)",
+      "request": "GET /api/v1/me",
+      "resultadoEsperado": "status 500 (meResponseSchema rejeita no res.json) OU zod enum lança antes",
+      "assercao": "expect([400, 500]).toContain(res.status)\nexpect(res.body.usuario?.tipo_usuario).toBeUndefined() // se 400\n// OU\nexpect(res.status).toBe(500) // se passou pelo json mas o cliente não vê 'USUÁRIO'",
+      "nota": "O meResponseSchema tem `tipo_usuario: z.enum([...])` como apenas OUTPUT validation — validação real é feita no banco. Este caso verifica o comportamento de runtime."
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-006",
+      "codigo": "ME-006",
+      "categoria": "tipo_usuario_enum",
+      "descricao": "tipo_usuario para cada role válida — testar os 5 valores do enum individualmente",
+      "mock": "usuario.findUnique retorna cada role em sequência: SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER",
+      "request": "GET /api/v1/me (5 chamadas)",
+      "resultadoEsperado": "res.body.usuario.tipo_usuario === role mockada em cada caso",
+      "assercao": "for (const role of ['SUPER_ADMIN','ADMIN','MASTER','STANDARD','SUPPLIER']) { ... expect(res.body.usuario.tipo_usuario).toBe(role) }"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-007",
+      "codigo": "ME-007",
+      "categoria": "tipo_usuario_enum",
+      "descricao": "organizacao pode ser null — response válido mesmo sem org vinculada",
+      "mock": "usuario.findUnique retorna usuário sem organizacao (org null)",
+      "request": "GET /api/v1/me",
+      "resultadoEsperado": "status 200, res.body.organizacao === null, meResponseSchema.safeParse ok",
+      "assercao": "expect(res.status).toBe(200)\nexpect(res.body.organizacao).toBeNull()\nexpect(meResponseSchema.safeParse(res.body).success).toBe(true)"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-008",
+      "codigo": "ME-008",
+      "categoria": "auth",
+      "descricao": "Auth ausente (sem header Authorization) → 401",
+      "mock": "requireAuth real (sem bypass) ou middleware que retorna 401 se req.headers.authorization ausente",
+      "request": "GET /api/v1/me sem Authorization",
+      "resultadoEsperado": "status 401, res.body.error.code presente",
+      "assercao": "expect(res.status).toBe(401)\nexpect(res.body.error?.code).toBeDefined()"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-009",
+      "codigo": "ME-009",
+      "categoria": "auth",
+      "descricao": "Token inválido → 401 sem expor detalhes internos",
+      "mock": "requireAuth retorna 401",
+      "request": "GET /api/v1/me com Authorization: Bearer token-invalido",
+      "resultadoEsperado": "status 401, sem stack trace no body",
+      "assercao": "expect(res.status).toBe(401)\nexpect(res.body.error?.stack).toBeUndefined()"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-010",
+      "codigo": "ME-010",
+      "categoria": "not_found",
+      "descricao": "Usuário não encontrado no banco → 404 NOT_FOUND",
+      "mock": "usuario.findUnique retorna null",
+      "request": "GET /api/v1/me com userId válido mas inexistente",
+      "resultadoEsperado": "status 404, res.body.error.code === 'NOT_FOUND'",
+      "assercao": "expect(res.status).toBe(404)\nexpect(res.body.error.code).toBe('NOT_FOUND')"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-011",
+      "codigo": "ME-011",
+      "categoria": "erro_banco",
+      "descricao": "DB falha (Prisma rejeita) → 500 sem stack trace exposto",
+      "mock": "usuario.findUnique rejeita com new Error('DB connection lost')",
+      "request": "GET /api/v1/me",
+      "resultadoEsperado": "status 500, sem stack trace no body",
+      "assercao": "expect(res.status).toBe(500)\nexpect(res.body.error?.stack).toBeUndefined()\nexpect(res.body.error?.code).toBeDefined()"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-012",
+      "codigo": "ME-012",
+      "categoria": "preferencias",
+      "descricao": "GET /preferences com SUPPLIER → retorna null (SUPPLIER nunca tem preferido)",
+      "mock": "req.auth.role = 'SUPPLIER'",
+      "request": "GET /api/v1/me/preferences",
+      "resultadoEsperado": "status 200, { data: { preferredCompanyId: null } }",
+      "assercao": "expect(res.status).toBe(200)\nexpect(res.body.data.preferredCompanyId).toBeNull()"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-013",
+      "codigo": "ME-013",
+      "categoria": "preferencias",
+      "descricao": "PUT /preferences com SUPPLIER → 403 FORBIDDEN",
+      "mock": "req.auth.role = 'SUPPLIER'",
+      "request": "PUT /api/v1/me/preferences { preferredCompanyId: 'cuid_válido' }",
+      "resultadoEsperado": "status 403, res.body.error.code === 'FORBIDDEN'",
+      "assercao": "expect(res.status).toBe(403)\nexpect(res.body.error.code).toBe('FORBIDDEN')"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-014",
+      "codigo": "ME-014",
+      "categoria": "preferencias",
+      "descricao": "PUT /preferences com preferredCompanyId inválido (não-cuid) → 400 VALIDATION_ERROR",
+      "mock": "req.auth.role = 'MASTER'",
+      "request": "PUT /api/v1/me/preferences { preferredCompanyId: 'nao-um-cuid' }",
+      "resultadoEsperado": "status 400, res.body.error.code === 'VALIDATION_ERROR'",
+      "assercao": "expect(res.status).toBe(400)\nexpect(res.body.error.code).toBe('VALIDATION_ERROR')"
+    },
+    {
+      "id": "TST-FUN-CONFIG-ME-001-015",
+      "codigo": "ME-015",
+      "categoria": "preferencias",
+      "descricao": "GET /preferences — preferred_company_id inválido (FK setNull, membership revogada) → null silencioso + banco atualizado",
+      "mock": "usuario.findUnique retorna { preferred_company_id: 'cuid_old' }, usuarioWorkspace.findFirst retorna null (membership revogada), usuario.update mock",
+      "request": "GET /api/v1/me/preferences",
+      "resultadoEsperado": "status 200, { data: { preferredCompanyId: null } }, usuario.update chamado para limpar campo",
+      "assercao": "expect(res.status).toBe(200)\nexpect(res.body.data.preferredCompanyId).toBeNull()\nexpect(mockUsuarioUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: { preferred_company_id: null } }))"
+    }
+  ],
+  "resumoExecutivo": "Plano de contrato para GET /api/v1/me com foco no bug do badge 'USUÁRIO'. O caso crítico ME-004 valida que tipo_usuario nunca retorna 'USUÁRIO'. ME-005 verifica que se o banco tiver um valor legacy inválido, o Zod enum não permite que ele vaze para o cliente como badge. ME-001 e ME-002 garantem o contrato DDD (campos nominais, nenhum campo legado). Os demais casos cobrem auth, 404, 500 e o fluxo de preferências de workspace. Cobertura: 15 casos para 3 endpoints. Não há plano pré-existente para esta rota.",
+  "smeRevisadoPor": null,
+  "smeRevisadoEm": null
+}

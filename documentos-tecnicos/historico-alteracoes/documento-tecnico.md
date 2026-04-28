@@ -117,7 +117,7 @@ servicos-global/tenant/historico-global/
 
 ```prisma
 model HistoryLog {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
 
   // Ator
@@ -166,7 +166,7 @@ model HistoryLog {
 
 ```prisma
 model AlertRule {
-  id                       String     @id @default(uuid())
+  id                       String     @id @default(cuid())
   tenant_id                String?   // null = regra global Gravity
 
   name                     String
@@ -205,7 +205,7 @@ model AlertRule {
 
 ```prisma
 model AlertEvent {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
   rule_id        String
   rule           AlertRule   @relation(fields: [rule_id], references: [id])
@@ -236,7 +236,7 @@ model AlertEvent {
 
 ```prisma
 model AlertNotificationLog {
-  id             String     @id @default(uuid())
+  id             String     @id @default(cuid())
   alert_event_id String
   alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
 

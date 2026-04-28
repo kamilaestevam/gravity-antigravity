@@ -1,6 +1,6 @@
 ---
 name: antigravity-autenticacao-s2s
-description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de tenant, serviço de tenant chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-internal-key, validação JWT independente, proxy de tenant, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
+description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de organização, serviço de organização chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-chave-interna, validação JWT independente, proxy de organização, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
 ---
 
 # Gravity — Autenticação S2S (Service-to-Service)
@@ -20,21 +20,21 @@ A solução é ter dois fluxos distintos:
 
 ## Fluxo 1 — JWT Síncrono
 
-Usado quando o usuário está ativo e o token Clerk é válido. O produto simplesmente propaga o JWT do usuário para o serviço de tenant.
+Usado quando o usuário está ativo e o token Clerk é válido. O produto simplesmente propaga o JWT do usuário para o serviço de organização.
 
 ```typescript
-// Propagando JWT do usuário na chamada para serviço de tenant
+// Propagando JWT do usuário na chamada para serviço de organização
 async function callTenantService(
   endpoint: string,
   req: Request,
   body?: unknown
 ) {
-  return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
+  return fetch(`${process.env.ORGANIZACAO_SERVICES_URL}${endpoint}`, {
     method: body ? 'POST' : 'GET',
     headers: {
       'Authorization':    `Bearer ${req.auth.token}`,  // ← JWT do usuário
-      'x-internal-key':   process.env.INTERNAL_SERVICE_KEY!,
-      'x-correlation-id': req.correlationId,
+      'x-chave-interna':   process.env.INTERNAL_SERVICE_KEY!,
+      'x-id-correlacao': req.correlationId,
       'Content-Type':     'application/json'
     },
     body: body ? JSON.stringify(body) : undefined
@@ -56,8 +56,8 @@ Usado para ações assíncronas, cron jobs e retries onde o JWT do usuário pode
 ```typescript
 // Gerando um service token para ação assíncrona
 async function getServiceToken(
-  tenantId: string,
-  userId: string
+  idOrganizacao: string,
+  idUsuario: string
 ): Promise<string> {
   // O Configurador emite tokens de serviço com vida longa
   const response = await fetch(
@@ -65,10 +65,10 @@ async function getServiceToken(
     {
       method: 'POST',
       headers: {
-        'x-internal-key': process.env.INTERNAL_SERVICE_KEY!,
+        'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
         'Content-Type':   'application/json'
       },
-      body: JSON.stringify({ tenantId, userId, scope: 'service' })
+      body: JSON.stringify({ id_organizacao: idOrganizacao, id_usuario: idUsuario, scope: 'service' })
     }
   )
   const { token } = await response.json()
@@ -78,19 +78,19 @@ async function getServiceToken(
 // Usando o service token em chamada assíncrona
 async function callTenantServiceAsync(
   endpoint: string,
-  tenantId: string,
-  userId: string,
+  idOrganizacao: string,
+  idUsuario: string,
   body: unknown,
   idempotencyKey: string
 ) {
-  const serviceToken = await getServiceToken(tenantId, userId)
+  const serviceToken = await getServiceToken(idOrganizacao, idUsuario)
 
-  return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
+  return fetch(`${process.env.ORGANIZACAO_SERVICES_URL}${endpoint}`, {
     method: 'POST',
     headers: {
       'Authorization':     `Bearer ${serviceToken}`,
-      'x-internal-key':    process.env.INTERNAL_SERVICE_KEY!,
-      'X-Idempotency-Key': idempotencyKey,
+      'x-chave-interna':    process.env.INTERNAL_SERVICE_KEY!,
+      'x-chave-idempotencia': idempotencyKey,
       'Content-Type':      'application/json'
     },
     body: JSON.stringify(body)
@@ -105,14 +105,14 @@ async function callTenantServiceAsync(
 
 ---
 
-## Segurança — x-internal-key
+## Segurança — x-chave-interna
 
-O `x-internal-key` é uma camada adicional de defesa (defense-in-depth). **Todo** serviço deve validar essa chave em chamadas internas, mesmo que o JWT seja válido.
+O `x-chave-interna` é uma camada adicional de defesa (defense-in-depth). **Todo** serviço deve validar essa chave em chamadas internas, mesmo que o JWT seja válido.
 
 **OBRIGATÓRIO: usar `timingSafeEqual` — nunca comparação direta (`!==`).** Comparação direta vaza informação sobre o tamanho correto da chave via timing attack.
 
 ```typescript
-// servicos-global/tenant/middleware/withInternalKeyValidation.ts
+// servicos-global/organizacao/middleware/withInternalKeyValidation.ts
 import { timingSafeEqual } from 'node:crypto'
 import type { Request, Response, NextFunction } from 'express'
 import { AppError } from './appError.js'
@@ -123,7 +123,7 @@ export function withInternalKeyValidation(
   next: NextFunction
 ): void {
   const expected = process.env.INTERNAL_API_KEY
-  const received = req.headers['x-internal-key']
+  const received = req.headers['x-chave-interna']
 
   if (!expected || !received || typeof received !== 'string') {
     next(new AppError('Forbidden', 403, 'FORBIDDEN'))
@@ -153,22 +153,22 @@ export function withInternalKeyValidation(
 
 ---
 
-## Ordem dos Middlewares no Super-Servidor Tenant
+## Ordem dos Middlewares no Super-Servidor Organização
 
 ```typescript
-// Ordem obrigatória em servicos-global/tenant/server/index.ts
-app.use(correlationMiddleware)          // 1. Correlation ID (gera UUID se ausente)
+// Ordem obrigatória em servicos-global/organizacao/server/index.ts
+app.use(correlationMiddleware)          // 1. Correlation ID (gera SUID se ausente)
 app.get('/health', healthHandler)       // 2. Health check — sem auth, antes dos guards
 app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))  // 3. Raw body para webhooks
 app.use(express.json())                 // 4. Body parser
 app.use(authMiddleware)                 // 5. Exige x-tenant-id → 401 se ausente
-app.use(withInternalKeyValidation)      // 6. Valida x-internal-key → 403 se inválida
+app.use(withInternalKeyValidation)      // 6. Valida x-chave-interna → 403 se inválida
 // ... service routers ...
 app.use(errorHandler)                   // 7. Handler global de erros
 ```
 
 **Por que `authMiddleware` antes de `withInternalKeyValidation`:**
-- Toda chamada a serviços tenant já carrega `x-tenant-id` (é o identificador do tenant, não segredo)
+- Toda chamada a serviços organização já carrega `x-tenant-id` (é o identificador do organização, não segredo)
 - Falhar rápido em 401 antes de verificar a chave interna é semanticamente correto e mais informativo para debugging
 
 ---
@@ -213,30 +213,29 @@ async function processAction(idempotencyKey: string, payload: unknown) {
 
 ---
 
-## Validação JWT Independente — Cada Serviço Valida (Dream Team)
-
-**Regra inviolável:** o servidor de tenant NUNCA confia no produto cegamente. Ele valida o JWT de forma independente.
+## Validação JWT Independente — Cada Serviço Valida
+**Regra inviolável:** o servidor de organização NUNCA confia no produto cegamente. Ele valida o JWT de forma independente.
 
 ```typescript
-// Em CADA serviço — configurador, tenant-services, produtos
-import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
+// Em CADA serviço — configurador, organizacao-services, produtos
+import { clerkMiddleware, requireAuth } from '@clerk/express'
 
 // O serviço valida o JWT por conta própria
-app.use(ClerkExpressRequireAuth())
+app.use(clerkMiddleware())
+app.use(requireAuth())
 
 // Não basta o produto dizer "o usuário é X" — o serviço confirma
 ```
 
-Isso significa que mesmo se um produto for comprometido, ele não pode se passar por um usuário arbitrário nos serviços de tenant.
+Isso significa que mesmo se um produto for comprometido, ele não pode se passar por um usuário arbitrário nos serviços de organização.
 
 ---
 
-## Proxy de Tenant — Padrão para Produtos (Dream Team)
-
-Todo produto que consome serviços de tenant usa um proxy que encapsula autenticação e retry:
+## Proxy de Organização — Padrão para Produtos
+Todo produto que consome serviços de organização usa um proxy que encapsula autenticação e retry:
 
 ```typescript
-// servicos-global/tenant/proxy/index.ts
+// servicos-global/organizacao/proxy/index.ts
 import { PRODUCT_CONFIG } from './config'
 
 export function createTenantProxy(config: {
@@ -252,8 +251,8 @@ export function createTenantProxy(config: {
           method: req.method,
           headers: {
             'Authorization': req.headers.authorization!,
-            'x-internal-key': process.env.INTERNAL_SERVICE_KEY!,
-            'x-correlation-id': req.correlationId,
+            'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!,
+            'x-id-correlacao': req.correlationId,
             'Content-Type': 'application/json',
           },
           body: ['POST', 'PUT', 'PATCH'].includes(req.method)
@@ -273,8 +272,8 @@ export function createTenantProxy(config: {
 }
 
 // No servidor do produto:
-app.use('/api/tenant', createTenantProxy({
-  baseUrl: process.env.TENANT_SERVICES_URL!,
+app.use('/api/organizacao', createTenantProxy({
+  baseUrl: process.env.ORGANIZACAO_SERVICES_URL!,
   services: PRODUCT_CONFIG.tenantServices,
 }))
 ```
@@ -285,8 +284,8 @@ app.use('/api/tenant', createTenantProxy({
 
 - [ ] A chamada é síncrona (UI ativa)? → usar Fluxo 1 (JWT do usuário)
 - [ ] A chamada é assíncrona (job, cron, retry)? → usar Fluxo 2 (Machine Token)
-- [ ] O `x-internal-key` está sendo enviado em toda chamada interna?
-- [ ] O `x-correlation-id` está sendo propagado?
-- [ ] Se for retry/job, tem `X-Idempotency-Key` para evitar duplicação?
+- [ ] O `x-chave-interna` está sendo enviado em toda chamada interna?
+- [ ] O `x-id-correlacao` está sendo propagado?
+- [ ] Se for retry/job, tem `x-chave-idempotencia` para evitar duplicação?
 - [ ] O serviço receptor valida o JWT independentemente?
-- [ ] O proxy de tenant está configurado no servidor do produto?
+- [ ] O proxy de organização está configurado no servidor do produto?

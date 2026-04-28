@@ -3,7 +3,7 @@
  * Ícone ✦ on-demand por campo + badge de tokens GABI
  */
 
-export { GabiFieldIcon }   from './GabiFieldIcon'
+export { GabiCampoIconeGlobal }   from './GabiCampoIconeGlobal'
 export { GabiTokenBadge }  from './GabiTokenBadge'
 export { useGabiOnDemand } from './useGabiOnDemand'
 export { useGabiQuota }    from './useGabiQuota'

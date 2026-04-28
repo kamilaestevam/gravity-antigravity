@@ -1,36 +1,130 @@
 // server/routes/me.ts
 // Rotas do usuário autenticado (self).
 //
-// GET  /api/v1/me                → dados canônicos do usuário (id, tenantId, role)
-// GET  /api/v1/me/preferences    → { preferredCompanyId: string | null }
-// PUT  /api/v1/me/preferences    → atualiza workspace preferido (skip pós-login)
+// GET  /api/v1/me                → contexto completo: user + tenant + workspaces + produtos
+// GET  /api/v1/me/preferencias   → { preferredCompanyId: string | null }
+// PUT  /api/v1/me/preferencias   → atualiza workspace preferido (skip pós-login)
 
-import { Router } from 'express'
+import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Schema de resposta — contrato exportável para testes e consumidores
+// Garante que breaking changes no payload sejam detectados pelo CI
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const meResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario:             z.string(),
+    nome_usuario:           z.string(),
+    email_usuario:          z.string().email(),
+    tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+    id_organizacao_usuario: z.string(),
+    preferred_company_id:   z.string().nullable(),
+  }),
+  organizacao: z.object({
+    id_organizacao:         z.string(),
+    nome_organizacao:       z.string(),
+    subdominio_organizacao: z.string(),
+    status_organizacao:     z.string(),
+  }).nullable(),
+  workspaces: z.array(z.object({
+    id:             z.string(),
+    nome_workspace: z.string(),
+    status:         z.string(),
+    tipo_usuario:   z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
+    produtos:       z.array(z.string()),
+  })),
+})
+
+export type MeResponse = z.infer<typeof meResponseSchema>
 
 export const meRouter = Router()
 meRouter.use(requireAuth)
 
 /**
  * GET /api/v1/me
- * Retorna o role canônico do banco — fonte de verdade para autorização no frontend.
- * req.auth já foi populado pelo requireAuth (consulta ao banco com cache).
+ * Fonte de verdade do frontend — substitui publicMetadata do Clerk.
+ * Retorna contexto completo: usuário, organização, workspaces e produtos ativos.
  */
-meRouter.get('/', (req, res) => {
-  res.json({
-    user: {
-      id: req.auth.userId,
-      tenantId: req.auth.tenantId,
-      role: req.auth.role,
-    },
-  })
+meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id_usuario: req.auth.userId },
+      select: {
+        id_usuario: true,
+        nome_usuario: true,
+        email_usuario: true,
+        tipo_usuario: true,
+        id_organizacao_usuario: true,
+        preferred_company_id: true,
+        tenant: {
+          select: {
+            id_organizacao: true,
+            nome_organizacao: true,
+            subdominio_organizacao: true,
+            status_organizacao: true,
+          },
+        },
+        memberships: {
+          where: { ativo_usuario_workspace: true },
+          select: {
+            tipo_usuario_workspace: true,
+            company: {
+              select: {
+                id_workspace: true,
+                nome_workspace: true,
+                status_workspace: true,
+                company_products: {
+                  where: { ativo_produto_gravity_workspace: true },
+                  select: { chave_produto_produto_gravity_workspace: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!usuario) {
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    res.json({
+      usuario: {
+        id_usuario: usuario.id_usuario,
+        nome_usuario: usuario.nome_usuario,
+        email_usuario: usuario.email_usuario,
+        tipo_usuario: usuario.tipo_usuario,
+        id_organizacao_usuario: usuario.id_organizacao_usuario,
+        preferred_company_id: usuario.preferred_company_id,
+      },
+      organizacao: usuario.tenant
+        ? {
+            id_organizacao: usuario.tenant.id_organizacao,
+            nome_organizacao: usuario.tenant.nome_organizacao,
+            subdominio_organizacao: usuario.tenant.subdominio_organizacao,
+            status_organizacao: usuario.tenant.status_organizacao,
+          }
+        : null,
+      workspaces: usuario.memberships.map((m) => ({
+        id: m.company.id_workspace,
+        nome_workspace: m.company.nome_workspace,
+        status: m.company.status_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        produtos: m.company.company_products.map((p) => p.chave_produto_produto_gravity_workspace),
+      })),
+    })
+  } catch (err) {
+    next(err)
+  }
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
-// User Preferences — Workspace Preferido
+// Usuario Preferences — Workspace Preferido
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -48,14 +142,14 @@ export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>
  * Duas rotas de validação, dependendo do role:
  *
  * 1. SUPER_ADMIN / ADMIN (admins Gravity — equipe interna):
- *    Não precisam de UserMembership — eles supervisionam todos os workspaces
+ *    Não precisam de UsuarioWorkspace — eles supervisionam todos os workspaces
  *    do próprio tenant sem habilitação formal. Basta que a company:
  *      - Exista
  *      - Pertença ao mesmo tenant do usuário (tenant isolation)
  *      - Esteja com status ACTIVE
  *
  * 2. MASTER / STANDARD (clientes):
- *    Precisam de UserMembership ATIVA na company — é como o Configurador
+ *    Precisam de UsuarioWorkspace ATIVA na company — é como o Configurador
  *    controla quem acessa o quê dentro de um tenant cliente.
  *
  * SUPPLIER nunca chega aqui — é bloqueado antes no PUT (403).
@@ -70,33 +164,33 @@ async function isPreferredCompanyValid(
 ): Promise<boolean> {
   // Admins Gravity: acesso via tenant, não via membership
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: {
-        id: companyId,
-        tenant_id: tenantId,
-        status: 'ACTIVE',
+        id_workspace: companyId,
+        id_organizacao_workspace: tenantId,
+        status_workspace: 'ATIVO',
       },
-      select: { id: true },
+      select: { id_workspace: true },
     })
     return company !== null
   }
 
   // Clientes (MASTER/STANDARD): requer membership ativa
-  const membership = await prisma.userMembership.findFirst({
+  const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
-      user_id: userId,
-      company_id: companyId,
-      tenant_id: tenantId,
-      is_active: true,
-      company: { status: 'ACTIVE' },
+      id_usuario_usuario_workspace: userId,
+      id_workspace_usuario_workspace: companyId,
+      id_organizacao_usuario_workspace: tenantId,
+      ativo_usuario_workspace: true,
+      company: { status_workspace: 'ATIVO' },
     },
-    select: { id: true },
+    select: { id_usuario_workspace: true },
   })
   return membership !== null
 }
 
 /**
- * GET /api/v1/me/preferences
+ * GET /api/v1/me/preferencias
  * Retorna o workspace preferido do usuário.
  *
  * Regras:
@@ -105,16 +199,16 @@ async function isPreferredCompanyValid(
  *     acesso, ou inativa), o campo é limpo silenciosamente no banco e o
  *     endpoint retorna null (fallback silencioso).
  */
-meRouter.get('/preferences', async (req, res, next) => {
+meRouter.get('/preferencias', async (req, res, next) => {
   try {
     // Fornecedor nunca tem preferido
-    if (req.auth.role === 'SUPPLIER') {
+    if (req.auth.role === 'FORNECEDOR') {
       res.json({ data: { preferredCompanyId: null } })
       return
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.auth.userId },
+    const user = await prisma.usuario.findUnique({
+      where: { id_usuario: req.auth.userId },
       select: { preferred_company_id: true },
     })
 
@@ -134,8 +228,8 @@ meRouter.get('/preferences', async (req, res, next) => {
 
     if (!valid) {
       // Fallback silencioso: limpa o campo e retorna null
-      await prisma.user.update({
-        where: { id: req.auth.userId },
+      await prisma.usuario.update({
+        where: { id_usuario: req.auth.userId },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -149,7 +243,7 @@ meRouter.get('/preferences', async (req, res, next) => {
 })
 
 /**
- * PUT /api/v1/me/preferences
+ * PUT /api/v1/me/preferencias
  * Atualiza ou remove o workspace preferido do usuário.
  *
  * Body: { preferredCompanyId: string | null }
@@ -159,12 +253,12 @@ meRouter.get('/preferences', async (req, res, next) => {
  * Regras:
  *   - Fornecedor (SUPPLIER) NÃO pode definir preferido — retorna 403.
  *   - Só pode marcar company onde tem membership ATIVA.
- *   - Company deve pertencer ao mesmo tenant (cross-tenant bloqueado).
+ *   - Workspace deve pertencer ao mesmo tenant (cross-tenant bloqueado).
  */
-meRouter.put('/preferences', async (req, res, next) => {
+meRouter.put('/preferencias', async (req, res, next) => {
   try {
     // Camada 3 — Autorização: fornecedor não pode marcar preferido
-    if (req.auth.role === 'SUPPLIER') {
+    if (req.auth.role === 'FORNECEDOR') {
       throw new AppError(
         'Fornecedores não podem definir workspace preferido',
         403,
@@ -186,8 +280,8 @@ meRouter.put('/preferences', async (req, res, next) => {
 
     // Caso 1: desmarcar — sempre permitido
     if (preferredCompanyId === null) {
-      await prisma.user.update({
-        where: { id: req.auth.userId },
+      await prisma.usuario.update({
+        where: { id_usuario: req.auth.userId },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -211,8 +305,8 @@ meRouter.put('/preferences', async (req, res, next) => {
       )
     }
 
-    await prisma.user.update({
-      where: { id: req.auth.userId },
+    await prisma.usuario.update({
+      where: { id_usuario: req.auth.userId },
       data: { preferred_company_id: preferredCompanyId },
     })
 

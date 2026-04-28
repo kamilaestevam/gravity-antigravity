@@ -1,0 +1,155 @@
+// servicos-global/tenant/gabi/prisma/fragment.prisma
+// AGENTE GABI — ONDA 34 (DDD Servicos)
+//
+// Fragment Prisma para o serviço da Gabi AI (agente autônomo).
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// GabiConversaCompleta — conversa principal da Gabi com o usuário
+// ---------------------------------------------------------------------------
+
+model GabiConversaCompleta {
+  id_gabi_conversa             String  @id @default(cuid())
+  id_organizacao_gabi_conversa String
+  id_produto_gabi_conversa     String?
+  id_usuario_gabi_conversa     String?
+
+  titulo_gabi_conversa         String?
+
+  data_criacao_gabi_conversa     DateTime @default(now())
+  data_atualizacao_gabi_conversa DateTime @updatedAt
+
+  mensagens_gabi_conversa  GabiMensagemIndividual[]
+
+  @@index([id_organizacao_gabi_conversa], map: "gco_org_idx")
+  @@index([id_organizacao_gabi_conversa, id_produto_gabi_conversa], map: "gco_org_prd_idx")
+  @@index([id_organizacao_gabi_conversa, id_usuario_gabi_conversa], map: "gco_org_usr_idx")
+  @@map("gabi_conversa")
+}
+
+// ---------------------------------------------------------------------------
+// GabiMensagemIndividual — mensagem individual da conversa
+// ---------------------------------------------------------------------------
+
+model GabiMensagemIndividual {
+  id_gabi_mensagem             String  @id @default(cuid())
+  id_organizacao_gabi_mensagem String
+  id_produto_gabi_mensagem     String?
+  id_usuario_gabi_mensagem     String?
+
+  id_conversa_gabi_mensagem    String
+  conversa_gabi_mensagem       GabiConversaCompleta @relation(fields: [id_conversa_gabi_mensagem], references: [id_gabi_conversa], onDelete: Cascade)
+
+  papel_gabi_mensagem          String   // 'user' | 'assistant' | 'system'
+  conteudo_gabi_mensagem       String   @db.Text
+  anexos_gabi_mensagem         String?  // JSON encodado com links/detalhes de arquivos
+
+  data_criacao_gabi_mensagem     DateTime @default(now())
+  data_atualizacao_gabi_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_mensagem], map: "gme_org_idx")
+  @@index([id_organizacao_gabi_mensagem, id_produto_gabi_mensagem], map: "gme_org_prd_idx")
+  @@index([id_organizacao_gabi_mensagem, id_usuario_gabi_mensagem], map: "gme_org_usr_idx")
+  @@index([id_conversa_gabi_mensagem], map: "gme_cnv_idx")
+  @@map("gabi_mensagem")
+}
+
+// ---------------------------------------------------------------------------
+// GabiLogUso — auditoria obrigatória de toda execução da Gabi
+// ---------------------------------------------------------------------------
+
+model GabiLogUso {
+  id_gabi_log_uso             String  @id @default(cuid())
+  id_organizacao_gabi_log_uso String
+  id_produto_gabi_log_uso     String?
+  id_usuario_gabi_log_uso     String?
+
+  acao_gabi_log_uso              String
+  snapshot_conversa_gabi_log_uso String  @db.Text
+  tipo_ator_gabi_log_uso         String  @default("gabi")
+  disparado_por_gabi_log_uso     String
+
+  modelo_gabi_log_uso         String?
+  tokens_input_gabi_log_uso   Int     @default(0)
+  tokens_output_gabi_log_uso  Int     @default(0)
+  custo_usd_gabi_log_uso      Float   @default(0)
+
+  data_criacao_gabi_log_uso   DateTime @default(now())
+
+  @@index([id_organizacao_gabi_log_uso], map: "glu_org_idx")
+  @@index([id_organizacao_gabi_log_uso, id_produto_gabi_log_uso], map: "glu_org_prd_idx")
+  @@index([id_organizacao_gabi_log_uso, id_usuario_gabi_log_uso], map: "glu_org_usr_idx")
+  @@map("gabi_log_uso")
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenConsumido — registro de cada chamada field-help (on-demand)
+// ---------------------------------------------------------------------------
+
+model GabiTokenConsumido {
+  id_gabi_token_consumido             String   @id @default(cuid())
+  id_organizacao_gabi_token_consumido String
+  id_produto_gabi_token_consumido     String
+  id_usuario_gabi_token_consumido     String
+
+  campo_gabi_token_consumido         String
+  tokens_input_gabi_token_consumido  Int
+  tokens_output_gabi_token_consumido Int
+  tokens_total_gabi_token_consumido  Int
+  mes_ref_gabi_token_consumido       String   // "2026-04" — agrupamento mensal
+
+  data_criacao_gabi_token_consumido  DateTime @default(now())
+
+  @@index([id_organizacao_gabi_token_consumido], map: "gtc_org_idx")
+  @@index([id_organizacao_gabi_token_consumido, id_produto_gabi_token_consumido], map: "gtc_org_prd_idx")
+  @@index([id_organizacao_gabi_token_consumido, id_usuario_gabi_token_consumido], map: "gtc_org_usr_idx")
+  @@index([id_organizacao_gabi_token_consumido, mes_ref_gabi_token_consumido], map: "gtc_org_mes_idx")
+  @@map("gabi_token_consumido")
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenOrganizacao — quota mensal por tenant
+// ---------------------------------------------------------------------------
+
+model GabiTokenOrganizacao {
+  id_gabi_token_workspace             String   @id @default(cuid())
+  id_organizacao_gabi_token_workspace String
+  id_produto_gabi_token_workspace     String
+
+  quota_mensal_gabi_token_workspace   Int
+  mes_ref_gabi_token_workspace        String   // "2026-04"
+  tokens_usados_gabi_token_workspace  Int      @default(0)
+
+  data_atualizacao_gabi_token_workspace DateTime @updatedAt
+
+  @@unique([id_organizacao_gabi_token_workspace, id_produto_gabi_token_workspace, mes_ref_gabi_token_workspace], map: "gtw_unq_quota")
+  @@index([id_organizacao_gabi_token_workspace], map: "gtw_org_idx")
+  @@index([id_organizacao_gabi_token_workspace, id_produto_gabi_token_workspace], map: "gtw_org_prd_idx")
+  @@index([id_organizacao_gabi_token_workspace, mes_ref_gabi_token_workspace], map: "gtw_org_mes_idx")
+  @@map("gabi_token_workspace")
+}
+
+// ---------------------------------------------------------------------------
+// GabiPersonalizacaoOrganizacao — persona/comportamento Gabi por tenant
+// ---------------------------------------------------------------------------
+
+model GabiPersonalizacaoOrganizacao {
+  id_gabi_personalizacao             String   @id @default(cuid())
+  id_organizacao_gabi_personalizacao String   @unique
+  id_produto_gabi_personalizacao     String?
+  id_usuario_gabi_personalizacao     String?
+
+  prompt_sistema_gabi_personalizacao   String?  @db.Text
+  tom_voz_gabi_personalizacao          String?
+  limitacoes_gabi_personalizacao       String?  @db.Text
+  instrucoes_extras_gabi_personalizacao String? @db.Text
+  ativa_gabi_personalizacao            Boolean  @default(true)
+
+  data_criacao_gabi_personalizacao     DateTime @default(now())
+  data_atualizacao_gabi_personalizacao DateTime @updatedAt
+
+  @@index([id_organizacao_gabi_personalizacao], map: "gpe_org_idx")
+  @@index([id_organizacao_gabi_personalizacao, id_produto_gabi_personalizacao], map: "gpe_org_prd_idx")
+  @@index([id_organizacao_gabi_personalizacao, id_usuario_gabi_personalizacao], map: "gpe_org_usr_idx")
+  @@map("gabi_personalizacao")
+}

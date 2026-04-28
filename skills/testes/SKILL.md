@@ -1,252 +1,155 @@
 ---
-name: antigravity-testes-em-tela
-description: "Skill de teste visual direto no navegador. O agente executa um passo a passo completo do início ao fim usando Playwright, tira print de cada etapa relevante e salva as imagens em testes/testes-em-tela/[produto]/[nome]/YYYY-MM-DD-[descricao]/XX-descricao.png. Ativar com /teste-em-tela."
+name: antigravity-testes
+description: "Skill de coordenação do ecossistema de testes do Gravity. Visão geral dos três níveis (Vitest unitário/funcional + Playwright E2E), padrões de organização, cobertura mínima por área e roteamento para as 7 skills filhas (padrões, contract testing, teste em tela, planos por tipo). Consultar antes de escrever qualquer teste — para decidir QUAL tipo, ONDE colocar e QUAIS padrões aplicar."
 ---
 
-# Gravity — Testes em Tela
+# Gravity — Coordenação de Testes
 
-## O que esta skill faz
+## Os Três Níveis
 
-Executa um teste **visual completo no navegador**, do início ao fim, sem pular etapas.
-Cada passo relevante gera um screenshot numerado salvo em disco.
-O objetivo é documentar que a funcionalidade está funcionando **como o usuário vê**.
+| Nível | Ferramenta | Onde mora | O que prova |
+|:---|:---|:---|:---|
+| **Unitário** | Vitest | `testes/testes-unitarios/` | Funções e componentes isolados funcionam |
+| **Funcional** | Vitest + Supertest | `testes/testes-funcionais/` | Rotas/integração intra-serviço funcionam |
+| **E2E** | Playwright | `testes/testes-e2e/` | Fluxos completos no navegador funcionam |
 
-Esta skill não substitui testes unitários nem funcionais. Ela valida a **experiência visual**
-após uma entrega: layout correto, dados aparecendo, fluxos funcionando no browser real.
-
----
-
-## Quando Usar Esta Skill
-
-- Após entrega de nova tela ou componente visual
-- Após ajuste que afeta CSS, layout ou fluxo de UI
-- Para validar que um bug visual foi corrigido
-- Para documentar o estado atual de uma funcionalidade
-- Sempre que o usuário pedir `/teste-em-tela`
+> **Pasta `testes/` é centralizada na raiz** — nenhum produto/serviço tem `__tests__` interno. Mantém specs separadas do código de produção e facilita CI.
 
 ---
 
-## Estrutura de Pastas e Nomenclatura
+## Cobertura Mínima Obrigatória
+
+| Área | Cobertura unitária |
+|:---|:---|
+| `nucleo-global/` | ≥ 80% |
+| `servicos-global/configurador/` | ≥ 70% |
+| `servicos-global/organizacao/*/` | ≥ 70% |
+| `produtos/*/` | ≥ 70% |
+| `packages/resolver-organizacao/` | ≥ 90% (SDK crítico de isolamento) |
+
+CI bloqueia merge abaixo do limite. Ver `padroes-vitest-playwright` para configuração.
+
+---
+
+## Testes Obrigatórios por Tipo de Código
+
+### Rotas Express (qualquer servidor)
+- [ ] Teste funcional do happy path
+- [ ] Teste funcional de validação Zod (400 com payload inválido)
+- [ ] Teste funcional de autorização (401/403)
+- [ ] Teste funcional de erro de banco (500)
+
+### Acesso a banco de produto (via SDK)
+- [ ] Teste anti-cross-organização (`testes/security/cross-tenant-isolation.test.ts`)
+- [ ] Teste de pool leak (`SET LOCAL` reset após crash do handler)
+
+### Componentes React
+- [ ] Teste unitário de render
+- [ ] Teste unitário dos estados principais (loading, vazio, erro, sucesso)
+- [ ] Teste funcional de interação se há lógica não-trivial
+
+### Schemas Zod
+- [ ] Teste unitário com payload válido
+- [ ] Teste unitário com payload inválido (cada campo)
+- [ ] **Contract test** se schema é compartilhado front↔back (ver `contract-testing`)
+
+---
+
+## Mapa das 7 Skills Filhas
+
+| Skill | Quando consultar |
+|:---|:---|
+| `padroes-vitest-playwright` | Configurar Vitest/Playwright, estrutura de spec, mocks, fixtures |
+| `contract-testing` | Schema Zod usado por front e back — CI bloqueia breaking changes (Mandamento 09) |
+| `teste-em-tela` | Validação visual — Playwright com screenshots numerados em `testes/testes-em-tela/` |
+| `agente-plano-teste` | Agente que cria planos de teste a partir de uma tela/feature |
+| `agente-plano-teste-unitario` | Agente que detalha plano unitário (Vitest, categorias, cobertura) |
+| `agente-plano-teste-funcional` | Agente que detalha plano funcional (rotas, fluxos, integração) |
+| `agente-plano-teste-e2e` | Agente que detalha plano E2E (Playwright + Percy em staging) |
+
+---
+
+## Decisão: QUAL teste escrever?
+
+```
+Mudança em função pura, util, helper        → Unitário
+Mudança em componente React isolado         → Unitário
+Mudança em rota Express                     → Funcional + Unitário (do handler)
+Mudança em schema Zod compartilhado         → Unitário + Contract
+Mudança em fluxo do usuário (multi-tela)    → E2E + revisar Funcional/Unitário existente
+Mudança visual (CSS, layout, ícone)         → Teste em Tela (skill teste-em-tela)
+Mudança em SDK resolver-organizacao         → Unitário + anti-cross-org + pool-leak
+```
+
+---
+
+## Decisão: ONDE colocar?
 
 ```
 testes/
-  testes-em-tela/
-    produto/
-      [nome-produto]/           ← ex: pedido, simulacusto, lpco
-        YYYY-MM-DD-[descricao]/  ← ex: 2026-04-10-kanban-customizado
-          01-[descricao].png     ← ex: 01-pagina-carregada.png
-          02-[descricao].png     ← ex: 02-modal-aberto.png
-          03-[descricao].png     ← ex: 03-formulario-preenchido.png
-          ...
-    servico/
-      [nome-servico]/           ← ex: dashboard, gabi, configurador
-        YYYY-MM-DD-[descricao]/
-          01-[descricao].png
-          ...
+├── testes-unitarios/
+│   ├── plano-de-testes/           ← planos .md (padrão ULTIMATE Auditor)
+│   ├── nucleo-global/             ← espelha estrutura do código
+│   ├── servicos-global/
+│   ├── produtos/
+│   └── packages/
+├── testes-funcionais/
+│   ├── plano-de-testes/
+│   ├── configurador/
+│   ├── organizacao/
+│   └── produtos/
+├── testes-e2e/
+│   ├── plano-de-testes/
+│   ├── configurador/
+│   └── produtos/
+├── testes-em-tela/                ← screenshots numerados (skill teste-em-tela)
+│   ├── produto/
+│   └── servico/
+└── security/
+    ├── cross-tenant-isolation.test.ts
+    └── pool-leak.test.ts
 ```
 
-**Regras de nomenclatura:**
-- Data sempre no formato `YYYY-MM-DD`
-- Descrição da pasta: kebab-case, curta (3-5 palavras), descritiva do cenário
-- Screenshots numerados sequencialmente: `01`, `02`, `03`...
-- Nome do screenshot: número + hífen + descrição do momento (`01-tela-carregada.png`)
-- Sem espaços, sem maiúsculas, sem caracteres especiais
+**Regras:**
+- O caminho do spec espelha o caminho do código de produção
+- Plano de teste (`.md`) precede o spec (`.test.ts`/`.spec.ts`) sempre que a feature é nova
+- Nenhum spec dentro de `produtos/`, `servicos-global/` ou `nucleo-global/`
 
 ---
 
-## Como Executar o Teste
+## Fluxo Completo de uma Feature Nova
 
-### Passo 1 — Definir o roteiro
-
-Antes de abrir o navegador, escrever o roteiro completo:
-
-```
-ROTEIRO DE TESTE
-Produto: [nome]
-Cenário: [o que será testado]
-URL base: http://localhost:[porta]
-Data: YYYY-MM-DD
-Pasta de saída: testes/testes-em-tela/produto/[nome]/YYYY-MM-DD-[descricao]/
-
-Passos:
-1. Acessar [URL]
-2. [ação]
-3. [ação]
-...
-N. Screenshot final — estado esperado
-```
-
-### Passo 2 — Checar que o servidor está rodando
-
-```bash
-# Verificar se o frontend está acessível
-curl -s -o /dev/null -w "%{http_code}" http://localhost:[porta]
-```
-
-Se retornar 200 → prosseguir.
-Se não → acionar `/terminal` para subir o servidor antes de continuar.
-
-### Passo 3 — Executar com Playwright
-
-```typescript
-// testes/testes-em-tela/[produto]/[nome]/[data-descricao]/teste.ts
-import { chromium } from 'playwright'
-import * as path from 'path'
-import * as fs from 'fs'
-
-const PASTA_SAIDA = path.join(
-  'testes', 'testes-em-tela', '[produto]', '[nome]',
-  'YYYY-MM-DD-[descricao]'
-)
-
-async function executar() {
-  fs.mkdirSync(PASTA_SAIDA, { recursive: true })
-
-  const browser = await chromium.launch({ headless: false }) // headless: false para ver
-  const page = await browser.newPage()
-  await page.setViewportSize({ width: 1440, height: 900 })
-
-  // Passo 1
-  await page.goto('http://localhost:[porta]/[rota]')
-  await page.waitForLoadState('networkidle')
-  await page.screenshot({
-    path: path.join(PASTA_SAIDA, '01-pagina-carregada.png'),
-    fullPage: false
-  })
-
-  // Passo 2 — exemplo: clicar em botão
-  await page.getByRole('button', { name: '[texto do botão]' }).click()
-  await page.waitForTimeout(500) // aguardar animação
-  await page.screenshot({
-    path: path.join(PASTA_SAIDA, '02-modal-aberto.png'),
-    fullPage: false
-  })
-
-  // ... demais passos
-
-  await browser.close()
-  console.log(`Screenshots salvos em: ${PASTA_SAIDA}`)
-}
-
-executar().catch(console.error)
-```
-
-### Passo 4 — Rodar o script
-
-```bash
-npx ts-node testes/testes-em-tela/[produto]/[nome]/[data-descricao]/teste.ts
-```
-
-Ou usar `npx playwright test` se houver configuração global.
+1. Agente recebe tarefa do Líder
+2. Cria plano de teste (`agente-plano-teste*`) — para os 3 tipos
+3. Plano aprovado pelo dono (E2E exige aprovação explícita — Mandamento 03 do QA)
+4. Implementa código + specs Unitário/Funcional juntos
+5. Roda Vitest local — todos verdes
+6. Implementa specs E2E conforme plano
+7. Roda Playwright local — todos verdes
+8. PR aberto → CI roda os 3 níveis + cobertura + linter
+9. QA acionado (skill `papeis/qa`) com checklist de 6 categorias
+10. Aprovado → merge
 
 ---
 
-## Momentos Obrigatórios de Screenshot
+## Regras Invioláveis
 
-Todo teste em tela DEVE capturar no mínimo:
-
-| Momento | Quando capturar |
-|:--------|:----------------|
-| Tela carregada | Após `waitForLoadState('networkidle')` |
-| Estado vazio | Se a tela tem estado sem dados |
-| Após ação principal | Clique, submit, seleção relevante |
-| Modal/drawer aberto | Se o fluxo inclui overlay |
-| Estado de erro | Se o fluxo inclui validação ou erro |
-| Estado final | Resultado esperado da ação |
-
-Capturar também sempre que houver:
-- Toast/snackbar de confirmação
-- Mudança visível de layout (ex: kanban coluna adicionada)
-- Dados novos aparecendo na tela
+- **Nenhum teste com mock de banco quando o código real toca banco** — usar `testcontainers-postgres` ou banco de teste isolado
+- **Nenhum spec E2E sem plano aprovado** pelo dono (regra do QA)
+- **Nenhum `it.skip` ou `it.only`** chega no main — CI bloqueia
+- **Nenhum spec dependente de ordem** — cada `it()` é independente
+- **Nenhum `waitForTimeout(>1000)`** em E2E — se precisa, o app está lento
+- **Schema Zod muda → contract test atualizado no MESMO commit** (Mandamento 09)
+- **Cobertura abaixo do mínimo bloqueia merge** — sem exceção
 
 ---
 
-## Seletores Preferidos (ordem de prioridade)
+## Checklist — Antes de Pedir Review
 
-1. `getByRole('button', { name: 'Texto' })` — mais acessível e estável
-2. `getByText('Texto visível')` — para elementos de texto
-3. `getByLabel('Label do campo')` — para inputs
-4. `getByTestId('data-testid')` — quando existir `data-testid`
-5. `locator('.classe-css')` — último recurso, frágil
-
-**Nunca usar seletores por ID gerado dinamicamente ou índice de lista.**
-
----
-
-## Configurações de Screenshot
-
-```typescript
-// Screenshot padrão (viewport 1440x900)
-await page.screenshot({
-  path: path.join(PASTA_SAIDA, 'XX-descricao.png'),
-  fullPage: false  // capturar só o viewport visível
-})
-
-// Screenshot de elemento específico (ex: só o card)
-const card = page.locator('.gtv-card')
-await card.screenshot({
-  path: path.join(PASTA_SAIDA, 'XX-detalhe-card.png')
-})
-
-// Screenshot full page (para telas longas)
-await page.screenshot({
-  path: path.join(PASTA_SAIDA, 'XX-tela-completa.png'),
-  fullPage: true
-})
-```
-
----
-
-## Aguardar Carregamento Corretamente
-
-```typescript
-// Aguardar rede estabilizar (preferencial)
-await page.waitForLoadState('networkidle')
-
-// Aguardar elemento aparecer
-await page.waitForSelector('.minha-classe', { state: 'visible' })
-
-// Aguardar animação (quando necessário)
-await page.waitForTimeout(300) // máximo 500ms — se precisar de mais, há problema
-
-// Aguardar resposta de API
-await page.waitForResponse(resp => resp.url().includes('/api/') && resp.status() === 200)
-```
-
-**Evitar `waitForTimeout` grandes (> 1s). Se precisar, o problema está no carregamento, não no teste.**
-
----
-
-## Relatório Pós-Teste
-
-Após a execução, reportar ao usuário:
-
-```
-RELATÓRIO — Teste em Tela
-Produto: [nome]
-Cenário: [descricao]
-Data: YYYY-MM-DD
-Pasta: testes/testes-em-tela/[produto]/[nome]/YYYY-MM-DD-[descricao]/
-
-Screenshots gerados:
-  01-pagina-carregada.png ✓
-  02-modal-aberto.png ✓
-  03-formulario-preenchido.png ✓
-  04-confirmacao.png ✓
-
-Resultado: PASSOU / FALHOU
-Observações: [o que estava diferente do esperado, se houver]
-```
-
----
-
-## Checklist Antes de Executar
-
-- [ ] Roteiro escrito com todos os passos?
-- [ ] Servidor local rodando na porta correta?
-- [ ] Pasta de saída com nomenclatura correta (`YYYY-MM-DD-descricao`)?
-- [ ] Playwright instalado (`npx playwright install` se necessário)?
-- [ ] Viewport definido como 1440x900?
-- [ ] `waitForLoadState('networkidle')` antes do primeiro screenshot?
-- [ ] Screenshots numerados sequencialmente?
-- [ ] Relatório enviado ao usuário após execução?
+- [ ] 3 níveis presentes onde aplicável (unitário + funcional + E2E)?
+- [ ] Cobertura ≥ limite da área?
+- [ ] Plano de teste em `.md` para cada nível antes do spec?
+- [ ] Anti-cross-organização + pool-leak para código que usa o SDK?
+- [ ] Contract test atualizado se schema Zod mudou?
+- [ ] Nenhum `it.skip`/`it.only`/`waitForTimeout` longo?
+- [ ] CI verde local (`npm test` + `npm run test:e2e`)?

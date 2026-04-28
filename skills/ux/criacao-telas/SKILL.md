@@ -1,5 +1,6 @@
 ---
-description: Fluxo completo de criação e validação de novas telas (Gravity UX 10), incluindo equipe e etapas.
+name: antigravity-criacao-telas
+description: "Use esta skill sempre que uma tarefa envolver criação de novas telas no Gravity. Define o fluxo ponta-a-ponta de criação e validação (UX 10), os 4 papeis envolvidos (PM, UX/UI Lead, Engenheiro Frontend, Tech Lead), as 5 etapas (discovery, design system, estruturacao modular, implementacao com fallbacks, validacao final) e o checklist de 4 vias antes do merge. Toda nova tela passa por este funil de excelencia antes de entrar em producao."
 ---
 
 # 🎨 Workflow: Criação e Validação de Novas Telas (UX 10)
@@ -11,7 +12,7 @@ A expectativa para qualquer nova interface é que ela entregue uma experiência 
 ## 👥 A Equipe de Elite (Papéis na Criação)
 
 Cada nova funcionalidade visual exige a colaboração sistêmica dos seguintes papéis operacionais:
-1. **Product Manager (PM):** Define a visão de negócio, as necessidades do cliente (Tenant/Company) e o escopo esperado para a jornada do usuário.
+1. **Product Manager (PM):** Define a visão de negócio, as necessidades do cliente (Organização/Workspace) e o escopo esperado para a jornada do usuário.
 2. **UX/UI Lead:** Evocador do Padrão "UX 10". Responsável pela arquitetura da informação, fidelidade visual, especificação de micro-interações (glow, sombras translúcidas, glass) e coerência com a harmonia da plataforma Gravity.
 3. **Engenheiro Frontend / Arquiteto UI:** Transforma os construtos do UX em código eficiente e escalável, utilizando o design system base (`@nucleo` e `@gravity/shell`).
 4. **Tech Lead:** Valida as integrações rest, as nuances do GraphQL/Prisma, estados atípicos (carregando, erro limite de API), e a eficiência da árvore de renderização.

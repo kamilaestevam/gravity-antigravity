@@ -824,6 +824,139 @@
   color: var(--aig-accent, #818cf8);
 }
 
+/* ── Seção de links ──────────────────────────────────────────────────────── */
+.aig-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.aig-link-add-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px dashed var(--aig-border);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--aig-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+.aig-link-add-btn:hover {
+  border-color: var(--aig-accent);
+  color: var(--aig-accent);
+}
+
+/* ── Linha de link sugerido ──────────────────────────────────────────────── */
+.aig-link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.625rem;
+  border-radius: 6px;
+  border: 1px dashed var(--aig-border);
+  background: transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+.aig-link-row.active {
+  border-style: solid;
+  border-color: var(--aig-accent);
+  background: var(--aig-accent-dim, rgba(129,140,248,0.08));
+}
+.aig-link-row__icon {
+  flex-shrink: 0;
+  color: var(--aig-muted);
+  transition: color 0.15s;
+}
+.aig-link-row.active .aig-link-row__icon {
+  color: var(--aig-accent);
+}
+.aig-link-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 0;
+}
+.aig-link-row__name {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--aig-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aig-link-row__path {
+  font-size: 0.5625rem;
+  color: var(--aig-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
+.aig-link-row__toggle {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--aig-border);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--aig-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.aig-link-row__toggle:hover {
+  border-color: var(--aig-accent);
+  color: var(--aig-text);
+}
+.aig-link-row__toggle.active {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.4);
+  color: #ef4444;
+}
+.aig-link-row__toggle.active:hover {
+  background: rgba(239,68,68,0.2);
+  border-color: #ef4444;
+}
+.aig-link-row.editing {
+  border-style: solid;
+  border-color: var(--aig-accent);
+}
+.aig-link-row__input {
+  all: unset;
+  flex: 1;
+  font-size: 0.6875rem;
+  color: var(--aig-text);
+  min-width: 0;
+}
+.aig-link-row__input::placeholder {
+  color: var(--aig-muted);
+  opacity: 0.7;
+}
+.aig-link-row__reset {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 4px;
+  color: var(--aig-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.aig-link-row__reset:hover {
+  color: var(--aig-text);
+}
+
 /* ── Campos extras (e-mail / WhatsApp) ──────────────────────────────────── */
 .aig-extra-fields {
   display: flex;
@@ -1057,6 +1190,19 @@ body.light-theme .aig-action-chip.active {
   background: #e0e7ff;
   border-color: #4f46e5;
   color: #4f46e5;
+}
+
+body.light-theme .aig-link-row {
+  border-color: #cbd5e1;
+}
+body.light-theme .aig-link-row.active {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+body.light-theme .aig-link-row__toggle.active {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 body.light-theme .aig-link-popover {

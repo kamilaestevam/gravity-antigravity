@@ -158,12 +158,12 @@ Dashboard Service :3001
 
 ## 4. Prisma Fragment Schema
 
-O schema e declarado em `prisma/fragment.prisma` e composto pelo Coordenador via `scripts/compose-tenant-schema.ts`. Nunca editar `schema.prisma` diretamente.
+O schema e declarado em `prisma/fragment.prisma` e composto pelo Coordenador via `scripts/ativamente/compose-tenant-schema.ts`. Nunca editar `schema.prisma` diretamente.
 
 ```prisma
 // fragment.prisma — Dashboard Service
 // NAO EDITAR DIRETAMENTE o schema.prisma.
-// Coordenador compoe via scripts/compose-tenant-schema.ts
+// Coordenador compoe via scripts/ativamente/compose-tenant-schema.ts
 
 enum DashboardMode {
   PRODUCT   // Dashboard de um produto especifico

@@ -1,0 +1,204 @@
+// servicos-global/tenant/historico-global/prisma/fragment.prisma
+// AGENTE HISTORICO-GLOBAL — ONDA 32 (DDD Servicos)
+//
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
+
+enum AcaoExecutadaPor {
+  USUARIO
+  API
+  IA
+  JOB
+  INTEGRACAO
+}
+
+enum EventoStatus {
+  SUCESSO
+  FALHA
+  PARCIAL
+}
+
+enum AlertaStatus {
+  PENDENTE
+  REVISADO
+  ESCALADO
+}
+
+// ---------------------------------------------------------------------------
+// HistoricoLog — registro imutável de auditoria
+// ---------------------------------------------------------------------------
+
+model HistoricoLog {
+  id_historico_log             String  @id @default(cuid())
+  id_organizacao_historico_log String
+  id_produto_historico_log     String?
+  id_usuario_historico_log     String?
+
+  tipo_ator_historico_log      AcaoExecutadaPor
+  id_ator_historico_log        String
+  nome_ator_historico_log      String
+  ip_ator_historico_log        String?
+  metadata_ator_historico_log  Json?
+
+  modulo_historico_log         String
+  tipo_recurso_historico_log   String
+  id_recurso_historico_log     String?
+
+  acao_historico_log           String
+  detalhe_acao_historico_log   String
+
+  estado_anterior_historico_log Json?
+  estado_posterior_historico_log Json?
+
+  status_historico_log         EventoStatus @default(SUCESSO)
+  mensagem_erro_historico_log  String?
+
+  hash_integridade_historico_log String
+
+  data_criacao_historico_log   DateTime @default(now()) @db.Timestamptz
+
+  @@index([id_organizacao_historico_log], map: "hl_org_idx")
+  @@index([id_organizacao_historico_log, id_produto_historico_log], map: "hl_org_prd_idx")
+  @@index([id_organizacao_historico_log, id_usuario_historico_log], map: "hl_org_usr_idx")
+  @@index([id_organizacao_historico_log, data_criacao_historico_log], map: "hl_org_dt_idx")
+  @@index([id_organizacao_historico_log, modulo_historico_log, data_criacao_historico_log], map: "hl_org_mod_dt_idx")
+  @@index([id_ator_historico_log, data_criacao_historico_log], map: "hl_ator_dt_idx")
+  @@map("historico_log")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaRegra — definição de regra que dispara alertas
+// ---------------------------------------------------------------------------
+
+model AlertaRegra {
+  id_regra_alerta             String   @id @default(cuid())
+  id_organizacao_regra_alerta String?
+  id_produto_regra_alerta     String?
+  id_usuario_regra_alerta     String?
+
+  nome_regra_alerta           String
+  descricao_regra_alerta      String?
+  habilitada_regra_alerta     Boolean  @default(true)
+
+  tipo_ator_regra_alerta      AcaoExecutadaPor?
+  acao_regra_alerta           String?
+  modulo_regra_alerta         String?
+  filtro_status_regra_alerta  EventoStatus?
+
+  limiar_contagem_regra_alerta        Int?
+  limiar_janela_segundos_regra_alerta Int?
+
+  canal_inapp_regra_alerta    Boolean  @default(true)
+  canal_email_regra_alerta    Boolean  @default(false)
+  canal_whatsapp_regra_alerta Boolean  @default(false)
+
+  destinatarios_email_regra_alerta    String[]
+  destinatarios_whatsapp_regra_alerta String[]
+  destinatarios_usuarios_regra_alerta String[]
+
+  data_criacao_regra_alerta     DateTime @default(now())
+  data_atualizacao_regra_alerta DateTime @updatedAt
+
+  eventos_regra_alerta          AlertaData[]
+
+  @@index([id_organizacao_regra_alerta], map: "ra_org_idx")
+  @@index([id_organizacao_regra_alerta, id_produto_regra_alerta], map: "ra_org_prd_idx")
+  @@index([id_organizacao_regra_alerta, id_usuario_regra_alerta], map: "ra_org_usr_idx")
+  @@index([id_organizacao_regra_alerta, habilitada_regra_alerta], map: "ra_org_hab_idx")
+  @@map("regra_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaData — disparos de regra
+// ---------------------------------------------------------------------------
+
+model AlertaData {
+  id_evento_alerta             String  @id @default(cuid())
+  id_organizacao_evento_alerta String
+  id_produto_evento_alerta     String?
+  id_usuario_evento_alerta     String?
+
+  id_regra_evento_alerta       String
+  regra_evento_alerta          AlertaRegra @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
+
+  tipo_ator_evento_alerta      AcaoExecutadaPor
+  id_ator_evento_alerta        String
+  nome_ator_evento_alerta      String
+  modulo_evento_alerta         String
+  acao_evento_alerta           String
+  contagem_eventos_evento_alerta Int
+  janela_segundos_evento_alerta  Int
+  ids_logs_auditoria_evento_alerta String[]
+
+  status_evento_alerta         AlertaStatus @default(PENDENTE)
+  revisado_por_evento_alerta   String?
+  revisado_em_evento_alerta    DateTime?
+  notas_evento_alerta          String?
+
+  data_criacao_evento_alerta   DateTime @default(now())
+
+  notificacoes_evento_alerta   AlertaRegistro[]
+
+  @@index([id_organizacao_evento_alerta], map: "ea_org_idx")
+  @@index([id_organizacao_evento_alerta, id_produto_evento_alerta], map: "ea_org_prd_idx")
+  @@index([id_organizacao_evento_alerta, id_usuario_evento_alerta], map: "ea_org_usr_idx")
+  @@index([id_organizacao_evento_alerta, status_evento_alerta], map: "ea_org_st_idx")
+  @@index([id_organizacao_evento_alerta, data_criacao_evento_alerta], map: "ea_org_dt_idx")
+  @@map("evento_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// AlertaRegistro — registro de envio por canal
+// ---------------------------------------------------------------------------
+
+model AlertaRegistro {
+  id_notificacao_alerta             String   @id @default(cuid())
+  id_organizacao_notificacao_alerta String
+  id_produto_notificacao_alerta     String?
+  id_usuario_notificacao_alerta     String?
+
+  id_evento_notificacao_alerta      String
+  evento_notificacao_alerta         AlertaData @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
+
+  canal_notificacao_alerta          String
+  destinatario_notificacao_alerta   String
+  status_notificacao_alerta         String   @default("pending")
+  tentativas_notificacao_alerta     Int      @default(1)
+  mensagem_erro_notificacao_alerta  String?
+  enviado_em_notificacao_alerta     DateTime?
+
+  data_criacao_notificacao_alerta   DateTime @default(now())
+
+  @@index([id_organizacao_notificacao_alerta], map: "na_org_idx")
+  @@index([id_organizacao_notificacao_alerta, id_produto_notificacao_alerta], map: "na_org_prd_idx")
+  @@index([id_organizacao_notificacao_alerta, id_usuario_notificacao_alerta], map: "na_org_usr_idx")
+  @@index([id_evento_notificacao_alerta], map: "na_evt_idx")
+  @@map("notificacao_alerta")
+}
+
+// ---------------------------------------------------------------------------
+// ExportarResultado — resultado de exportação assíncrona (>10k registros)
+// ---------------------------------------------------------------------------
+
+model ExportarResultado {
+  id_exportar_resultado             String   @id @default(cuid())
+  id_organizacao_exportar_resultado String
+  id_produto_exportar_resultado     String?
+  id_usuario_exportar_resultado     String?
+
+  formato_exportar_resultado    String   // 'csv' | 'json'
+  conteudo_exportar_resultado   String   @db.Text
+  status_exportar_resultado     String   @default("processing") // 'processing' | 'ready' | 'failed'
+  contagem_registros_exportar_resultado Int @default(0)
+  filtros_exportar_resultado    Json?
+  erro_exportar_resultado       String?
+  data_criacao_exportar_resultado DateTime @default(now())
+  expira_em_exportar_resultado    DateTime // cleanup job remove após 24h
+
+  @@index([id_organizacao_exportar_resultado], map: "er_org_idx")
+  @@index([id_organizacao_exportar_resultado, id_produto_exportar_resultado], map: "er_org_prd_idx")
+  @@index([id_organizacao_exportar_resultado, id_usuario_exportar_resultado], map: "er_org_usr_idx")
+  @@index([id_organizacao_exportar_resultado, status_exportar_resultado], map: "er_org_st_idx")
+  @@index([expira_em_exportar_resultado], map: "er_exp_idx")
+  @@map("exportar_resultado")
+}

@@ -3,8 +3,8 @@
 
 export { CardBasicoGlobal }  from './CardBasicoGlobal'
 export { CardGraficoGlobal } from './CardGraficoGlobal'
-export { StatCardGlobal } from './stat-card'
-export type { StatCardGlobalProps } from './stat-card'
+export { CardEstatisticaGlobal } from './CardEstatisticaGlobal'
+export type { StatCardGlobalProps } from './CardEstatisticaGlobal'
 
 export type {
   CardBasicoProps,

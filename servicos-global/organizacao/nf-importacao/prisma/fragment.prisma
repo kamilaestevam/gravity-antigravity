@@ -1,0 +1,556 @@
+// ============================================
+// NF Importacao — Nota Fiscal de Importacao
+// Skill: antigravity-nf-importacao
+// ============================================
+
+enum NFImportacaoStatus {
+  rascunho
+  em_composicao
+  pronta
+  exportada
+  cancelada
+}
+
+enum NfImportacaoMetodoRateio {
+  PESO_LIQUIDO
+  PESO_BRUTO
+  VALOR_CIF
+  VALOR_FOB
+  QUANTIDADE
+  VALOR_II
+  IGUALITARIO
+  MANUAL
+  CUSTOMIZADO
+}
+
+enum NfImportacaoTipoCanalEntrada {
+  MANUAL
+  XML
+  SMART_READ
+  PORTAL_UNICO
+  ERP
+  PROCESSO
+}
+
+enum NfImportacaoOrigemDespesa {
+  MANUAL
+  TEMPLATE
+  SMART_READ
+  PLANILHA
+}
+
+enum NfImportacaoTipoFormato {
+  XML
+  TXT
+  CSV
+  EXCEL
+  JSON
+  PDF
+}
+
+enum NfImportacaoTipoDado {
+  TEXTO
+  NUMERO
+  DATA
+  DECIMAL
+}
+
+enum NfImportacaoTipoAlinhamento {
+  ESQUERDA
+  DIREITA
+  CENTRO
+}
+
+// ============================================
+// 1. NFImportacao — Documento principal
+// ============================================
+
+model NFImportacao {
+  id                    String        @id                     // nfim_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  product_id            String        @default("nf-importacao")
+  user_id               String
+
+  // Vinculo DUIMP / Processo
+  duimp_numero          String?
+  duimp_data_registro   DateTime?
+  processo_id           String?
+
+  // Operacao
+  tipo_operacao         String        @default("IMPORTACAO")
+  uf_destino            String
+  local_desembaraco     String?
+  via_transporte        String?
+  moeda_negociada       String        @default("USD")
+
+  // Totais
+  total_fob             Decimal       @db.Decimal(18, 2)
+  total_frete           Decimal       @db.Decimal(18, 2)
+  total_seguro          Decimal       @db.Decimal(18, 2)
+  total_cif             Decimal       @db.Decimal(18, 2)
+  total_ii              Decimal       @db.Decimal(18, 2)
+  total_ipi             Decimal       @db.Decimal(18, 2)
+  total_pis             Decimal       @db.Decimal(18, 2)
+  total_cofins          Decimal       @db.Decimal(18, 2)
+  total_icms            Decimal       @db.Decimal(18, 2)
+  total_despesas        Decimal       @db.Decimal(18, 2)
+  total_nf              Decimal       @db.Decimal(18, 2)
+
+  // Canal e precisao
+  canal_entrada         NfImportacaoTipoCanalEntrada  @default(MANUAL)
+  casas_decimais_valor  Int           @default(2)
+  casas_decimais_qtd    Int           @default(4)
+
+  // Status e exportacao
+  status                NFImportacaoStatus      @default(rascunho)
+  data_exportacao       DateTime?
+  formato_exportado     NfImportacaoTipoFormato?
+
+  // Metadados
+  created_by            String
+  updated_by            String?
+  is_demo               Boolean       @default(false)
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  // Relacoes
+  itens                 NFImportacaoItens[]
+  despesas              NFImportacaoDespesas[]
+  documentos            NFImportacaoAnexo[]
+  historico             NFImportacaoHistorico[]
+
+  // 3 indices obrigatorios + indices de negocio
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, company_id, status])
+  @@index([duimp_numero])
+  @@index([processo_id])
+
+  @@map("nf_importacoes")
+}
+
+// ============================================
+// 2. NFImportacaoItens — Item da DUIMP / Adicao
+// ============================================
+
+model NFImportacaoItens {
+  id                        String    @id                     // nfit_id_XXXXXXX/YY
+  tenant_id                 String
+  company_id                String
+  nf_importacao_id          String
+
+  // Adicao
+  numero_adicao             String?
+
+  // Produto
+  ncm                       String
+  descricao                 String
+  fabricante                String?
+  pais_origem               String?
+
+  // Quantidades
+  quantidade_estatistica    Decimal   @db.Decimal(18, 4)
+  unidade_medida            String
+  quantidade_comercial      Decimal?  @db.Decimal(18, 4)
+  unidade_medida_comercial  String?
+  peso_liquido              Decimal   @db.Decimal(18, 4)
+  peso_bruto                Decimal?  @db.Decimal(18, 4)
+
+  // Valores base
+  valor_fob                 Decimal   @db.Decimal(18, 2)
+  valor_frete               Decimal   @db.Decimal(18, 2)
+  valor_seguro              Decimal   @db.Decimal(18, 2)
+  valor_cif                 Decimal   @db.Decimal(18, 2)
+
+  // Tributos — aliquota + valor
+  ii_aliquota               Decimal   @db.Decimal(8, 4)
+  ii_valor                  Decimal   @db.Decimal(18, 2)
+  ipi_aliquota              Decimal   @db.Decimal(8, 4)
+  ipi_valor                 Decimal   @db.Decimal(18, 2)
+  pis_aliquota              Decimal   @db.Decimal(8, 4)
+  pis_valor                 Decimal   @db.Decimal(18, 2)
+  cofins_aliquota           Decimal   @db.Decimal(8, 4)
+  cofins_valor              Decimal   @db.Decimal(18, 2)
+  icms_aliquota             Decimal   @db.Decimal(8, 4)
+  icms_valor                Decimal   @db.Decimal(18, 2)
+  icms_base                 Decimal?  @db.Decimal(18, 2)
+
+  // Classificacao fiscal
+  cfop                      String?
+  cst_icms                  String?
+  cst_ipi                   String?
+  cst_pis                   String?
+  cst_cofins                String?
+
+  // Beneficio fiscal
+  beneficio_fiscal          String?
+  beneficio_descricao       String?
+
+  // Rateio e total
+  total_despesas_rateadas   Decimal   @db.Decimal(18, 2) @default(0)
+  total_item                Decimal   @db.Decimal(18, 2)
+
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+
+  // Relacoes
+  nf_importacao             NFImportacao  @relation(fields: [nf_importacao_id], references: [id])
+  rateios                   NFImportacaoRateio[]
+
+  // Indices
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([nf_importacao_id])
+  @@index([ncm])
+
+  @@map("nf_importacao_itens")
+}
+
+// ============================================
+// 3. NFImportacaoDespesas — Despesa da NF
+// ============================================
+
+model NFImportacaoDespesas {
+  id                    String          @id                   // nfde_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  nf_importacao_id      String
+
+  // Dados da despesa
+  catalogo_despesa_id   String?
+  nome                  String
+  descricao             String?
+  valor_total           Decimal         @db.Decimal(18, 2)
+  cnpj_prestador        String?
+  data_despesa          DateTime?
+
+  // Rateio
+  metodo_rateio         NfImportacaoMetodoRateio    @default(VALOR_CIF)
+  formula_customizada   String?
+
+  // Origem e documento
+  origem                NfImportacaoOrigemDespesa   @default(MANUAL)
+  documento_id          String?
+
+  // Contabilidade
+  conta_contabil        String?
+  centro_custo          String?
+
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  // Relacoes
+  nf_importacao         NFImportacao    @relation(fields: [nf_importacao_id], references: [id])
+  rateios               NFImportacaoRateio[]
+
+  // Indices
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([nf_importacao_id])
+
+  @@map("nf_importacao_despesas")
+}
+
+// ============================================
+// 4. NFImportacaoRateio — Resultado do rateio
+// ============================================
+
+model NFImportacaoRateio {
+  id                    String        @id                     // nfra_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  despesa_id            String
+  item_id               String
+
+  // Valores calculados
+  valor_rateado         Decimal       @db.Decimal(18, 2)
+  percentual_rateio     Decimal       @db.Decimal(8, 4)
+  metodo_usado          NfImportacaoMetodoRateio
+
+  // Flags
+  is_override_manual    Boolean       @default(false)
+  is_centavo_restante   Boolean       @default(false)
+
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  // Relacoes
+  despesa               NFImportacaoDespesas @relation(fields: [despesa_id], references: [id])
+  item                  NFImportacaoItens    @relation(fields: [item_id], references: [id])
+
+  // Unicidade: uma despesa so rateia uma vez por item
+  @@unique([despesa_id, item_id])
+
+  // Indices
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([despesa_id])
+  @@index([item_id])
+
+  @@map("nf_importacao_rateios")
+}
+
+// ============================================
+// 5. NFImportacaoAnexo — Documentos anexos
+// ============================================
+
+model NFImportacaoAnexo {
+  id                      String    @id @default(cuid())
+  tenant_id               String
+  company_id              String
+  nf_importacao_id        String
+
+  // Arquivo
+  tipo                    String
+  nome_arquivo            String
+  mime_type               String
+  tamanho_bytes           Int
+  storage_key             String
+  descricao               String?
+
+  // Smart Read
+  smart_read_processado   Boolean   @default(false)
+  smart_read_resultado    Json?
+
+  // Metadados
+  created_by              String
+  created_at              DateTime  @default(now())
+
+  // Relacoes
+  nf_importacao           NFImportacao @relation(fields: [nf_importacao_id], references: [id])
+
+  // Indices
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([nf_importacao_id])
+
+  @@map("nf_importacao_documentos")
+}
+
+// ============================================
+// 6. NFImportacaoHistorico — Trilha de auditoria (append-only)
+// ============================================
+
+model NFImportacaoHistorico {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+  nf_importacao_id      String
+
+  // Evento
+  acao                  String
+  descricao             String
+  dados_anteriores      Json?
+  dados_novos           Json?
+
+  // Autor
+  user_id               String
+  user_nome             String?
+
+  // Imutavel — sem updated_at
+  created_at            DateTime  @default(now())
+
+  // Relacoes
+  nf_importacao         NFImportacao @relation(fields: [nf_importacao_id], references: [id])
+
+  // Indices
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([nf_importacao_id])
+  @@index([created_at])
+
+  @@map("nf_importacao_historico")
+}
+
+// ============================================
+// 7. NFImportacaoTipoDespesa — Catalogo de despesas por empresa
+// ============================================
+
+model NFImportacaoTipoDespesa {
+  id                    String        @id @default(cuid())
+  tenant_id             String
+  company_id            String
+
+  nome                  String
+  descricao             String?
+  metodo_rateio_padrao  NfImportacaoMetodoRateio  @default(VALOR_CIF)
+  conta_contabil        String?
+  centro_custo          String?
+  ativo                 Boolean       @default(true)
+
+  created_by            String
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  @@unique([tenant_id, company_id, nome])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+
+  @@map("despesa_catalogos")
+}
+
+// ============================================
+// 8. NFImportacaoTemplates — Template de despesas
+// ============================================
+
+model NFImportacaoTemplates {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+
+  nome                  String
+  descricao             String?
+  is_padrao             Boolean   @default(false)
+  ativo                 Boolean   @default(true)
+
+  created_by            String
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  // Relacoes
+  itens                 NFImportacaoTemplatesItens[]
+
+  @@unique([tenant_id, company_id, nome])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+
+  @@map("despesa_templates")
+}
+
+// ============================================
+// 9. NFImportacaoTemplatesItens — Itens do template
+// ============================================
+
+model NFImportacaoTemplatesItens {
+  id                    String        @id @default(cuid())
+  tenant_id             String
+  company_id            String
+  template_id           String
+
+  catalogo_despesa_id   String?
+  nome                  String
+  valor_padrao          Decimal?      @db.Decimal(18, 2)
+  metodo_rateio         NfImportacaoMetodoRateio  @default(VALOR_CIF)
+  ordem                 Int           @default(0)
+
+  // Relacoes
+  template              NFImportacaoTemplates @relation(fields: [template_id], references: [id])
+
+  // Indices
+  @@index([tenant_id])
+  @@index([template_id])
+
+  @@map("despesa_template_itens")
+}
+
+// ============================================
+// 10. NFImportacaoExportarLayout — Layout customizado de exportacao
+// ============================================
+
+model NFImportacaoExportarLayout {
+  id                    String          @id @default(cuid())
+  tenant_id             String
+  company_id            String
+
+  nome                  String
+  descricao             String?
+  formato               NfImportacaoTipoFormato
+  separador             String?
+  codificacao           String          @default("UTF-8")
+
+  has_header            Boolean         @default(true)
+  has_footer            Boolean         @default(false)
+  header_template       String?
+  footer_template       String?
+
+  is_padrao             Boolean         @default(false)
+  ativo                 Boolean         @default(true)
+
+  created_by            String
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  // Relacoes
+  campos                NFImportacaoLayoutCampos[]
+
+  @@unique([tenant_id, company_id, nome])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+
+  @@map("export_layouts")
+}
+
+// ============================================
+// 11. NFImportacaoLayoutCampos — Campos do layout
+// ============================================
+
+model NFImportacaoLayoutCampos {
+  id                    String      @id @default(cuid())
+  tenant_id             String
+  company_id            String
+  layout_id             String
+
+  campo_origem          String
+  label                 String
+  ordem                 Int
+  tipo_dado             NfImportacaoTipoDado    @default(TEXTO)
+  formato               String?
+  tamanho_fixo          Int?
+  posicao_inicio        Int?
+  alinhamento           NfImportacaoTipoAlinhamento @default(ESQUERDA)
+  preenchimento         String?
+  valor_padrao          String?
+  transformacao         String?
+
+  // Relacoes
+  layout                NFImportacaoExportarLayout @relation(fields: [layout_id], references: [id])
+
+  @@unique([layout_id, ordem])
+
+  @@index([tenant_id])
+  @@index([layout_id])
+
+  @@map("export_layout_campos")
+}
+
+// ============================================
+// 12. NFImportacaoFiscaisFavoritos — Presets CFOP + CST por NCM
+// ============================================
+
+model NFImportacaoFiscaisFavoritos {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+
+  ncm                   String
+  uf_destino            String?
+  tipo_operacao         String    @default("IMPORTACAO")
+
+  // Classificacao fiscal
+  cfop                  String
+  cst_icms              String
+  cst_ipi               String
+  cst_pis               String
+  cst_cofins            String
+
+  beneficio_fiscal      String?
+  descricao             String?
+
+  created_by            String
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  @@unique([tenant_id, company_id, ncm, uf_destino, tipo_operacao])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, company_id, ncm])
+
+  @@map("favoritos_fiscais")
+}

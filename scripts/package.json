@@ -5,13 +5,17 @@
   "type": "module",
   "description": "Scripts utilitários do monorepo Gravity — gerenciados pelo Coordenador",
   "scripts": {
-    "compose:tenant-schema": "tsx compose-tenant-schema.ts",
-    "compose:schema": "node compose-schema.js"
+    "compose:tenant-schema": "tsx ativamente/compose-tenant-schema.ts",
+    "migrate:all-tenants": "tsx ativamente/migrate-all-tenants.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
     "tsx": "^4.11.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.11.0"
   },
   "notes": "ATENÇÃO: scripts/ é escopo exclusivo do Coordenador. Nenhum outro agente modifica arquivos aqui."
 }

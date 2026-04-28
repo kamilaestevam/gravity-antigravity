@@ -70,7 +70,7 @@ app.use(helmet({
 }))
 
 // O webhook do Stripe precisa do body raw — registrar ANTES do json()
-app.use('/api/v1/billing/webhook', express.raw({ type: 'application/json' }))
+app.use('/api/v1/faturas/webhook-stripe', express.raw({ type: 'application/json' }))
 
 app.use(express.json())
 app.use(cors({
@@ -101,29 +101,28 @@ app.get('/health', async (_req, res) => {
 
 // ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
-app.use('/api/v1/billing/webhook', rateLimitPresets.webhook())
-app.use('/api/catalog', rateLimitPresets.public())
+app.use('/api/v1/faturas/webhook-stripe', rateLimitPresets.webhook())
+app.use('/api/v1/catalogo', rateLimitPresets.public())
 app.use('/api/v1/admin', rateLimitPresets.admin())
-app.use('/api/admin', rateLimitPresets.admin())
 
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/me', meRouter)
 app.use('/api/v1/hub', hubRouter)
-app.use('/api/v1/organizacao', tenantsRouter)
-app.use('/api/v1/financeiro', billingRouter)
+app.use('/api/v1/organizacoes', tenantsRouter)
+app.use('/api/v1/faturas', billingRouter)
 app.use('/api/v1/admin', adminRouter)
-app.use('/api/v1/products', productsRouter)
+app.use('/api/v1/produtos', productsRouter)
 app.use('/api/v1/assinaturas', tenantProductsRouter)
-app.use('/api/v1/companies/:companyId/products', companyProductsRouter)
+app.use('/api/v1/workspaces/:id_workspace/produtos', companyProductsRouter)
 app.use('/api/v1/usuarios', usersRouter)
-app.use('/api/v1/service-tokens', serviceTokenRouter)
+app.use('/api/v1/tokens-servico', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────
 
-app.use('/api/internal', accessRouter)
-app.use('/api/internal', serviceTokenRouter)
+app.use('/api/v1/internal', accessRouter)
+app.use('/api/v1/internal', serviceTokenRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
@@ -131,7 +130,7 @@ import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 // Middleware obrigatório: rate limit + auth Clerk + role check (SUPER_ADMIN/ADMIN)
 // Sem isso, /api/tenant/historico-global/* ficou exposto publicamente — todas as 12 rotas
 // do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
-app.use('/api/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
+app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
@@ -147,17 +146,16 @@ import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuar
 // global e notificacoes. Auditoria da sessão do detetive api-cockpit encontrou.
 app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)
 
-app.use('/api/admin', adminRouter)
-app.use('/api/admin/produtos-gravity', adminProductsRouter)       // CRUD catálogo (auth chain interna)
-app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
+app.use('/api/v1/admin/produtos-gravity', adminProductsRouter)       // CRUD catálogo (auth chain interna)
+app.use('/api/v1/admin/organizacoes', tenantProductsRouter)        // ativação por organização (auth chain interna)
 
 import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/adminSecurity.js'
-app.use('/api/admin/seguranca-admin', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
+app.use('/api/v1/admin/eventos-seguranca', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
 // Rota interna S2S para ingestão de eventos de segurança (chamada pelo
 // securityAuditLogger do historico-global). Antes: POST /admin/security/events
 // estava atrás de requireAuth+requireGravityAdmin mas o caller usava
 // x-internal-key, resultando em 401 silencioso — audit trail quebrado.
-app.use('/api/internal/security', adminSecurityInternalRouter)
+app.use('/api/v1/internal/eventos-seguranca', adminSecurityInternalRouter)
 
 // Ponto Cego 2 — captura 401/403 que ocorrem antes dos route handlers
 import { authErrorLogger } from '../../tenant/historico-global/server/middleware/auth-error-logger.js'
@@ -165,9 +163,9 @@ app.use(authErrorLogger)
 
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
 import { adminNcmIntegracaoRouter } from './routes/adminNcmIntegracao.js'
-app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por tenant
-app.use('/api/admin/api-cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
-app.use('/api/admin/ncm-integracao', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
+app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por organização
+app.use('/api/v1/admin', apiCockpitAdminRouter)       // admin: observabilidade global (rotas com nomes per-route)
+app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 
 // ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────
 
@@ -179,7 +177,7 @@ app.use('/api/v1/historico-organizacao', historicoOrganizacaoRouter)
 
 // ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
 
-app.use('/api/v1/catalog', publicCatalogRouter)
+app.use('/api/v1/catalogo', publicCatalogRouter)
 
 // ─── Handler de erros global ─────────────────────────────────────────────────
 
@@ -220,6 +218,10 @@ if (process.env.NODE_ENV !== 'test') {
         // Taxa de câmbio — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
         const { startTaxaCambioSyncWorker } = await import('./queue/taxaCambioSyncWorker.js')
         startTaxaCambioSyncWorker()
+
+        // NCM Siscomex — cron job diário (configura agendamento salvo no banco)
+        const { initNcmSync } = await import('../../tenant/ncm-sync/server/init.js')
+        await initNcmSync()
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }

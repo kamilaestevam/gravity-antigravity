@@ -14,10 +14,10 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
-import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
+import { ModalEditarUsuario } from '../workspace/ModalUsuarioEditar'
+import { ModalPermissoesUsuario } from '../workspace/ModalUsuarioPermissoes'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
@@ -55,19 +55,19 @@ function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
     id: m.id,
     nome: m.company?.name ?? 'N/A',
     subdominio: m.company?.subdomain ?? '',
-    perfil: mapRole(m.role),
+    perfil: mapRole(m.tipo_usuario),
   }))
   // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem memberships mas sempre ativos.
   // Demais: considerados ativos se tiverem ao menos um workspace ativo.
-  const ehGravity = u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'
+  const ehGravity = u.tipo_usuario === 'SUPER_ADMIN' || u.tipo_usuario === 'ADMIN'
   const status: UserStatus = ehGravity || espacos.length > 0 ? 'Ativo' : 'Inativo'
   return {
     id: u.id,
     nome: u.name,
     email: u.email,
-    tipo: mapRole(u.role),
+    tipo: mapRole(u.tipo_usuario),
     status,
-    organizacao: u.tenant?.name ?? 'N/A',
+    organizacao: u.tenant?.nome_organizacao ?? 'N/A',
     espacos,
   }
 }
@@ -553,7 +553,7 @@ export function UsuariosGlobaisAdmin() {
         podesSalvar={!!(fNome.trim() && fEmail.trim())}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.nome_completo')}
             obrigatorio
             tooltipTitulo={t('admin.usuarios-globais.tabela.nome_completo')}
@@ -568,9 +568,9 @@ export function UsuariosGlobaisAdmin() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.email')}
             obrigatorio
             tooltipTitulo={t('admin.usuarios-globais.tabela.email_acesso')}
@@ -586,9 +586,9 @@ export function UsuariosGlobaisAdmin() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal label={t('admin.usuarios-globais.tabela.tipo')}>
+          <CampoGeralGlobal label={t('admin.usuarios-globais.tabela.tipo')}>
             <SelectGlobal
               opcoes={opcoesDisponiveis}
               valor={fTipo}
@@ -612,9 +612,9 @@ export function UsuariosGlobaisAdmin() {
                 </div>
               )}
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.organizacao')}
             tooltipTitulo={isGravityRole ? 'Organização Gravity' : t('admin.usuarios-globais.tabela.org_tooltip')}
             tooltipDescricao={isGravityRole
@@ -645,7 +645,7 @@ export function UsuariosGlobaisAdmin() {
                 placeholder={t('admin.usuarios-globais.form_org_placeholder')}
               />
             )}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       </ModalFormularioGlobal>
 

@@ -1,6 +1,6 @@
 // server/routes/serviceToken.ts
 // Emissão de machine tokens para S2S assíncrono (Fluxo 2 S2S)
-// POST /api/internal/service-token — emite token de serviço
+// POST /api/v1/internal/tokens-servico — emite token de serviço
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -14,17 +14,17 @@ export const serviceTokenRouter = Router()
 const ServiceTokenSchema = z.object({
   tenantId: z.string(),
   userId: z.string(),
-  scope: z.enum(['SERVICE', 'WEBHOOK', 'CRON']).default('SERVICE'),
+  scope: z.enum(['SERVICO', 'WEBHOOK', 'CRON']).default('SERVICO'),
   expiresInHours: z.number().min(1).max(720).default(24),
 })
 
 /**
- * POST /api/internal/service-token
+ * POST /api/v1/internal/tokens-servico
  * Emite um machine token de longa duração para chamadas S2S assíncronas.
  * Retorna o token em texto puro — apenas uma vez.
  * O sistema armazena apenas o hash.
  */
-serviceTokenRouter.post('/service-token', requireInternalKey, async (req, res, next) => {
+serviceTokenRouter.post('/tokens-servico', requireInternalKey, async (req, res, next) => {
   try {
     const parsed = ServiceTokenSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -67,10 +67,10 @@ serviceTokenRouter.post('/service-token', requireInternalKey, async (req, res, n
 })
 
 /**
- * POST /api/internal/service-token/verify
+ * POST /api/v1/internal/tokens-servico/verificar
  * Verifica se um service token é válido (chamado pelos serviços de tenant)
  */
-serviceTokenRouter.post('/service-token/verify', requireInternalKey, async (req, res, next) => {
+serviceTokenRouter.post('/tokens-servico/verificar', requireInternalKey, async (req, res, next) => {
   try {
     const { token } = z.object({ token: z.string() }).parse(req.body)
 

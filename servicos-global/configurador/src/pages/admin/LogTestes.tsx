@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
-import { ModalExecutarTestes } from './ModalExecutarTestes'
+import { ModalAgendamentoTestes } from './ModalTestesAgendamento'
+import { ModalExecutarTestes } from './ModalTestesExecutar'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { adminTestLogsApi, type TestLogApi } from '../../services/apiClient'
+import { adminTestesApi, type TestesApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 
 
@@ -42,7 +43,7 @@ interface LogTeste {
 }
 
 // Helper: mapeia dados do backend para o formato do frontend
-function mapTestLogToLocal(log: TestLogApi): LogTeste {
+function mapTestesToLocal(log: TestesApi): LogTeste {
   const created = new Date(log.created_at)
   const pad = (n: number) => n.toString().padStart(2, '0')
   return {
@@ -84,8 +85,8 @@ export function LogTestes() {
   async function loadLogs(): Promise<LogTeste[]> {
     try {
       setCarregando(true)
-      const res = await adminTestLogsApi.list()
-      const novos = res.logs.map(mapTestLogToLocal)
+      const res = await adminTestesApi.list()
+      const novos = res.logs.map(mapTestesToLocal)
       setDados(novos)
       return novos
     } catch (err) {
@@ -98,12 +99,24 @@ export function LogTestes() {
 
   useEffect(() => { loadLogs() }, [])
 
+  // Carrega status do agendamento na montagem
+  useEffect(() => {
+    adminTestesApi.listSchedules()
+      .then(({ schedules }) => {
+        if (schedules.length) {
+          const s = schedules[0] as Record<string, unknown>
+          setAgendamentoAtivo(Boolean(s.is_active))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   // Auto-detecta run em progresso quando a tela monta (resiliente a F5 / navegação)
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const status = await adminTestLogsApi.runStatus()
+        const status = await adminTestesApi.runStatus()
         if (!cancelled && status.running) setRodandoTestes(true)
       } catch { /* offline / erro — ignora */ }
     })()
@@ -150,7 +163,7 @@ export function LogTestes() {
     async function tick() {
       if (stopped) return
       try {
-        const status = await adminTestLogsApi.runStatus()
+        const status = await adminTestesApi.runStatus()
         if (!status.running) {
           stopped = true
           setRodandoTestes(false)
@@ -173,7 +186,7 @@ export function LogTestes() {
   // Handlers para os botões de ação Gemini
   const handleReanalyze = async (id: string) => {
     try {
-      const res = await adminTestLogsApi.reanalyze(id)
+      const res = await adminTestesApi.reanalyze(id)
       addNotification({ type: 'success', message: 'Re-análise concluída' })
       await loadLogs()
     } catch (err) {
@@ -183,7 +196,7 @@ export function LogTestes() {
 
   const handleApplyFix = async (id: string) => {
     try {
-      const res = await adminTestLogsApi.applyFix(id)
+      const res = await adminTestesApi.applyFix(id)
       addNotification({ type: 'success', message: `Correção aplicada em ${res.arquivo}` })
       await loadLogs()
     } catch (err) {
@@ -195,7 +208,7 @@ export function LogTestes() {
     const motivo = window.prompt('Motivo da rejeição (min 10 chars):')
     if (!motivo || motivo.length < 10) return
     try {
-      await adminTestLogsApi.reject(id, motivo)
+      await adminTestesApi.reject(id, motivo)
       addNotification({ type: 'success', message: 'Análise rejeitada — feedback registrado' })
       await loadLogs()
     } catch (err) {
@@ -473,74 +486,79 @@ export function LogTestes() {
           subtitulo={t('admin.testes-gerais.subtitulo')}
         />
       }
-      acoes={
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', height: '100%', paddingBottom: '0.1rem' }}>
-          <style>
-            {`
-              @keyframes ws-pulse-active {
-                0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-                70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-              }
-              @keyframes ws-running-shimmer {
-                0%   { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-              }
-              @keyframes ws-running-pulse {
-                0%, 100% { opacity: 1; transform: scale(1); }
-                50%      { opacity: 0.55; transform: scale(1.05); }
-              }
-              @keyframes ws-running-spin {
-                to { transform: rotate(360deg); }
-              }
-              @keyframes ws-running-bar {
-                0%   { transform: translateX(-100%); }
-                100% { transform: translateX(100%); }
-              }
-            `}
-          </style>
-          <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_agendamento')}>
-            <button
-               type="button"
-               onClick={() => setModalAgendamentoAberto(true)}
-               style={{
-                 display: 'flex', alignItems: 'center', gap: '0.5rem',
-                 padding: '0.5rem 1rem', borderRadius: '8px',
-                 background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
-                 border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
-                 color: agendamentoAtivo ? '#10b981' : '#e2e8f0',
-                 fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
-                 animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none'
-               }}
-               onMouseEnter={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.1)'}
-               onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
-            >
-              <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
-              {t('admin.testes-gerais.btn_agendamento')}
-            </button>
-          </TooltipGlobal>
-          <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_rodar')}>
-            <button
-               disabled={rodandoTestes}
-               onClick={() => setModalExecutarAberto(true)}
-               style={{
-                 display: 'flex', alignItems: 'center', gap: '0.5rem',
-                 padding: '0.5rem 1rem', borderRadius: '8px',
-                 background: rodandoTestes ? 'rgba(16,185,129,0.5)' : 'var(--cl-primary, #10b981)',
-                 border: 'none', color: '#fff',
-                 fontSize: '0.8125rem', fontWeight: 600,
-                 cursor: rodandoTestes ? 'not-allowed' : 'pointer',
-                 transition: 'filter 0.15s',
-                 opacity: rodandoTestes ? 0.7 : 1,
-               }}
-               onMouseEnter={e => { if (!rodandoTestes) e.currentTarget.style.filter = 'brightness(1.1)' }}
-               onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
-            >
-              <PlayCircle size={16} weight="bold" />
-              {rodandoTestes ? 'Rodando...' : t('admin.testes-gerais.btn_rodar')}
-            </button>
-          </TooltipGlobal>
-        </div>
+      toolbar={
+        <>
+          <style>{`
+            @keyframes ws-pulse-active {
+              0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+              70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+              100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+            @keyframes ws-running-shimmer {
+              0%   { background-position: -200% 0; }
+              100% { background-position: 200% 0; }
+            }
+            @keyframes ws-running-pulse {
+              0%, 100% { opacity: 1; transform: scale(1); }
+              50%      { opacity: 0.55; transform: scale(1.05); }
+            }
+            @keyframes ws-running-spin {
+              to { transform: rotate(360deg); }
+            }
+            @keyframes ws-running-bar {
+              0%   { transform: translateX(-100%); }
+              100% { transform: translateX(100%); }
+            }
+          `}</style>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+            <p className="ws-section-title" style={{ margin: 0 }}>
+              <Bug weight="duotone" size={14} color="#818cf8" />
+              {t('admin.testes-gerais.historico_titulo', { count: dados.length })}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_agendamento')}>
+                <button
+                  type="button"
+                  onClick={() => setModalAgendamentoAberto(true)}
+                  aria-label={t('admin.testes-gerais.btn_agendamento')}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    height: '2.5rem', padding: '0 1rem', borderRadius: '8px',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                    border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                    color: agendamentoAtivo ? '#10b981' : '#818cf8',
+                    fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                    animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none',
+                  }}
+                >
+                  <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
+                  {t('admin.testes-gerais.btn_agendamento')}
+                  <span style={{
+                    fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                    color: agendamentoAtivo ? '#10b981' : '#64748b',
+                    letterSpacing: '0.05em', textTransform: 'uppercase',
+                  }}>
+                    {agendamentoAtivo ? t('admin.testes-gerais.badge_ativo') : t('admin.testes-gerais.badge_inativo')}
+                  </span>
+                </button>
+              </TooltipGlobal>
+              <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_rodar')}>
+                <BotaoGlobal
+                  variante="primario"
+                  icone={rodandoTestes
+                    ? <SpinnerGap size={16} weight="bold" style={{ animation: 'ws-running-spin 0.9s linear infinite' }} />
+                    : <PlayCircle size={16} weight="bold" />
+                  }
+                  onClick={() => setModalExecutarAberto(true)}
+                  disabled={rodandoTestes}
+                >
+                  {rodandoTestes ? 'Rodando...' : t('admin.testes-gerais.btn_rodar')}
+                </BotaoGlobal>
+              </TooltipGlobal>
+            </div>
+          </div>
+        </>
       }
       stats={
         <>
@@ -568,123 +586,139 @@ export function LogTestes() {
         </>
       }
     >
-      {rodandoTestes && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            position: 'relative',
-            marginTop: '24px',
-            borderRadius: '14px',
-            overflow: 'hidden',
-            border: '1px solid rgba(16, 185, 129, 0.45)',
-            background:
-              'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(16, 185, 129, 0.12) 100%)',
-            backgroundSize: '200% 100%',
-            animation: 'ws-running-shimmer 2.5s linear infinite',
-            boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.15), 0 12px 32px rgba(16, 185, 129, 0.12)',
-          }}
-        >
+      {/* Container pai: trava qualquer scroll externo herdado do pg-conteudo-area */}
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+
+        {/* Banner de execução — estático, nunca rola */}
+        {rodandoTestes && (
           <div
+            role="status"
+            aria-live="polite"
             style={{
-              display: 'flex', alignItems: 'center', gap: '1rem',
-              padding: '1rem 1.25rem', position: 'relative', zIndex: 1,
+              flexShrink: 0,
+              marginBottom: '12px',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              border: '1px solid rgba(16, 185, 129, 0.45)',
+              background:
+                'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(16, 185, 129, 0.12) 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'ws-running-shimmer 2.5s linear infinite',
+              boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.15), 0 12px 32px rgba(16, 185, 129, 0.12)',
             }}
           >
-            {/* Spinner */}
             <div
               style={{
-                width: 36, height: 36, borderRadius: '50%',
-                border: '3px solid rgba(16, 185, 129, 0.25)',
-                borderTopColor: '#10b981',
-                animation: 'ws-running-spin 0.9s linear infinite',
-                flexShrink: 0,
-              }}
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9',
-                  letterSpacing: '0.01em',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-                    background: '#10b981',
-                    animation: 'ws-running-pulse 1.4s ease-in-out infinite',
-                  }}
-                />
-                Testes em execução...
-              </div>
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
-                Aguarde o término — você será avisado na mensageria quando concluir.
-              </p>
-            </div>
-            <div
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.4rem',
-                padding: '0.35rem 0.75rem', borderRadius: '9999px',
-                background: 'rgba(16, 185, 129, 0.15)',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                color: '#10b981', fontSize: '0.7rem', fontWeight: 800,
-                letterSpacing: '0.08em', textTransform: 'uppercase',
-                flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: '1rem',
+                padding: '1rem 1.25rem', position: 'relative', zIndex: 1,
               }}
             >
-              <PlayCircle size={14} weight="fill" />
-              Running
+              <div
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: '3px solid rgba(16, 185, 129, 0.25)',
+                  borderTopColor: '#10b981',
+                  animation: 'ws-running-spin 0.9s linear infinite',
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9',
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  <span
+                    style={{
+                      display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                      background: '#10b981',
+                      animation: 'ws-running-pulse 1.4s ease-in-out infinite',
+                    }}
+                  />
+                  Testes em execução...
+                </div>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+                  Aguarde o término — você será avisado na mensageria quando concluir.
+                </p>
+              </div>
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.35rem 0.75rem', borderRadius: '9999px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  color: '#10b981', fontSize: '0.7rem', fontWeight: 800,
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
+                  flexShrink: 0,
+                }}
+              >
+                <PlayCircle size={14} weight="fill" />
+                Running
+              </div>
             </div>
-          </div>
-          {/* Barra de progresso indeterminada */}
-          <div
-            style={{
-              position: 'relative',
-              height: 3,
-              background: 'rgba(16, 185, 129, 0.15)',
-              overflow: 'hidden',
-            }}
-          >
             <div
               style={{
-                position: 'absolute', top: 0, left: 0,
-                width: '40%', height: '100%',
-                background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
-                animation: 'ws-running-bar 1.6s ease-in-out infinite',
+                position: 'relative',
+                height: 3,
+                background: 'rgba(16, 185, 129, 0.15)',
+                overflow: 'hidden',
               }}
-            />
+            >
+              <div
+                style={{
+                  position: 'absolute', top: 0, left: 0,
+                  width: '40%', height: '100%',
+                  background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
+                  animation: 'ws-running-bar 1.6s ease-in-out infinite',
+                }}
+              />
+            </div>
           </div>
+        )}
+
+        {/* Único container com scroll — abraça exclusivamente a tabela */}
+        <div
+          className="ws-fade-up"
+          style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative', zIndex: 10 }}
+        >
+          <TabelaGlobal
+            id="admin-test-logs"
+            dados={dados}
+            colunas={colunas}
+            idKey="id"
+            renderExpandido={renderExpandido}
+            mensagemVazio={t('admin.testes-gerais.vazio')}
+            mensagemSemFiltro={t('admin.testes-gerais.vazio_filtro')}
+            tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
+            tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
+            acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
+          />
         </div>
-      )}
 
-      <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
-        <TabelaGlobal
-          id="admin-test-logs"
-          dados={dados}
-          colunas={colunas}
-          idKey="id"
-          renderExpandido={renderExpandido}
-          mensagemVazio={t('admin.testes-gerais.vazio')}
-          mensagemSemFiltro={t('admin.testes-gerais.vazio_filtro')}
-          tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
-          tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
-        
-        acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
-      />
+        <ModalAgendamentoTestes
+          aberto={modalAgendamentoAberto}
+          aoFechar={() => {
+            setModalAgendamentoAberto(false)
+            adminTestesApi.listSchedules()
+              .then(({ schedules }) => {
+                if (schedules.length) {
+                  const s = schedules[0] as Record<string, unknown>
+                  setAgendamentoAtivo(Boolean(s.is_active))
+                }
+              })
+              .catch(() => {})
+          }}
+          aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
+        />
+
+        <ModalExecutarTestes
+          aberto={modalExecutarAberto}
+          aoFechar={() => setModalExecutarAberto(false)}
+          aoIniciarRun={(_planos) => { setRodandoTestes(true); setModalExecutarAberto(false) }}
+        />
       </div>
-
-      <ModalAgendamentoTestes
-        aberto={modalAgendamentoAberto}
-        aoFechar={() => setModalAgendamentoAberto(false)}
-        aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
-      />
-
-      <ModalExecutarTestes
-        aberto={modalExecutarAberto}
-        aoFechar={() => setModalExecutarAberto(false)}
-        aoIniciarRun={(_planos) => { setRodandoTestes(true); setModalExecutarAberto(false) }}
-      />
     </PaginaGlobal>
   )
 }

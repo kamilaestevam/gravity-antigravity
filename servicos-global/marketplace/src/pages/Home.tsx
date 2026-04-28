@@ -16,7 +16,7 @@ import {
 } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { OnboardingPreview } from '../components/flows/OnboardingPreview'
-import { PaywallDrawer } from '../components/flows/PaywallDrawer'
+import { PaywallDrawer } from '../components/flows/ModalPaywallDrawer'
 import '../styles/home.css'
 
 const FEATURE_ICONS = [

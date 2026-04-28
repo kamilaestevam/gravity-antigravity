@@ -236,7 +236,7 @@ flowchart TD
     HAS_CP -->|"> 0"| RENDER["Renderiza cards clicaveis
     click: navigate /produto/slug"]
 
-    HAS_CP -->|"0"| FETCH_TP["GET /api/v1/tenants/products
+    HAS_CP -->|"0"| FETCH_TP["GET /api/v1/assinaturas
     Bearer token"]
     FETCH_TP --> FILTER_TP["filter: is_active === true"]
     FILTER_TP --> HAS_TP{"tenantActive.length?"}
@@ -271,7 +271,7 @@ flowchart TD
     PARALLEL --> CAT["GET /api/v1/products
     publico, sem auth
     catalogo completo"]
-    PARALLEL --> SUB["GET /api/v1/tenants/products
+    PARALLEL --> SUB["GET /api/v1/assinaturas
     Bearer token
     produtos contratados"]
 
@@ -294,7 +294,7 @@ flowchart TD
     Preco + Botao Contratar"]
     CARD_AVAIL -->|click| SUBSCRIBE["handleSubscribe slug"]
 
-    SUBSCRIBE --> S1["1. POST /tenants/products/subscribe
+    SUBSCRIBE --> S1["1. POST /api/v1/assinaturas/subscribe
     body: product_key: slug"]
     S1 --> S1_OK{"res.ok?"}
     S1_OK -->|Sim| S2["2. POST /companies/companyId/products
@@ -465,7 +465,7 @@ flowchart TD
 |------|-----------|-------|
 | `/selecionar-workspace` | SelecionarWorkspace | GET /tenants/companies |
 | `/hub` | Hub | GET /companies/{id}/products |
-| `/store` | Store | GET /products + GET /tenants/products |
+| `/store` | Store | GET /products + GET /api/v1/assinaturas |
 | `/produto/simula-custo/*` | SimulaCustoApp (lazy) | PRODUCT_CONFIG, rotas relativas |
 | `/produto/processo/*` | ProcessoApp (lazy) | PRODUCT_CONFIG, rotas relativas |
 
@@ -514,9 +514,9 @@ flowchart TD
 ### Produtos — Nivel Tenant
 | Metodo | Endpoint | Auth | Descricao |
 |--------|----------|------|-----------|
-| GET | `/api/v1/tenants/products` | requireAuth | Lista produtos contratados |
-| POST | `/api/v1/tenants/products/subscribe` | requireAuth | Contrata produto do catalogo |
-| DELETE | `/api/v1/tenants/products/:key` | requireAuth | Cancela produto (soft delete) |
+| GET | `/api/v1/assinaturas` | requireAuth | Lista produtos contratados |
+| POST | `/api/v1/assinaturas/subscribe` | requireAuth | Contrata produto do catalogo |
+| DELETE | `/api/v1/assinaturas/:key` | requireAuth | Cancela produto (soft delete) |
 
 ### Produtos — Nivel Company
 | Metodo | Endpoint | Auth | Descricao |

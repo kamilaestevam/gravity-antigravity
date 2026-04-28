@@ -674,7 +674,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     let fullText = ''
     let suggestions = FOLLOW_UP_SUGGESTIONS[msg] || DEFAULT_SUGGESTIONS
     try {
-      const res = await fetch('/api/v1/gabi/chat', {
+      const res = await fetch('/api/v1/gabi/chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,2 +1,2 @@
-export { TableWidget } from './TableWidget.js'
-export type { TableWidgetProps } from './TableWidget.js'
+export { DashboardWidgetTabela } from './DashboardWidgetTabela.js'
+export type { TableWidgetProps } from './DashboardWidgetTabela.js'

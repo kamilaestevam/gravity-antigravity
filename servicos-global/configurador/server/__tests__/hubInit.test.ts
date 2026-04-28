@@ -10,13 +10,13 @@ import supertest from 'supertest'
 
 // Mock prisma com models usados pelo hubInit
 const prismaMock = {
-  product: {
+  produtoGravity: {
     findMany: vi.fn().mockResolvedValue([]),
   },
-  productConfig: {
+  produtoGravityConfiguracao: {
     findMany: vi.fn().mockResolvedValue([]),
   },
-  user: {
+  usuario: {
     findUnique: vi.fn().mockResolvedValue(null),
     update: vi.fn().mockResolvedValue(null),
   },
@@ -30,13 +30,13 @@ vi.mock('../lib/prisma.js', () => ({
 const tenantServiceMock = {
   getTenantById: vi.fn().mockResolvedValue({
     id: 'tenant-001',
-    name: 'Acme Corp',
-    slug: 'acme',
-    status: 'ACTIVE',
+    nome_organizacao: 'Acme Corp',
+    subdominio_organizacao: 'acme',
+    status_organizacao: 'ATIVO',
   }),
   getCompanies: vi.fn().mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ACTIVE' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ACTIVE' },
+    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
+    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
   ]),
 }
 
@@ -101,24 +101,24 @@ beforeEach(() => {
   authOverride = null
 
   // Reset defaults
-  prismaMock.product.findMany.mockResolvedValue([])
-  prismaMock.productConfig.findMany.mockResolvedValue([])
-  prismaMock.user.findUnique.mockResolvedValue(null)
-  prismaMock.user.update.mockResolvedValue(null)
+  prismaMock.produtoGravity.findMany.mockResolvedValue([])
+  prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([])
+  prismaMock.usuario.findUnique.mockResolvedValue(null)
+  prismaMock.usuario.update.mockResolvedValue(null)
   tenantServiceMock.getTenantById.mockResolvedValue({
-    id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE',
+    id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
   })
   tenantServiceMock.getCompanies.mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ACTIVE' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ACTIVE' },
+    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
+    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
   ])
 })
 
-// ─── GET /api/v1/hub/catalog ────────────────────────────────────────────────
+// ─── GET /api/v1/hub/catalogo ────────────────────────────────────────────────
 
-describe('GET /api/v1/hub/catalog', () => {
+describe('GET /api/v1/hub/catalogo', () => {
   it('retorna 200 com catalog vazio', async () => {
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('catalog')
     expect(Array.isArray(res.body.catalog)).toBe(true)
@@ -127,12 +127,12 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('retorna catalog com produtos', async () => {
     const mockCatalog = [
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ACTIVE' },
-      { id: 'p2', name: 'SimulaCusto', slug: 'simula-custo', description: 'Simulação', status: 'ACTIVE' },
+      { id_produto_gravity: 'p1', nome_produto_gravity: 'BID Câmbio', slug_produto_gravity: 'bid-cambio', descricao_produto_gravity: 'Câmbio', status_produto_gravity: 'ATIVO' },
+      { id_produto_gravity: 'p2', nome_produto_gravity: 'SimulaCusto', slug_produto_gravity: 'simula-custo', descricao_produto_gravity: 'Simulação', status_produto_gravity: 'ATIVO' },
     ]
-    prismaMock.product.findMany.mockResolvedValue(mockCatalog)
+    prismaMock.produtoGravity.findMany.mockResolvedValue(mockCatalog)
 
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
     expect(res.body.catalog).toHaveLength(2)
     expect(res.body.catalog[0].slug).toBe('bid-cambio')
@@ -140,21 +140,27 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('não requer autenticação', async () => {
     // catalog é público — deve funcionar mesmo sem auth
-    const res = await request.get('/api/v1/hub/catalog')
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(200)
   })
 
-  it('chama prisma.product.findMany com select correto', async () => {
-    await request.get('/api/v1/hub/catalog')
-    expect(prismaMock.product.findMany).toHaveBeenCalledWith({
-      select: { id: true, name: true, slug: true, description: true, status: true },
-      orderBy: { created_at: 'desc' },
+  it('chama prisma.produtoGravity.findMany com select correto', async () => {
+    await request.get('/api/v1/hub/catalogo')
+    expect(prismaMock.produtoGravity.findMany).toHaveBeenCalledWith({
+      select: {
+        id_produto_gravity: true,
+        nome_produto_gravity: true,
+        slug_produto_gravity: true,
+        descricao_produto_gravity: true,
+        status_produto_gravity: true,
+      },
+      orderBy: { data_criacao_produto_gravity: 'desc' },
     })
   })
 
   it('retorna 500 quando prisma falha', async () => {
-    prismaMock.product.findMany.mockRejectedValueOnce(new Error('DB connection lost'))
-    const res = await request.get('/api/v1/hub/catalog')
+    prismaMock.produtoGravity.findMany.mockRejectedValueOnce(new Error('DB connection lost'))
+    const res = await request.get('/api/v1/hub/catalogo')
     expect(res.status).toBe(500)
   })
 })
@@ -176,7 +182,7 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request.get('/api/v1/hub/init')
     expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-001')
     expect(res.body.tenant).toEqual({
-      id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE',
+      id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
     })
   })
 
@@ -186,13 +192,13 @@ describe('GET /api/v1/hub/init', () => {
     expect(res.body.companies).toHaveLength(2)
   })
 
-  // ── Tenant isolation ──
+  // ── Organizacao isolation ──
 
   it('filtra productConfig por tenant_id (tenant isolation)', async () => {
     await request.get('/api/v1/hub/init')
-    expect(prismaMock.productConfig.findMany).toHaveBeenCalledWith(
+    expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { tenant_id: 'tenant-001' },
+        where: { id_organizacao_config_produto_gravity: 'tenant-001' },
       }),
     )
   })
@@ -205,8 +211,8 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request.get('/api/v1/hub/init')
     expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-999')
     expect(tenantServiceMock.getCompanies).toHaveBeenCalledWith('tenant-999')
-    expect(prismaMock.productConfig.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { tenant_id: 'tenant-999' } }),
+    expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id_organizacao_config_produto_gravity: 'tenant-999' } }),
     )
     expect(res.body.tenant.id).toBe('tenant-999')
     expect(res.body.companies).toHaveLength(0)
@@ -215,11 +221,16 @@ describe('GET /api/v1/hub/init', () => {
   // ── Products enrichment ──
 
   it('enriquece products com dados do catálogo', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
-      { product_key: 'bid-cambio', is_active: true, config: {}, created_at: '2026-01-01' },
+    prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([
+      {
+        chave_produto_config_produto_gravity: 'bid-cambio',
+        ativo_config_produto_gravity: true,
+        configuracao_config_produto_gravity: {},
+        data_criacao_config_produto_gravity: '2026-01-01',
+      },
     ])
-    prismaMock.product.findMany.mockResolvedValue([
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ACTIVE' },
+    prismaMock.produtoGravity.findMany.mockResolvedValue([
+      { id_produto_gravity: 'p1', nome_produto_gravity: 'BID Câmbio', slug_produto_gravity: 'bid-cambio', descricao_produto_gravity: 'Câmbio', status_produto_gravity: 'ATIVO' },
     ])
 
     const res = await request.get('/api/v1/hub/init')
@@ -230,10 +241,15 @@ describe('GET /api/v1/hub/init', () => {
   })
 
   it('retorna catalog null quando produto não está no catálogo', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
-      { product_key: 'produto-legacy', is_active: false, config: {}, created_at: '2026-01-01' },
+    prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([
+      {
+        chave_produto_config_produto_gravity: 'produto-legacy',
+        ativo_config_produto_gravity: false,
+        configuracao_config_produto_gravity: {},
+        data_criacao_config_produto_gravity: '2026-01-01',
+      },
     ])
-    prismaMock.product.findMany.mockResolvedValue([])
+    prismaMock.produtoGravity.findMany.mockResolvedValue([])
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.body.products[0].catalog).toBeNull()
@@ -242,22 +258,22 @@ describe('GET /api/v1/hub/init', () => {
   // ── Preferred company ──
 
   it('retorna preferredCompanyId null quando user não tem preferência', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null)
+    prismaMock.usuario.findUnique.mockResolvedValue(null)
     const res = await request.get('/api/v1/hub/init')
     expect(res.body.preferredCompanyId).toBeNull()
   })
 
   it('retorna preferredCompanyId quando company é válida e ativa', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
     const res = await request.get('/api/v1/hub/init')
     expect(res.body.preferredCompanyId).toBe('comp-001')
   })
 
   it('retorna preferredCompanyId null quando company preferida é INACTIVE', async () => {
     tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INACTIVE' },
+      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
     ])
-    prismaMock.user.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.body.preferredCompanyId).toBeNull()
@@ -265,21 +281,21 @@ describe('GET /api/v1/hub/init', () => {
 
   it('limpa preferred_company_id no banco quando company inválida (fire-and-forget)', async () => {
     tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INACTIVE' },
+      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
     ])
-    prismaMock.user.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
 
     await request.get('/api/v1/hub/init')
 
-    // Fire-and-forget — prisma.user.update foi chamado
-    expect(prismaMock.user.update).toHaveBeenCalledWith({
-      where: { id: 'user-001' },
+    // Fire-and-forget — prisma.usuario.update foi chamado
+    expect(prismaMock.usuario.update).toHaveBeenCalledWith({
+      where: { id_usuario: 'user-001' },
       data: { preferred_company_id: null },
     })
   })
 
   it('retorna preferredCompanyId null quando company não existe nas companies', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ preferred_company_id: 'comp-inexistente' })
+    prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-inexistente' })
     const res = await request.get('/api/v1/hub/init')
     expect(res.body.preferredCompanyId).toBeNull()
   })
@@ -287,19 +303,19 @@ describe('GET /api/v1/hub/init', () => {
   // ── Role SUPPLIER ──
 
   it('não busca preferência de workspace para SUPPLIER', async () => {
-    authOverride = { userId: 'user-supplier', clerkUserId: 'clerk_s', tenantId: 'tenant-001', role: 'SUPPLIER' }
+    authOverride = { userId: 'user-supplier', clerkUserId: 'clerk_s', tenantId: 'tenant-001', role: 'FORNECEDOR' }
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
-    // Não deve chamar prisma.user.findUnique para SUPPLIER
-    expect(prismaMock.user.findUnique).not.toHaveBeenCalled()
+    // Não deve chamar prisma.usuario.findUnique para SUPPLIER
+    expect(prismaMock.usuario.findUnique).not.toHaveBeenCalled()
     expect(res.body.preferredCompanyId).toBeNull()
   })
 
   // ── Resiliência ──
 
   it('retorna products vazio quando productConfig falha (catch resiliente)', async () => {
-    prismaMock.productConfig.findMany.mockRejectedValue(new Error('timeout'))
+    prismaMock.produtoGravityConfiguracao.findMany.mockRejectedValue(new Error('timeout'))
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
@@ -307,7 +323,7 @@ describe('GET /api/v1/hub/init', () => {
   })
 
   it('retorna catalog vazio quando product.findMany falha (catch resiliente)', async () => {
-    prismaMock.product.findMany.mockRejectedValue(new Error('timeout'))
+    prismaMock.produtoGravity.findMany.mockRejectedValue(new Error('timeout'))
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
@@ -315,7 +331,7 @@ describe('GET /api/v1/hub/init', () => {
   })
 
   it('preferredCompanyId null quando user.findUnique falha (catch resiliente)', async () => {
-    prismaMock.user.findUnique.mockRejectedValue(new Error('timeout'))
+    prismaMock.usuario.findUnique.mockRejectedValue(new Error('timeout'))
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
@@ -342,15 +358,15 @@ describe('GET /api/v1/hub/init', () => {
       callOrder.push('companies')
       return []
     })
-    prismaMock.productConfig.findMany.mockImplementation(async () => {
+    prismaMock.produtoGravityConfiguracao.findMany.mockImplementation(async () => {
       callOrder.push('configs')
       return []
     })
-    prismaMock.product.findMany.mockImplementation(async () => {
+    prismaMock.produtoGravity.findMany.mockImplementation(async () => {
       callOrder.push('catalog')
       return []
     })
-    prismaMock.user.findUnique.mockImplementation(async () => {
+    prismaMock.usuario.findUnique.mockImplementation(async () => {
       callOrder.push('userPref')
       return null
     })

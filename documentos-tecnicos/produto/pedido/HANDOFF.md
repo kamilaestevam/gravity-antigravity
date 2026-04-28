@@ -542,8 +542,10 @@ Cenario: Autenticacao S2S
 
 ## 13. Como Ativar o Dream Team Tecnologia
 
+Carregue a skill via Skill tool (ou peça ao agente):
+
 ```
-/dream-team-tecnologia
+skills/dream-team/tecnologia/README.md
 ```
 
 Depois:

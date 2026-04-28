@@ -5,14 +5,15 @@ import {
   Plus, FilePdf, Paperclip, Trash, XCircle, PaperPlaneTilt,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { ModalExclusao } from '../workspace/ModalExclusao'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -100,10 +101,6 @@ export function FinanceiroAdmin() {
   const [carregando, setCarregando] = useState(true)
   const [provider, setProvider] = useState<string>('—')
 
-  // Filtros — enviados ao backend, não aplicados client-side
-  const [filtroStatus, setFiltroStatus] = useState<GravityInvoiceStatus | 'TODOS'>('TODOS')
-  const [filtroTenantId, setFiltroTenantId] = useState<string>('TODOS')
-
   // Paginação cursor-based (Stripe)
   const [cursorStack, setCursorStack] = useState<string[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -115,12 +112,7 @@ export function FinanceiroAdmin() {
     setCarregando(true)
     try {
       const [invResp, tenantResp] = await Promise.all([
-        adminBillingApi.listInvoices({
-          cursor,
-          limit: LIMIT,
-          status: filtroStatus !== 'TODOS' ? filtroStatus : undefined,
-          customer_id: filtroTenantId !== 'TODOS' ? filtroTenantId : undefined,
-        }),
+        adminBillingApi.listInvoices({ cursor, limit: LIMIT }),
         adminTenantsApi.list({ limit: 200 }),
       ])
       setInvoices(invResp.invoices)
@@ -129,11 +121,11 @@ export function FinanceiroAdmin() {
       setHasMore(invResp.pagination.has_more)
       setTenants(tenantResp.tenants)
     } catch (err) {
-      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financial.msg_erro_carregar')) })
+      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financeiro-admin.msg_erro_carregar')) })
     } finally {
       setCarregando(false)
     }
-  }, [getToken, addNotification, t, filtroStatus, filtroTenantId])
+  }, [getToken, addNotification, t])
 
   useEffect(() => {
     // Quando filtros mudam, reseta paginação e recarrega da primeira página
@@ -223,7 +215,7 @@ export function FinanceiroAdmin() {
 
   const handleSalvar = async () => {
     if (!formTenantId || !formDescricao.trim() || !formValor) {
-      addNotification({ type: 'error', message: t('admin.financial.modal_validacao') ?? 'Preencha cliente, descrição e valor' })
+      addNotification({ type: 'error', message: t('admin.financeiro-admin.modal_validacao') ?? 'Preencha cliente, descrição e valor' })
       return
     }
 
@@ -253,7 +245,7 @@ export function FinanceiroAdmin() {
       fecharModal()
       addNotification({
         type: 'success',
-        message: t('admin.financial.msg_fatura_criada', { num: invoice.number ?? invoice.id }) ?? `Fatura ${invoice.number ?? invoice.id} criada`,
+        message: t('admin.financeiro-admin.msg_fatura_criada', { num: invoice.number ?? invoice.id }) ?? `Fatura ${invoice.number ?? invoice.id} criada`,
       })
 
       logEvent({
@@ -266,7 +258,7 @@ export function FinanceiroAdmin() {
 
       carregarDados()
     } catch (err) {
-      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financial.modal_falha_salvar')) })
+      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financeiro-admin.modal_falha_salvar')) })
     } finally {
       setSalvando(false)
     }
@@ -281,7 +273,7 @@ export function FinanceiroAdmin() {
       setInvoiceParaAnular(null)
       addNotification({
         type: 'success',
-        message: t('admin.financial.msg_fatura_anulada', { num: nome }) ?? `Fatura ${nome} anulada`,
+        message: t('admin.financeiro-admin.msg_fatura_anulada', { num: nome }) ?? `Fatura ${nome} anulada`,
       })
       logEvent({
         action: 'EXCLUSÃO',
@@ -292,7 +284,7 @@ export function FinanceiroAdmin() {
       })
       carregarDados()
     } catch (err) {
-      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financial.msg_erro_anular')) })
+      addNotification({ type: 'error', message: extractCatchError(err, t('admin.financeiro-admin.msg_erro_anular')) })
     }
   }
 
@@ -304,7 +296,7 @@ export function FinanceiroAdmin() {
       await adminBillingApi.sendInvoice(inv.id)
       addNotification({
         type: 'success',
-        message: t('admin.financial.msg_enviada') ?? `Fatura enviada para ${inv.customer.email ?? inv.customer.name}`,
+        message: t('admin.financeiro-admin.msg_enviada') ?? `Fatura enviada para ${inv.customer.email ?? inv.customer.name}`,
       })
       logEvent({
         action: 'ALTERAÇÃO',
@@ -323,7 +315,7 @@ export function FinanceiroAdmin() {
   const COLUNAS = useMemo<TabelaGlobalColuna<GravityInvoiceApi>[]>(() => [
     {
       key: 'number',
-      label: t('admin.financial.tabela.numero') ?? '#',
+      label: t('admin.financeiro-admin.tabela.numero') ?? '#',
       tipo: 'texto',
       align: 'center',
       tooltipTitulo: 'Invoice Number',
@@ -339,7 +331,7 @@ export function FinanceiroAdmin() {
     },
     {
       key: 'customer',
-      label: t('admin.financial.tabela.cliente') ?? 'Cliente',
+      label: t('admin.financeiro-admin.tabela.cliente') ?? 'Cliente',
       tipo: 'texto',
       tooltipTitulo: 'Tenant / Customer',
       tooltipDescricao: 'Tenant do Gravity dono da fatura.',
@@ -362,7 +354,7 @@ export function FinanceiroAdmin() {
     },
     {
       key: 'competencia',
-      label: t('admin.financial.tabela.competencia') ?? 'Competência',
+      label: t('admin.financeiro-admin.tabela.competencia') ?? 'Competência',
       tipo: 'texto',
       tooltipTitulo: 'Competência',
       tooltipDescricao: "Mês/ano de referência da cobrança (YYYY-MM).",
@@ -370,7 +362,7 @@ export function FinanceiroAdmin() {
     },
     {
       key: 'amount_due_cents',
-      label: t('admin.financial.tabela.valor') ?? 'Valor',
+      label: t('admin.financeiro-admin.tabela.valor') ?? 'Valor',
       tipo: 'texto',
       align: 'right',
       tooltipTitulo: 'Valor Devido',
@@ -383,7 +375,7 @@ export function FinanceiroAdmin() {
     },
     {
       key: 'due_date',
-      label: t('admin.financial.tabela.vencimento') ?? 'Vencimento',
+      label: t('admin.financeiro-admin.tabela.vencimento') ?? 'Vencimento',
       tipo: 'texto',
       tooltipTitulo: 'Due Date',
       tooltipDescricao: 'Data limite para pagamento.',
@@ -400,7 +392,7 @@ export function FinanceiroAdmin() {
     },
     {
       key: 'status',
-      label: t('admin.financial.tabela.status') ?? 'Status',
+      label: t('admin.financeiro-admin.tabela.status') ?? 'Status',
       tipo: 'texto',
       tooltipTitulo: 'Status de Pagamento',
       tooltipDescricao: 'Lifecycle event devolvido pelo provider.',
@@ -512,39 +504,30 @@ export function FinanceiroAdmin() {
         layout="lista"
         cabecalho={
           <CabecalhoGlobal
-            titulo={t('admin.financial.titulo')}
-            subtitulo={`${t('admin.financial.subtitulo')} · Provider: ${provider}`}
+            titulo={t('admin.financeiro-admin.titulo')}
+            subtitulo={`${t('admin.financeiro-admin.subtitulo')} · Provider: ${provider}`}
             icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
-            acoes={
-              <BotaoGlobal
-                icone={<Plus weight="bold" />}
-                variante="primario"
-                onClick={abrirModal}
-              >
-                {t('admin.financial.btn_lancar') ?? 'Lançar Fatura'}
-              </BotaoGlobal>
-            }
           />
         }
         stats={
           <>
-            <StatCardGlobal
-              titulo={t('admin.financial.card_a_receber') ?? 'A Receber (Aberto)'}
+            <CardEstatisticaGlobal
+              titulo={t('admin.financeiro-admin.card_a_receber') ?? 'A Receber (Aberto)'}
               icone={<ChartLineUp weight="duotone" size={16} />}
               valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalAberto, currencyForCards)}</span>}
               subtexto={`${abertas.length} fatura(s) pendente(s)`}
               variante="padrao"
             />
-            <StatCardGlobal
-              titulo={t('admin.financial.card_risco') ?? 'Risco de Inadimplência'}
+            <CardEstatisticaGlobal
+              titulo={t('admin.financeiro-admin.card_risco') ?? 'Risco de Inadimplência'}
               valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalInadimplencia, currencyForCards)}</span>}
               subtexto={`${inadimplentes.length} em atraso`}
               variante={inadimplentes.length > 0 ? 'perigo' : 'sucesso'}
             />
-            <StatCardGlobal
-              titulo={t('admin.financial.card_performance') ?? 'Performance'}
+            <CardEstatisticaGlobal
+              titulo={t('admin.financeiro-admin.card_performance') ?? 'Performance'}
               valor={<span style={{ fontSize: '1.75rem' }}>{performancePct}%</span>}
-              subtexto={t('admin.financial.card_performance_subtexto') ?? 'Taxa de recebimento'}
+              subtexto={t('admin.financeiro-admin.card_performance_subtexto') ?? 'Taxa de recebimento'}
               variante="sucesso"
             />
           </>
@@ -553,64 +536,19 @@ export function FinanceiroAdmin() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <p className="ws-section-title" style={{ margin: 0 }}>
             <Buildings weight="duotone" size={14} color="#818cf8" />
-            {t('admin.financial.secao_faturamento') ?? 'Faturamento por cliente e base'}
+            {t('admin.financeiro-admin.secao_faturamento') ?? 'Faturamento por cliente e base'}
             {carregando && (
               <span style={{ marginLeft: 12, fontSize: '0.75rem', color: 'var(--ws-muted)', fontWeight: 400 }}>
-                {t('admin.financial.carregando') ?? 'Carregando...'}
+                {t('admin.financeiro-admin.carregando') ?? 'Carregando...'}
               </span>
             )}
           </p>
+          <BotaoNovoAdminGlobal
+            rotulo={t('admin.financeiro-admin.btn_lancar') ?? 'Lançar Fatura'}
+            onClick={abrirModal}
+          />
         </div>
 
-        {/* Barra de filtros — status + cliente. Filtros são enviados ao backend
-            (não aplicados client-side sobre a página atual) para que a paginação
-            cursor-based reflita o conjunto filtrado. */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ minWidth: 220 }}>
-            <SelectGlobal
-              opcoes={[
-                { valor: 'TODOS', rotulo: 'Todos os status' },
-                { valor: 'DRAFT', rotulo: 'Rascunho' },
-                { valor: 'OPEN', rotulo: 'Em aberto' },
-                { valor: 'PAID', rotulo: 'Pago' },
-                { valor: 'OVERDUE', rotulo: 'Vencida' },
-                { valor: 'VOID', rotulo: 'Anulada' },
-                { valor: 'UNCOLLECTIBLE', rotulo: 'Incobrável' },
-              ]}
-              valor={filtroStatus}
-              aoMudarValor={(v) => setFiltroStatus((v as GravityInvoiceStatus | 'TODOS') ?? 'TODOS')}
-              placeholder="Filtrar por status"
-              aria-label="Filtrar faturas por status"
-            />
-          </div>
-          <div style={{ minWidth: 300, flex: 1 }}>
-            <SelectGlobal
-              opcoes={[
-                { valor: 'TODOS', rotulo: 'Todos os clientes' },
-                ...tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.name} (${tn.slug})` })),
-              ]}
-              valor={filtroTenantId}
-              aoMudarValor={(v) => setFiltroTenantId(v ? String(v) : 'TODOS')}
-              placeholder="Filtrar por cliente"
-              buscavel
-              aria-label="Filtrar faturas por cliente"
-            />
-          </div>
-          {(filtroStatus !== 'TODOS' || filtroTenantId !== 'TODOS') && (
-            <button
-              type="button"
-              onClick={() => { setFiltroStatus('TODOS'); setFiltroTenantId('TODOS') }}
-              aria-label="Limpar filtros"
-              style={{
-                padding: '0.5rem 1rem', borderRadius: 6,
-                border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
-                color: 'var(--ws-muted)', cursor: 'pointer', fontSize: '0.8125rem',
-              }}
-            >
-              Limpar filtros
-            </button>
-          )}
-        </div>
 
         <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
           <TabelaGlobal<GravityInvoiceApi>
@@ -618,8 +556,8 @@ export function FinanceiroAdmin() {
             dados={invoices}
             colunas={COLUNAS}
             acoes={ACOES}
-            mensagemVazio={t('admin.financial.vazio') ?? 'Sem faturas no período.'}
-            tooltipBusca={t('admin.financial.tooltip_busca') ?? 'Buscar por cliente, número ou descrição'}
+            mensagemVazio={t('admin.financeiro-admin.vazio') ?? 'Sem faturas no período.'}
+            tooltipBusca={t('admin.financeiro-admin.tooltip_busca') ?? 'Buscar por cliente, número ou descrição'}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'financeiro_global', 'Relatório Financeiro Global')}
           />
 
@@ -667,10 +605,10 @@ export function FinanceiroAdmin() {
           fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.6,
         }}>
           💡 <strong style={{ color: 'var(--ws-text)' }}>
-            {t('admin.financial.info_gestao_manual') ?? 'Gestão Integrada'}
+            {t('admin.financeiro-admin.info_gestao_manual') ?? 'Gestão Integrada'}
           </strong>
           {' — '}
-          {t('admin.financial.info_gestao_desc') ?? (
+          {t('admin.financeiro-admin.info_gestao_desc') ?? (
             'A origem desta lista é o provider configurado em BILLING_PROVIDER. PDF, status de pagamento e webhooks são gerenciados pelo provider. Veja docs/BILLING.md para ativar outros providers.'
           )}
         </div>
@@ -681,8 +619,8 @@ export function FinanceiroAdmin() {
           aoFechar={fecharModal}
           aoSalvar={handleSalvar}
           icone={<Receipt weight="duotone" size={24} />}
-          titulo={t('admin.financial.modal_novo_titulo') ?? 'Lançar Fatura'}
-          subtitulo={t('admin.financial.modal_subtitulo') ?? `Cria via provider: ${provider}`}
+          titulo={t('admin.financeiro-admin.modal_novo_titulo') ?? 'Lançar Fatura'}
+          subtitulo={t('admin.financeiro-admin.modal_subtitulo') ?? `Cria via provider: ${provider}`}
           tamanho="lg"
           dirty={formDirty}
           podesSalvar={formDirty && !!formTenantId && !!formDescricao.trim() && !!formValor && !salvando}
@@ -692,22 +630,22 @@ export function FinanceiroAdmin() {
               rotulo: 'Dados',
               conteudo: (
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <SecaoFormularioGlobal titulo="Cliente" icone={<Buildings size={16} />} />
+                  <SecaoFormulario titulo="Cliente" icone={<Buildings size={16} />} />
 
-                  <GeralCampoGlobal label="Tenant (Cliente)" obrigatorio>
+                  <CampoGeralGlobal label="Tenant (Cliente)" obrigatorio>
                     <SelectGlobal
-                      opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.name} (${tn.slug})` }))}
+                      opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
                       valor={formTenantId}
                       aoMudarValor={v => { setFormTenantId(v ? String(v) : null); setFormDirty(true) }}
                       iconeEsquerda={<Buildings size={16} />}
                       placeholder="Selecionar tenant..."
                       buscavel
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
-                  <SecaoFormularioGlobal titulo="Fatura" icone={<CalendarBlank size={16} />} />
+                  <SecaoFormulario titulo="Fatura" icone={<CalendarBlank size={16} />} />
 
-                  <GeralCampoGlobal label="Descrição" obrigatorio>
+                  <CampoGeralGlobal label="Descrição" obrigatorio>
                     <input
                       type="text"
                       className="ws-input"
@@ -716,28 +654,28 @@ export function FinanceiroAdmin() {
                       placeholder="Ex: Assinatura mensal Gravity Pro — Abril/2026"
                       maxLength={500}
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Competência">
+                    <CampoGeralGlobal label="Competência">
                       <input
                         type="month"
                         className="ws-input"
                         value={formCompetencia}
                         onChange={e => { setFormCompetencia(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Vencimento">
+                    <CampoGeralGlobal label="Vencimento">
                       <input
                         type="date"
                         className="ws-input"
                         value={formVencimento}
                         onChange={e => { setFormVencimento(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Valor (R$)" obrigatorio>
+                    <CampoGeralGlobal label="Valor (R$)" obrigatorio>
                       <div className="ws-input-icon-wrap">
                         <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: 24, textAlign: 'center', color: 'var(--ws-muted)' }}>R$</span>
                         <input
@@ -749,11 +687,11 @@ export function FinanceiroAdmin() {
                           style={{ width: '100%' }}
                         />
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Quantidade">
+                    <CampoGeralGlobal label="Quantidade">
                       <input
                         type="number"
                         min={1}
@@ -761,9 +699,9 @@ export function FinanceiroAdmin() {
                         value={formQuantidade}
                         onChange={e => { setFormQuantidade(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Enviar ao criar">
+                    <CampoGeralGlobal label="Enviar ao criar">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
                         {(['sim', 'nao'] as const).map(val => (
                           <button
@@ -783,7 +721,7 @@ export function FinanceiroAdmin() {
                           </button>
                         ))}
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
                 </div>
               ),
@@ -794,7 +732,7 @@ export function FinanceiroAdmin() {
         {/* Modal Anular Fatura ─────────────────────────────────────────── */}
         <ModalExclusao
           aberto={!!invoiceParaAnular}
-          titulo={t('admin.financial.excluir_titulo') ?? 'Anular Fatura'}
+          titulo={t('admin.financeiro-admin.excluir_titulo') ?? 'Anular Fatura'}
           descricao={
             <>
               Você está prestes a anular a fatura{' '}

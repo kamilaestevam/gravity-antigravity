@@ -1,0 +1,17 @@
+// schema.base.prisma — cabeçalho fixo do produto Pedido
+// Combinado pelo script `scripts/ativamente/compose-pedido-schema.ts` com
+// `fragment.prisma` para gerar o `schema.prisma` final.
+//
+// NUNCA editar `schema.prisma` diretamente (Mandamento 02).
+//
+// Banco-alvo: gravity-pedido-* (Railway), conectado via env DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

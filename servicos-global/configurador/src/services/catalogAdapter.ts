@@ -8,31 +8,31 @@ import type { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } fr
 // ─── Mapas de conversão ─────────────────────────────────────────────────────
 
 const STATUS_API_TO_UI: Record<string, StatusGlobal> = {
-  ACTIVE: 'Ativo',
-  SUSPENDED: 'Suspenso',
-  COMING_SOON: 'Em Breve',
-  LEGACY: 'Legado',
-  INACTIVE: 'Inativo',
+  ATIVO: 'Ativo',
+  SUSPENSO: 'Suspenso',
+  EM_BREVE: 'Em Breve',
+  LEGADO: 'Legado',
+  INATIVO: 'Inativo',
 }
 
 const STATUS_UI_TO_API: Record<string, string> = {
-  Ativo: 'ACTIVE',
-  Suspenso: 'SUSPENDED',
-  'Em Breve': 'COMING_SOON',
-  Legado: 'LEGACY',
-  Inativo: 'INACTIVE',
+  Ativo: 'ATIVO',
+  Suspenso: 'SUSPENSO',
+  'Em Breve': 'EM_BREVE',
+  Legado: 'LEGADO',
+  Inativo: 'INATIVO',
 }
 
 const BILLING_API_TO_UI: Record<string, string> = {
-  MONTHLY: 'Mensalidade',
-  PER_PROCESS: 'Por Processo',
-  PER_DOCUMENT: 'Por Documento',
-  PER_ESTIMATE: 'Por Estimativa',
-  PER_DI_DUIMP: 'Por DI/DUIMP',
-  PER_DUE: 'Por DUE',
-  PER_PRODUCT: 'Por Produto',
-  PER_FLOW: 'Por Fluxo',
-  PER_LPCO: 'Por LPCO',
+  MENSAL: 'Mensalidade',
+  POR_PROCESSO: 'Por Processo',
+  POR_DOCUMENTO: 'Por Documento',
+  POR_ESTIMATIVA: 'Por Estimativa',
+  POR_DI_DUIMP: 'Por DI/DUIMP',
+  POR_DUE: 'Por DUE',
+  POR_PRODUTO: 'Por Produto',
+  POR_FLUXO: 'Por Fluxo',
+  POR_LPCO: 'Por LPCO',
 }
 
 const BILLING_UI_TO_API: Record<string, string> = Object.fromEntries(
@@ -73,7 +73,7 @@ function apiToUi(p: ProductApi): ProdutoCatalogo {
     precoTotal: p.total_price
       ? { valor: decimalToDisplay(p.total_price), moeda: p.total_currency }
       : undefined,
-    limiteUsuarios: p.user_limit_type === 'LIMITED' ? 'limitada' : 'ilimitada',
+    limiteUsuarios: p.user_limit_type === 'LIMITADO' ? 'limitada' : 'ilimitada',
     qtdUsuariosBase: p.base_users_qty ?? undefined,
     precoUsuarioAdicional: p.extra_user_price
       ? { valor: decimalToDisplay(p.extra_user_price), moeda: p.extra_user_currency }
@@ -125,19 +125,19 @@ function uiToApi(p: ProdutoInput): Record<string, unknown> {
     name: p.nome,
     slug: p.slug,
     description: p.descricao,
-    status: STATUS_UI_TO_API[p.status] ?? 'ACTIVE',
+    status: STATUS_UI_TO_API[p.status] ?? 'ATIVO',
     launch_date: p.dataLancamento ? new Date(p.dataLancamento).toISOString() : undefined,
     has_setup: p.temSetup,
     setup_price: p.temSetup ? displayToNumber(p.precoSetup?.valor ?? '0') : undefined,
     setup_currency: p.precoSetup?.moeda ?? 'BRL',
-    billing_type: BILLING_UI_TO_API[p.tipoCobranca] ?? 'MONTHLY',
+    billing_type: BILLING_UI_TO_API[p.tipoCobranca] ?? 'MENSAL',
     unit_price: displayToNumber(p.precoUnitario.valor),
     unit_currency: p.precoUnitario.moeda,
     minimum_price: displayToNumber(p.precoMinimo.valor),
     minimum_currency: p.precoMinimo.moeda,
     total_price: p.precoTotal ? displayToNumber(p.precoTotal.valor) : undefined,
     total_currency: p.precoTotal?.moeda ?? 'BRL',
-    user_limit_type: p.limiteUsuarios === 'limitada' ? 'LIMITED' : 'UNLIMITED',
+    user_limit_type: p.limiteUsuarios === 'limitada' ? 'LIMITADO' : 'ILIMITADO',
     base_users_qty: p.qtdUsuariosBase ?? undefined,
     extra_user_price: p.precoUsuarioAdicional ? displayToNumber(p.precoUsuarioAdicional.valor) : undefined,
     extra_user_currency: p.precoUsuarioAdicional?.moeda ?? 'BRL',

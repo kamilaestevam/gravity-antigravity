@@ -1,15 +1,19 @@
 ---
 name: antigravity-observabilidade
-description: "Use esta skill sempre que uma tarefa envolver logs, monitoramento, health checks, rastreamento de requests entre serviços ou configuração de Sentry e UptimeRobot. Define o padrão de correlation ID, estrutura de logs, health check obrigatório e roadmap de distributed tracing. Todo agente consulta esta skill ao criar ou modificar qualquer servidor Express."
+description: "Use esta skill sempre que uma tarefa envolver logs, monitoramento, health checks, rastreamento de requests entre serviços ou configuração de Sentry e UptimeRobot. Define o padrão de correlation ID, estrutura de logs, health check obrigatório e ordem dos middlewares. Todo agente consulta esta skill ao criar ou modificar qualquer servidor Express."
 ---
 
 # Gravity — Observabilidade
 
-Sem observabilidade, não conseguimos depurar problemas em produção, especialmente em uma arquitetura multi-tenant e distribuída.
+Sem observabilidade, não conseguimos depurar problemas em produção, especialmente em uma arquitetura multi-organização e distribuída.
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) — métricas obrigatórias por serviço, ferramentas obrigatórias, log de auditoria de ações sensíveis. Esta skill cobre apenas o **padrão técnico** de implementação.
+>
+> ⚠️ **REGRA ABSOLUTA:** Ver [SLA Metas](../../governanca/lei/sla-metas/SKILL.md) — meta de **200ms p95 com 50.000 requisições simultâneas**, 99,9% uptime, budget de latência por camada. Os alertas configurados aqui implementam essas metas, não as redefinem.
 
 ## Por Que Observabilidade é Obrigatória desde o Início
 
-1. **Depuração Multi-tenant:** Identificar qual tenant está causando ou sofrendo um erro
+1. **Depuração Multi-organização:** Identificar qual organização está causando ou sofrendo um erro
 2. **Rastreamento de Requests:** Seguir uma request desde o Gateway até o serviço final
 3. **Métricas de Saúde:** Saber se um serviço está "vivo" ou "morto" antes do usuário reclamar
 
@@ -28,13 +32,13 @@ Sem observabilidade, não conseguimos depurar problemas em produção, especialm
 Logs não devem ser texto livre. Devem ser objetos JSON para permitir busca e agregação.
 
 ```typescript
-// shared/logger.ts
+// servicos-global/nucleo/logger.ts
 
 interface LogContext {
   correlationId: string
-  tenantId?: string
-  userId?: string
-  productId?: string
+  idOrganizacao?: string
+  idUsuario?: string
+  idProduto?: string
   service: string
 }
 
@@ -43,9 +47,9 @@ export function createLogger(context: LogContext) {
     timestamp: new Date().toISOString(),
     service: context.service,
     correlation_id: context.correlationId,
-    tenant_id: context.tenantId,
-    user_id: context.userId,
-    product_id: context.productId,
+    id_organizacao: context.idOrganizacao,
+    id_usuario: context.idUsuario,
+    id_produto: context.idProduto,
   })
 
   return {
@@ -68,20 +72,22 @@ export function createLogger(context: LogContext) {
 }
 ```
 
+> **Onde os logs vão parar, retenção e log de auditoria:** ver [Observabilidade Mínima](../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md). Esta skill cobre apenas o formato emitido pela aplicação.
+
 ---
 
 ## Pilar 2 — Correlation ID
 
-O correlation ID é gerado no **primeiro serviço** que recebe o request. É propagado via header `x-correlation-id` em **toda chamada interna**. Permite rastrear um request de ponta a ponta:
+O correlation ID é gerado no **primeiro serviço** que recebe o request. É propagado via header `x-id-correlacao` em **toda chamada interna**. Permite rastrear um request de ponta a ponta:
 
 ```
-produto → tenant-services → configurador
+produto → organizacao-services → configurador
 ```
 
 **Middleware obrigatório em todo servidor:**
 
 ```typescript
-// middleware/correlation.ts
+// <servico>/server/src/middlewares/correlation.ts
 import { randomUUID } from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
@@ -90,10 +96,10 @@ export function correlationMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  req.correlationId = req.headers['x-correlation-id'] as string
+  req.correlationId = req.headers['x-id-correlacao'] as string
     || randomUUID()
 
-  res.setHeader('x-correlation-id', req.correlationId)
+  res.setHeader('x-id-correlacao', req.correlationId)
   next()
 }
 ```
@@ -102,16 +108,16 @@ export function correlationMiddleware(
 
 ```typescript
 // Sempre passar o correlation ID nas chamadas para outros serviços
-async function callTenantService(
+async function callOrganizacaoService(
   endpoint: string,
   correlationId: string,
   token: string
 ) {
-  return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
+  return fetch(`${process.env.ORGANIZACAO_SERVICES_URL}${endpoint}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'x-correlation-id': correlationId,  // ← obrigatório
-      'x-internal-key': process.env.INTERNAL_SERVICE_KEY!
+      'x-id-correlacao': correlationId,  // ← obrigatório
+      'x-chave-interna': process.env.INTERNAL_SERVICE_KEY!
     }
   })
 }
@@ -119,172 +125,9 @@ async function callTenantService(
 
 ---
 
-## Pilar 3 — Distributed Tracing (Fase 2)
-
-Implementado na Fase 2 com OpenTelemetry SDK no Node.js. Exporta para Grafana Cloud (free tier) ou Jaeger.
-
----
-
 ## Health Check — Obrigatório em Todo Servidor
 
-```typescript
-app.get('/health', async (req, res) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`
-    res.json({
-      status: 'ok',
-      service: 'nome-do-servico',
-      timestamp: new Date().toISOString()
-    })
-  } catch (err) {
-    res.status(503).json({
-      status: 'down',
-      service: 'nome-do-servico',
-      timestamp: new Date().toISOString()
-    })
-  }
-})
-```
-
-**Nomes de serviço no health check:**
-
-| Serviço | `service` |
-|:---|:---|
-| Gateway | `gravity-gateway` |
-| Configurador | `configurador` |
-| Tenant Services | `tenant-services` |
-| Simulador Comex | `simulador-comex` |
-| Marketplace | `marketplace` |
-
----
-
-## Sentry — Configuração por Serviço
-
-```typescript
-// server/index.ts
-import * as Sentry from '@sentry/node'
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 0.1,
-})
-
-// Antes de todas as rotas
-app.use(Sentry.Handlers.requestHandler())
-
-// Contexto de tenant após ter auth e correlationId
-app.use((req, res, next) => {
-  Sentry.setUser({ id: req.auth?.user_id })
-  Sentry.setTag('tenant_id', req.auth?.tenant_id)
-  Sentry.setTag('correlation_id', req.correlationId)
-  Sentry.setTag('service', 'nome-do-servico')
-  next()
-})
-
-// ... rotas ...
-
-// Antes do error handler global
-app.use(Sentry.Handlers.errorHandler())
-app.use(errorHandler) // error handler global do antigravity-code-standards
-```
-
----
-
-## UptimeRobot — Monitors a Configurar
-
-| Monitor | URL | Intervalo |
-|:---|:---|:---|
-| Configurador | `https://configurador.gravity.com.br/health` | 5 min |
-| Tenant Services | `https://tenant-services.gravity.com.br/health` | 5 min |
-| Simulador Comex | `https://simulador-comex.gravity.com.br/health` | 5 min |
-| Marketplace | `https://marketplace.gravity.com.br/health` | 5 min |
-
----
-
-## Ordem dos Middlewares com Observabilidade
-
-```typescript
-// server/index.ts — ordem obrigatória
-const app = express()
-
-// 1. Sentry — antes de tudo
-Sentry.init({ dsn: process.env.SENTRY_DSN })
-app.use(Sentry.Handlers.requestHandler())
-
-// 2. Parse de body
-app.use(express.json())
-
-// 3. Correlation ID — primeiro middleware de negócio
-app.use(correlationMiddleware)
-
-// 4. Contexto do Sentry — após ter correlationId
-app.use((req, res, next) => {
-  Sentry.setTag('correlation_id', req.correlationId)
-  Sentry.setTag('tenant_id', req.auth?.tenant_id)
-  next()
-})
-
-// 5. Autenticação
-app.use(requireAuth)
-
-// 6. Health check — sem autenticação
-app.get('/health', healthCheckHandler)
-
-// 7. Rotas de negócio
-app.use('/api/v1', rotas)
-
-// 8. Sentry error handler — antes do global
-app.use(Sentry.Handlers.errorHandler())
-
-// 9. Error handler global — sempre último
-app.use(errorHandler)
-```
-
----
-
-## Métricas de Latência — p95/p99 (Dream Team)
-
-### Metas de SLA
-
-| Métrica | Meta | Alerta quando |
-|:---|:---|:---|
-| Latência p50 | ≤ 50ms | > 100ms por 5 min |
-| Latência p95 | ≤ 200ms | > 200ms por 5 min |
-| Latência p99 | ≤ 500ms | > 500ms por 5 min |
-| Error rate | < 1% | > 1% por 5 min |
-
-### Configuração de Performance no Sentry
-
-```typescript
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-
-  // APM — capturar transações de performance
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-
-  integrations: [
-    new Sentry.Integrations.Express({ app }),
-    new Sentry.Integrations.Prisma({ client: prisma }),
-  ],
-})
-```
-
-### Alertas de Latência no Sentry
-
-Configurar alertas no Sentry Dashboard:
-1. **Alert Rule:** Transaction Duration p95 > 200ms for 5 min → Slack #alerts
-2. **Alert Rule:** Error Rate > 5% for 5 min → Slack #alerts + Email
-3. **Alert Rule:** New error type (first seen) → Slack #errors
-
----
-
-## Health Check P0 — Notificação em < 5 min (Dream Team)
-
-**Regra P0:** se um serviço cair, o responsável é notificado em **menos de 5 minutos**.
-
-### Health Check com dependências
+Todo serviço expõe `/health` com verificação de dependências críticas. Em caso de falha de qualquer dependência, retornar `503` para que o UptimeRobot dispare alerta P0.
 
 ```typescript
 app.get('/health', async (req, res) => {
@@ -305,29 +148,142 @@ app.get('/health', async (req, res) => {
 })
 ```
 
-### UptimeRobot — Configuração P0
+**Nomes de serviço no health check:**
+
+| Serviço | `service` |
+|:---|:---|
+| Gateway | `gravity-gateway` |
+| Configurador | `configurador` |
+| Organização Services | `organizacao-services` |
+| Simulador Comex | `simulador-comex` |
+| Marketplace | `marketplace` |
+
+---
+
+## Sentry — Configuração por Serviço
+
+> Padrões abaixo refletem o **Sentry SDK v8+** (`@sentry/node`). Em v8 a API mudou: integrações agora são funções (`expressIntegration()`, `prismaIntegration()`) e o error handler é registrado via `setupExpressErrorHandler(app)` em vez de `Sentry.Handlers.errorHandler()`.
+
+```typescript
+// server/index.ts
+import * as Sentry from '@sentry/node'
+import express from 'express'
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+
+  // APM — capturar transações de performance
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+
+  integrations: [
+    Sentry.expressIntegration(),
+    Sentry.prismaIntegration({ client: prisma }),
+  ],
+})
+
+const app = express()
+
+// Contexto de organização após ter auth e correlationId
+app.use((req, res, next) => {
+  Sentry.setUser({ id: req.auth?.id_usuario })
+  Sentry.setTag('id_organizacao', req.auth?.id_organizacao)
+  Sentry.setTag('correlation_id', req.correlationId)
+  Sentry.setTag('service', 'nome-do-servico')
+  next()
+})
+
+// ... rotas ...
+
+// Error handler do Sentry — registrado antes do error handler global
+Sentry.setupExpressErrorHandler(app)
+app.use(errorHandler) // error handler global do antigravity-code-standards
+```
+
+---
+
+## Ordem dos Middlewares com Observabilidade
+
+```typescript
+// server/index.ts — ordem obrigatória
+import * as Sentry from '@sentry/node'
+
+// 1. Sentry — antes de criar o app
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  integrations: [Sentry.expressIntegration()],
+})
+
+const app = express()
+
+// 2. Parse de body
+app.use(express.json())
+
+// 3. Correlation ID — primeiro middleware de negócio
+app.use(correlationMiddleware)
+
+// 4. Contexto do Sentry — após ter correlationId
+app.use((req, res, next) => {
+  Sentry.setTag('correlation_id', req.correlationId)
+  Sentry.setTag('id_organizacao', req.auth?.id_organizacao)
+  next()
+})
+
+// 5. Autenticação
+app.use(requireAuth)
+
+// 6. Health check — sem autenticação
+app.get('/health', healthCheckHandler)
+
+// 7. Rotas de negócio
+app.use('/api/v1', rotas)
+
+// 8. Sentry error handler — antes do global
+Sentry.setupExpressErrorHandler(app)
+
+// 9. Error handler global — sempre último
+app.use(errorHandler)
+```
+
+---
+
+## Métricas de Latência — Alertas e APM
+
+> ⚠️ **REGRA ABSOLUTA:** As metas de latência (`p50 ≤ 50ms`, `p95 ≤ 200ms`, `p99 ≤ 500ms`, `error rate < 1%`) e os thresholds vivem em [SLA Metas](../../governanca/lei/sla-metas/SKILL.md). Os alertas abaixo **implementam** essas metas.
+
+### Alertas de Latência no Sentry
+
+Configurar Alert Rules no Sentry Dashboard, alinhados aos thresholds da `sla-metas`:
+
+1. **Alert Rule:** Transaction Duration p95 > 200ms for 5 min → Slack `#alerts`
+2. **Alert Rule:** Error Rate > 5% for 5 min → Slack `#alerts` + Email
+3. **Alert Rule:** New error type (first seen) → Slack `#errors`
+
+---
+
+## UptimeRobot — Configuração P0
+
+**Regra P0:** se um serviço cair, o responsável é notificado em **menos de 5 minutos**. Trigger: **2 falhas consecutivas** no `/health`.
 
 | Monitor | URL | Intervalo | Alerta |
 |:---|:---|:---|:---|
-| Configurador | `/health` | 2 min | Slack + Email |
-| Tenant Services | `/health` | 2 min | Slack + Email |
+| Configurador | `https://configurador.gravity.com.br/health` | 2 min | Slack + Email |
+| Organização Services | `https://organizacao-services.gravity.com.br/health` | 2 min | Slack + Email |
 | SimulaCusto | `/health` | 5 min | Slack |
 | Bid Frete | `/health` | 5 min | Slack |
-| Marketplace | `/health` | 5 min | Email |
-
-> **2 falhas consecutivas** → notificação imediata.
+| Marketplace | `https://marketplace.gravity.com.br/health` | 5 min | Email |
 
 ---
 
 ## Checklist — Ao Criar um Novo Servidor
 
 - [ ] `correlationMiddleware` registrado antes das rotas de negócio?
-- [ ] Correlation ID propagado via `x-correlation-id` em toda chamada para outros serviços?
-- [ ] Endpoint `/health` implementado com verificação do banco?
-- [ ] Sentry inicializado com `dsn`, `environment`, contexto de tenant **e performance**?
+- [ ] Correlation ID propagado via `x-id-correlacao` em toda chamada para outros serviços?
+- [ ] Endpoint `/health` implementado com verificação do banco e retornando 503 em falha?
+- [ ] Sentry inicializado com `dsn`, `environment`, contexto de organização **e performance** (API v8: `expressIntegration()` + `setupExpressErrorHandler`)?
 - [ ] `SENTRY_DSN` documentado no `.env.example`?
 - [ ] Logger estruturado usando `createLogger` com todos os campos obrigatórios?
 - [ ] Nenhum `console.log` com dados sensíveis — apenas via logger estruturado?
 - [ ] Monitor no UptimeRobot configurado para o novo serviço?
-- [ ] Alertas de latência p95 > 200ms configurados no Sentry?
-- [ ] Health check P0 com verificação de dependências?
+- [ ] Alertas de latência p95 > 200ms configurados no Sentry (alinhados a [SLA Metas](../../governanca/lei/sla-metas/SKILL.md))?
+- [ ] Métricas obrigatórias do serviço expostas conforme [Observabilidade Mínima](../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md)?

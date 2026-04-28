@@ -14,7 +14,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste para u
 **SEMPRE** quando:
 - Uma tela nova foi criada e precisa de plano de teste
 - Uma tela antiga tem plano incompleto (cobre <20 categorias)
-- Um agente vai gerar testes E2E/Funcional/Cross-tenant e precisa do plano como input
+- Um agente vai gerar testes E2E/Funcional/Isolamento de Organização e precisa do plano como input
 - O dono pediu pra revisar a cobertura de testes de uma tela
 
 **NUNCA** quando:
@@ -85,7 +85,7 @@ Se o passo é "Clicar Salvar", o botão na tela tem que exibir literalmente "Sal
 
 ### 5. **Plano vale para os 6 tipos**
 O JSON é único — o gerador de specs depois decide quais passos viram E2E, funcional, contract, etc. Cada passo tem `tiposAplicaveis: ['E2E','FUN']` (por exemplo). Categorias específicas:
-- **Cross-tenant** → passos com `tiposAplicaveis: ['CRO']`
+- **Isolamento de Organização (cross-organização)** → passos com `tiposAplicaveis: ['CRO']`
 - **Pentest** → passos com `tiposAplicaveis: ['PEN']`
 
 ### 6. **Numeração sequencial e estável**
@@ -107,7 +107,7 @@ O plano declara: ambiente, organização, workspace, role do usuário, dados que
 O campo `cobertura` é uma matriz das 20 categorias com status: ✅ coberta, ⚠️ parcial, ❌ ausente, 🚫 não aplicável. O humano vê de relance se o plano tá completo.
 
 ### 12. **Resumo executivo no topo**
-Campo `resumoExecutivo` com 3-5 linhas: "Esta tela permite editar a organização do tenant. Risco principal: ..., cobertura atual: X/20, criticidade: alta, ambientes: ..." — pra humano ler em 10s e decidir se aprova.
+Campo `resumoExecutivo` com 3-5 linhas: "Esta tela permite editar a Organização. Risco principal: ..., cobertura atual: X/20, criticidade: alta, ambientes: ..." — pra humano ler em 10s e decidir se aprova.
 
 ### 13. **Idempotência**
 Rodar o agente 2x na mesma tela com os mesmos inputs deve devolver planos **funcionalmente equivalentes** (pode haver pequenas variações de wording, mas mesma cobertura, mesmos testids, mesmo número de passos por categoria). Se o input mudar (componente foi alterado), o plano novo reflete a mudança.

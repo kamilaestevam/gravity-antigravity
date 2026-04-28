@@ -1,7 +1,7 @@
 // server/routes/publicCatalog.ts
 // Catálogo público de produtos — sem autenticação
 // Usado pelo Store, Marketplace e landing pages
-// GET /api/v1/catalog/products — lista produtos disponíveis
+// GET /api/v1/catalogo/produtos — lista produtos disponíveis
 
 import { Router } from 'express'
 import { productCatalogService } from '../services/productCatalogService.js'
@@ -9,10 +9,10 @@ import { productCatalogService } from '../services/productCatalogService.js'
 export const publicCatalogRouter = Router()
 
 /**
- * GET /api/v1/catalog/products
+ * GET /api/v1/catalogo/produtos
  * Lista produtos ativos/em breve para exibição pública
  */
-publicCatalogRouter.get('/products', async (_req, res, next) => {
+publicCatalogRouter.get('/produtos', async (_req, res, next) => {
   try {
     const products = await productCatalogService.listPublic()
     res.json({ products })
@@ -22,13 +22,14 @@ publicCatalogRouter.get('/products', async (_req, res, next) => {
 })
 
 /**
- * GET /api/v1/catalog/products/:slug
+ * GET /api/v1/catalogo/produtos/:id_produto_gravity
  * Detalhes de um produto pelo slug (para página de produto)
  */
-publicCatalogRouter.get('/products/:slug', async (req, res, next) => {
+publicCatalogRouter.get('/produtos/:id_produto_gravity', async (req, res, next) => {
   try {
-    const product = await productCatalogService.getBySlug(req.params.slug)
-    if (!product || !['ACTIVE', 'COMING_SOON'].includes(product.status)) {
+    const { id_produto_gravity: slug } = req.params
+    const product = await productCatalogService.getBySlug(slug)
+    if (!product || !['ATIVO', 'EM_BREVE'].includes(product.status)) {
       res.status(404).json({ error: 'Produto não encontrado' })
       return
     }

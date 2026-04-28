@@ -1,7 +1,7 @@
 // server/routes/billing.ts
 // Assinaturas, checkout e webhook do Stripe
-// POST /api/v1/financeiro/webhook   — recebe eventos do Stripe (raw body)
-// GET  /api/v1/financeiro/invoices  — histórico de faturas do tenant
+// POST /api/v1/faturas/webhook-stripe — recebe eventos do Stripe (raw body)
+// GET  /api/v1/faturas               — histórico de faturas do tenant
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
@@ -13,11 +13,11 @@ import { AppError } from '../lib/appError.js'
 export const billingRouter = Router()
 
 /**
- * POST /api/v1/financeiro/webhook
+ * POST /api/v1/faturas/webhook-stripe
  * Endpoint para receber eventos do Stripe
  * Body: raw (buffer) — registrado ANTES do express.json() no index.ts
  */
-billingRouter.post('/webhook', async (req, res, next) => {
+billingRouter.post('/webhook-stripe', async (req, res, next) => {
   try {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
     if (!webhookSecret) {
@@ -40,23 +40,7 @@ billingRouter.post('/webhook', async (req, res, next) => {
       throw new AppError('Assinatura Stripe inválida', 400, 'INVALID_SIGNATURE')
     }
 
-    // Verifica idempotência — evita processar o mesmo evento duas vezes
-    // Usa upsert para evitar race condition entre findUnique e create
-    const idempotencyResult = await prisma.stripeEvent.upsert({
-      where: { id: event.id },
-      create: {
-        id: event.id,
-        type: event.type,
-        payload: event.data as object,
-      },
-      update: {}, // noop — já existe
-    })
-
-    // Se o registro já existia (processed_at anterior a esta requisição), é duplicata
-    if (idempotencyResult.processed_at < new Date(Date.now() - 1000)) {
-      res.json({ received: true, cached: true })
-      return
-    }
+    // TODO: idempotência Stripe — StripeEvent removido do DDD; reimplementar via FaturaProdutosGravity ou Redis
 
     // Processa o evento
     await billingService.handleStripeEvent(event)
@@ -68,13 +52,13 @@ billingRouter.post('/webhook', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/financeiro/invoices
+ * GET /api/v1/faturas
  * Retorna histórico de faturas do Stripe para o tenant autenticado
  */
-billingRouter.get('/invoices', requireAuth, async (req, res, next) => {
+billingRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: req.auth.tenantId },
+    const tenant = await prisma.organizacao.findUnique({
+      where: { id_organizacao: req.auth.tenantId },
       select: { stripe_customer_id: true },
     })
 

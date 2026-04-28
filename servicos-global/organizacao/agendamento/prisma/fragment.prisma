@@ -1,0 +1,113 @@
+// servicos-global/tenant/agendamento/prisma/fragment.prisma
+// AGENTE AGENDAMENTO — ONDA 33 (DDD Servicos)
+
+// ---------------------------------------------------------------------------
+// UsuarioAgenda — agenda do usuário (calendário pessoal/empresa)
+// ---------------------------------------------------------------------------
+
+model UsuarioAgenda {
+  id_agenda_usuario             String  @id @default(cuid())
+  id_organizacao_agenda_usuario String
+  id_produto_agenda_usuario     String?
+  id_usuario_agenda_usuario     String?
+
+  nome_agenda_usuario       String
+  descricao_agenda_usuario  String?
+  tipo_agenda_usuario       String   // reuniao | consulta | etc
+
+  data_criacao_agenda_usuario     DateTime @default(now())
+  data_atualizacao_agenda_usuario DateTime @updatedAt
+
+  horarios_agenda_usuario   UsuarioHorarioDisponivel[]
+  config_agenda_usuario     UsuarioConfiguracaoAgenda?
+
+  @@index([id_organizacao_agenda_usuario], map: "au_org_idx")
+  @@index([id_organizacao_agenda_usuario, id_produto_agenda_usuario], map: "au_org_prd_idx")
+  @@index([id_organizacao_agenda_usuario, id_usuario_agenda_usuario], map: "au_org_usr_idx")
+  @@map("agenda_usuario")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioHorarioDisponivel — slot de tempo disponível em uma agenda
+// ---------------------------------------------------------------------------
+
+model UsuarioHorarioDisponivel {
+  id_horario_disponivel             String  @id @default(cuid())
+  id_organizacao_horario_disponivel String
+  id_produto_horario_disponivel     String?
+  id_usuario_horario_disponivel     String?
+
+  id_agenda_horario_disponivel      String
+  inicio_horario_disponivel         DateTime
+  fim_horario_disponivel            DateTime
+  capacidade_horario_disponivel     Int      @default(1)
+
+  data_criacao_horario_disponivel     DateTime @default(now())
+  data_atualizacao_horario_disponivel DateTime @updatedAt
+
+  agenda_horario_disponivel   UsuarioAgenda @relation(fields: [id_agenda_horario_disponivel], references: [id_agenda_usuario], onDelete: Cascade)
+  reservas_horario_disponivel UsuarioReservaAgenda[]
+
+  @@index([id_organizacao_horario_disponivel], map: "hd_org_idx")
+  @@index([id_organizacao_horario_disponivel, id_produto_horario_disponivel], map: "hd_org_prd_idx")
+  @@index([id_organizacao_horario_disponivel, id_usuario_horario_disponivel], map: "hd_org_usr_idx")
+  @@index([id_agenda_horario_disponivel], map: "hd_agd_idx")
+  @@map("horario_disponivel")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioReservaAgenda — reserva de um horário
+// ---------------------------------------------------------------------------
+
+model UsuarioReservaAgenda {
+  id_reserva_agenda             String  @id @default(cuid())
+  id_organizacao_reserva_agenda String
+  id_produto_reserva_agenda     String?
+  id_usuario_reserva_agenda     String?
+
+  id_horario_reserva_agenda     String
+  id_reservante_reserva_agenda  String   // ID do usuário/contato que reservou
+  nome_reservante_reserva_agenda  String?
+  email_reservante_reserva_agenda String?
+  status_reserva_agenda         String   @default("confirmado") // confirmado | cancelado | pendente
+
+  data_criacao_reserva_agenda     DateTime @default(now())
+  data_atualizacao_reserva_agenda DateTime @updatedAt
+
+  horario_reserva_agenda  UsuarioHorarioDisponivel @relation(fields: [id_horario_reserva_agenda], references: [id_horario_disponivel], onDelete: Cascade)
+
+  @@index([id_organizacao_reserva_agenda], map: "rea_org_idx")
+  @@index([id_organizacao_reserva_agenda, id_produto_reserva_agenda], map: "rea_org_prd_idx")
+  @@index([id_organizacao_reserva_agenda, id_usuario_reserva_agenda], map: "rea_org_usr_idx")
+  @@index([id_horario_reserva_agenda], map: "rea_hor_idx")
+  @@index([id_reservante_reserva_agenda], map: "rea_rsv_idx")
+  @@map("reserva_agenda")
+}
+
+// ---------------------------------------------------------------------------
+// UsuarioConfiguracaoAgenda — configuração de disponibilidade de uma agenda
+// ---------------------------------------------------------------------------
+
+model UsuarioConfiguracaoAgenda {
+  id_config_disponibilidade_agenda             String  @id @default(cuid())
+  id_organizacao_config_disponibilidade_agenda String
+  id_produto_config_disponibilidade_agenda     String?
+  id_usuario_config_disponibilidade_agenda     String?
+
+  id_agenda_config_disponibilidade_agenda      String  @unique
+  horario_inicio_config_disponibilidade_agenda String  // "HH:mm"
+  horario_fim_config_disponibilidade_agenda    String  // "HH:mm"
+  duracao_slot_config_disponibilidade_agenda   Int     // minutos
+  intervalo_config_disponibilidade_agenda      Int     @default(0) // tempo entre slots em minutos
+  dias_semana_config_disponibilidade_agenda    Int[]   // [1,2,3,4,5]
+
+  data_criacao_config_disponibilidade_agenda     DateTime @default(now())
+  data_atualizacao_config_disponibilidade_agenda DateTime @updatedAt
+
+  agenda_config_disponibilidade_agenda  UsuarioAgenda @relation(fields: [id_agenda_config_disponibilidade_agenda], references: [id_agenda_usuario], onDelete: Cascade)
+
+  @@index([id_organizacao_config_disponibilidade_agenda], map: "cda_org_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_produto_config_disponibilidade_agenda], map: "cda_org_prd_idx")
+  @@index([id_organizacao_config_disponibilidade_agenda, id_usuario_config_disponibilidade_agenda], map: "cda_org_usr_idx")
+  @@map("config_disponibilidade_agenda")
+}

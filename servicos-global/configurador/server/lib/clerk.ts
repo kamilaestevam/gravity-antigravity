@@ -12,14 +12,17 @@ export const clerkClient = createClerkClient({
 })
 
 /**
- * Verifica se um usuário do Clerk possui o role gravity_admin
- * (gerenciado via Clerk publicMetadata.role)
+ * Verifica se um usuário possui role de administrador Gravity (SUPER_ADMIN ou ADMIN).
+ * Fonte de verdade: Prisma (banco) — não depende de publicMetadata do Clerk.
  */
 export async function isGravityAdmin(clerkUserId: string): Promise<boolean> {
   try {
-    const user = await clerkClient.users.getUser(clerkUserId)
-    const meta = user.publicMetadata as Record<string, unknown>
-    return meta?.role === 'gravity_admin'
+    const { prisma } = await import('./prisma.js')
+    const usuario = await prisma.usuario.findFirst({
+      where: { clerk_user_id: clerkUserId },
+      select: { tipo_usuario: true },
+    })
+    return usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
   } catch {
     return false
   }

@@ -10,6 +10,23 @@ import { getNfseProvider } from '../lib/nfse/index.js'
 
 const log = logger.child({ module: 'billing-service' })
 
+// Mapeia status do Stripe (inglês, lowercase) para o enum StatusAssinaturaProdutoGravity (PT-BR, UPPER)
+function mapStripeStatus(
+  stripeStatus: string,
+): 'ATIVA' | 'VENCIDA' | 'CANCELADA' | 'EM_TESTE' | 'INCOMPLETA' {
+  switch (stripeStatus) {
+    case 'active': return 'ATIVA'
+    case 'past_due': return 'VENCIDA'
+    case 'canceled':
+    case 'cancelled': return 'CANCELADA'
+    case 'trialing': return 'EM_TESTE'
+    case 'incomplete':
+    case 'incomplete_expired':
+    case 'unpaid': return 'INCOMPLETA'
+    default: return 'INCOMPLETA'
+  }
+}
+
 export const billingService = {
   /**
    * Processa eventos do Stripe recebidos via webhook
@@ -26,57 +43,63 @@ export const billingService = {
 
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([
-          prisma.subscription.updateMany({
-            where: { tenant_id: tenantId },
+          prisma.produtoGravityAssinatura.updateMany({
+            where: { id_organizacao_assinatura_produto_gravity: tenantId },
             data: {
-              status: 'ACTIVE',
+              status_assinatura_produto_gravity: 'ATIVA',
               stripe_subscription_id: session.subscription as string,
             },
           }),
-          prisma.tenant.update({
-            where: { id: tenantId },
-            data: { status: 'ACTIVE' },
+          prisma.organizacao.update({
+            where: { id_organizacao: tenantId },
+            data: { status_organizacao: 'ATIVO' },
           }),
         ])
         break
       }
 
       case 'customer.subscription.updated': {
-        const sub = event.data.object as Stripe.Subscription
-        const tenantRow = await prisma.tenant.findFirst({
+        const sub = event.data.object as Stripe.AssinaturaProdutoGravity
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: sub.customer as string },
         })
         if (!tenantRow) break
 
-        await prisma.subscription.updateMany({
+        await prisma.produtoGravityAssinatura.updateMany({
           where: {
-            tenant_id: tenantRow.id,
+            id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
             stripe_subscription_id: sub.id,
           },
           data: {
-            status: sub.status.toUpperCase() as 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'TRIALING' | 'INCOMPLETE',
-            current_period_start: new Date(sub.current_period_start * 1000),
-            current_period_end: new Date(sub.current_period_end * 1000),
+            status_assinatura_produto_gravity: mapStripeStatus(sub.status),
+            data_inicio_periodo_assinatura_produto_gravity: new Date(sub.current_period_start * 1000),
+            data_fim_periodo_assinatura_produto_gravity: new Date(sub.current_period_end * 1000),
           },
         })
         break
       }
 
       case 'customer.subscription.deleted': {
-        const sub = event.data.object as Stripe.Subscription
-        const tenantRow = await prisma.tenant.findFirst({
+        const sub = event.data.object as Stripe.AssinaturaProdutoGravity
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: sub.customer as string },
         })
         if (!tenantRow) break
 
         await prisma.$transaction([
-          prisma.subscription.updateMany({
-            where: { tenant_id: tenantRow.id, stripe_subscription_id: sub.id },
-            data: { status: 'CANCELLED', cancelled_at: new Date() },
+          prisma.produtoGravityAssinatura.updateMany({
+            where: {
+              id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao,
+              stripe_subscription_id: sub.id,
+            },
+            data: {
+              status_assinatura_produto_gravity: 'CANCELADA',
+              data_cancelamento_assinatura_produto_gravity: new Date(),
+            },
           }),
-          prisma.tenant.update({
-            where: { id: tenantRow.id },
-            data: { status: 'SUSPENDED' },
+          prisma.organizacao.update({
+            where: { id_organizacao: tenantRow.id_organizacao },
+            data: { status_organizacao: 'SUSPENSO' },
           }),
         ])
         break
@@ -84,14 +107,14 @@ export const billingService = {
 
       case 'invoice.payment_failed': {
         const inv = event.data.object as Stripe.Invoice
-        const tenantRow = await prisma.tenant.findFirst({
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: inv.customer as string },
         })
         if (!tenantRow) break
 
-        await prisma.subscription.updateMany({
-          where: { tenant_id: tenantRow.id },
-          data: { status: 'PAST_DUE' },
+        await prisma.produtoGravityAssinatura.updateMany({
+          where: { id_organizacao_assinatura_produto_gravity: tenantRow.id_organizacao },
+          data: { status_assinatura_produto_gravity: 'VENCIDA' },
         })
         break
       }
@@ -120,9 +143,9 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     return
   }
 
-  const tenant = await prisma.tenant.findFirst({
+  const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, name: true, cnpj: true },
+    select: { id_organizacao: true, nome_organizacao: true, cnpj_organizacao: true },
   })
   if (!tenant) {
     log.warn('invoice.paid — tenant não encontrado pelo stripe_customer_id', {
@@ -137,15 +160,15 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     // Sem provider configurado — NF-e é emitida externamente ou adiada
     log.info('invoice.paid — NFS-e skipped (no provider)', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
     })
     return
   }
 
-  if (!tenant.cnpj) {
+  if (!tenant.cnpj_organizacao) {
     log.warn('invoice.paid — NFS-e não emitida: tenant sem CNPJ', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
     })
     return
   }
@@ -158,8 +181,8 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     const result = await nfseProvider.emit({
       reference_id: inv.id,
       tomador: {
-        cnpj_cpf: tenant.cnpj.replace(/\D/g, ''),
-        razao_social: tenant.name,
+        cnpj_cpf: tenant.cnpj_organizacao.replace(/\D/g, ''),
+        razao_social: tenant.nome_organizacao,
         email: inv.customer_email ?? undefined,
       },
       servico: {
@@ -171,14 +194,14 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     })
     log.info('nfse emitted', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       nfse_id: result.id,
       nfse_status: result.status,
     })
   } catch (err) {
     log.error('nfse emission failed', {
       invoice_id: inv.id,
-      tenant_id: tenant.id,
+      tenant_id: tenant.id_organizacao,
       error: err instanceof Error ? err.message : String(err),
     })
     // Não relança — retry manual via rota dedicada

@@ -16,12 +16,12 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
+import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { MOEDAS_SISCOMEX } from '@nucleo/tabelas-base-moedas'
 import { UNIDADES_SISCOMEX } from '@nucleo/tabelas-base-unidades'
 import './tabela-virtual.css'
@@ -563,7 +563,7 @@ const GTEditPopover = memo(function GTEditPopover({
             </svg>
             {colLabel}
             {overlayInfo.gabiCampo && (
-              <GabiFieldIcon
+              <GabiCampoIconeGlobal
                 campo={overlayInfo.gabiCampo}
                 label={colLabel}
                 gabiEndpoint={overlayInfo.gabiEndpoint}
@@ -708,7 +708,7 @@ const GTEditPopover = memo(function GTEditPopover({
               />
               {/* Calendário como opção visual — selecionar preenche o input acima */}
               <div style={{ marginTop: 8 }}>
-                <CalendarioCampoGlobal
+                <CampoCalendarioGlobal
                   valor={parseDateValor(valorEditando)}
                   aoMudarValor={handleCalendarioMudar}
                   disabled={salvando}

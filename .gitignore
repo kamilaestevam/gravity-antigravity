@@ -30,6 +30,7 @@ yarn-error.log*
 # ── Testes (outputs gerados) ─────────────────────────────────
 playwright-report/
 test-results/
+testes/**/resultados/
 
 # ── Turborepo (proibido na Fase 1, mas previne lixo residual) ─
 .turbo/
@@ -48,4 +49,8 @@ Thumbs.db
 *storybook.log
 storybook-static
 
-produto/pedido/server/backups/
+servicos-global/organizacao/pedido/server/backups/
+
+# ── Arquivos temporarios de trabalho (planilhas, scratch) ─
+.claude/planilha-tmp.xlsx
+.claude/*.tmp.*

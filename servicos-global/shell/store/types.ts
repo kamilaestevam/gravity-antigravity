@@ -3,6 +3,8 @@
 
 export type Theme = 'light' | 'dark'
 
+export type MeStatus = 'idle' | 'loading' | 'success' | 'error'
+
 export type NotificationType = 'success' | 'error' | 'warning' | 'info'
 
 export interface Notification {
@@ -72,6 +74,9 @@ export interface ShellState {
    */
   linkContextual: string | null
 
+  // --- Status do carregamento de identidade (GET /api/v1/me) ---
+  meStatus: MeStatus
+
   // --- Actions ---
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
@@ -99,4 +104,5 @@ export interface ShellState {
   marcarAvisoLido: (id: string) => void
   marcarTodosAvisosLidos: () => void
   setLinkContextual: (link: string | null) => void
+  setMeStatus: (status: MeStatus) => void
 }

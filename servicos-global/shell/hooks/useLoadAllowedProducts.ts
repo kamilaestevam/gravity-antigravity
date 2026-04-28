@@ -1,6 +1,6 @@
 // shell/hooks/useLoadAllowedProducts.ts
 // Carrega os produtos habilitados para o tenant atual ao montar o Shell.
-// Chama GET /api/internal/tenant-products para obter TODOS os ProductConfigs do tenant.
+// Chama GET /api/v1/internal/organizacao-produtos para obter TODOS os ProductConfigs da organização.
 
 import { useEffect } from 'react'
 import { useShellStore } from '../store'
@@ -14,7 +14,7 @@ const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? ''
  *
  * Fluxo:
  * 1. Lê tenantId do currentUser no store
- * 2. Chama GET /api/internal/tenant-products?tenantId=X
+ * 2. Chama GET /api/v1/internal/organizacao-produtos?tenantId=X
  * 3. Popula allowedProducts no store
  * 4. Sidebar filtra automaticamente via isProductAllowed()
  */
@@ -31,7 +31,7 @@ export function useLoadAllowedProducts() {
       try {
         const baseUrl = CONFIGURADOR_URL || ''
         const res = await fetch(
-          `${baseUrl}/api/internal/tenant-products?tenantId=${encodeURIComponent(tenantId!)}`,
+          `${baseUrl}/api/v1/internal/organizacao-produtos?tenantId=${encodeURIComponent(tenantId!)}`,
           {
             headers: {
               'x-internal-key': INTERNAL_KEY,

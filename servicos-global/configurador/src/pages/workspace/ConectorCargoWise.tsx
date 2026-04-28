@@ -26,7 +26,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 
 /* ─── eAdaptor XML sample ───────────────────────────────────────── */
@@ -169,25 +169,25 @@ export function ConectorCargoWise() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.cargowise.stat_status_implantacao')}
             valor={t('workspace.cargowise.stat_status_valor')}
             subtexto={t('workspace.cargowise.stat_status_subtexto', { etapa: step + 1 })}
             variante="aviso"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.cargowise.stat_protocolo')}
             valor="eAdaptor"
             subtexto={t('workspace.cargowise.stat_protocolo_subtexto')}
             variante="primario"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.cargowise.stat_ambiente')}
             valor={env === 'uat' ? 'UAT' : t('workspace.cargowise.producao')}
             subtexto={env === 'uat' ? t('workspace.cargowise.homologacao') : t('workspace.cargowise.go_live')}
             variante={env === 'uat' ? 'aviso' : 'sucesso'}
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.cargowise.stat_documentacao')}
             valor={docSent ? t('workspace.cargowise.doc_enviada') : fileUploaded ? t('workspace.cargowise.aguardando_envio') : t('comum.pendente')}
             subtexto={docSent ? t('workspace.cargowise.pdf_recebido') : t('workspace.cargowise.certificado_implantacao')}

@@ -1,6 +1,6 @@
 /**
  * @nucleo/modal-global — tipos
- * Definições de tipos para ModalGlobal.
+ * Definições de tipos para ModalOverlay.
  */
 
 import type { ReactNode } from 'react'

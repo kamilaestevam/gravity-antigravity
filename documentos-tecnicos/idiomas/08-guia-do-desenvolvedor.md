@@ -130,7 +130,7 @@ export type SupportedLanguage = 'pt' | 'en' | 'es' | 'fr'
 ### 3. Adicionar ao pipeline
 
 ```typescript
-// scripts/translate.ts
+// scripts/ativamente/translate.ts
 const TARGET_LANGUAGES = {
   en: 'inglês',
   es: 'espanhol',
@@ -181,7 +181,7 @@ Se um namespace deve existir apenas em português (como `admin.cockpit`):
 Editar a constante `SKIP_NAMESPACES` em 3 arquivos:
 
 ```typescript
-// scripts/translate.ts
+// scripts/ativamente/translate.ts
 const SKIP_NAMESPACES = ['admin.cockpit', 'meu.novo.namespace']
 
 // testes/testes-unitarios/i18n/translate-script.test.ts

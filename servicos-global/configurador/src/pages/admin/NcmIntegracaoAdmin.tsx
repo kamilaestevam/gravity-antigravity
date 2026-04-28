@@ -15,10 +15,10 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/apiClient'
-import { ModalAgendamentoNcmSync } from './ModalAgendamentoNcmSync'
+import { ModalAgendamentoSincronizacaoNcm } from './ModalNcmAgendamentoSincronizacao'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -242,7 +242,7 @@ export function NcmIntegracaoAdmin() {
 
   // ── Alerta de desatualização ────────────────────────────────────────────────
 
-  const alertaDesatualizado = status?.desatualizado && (
+  const alertaDesatualizado = status?.desatualizado && !sincronizando && status?.status !== 'RUNNING' && (
     <div style={{
       display: 'flex', alignItems: 'center', gap: '0.75rem',
       padding: '0.875rem 1.25rem',
@@ -269,103 +269,125 @@ export function NcmIntegracaoAdmin() {
     : '#fbbf24'
 
   return (
-    <PaginaGlobal>
-      <CabecalhoGlobal
-        titulo={t('admin.ncm.titulo')}
-        subtitulo={t('admin.ncm.subtitulo')}
-        icone={<ArrowsClockwise size={22} weight="duotone" />}
-        acoes={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {/* Botão Agendamento */}
-            <button
-              onClick={() => setModalAgendamentoAberto(true)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700,
-                background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
-                border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
-                color: agendamentoAtivo ? '#10b981' : '#818cf8',
-                cursor: 'pointer', transition: 'all 0.2s',
-              }}
-            >
-              <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
-              {t('admin.ncm.btn_agendamento')}
-              <span style={{
-                fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
-                background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
-                color: agendamentoAtivo ? '#10b981' : '#64748b',
-                letterSpacing: '0.05em', textTransform: 'uppercase',
-              }}>
-                {agendamentoAtivo ? t('admin.ncm.badge_ativo') : t('admin.ncm.badge_inativo')}
-              </span>
-            </button>
-
-            {/* Botão Sincronizar Agora */}
-            <BotaoGlobal
-              variante="primario"
-              tamanho="md"
-              icone={sincronizando
-                ? <SpinnerGap size={16} weight="bold" style={{ animation: 'spin 1s linear infinite' }} />
-                : <ArrowsClockwise size={16} weight="bold" />
-              }
-              onClick={handleSync}
-              disabled={sincronizando}
-            >
-              {sincronizando ? t('admin.ncm.btn_sincronizando') : t('admin.ncm.btn_sincronizar')}
-            </BotaoGlobal>
+    <PaginaGlobal
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          titulo={t('admin.ncm.titulo')}
+          subtitulo={t('admin.ncm.subtitulo')}
+          icone={<ArrowsClockwise size={22} weight="duotone" />}
+        />
+      }
+      stats={
+        <>
+          <CardEstatisticaGlobal
+            titulo={t('admin.ncm.card_ativos')}
+            valor={carregando ? '—' : (status?.total_ativos ?? 0).toLocaleString('pt-BR')}
+            icone={<Tag size={20} weight="duotone" />}
+            cor="#10b981"
+          />
+          <CardEstatisticaGlobal
+            titulo={t('admin.ncm.card_ultima_sync')}
+            valor={carregando ? '—' : ultimaSyncLabel}
+            icone={<Clock size={20} weight="duotone" />}
+            cor={statusCorIcone}
+          />
+          <CardEstatisticaGlobal
+            titulo={t('admin.ncm.card_tenants')}
+            valor={carregando ? '—' : String(status?.total_tenants ?? 0)}
+            icone={<Buildings size={20} weight="duotone" />}
+            cor="#6366f1"
+          />
+          <CardEstatisticaGlobal
+            titulo={t('admin.ncm.card_erros')}
+            valor={carregando ? '—' : String(status?.erros_48h ?? 0)}
+            icone={<Database size={20} weight="duotone" />}
+            cor={status?.erros_48h ? '#f87171' : '#34d399'}
+          />
+        </>
+      }
+      toolbar={
+        <>
+          <style>{`
+            @keyframes ws-pulse-active {
+              0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+              70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+              100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+          `}</style>
+          {alertaDesatualizado}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+            <p className="ws-section-title" style={{ margin: 0 }}>
+              <Database weight="duotone" size={14} color="#818cf8" />
+              {t('admin.ncm.historico_titulo', { count: totalLogs.toLocaleString('pt-BR') })}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button
+                onClick={() => setModalAgendamentoAberto(true)}
+                aria-label={t('admin.ncm.btn_agendamento')}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                  height: '2.5rem', padding: '0 1rem', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600,
+                  background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                  border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                  color: agendamentoAtivo ? '#10b981' : '#818cf8',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                  animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none',
+                }}
+              >
+                <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
+                {t('admin.ncm.btn_agendamento')}
+                <span style={{
+                  fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
+                  background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                  color: agendamentoAtivo ? '#10b981' : '#64748b',
+                  letterSpacing: '0.05em', textTransform: 'uppercase',
+                }}>
+                  {agendamentoAtivo ? t('admin.ncm.badge_ativo') : t('admin.ncm.badge_inativo')}
+                </span>
+              </button>
+              <BotaoGlobal
+                variante="primario"
+                tamanho="md"
+                icone={sincronizando
+                  ? <SpinnerGap size={16} weight="bold" style={{ animation: 'spin 1s linear infinite' }} />
+                  : <ArrowsClockwise size={16} weight="bold" />
+                }
+                onClick={handleSync}
+                disabled={sincronizando}
+              >
+                {sincronizando ? t('admin.ncm.btn_sincronizando') : t('admin.ncm.btn_sincronizar')}
+              </BotaoGlobal>
+            </div>
           </div>
-        }
-      />
+        </>
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <TabelaGlobal<NcmSyncLogApi>
+            colunas={COLUNAS}
+            dados={logs}
+            carregando={carregando}
+            paginacao={totalPaginas > 1 ? {
+              paginaAtual: pagina,
+              totalPaginas,
+              onPaginaChange: handlePaginaChange,
+            } : undefined}
+          />
+        </div>
 
-      {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <StatCardGlobal
-          titulo={t('admin.ncm.card_ativos')}
-          valor={carregando ? '—' : (status?.total_ativos ?? 0).toLocaleString('pt-BR')}
-          icone={<Tag size={20} weight="duotone" />}
-          cor="#10b981"
-        />
-        <StatCardGlobal
-          titulo={t('admin.ncm.card_ultima_sync')}
-          valor={carregando ? '—' : ultimaSyncLabel}
-          icone={<Clock size={20} weight="duotone" />}
-          cor={statusCorIcone}
-        />
-        <StatCardGlobal
-          titulo={t('admin.ncm.card_tenants')}
-          valor={carregando ? '—' : String(status?.total_tenants ?? 0)}
-          icone={<Buildings size={20} weight="duotone" />}
-          cor="#6366f1"
-        />
-        <StatCardGlobal
-          titulo={t('admin.ncm.card_erros')}
-          valor={carregando ? '—' : String(status?.erros_48h ?? 0)}
-          icone={<Database size={20} weight="duotone" />}
-          cor={status?.erros_48h ? '#f87171' : '#34d399'}
+        <ModalAgendamentoSincronizacaoNcm
+          aberto={modalAgendamentoAberto}
+          aoFechar={() => {
+            setModalAgendamentoAberto(false)
+            adminNcmApi.getSchedule()
+              .then(cfg => setAgendamentoAtivo(cfg.ativo))
+              .catch(() => {})
+          }}
+          aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
         />
       </div>
-
-      {alertaDesatualizado}
-
-      {/* Histórico de sincronizações */}
-      <TabelaGlobal<NcmSyncLogApi>
-        colunas={COLUNAS}
-        dados={logs}
-        carregando={carregando}
-        tituloTabela={t('admin.ncm.historico_titulo', { count: totalLogs.toLocaleString('pt-BR') })}
-        paginacao={totalPaginas > 1 ? {
-          paginaAtual: pagina,
-          totalPaginas,
-          onPaginaChange: handlePaginaChange,
-        } : undefined}
-      />
-
-      {/* Modal de Agendamento */}
-      <ModalAgendamentoNcmSync
-        aberto={modalAgendamentoAberto}
-        aoFechar={() => setModalAgendamentoAberto(false)}
-        aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
-      />
     </PaginaGlobal>
   )
 }

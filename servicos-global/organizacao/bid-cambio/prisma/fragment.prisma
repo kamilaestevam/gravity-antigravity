@@ -1,0 +1,486 @@
+// ============================================
+// BID Cambio — Fragment Prisma
+// Produto: bid-cambio | Porta: 8025
+// ============================================
+
+// ---- ENUMS ----
+
+enum CambioTipoOperacao {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum CambioModalidade {
+  PRONTO
+  FUTURO
+}
+
+enum CambioLiquidacao {
+  D0
+  D1
+  D2
+}
+
+enum CambioMoeda {
+  USD
+  EUR
+  GBP
+  CHF
+  BRL
+  CNY
+  JPY
+}
+
+enum CambioParcelaStatus {
+  PENDENTE
+  AGENDADO
+  PAGO
+}
+
+enum CambioCotacaoStatus {
+  RASCUNHO
+  ENVIADA_CORRETORAS
+  EM_COTACAO
+  AGUARDANDO_APROVACAO
+  APROVADA
+  REPROVADA
+  CANCELADA
+  EXPIRADA
+}
+
+enum CambioDisparoCanal {
+  EMAIL
+  PORTAL
+}
+
+// COLISAO DDD onda DB-1: planilha mestre mapeia tanto StatusBidRequestCambio
+// quanto StatusBidResponseCambio para CambioStatusCotacoes. Os valores dos dois
+// enums sao 100% disjuntos (PENDENTE/ENVIADO/VISUALIZADO/RESPONDIDO/EXPIRADO/ERRO_ENVIO
+// vs RECEBIDA/EM_ANALISE/MELHOR_TAXA/MELHOR_SPREAD/MELHOR_AVALIACAO/APROVADA/REPROVADA),
+// portanto NAO ha como mergir. Renomeamos apenas StatusBidRequestCambio -> CambioStatusCotacoes
+// e mantemos StatusBidResponseCambio com nome legado ate que a planilha seja corrigida.
+enum CambioStatusCotacoes {
+  PENDENTE
+  ENVIADO
+  VISUALIZADO
+  RESPONDIDO
+  EXPIRADO
+  ERRO_ENVIO
+}
+
+enum StatusBidResponseCambio {
+  RECEBIDA
+  EM_ANALISE
+  MELHOR_TAXA
+  MELHOR_SPREAD
+  MELHOR_AVALIACAO
+  APROVADA
+  REPROVADA
+}
+
+enum CambioCorretoraTipo {
+  CORRETORA_CAMBIO
+  BANCO_COMERCIAL
+  BANCO_CAMBIO
+  FINTECH
+}
+
+enum CambioCorretoraStatus {
+  ATIVA
+  INATIVA
+  BLOQUEADA
+}
+
+enum CambioBaseVencimento {
+  DATA_EMBARQUE
+  DATA_CHEGADA
+  DATA_REGISTRO_DI
+  DATA_DESEMBARACO
+  DATA_ENTREGA
+  PRONTIDAO_CARGA
+  DATA_FIXA
+}
+
+// ---- MODELS ----
+
+/// Parcela de cambio vinculada a um pedido/processo
+model CambioParcelas {
+  id                      String          @id @default(cuid())
+  tenant_id               String
+  product_id              String          @default("bid-cambio")
+  user_id                 String
+
+  // Dados do processo/pedido
+  referencia_processo     String?
+  numero_pedido           String?
+  exportador              String?
+  numero_di               String?
+  numero_invoice          String?
+  numero_bl               String?
+  numero_contrato_cambio  String?
+  numero_transmissao_di   String?
+  referencia_cliente      String?
+
+  // Valores
+  moeda                   CambioMoeda     @default(USD)
+  cambio_total            Decimal         @db.Decimal(18, 4)
+  porcentagem_parcela     Decimal         @db.Decimal(5, 2)
+  valor_a_pagar           Decimal         @db.Decimal(18, 2)
+  valor_a_pagar_brl       Decimal         @db.Decimal(18, 2)
+  valor_pago              Decimal?        @db.Decimal(18, 2)
+  valor_pago_brl          Decimal?        @db.Decimal(18, 2)
+
+  // Parcela
+  numero_parcela          Int
+  total_parcelas          Int
+
+  // Status
+  status                  CambioParcelaStatus   @default(PENDENTE)
+
+  // Datas
+  data_vencimento             DateTime?
+  data_agendamento            DateTime?
+  data_pagamento              DateTime?
+  data_vencimento_original    DateTime?
+
+  // Metodo de vencimento
+  metodo_vencimento       CambioBaseVencimento?
+  prazo_dias              Int?
+
+  // Datas do processo (para calculo de vencimento)
+  data_carga_pronta           DateTime?
+  data_esperada_prontidao     DateTime?
+  data_embarque_final         DateTime?
+  data_chegada_final          DateTime?
+  data_registro_di            DateTime?
+  data_desembaraco            DateTime?
+  data_entrega                DateTime?
+  data_abertura_pedido        DateTime?
+
+  // Pagamento
+  taxa_fechamento         Decimal?        @db.Decimal(10, 4)
+  banco_corretora         String?
+  condicao_pagamento      String?
+
+  // Enderecos
+  endereco_desembaraco    String?
+  endereco_entrega        String?
+
+  // Vinculacao com cotacao (Pilar 2)
+  cotacao_cambio_id       String?
+  bid_response_id         String?
+
+  // Anexos
+  anexos                  CambioAnexo[]
+
+  created_at              DateTime        @default(now())
+  updated_at              DateTime        @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, data_vencimento])
+  @@map("cambio_parcelas")
+}
+
+/// Anexo de comprovante de pagamento
+model CambioAnexo {
+  id              String          @id @default(cuid())
+  tenant_id       String
+  parcela_id      String
+  parcela         CambioParcelas  @relation(fields: [parcela_id], references: [id])
+  nome_arquivo    String?
+  nome_original   String
+  url             String
+  categoria       String          @default("Contrato de Cambio")
+  tamanho_bytes   Int?
+  created_at      DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, parcela_id])
+  @@map("cambio_anexos")
+}
+
+/// Forma de pagamento do cambio (config por pedido)
+model CambioFormaPagamento {
+  id                    String                          @id @default(cuid())
+  tenant_id             String
+  product_id            String                          @default("bid-cambio")
+  user_id               String
+  referencia_processo   String?
+  numero_pedido         String?
+  descricao             String?
+  parcelas              CambioParcelasConfiguracoes[]
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("cambio_formas_pagamento")
+}
+
+/// Configuracao de cada parcela dentro da forma de pagamento
+model CambioParcelasConfiguracoes {
+  id                    String                  @id @default(cuid())
+  tenant_id             String
+  forma_pagamento_id    String
+  forma_pagamento       CambioFormaPagamento    @relation(fields: [forma_pagamento_id], references: [id])
+  a_partir_de           CambioBaseVencimento
+  prazo_dias            Int
+  porcentagem           Decimal                 @db.Decimal(5, 2)
+  ordem                 Int
+
+  @@index([tenant_id])
+  @@index([tenant_id, forma_pagamento_id])
+  @@map("cambio_config_parcelas")
+}
+
+/// Cotacao de cambio (Pilar 2 — Marketplace)
+model CambioCotacoes {
+  id                    String                  @id @default(cuid())
+  tenant_id             String
+  product_id            String                  @default("bid-cambio")
+  user_id               String
+
+  moeda                 CambioMoeda             @default(USD)
+  valor                 Decimal                 @db.Decimal(18, 2)
+  tipo_operacao         CambioTipoOperacao      @default(IMPORTACAO)
+  modalidade            CambioModalidade        @default(PRONTO)
+  liquidacao            CambioLiquidacao        @default(D2)
+
+  referencia_processo   String?
+  numero_pedido         String?
+  exportador            String?
+
+  status                CambioCotacaoStatus     @default(RASCUNHO)
+
+  ptax_referencia       Decimal?                @db.Decimal(10, 4)
+  ptax_data             DateTime?
+  data_expiracao        DateTime?
+
+  economia_brl          Decimal?                @db.Decimal(18, 2)
+  economia_percentual   Decimal?                @db.Decimal(5, 2)
+
+  // Aprovacao
+  corretora_aprovada_id String?
+  taxa_aprovada         Decimal?                @db.Decimal(10, 4)
+  aprovado_por          String?
+  aprovado_em           DateTime?
+  observacao_aprovacao  String?
+
+  bid_requests          CambioCotacoesPedidos[]
+  bid_responses         CambioCotacoesRespostas[]
+
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@map("cambio_cotacoes")
+}
+
+/// Disparo de cotacao para uma corretora
+model CambioCotacoesPedidos {
+  id                String                       @id @default(cuid())
+  tenant_id         String
+  cotacao_id        String
+  cotacao           CambioCotacoes               @relation(fields: [cotacao_id], references: [id])
+  corretora_id      String
+  corretora         CambioCorretoras             @relation(fields: [corretora_id], references: [id])
+
+  canal             CambioDisparoCanal           @default(EMAIL)
+  status            CambioStatusCotacoes         @default(PENDENTE)
+
+  token_publico     String?                      @unique
+  token_expiracao   DateTime?
+
+  enviado_em        DateTime?
+  visualizado_em    DateTime?
+  respondido_em     DateTime?
+
+  response          CambioCotacoesRespostas?
+
+  created_at        DateTime                  @default(now())
+  updated_at        DateTime                  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([token_publico])
+  @@map("cambio_bid_requests")
+}
+
+/// Resposta de uma corretora a uma cotacao
+model CambioCotacoesRespostas {
+  id                  String                    @id @default(cuid())
+  tenant_id           String
+  cotacao_id          String
+  cotacao             CambioCotacoes            @relation(fields: [cotacao_id], references: [id])
+  corretora_id        String
+  corretora           CambioCorretoras          @relation(fields: [corretora_id], references: [id])
+  bid_request_id      String                    @unique
+  bid_request         CambioCotacoesPedidos     @relation(fields: [bid_request_id], references: [id])
+
+  taxa_oferecida      Decimal                   @db.Decimal(10, 4)
+  spread              Decimal                   @db.Decimal(10, 4)
+  valor_total_brl     Decimal                   @db.Decimal(18, 2)
+  iof_percentual      Decimal                   @db.Decimal(5, 2)
+  iof_valor           Decimal                   @db.Decimal(18, 2)
+  liquidacao_proposta CambioLiquidacao
+  validade_minutos    Int
+  validade_ate        DateTime
+  condicoes           String?
+
+  status              StatusBidResponseCambio   @default(RECEBIDA)
+
+  created_at          DateTime                  @default(now())
+  updated_at          DateTime                  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@index([tenant_id, corretora_id])
+  @@map("cambio_bid_responses")
+}
+
+/// Cadastro de corretoras de cambio / bancos
+model CambioCorretoras {
+  id                  String                          @id @default(cuid())
+  tenant_id           String
+  product_id          String                          @default("bid-cambio")
+  user_id             String
+
+  razao_social        String
+  nome_fantasia       String?
+  cnpj                String?
+  tipo                CambioCorretoraTipo             @default(CORRETORA_CAMBIO)
+  status              CambioCorretoraStatus           @default(ATIVA)
+
+  email               String
+  telefone            String?
+  contato_nome        String?
+  contato_cargo       String?
+
+  portal_habilitado   Boolean                         @default(false)
+  moedas_operadas     String?
+
+  bid_requests        CambioCotacoesPedidos[]
+  bid_responses       CambioCotacoesRespostas[]
+  avaliacoes          CambioCorretorasAvaliacoes[]
+
+  created_at          DateTime            @default(now())
+  updated_at          DateTime            @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([email])
+  @@map("cambio_corretoras")
+}
+
+/// Avaliacao manual de corretora
+model CambioCorretorasAvaliacoes {
+  id                  String              @id @default(cuid())
+  tenant_id           String
+  user_id             String
+  corretora_id        String
+  corretora           CambioCorretoras    @relation(fields: [corretora_id], references: [id])
+  cotacao_id          String?
+
+  nota_taxa           Int
+  nota_agilidade      Int
+  nota_atendimento    Int
+  nota_confiabilidade Int
+  comentario          String?
+
+  created_at          DateTime    @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, corretora_id])
+  @@map("cambio_avaliacoes")
+}
+
+/// Rating global de corretora (cross-tenant, por e-mail)
+model CambioCorretoraClassificao {
+  id                          String      @id @default(cuid())
+  corretora_email             String      @unique
+
+  taxa_resposta               Decimal     @db.Decimal(5, 2)
+  taxa_aprovacao              Decimal     @db.Decimal(5, 2)
+  tempo_medio_resposta        Int
+  total_cotacoes              Int         @default(0)
+  total_aprovacoes            Int         @default(0)
+
+  nota_media_taxa             Decimal     @db.Decimal(3, 2)
+  nota_media_agilidade        Decimal     @db.Decimal(3, 2)
+  nota_media_atendimento      Decimal     @db.Decimal(3, 2)
+  nota_media_confiabilidade   Decimal     @db.Decimal(3, 2)
+  total_avaliacoes            Int         @default(0)
+
+  score_global                Decimal     @db.Decimal(3, 2)
+
+  updated_at                  DateTime    @updatedAt
+
+  @@map("cambio_rating_corretora_global")
+}
+
+/// Saving por cotacao aprovada
+model CambioGanho {
+  id                    String      @id @default(cuid())
+  tenant_id             String
+  cotacao_id            String
+  corretora_id          String
+
+  valor_operacao        Decimal     @db.Decimal(18, 2)
+  moeda                 CambioMoeda
+  taxa_aprovada         Decimal     @db.Decimal(10, 4)
+  taxa_media_respostas  Decimal     @db.Decimal(10, 4)
+  ptax_referencia       Decimal     @db.Decimal(10, 4)
+  economia_brl          Decimal     @db.Decimal(18, 2)
+  economia_percentual   Decimal     @db.Decimal(5, 2)
+
+  created_at            DateTime    @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, cotacao_id])
+  @@map("cambio_savings")
+}
+
+/// Preferencias de cambio do tenant
+model CambioPreferenciaUsuario {
+  id                              String      @id @default(cuid())
+  tenant_id                       String      @unique
+  product_id                      String      @default("bid-cambio")
+
+  mostrar_no_financeiro           Boolean     @default(false)
+  alerta_email_vencimento         Boolean     @default(false)
+  dias_antecedencia_alerta        Int?
+  enviar_email_exportador         Boolean     @default(false)
+  enviar_email_fim_de_semana      Boolean     @default(true)
+
+  updated_at                      DateTime    @updatedAt
+
+  @@index([tenant_id])
+  @@map("cambio_preferencias")
+}
+
+/// Preferencia de grid do usuario
+model CambioPreferenciaGrid {
+  id                    String      @id @default(cuid())
+  tenant_id             String
+  user_id               String
+
+  colunas_visiveis      String
+  ordem_colunas         String
+  filtros_salvos        String?
+  ordenacao             String?
+
+  updated_at            DateTime    @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@map("cambio_preferencias_grid")
+}

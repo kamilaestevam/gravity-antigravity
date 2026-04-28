@@ -36,16 +36,16 @@ import {
   Fire,
   Info,
 } from '@phosphor-icons/react'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './selecionar-workspace.css'
 
@@ -268,10 +268,7 @@ export function SelecionarWorkspace() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Role canônico vem do banco (via /api/v1/me) — não do publicMetadata do Clerk.
-  // Alinhado com o refactor de auth de 01/04 (commit dea06fd).
-  // Fallback: se /api/v1/me ainda não respondeu ou falhou, usa publicMetadata
-  // do Clerk (legado) para evitar flash de "Usuário" enquanto o backend carrega.
+  // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
   const { isGravityAdmin, role: dbRole, isReady: roleReady } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
@@ -281,10 +278,9 @@ export function SelecionarWorkspace() {
     SUPPLIER: 'Fornecedor',
     gravity_admin: 'Super Admin',
   }
-  const clerkRole = (user?.publicMetadata?.role as string) ?? ''
   const userRole = dbRole
     ? (ROLE_LABELS[dbRole] ?? dbRole)
-    : (clerkRole ? (ROLE_LABELS[clerkRole] ?? clerkRole) : (roleReady ? 'Usuário' : '…'))
+    : (roleReady ? 'Usuário' : '…')
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,
@@ -307,7 +303,7 @@ export function SelecionarWorkspace() {
    * Toggle do workspace preferido (substitui favoritos múltiplos).
    * Único por usuário — marcar B quando A era preferido desmarca A automaticamente.
    * Clicar no preferido atual desmarca (volta para null).
-   * Persiste no backend via PUT /api/v1/me/preferences.
+   * Persiste no backend via PUT /api/v1/me/preferencias.
    */
   const togglePreferred = useCallback(async (e: React.MouseEvent, wsId: string) => {
     e.stopPropagation()
@@ -320,7 +316,7 @@ export function SelecionarWorkspace() {
     try {
       const token = await getToken()
       if (!token) throw new Error('no_token')
-      const res = await fetch('/api/v1/me/preferences', {
+      const res = await fetch('/api/v1/me/preferencias', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -350,7 +346,7 @@ export function SelecionarWorkspace() {
 
   // Produtos sugeridos = catálogo que o tenant ainda não contratou (inclui Em Breve)
   const slugsContratados = new Set(produtosContratados.map(p => p.product_key))
-  const HIDDEN_STATUSES = new Set(['INACTIVE', 'LEGACY', 'SUSPENDED', 'Inativo', 'Legado', 'Suspenso'])
+  const HIDDEN_STATUSES = new Set(['INATIVO', 'LEGADO', 'SUSPENSO', 'Inativo', 'Legado', 'Suspenso'])
   const produtosSugeridos = catalogoProdutos.filter(
     p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
   )
@@ -372,7 +368,7 @@ export function SelecionarWorkspace() {
 
         // Se auth falhar, ainda carrega o catálogo público para mostrar produtos disponíveis
         if (!res.ok) {
-          const catRes = await fetch('/api/v1/hub/catalog').catch(() => null)
+          const catRes = await fetch('/api/v1/hub/catalogo').catch(() => null)
           if (catRes?.ok) {
             const catData = await catRes.json()
             const catalogo: ProdutoCatalogo[] = (catData.catalog ?? []).map(
@@ -453,7 +449,7 @@ export function SelecionarWorkspace() {
               id: c.id,
               nome: c.name,
               iniciais: c.name.substring(0, 2).toUpperCase(),
-              role: data.tenant?.tipo_empresa ?? '',
+              role: data.tenant?.tipo_empresa_organizacao ?? '',
               modulos: totalAtivos,
               membros,
               gradientFrom: grad.from,
@@ -498,7 +494,7 @@ export function SelecionarWorkspace() {
                   // Fire-and-forget: promove no backend
                   const token2 = await getToken()
                   if (token2) {
-                    fetch('/api/v1/me/preferences', {
+                    fetch('/api/v1/me/preferencias', {
                       method: 'PUT',
                       headers: {
                         'Content-Type': 'application/json',
@@ -683,7 +679,7 @@ export function SelecionarWorkspace() {
             <span className="sw-t-module-label">HUB</span>
           </div>
           <div className="sw-t-right">
-            <LocalizarExpandidoCampoGlobal
+            <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 // Buscar em workspaces
@@ -742,7 +738,7 @@ export function SelecionarWorkspace() {
             />
 
             {/* Seletor de idioma */}
-            <LanguageSwitcherGlobal iconOnly />
+            <SeletorIdiomaGlobal iconOnly />
 
             <div className="sw-t-sep" />
 
@@ -1071,7 +1067,7 @@ export function SelecionarWorkspace() {
                     {/* Não contratados — bloqueados com "Assine agora" */}
                     {produtosSugeridos.map(prod => {
                       const iconData = getProdutoIcon(prod.slug)
-                      const isActive = prod.status === 'ACTIVE' || prod.status === 'Ativo'
+                      const isActive = prod.status === 'ATIVO' || prod.status === 'Ativo'
                       return (
                         <div
                           key={prod.id}
@@ -1109,7 +1105,7 @@ export function SelecionarWorkspace() {
           )}
         </div>
       </div>
-      <ModalGlobal
+      <ModalOverlay
         aberto={modalSemProdutos}
         aoFechar={() => setModalSemProdutos(false)}
         tamanho="md"
@@ -1253,7 +1249,7 @@ export function SelecionarWorkspace() {
         )}
       >
         <div style={{ display: 'none' }} />
-      </ModalGlobal>
+      </ModalOverlay>
 
       <ToastContainer />
     </div>

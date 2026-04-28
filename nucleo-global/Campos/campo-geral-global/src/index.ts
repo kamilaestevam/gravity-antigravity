@@ -1,1 +1,1 @@
-export * from './GeralCampoGlobal'
+export * from './CampoGeralGlobal'

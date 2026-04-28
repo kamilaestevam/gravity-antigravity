@@ -1,0 +1,266 @@
+// ============================================
+// LPCO — Licencas, Permissoes, Certificados e Outros
+// Skill: antigravity-lpco
+// ============================================
+
+model Lpco {
+  id                    String    @id                     // lpco_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+
+  // Classificacao
+  tipo_operacao         String                            // IMPORTACAO | EXPORTACAO
+  tipo_lpco             String                            // POR_OPERACAO | FLEX | TAXA
+  orgao_anuente         String                            // Sigla: ANVISA, MAPA, etc.
+  modelo_lpco           String                            // Codigo do modelo: I00004, etc.
+
+  // Dados gerais
+  numero_portal         String?                           // Numero gerado pelo Portal Unico
+  pais_procedencia      String                            // ISO 3166-1 alpha-2
+  unidade_entrada       String?                           // Codigo da unidade RFB
+  recinto_armazenamento String?
+  fundamento_legal      String
+  condicao_mercadoria   String?
+
+  // Parceiros (escudo anti-conflito)
+  importacao_exportador_id  String?                       // Fornecedor estrangeiro (imp)
+  exportacao_importador_id  String?                       // Cliente estrangeiro (exp)
+
+  // Canal de entrada e rastreabilidade
+  canal_entrada         String    @default("MANUAL")      // MANUAL|PLANILHA|PEDIDO|SMART_READ|DUPLICAR|API
+  pedido_origem_id      String?                           // Se canal=PEDIDO, ref ao Pedido de origem
+  lpco_origem_id        String?                           // Se canal=DUPLICAR, ref ao LPCO copiado
+
+  // Status e datas
+  status                String    @default("rascunho")    // LpcoStatus enum
+  data_registro         DateTime?                         // Quando registrado no Portal
+  data_deferimento      DateTime?                         // Quando deferido
+  data_vigencia_inicio  DateTime?                         // Inicio da vigencia
+  data_vigencia_fim     DateTime?                         // Fim da vigencia
+  data_ultima_exigencia DateTime?                         // Para calculo de cancelamento auto
+
+  // Saldo (apenas FLEX)
+  quantidade_deferida   Decimal?  @db.Decimal(18, 4)
+  unidade_medida_saldo  String?
+
+  // Metadados
+  user_id               String
+  created_by            String
+  updated_by            String?
+  is_demo               Boolean   @default(false)
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  // Relacoes
+  itens                 LpcoItens[]
+  exigencias            LpcoExigencia[]
+  vinculos              LpcoVinculo[]
+  documentos            LpcoAnexos[]
+  historico             LpcoHistorico[]
+
+  // 3 indices obrigatorios + indices de negocio
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, company_id, status])
+  @@index([tenant_id, company_id, orgao_anuente])
+  @@index([status, data_ultima_exigencia])
+  @@index([pedido_origem_id])
+
+  @@map("lpcos")
+}
+
+model LpcoItens {
+  id                    String    @id                     // lpit_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+  user_id               String
+  lpco_id               String
+
+  // Produto
+  ncm                   String                            // 8 digitos
+  catalogo_produto_id   String?                           // Ref ao Catalogo de Produtos
+  descricao_produto     String
+  fabricante            String?
+  exportador            String?
+
+  // Quantidades e valores
+  quantidade_estatistica  Decimal   @db.Decimal(18, 4)
+  unidade_medida          String
+  quantidade_comercial    Decimal?  @db.Decimal(18, 4)
+  unidade_medida_comercial String?
+  peso_liquido            Decimal   @db.Decimal(18, 4)
+  vmle                    Decimal   @db.Decimal(18, 2)
+  moeda                   String                          // ISO 4217
+  condicao_venda          String?                         // Incoterm
+
+  // Atributos dinamicos do orgao anuente
+  atributos             Json?                             // Array<LpcoAtributo>
+
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([lpco_id])
+  @@index([ncm])
+
+  @@map("lpco_itens")
+}
+
+model LpcoExigencia {
+  id                    String    @id                     // lpex_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+  user_id               String
+  lpco_id               String
+
+  numero_exigencia      Int
+  descricao_exigencia   String
+  data_exigencia        DateTime
+  prazo_resposta        DateTime?
+
+  resposta              String?
+  data_resposta         DateTime?
+  respondido_por        String?
+
+  status                String    @default("pendente")    // pendente | respondida | aceita | rejeitada
+
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([lpco_id])
+
+  @@map("lpco_exigencias")
+}
+
+model LpcoVinculo {
+  id                    String    @id                     // lpvc_id_XXXXXXX/YY
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+  user_id               String
+  lpco_id               String
+
+  processo_id           String
+  tipo_documento        String                            // DUIMP | DUE
+  numero_documento      String?
+
+  quantidade_vinculada  Decimal?  @db.Decimal(18, 4)
+  unidade_medida        String?
+
+  status                String    @default("ativo")       // ativo | cancelado
+
+  created_by            String
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([lpco_id])
+  @@index([processo_id])
+
+  @@map("lpco_vinculos")
+}
+
+model LpcoAnexos {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+  user_id               String
+  lpco_id               String
+
+  nome_arquivo          String
+  tipo_documento        String
+  mime_type             String
+  tamanho_bytes         Int
+  storage_key           String
+
+  uploaded_by           String
+  created_at            DateTime  @default(now())
+
+  lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([lpco_id])
+
+  @@map("lpco_documentos")
+}
+
+model LpcoHistorico {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+  product_id            String    @default("lpco")
+  user_id               String?
+  lpco_id               String
+
+  evento                String
+  status_anterior       String?
+  status_novo           String?
+  descricao             String
+  dados_extras          Json?
+
+  user_nome             String?
+
+  // Imutavel — sem updated_at
+  created_at            DateTime  @default(now())
+
+  lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([lpco_id])
+  @@index([lpco_id, created_at])
+
+  @@map("lpco_historico")
+}
+
+model PortalCredencial {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  company_id            String
+
+  tipo_auth             String                            // CERTIFICADO_DIGITAL | TOKEN_OAUTH2
+
+  certificado_encrypted String?
+  certificado_senha_encrypted String?
+  certificado_validade  DateTime?
+  certificado_cn        String?
+
+  oauth_client_id       String?
+  oauth_client_secret_encrypted String?
+  oauth_scope           String?
+
+  ultimo_uso            DateTime?
+  status                String    @default("ativo")       // ativo | expirado | revogado
+
+  created_by            String
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@unique([tenant_id, company_id, tipo_auth])
+
+  @@map("siscomex_credenciais")
+}

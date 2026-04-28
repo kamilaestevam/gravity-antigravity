@@ -1,8 +1,0 @@
-{
-  "exec": "npx prisma generate && tsx --env-file=.env src/index.ts",
-  "ext": "ts,json,prisma",
-  "watch": ["src", "prisma"],
-  "ignore": ["src/**/*.test.ts", "dist"],
-  "delay": 1000,
-  "signal": "SIGTERM"
-}

@@ -9,7 +9,7 @@ on:
 env:
   NODE_VERSION: "20"
   # ── Secrets obrigatórios — configure em Settings > Secrets and variables > Actions
-  # CLERK_SECRET_KEY, STRIPE_SECRET_KEY, INTERNAL_API_KEY, etc.
+  # CLERK_SECRET_KEY, STRIPE_SECRET_KEY, CHAVE_SERVICO_INTERNO, etc.
 
 jobs:
   # ─────────────────────────────────────────────
@@ -118,13 +118,13 @@ jobs:
     env:
       # Valores de teste — não são segredos reais
       NODE_ENV: test
-      INTERNAL_API_KEY: ci-test-internal-key
+      CHAVE_SERVICO_INTERNO: ci-test-internal-key
       CLERK_SECRET_KEY: sk_test_placeholder
       CLERK_PUBLISHABLE_KEY: pk_test_placeholder
       STRIPE_SECRET_KEY: sk_test_placeholder
       STRIPE_WEBHOOK_SECRET: whsec_placeholder
       CONFIGURADOR_DATABASE_URL: postgresql://test:test@localhost:5432/configurador_test
-      TENANT_DATABASE_URL: postgresql://test:test@localhost:5432/tenant_test
+      ORGANIZACAO_DATABASE_URL: postgresql://test:test@localhost:5432/organizacao_test
       SIMULACUSTO_DATABASE_URL: postgresql://test:test@localhost:5432/simulacusto_test
       RESEND_API_KEY: re_placeholder
       WHATSAPP_ACCESS_TOKEN: wa_placeholder
@@ -163,25 +163,25 @@ jobs:
         service:
           - path: servicos-global/configurador
             name: configurador
-          - path: servicos-global/tenant/dashboard
+          - path: servicos-global/organizacao/dashboard
             name: dashboard
-          - path: servicos-global/tenant/relatorios
+          - path: servicos-global/organizacao/relatorios
             name: relatorios
-          - path: servicos-global/tenant/cronometro
+          - path: servicos-global/organizacao/cronometro
             name: cronometro
-          - path: servicos-global/tenant/notificacoes
+          - path: servicos-global/organizacao/notificacoes
             name: notificacoes
-          - path: servicos-global/tenant/historico-global
+          - path: servicos-global/organizacao/historico-global
             name: historico
-          - path: servicos-global/tenant/gabi
+          - path: servicos-global/organizacao/gabi
             name: gabi
-          - path: servicos-global/tenant/api-cockpit
+          - path: servicos-global/organizacao/api-cockpit
             name: api-cockpit
-          - path: servicos-global/tenant/conector-erp
+          - path: servicos-global/organizacao/conector-erp
             name: conector-erp
-          - path: servicos-global/tenant/agendamento
+          - path: servicos-global/organizacao/agendamento
             name: agendamento
-          - path: servicos-global/tenant/whatsapp
+          - path: servicos-global/organizacao/whatsapp
             name: whatsapp
           - path: produto/simula-custo
             name: simula-custo

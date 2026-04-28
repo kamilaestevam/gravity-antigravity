@@ -1,7 +1,7 @@
 /**
  * historicoOrganizacao.ts — Audit trail da organização e workspaces
  *
- * Proxy para historico-global filtrando por resource_type IN ('Tenant', 'Company', 'PlatformConfig').
+ * Proxy para historico-global filtrando por resource_type IN ('Organizacao', 'Workspace', 'PlatformConfig').
  * Página de workspace (requireAuth, sem requireGravityAdmin).
  *
  * GET /api/v1/historico-organizacao — lista logs de auditoria da organização
@@ -45,7 +45,7 @@ historicoOrganizacaoRouter.get(
 
       // Montar query params para o historico-global interno
       const params = new URLSearchParams()
-      params.set('resource_type', 'Tenant,Company,PlatformConfig')
+      params.set('resource_type', 'Organizacao,Workspace,PlatformConfig')
       params.set('limit', String(limit))
       if (search) params.set('search', search)
       if (from_date) params.set('startDate', from_date)
@@ -72,7 +72,7 @@ historicoOrganizacaoRouter.get(
         return next(new AppError('tenant_id obrigatório', 401, 'UNAUTHORIZED'))
       }
 
-      const fetchUrl = `${internalBaseUrl}/api/admin/historico-global/logs?${params.toString()}`
+      const fetchUrl = `${internalBaseUrl}/api/v1/admin/historico-global/logs?${params.toString()}`
       const response = await fetch(fetchUrl, {
         headers: {
           'x-internal-key': internalKey,

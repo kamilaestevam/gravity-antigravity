@@ -1,6 +1,6 @@
 ---
 name: antigravity-componentes
-description: "Use esta skill sempre que um agente precisar decidir qual componente global usar em uma situação específica. É um catálogo de decisão: dada uma necessidade de interface ou funcionalidade, aponta qual componente do nucleo-global ou serviço de tenant usar, como importar e quando NÃO usar cada um. Não documenta implementação detalhada — para isso consultar antigravity-nucleo-global ou antigravity-servicos-tenant."
+description: "Use esta skill sempre que um agente precisar decidir qual componente global usar em uma situação específica. É um catálogo de decisão: dada uma necessidade de interface ou funcionalidade, aponta qual componente do nucleo-global ou serviço de organização usar, como importar e quando NÃO usar cada um. Não documenta implementação detalhada — para isso consultar antigravity-nucleo-global ou antigravity-servicos-organizacao."
 ---
 
 # Gravity — Catálogo de Componentes
@@ -9,7 +9,7 @@ description: "Use esta skill sempre que um agente precisar decidir qual componen
 
 Antes de criar qualquer componente novo, consultar este catálogo. Se a necessidade já existe aqui → usar o componente existente. Se não existe → verificar com o Líder antes de criar algo novo.
 
-> **Regra:** nunca criar um componente que já existe no `nucleo-global` ou nos serviços de tenant. Duplicação é proibida.
+> **Regra:** nunca criar um componente que já existe no `nucleo-global` ou nos serviços de organização. Duplicação é proibida.
 
 ---
 
@@ -35,15 +35,15 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 | Layout, sidebar, navegação entre módulos | **Shell** |
 | Notificações toast (sucesso, erro, aviso) | **Shell** — `addNotification` |
 | Comunicação entre módulos sem acoplamento | **Shell** — event bus |
-| Gerenciar tarefas e atividades | Serviço tenant **atividades** |
-| Enviar ou receber email | Serviço tenant **email** |
-| Conversar via WhatsApp | Serviço tenant **whatsapp** |
-| KPIs e métricas consolidadas | Serviço tenant **dashboard** |
-| Cronometrar tempo por atividade | Serviço tenant **cronometro** |
-| Relatórios cruzados entre produtos | Serviço tenant **relatorios** |
-| Auditoria — quem fez o quê e quando | Serviço tenant **historico** |
-| Calendário e agendamentos | Serviço tenant **agendamento** |
-| Chat com IA contextual | Serviço tenant **gabi** |
+| Gerenciar tarefas e atividades | Serviço de organização **atividades** |
+| Enviar ou receber email | Serviço de organização **email** |
+| Conversar via WhatsApp | Serviço de organização **whatsapp** |
+| KPIs e métricas consolidadas | Serviço de organização **dashboard** |
+| Cronometrar tempo por atividade | Serviço de organização **cronometro** |
+| Relatórios cruzados entre produtos | Serviço de organização **relatorios** |
+| Auditoria — quem fez o quê e quando | Serviço de organização **historico** |
+| Calendário e agendamentos | Serviço de organização **agendamento** |
+| Chat com IA contextual | Serviço de organização **gabi** |
 | Suporte com tickets e SLA | Serviço produto **helpdesk** |
 
 ---
@@ -217,14 +217,14 @@ on('venda-concluida', (dados) => { ... })
 
 ---
 
-## Serviços de Tenant
+## Serviços de Organização
 
 ### atividades
 **Usar quando:** exibir, criar ou gerenciar tarefas e atividades do usuário.
 ```typescript
 // Declarar no PRODUCT_CONFIG
 tenantServices: ['activities']
-navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'tenant' }]
+navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', source: 'organizacao' }]
 // O shell carrega automaticamente via lazy loading
 ```
 **NÃO usar** para checklists internos de formulário ou steps de wizard.
@@ -260,7 +260,7 @@ navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', sour
 **NÃO usar** para datepickers em formulários.
 
 ### gabi
-**Usar quando:** chat inteligente com IA com contexto completo do tenant.
+**Usar quando:** chat inteligente com IA com contexto completo da organização.
 
 ---
 

@@ -1,0 +1,271 @@
+// schema.prisma — GERADO AUTOMATICAMENTE por compose-schema.js
+// NÃO EDITAR DIRETAMENTE. Edite schema.base.prisma ou fragment.prisma.
+
+// schema.base.prisma — SimulaCusto
+// Composto via scripts/compose-schema.js → gera schema.prisma final
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos específicos do SimulaCusto são definidos em fragment.prisma
+// e compostos automaticamente pelo script compose-schema.js
+
+
+// fragment.prisma — SimulaCusto
+// Composto via scripts/compose-schema.js no schema final do produto.
+// REGRA: todo model DEVE ter tenant_id (snake_case) e os 3 índices obrigatórios.
+// Skill: antigravity-tenant-isolation, antigravity-schema-composition
+
+// ─── Enums ──────────────────────────────────────────────────────────────────────
+
+enum SimulaCustoTipoOperacao {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum SimulaCustoDetalheOperacao {
+  DIRETA
+  CONTA_ORDEM
+  ENCOMENDA
+  COMERCIAL_EXPORTADORA
+}
+
+enum SimulaCustoEstimativaStatus {
+  EM_CRIACAO
+  CRIADA
+  ARQUIVADA
+}
+
+enum SimulaCustoTipoTaxa {
+  ORIGEM
+  DESTINO
+}
+
+enum SimulaCustoTipoCobranca {
+  PROCESSO
+  CONTAINER
+  AWB
+  BL
+  CRT
+  KGS
+  TON
+  CAIXA
+  M3
+}
+
+enum SimulaCustoTipoProduto {
+  II
+  IPI
+  PIS
+  COFINS
+  ICMS
+}
+
+enum SimulaCustoTipoDocumento {
+  PEDIDO_COMPRA
+  PEDIDO_VENDA
+  PROFORMA
+  INVOICE
+  OUTRO
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────────────
+
+model SimulaCustoEstimativa {
+  id              String   @id @default(cuid()) // Formato padrão Gravity: esti_id_000000001/26
+  tenant_id       String   // OBRIGATÓRIO — Nunca nullable
+  company_id      String   // OBRIGATÓRIO (Workspace) — Isola os dados (Prevenção Zero-Trust)
+  product_id      String   @default("simula-custo")
+  user_id         String   // clerk_id do criador
+  processo_id     String?  // Quando a estimativa é "Efetivada", ela se atrela ao Processo Real.
+
+  // Dados da Estimativa
+  numero          String            // EST-IMP-00001/26 ou manual alfanumérico
+  referencia      String?           // Referência interna (até 30 chars)
+  operacao        SimulaCustoTipoOperacao      @default(IMPORTACAO)
+  tipo_operacao   SimulaCustoDetalheOperacao @default(DIRETA)
+  status          SimulaCustoEstimativaStatus  @default(EM_CRIACAO)
+  data_geracao    DateTime          @default(now())
+
+  // Aba Produto
+  ncm             String
+  ncm_descricao   String?
+  incoterm        String            @default("FOB")
+  quantidade      Decimal           @db.Decimal(15, 5) @default(0)
+  moeda_produto   String            @default("USD")
+  valor_produto   Decimal           @db.Decimal(15, 2)
+
+  // Aba Frete Internacional
+  moeda_frete     String            @default("USD")
+  valor_frete     Decimal           @db.Decimal(15, 2) @default(0)
+
+  // Aba Seguro Internacional
+  moeda_seguro    String            @default("USD")
+  valor_seguro    Decimal           @db.Decimal(15, 2) @default(0)
+
+  // Aba ICMS
+  uf_desembaraco  String            @default("SP")
+  aliquota_icms   Decimal           @db.Decimal(5, 4) @default(0)
+  usa_beneficio   Boolean           @default(false)
+  icms_entrada    Decimal?          @db.Decimal(15, 2)
+  icms_saida      Decimal?          @db.Decimal(15, 2)
+
+  // Alíquotas utilizadas no cálculo
+  aliquota_ii     Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_ipi    Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_pis    Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_cofins Decimal           @db.Decimal(5, 4) @default(0)
+  reducao_ii      Decimal           @db.Decimal(5, 4) @default(0)
+
+  // Resultado calculado (BRL)
+  ptax_utilizada  Decimal?          @db.Decimal(10, 4)
+  valor_aduaneiro Decimal?          @db.Decimal(15, 2)
+  total_tributos  Decimal?          @db.Decimal(15, 2)
+  landed_cost_brl Decimal?          @db.Decimal(15, 2)
+  source          String?           // 'siscomex' | 'gravity-engine' | 'fallback'
+
+  // Relações
+  taxas_origem    SimulaCustoTaxas[]  @relation("TaxasOrigem")
+  taxas_destino   SimulaCustoTaxas[]  @relation("TaxasDestino")
+  tributos        SimulaCustoImpostos[]
+  documentos      SimulaCustoAnexos[]
+
+  // Timestamps
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+
+  // Índices obrigatórios (skill: antigravity-tenant-isolation)
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, numero])
+  @@index([tenant_id, status])
+  @@index([tenant_id, ncm])
+  @@index([processo_id])
+  @@map("estimativas_trade")
+}
+
+model SimulaCustoTaxas {
+  id              String      @id @default(cuid())
+  tenant_id       String      // OBRIGATÓRIO
+  company_id      String      // OBRIGATÓRIO
+  product_id      String      @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tipo            SimulaCustoTipoTaxa
+  nome            String
+  moeda           String
+  cobranca_por    SimulaCustoTipoCobranca @default(PROCESSO)
+  valor_minimo    Decimal     @db.Decimal(15, 2) @default(0)
+  valor_total     Decimal     @db.Decimal(15, 2)
+
+  estimativa_origem  SimulaCustoEstimativa? @relation("TaxasOrigem", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_origem_fk")
+  estimativa_destino SimulaCustoEstimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_destino_fk")
+
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("taxas_estimativa_trade")
+}
+
+model SimulaCustoImpostos {
+  id              String      @id @default(cuid())
+  tenant_id       String
+  product_id      String      @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tributo         SimulaCustoTipoProduto
+  aliquota        Decimal     @db.Decimal(5, 4)
+  base_calculo    Decimal     @db.Decimal(15, 2)
+  valor           Decimal     @db.Decimal(15, 2)
+  reducao         Decimal?    @db.Decimal(5, 4)
+  acordo          String?
+
+  estimativa      SimulaCustoEstimativa  @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("tributos_estimativa_trade")
+}
+
+model SimulaCustoAnexos {
+  id              String        @id @default(cuid())
+  tenant_id       String
+  product_id      String        @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tipo            SimulaCustoTipoDocumento
+  numero          String        // Alfanumérico até 30 chars
+
+  estimativa      SimulaCustoEstimativa    @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+
+  created_at      DateTime      @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("documentos_estimativa_trade")
+}
+
+// ─── Cache (sem tenant_id — dados públicos) ─────────────────────────────────────
+
+model SimulaCustoNcm {
+  ncm             String   @id
+  descricao       String?
+  aliquota_ii     Decimal  @db.Decimal(5, 4)
+  aliquota_ipi    Decimal  @db.Decimal(5, 4)
+  aliquota_pis    Decimal  @db.Decimal(5, 4)
+  aliquota_cofins Decimal  @db.Decimal(5, 4)
+  acordos         Json?
+  vigencia_inicio DateTime?
+  vigencia_fim    DateTime?
+  fonte           String   @default("siscomex") // siscomex | tipi_fallback
+  updated_at      DateTime @updatedAt
+
+  @@map("cache_aliquotas_ncm")
+}
+
+model SimulaCustoCambio {
+  id              String   @id @default(cuid())
+  moeda           String
+  data_referencia DateTime
+  ptax_compra     Decimal  @db.Decimal(10, 4)
+  ptax_venda      Decimal  @db.Decimal(10, 4)
+  fetched_at      DateTime @default(now())
+
+  @@unique([moeda, data_referencia])
+  @@index([moeda])
+  @@map("cache_cambio_bacen")
+}
+
+// ─── Sequência de Numeração ─────────────────────────────────────────────────────
+
+model SimulaCustoSequencia {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  user_id         String
+  ano             Int
+  ultimo_numero   Int      @default(0)
+
+  @@unique([tenant_id, user_id, ano])
+  @@index([tenant_id])
+  @@map("sequencia_estimativa_trade")
+}

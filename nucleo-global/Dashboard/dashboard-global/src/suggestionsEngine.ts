@@ -224,7 +224,7 @@ export function generateSuggestions(
   return suggestions
 }
 
-// ── Campos complementares (highlight no QueryBuilder) ─────────────────────────
+// ── Campos complementares (highlight no DashboardConstrutorConsulta) ─────────────────────────
 
 export function getComplementaryFields(
   catalog: EnrichedCatalogField[],

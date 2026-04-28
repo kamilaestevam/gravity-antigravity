@@ -99,7 +99,7 @@ export function resolveAxisAssignment(
 
 /**
  * Verifica se a adição de um novo tipo de unidade excederia o limite de 2 tipos incompatíveis.
- * Usado no QueryBuilder para bloquear seleção de 3º tipo diferente.
+ * Usado no DashboardConstrutorConsulta para bloquear seleção de 3º tipo diferente.
  *
  * @param existingTypes - Tipos já presentes na seleção atual
  * @param newType - Tipo do campo que o usuário quer adicionar
@@ -154,7 +154,7 @@ export function formatValueByUnit(value: number, unit: FieldUnitType): string {
 }
 
 /**
- * Retorna o badge de tipo de unidade exibido no Passo 1 do QueryBuilder.
+ * Retorna o badge de tipo de unidade exibido no Passo 1 do DashboardConstrutorConsulta.
  */
 export function unitBadgeLabel(type: CatalogField['type']): string {
   switch (type) {

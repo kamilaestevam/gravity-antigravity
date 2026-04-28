@@ -21,15 +21,15 @@ export const permissionsService = {
     const { tenantId, userId, resource, action, companyId, productId } = input
 
     // Busca usuário e sua role global
-    const user = await prisma.user.findFirst({
-      where: { id: userId, tenant_id: tenantId },
-      select: { role: true },
+    const user = await prisma.usuario.findFirst({
+      where: { id_usuario: userId, id_organizacao_usuario: tenantId },
+      select: { tipo_usuario: true },
     })
 
     if (!user) return false
 
     // 1. Cadeia 1 — Roles Globais (Acesso total)
-    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'MASTER') {
+    if (user.tipo_usuario === 'SUPER_ADMIN' || user.tipo_usuario === 'ADMIN' || user.tipo_usuario === 'MASTER') {
       return true
     }
 
@@ -40,13 +40,13 @@ export const permissionsService = {
     // O código da permissão é composto por resource:action (ex: email:write)
     const permissionKey = `${resource}:${action.toLowerCase()}`
 
-    const permission = await prisma.userPermission.findFirst({
+    const permission = await prisma.usuarioPermissao.findFirst({
       where: {
-        tenant_id: tenantId,
-        company_id: companyId,
-        user_id: userId,
-        product_id: productId,
-        permission: permissionKey,
+        id_organizacao_usuario_permissao: tenantId,
+        id_workspace_usuario_permissao: companyId,
+        id_usuario_usuario_permissao: userId,
+        id_produto_usuario_permissao: productId,
+        permissao_usuario_permissao: permissionKey,
       },
     })
 
@@ -57,19 +57,26 @@ export const permissionsService = {
    * Lista todas as permissões de um usuário no tenant/workspace
    */
   async getUserPermissions(tenantId: string, userId: string, companyId?: string) {
-    return prisma.userPermission.findMany({
+    const rows = await prisma.usuarioPermissao.findMany({
       where: {
-        tenant_id: tenantId,
-        user_id: userId,
-        ...(companyId && { company_id: companyId }),
+        id_organizacao_usuario_permissao: tenantId,
+        id_usuario_usuario_permissao: userId,
+        ...(companyId && { id_workspace_usuario_permissao: companyId }),
       },
       select: {
-        company_id: true,
-        product_id: true,
-        permission: true,
-        created_at: true,
+        id_workspace_usuario_permissao: true,
+        id_produto_usuario_permissao: true,
+        permissao_usuario_permissao: true,
+        data_criacao_usuario_permissao: true,
       },
     })
+    // DTO: mantém contrato externo (company_id, product_id, permission, created_at)
+    return rows.map((r) => ({
+      company_id: r.id_workspace_usuario_permissao,
+      product_id: r.id_produto_usuario_permissao,
+      permission: r.permissao_usuario_permissao,
+      created_at: r.data_criacao_usuario_permissao,
+    }))
   },
 
   /**
@@ -85,24 +92,24 @@ export const permissionsService = {
   ) {
     await prisma.$transaction([
       // Limpa permissões antigas do produto neste workspace
-      prisma.userPermission.deleteMany({
+      prisma.usuarioPermissao.deleteMany({
         where: {
-          tenant_id: tenantId,
-          company_id: companyId,
-          user_id: userId,
-          product_id: productId,
+          id_organizacao_usuario_permissao: tenantId,
+          id_workspace_usuario_permissao: companyId,
+          id_usuario_usuario_permissao: userId,
+          id_produto_usuario_permissao: productId,
         },
       }),
       // Insere novas
       ...permissions.map((p) =>
-        prisma.userPermission.create({
+        prisma.usuarioPermissao.create({
           data: {
-            tenant_id: tenantId,
-            company_id: companyId,
-            user_id: userId,
-            product_id: productId,
-            permission: p,
-            granted_by: grantedBy,
+            id_organizacao_usuario_permissao: tenantId,
+            id_workspace_usuario_permissao: companyId,
+            id_usuario_usuario_permissao: userId,
+            id_produto_usuario_permissao: productId,
+            permissao_usuario_permissao: p,
+            concedido_por_usuario_permissao: grantedBy,
           },
         })
       ),

@@ -1,16 +1,17 @@
 // server/routes/admin.ts
-// Rotas exclusivas para gravity_admin — gestão de todos os tenants da plataforma
-// GET   /api/v1/admin/tenants       — listar todos os tenants
-// GET   /api/v1/admin/tenants/:id   — detalhes de um tenant
-// PATCH /api/v1/admin/tenants/:id   — atualizar status
-// GET   /api/v1/admin/stats         — estatísticas globais da plataforma
-// GET   /api/v1/admin/usuarios-globais         — listar todos os usuários de todos os tenants
-// GET   /api/v1/admin/financeiro-admin/invoices — listar faturas globais
-// GET   /api/v1/admin/deploy       — listar histórico de deploys
-// GET   /api/v1/admin/testes-gerais/logs     — listar logs de testes
-// POST  /api/v1/admin/testes-gerais/logs     — registrar resultados de um run de testes
-// GET   /api/v1/admin/visao-geral — dados da plataforma (Visão Geral Admin)
-// PUT   /api/v1/admin/visao-geral — atualizar dados da plataforma
+// Rotas exclusivas para gravity_admin — gestão de todas as organizações da plataforma
+// Montado em /api/v1/admin pelo index.ts
+// GET   /api/v1/admin/organizacoes                     — listar todas as organizações
+// GET   /api/v1/admin/organizacoes/:id_organizacao     — detalhes de uma organização
+// PATCH /api/v1/admin/organizacoes/:id_organizacao     — atualizar status
+// GET   /api/v1/admin/estatisticas-plataforma          — estatísticas globais da plataforma
+// GET   /api/v1/admin/usuarios-globais                 — listar todos os usuários
+// GET   /api/v1/admin/faturas                          — listar faturas globais
+// GET   /api/v1/admin/deploys                          — listar histórico de deploys
+// GET   /api/v1/admin/analises-erro                    — listar análises de erro de testes
+// POST  /api/v1/admin/analises-erro                    — registrar resultados de um run de testes
+// GET   /api/v1/admin/painel-visao-geral               — dados da plataforma (Visão Geral Admin)
+// PUT   /api/v1/admin/painel-visao-geral               — atualizar dados da plataforma
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -18,7 +19,6 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 import { AppError } from '../lib/appError.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
@@ -41,20 +41,33 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 
 // Rate limit extra-restritivo nas rotas de billing — operações financeiras
 // (create/void/send) disparam calls ao Stripe que têm rate limit próprio,
-// e o /admin/financeiro-admin/invoices pode ser usado para enumerar tenants via
-// customer_id. O preset admin (60 req/min por tenant:IP) evita flood.
-adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
+// e o /faturas pode ser usado para enumerar organizações via customer_id.
+// O preset admin (60 req/min por tenant:IP) evita flood.
+adminRouter.use('/faturas', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
-  status: z.enum(['ACTIVE', 'SUSPENDED', 'CANCELLED', 'PENDING_SETUP']).optional(),
+  status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
+  nome_organizacao: z.string().min(2).max(200).optional(),
+  subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
   note: z.string().optional(),
 })
 
+const CreateTenantSchema = z.object({
+  nome_organizacao: z.string().min(2).max(200),
+  subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
+  plano: z.string().max(100).optional(),
+  cnpj_organizacao: z.string().max(20).optional(),
+})
+
+const UpdateWorkspaceSchema = z.object({
+  status: z.enum(['ATIVO', 'INATIVO']),
+})
+
 /**
- * GET /api/admin/tenants
- * Lista todos os tenants da plataforma com paginação
+ * GET /api/v1/admin/organizacoes
+ * Lista todas as organizações da plataforma com paginação
  */
-adminRouter.get('/tenants', async (req, res, next) => {
+adminRouter.get('/organizacoes', async (req, res, next) => {
   try {
     const page = Number(req.query.page ?? 1)
     const limit = Number(req.query.limit ?? 20)
@@ -64,42 +77,70 @@ adminRouter.get('/tenants', async (req, res, next) => {
     const where = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { slug: { contains: search, mode: 'insensitive' as const } },
+            { nome_organizacao: { contains: search, mode: 'insensitive' as const } },
+            { subdominio_organizacao: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {}
 
     const [tenants, total] = await Promise.all([
-      prisma.tenant.findMany({
+      prisma.organizacao.findMany({
         where,
         skip,
         take: limit,
         select: {
-          id: true,
-          name: true,
-          slug: true,
-          status: true,
-          created_at: true,
-          _count: { select: { users: true, companies: true } },
-          subscriptions: {
-            orderBy: { created_at: 'desc' },
+          id_organizacao: true,
+          nome_organizacao: true,
+          subdominio_organizacao: true,
+          status_organizacao: true,
+          data_criacao_organizacao: true,
+          _count: { select: { users_organizacao: true, companies_organizacao: true } },
+          subscriptions_organizacao: {
+            orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
             take: 1,
-            select: { status: true },
+            select: { status_assinatura_produto_gravity: true },
           },
-          companies: {
-            select: { id: true, name: true, subdomain: true, status: true },
-            orderBy: { created_at: 'desc' },
+          companies_organizacao: {
+            select: {
+              id_workspace: true, nome_workspace: true, subdominio_workspace: true, status_workspace: true,
+              _count: { select: { memberships: true } },
+            },
+            orderBy: { data_criacao_workspace: 'desc' },
             take: 5,
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_organizacao: 'desc' },
       }),
-      prisma.tenant.count({ where }),
+      prisma.organizacao.count({ where }),
     ])
 
+    // DTO: mapeia Prisma `*_organizacao` (back-relations renomeados) → chaves legadas do contrato
+    const tenantsDto = tenants.map((t) => {
+      const {
+        id_organizacao,
+        _count,
+        subscriptions_organizacao,
+        companies_organizacao,
+        ...rest
+      } = t
+      return {
+        id: id_organizacao,
+        ...rest,
+        _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+        // DTO: status_assinatura_produto_gravity → status (preserva contrato)
+        subscriptions: subscriptions_organizacao.map((s) => ({ status: s.status_assinatura_produto_gravity })),
+        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
+          ...c,
+          id: id_workspace,
+          name: nome_workspace,
+          subdomain: subdominio_workspace,
+          status: status_workspace,
+        })),
+      }
+    })
+
     res.json({
-      tenants,
+      tenants: tenantsDto,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -108,50 +149,100 @@ adminRouter.get('/tenants', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/tenants/:id
- * Detalhes completos de um tenant específico
+ * GET /api/v1/admin/organizacoes/:id_organizacao
+ * Detalhes completos de uma organização específica
  */
-adminRouter.get('/tenants/:id', async (req, res, next) => {
+adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: req.params.id },
+    const idParsed = z.string().min(1).safeParse(req.params.id_organizacao)
+    if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
+
+    const tenant = await prisma.organizacao.findUnique({
+      where: { id_organizacao: idParsed.data },
       include: {
-        users: {
-          select: { id: true, name: true, email: true, role: true, created_at: true },
-          orderBy: { created_at: 'desc' as const },
+        users_organizacao: {
+          select: { id_usuario: true, nome_usuario: true, email_usuario: true, tipo_usuario: true, data_criacao_usuario: true },
+          orderBy: { data_criacao_usuario: 'desc' as const },
           take: 50,
         },
-        companies: {
-          select: { id: true, name: true, subdomain: true, status: true },
-          orderBy: { created_at: 'desc' as const },
+        companies_organizacao: {
+          select: { id_workspace: true, nome_workspace: true, subdominio_workspace: true, status_workspace: true },
+          orderBy: { data_criacao_workspace: 'desc' as const },
           take: 50,
         },
-        subscriptions: {
-          orderBy: { created_at: 'desc' as const },
+        subscriptions_organizacao: {
+          orderBy: { data_criacao_assinatura_produto_gravity: 'desc' as const },
           take: 1,
         },
-        product_configs: {
-          select: { product_key: true, is_active: true, updated_at: true },
+        product_configs_organizacao: {
+          select: {
+            chave_produto_config_produto_gravity: true,
+            ativo_config_produto_gravity: true,
+            data_atualizacao_config_produto_gravity: true,
+          },
           take: 50,
         },
       },
     })
 
     if (!tenant) {
-      throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    res.json({ tenant })
+    // DTO DDD: Prisma `users_organizacao[].role` → JSON `users[].tipo_usuario`
+    // DTO: back-relations Prisma `*_organizacao` → chaves legadas do contrato
+    const {
+      id_organizacao,
+      users_organizacao,
+      companies_organizacao,
+      subscriptions_organizacao,
+      product_configs_organizacao,
+      ...tenantRest
+    } = tenant
+    res.json({
+      tenant: {
+        id: id_organizacao,
+        ...tenantRest,
+        users: users_organizacao.map(({ data_criacao_usuario, email_usuario, nome_usuario, id_usuario, ...u }) => ({ ...u, id: id_usuario, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
+        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
+          ...c,
+          id: id_workspace,
+          name: nome_workspace,
+          subdomain: subdominio_workspace,
+          status: status_workspace,
+        })),
+        // DTO: AssinaturaProdutoGravity rename → contrato externo legado
+        subscriptions: subscriptions_organizacao.map((s) => ({
+          id: s.id_assinatura_produto_gravity,
+          tenant_id: s.id_organizacao_assinatura_produto_gravity,
+          status: s.status_assinatura_produto_gravity,
+          stripe_subscription_id: s.stripe_subscription_id,
+          stripe_price_id: s.stripe_price_id,
+          trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
+          current_period_start: s.data_inicio_periodo_assinatura_produto_gravity,
+          current_period_end: s.data_fim_periodo_assinatura_produto_gravity,
+          cancelled_at: s.data_cancelamento_assinatura_produto_gravity,
+          created_at: s.data_criacao_assinatura_produto_gravity,
+          updated_at: s.data_atualizacao_assinatura_produto_gravity,
+        })),
+        // DTO: ConfiguracaoProduto rename → contrato legado
+        product_configs: product_configs_organizacao.map((pc) => ({
+          product_key: pc.chave_produto_config_produto_gravity,
+          is_active: pc.ativo_config_produto_gravity,
+          updated_at: pc.data_atualizacao_config_produto_gravity,
+        })),
+      },
+    })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * PATCH /api/admin/tenants/:id
- * Atualiza status ou plano de um tenant (operação administrativa)
+ * PATCH /api/v1/admin/organizacoes/:id_organizacao
+ * Atualiza status ou plano de uma organização (operação administrativa)
  */
-adminRouter.patch('/tenants/:id', async (req, res, next) => {
+adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
     const parsed = UpdateTenantSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -162,24 +253,26 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       )
     }
 
-    // Impede que admin suspenda/cancele o próprio tenant HQ
-    if (req.params.id === req.auth.tenantId) {
-      throw new AppError('Não é possível alterar o status do próprio tenant HQ', 403, 'FORBIDDEN')
+    // Impede que admin suspenda/cancele a própria organização HQ
+    if (req.params.id_organizacao === req.auth.tenantId) {
+      throw new AppError('Não é possível alterar o status da própria organização HQ', 403, 'FORBIDDEN')
     }
 
-    const existing = await prisma.tenant.findUnique({
-      where: { id: req.params.id },
+    const existing = await prisma.organizacao.findUnique({
+      where: { id_organizacao: req.params.id_organizacao },
     })
     if (!existing) {
-      throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    const tenant = await prisma.tenant.update({
-      where: { id: req.params.id },
+    const tenant = await prisma.organizacao.update({
+      where: { id_organizacao: req.params.id_organizacao },
       data: {
-        ...(parsed.data.status && { status: parsed.data.status }),
+        ...(parsed.data.status_organizacao && { status_organizacao: parsed.data.status_organizacao }),
+        ...(parsed.data.nome_organizacao && { nome_organizacao: parsed.data.nome_organizacao.trim() }),
+        ...(parsed.data.subdominio_organizacao && { subdominio_organizacao: parsed.data.subdominio_organizacao }),
       },
-      select: { id: true, name: true, status: true },
+      select: { id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true },
     })
 
     AuditService.log({
@@ -189,26 +282,139 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'Tenant',
-      resource_id: tenant.id,
+      resource_type: 'Organizacao',
+      resource_id: tenant.id_organizacao,
       action: 'TENANT_STATUS_CHANGED',
-      action_detail: `Status alterado de ${existing.status} para ${tenant.status}`,
-      before: { status: existing.status },
-      after: { status: tenant.status },
+      action_detail: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
+      before: { status: existing.status_organizacao },
+      after: { status: tenant.status_organizacao },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ tenant })
+    // DTO: id_organizacao Prisma → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ tenant: { id: id_organizacao, ...tenantRest } })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * GET /api/admin/stats
+ * POST /api/v1/admin/organizacoes
+ * Cria uma nova organização na plataforma
+ */
+adminRouter.post('/organizacoes', async (req, res, next) => {
+  try {
+    const parsed = CreateTenantSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const existing = await prisma.organizacao.findUnique({ where: { subdominio_organizacao: parsed.data.subdominio_organizacao } })
+    if (existing) throw new AppError('Subdomínio já está em uso', 409, 'CONFLICT')
+
+    const tenant = await prisma.organizacao.create({
+      data: {
+        nome_organizacao: parsed.data.nome_organizacao.trim(),
+        subdominio_organizacao: parsed.data.subdominio_organizacao,
+        status_organizacao: 'ATIVO',
+        ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
+      },
+      select: {
+        id_organizacao: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
+        _count: { select: { users_organizacao: true, companies_organizacao: true } },
+      },
+    })
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Organizacao',
+      resource_id: tenant.id_organizacao,
+      action: 'TENANT_CREATED',
+      action_detail: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
+      after: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
+    // DTO: mapeia _count e id_organizacao → chaves legadas
+    const { id_organizacao, _count, ...tenantRest } = tenant
+    const tenantDto = {
+      id: id_organizacao,
+      ...tenantRest,
+      _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+    }
+
+    res.status(201).json({ tenant: tenantDto })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PATCH /api/v1/admin/workspaces/:id_workspace
+ * Atualiza status de um workspace — operação administrativa
+ */
+adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
+  try {
+    const idParsed = z.string().min(1).safeParse(req.params.id_workspace)
+    if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
+
+    const parsed = UpdateWorkspaceSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
+    if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
+
+    const company = await prisma.workspace.update({
+      where: { id_workspace: idParsed.data },
+      data: { status_workspace: parsed.data.status },
+      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao_workspace: true },
+    })
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Workspace',
+      resource_id: company.id_workspace,
+      action: 'WORKSPACE_STATUS_CHANGED',
+      action_detail: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
+      before: { status: existing.status_workspace },
+      after: { status: company.status_workspace },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
+    // DTO: id_workspace → id, nome_workspace → name, etc.
+    const { id_workspace, nome_workspace, status_workspace, id_organizacao_workspace, ...cRest } = company
+    res.json({
+      workspace: {
+        ...cRest,
+        id: id_workspace,
+        name: nome_workspace,
+        status: status_workspace,
+        tenant_id: id_organizacao_workspace,
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * GET /api/v1/admin/estatisticas-plataforma
  * Estatísticas globais da plataforma para o painel admin
  */
-adminRouter.get('/stats', async (_req, res, next) => {
+adminRouter.get('/estatisticas-plataforma', async (_req, res, next) => {
   try {
     const [
       totalTenants,
@@ -216,10 +422,10 @@ adminRouter.get('/stats', async (_req, res, next) => {
       suspendedTenants,
       totalUsers,
     ] = await Promise.all([
-      prisma.tenant.count(),
-      prisma.tenant.count({ where: { status: 'ACTIVE' } }),
-      prisma.tenant.count({ where: { status: 'SUSPENDED' } }),
-      prisma.user.count(),
+      prisma.organizacao.count(),
+      prisma.organizacao.count({ where: { status_organizacao: 'ATIVO' } }),
+      prisma.organizacao.count({ where: { status_organizacao: 'SUSPENSO' } }),
+      prisma.usuario.count(),
     ])
 
     res.json({
@@ -236,7 +442,7 @@ adminRouter.get('/stats', async (_req, res, next) => {
 })
 
 /**
- * GET /api/admin/usuarios-globais
+ * GET /api/v1/admin/usuarios-globais
  * Lista todos os usuários de todos os tenants da plataforma (gravity_admin)
  */
 const ListUsersQuerySchema = z.object({
@@ -257,45 +463,45 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     const where = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { email: { contains: search, mode: 'insensitive' as const } },
+            { nome_usuario: { contains: search, mode: 'insensitive' as const } },
+            { email_usuario: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {}
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.usuario.findMany({
         where,
         skip,
         take: limit,
         select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          created_at: true,
-          tenant_id: true,
+          id_usuario: true,
+          nome_usuario: true,
+          email_usuario: true,
+          tipo_usuario: true,
+          data_criacao_usuario: true,
+          id_organizacao_usuario: true,
           tenant: {
-            select: { name: true, slug: true },
+            select: { nome_organizacao: true, subdominio_organizacao: true },
           },
           memberships: {
-            where: { is_active: true },
+            where: { ativo_usuario_workspace: true },
             select: {
-              id: true,
-              company_id: true,
-              role: true,
-              is_active: true,
+              id_usuario_workspace: true,
+              id_workspace_usuario_workspace: true,
+              tipo_usuario_workspace: true,
+              ativo_usuario_workspace: true,
               company: {
-                select: { name: true, subdomain: true },
+                select: { nome_workspace: true, subdominio_workspace: true },
               },
             },
-            orderBy: { created_at: 'desc' as const },
+            orderBy: { data_criacao_usuario_workspace: 'desc' as const },
             take: 20,
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_usuario: 'desc' },
       }),
-      prisma.user.count({ where }),
+      prisma.usuario.count({ where }),
     ])
 
     AuditService.log({
@@ -305,14 +511,34 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'User',
+      resource_type: 'Usuario',
       action: 'USERS_GLOBAL_LIST_VIEWED',
       action_detail: `Listagem global — ${total} usuários (page=${page}, limit=${limit}${search ? `, search="${search}"` : ''})`,
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
+    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_organizacao_usuario, id_usuario, ...rest }) => ({
+      ...rest,
+      id: id_usuario,
+      created_at: data_criacao_usuario,
+      email: email_usuario,
+      name: nome_usuario,
+      tenant_id: id_organizacao_usuario,
+      // DTO: UsuarioWorkspace rename → contrato externo legado
+      memberships: memberships.map((m) => ({
+        id: m.id_usuario_workspace,
+        company_id: m.id_workspace_usuario_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        is_active: m.ativo_usuario_workspace,
+        company: {
+          name: m.company.nome_workspace,
+          subdomain: m.company.subdominio_workspace,
+        },
+      })),
+    }))
     res.json({
-      users,
+      users: usuarios,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -351,10 +577,10 @@ const VoidInvoiceBodySchema = z.object({
 })
 
 /**
- * GET /api/admin/financeiro-admin/invoices
- * Lista invoices via BillingProvider (Stripe por padrão).
+ * GET /api/v1/admin/faturas
+ * Lista faturas via BillingProvider (Stripe por padrão).
  */
-adminRouter.get('/financeiro-admin/invoices', async (req, res, next) => {
+adminRouter.get('/faturas', async (req, res, next) => {
   try {
     const parsed = ListInvoicesQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -378,12 +604,12 @@ adminRouter.get('/financeiro-admin/invoices', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/financeiro-admin/invoices/:id
+ * GET /api/v1/admin/faturas/:id_fatura
  */
-adminRouter.get('/financeiro-admin/invoices/:id', async (req, res, next) => {
+adminRouter.get('/faturas/:id_fatura', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
-    const invoice = await provider.getInvoice(req.params.id)
+    const invoice = await provider.getInvoice(req.params.id_fatura)
     if (!invoice) {
       throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
     }
@@ -394,10 +620,10 @@ adminRouter.get('/financeiro-admin/invoices/:id', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices
+ * POST /api/v1/admin/faturas
  * Cria uma fatura manual via provider (Stripe).
  */
-adminRouter.post('/financeiro-admin/invoices', async (req, res, next) => {
+adminRouter.post('/faturas', async (req, res, next) => {
   try {
     const parsed = CreateInvoiceBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -431,10 +657,10 @@ adminRouter.post('/financeiro-admin/invoices', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices/:id/void
+ * POST /api/v1/admin/faturas/:id_fatura/anular
  * Anula uma fatura. Stripe: void_invoice. Manual: soft-delete.
  */
-adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) => {
+adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
   try {
     const parsed = VoidInvoiceBodySchema.safeParse(req.body ?? {})
     if (!parsed.success) {
@@ -442,7 +668,7 @@ adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) =
     }
 
     const provider = getBillingProvider()
-    const invoice = await provider.voidInvoice({ id: req.params.id, reason: parsed.data.reason })
+    const invoice = await provider.voidInvoice({ id: req.params.id_fatura, reason: parsed.data.reason })
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -467,13 +693,13 @@ adminRouter.post('/financeiro-admin/invoices/:id/void', async (req, res, next) =
 })
 
 /**
- * POST /api/admin/financeiro-admin/invoices/:id/send
+ * POST /api/v1/admin/faturas/:id_fatura/enviar
  * Envia a fatura ao cliente (email).
  */
-adminRouter.post('/financeiro-admin/invoices/:id/send', async (req, res, next) => {
+adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
-    const invoice = await provider.sendInvoice(req.params.id)
+    const invoice = await provider.sendInvoice(req.params.id_fatura)
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -499,8 +725,8 @@ adminRouter.post('/financeiro-admin/invoices/:id/send', async (req, res, next) =
 // CRUD manual do histórico de deploys da plataforma Gravity.
 // Ver server/services/deployLogService.ts
 
-const DeployEnvironmentEnum = z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION', 'ALL'])
-const DeployStatusEnum = z.enum(['SUCCESS', 'FAILED', 'ROLLBACK', 'IN_PROGRESS'])
+const DeployEnvironmentEnum = z.enum(['DESENVOLVIMENTO', 'HOMOLOGACAO', 'PRODUCAO', 'TODOS'])
+const DeployStatusEnum = z.enum(['SUCESSO', 'FALHOU', 'REVERTIDO', 'EM_ANDAMENTO'])
 
 const ListDeploysQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
@@ -517,16 +743,16 @@ const CreateDeployBodySchema = z.object({
   area: z.string().min(1).max(50),
   version: z.string().min(1).max(100),
   description: z.string().min(1).max(500),
-  environment: DeployEnvironmentEnum.default('PRODUCTION'),
-  status: DeployStatusEnum.default('SUCCESS'),
+  environment: DeployEnvironmentEnum.default('PRODUCAO'),
+  status: DeployStatusEnum.default('SUCESSO'),
   deployed_at: z.string().datetime().optional(),
 })
 
 /**
- * GET /api/admin/deploy
+ * GET /api/v1/admin/registros-deploy
  * Lista histórico de deploys com paginação + filtros.
  */
-adminRouter.get('/deploy', async (req, res, next) => {
+adminRouter.get('/registros-deploy', async (req, res, next) => {
   try {
     const parsed = ListDeploysQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -541,10 +767,10 @@ adminRouter.get('/deploy', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/deploy
+ * POST /api/v1/admin/registros-deploy
  * Registra um deploy manualmente. deployed_by vem do req.auth (snapshot do admin).
  */
-adminRouter.post('/deploy', async (req, res, next) => {
+adminRouter.post('/registros-deploy', async (req, res, next) => {
   try {
     const parsed = CreateDeployBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -552,16 +778,16 @@ adminRouter.post('/deploy', async (req, res, next) => {
     }
 
     // Resolve nome do admin a partir do banco
-    const user = await prisma.user.findUnique({
-      where: { id: req.auth.userId },
-      select: { id: true, name: true, email: true },
+    const user = await prisma.usuario.findUnique({
+      where: { id_usuario: req.auth.userId },
+      select: { id_usuario: true, nome_usuario: true, email_usuario: true },
     })
-    const deployedBy = user?.name ?? user?.email ?? req.auth.clerkUserId
+    const deployedBy = user?.nome_usuario ?? user?.email_usuario ?? req.auth.clerkUserId
 
     const deploy = await deployLogService.create({
       ...parsed.data,
       deployed_by: deployedBy,
-      deployed_by_user_id: user?.id,
+      deployed_by_user_id: user?.id_usuario,
       deployed_at: parsed.data.deployed_at ? new Date(parsed.data.deployed_at) : undefined,
     })
 
@@ -572,28 +798,28 @@ adminRouter.post('/deploy', async (req, res, next) => {
 })
 
 /**
- * DELETE /api/admin/deploy/:id
+ * DELETE /api/v1/admin/registros-deploy/:id_deploy
  * Remove um registro de deploy (audit mantido via logEvent do frontend).
  */
-adminRouter.delete('/deploy/:id', async (req, res, next) => {
+adminRouter.delete('/registros-deploy/:id_deploy', async (req, res, next) => {
   try {
-    const existing = await deployLogService.getById(req.params.id)
+    const existing = await deployLogService.getById(req.params.id_deploy)
     if (!existing) {
       throw new AppError('Deploy não encontrado', 404, 'NOT_FOUND')
     }
-    await deployLogService.delete(req.params.id)
-    res.json({ deleted: true, id: req.params.id })
+    await deployLogService.delete(req.params.id_deploy)
+    res.json({ deleted: true, id: req.params.id_deploy })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * GET /api/admin/testes-gerais/plans
+ * GET /api/v1/admin/testes-gerais/planos
  * Lista os planos de teste disponíveis, opcionalmente filtrados por produto.
  * Query: ?product=configurador
  */
-adminRouter.get('/testes-gerais/plans', (_req, res, next) => {
+adminRouter.get('/testes-gerais/planos', (_req, res, next) => {
   try {
     const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'testes-e2e', 'test-plans-registry.json')
     let plans: unknown[] = []
@@ -615,8 +841,8 @@ adminRouter.get('/testes-gerais/plans', (_req, res, next) => {
 })
 
 /**
- * GET /api/admin/testes-gerais/logs
- * Lista logs de testes — lê da tabela TestLog se existir;
+ * GET /api/v1/admin/testes-gerais/logs
+ * Lista logs de testes — lê da tabela Testes se existir;
  * fallback: lê todos os arquivos JSON em data/test-logs/
  */
 adminRouter.get('/testes-gerais/logs', async (_req, res, next) => {
@@ -716,7 +942,7 @@ function buildSafeTestEnv(): Record<string, string> {
 }
 
 /**
- * POST /api/admin/testes-gerais/run
+ * POST /api/v1/admin/testes-gerais/executar
  * Dispara os testes Playwright em background e persiste os resultados.
  * Retorna imediatamente com { started: true }.
  * Requer SUPER_ADMIN: dispara spawn pesado com acesso ao monorepo.
@@ -726,7 +952,7 @@ const RunTestsSchema = z.object({
   planos:  z.array(z.string().max(100)).optional(),
 })
 
-adminRouter.post('/testes-gerais/run', async (req, res, next) => {
+adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
   try {
     // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
     // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
@@ -879,17 +1105,17 @@ adminRouter.post('/testes-gerais/run', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/testes-gerais/run/status
+ * GET /api/v1/admin/testes-gerais/executar/status
  * Verifica se há um run em andamento.
  */
-adminRouter.get('/testes-gerais/run/status', (_req, res) => {
+adminRouter.get('/testes-gerais/executar/status', (_req, res) => {
   res.json({ running: pwRunning })
 })
 
 /**
- * POST /api/admin/testes-gerais/logs
+ * POST /api/v1/admin/testes-gerais/logs
  * Registra resultados de um run de testes (Playwright, Vitest, etc.)
- * Tenta salvar no banco; se TestLog não existir, salva em arquivo JSON local.
+ * Tenta salvar no banco; se Testes não existir, salva em arquivo JSON local.
  */
 const AiAnalysisSchema = z.object({
   erroResumo:       z.string(),
@@ -925,7 +1151,7 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
     const created_at = new Date().toISOString()
     let salvouNoBanco = false
 
-    // Tenta salvar no banco (requer migração futura com modelo TestLog)
+    // Tenta salvar no banco (requer migração futura com modelo Testes)
     try {
       if ((prisma as any).testLog?.createMany) {
         await (prisma as any).testLog.createMany({
@@ -990,7 +1216,7 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/visao-geral
+ * GET /api/v1/admin/visao-geral
  * Dados da plataforma para a Visão Geral Admin (tenant HQ do gravity_admin)
  */
 adminRouter.get('/visao-geral', async (req, res, next) => {
@@ -1001,9 +1227,9 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Busca o tenant do usuário admin logado
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
-      select: { tenant_id: true },
+      select: { id_organizacao_usuario: true },
     })
 
     if (!user) {
@@ -1012,16 +1238,16 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Campos core — sempre existem na migration init
-    const tenant = await prisma.tenant.findUnique({
-      where: { id: user.tenant_id },
+    const tenant = await prisma.organizacao.findUnique({
+      where: { id_organizacao: user.id_organizacao_usuario },
       select: {
-        id: true,
-        name: true,
-        slug: true,
-        cnpj: true,
-        state: true,
-        city: true,
-        created_at: true,
+        id_organizacao: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
+        cnpj_organizacao: true,
+        estado_organizacao: true,
+        cidade_organizacao: true,
+        data_criacao_organizacao: true,
       },
     })
 
@@ -1031,38 +1257,40 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
-    let extras: { segment?: string | null; tipo_empresa?: string | null } = {}
+    let extras: { segmento_organizacao?: string | null; tipo_empresa_organizacao?: string | null } = {}
     try {
-      const row = await prisma.tenant.findUnique({
-        where: { id: tenant.id },
-        select: { segment: true, tipo_empresa: true },
+      const row = await prisma.organizacao.findUnique({
+        where: { id_organizacao: tenant.id_organizacao },
+        select: { segmento_organizacao: true, tipo_empresa_organizacao: true },
       })
       if (row) extras = row
     } catch {
-      // Colunas segment/tipo_empresa ainda não migradas — retorna sem elas
+      // Colunas segmento_organizacao/tipo_empresa_organizacao ainda não migradas — retorna sem elas
     }
 
-    res.json({ config: { ...tenant, ...extras } })
+    // DTO: id_organizacao → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ config: { id: id_organizacao, ...tenantRest, ...extras } })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * PUT /api/admin/visao-geral
+ * PUT /api/v1/admin/visao-geral
  * Atualiza dados cadastrais da plataforma (tenant HQ)
  */
 const PlatformConfigSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  cnpj: z.string().max(20).optional(),
-  state: z.string().max(2).optional(),
-  city: z.string().max(200).optional(),
-  segment: z.string().max(200).optional(),
-  tipo_empresa: z.string().max(500).optional(),
+  nome_organizacao: z.string().min(1).max(200).optional(),
+  cnpj_organizacao: z.string().max(20).optional(),
+  estado_organizacao: z.string().max(2).optional(),
+  cidade_organizacao: z.string().max(200).optional(),
+  segmento_organizacao: z.string().max(200).optional(),
+  tipo_empresa_organizacao: z.string().max(500).optional(),
 })
 
 /**
- * POST /api/admin/usuarios-globais/:userId/promote
+ * POST /api/v1/admin/usuarios-globais/:id_usuario/promover
  * Promove um usuário para SUPER_ADMIN ou ADMIN.
  * Apenas SUPER_ADMIN pode chamar este endpoint.
  */
@@ -1070,7 +1298,7 @@ const PromoteSchema = z.object({
   role: z.enum(['SUPER_ADMIN', 'ADMIN']),
 })
 
-adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => {
+adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next) => {
   try {
     // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
     if (req.auth.role !== 'SUPER_ADMIN') {
@@ -1087,46 +1315,40 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
     }
 
     // Impede auto-promoção/alteração
-    if (req.params.userId === req.auth.userId) {
+    if (req.params.id_usuario === req.auth.userId) {
       throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.params.userId },
-      select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
+    const user = await prisma.usuario.findUnique({
+      where: { id_usuario: req.params.id_usuario },
+      select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
     })
-    if (!user || user.tenant_id !== req.auth.tenantId) {
+    if (!user || user.id_organizacao_usuario !== req.auth.tenantId) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.user.update({
-      where: { id: req.params.userId },
-      data: { role: parsed.data.role },
-      select: { id: true, email: true, role: true },
+    const updated = await prisma.usuario.update({
+      where: { id_usuario: req.params.id_usuario },
+      data: { tipo_usuario: parsed.data.role },
+      select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
-    // Sincroniza publicMetadata no Clerk (com spread de metadata existente + anti-downgrade de SUPER_ADMIN).
-    // Usuários com clerk_user_id 'pending_...' ainda não aceitaram o convite — não há conta para atualizar.
-    if (!user.clerk_user_id.startsWith('pending_')) {
-      syncRoleToClerk(user.clerk_user_id, user.tenant_id, parsed.data.role).catch((err) => {
-        console.error('[admin.promote] syncRoleToClerk falhou:', err)
-      })
-    }
-
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
-      targetUserId: req.params.userId,
-      oldRole: user.role,
-      newRole: updated.role,
+      targetUserId: req.params.id_usuario,
+      oldRole: user.tipo_usuario,
+      newRole: updated.tipo_usuario,
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ user: updated })
+    // DTO DDD: Prisma `email_usuario` → `email`, `id_usuario` → `id`
+    const { email_usuario, id_usuario, ...updRest } = updated
+    res.json({ user: { ...updRest, id: id_usuario, email: email_usuario } })
   } catch (err) {
     next(err)
   }
 })
 
 /**
- * POST /api/admin/usuarios-globais/invite
+ * POST /api/v1/admin/usuarios-globais/convidar
  * Convida um usuário com role de plataforma (SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER).
  * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
  * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
@@ -1134,10 +1356,10 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 const AdminInviteSchema = z.object({
   email: z.string().email().max(255),
   name:  z.string().min(1).max(200),
-  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
-adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
+adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
   try {
     const parsed = AdminInviteSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -1152,25 +1374,24 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.user.findFirst({ where: { email, tenant_id: req.auth.tenantId } })
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao_usuario: req.auth.tenantId } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
-      publicMetadata: { role, invitedBy: req.auth.clerkUserId, isAdminInvite: true },
     })
 
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
-    const user = await prisma.user.create({
+    const user = await prisma.usuario.create({
       data: {
-        tenant_id:     req.auth.tenantId,
+        id_organizacao_usuario: req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
-        email,
-        name,
-        role,
+        email_usuario: email,
+        nome_usuario:  name,
+        tipo_usuario:  role,
       },
     })
 
@@ -1181,17 +1402,17 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'User',
-      resource_id: user.id,
+      resource_type: 'Usuario',
+      resource_id: user.id_usuario,
       action: 'USER_INVITED',
       action_detail: `Convite enviado — role=${role}`,
-      after: { email: user.email, role: user.role },
+      after: { email: user.email_usuario, role: user.tipo_usuario },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id_usuario, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
     })
   } catch (err) {
     next(err)
@@ -1209,33 +1430,33 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       )
     }
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
-      select: { tenant_id: true },
+      select: { id_organizacao_usuario: true },
     })
 
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const before = await prisma.tenant.findUnique({
-      where: { id: user.tenant_id },
-      select: { name: true, cnpj: true, state: true, city: true, segment: true, tipo_empresa: true },
+    const before = await prisma.organizacao.findUnique({
+      where: { id_organizacao: user.id_organizacao_usuario },
+      select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
-    const tenant = await prisma.tenant.update({
-      where: { id: user.tenant_id },
+    const tenant = await prisma.organizacao.update({
+      where: { id_organizacao: user.id_organizacao_usuario },
       data: parsed.data,
       select: {
-        id: true,
-        name: true,
-        slug: true,
-        cnpj: true,
-        state: true,
-        city: true,
-        segment: true,
-        tipo_empresa: true,
-        created_at: true,
+        id_organizacao: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
+        cnpj_organizacao: true,
+        estado_organizacao: true,
+        cidade_organizacao: true,
+        segmento_organizacao: true,
+        tipo_empresa_organizacao: true,
+        data_criacao_organizacao: true,
       },
     })
 
@@ -1247,7 +1468,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'PlatformConfig',
-      resource_id: tenant.id,
+      resource_id: tenant.id_organizacao,
       action: 'PLATFORM_CONFIG_UPDATED',
       action_detail: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
       before: before ?? undefined,
@@ -1255,7 +1476,9 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ config: tenant })
+    // DTO: id_organizacao → id legado do contrato
+    const { id_organizacao, ...tenantRest } = tenant
+    res.json({ config: { id: id_organizacao, ...tenantRest } })
   } catch (err) {
     next(err)
   }
@@ -1278,11 +1501,11 @@ const GeneratePlanSchema = z.object({
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/generate
+ * POST /api/v1/admin/testes-gerais/planos/gerar
  * Gera um plano de teste 20/20 para uma tela via Gemini.
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/plans/generate', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar planos', 403, 'FORBIDDEN')
@@ -1317,7 +1540,7 @@ adminRouter.post('/testes-gerais/plans/generate', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/:id/expand
+ * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/expandir
  * Expande um plano existente preservando passos humano-original.
  * Requer SUPER_ADMIN.
  */
@@ -1325,7 +1548,7 @@ const ExpandPlanSchema = z.object({
   componenteFilePath: z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode expandir planos', 403, 'FORBIDDEN')
@@ -1345,7 +1568,7 @@ adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
     const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
-    const entry = registry.planos.find(p => p.id === req.params.id)
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
     if (!entry) {
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
@@ -1379,10 +1602,10 @@ adminRouter.post('/testes-gerais/plans/:id/expand', async (req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/:id/generate-spec
+ * POST /api/v1/admin/testes-gerais/planos/:id_plano_teste/gerar-spec
  * Gera arquivo .spec.ts a partir do plano JSON.
  */
-adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/:id_plano_teste/gerar-spec', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
@@ -1396,7 +1619,7 @@ adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next
     const registry = JSON.parse(readFileSync(registryPath, 'utf-8')) as {
       planos: Array<{ id: string; planoFile: string }>
     }
-    const entry = registry.planos.find(p => p.id === req.params.id)
+    const entry = registry.planos.find(p => p.id === req.params.id_plano_teste)
     if (!entry) {
       throw new AppError('Plano não encontrado no registry', 404, 'NOT_FOUND')
     }
@@ -1412,7 +1635,7 @@ adminRouter.post('/testes-gerais/plans/:id/generate-spec', async (req, res, next
 })
 
 /**
- * POST /api/admin/testes-gerais/plans/extract-testids
+ * POST /api/v1/admin/testes-gerais/planos/extrair-testids
  * Extrai data-testid de um componente e gera mapeamento.
  */
 const ExtractTestidsSchema = z.object({
@@ -1421,7 +1644,7 @@ const ExtractTestidsSchema = z.object({
   sublocal:           z.string().min(1),
 })
 
-adminRouter.post('/testes-gerais/plans/extract-testids', async (req, res, next) => {
+adminRouter.post('/testes-gerais/planos/extrair-testids', async (req, res, next) => {
   try {
     const parsed = ExtractTestidsSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -1443,17 +1666,17 @@ adminRouter.post('/testes-gerais/plans/extract-testids', async (req, res, next) 
 // ─── Test Logs — Gemini Re-analysis ─────────────────────────────────────────
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/reanalyze
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/reanalisar
  * Re-analisa uma falha com Gemini (forceRefresh: true, bypassa cache).
  * Requer SUPER_ADMIN.
  */
-adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
@@ -1470,7 +1693,7 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
       forceRefresh:    true,
     })
 
-    updateLogEntryAnalysis(req.params.id, analysis)
+    updateLogEntryAnalysis(req.params.id_log_teste, analysis)
 
     AuditService.log({
       tenant_id: req.auth.tenantId,
@@ -1479,8 +1702,8 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'TestLog',
-      resource_id: req.params.id,
+      resource_type: 'Testes',
+      resource_id: req.params.id_log_teste,
       action: 'TEST_LOG_REANALYZED',
       action_detail: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
       status: 'SUCCESS',
@@ -1493,17 +1716,17 @@ adminRouter.post('/testes-gerais/logs/:id/reanalyze', async (req, res, next) => 
 })
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/apply-fix
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/aplicar-correcao
  * Aplica o codigoDiff sugerido pelo Gemini no arquivo fonte.
  * Requer SUPER_ADMIN. Gemini é sugestor, humano valida antes de aplicar.
  */
-adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
@@ -1539,8 +1762,8 @@ adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => 
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'TestLog',
-      resource_id: req.params.id,
+      resource_type: 'Testes',
+      resource_id: req.params.id_log_teste,
       action: 'TEST_FIX_APPLIED',
       action_detail: `Diff aplicado em ${diff.arquivo}`,
       before: { old: diff.old.slice(0, 200) },
@@ -1555,27 +1778,27 @@ adminRouter.post('/testes-gerais/logs/:id/apply-fix', async (req, res, next) => 
 })
 
 /**
- * POST /api/admin/testes-gerais/logs/:id/reject
+ * POST /api/v1/admin/testes-gerais/logs/:id_log_teste/rejeitar
  * Marca a análise como ruim (feedback loop para melhorar o prompt).
  */
 const RejectSchema = z.object({
   motivo: z.string().min(10).max(500),
 })
 
-adminRouter.post('/testes-gerais/logs/:id/reject', async (req, res, next) => {
+adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, next) => {
   try {
     const parsed = RejectSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Motivo é obrigatório', 400, 'VALIDATION_ERROR')
     }
 
-    const logEntry = findLogEntry(req.params.id)
+    const logEntry = findLogEntry(req.params.id_log_teste)
     if (!logEntry) {
       throw new AppError('Log entry não encontrada', 404, 'NOT_FOUND')
     }
 
     // Marca no log que a análise foi rejeitada
-    updateLogEntryField(req.params.id, 'ai_rejected', {
+    updateLogEntryField(req.params.id_log_teste, 'ai_rejected', {
       rejeitadoEm: new Date().toISOString(),
       rejeitadoPor: req.auth.userId,
       motivo: parsed.data.motivo,
@@ -1588,8 +1811,8 @@ adminRouter.post('/testes-gerais/logs/:id/reject', async (req, res, next) => {
       actor_name: req.auth.userId,
       actor_ip: req.ip,
       module: 'admin',
-      resource_type: 'TestLog',
-      resource_id: req.params.id,
+      resource_type: 'Testes',
+      resource_id: req.params.id_log_teste,
       action: 'TEST_ANALYSIS_REJECTED',
       action_detail: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
       status: 'SUCCESS',
@@ -1686,10 +1909,10 @@ const CreateScheduleSchema = z.object({
 const UpdateScheduleSchema = CreateScheduleSchema.partial()
 
 /**
- * GET /api/admin/testes-gerais/schedules
+ * GET /api/v1/admin/testes-gerais/agendamentos
  * Lista todos os agendamentos de testes.
  */
-adminRouter.get('/testes-gerais/schedules', async (_req, res, next) => {
+adminRouter.get('/testes-gerais/agendamentos', async (_req, res, next) => {
   try {
     let schedules: unknown[] = []
     try {
@@ -1706,10 +1929,10 @@ adminRouter.get('/testes-gerais/schedules', async (_req, res, next) => {
 })
 
 /**
- * POST /api/admin/testes-gerais/schedules
+ * POST /api/v1/admin/testes-gerais/agendamentos
  * Cria um novo agendamento de testes.
  */
-adminRouter.post('/testes-gerais/schedules', async (req, res, next) => {
+adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode criar agendamentos', 403, 'FORBIDDEN')
@@ -1760,10 +1983,10 @@ adminRouter.post('/testes-gerais/schedules', async (req, res, next) => {
 })
 
 /**
- * PATCH /api/admin/testes-gerais/schedules/:id
+ * PATCH /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
  * Atualiza um agendamento existente.
  */
-adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
+adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamentos', 403, 'FORBIDDEN')
@@ -1789,7 +2012,7 @@ adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
         })
       }
       schedule = await (prisma as any).testSchedule?.update?.({
-        where: { id: req.params.id },
+        where: { id: req.params.id_agendamento_teste },
         data: updateData,
       })
     } catch {
@@ -1803,10 +2026,10 @@ adminRouter.patch('/testes-gerais/schedules/:id', async (req, res, next) => {
 })
 
 /**
- * DELETE /api/admin/testes-gerais/schedules/:id
+ * DELETE /api/v1/admin/testes-gerais/agendamentos/:id_agendamento_teste
  * Remove um agendamento.
  */
-adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
+adminRouter.delete('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode remover agendamentos', 403, 'FORBIDDEN')
@@ -1814,13 +2037,13 @@ adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
 
     try {
       await (prisma as any).testSchedule?.delete?.({
-        where: { id: req.params.id },
+        where: { id: req.params.id_agendamento_teste },
       })
     } catch {
       throw new AppError('Schedule não encontrado', 404, 'NOT_FOUND')
     }
 
-    res.json({ deleted: true, id: req.params.id })
+    res.json({ deleted: true, id: req.params.id_agendamento_teste })
   } catch (err) {
     next(err)
   }
@@ -1829,10 +2052,10 @@ adminRouter.delete('/testes-gerais/schedules/:id', async (req, res, next) => {
 // ─── Gemini Metrics ─────────────────────────────────────────────────────────
 
 /**
- * GET /api/admin/testes-gerais/gemini-metrics
+ * GET /api/v1/admin/testes-gerais/metricas-gemini
  * Agrega métricas de custo, latência, confiança do Gemini analyzer.
  */
-adminRouter.get('/testes-gerais/gemini-metrics', async (_req, res, next) => {
+adminRouter.get('/testes-gerais/metricas-gemini', async (_req, res, next) => {
   try {
     const cacheMetrics = getGeminiMetrics()
 
@@ -1903,7 +2126,7 @@ const RunPentestSchema = z.object({
 })
 
 /**
- * POST /api/admin/testes-gerais/pentest
+ * POST /api/v1/admin/testes-gerais/pentest
  * Dispara container ZAP contra URL alvo.
  * Requer SUPER_ADMIN.
  */

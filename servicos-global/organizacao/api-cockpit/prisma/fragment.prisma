@@ -1,0 +1,119 @@
+// servicos-global/tenant/api-cockpit/prisma/fragment.prisma
+
+enum TokenEscopo {
+  LEITURA
+  ESCRITA
+  EXCLUSAO
+}
+
+enum TokenValidade {
+  NUNCA
+  DIAS_30
+  DIAS_90
+  CUSTOMIZADO
+}
+
+model APIToken {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  name       String
+  hash       String   @unique
+  prefix     String   // gv_live_sk_ or gv_test_sk_
+  scope      TokenEscopo @default(LEITURA)
+  expiration TokenValidade @default(NUNCA)
+  expires_at DateTime?
+  rate_limit Int      @default(60)
+  
+  is_revoked Boolean  @default(false)
+  revoked_at DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model WebhookConfiguracao {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  url        String
+  secret     String   // HMAC key
+  events     String[] // e.g. ["simulacao.criada", "cotacao.aprovada"]
+  is_active  Boolean  @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model WebhookLog {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  webhook_id String
+  event      String
+  status     Int      // HTTP status code e.g. 200, 500
+  latency_ms Int
+  attempts   Int
+  payload    Json?
+  error      String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([webhook_id])
+}
+
+model LogConsumo {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  token_id   String
+  endpoint   String
+  method     String
+  status     Int
+  latency_ms Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([token_id])
+}
+
+model APIIntegracaoERP {
+  id                    String   @id @default(cuid())
+  tenant_id             String   @unique
+  product_id            String?
+  user_id               String?
+
+  credentials_encrypted String
+  protocol              String   @default("ODATA") // ODATA, SAP_HANA, REST, JDBC
+
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}

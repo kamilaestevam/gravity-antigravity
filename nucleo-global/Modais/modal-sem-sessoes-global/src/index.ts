@@ -3,7 +3,7 @@
  * Ponto único de re-exportação para o pacote @nucleo/modal-sem-sessoes-global.
  */
 
-export { ModalSemSessoesGlobal, ModalSemSessoesProvider } from './modal-overlay.js'
+export { ModalOverlay, ModalOverlay as ModalSemSessoesGlobal, ModalSemSessoesProvider } from './ModalOverlay.js'
 export { useModal, useModalLocal, useModalStack } from './use-modal.js'
 export {
   abrirModal,

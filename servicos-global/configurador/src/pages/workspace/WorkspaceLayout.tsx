@@ -4,9 +4,9 @@ import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
@@ -34,7 +34,7 @@ import {
   Truck,
   Info,
 } from '@phosphor-icons/react'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubButton } from '../../components/HubButton'
@@ -49,6 +49,7 @@ export function WorkspaceLayout() {
     { to: '/workspace/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
     { to: '/workspace/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/workspace/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
+    { to: '/workspace/empresas-parceiros', label: 'Empresas e Parceiros',          icon: <Buildings   weight="duotone" size={18} /> },
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
     { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
@@ -58,20 +59,19 @@ export function WorkspaceLayout() {
 
   const navigate = useNavigate()
   const { user } = useUser()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, currentUser } = useShellStore()
 
-  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
-  useSyncClerkToShell()
+  // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
+  useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ userId: user?.id, tenantId: user?.publicMetadata?.tenantId as string | undefined })
+  useUserPreferences({ userId: currentUser.id || user?.id, tenantId: currentUser.tenantId })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 
-  // Mock tenant data — replace with real tenant context when available
-  const tenantName = 'Importes SA'
-  const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
+  const tenantName = currentUser?.tenantName ?? 'Organização'
+  const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
+  const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
 
   const { role: dbRole, isGravityAdmin } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
@@ -103,19 +103,19 @@ export function WorkspaceLayout() {
     async function fetchTipoEmpresa() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/organizacao/me', {
+        const res = await fetch('/api/v1/organizacoes/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
           const { tenant } = await res.json()
-          setTipoEmpresa(tenant.tipo_empresa ?? '')
+          setTipoEmpresa(tenant.tipo_empresa_organizacao ?? '')
         }
       } catch { /* silencioso */ }
     }
     fetchTipoEmpresa()
   }, [])
 
-  // Handle frontend search filtering e estado foi movido para o componente LocalizarExpandidoCampoGlobal
+  // Handle frontend search filtering e estado foi movido para o componente CampoLocalizarExpandidoGlobal
   
   useEffect(() => {
     if (isLight) {
@@ -152,7 +152,7 @@ export function WorkspaceLayout() {
         <div className="ws-global-actions">
           <HubButton onClick={() => navigate('/hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -215,7 +215,7 @@ export function WorkspaceLayout() {
             iconOnly
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           {/* Divisor visual */}
           <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />

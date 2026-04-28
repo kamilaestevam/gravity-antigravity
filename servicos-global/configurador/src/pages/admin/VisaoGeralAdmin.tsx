@@ -18,7 +18,7 @@ import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { adminPlatformApi } from '../../services/apiClient'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
@@ -108,15 +108,15 @@ export function VisaoGeralAdmin() {
         if (res.config) {
           const c = res.config
           const loaded: DadosAdmin = {
-            nome: c.name || '',
-            cnpj: c.cnpj || '',
-            estado: c.state || '',
-            cidade: c.city || '',
-            segmento: c.segment || '',
-            tipo_empresa: c.tipo_empresa || '',
+            nome: c.nome_organizacao || '',
+            cnpj: c.cnpj_organizacao || '',
+            estado: c.estado_organizacao || '',
+            cidade: c.cidade_organizacao || '',
+            segmento: c.segmento_organizacao || '',
+            tipo_empresa: c.tipo_empresa_organizacao || '',
             plano: c.subscriptions?.[0]?.plan || 'N/A',
-            subdominio: c.slug || '',
-            criadaEm: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '',
+            subdominio: c.subdominio_organizacao || '',
+            criadaEm: c.data_criacao_organizacao ? new Date(c.data_criacao_organizacao).toLocaleDateString('pt-BR') : '',
           }
           setDados(loaded)
           setDadosIniciais(loaded)
@@ -140,12 +140,12 @@ export function VisaoGeralAdmin() {
     try {
       setSalvando(true)
       await adminPlatformApi.updateConfig({
-        name: dados.nome,
-        cnpj: dados.cnpj,
-        state: dados.estado,
-        city: dados.cidade,
-        segment: dados.segmento,
-        tipo_empresa: dados.tipo_empresa,
+        nome_organizacao: dados.nome,
+        cnpj_organizacao: dados.cnpj,
+        estado_organizacao: dados.estado,
+        cidade_organizacao: dados.cidade,
+        segmento_organizacao: dados.segmento,
+        tipo_empresa_organizacao: dados.tipo_empresa,
       })
 
       setDadosIniciais(dados)
@@ -214,7 +214,7 @@ export function VisaoGeralAdmin() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_empresa')} obrigatorio
             tooltipTitulo={t('admin.visao-geral.campo_empresa_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_empresa_desc')}
@@ -223,8 +223,8 @@ export function VisaoGeralAdmin() {
               <Buildings size={16} />
               <input value={dados.nome} onChange={e => set('nome', e.target.value)} />
             </div>
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_cnpj')}
             tooltipTitulo={t('admin.visao-geral.campo_cnpj_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_cnpj_desc')}
@@ -233,10 +233,10 @@ export function VisaoGeralAdmin() {
               <IdentificationCard size={16} />
               <input value={dados.cnpj} onChange={e => set('cnpj', e.target.value)} />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_estado')}
             tooltipTitulo={t('admin.visao-geral.campo_estado_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_estado_desc')}
@@ -248,8 +248,8 @@ export function VisaoGeralAdmin() {
               aoMudarValor={v => { set('estado', String(v ?? '')); set('cidade', '') }}
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_cidade')}
             tooltipTitulo={t('admin.visao-geral.campo_cidade_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_cidade_desc')}
@@ -262,8 +262,8 @@ export function VisaoGeralAdmin() {
               placeholder={dados.estado ? t('comum.selecione') : t('admin.visao-geral.aguardando_estado')}
               buscavel desabilitado={!dados.estado} carregando={carregandoCidades}
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_segmento')}
             tooltipTitulo={t('admin.visao-geral.campo_segmento_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_segmento_desc')}
@@ -275,8 +275,8 @@ export function VisaoGeralAdmin() {
               aoMudarValor={v => set('segmento', String(v ?? ''))}
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('admin.visao-geral.campo_tipo_empresa')}
             tooltipTitulo={t('admin.visao-geral.campo_tipo_empresa_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_tipo_empresa_desc')}
@@ -288,7 +288,7 @@ export function VisaoGeralAdmin() {
               aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
               placeholder="Selecione..."
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       </div>
 

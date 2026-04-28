@@ -1,0 +1,7 @@
+{
+  "extends": ["../../../../tsconfig.json", "../../../../tsconfig.paths-organizacao-client.json"],
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["src"]
+}

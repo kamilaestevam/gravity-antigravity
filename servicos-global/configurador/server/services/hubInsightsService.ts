@@ -179,7 +179,7 @@ async function fetchProduct(
   const response = await fetch(url, {
     headers: {
       'x-internal-key': ctx.internalKey,
-      'x-tenant-id': ctx.tenantId,
+      'x-tenant-id': ctx.organizacaoId,
       'Content-Type': 'application/json',
     },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -661,7 +661,7 @@ export function normalizeHubRole(raw: string | undefined): HubUserRole {
   if (lower.includes('super_admin') || lower.includes('admin')) return 'admin'
   if (lower.includes('diretor') || lower.includes('director')) return 'diretor'
   if (lower.includes('gerente') || lower.includes('manager')) return 'gerente'
-  if (lower.includes('operador') || lower.includes('operator') || lower.includes('standard')) return 'operador'
+  if (lower.includes('operador') || lower.includes('operator') || lower.includes('padrao') || lower.includes('standard')) return 'operador'
   return 'default'
 }
 

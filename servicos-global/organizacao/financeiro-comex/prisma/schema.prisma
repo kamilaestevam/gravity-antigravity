@@ -1,0 +1,305 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// schema.prisma — ARQUIVO AUTO-GERADO
+// NÃO EDITAR MANUALMENTE. Edite schema.base.prisma ou fragment.prisma
+// Gerado por: node prisma/compose-schema.js
+// ──────────────────────────────────────────────────────────────────────────────
+
+// schema.base.prisma — Financeiro Comex
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos específicos de Financeiro Comex são definidos em fragment.prisma
+
+
+// ─── Fragment: Financeiro Comex ──────────────────────────────────────────
+
+// ============================================================
+// FINANCEIRO COMEX — fragment.prisma
+// Produto: financeiro-comex | Porta: 8029
+// ============================================================
+
+enum FinanceiroTipoOperacao {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum FinanceiroMoeda {
+  BRL
+  USD
+  EUR
+  GBP
+  CHF
+  CNY
+  ARS
+  UYU
+}
+
+enum FinanceiroPagamentoStatus {
+  PENDENTE
+  AGENDADO
+  PAGO
+}
+
+enum FinanceiroLancamentoTipo {
+  MANUAL
+  XML_DUIMP
+  PORTAL_UNICO
+  SMART_READ
+  PLANILHA
+  EMAIL
+}
+
+enum FinanceiroTipoDocumento {
+  BOLETO
+  NOTA_FISCAL
+  DEMONSTRATIVO
+  FATURA
+  FATURAMENTO
+  OUTRO
+}
+
+enum FinanceiroTipoFornecedor {
+  AGENTE_DE_CARGA
+  ARMADOR
+  CIA_AEREA
+  ARMAZEM_ALFANDEGADO
+  ARMAZEM
+  TRANSPORTADORA_RODOVIARIA
+  SEGURADORA
+  CORRETORA_DE_CAMBIO
+  EXPORTADOR
+  FABRICANTE
+  TRADING
+  DESPACHANTE
+  RECEITA_FEDERAL
+  OUTRO
+}
+
+enum FinanceiroGrupoCusto {
+  IMPOSTOS_FEDERAIS
+  CUSTO_OPERACIONAL
+}
+
+// Financeiro de um processo (1 por processo)
+model FinanceiroProcesso {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  processo_id      String   @unique
+  tipo_operacao    FinanceiroTipoOperacao
+  referencia       String?
+
+  total_brl        Decimal  @default(0) @db.Decimal(18, 4)
+  total_usd        Decimal  @default(0) @db.Decimal(18, 4)
+  total_eur        Decimal  @default(0) @db.Decimal(18, 4)
+  total_outros     Decimal  @default(0) @db.Decimal(18, 4)
+
+  saldo            Decimal  @default(0) @db.Decimal(18, 4)
+  adiantado        Decimal  @default(0) @db.Decimal(18, 4)
+  pagos            Decimal  @default(0) @db.Decimal(18, 4)
+  agendados        Decimal  @default(0) @db.Decimal(18, 4)
+  pendente         Decimal  @default(0) @db.Decimal(18, 4)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  lancamentos      FinanceiroLancamento[]
+  numerarios       FinanceiroNumerario[]
+  rateios          FinanceiroRateio[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, processo_id])
+}
+
+// Cada lancamento financeiro (movimentacao)
+model FinanceiroLancamento {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  categoria_id     String
+  categoria_nome   String
+  grupo_custo      FinanceiroGrupoCusto
+
+  moeda            FinanceiroMoeda
+  taxa_cambio      Decimal  @db.Decimal(10, 7)
+  valor            Decimal  @db.Decimal(18, 4)
+  valor_brl        Decimal  @db.Decimal(18, 4)
+
+  fornecedor_id    String?
+  fornecedor_nome  String?
+  tipo_fornecedor  FinanceiroTipoFornecedor?
+
+  condicao_id      String?
+  condicao_descricao String?
+  data_pagamento   DateTime?
+  data_vencimento  DateTime?
+  status_pagamento FinanceiroPagamentoStatus @default(PENDENTE)
+  observacao       String?
+
+  despesa_aduaneira Boolean  @default(false)
+  despesa_nf        Boolean  @default(false)
+  espelho_nf        Boolean  @default(true)
+
+  tipo_documento   FinanceiroTipoDocumento?
+  numero_documento String?
+
+  canal_entrada    FinanceiroLancamentoTipo @default(MANUAL)
+  icms_origem_portal Boolean @default(false)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  created_by       String
+
+  financeiro       FinanceiroProcesso   @relation(fields: [financeiro_id], references: [id])
+  categoria        FinanceiroCategorias @relation(fields: [categoria_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, financeiro_id])
+  @@index([tenant_id, status_pagamento])
+  @@index([tenant_id, data_vencimento])
+}
+
+// Catalogo de categorias de despesa (por tenant)
+model FinanceiroCategorias {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+
+  codigo           String
+  nome             String
+  grupo_custo      FinanceiroGrupoCusto
+  tipo_operacao    FinanceiroTipoOperacao?
+  conta_contabil   String?
+  centro_custo     String?
+  ativo            Boolean  @default(true)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  lancamentos      FinanceiroLancamento[]
+
+  @@unique([tenant_id, company_id, codigo])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, tipo_operacao])
+}
+
+// Condicoes de pagamento (por tenant)
+model FinanceiroCondicaoPagamento {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+
+  codigo           String
+  descricao        String
+  dias_prazo       Int?
+  ativo            Boolean  @default(true)
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@unique([tenant_id, company_id, codigo])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+}
+
+// Numerario (adiantamento ao despachante) — MODULO ISOLAVEL
+model FinanceiroNumerario {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  descricao        String
+  is_principal     Boolean  @default(false)
+  data             DateTime
+  valor_total      Decimal  @db.Decimal(18, 4)
+
+  documento_storage_key  String?
+  documento_nome         String?
+  documento_mime_type    String?
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  created_by       String
+
+  financeiro       FinanceiroProcesso    @relation(fields: [financeiro_id], references: [id])
+  despesas         FinanceiroNumerarioDespesa[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, financeiro_id])
+}
+
+// Despesas dentro de um numerario
+model FinanceiroNumerarioDespesa {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  numerario_id     String
+
+  descricao        String
+  moeda            FinanceiroMoeda
+  taxa_cambio      Decimal  @db.Decimal(10, 7)
+  valor            Decimal  @db.Decimal(18, 4)
+  valor_brl        Decimal  @db.Decimal(18, 4)
+  responsavel      String?
+
+  created_at       DateTime @default(now())
+
+  numerario        FinanceiroNumerario @relation(fields: [numerario_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, numerario_id])
+}
+
+// Registro de rateio gerado (arquivo Excel)
+model FinanceiroRateio {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String
+  financeiro_id    String
+
+  storage_key      String
+  nome_arquivo     String
+  gerado_em        DateTime @default(now())
+  gerado_por       String
+
+  financeiro       FinanceiroProcesso @relation(fields: [financeiro_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, financeiro_id])
+}
+
+// Historico imutavel (append-only)
+model FinanceiroHistorico {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  financeiro_id    String
+  lancamento_id    String?
+
+  acao             String
+  descricao        String
+  dados_anteriores Json?
+  dados_novos      Json?
+
+  user_id          String
+  user_nome        String
+  created_at       DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, financeiro_id])
+  @@index([tenant_id, lancamento_id])
+}
+

@@ -1,0 +1,34 @@
+{
+  "id": "TST-UNIT-TENANT-AE-001",
+  "versao": "1.0",
+  "geradoEm": "2026-04-20T00:00:00Z",
+  "geradoPor": "agente-plano-teste-unitario",
+  "escopo": "TENANT",
+  "modulo": "AlertEngine",
+  "tipoModulo": "servico",
+  "arquivoFilePath": "servicos-global/tenant/historico-global/server/services/alert-engine.ts",
+  "ambiente": "node",
+  "criticidade": "alta",
+  "coberturaMinima": 70,
+  "exportacoes": [
+    { "nome": "AlertEngine.check", "tipo": "metodo-async" },
+    { "nome": "AlertEngine.evaluateRule", "tipo": "metodo-async" }
+  ],
+  "mocks": [
+    { "modulo": "../../../../generated/index.js", "razao": "PrismaClient — evita conexão real ao banco; AcaoExecutadaPor/AlertaStatus — valores controlados" },
+    { "modulo": "./notification-dispatcher.js", "razao": "NotificationDispatcher.dispatch — sem side effects de notificação em teste" }
+  ],
+  "casos": [
+    { "id": "TST-UNIT-TENANT-AE-001", "metodo": "check", "categoria": "happy", "descricao": "regras vazias → resolve sem criar nenhum evento" },
+    { "id": "TST-UNIT-TENANT-AE-002", "metodo": "check", "categoria": "happy", "descricao": "1 regra ativa sem threshold → eventoAlerta criado e dispatch chamado" },
+    { "id": "TST-UNIT-TENANT-AE-003", "metodo": "check", "categoria": "edge", "descricao": "busca inclui regras globais (tenant_id null) via OR" },
+    { "id": "TST-UNIT-TENANT-AE-004", "metodo": "evaluateRule", "categoria": "edge", "descricao": "rule=null → retorna sem criar evento" },
+    { "id": "TST-UNIT-TENANT-AE-005", "metodo": "evaluateRule", "categoria": "sad", "descricao": "actor_type filter não bate com o log → sem evento" },
+    { "id": "TST-UNIT-TENANT-AE-006", "metodo": "evaluateRule", "categoria": "sad", "descricao": "action filter não bate com o log → sem evento" },
+    { "id": "TST-UNIT-TENANT-AE-007", "metodo": "evaluateRule", "categoria": "happy", "descricao": "sem threshold → evento criado com AlertaStatus.PENDENTE e audit_log_ids=[logId]" },
+    { "id": "TST-UNIT-TENANT-AE-008", "metodo": "evaluateRule", "categoria": "happy", "descricao": "sem threshold → actor_type castado para AcaoExecutadaPor no evento" },
+    { "id": "TST-UNIT-TENANT-AE-009", "metodo": "evaluateRule", "categoria": "sad", "descricao": "com threshold, count < mínimo → sem evento criado" },
+    { "id": "TST-UNIT-TENANT-AE-010", "metodo": "evaluateRule", "categoria": "happy", "descricao": "com threshold, count >= mínimo → evento criado com AlertaStatus.PENDENTE" }
+  ],
+  "resumoExecutivo": "Cobre as duas exportações do AlertEngine (check + evaluateRule). Foco em: (1) correta passagem de AlertaStatus.PENDENTE nos eventos criados, (2) cast de actor_type para AcaoExecutadaPor, (3) lógica de threshold. Enums AcaoExecutadaPor e AlertaStatus são mockados com seus valores string reais para validar o contrato de nomes pós-Fase 2."
+}

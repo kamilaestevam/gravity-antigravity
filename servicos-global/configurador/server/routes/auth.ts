@@ -8,7 +8,7 @@
 // Endpoint URL: https://<seu-dominio>/api/v1/webhooks/clerk
 //
 // Eventos que DEVEM estar habilitados:
-//   Categoria "User":
+//   Categoria "Usuario":
 //     ✅ user.created
 //     ✅ user.updated
 //     ✅ user.deleted
@@ -88,7 +88,7 @@ authRouter.post('/clerk', async (req, res, next) => {
 
     if (type === 'user.created') {
       // Verifica se o usuário já existe (idempotência)
-      const existing = await prisma.user.findFirst({
+      const existing = await prisma.usuario.findFirst({
         where: { clerk_user_id: data.id },
       })
       if (!existing) {
@@ -98,18 +98,18 @@ authRouter.post('/clerk', async (req, res, next) => {
     }
 
     if (type === 'user.updated' && primaryEmail) {
-      await prisma.user.updateMany({
+      await prisma.usuario.updateMany({
         where: { clerk_user_id: data.id },
         data: {
-          email: primaryEmail,
-          name: name || 'Sem nome',
+          email_usuario: primaryEmail,
+          nome_usuario:  name || 'Sem nome',
           updated_at: new Date(),
         },
       })
     }
 
     if (type === 'user.deleted') {
-      await prisma.user.deleteMany({
+      await prisma.usuario.deleteMany({
         where: { clerk_user_id: data.id },
       })
     }
@@ -118,23 +118,23 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.created' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email: true, name: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
-              actor_name: user.name ?? user.email,
+              actor_id: user.id_usuario,
+              actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
               resource_id: data.id,
               action: 'LOGIN',
-              action_detail: `Login realizado por ${user.name ?? user.email}`,
+              action_detail: `Login realizado por ${user.nome_usuario ?? user.email_usuario}`,
               status: 'SUCCESS',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -144,23 +144,23 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.ended' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email: true, name: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
-              actor_name: user.name ?? user.email,
+              actor_id: user.id_usuario,
+              actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
               resource_id: data.id,
               action: 'LOGOUT',
-              action_detail: `Logout de ${user.name ?? user.email}`,
+              action_detail: `Logout de ${user.nome_usuario ?? user.email_usuario}`,
               status: 'SUCCESS',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }
@@ -170,23 +170,23 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.revoked' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
-            select: { id: true, tenant_id: true, email: true, name: true },
+            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.tenant_id,
+              tenant_id: user.id_organizacao_usuario,
               actor_type: 'USER',
-              actor_id: user.id,
-              actor_name: user.name ?? user.email,
+              actor_id: user.id_usuario,
+              actor_name: user.nome_usuario ?? user.email_usuario,
               module: 'auth',
               resource_type: 'Session',
               resource_id: data.id,
               action: 'SESSION_REVOKED',
-              action_detail: `Sessão revogada de ${user.name ?? user.email}`,
+              action_detail: `Sessão revogada de ${user.nome_usuario ?? user.email_usuario}`,
               status: 'PARTIAL',
-              user_id: user.id,
+              user_id: user.id_usuario,
             })
           }
         } catch { /* fire-and-forget */ }

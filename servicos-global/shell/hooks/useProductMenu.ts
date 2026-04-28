@@ -37,9 +37,9 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
 
         // Busca catálogo e produtos da company em paralelo
         const [catRes, compRes] = await Promise.all([
-          fetch('/api/v1/products').catch(() => null),
+          fetch('/api/v1/produtos').catch(() => null),
           companyId
-            ? fetch(`/api/v1/companies/${companyId}/products`, {
+            ? fetch(`/api/v1/workspaces/${companyId}/produtos`, {
                 headers: { 'x-tenant-id': sessionStorage.getItem('gravity_tenant_id') ?? '' },
               }).catch(() => null)
             : Promise.resolve(null),
@@ -51,7 +51,7 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
         const catalogProducts: { slug: string; name: string; status: string }[] = []
         if (catRes && catRes.ok) {
           const data = await catRes.json()
-          ;(data.products ?? []).forEach((p: any) => {
+          ;(data.products ?? []).forEach((p: { slug: string; name: string; status: string }) => {
             if (p.status === 'Ativo') {
               catalogProducts.push({ slug: p.slug, name: p.name, status: p.status })
             }
@@ -62,7 +62,7 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
         const companyKeys = new Set<string>()
         if (compRes && compRes.ok) {
           const data = await compRes.json()
-          ;(data.products ?? []).forEach((p: any) => {
+          ;(data.products ?? []).forEach((p: { product_key: string; is_active: boolean }) => {
             if (p.is_active) companyKeys.add(p.product_key)
           })
         }

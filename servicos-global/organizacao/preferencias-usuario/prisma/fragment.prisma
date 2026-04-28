@@ -1,0 +1,37 @@
+// servicos-global/tenant/preferencias-usuario/prisma/fragment.prisma
+// SERVIÇO PREFERÊNCIAS DO USUÁRIO — ONDA 35 (DDD Servicos)
+//
+// Fragment Prisma para persistência cross-device de preferências de UI.
+// id_usuario_* vem do Clerk (clerk_user_id).
+// O Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// WorkspacePreferenciaUsuario — preferências de UI por usuário (cross-device)
+// ---------------------------------------------------------------------------
+
+model WorkspacePreferenciaUsuario {
+  id_preferencia_workspace             String   @id @default(cuid())
+
+  // Identificação — obrigatórios
+  id_organizacao_preferencia_workspace String
+  id_usuario_preferencia_workspace     String   @unique
+
+  // ── Preferências de UI ───────────────────────────────────────────────────
+  // Visibilidade global das tooltips/dicas (REGRA 5: adjetivo, sem is_/has_)
+  tooltips_desabilitado_preferencia_workspace Boolean @default(false)
+
+  // Tema preferido ('dark' | 'light')
+  tema_preferencia_workspace                  String  @default("dark")
+
+  // Sidebar aberta ou fechada (REGRA 5: adjetivo)
+  sidebar_aberta_preferencia_workspace        Boolean @default(true)
+
+  // Timestamps
+  data_criacao_preferencia_workspace     DateTime @default(now())
+  data_atualizacao_preferencia_workspace DateTime @updatedAt
+
+  @@index([id_usuario_preferencia_workspace],                                                map: "pwk_usr_idx")
+  @@index([id_organizacao_preferencia_workspace],                                            map: "pwk_org_idx")
+  @@index([id_organizacao_preferencia_workspace, id_usuario_preferencia_workspace],          map: "pwk_org_usr_idx")
+  @@map("preferencia_workspace")
+}

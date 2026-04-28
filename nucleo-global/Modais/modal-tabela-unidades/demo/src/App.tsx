@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Ruler, CurrencyDollar } from '@phosphor-icons/react'
 import {
-  ModalTabelaUnidades,
+  ModalTabelaUnidadesGlobal,
   InputUnidade,
 } from '@nucleo/modal-tabela-unidades'
 import {
-  ModalTabelaMoeda,
+  ModalTabelaMoedaGlobal,
   InputMoeda,
 } from '@nucleo/modal-tabela-moeda'
 
@@ -53,7 +53,7 @@ export default function App() {
             {/* 1a. Abrir modal direto */}
             <div>
               <div className="demo-card-label" style={{ marginBottom: '0.75rem' }}>
-                ModalTabelaUnidades — abre tabela Siscomex
+                ModalTabelaUnidadesGlobal — abre tabela Siscomex
               </div>
               <div className="demo-btn-row">
                 <button className="demo-btn" onClick={() => setModalUnidadeAberto(true)}>
@@ -100,7 +100,7 @@ export default function App() {
             {/* 2a. Abrir modal direto */}
             <div>
               <div className="demo-card-label" style={{ marginBottom: '0.75rem' }}>
-                ModalTabelaMoeda — abre tabela ISO 4217 / Siscomex
+                ModalTabelaMoedaGlobal — abre tabela ISO 4217 / Siscomex
               </div>
               <div className="demo-btn-row">
                 <button className="demo-btn" onClick={() => setModalMoedaAberto(true)}>
@@ -137,14 +137,14 @@ export default function App() {
       </main>
 
       {/* ── Modais ────────────────────────────────────────────────────────────── */}
-      <ModalTabelaUnidades
+      <ModalTabelaUnidadesGlobal
         aberto={modalUnidadeAberto}
         aoFechar={() => setModalUnidadeAberto(false)}
         aoSelecionar={(u) => { setUnidadeSelecionada(u.sigla); setModalUnidadeAberto(false) }}
         unidadeSelecionada={unidadeSelecionada}
       />
 
-      <ModalTabelaMoeda
+      <ModalTabelaMoedaGlobal
         aberto={modalMoedaAberto}
         aoFechar={() => setModalMoedaAberto(false)}
         aoSelecionar={(m) => { setMoedaSelecionada(m.sigla); setModalMoedaAberto(false) }}

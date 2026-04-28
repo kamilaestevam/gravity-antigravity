@@ -22,7 +22,7 @@
 | 12 | Filtros e busca | baixa:0 / media:3 / alta:6 / crit:10 | E2E + FUN | 🟡 |
 | 13 | Ordenação | baixa:0 / media:2 / alta:4 / crit:6 | E2E | 🟢 |
 | 14 | Permissões / RBAC | baixa:1 / media:3 / alta:6 / crit:10 | E2E + FUN | 🔴 |
-| 15 | Multi-tenant / isolamento | baixa:1 / media:2 / alta:4 / crit:6 | CRO | 🔴 |
+| 15 | Multi-organização / isolamento | baixa:1 / media:2 / alta:4 / crit:6 | CRO | 🔴 |
 | 16 | Acessibilidade (a11y) | baixa:2 / media:4 / alta:6 / crit:8 | E2E | 🟡 |
 | 17 | Responsividade | baixa:1 / media:3 / alta:4 / crit:5 | E2E | 🟡 |
 | 18 | Internacionalização (i18n) | baixa:1 / media:2 / alta:4 / crit:5 | E2E | 🟢 |
@@ -202,27 +202,28 @@
 ---
 
 ### 14. Permissões / RBAC 🔴
-**O que cobre:** quem vê o quê, quem edita, quem deleta — por role.
+**O que cobre:** quem vê o quê, quem edita, quem deleta — por `tipo_usuario`.
 
-**Passos típicos por role (USER, ADMIN, SUPER_ADMIN):**
-- Logar como USER → verificar quais botões/campos aparecem (read-only?)
+**Passos típicos por `tipo_usuario` (USUARIO, ADMIN, SUPER_ADMIN):**
+- Logar como USUARIO → verificar quais botões/campos aparecem (read-only?)
 - Logar como ADMIN → verificar botões de edição visíveis
 - Logar como SUPER_ADMIN → verificar botões de delete + admin features
-- Tentar acessar URL diretamente sem role → ver 403
+- `tipo_usuario` lido SEMPRE de `GET /api/v1/me` validado por Zod (Mandamento 01) — NUNCA de `publicMetadata`
+- Tentar acessar URL diretamente sem `tipo_usuario` adequado → ver 403
 - (criticidade crit) Tentar burlar via DevTools (remover `disabled`) → backend rejeita
 
 ---
 
-### 15. Multi-tenant / isolamento 🔴
-**O que cobre:** Tenant A não vê dados do Tenant B. **Mora em `testes-cross-tenant`.**
+### 15. Multi-organização / isolamento 🔴
+**O que cobre:** Organização A não vê dados da Organização B. **Mora em `testes-cross-organização` (nome de pasta legado preservado para compatibilidade).**
 
 **Passos típicos:**
-- Criar dado no Tenant A
-- Logar como Tenant B
-- Tentar acessar a tela → não vê o dado do A
-- Tentar acessar URL `/x/<id-do-A>` direto → 404 (não 403, pra não vazar existência)
-- Tentar editar via API com token do B mas id do A → 404
-- Verificar no banco que o registro do A continua intacto
+- Criar dado na Organização A
+- Logar como Organização B
+- Tentar acessar a tela → não vê o dado de A
+- Tentar acessar URL `/x/<id-de-A>` direto → 404 (não 403, pra não vazar existência)
+- Tentar editar via API com token de B mas id de A → 404
+- Verificar no banco que o registro de A continua intacto
 
 ---
 
@@ -314,7 +315,7 @@ EXCEÇÕES:
   "categoria": 6,
   "nome": "Create / Criação",
   "status": "nao_aplicavel",
-  "justificativa": "Tela Organização não permite criar — só editar a organização única do tenant. CREATE acontece no onboarding via fluxo separado (TST-E2E-CONFIG-000010).",
+  "justificativa": "Tela Organização não permite criar — só editar a Organização única. CREATE acontece no onboarding via fluxo separado (TST-E2E-CONFIG-000010).",
   "passos": []
 }
 ```

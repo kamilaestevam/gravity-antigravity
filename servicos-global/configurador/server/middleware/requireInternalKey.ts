@@ -1,6 +1,6 @@
 // server/middleware/requireInternalKey.ts
 // Valida x-internal-key em rotas internas (S2S)
-// Deve ser aplicado em todas as rotas /api/internal/*
+// Deve ser aplicado em todas as rotas /api/v1/internal/*
 
 import type { Request, Response, NextFunction } from 'express'
 import { timingSafeEqual } from 'crypto'

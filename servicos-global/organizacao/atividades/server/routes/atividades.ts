@@ -181,7 +181,7 @@ router.get('/', async (req, res, next) => {
     if (!q.success) throw new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR')
 
     const { page, limit, busca, status, tipo, prioridade, assignee, prazo, data_de, data_ate } = q.data
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
 
     // Filtro base — sempre filtra por tenant via campo físico DDD
     const where: Record<string, unknown> = {
@@ -189,10 +189,10 @@ router.get('/', async (req, res, next) => {
     }
 
     // assignee=me : atividades criadas pelo usuário OU onde é participante
-    if (assignee === 'me' && req.auth.userId) {
+    if (assignee === 'me' && req.auth.id_usuario) {
       where.OR = [
-        { id_usuario_atividades_dados: req.auth.userId },
-        { participantes_atividades_dados: { some: { id_usuario_atividades_participantes: req.auth.userId } } },
+        { id_usuario_atividades_dados: req.auth.id_usuario },
+        { participantes_atividades_dados: { some: { id_usuario_atividades_participantes: req.auth.id_usuario } } },
       ]
     }
 
@@ -258,7 +258,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id_atividade', async (req, res, next) => {
   try {
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
     const row = await prisma.atividadeDados.findFirst({
       where: {
         id_atividades_dados: req.params.id_atividade,
@@ -287,12 +287,12 @@ router.post('/', async (req, res, next) => {
     }
 
     const { participantes, ...data } = result.data
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
 
     const row = await prisma.atividadeDados.create({
       data: {
         id_organizacao_atividades_dados:           tenantId,
-        id_usuario_atividades_dados:               req.auth.userId,
+        id_usuario_atividades_dados:               req.auth.id_usuario,
         titulo_atividades_dados:                   data.titulo,
         descricao_atividades_dados:                data.descricao,
         tipo_atividades_dados:                     data.tipo,
@@ -337,7 +337,7 @@ router.patch('/:id_atividade', async (req, res, next) => {
     }
 
     const { participantes, ...data } = result.data
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
 
     const existing = await prisma.atividadeDados.findFirst({
       where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
@@ -393,7 +393,7 @@ router.patch('/:id_atividade', async (req, res, next) => {
 
 router.delete('/:id_atividade', async (req, res, next) => {
   try {
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
     const existing = await prisma.atividadeDados.findFirst({
       where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
     })
@@ -418,7 +418,7 @@ router.post('/:id_atividade/cronometro/alternar', async (req, res, next) => {
       })
     }
 
-    const tenantId = req.auth.tenantId
+    const tenantId = req.auth.id_organizacao
     const existing = await prisma.atividadeDados.findFirst({
       where: { id_atividades_dados: req.params.id_atividade, id_organizacao_atividades_dados: tenantId },
     })

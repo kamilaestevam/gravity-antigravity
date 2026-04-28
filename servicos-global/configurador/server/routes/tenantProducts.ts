@@ -32,7 +32,7 @@ const SubscribeSchema = z.object({
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
     const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: { id_organizacao_config_produto_gravity: req.auth.tenantId },
+      where: { id_organizacao_config_produto_gravity: req.auth.id_organizacao },
       orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
@@ -98,12 +98,12 @@ tenantProductsRouter.post('/assinar-produto', requireAuth, async (req, res, next
     const config = await prisma.produtoGravityConfiguracao.upsert({
       where: {
         id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
           chave_produto_config_produto_gravity: product_key,
         },
       },
       create: {
-        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        id_organizacao_config_produto_gravity: req.auth.id_organizacao,
         chave_produto_config_produto_gravity: product_key,
         configuracao_config_produto_gravity: {},
         ativo_config_produto_gravity: true,
@@ -128,7 +128,7 @@ tenantProductsRouter.delete('/:id_organizacao', requireAuth, async (req, res, ne
   try {
     await prisma.produtoGravityConfiguracao.updateMany({
       where: {
-        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        id_organizacao_config_produto_gravity: req.auth.id_organizacao,
         chave_produto_config_produto_gravity: req.params.id_organizacao,
       },
       data: { ativo_config_produto_gravity: false },

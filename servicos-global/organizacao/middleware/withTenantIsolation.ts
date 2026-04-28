@@ -6,7 +6,7 @@
 //
 // Uso:
 //   import { withTenantIsolation } from '@tenant/middleware/tenant-isolation'
-//   const db = withTenantIsolation(prisma, req.auth.tenantId)
+//   const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 //   const items = await db.activity.findMany({ where: { status: 'DONE' } })
 //                                       ^-- tenant_id injetado automaticamente
 //

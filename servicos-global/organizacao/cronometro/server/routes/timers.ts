@@ -173,7 +173,7 @@ timersRouter.use(requireAuth)
 // ---------------------------------------------------------------------------
 
 timersRouter.get('/cronometros/stream', (req: Request, res: Response) => {
-  const { tenantId, userId } = req.auth
+  const { id_organizacao: tenantId, id_usuario: userId } = req.auth
   setupSSEConnection(req, res, tenantId, userId)
 
   // Envia estado inicial do timer ativo (se houver)
@@ -212,7 +212,7 @@ timersRouter.get('/cronometros/stream', (req: Request, res: Response) => {
 
 timersRouter.get('/cronometros/ativo', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     const active = await prisma.usuarioStatusCronometro.findFirst({
       where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId },
@@ -253,7 +253,7 @@ timersRouter.get('/atividades/:id_atividade/cronometro', async (req: Request, re
     const parsed = ParamActivityId.safeParse(req.params)
     if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     const sessions = await prisma.usuarioHistoricoCronometro.findMany({
       where: {
@@ -288,7 +288,7 @@ timersRouter.post(
       const parsed = ParamActivityId.safeParse(req.params)
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
       const now = new Date()
 
       // Pausa qualquer timer ativo existente do usuário
@@ -388,7 +388,7 @@ timersRouter.post(
       const parsed = ParamActivityId.safeParse(req.params)
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
       const now = new Date()
 
       const active = await prisma.usuarioStatusCronometro.findFirst({
@@ -442,7 +442,7 @@ timersRouter.post(
       const parsed = ParamActivityId.safeParse(req.params)
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
       const now = new Date()
 
       const active = await prisma.usuarioStatusCronometro.findFirst({
@@ -523,7 +523,7 @@ timersRouter.post(
       const bodyParsed = ManualEntrySchema.safeParse(req.body)
       if (!bodyParsed.success) throw AppError.validation(bodyParsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
       const { duration_minutes, subject, linked_type, linked_id, linked_label, product_id, started_at } =
         bodyParsed.data
 
@@ -569,7 +569,7 @@ timersRouter.patch(
       const bodyParsed = PatchSessionSchema.safeParse(req.body)
       if (!bodyParsed.success) throw AppError.validation(bodyParsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
       const existing = await prisma.usuarioHistoricoCronometro.findFirst({
         where: {
@@ -609,7 +609,7 @@ timersRouter.delete(
       const paramParsed = ParamSessionId.safeParse(req.params)
       if (!paramParsed.success) throw AppError.validation(paramParsed.error.errors[0].message)
 
-      const { tenantId, userId } = req.auth
+      const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
       const existing = await prisma.usuarioHistoricoCronometro.findFirst({
         where: {
@@ -640,12 +640,12 @@ timersRouter.get('/cronometros/relatorio', async (req: Request, res: Response, n
     const queryParsed = ReportQuerySchema.safeParse(req.query)
     if (!queryParsed.success) throw AppError.validation(queryParsed.error.errors[0].message)
 
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const { user_id, product_id, activity_id, period_start, period_end } = queryParsed.data
 
     // Usuários comuns só podem ver seu próprio relatório
     const effectiveUserId =
-      req.auth.role === 'admin' ? user_id ?? userId : userId
+      req.auth.tipo_usuario === 'admin' ? user_id ?? userId : userId
 
     const sessions = await prisma.usuarioHistoricoCronometro.findMany({
       where: {

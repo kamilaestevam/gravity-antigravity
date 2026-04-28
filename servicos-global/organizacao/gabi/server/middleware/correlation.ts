@@ -7,8 +7,8 @@ declare global {
     interface Request {
       correlationId: string
       auth: {
-        tenantId: string
-        userId: string
+        id_organizacao: string
+        id_usuario: string
       }
     }
   }

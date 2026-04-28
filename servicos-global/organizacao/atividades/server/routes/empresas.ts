@@ -46,7 +46,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page, limit, busca, status, segmento } = query.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 
     const where = {
       ...(busca && {
@@ -90,7 +90,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id_empresa', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const empresa = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!empresa) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     res.json(empresa)
@@ -116,9 +116,9 @@ router.post('/', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const empresa = await db.empresa.create({
-      data: { ...result.data, user_id: req.auth.userId },
+      data: { ...result.data, user_id: req.auth.id_usuario },
     })
     res.status(201).json(empresa)
   } catch (err) {
@@ -143,7 +143,7 @@ router.patch('/:id_empresa', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!existing) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
 
@@ -163,7 +163,7 @@ router.patch('/:id_empresa', async (req, res, next) => {
 
 router.delete('/:id_empresa', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.empresa.findFirst({ where: { id: req.params.id_empresa } })
     if (!existing) throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
 

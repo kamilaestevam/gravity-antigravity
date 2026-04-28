@@ -40,7 +40,7 @@ function toAgendaDto(a: {
 agendaRouter.post('/', async (req, res, next) => {
   try {
     const data = agendaSchema.parse(req.body)
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     const agenda = await prisma.usuarioAgenda.create({
       data: {
@@ -60,7 +60,7 @@ agendaRouter.post('/', async (req, res, next) => {
 
 agendaRouter.get('/', async (req, res, next) => {
   try {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const agendas = await prisma.usuarioAgenda.findMany({
       where: { id_organizacao_agenda_usuario: tenantId },
       orderBy: { data_criacao_agenda_usuario: 'desc' },
@@ -74,7 +74,7 @@ agendaRouter.get('/', async (req, res, next) => {
 agendaRouter.get('/:id_agenda', async (req, res, next) => {
   try {
     const { id_agenda } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const agenda = await prisma.usuarioAgenda.findFirst({
       where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },
     })
@@ -91,7 +91,7 @@ agendaRouter.put('/:id_agenda', async (req, res, next) => {
   try {
     const { id_agenda } = req.params
     const data = agendaSchema.partial().parse(req.body)
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioAgenda.findFirst({
       where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },
@@ -119,7 +119,7 @@ agendaRouter.put('/:id_agenda', async (req, res, next) => {
 agendaRouter.delete('/:id_agenda', async (req, res, next) => {
   try {
     const { id_agenda } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioAgenda.findFirst({
       where: { id_agenda_usuario: id_agenda, id_organizacao_agenda_usuario: tenantId },

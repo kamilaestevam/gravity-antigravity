@@ -19,6 +19,6 @@ export function authMiddleware(
 
   const userId = (req.headers['x-user-id'] as string | undefined) ?? 'system'
 
-  req.auth = { tenantId, userId }
+  req.auth = { id_organizacao: tenantId, id_usuario: userId }
   next()
 }

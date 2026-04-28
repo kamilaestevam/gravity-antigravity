@@ -15,7 +15,7 @@ export function authMiddleware(
   // Rotas inter-serviço (admin, S2S) passam com x-internal-key — sem tenant_id
   const internalKey = req.headers['x-internal-key'] as string | undefined
   if (INTERNAL_KEY && internalKey === INTERNAL_KEY) {
-    req.auth = { tenantId: '__internal__', userId: 'system' }
+    req.auth = { id_organizacao: '__internal__', id_usuario: 'system' }
     return next()
   }
 
@@ -29,6 +29,6 @@ export function authMiddleware(
     return
   }
 
-  req.auth = { tenantId, userId: userId ?? '' }
+  req.auth = { id_organizacao: tenantId, id_usuario: userId ?? '' }
   next()
 }

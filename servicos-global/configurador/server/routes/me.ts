@@ -53,7 +53,7 @@ meRouter.use(requireAuth)
 meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id_usuario: req.auth.userId },
+      where: { id_usuario: req.auth.id_usuario },
       select: {
         id_usuario: true,
         nome_usuario: true,
@@ -202,13 +202,13 @@ async function isPreferredCompanyValid(
 meRouter.get('/preferencias', async (req, res, next) => {
   try {
     // Fornecedor nunca tem preferido
-    if (req.auth.role === 'FORNECEDOR') {
+    if (req.auth.tipo_usuario === 'FORNECEDOR') {
       res.json({ data: { preferredCompanyId: null } })
       return
     }
 
     const user = await prisma.usuario.findUnique({
-      where: { id_usuario: req.auth.userId },
+      where: { id_usuario: req.auth.id_usuario },
       select: { preferred_company_id: true },
     })
 
@@ -220,16 +220,16 @@ meRouter.get('/preferencias', async (req, res, next) => {
     // Double-check de integridade: a FK onDelete:SetNull cobre deleção de company,
     // mas não cobre revogação de membership (is_active=false) ou company INACTIVE.
     const valid = await isPreferredCompanyValid(
-      req.auth.userId,
-      req.auth.tenantId,
+      req.auth.id_usuario,
+      req.auth.id_organizacao,
       user.preferred_company_id,
-      req.auth.role,
+      req.auth.tipo_usuario,
     )
 
     if (!valid) {
       // Fallback silencioso: limpa o campo e retorna null
       await prisma.usuario.update({
-        where: { id_usuario: req.auth.userId },
+        where: { id_usuario: req.auth.id_usuario },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -258,7 +258,7 @@ meRouter.get('/preferencias', async (req, res, next) => {
 meRouter.put('/preferencias', async (req, res, next) => {
   try {
     // Camada 3 — Autorização: fornecedor não pode marcar preferido
-    if (req.auth.role === 'FORNECEDOR') {
+    if (req.auth.tipo_usuario === 'FORNECEDOR') {
       throw new AppError(
         'Fornecedores não podem definir workspace preferido',
         403,
@@ -281,7 +281,7 @@ meRouter.put('/preferencias', async (req, res, next) => {
     // Caso 1: desmarcar — sempre permitido
     if (preferredCompanyId === null) {
       await prisma.usuario.update({
-        where: { id_usuario: req.auth.userId },
+        where: { id_usuario: req.auth.id_usuario },
         data: { preferred_company_id: null },
       })
       res.json({ data: { preferredCompanyId: null } })
@@ -291,10 +291,10 @@ meRouter.put('/preferencias', async (req, res, next) => {
     // Caso 2: marcar — valida acesso à company conforme o role
     // (admin Gravity via tenant, cliente via membership — sempre com tenant isolation)
     const valid = await isPreferredCompanyValid(
-      req.auth.userId,
-      req.auth.tenantId,
+      req.auth.id_usuario,
+      req.auth.id_organizacao,
       preferredCompanyId,
-      req.auth.role,
+      req.auth.tipo_usuario,
     )
 
     if (!valid) {
@@ -306,7 +306,7 @@ meRouter.put('/preferencias', async (req, res, next) => {
     }
 
     await prisma.usuario.update({
-      where: { id_usuario: req.auth.userId },
+      where: { id_usuario: req.auth.id_usuario },
       data: { preferred_company_id: preferredCompanyId },
     })
 

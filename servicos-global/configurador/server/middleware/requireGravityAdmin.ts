@@ -14,11 +14,11 @@ export async function requireGravityAdmin(
   next: NextFunction
 ): Promise<void> {
   try {
-    if (!req.auth?.role) {
+    if (!req.auth?.tipo_usuario) {
       throw new AppError('Autenticação necessária', 401, 'UNAUTHORIZED')
     }
 
-    if (!GRAVITY_ROLES.has(req.auth.role)) {
+    if (!GRAVITY_ROLES.has(req.auth.tipo_usuario)) {
       throw new AppError(
         'Acesso restrito a administradores Gravity',
         403,

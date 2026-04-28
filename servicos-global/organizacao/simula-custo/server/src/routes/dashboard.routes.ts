@@ -12,7 +12,7 @@ import type { Request, Response, NextFunction } from 'express'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }

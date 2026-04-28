@@ -96,7 +96,7 @@ adminNcmIntegracaoRouter.get('/historico', async (req, res, next) => {
 
 adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode disparar sync', 403, 'FORBIDDEN')
     }
 
@@ -118,14 +118,14 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
 
     const result = await executarSync(tenantPrisma, tenantId, {
       origem:       'MANUAL',
-      disparadoPor: req.auth.userId,
+      disparadoPor: req.auth.id_usuario,
     })
 
     AuditService.log({
-      tenant_id:     req.auth.tenantId,
+      tenant_id:     req.auth.id_organizacao,
       actor_type:    'USER',
-      actor_id:      req.auth.userId,
-      actor_name:    req.auth.userId,
+      actor_id:      req.auth.id_usuario,
+      actor_name:    req.auth.id_usuario,
       actor_ip:      req.ip,
       module:        'admin',
       resource_type: 'NcmSync',
@@ -177,7 +177,7 @@ const SaveScheduleSchema = z.object({
 
 adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamento', 403, 'FORBIDDEN')
     }
 
@@ -197,10 +197,10 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
     reagendarJob(cron_expressao, ativo)
 
     AuditService.log({
-      tenant_id:     req.auth.tenantId,
+      tenant_id:     req.auth.id_organizacao,
       actor_type:    'USER',
-      actor_id:      req.auth.userId,
-      actor_name:    req.auth.userId,
+      actor_id:      req.auth.id_usuario,
+      actor_name:    req.auth.id_usuario,
       actor_ip:      req.ip,
       module:        'admin',
       resource_type: 'NcmSchedule',
@@ -230,7 +230,7 @@ const ExecuteSchema = z.object({
 
 adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode executar sync', 403, 'FORBIDDEN')
     }
 

@@ -30,7 +30,7 @@ threadsRouter.get(
     }
 
     const { status, sentiment, page, limit } = parse.data
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const skip = (page - 1) * limit
 
     const where = {
@@ -63,7 +63,7 @@ threadsRouter.get(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_thread_email } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
@@ -101,7 +101,7 @@ threadsRouter.patch(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_thread_email } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const parse = statusSchema.safeParse(req.body)
     if (!parse.success) {

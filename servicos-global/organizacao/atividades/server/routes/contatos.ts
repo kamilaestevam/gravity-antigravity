@@ -46,7 +46,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page, limit, busca, empresa_id, cargo } = query.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 
     const where = {
       ...(busca && {
@@ -90,7 +90,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id_contato', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const contato = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!contato) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
     res.json(contato)
@@ -116,9 +116,9 @@ router.post('/', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const contato = await db.contato.create({
-      data: { ...result.data, user_id: req.auth.userId },
+      data: { ...result.data, user_id: req.auth.id_usuario },
     })
     res.status(201).json(contato)
   } catch (err) {
@@ -143,7 +143,7 @@ router.patch('/:id_contato', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!existing) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
 
@@ -163,7 +163,7 @@ router.patch('/:id_contato', async (req, res, next) => {
 
 router.delete('/:id_contato', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.contato.findFirst({ where: { id: req.params.id_contato } })
     if (!existing) throw new AppError('Contato não encontrado', 404, 'NOT_FOUND')
 

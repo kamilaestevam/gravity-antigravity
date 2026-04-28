@@ -81,7 +81,7 @@ apiCockpitRouter.get('/services', async (_req, res) => {
 
 apiCockpitRouter.get('/logs', async (req, res) => {
   try {
-    const tenantId = req.auth?.tenantId || (req.headers['x-tenant-id'] as string) || ''
+    const tenantId = req.auth?.id_organizacao || (req.headers['x-tenant-id'] as string) || ''
     const data = await proxyToCockpit('/logs', {
       tenant_id: tenantId,
       product_id: (req.query.product_id as string) || '',

@@ -49,7 +49,7 @@ function toConfigDto(c: {
 configRouter.post('/', async (req, res, next) => {
   try {
     const data = configSchema.parse(req.body)
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const id_agenda = ((req.params as { id_agenda?: string }).id_agenda) ?? data.agenda_id
     if (!id_agenda) {
       throw new AppError('id_agenda obrigatório', 400)
@@ -77,7 +77,7 @@ configRouter.post('/', async (req, res, next) => {
 configRouter.get('/', async (req, res, next) => {
   try {
     const { id_agenda } = req.params as { id_agenda: string }
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const config = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {
@@ -98,7 +98,7 @@ configRouter.put('/:id_configuracao_disponibilidade', async (req, res, next) => 
   try {
     const { id_configuracao_disponibilidade } = req.params as { id_configuracao_disponibilidade: string }
     const data = configSchema.partial().parse(req.body)
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {
@@ -132,7 +132,7 @@ configRouter.put('/:id_configuracao_disponibilidade', async (req, res, next) => 
 configRouter.delete('/:id_configuracao_disponibilidade', async (req, res, next) => {
   try {
     const { id_configuracao_disponibilidade } = req.params as { id_configuracao_disponibilidade: string }
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioConfiguracaoAgenda.findFirst({
       where: {

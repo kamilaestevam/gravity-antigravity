@@ -254,7 +254,7 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
     }
 
     // Impede que admin suspenda/cancele a própria organização HQ
-    if (req.params.id_organizacao === req.auth.tenantId) {
+    if (req.params.id_organizacao === req.auth.id_organizacao) {
       throw new AppError('Não é possível alterar o status da própria organização HQ', 403, 'FORBIDDEN')
     }
 
@@ -276,10 +276,10 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Organizacao',
@@ -327,10 +327,10 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Organizacao',
@@ -379,10 +379,10 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Workspace',
@@ -505,10 +505,10 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     ])
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Usuario',
@@ -636,10 +636,10 @@ adminRouter.post('/faturas', async (req, res, next) => {
     // Audit trail imutável (fire-and-forget) — compliance LGPD/SOC2 pra operações financeiras.
     // O frontend (useHistoricoLogger) é best-effort; audit no backend é a fonte autoritária.
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Invoice',
@@ -671,10 +671,10 @@ adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
     const invoice = await provider.voidInvoice({ id: req.params.id_fatura, reason: parsed.data.reason })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Invoice',
@@ -702,10 +702,10 @@ adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
     const invoice = await provider.sendInvoice(req.params.id_fatura)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Invoice',
@@ -779,7 +779,7 @@ adminRouter.post('/registros-deploy', async (req, res, next) => {
 
     // Resolve nome do admin a partir do banco
     const user = await prisma.usuario.findUnique({
-      where: { id_usuario: req.auth.userId },
+      where: { id_usuario: req.auth.id_usuario },
       select: { id_usuario: true, nome_usuario: true, email_usuario: true },
     })
     const deployedBy = user?.nome_usuario ?? user?.email_usuario ?? req.auth.clerkUserId
@@ -959,7 +959,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
     // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
     // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
     // POST /admin/usuarios-globais/:id_usuario/promote.
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }
 
@@ -993,10 +993,10 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
 
     // Audit trail: início do run — quem disparou, com quais planos/módulos
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'TestRun',
@@ -1082,10 +1082,10 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
       const reprovados = entries.filter(e => e.result === 'REPROVADO').length
       const erros = entries.filter(e => e.result === 'ERRO').length
       AuditService.log({
-        tenant_id: req.auth.tenantId,
+        tenant_id: req.auth.id_organizacao,
         actor_type: 'USER',
-        actor_id: req.auth.userId,
-        actor_name: req.auth.userId,
+        actor_id: req.auth.id_usuario,
+        actor_name: req.auth.id_usuario,
         actor_ip: req.ip,
         module: 'admin',
         resource_type: 'TestRun',
@@ -1196,10 +1196,10 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
     const reprovados = entries.filter(e => e.result === 'REPROVADO').length
     const erros = entries.filter(e => e.result === 'ERRO').length
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'TestLogBatch',
@@ -1301,7 +1301,7 @@ const PromoteSchema = z.object({
 adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next) => {
   try {
     // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode promover usuários', 403, 'FORBIDDEN')
     }
 
@@ -1315,7 +1315,7 @@ adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next
     }
 
     // Impede auto-promoção/alteração
-    if (req.params.id_usuario === req.auth.userId) {
+    if (req.params.id_usuario === req.auth.id_usuario) {
       throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
     }
 
@@ -1323,7 +1323,7 @@ adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next
       where: { id_usuario: req.params.id_usuario },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
     })
-    if (!user || user.id_organizacao_usuario !== req.auth.tenantId) {
+    if (!user || user.id_organizacao_usuario !== req.auth.id_organizacao) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -1333,7 +1333,7 @@ adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
-    securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
+    securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
       targetUserId: req.params.id_usuario,
       oldRole: user.tipo_usuario,
       newRole: updated.tipo_usuario,
@@ -1369,12 +1369,12 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     const { email, name, role } = parsed.data
 
     // ADMIN não pode criar SUPER_ADMIN ou outro ADMIN
-    if (req.auth.role === 'ADMIN' && (role === 'SUPER_ADMIN' || role === 'ADMIN')) {
+    if (req.auth.tipo_usuario === 'ADMIN' && (role === 'SUPER_ADMIN' || role === 'ADMIN')) {
       throw new AppError('ADMIN não pode convidar usuários com role SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao_usuario: req.auth.tenantId } })
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao_usuario: req.auth.id_organizacao } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1387,7 +1387,7 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
     const user = await prisma.usuario.create({
       data: {
-        id_organizacao_usuario: req.auth.tenantId,
+        id_organizacao_usuario: req.auth.id_organizacao,
         clerk_user_id: `pending_${invitation.id}`,
         email_usuario: email,
         nome_usuario:  name,
@@ -1396,10 +1396,10 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Usuario',
@@ -1461,10 +1461,10 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'PlatformConfig',
@@ -1507,7 +1507,7 @@ const GeneratePlanSchema = z.object({
  */
 adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar planos', 403, 'FORBIDDEN')
     }
 
@@ -1519,10 +1519,10 @@ adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
     const plan = await generateTestPlan(parsed.data)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'TestPlan',
@@ -1550,7 +1550,7 @@ const ExpandPlanSchema = z.object({
 
 adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode expandir planos', 403, 'FORBIDDEN')
     }
 
@@ -1582,10 +1582,10 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
     const expanded = await expandTestPlan(existingPlan, parsed.data.componenteFilePath)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'TestPlan',
@@ -1607,7 +1607,7 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
  */
 adminRouter.post('/testes-gerais/planos/:id_plano_teste/gerar-spec', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode gerar specs', 403, 'FORBIDDEN')
     }
 
@@ -1672,7 +1672,7 @@ adminRouter.post('/testes-gerais/planos/extrair-testids', async (req, res, next)
  */
 adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode reanalizar', 403, 'FORBIDDEN')
     }
 
@@ -1696,10 +1696,10 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
     updateLogEntryAnalysis(req.params.id_log_teste, analysis)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
@@ -1722,7 +1722,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
  */
 adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode aplicar correções', 403, 'FORBIDDEN')
     }
 
@@ -1756,10 +1756,10 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
     writeFileSync(filePath, updated, 'utf-8')
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
@@ -1800,15 +1800,15 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, 
     // Marca no log que a análise foi rejeitada
     updateLogEntryField(req.params.id_log_teste, 'ai_rejected', {
       rejeitadoEm: new Date().toISOString(),
-      rejeitadoPor: req.auth.userId,
+      rejeitadoPor: req.auth.id_usuario,
       motivo: parsed.data.motivo,
     })
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
       module: 'admin',
       resource_type: 'Testes',
@@ -1934,7 +1934,7 @@ adminRouter.get('/testes-gerais/agendamentos', async (_req, res, next) => {
  */
 adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode criar agendamentos', 403, 'FORBIDDEN')
     }
 
@@ -1988,7 +1988,7 @@ adminRouter.post('/testes-gerais/agendamentos', async (req, res, next) => {
  */
 adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode editar agendamentos', 403, 'FORBIDDEN')
     }
 
@@ -2031,7 +2031,7 @@ adminRouter.patch('/testes-gerais/agendamentos/:id_agendamento_teste', async (re
  */
 adminRouter.delete('/testes-gerais/agendamentos/:id_agendamento_teste', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode remover agendamentos', 403, 'FORBIDDEN')
     }
 
@@ -2132,7 +2132,7 @@ const RunPentestSchema = z.object({
  */
 adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Apenas Super Admin pode disparar pentest', 403, 'FORBIDDEN')
     }
 
@@ -2177,10 +2177,10 @@ adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
 
     zapProcess.on('close', (code) => {
       AuditService.log({
-        tenant_id: req.auth.tenantId,
+        tenant_id: req.auth.id_organizacao,
         actor_type: 'USER',
-        actor_id: req.auth.userId,
-        actor_name: req.auth.userId,
+        actor_id: req.auth.id_usuario,
+        actor_name: req.auth.id_usuario,
         actor_ip: req.ip,
         module: 'admin',
         resource_type: 'Pentest',

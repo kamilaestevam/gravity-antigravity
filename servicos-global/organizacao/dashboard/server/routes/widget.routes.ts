@@ -6,7 +6,7 @@ import { queryEngine } from '../lib/query-engine.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }
@@ -88,7 +88,7 @@ const updateWidgetSchema = z.object({
 // POST /widgets/executar-query — executa query de widget via DashboardQueryEngine
 widgetRouter.post('/widgets/executar-query', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { spec } = queryBodySchema.parse(req.body)
 
     const result = await queryEngine.execute({
@@ -111,7 +111,7 @@ widgetRouter.post('/widgets/executar-query', async (req, res, next) => {
 // POST /widgets — salva widget no config (adiciona a DashboardCriar)
 widgetRouter.post('/widgets', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const body = createWidgetSchema.parse(req.body)
 
     // Valida que o dashboard pertence ao tenant+user
@@ -148,7 +148,7 @@ widgetRouter.post('/widgets', async (req, res, next) => {
 // PUT /widgets/:id — atualiza config do widget (position, title, chart_type, config)
 widgetRouter.put('/widgets/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
     const body = updateWidgetSchema.parse(req.body)
 
@@ -191,7 +191,7 @@ widgetRouter.put('/widgets/:id', async (req, res, next) => {
 // DELETE /widgets/:id — remove widget do dashboard
 widgetRouter.delete('/widgets/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
 
     const widget = await req.prisma!.dashboardWidget.findFirst({

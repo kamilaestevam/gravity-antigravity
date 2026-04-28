@@ -5,7 +5,7 @@ import { AppError } from '../lib/errors.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }
@@ -34,7 +34,7 @@ const listConfigQuerySchema = z.object({
 // GET / — lista configs do usuário
 configRouter.get('/', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { product_id } = listConfigQuerySchema.parse(req.query)
 
     const where: Record<string, unknown> = { user_id: userId }
@@ -60,7 +60,7 @@ configRouter.get('/', async (req, res, next) => {
 // POST / — cria novo dashboard config
 configRouter.post('/', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const body = createConfigSchema.parse(req.body)
 
     // Se is_default vier como true no futuro, já preparamos o campo
@@ -99,7 +99,7 @@ configRouter.post('/', async (req, res, next) => {
 // GET /:id — busca config por id
 configRouter.get('/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
 
     const config = await req.prisma!.dashboardConfig.findFirst({
@@ -120,7 +120,7 @@ configRouter.get('/:id', async (req, res, next) => {
 // PUT /:id — atualiza layout/name/filters/is_default
 configRouter.put('/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
     const body = updateConfigSchema.parse(req.body)
 
@@ -169,7 +169,7 @@ configRouter.put('/:id', async (req, res, next) => {
 // DELETE /:id — deleta (soft delete: só deleta se não for is_default ou for o único)
 configRouter.delete('/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
 
     const existing = await req.prisma!.dashboardConfig.findFirst({

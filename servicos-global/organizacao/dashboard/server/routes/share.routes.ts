@@ -6,7 +6,7 @@ import { sharingEngine } from '../lib/sharing-engine.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }
@@ -65,7 +65,7 @@ shareRouter.get('/publicos/:token_acesso', async (req, res, next) => {
 // POST /share — cria compartilhamento
 shareRouter.post('/share', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const body = createShareSchema.parse(req.body)
 
     // Valida que o dashboard pertence ao tenant+user
@@ -118,7 +118,7 @@ shareRouter.post('/share', async (req, res, next) => {
 // GET /share — lista shares do usuário
 shareRouter.get('/share', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
 
     const shares = await req.prisma!.dashboardShare.findMany({
       where: { user_id: userId },
@@ -134,7 +134,7 @@ shareRouter.get('/share', async (req, res, next) => {
 // DELETE /share/:id — revoga share
 shareRouter.delete('/share/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
 
     const existing = await req.prisma!.dashboardShare.findFirst({

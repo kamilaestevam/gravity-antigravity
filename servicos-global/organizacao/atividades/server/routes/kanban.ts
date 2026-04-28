@@ -60,7 +60,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page, limit, busca, status, product_id, empresa_id } = query.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 
     const where = {
       ...(busca && {
@@ -104,7 +104,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id_coluna_kanban', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const card = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!card) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
     res.json(card)
@@ -130,9 +130,9 @@ router.post('/', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const card = await db.kanbanCard.create({
-      data: { ...result.data, user_id: req.auth.userId },
+      data: { ...result.data, user_id: req.auth.id_usuario },
     })
     res.status(201).json(card)
   } catch (err) {
@@ -157,7 +157,7 @@ router.patch('/:id_coluna_kanban', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!existing) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
 
@@ -189,7 +189,7 @@ router.post('/reordenar', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 
     // Atualiza posição e status de cada card em paralelo
     await Promise.all(
@@ -213,7 +213,7 @@ router.post('/reordenar', async (req, res, next) => {
 
 router.delete('/:id_coluna_kanban', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.kanbanCard.findFirst({ where: { id: req.params.id_coluna_kanban } })
     if (!existing) throw new AppError('Card não encontrado', 404, 'NOT_FOUND')
 

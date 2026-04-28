@@ -15,7 +15,7 @@ const acaoSchema = z.object({
 
 acoesRouter.post('/api/v1/gabi/acoes/executar', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const { action, resource, payload, confirmed, conversationSnapshot } = acaoSchema.parse(req.body)
 
     const result = await executeGabiAction(

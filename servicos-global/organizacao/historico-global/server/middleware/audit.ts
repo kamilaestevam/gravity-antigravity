@@ -41,8 +41,8 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
     const auth = req.auth ?? {}
 
     const actor_type: AcaoExecutadaPor = opts.actor_type
-    const actor_id: string = opts.actor_id ?? auth.userId ?? 'anonymous'
-    const actor_name: string = opts.actor_name ?? auth.name ?? auth.userId ?? 'Unknown'
+    const actor_id: string = opts.actor_id ?? auth.id_usuario ?? 'anonymous'
+    const actor_name: string = opts.actor_name ?? auth.nome_usuario ?? auth.id_usuario ?? 'Unknown'
 
     // Ponto B: captura estado "antes" se fetchBefore fornecido
     let beforeState: unknown = undefined

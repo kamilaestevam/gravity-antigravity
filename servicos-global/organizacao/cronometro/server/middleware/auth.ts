@@ -14,9 +14,9 @@ declare global {
   namespace Express {
     interface Request {
       auth: {
-        tenantId: string
-        userId: string
-        role?: string
+        id_organizacao: string
+        id_usuario: string
+        tipo_usuario?: string
       }
     }
   }
@@ -47,9 +47,9 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
 
   req.auth = {
-    tenantId: tenantId as string,
-    userId: userId as string,
-    role: req.headers['x-user-role'] as string | undefined,
+    id_organizacao: tenantId as string,
+    id_usuario: userId as string,
+    tipo_usuario: req.headers['x-user-role'] as string | undefined,
   }
 
   return next()

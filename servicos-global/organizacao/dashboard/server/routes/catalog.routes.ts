@@ -8,7 +8,7 @@ import { suggestChartTypes } from '../lib/chart-advisor.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }
@@ -31,7 +31,7 @@ const suggestQuerySchema = z.object({
 // GET /campos — retorna campos do Data Catalog filtrados pelas permissões do usuário
 catalogRouter.get('/campos', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { product_id } = fieldsQuerySchema.parse(req.query)
 
     const userPermissions = (req.headers['x-user-permissions'] as string || '')
@@ -59,7 +59,7 @@ catalogRouter.get('/campos', async (req, res, next) => {
 // GET /widgets — retorna widgets pré-construídos disponíveis para o usuário (catálogo)
 catalogRouter.get('/widgets', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { product_id } = widgetsQuerySchema.parse(req.query)
 
     const userPermissions = (req.headers['x-user-permissions'] as string || '')

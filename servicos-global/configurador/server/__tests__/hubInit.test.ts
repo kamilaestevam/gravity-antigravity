@@ -54,10 +54,10 @@ vi.mock('../middleware/rateLimiter.js', () => ({
 
 // Mock requireAuth — injeta auth no req
 const defaultAuth = {
-  userId: 'user-001',
+  id_usuario: 'user-001',
   clerkUserId: 'clerk_001',
-  tenantId: 'tenant-001',
-  role: 'SUPER_ADMIN',
+  id_organizacao: 'tenant-001',
+  tipo_usuario: 'SUPER_ADMIN',
 }
 
 let authOverride: Record<string, string> | null = null
@@ -204,7 +204,7 @@ describe('GET /api/v1/hub/init', () => {
   })
 
   it('tenant diferente recebe dados diferentes (cross-tenant)', async () => {
-    authOverride = { userId: 'user-999', clerkUserId: 'clerk_999', tenantId: 'tenant-999', role: 'ADMIN' }
+    authOverride = { id_usuario: 'user-999', clerkUserId: 'clerk_999', id_organizacao: 'tenant-999', tipo_usuario: 'ADMIN' }
     tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-999', name: 'Other Corp' })
     tenantServiceMock.getCompanies.mockResolvedValue([])
 
@@ -303,7 +303,7 @@ describe('GET /api/v1/hub/init', () => {
   // ── Role SUPPLIER ──
 
   it('não busca preferência de workspace para SUPPLIER', async () => {
-    authOverride = { userId: 'user-supplier', clerkUserId: 'clerk_s', tenantId: 'tenant-001', role: 'FORNECEDOR' }
+    authOverride = { id_usuario: 'user-supplier', clerkUserId: 'clerk_s', id_organizacao: 'tenant-001', tipo_usuario: 'FORNECEDOR' }
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)

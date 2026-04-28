@@ -32,7 +32,7 @@ filaRouter.get(
     }
 
     const { status, page, limit } = parse.data
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const skip = (page - 1) * limit
 
     const where = {
@@ -81,7 +81,7 @@ filaRouter.post(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_envio } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const item = await prisma.emailFilaEnvio.findFirst({
       where: {
@@ -121,7 +121,7 @@ filaRouter.post(
   '/api/v1/envios-email/fila/pausar',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
     const result = await prisma.emailFilaEnvio.updateMany({
@@ -142,7 +142,7 @@ filaRouter.post(
   '/api/v1/envios-email/fila/retomar',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
     const result = await prisma.emailFilaEnvio.updateMany({

@@ -113,7 +113,7 @@ tenantsRouter.post('/', async (req, res, next) => {
  */
 tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await tenantService.getTenantById(req.auth.tenantId)
+    const tenant = await tenantService.getTenantById(req.auth.id_organizacao)
     if (!tenant) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
@@ -150,17 +150,17 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
-    const before = await tenantService.getTenantById(req.auth.tenantId)
-    const tenant = await tenantService.updateTenant(req.auth.tenantId, parsed.data)
+    const before = await tenantService.getTenantById(req.auth.id_organizacao)
+    const tenant = await tenantService.updateTenant(req.auth.id_organizacao, parsed.data)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       module: 'configuracao',
       resource_type: 'Organização',
-      resource_id: req.auth.tenantId,
+      resource_id: req.auth.id_organizacao,
       action: 'UPDATE',
       action_detail: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
       before: before ?? undefined,
@@ -181,7 +181,7 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
  */
 tenantsRouter.get('/me/workspaces', requireAuth, async (req, res, next) => {
   try {
-    const companies = await tenantService.getCompanies(req.auth.tenantId)
+    const companies = await tenantService.getCompanies(req.auth.id_organizacao)
     res.json({ companies })
   } catch (err) {
     next(err)
@@ -203,15 +203,15 @@ tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
       )
     }
     const company = await tenantService.createCompany(
-      req.auth.tenantId,
+      req.auth.id_organizacao,
       parsed.data
     )
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       module: 'configuracao',
       resource_type: 'Empresa Filha',
       resource_id: company.id,
@@ -241,16 +241,16 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
       )
     }
     const company = await tenantService.updateCompany(
-      req.auth.tenantId,
+      req.auth.id_organizacao,
       req.params.id_workspace,
       parsed.data
     )
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       module: 'configuracao',
       resource_type: 'Empresa Filha',
       resource_id: req.params.id_workspace,
@@ -271,13 +271,13 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
  */
 tenantsRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, res, next) => {
   try {
-    await tenantService.deleteCompany(req.auth.tenantId, req.params.id_workspace)
+    await tenantService.deleteCompany(req.auth.id_organizacao, req.params.id_workspace)
 
     AuditService.log({
-      tenant_id: req.auth.tenantId,
+      tenant_id: req.auth.id_organizacao,
       actor_type: 'USER',
-      actor_id: req.auth.userId,
-      actor_name: req.auth.userId,
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
       module: 'configuracao',
       resource_type: 'Empresa Filha',
       resource_id: req.params.id_workspace,

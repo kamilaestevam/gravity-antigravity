@@ -14,10 +14,10 @@
  *     product_id: 'pedido',
  *     module: 'pedido',
  *     getActorFromReq: (req) => ({
- *       actor_id:   req.auth.userId,
- *       actor_name: req.auth.userName ?? req.auth.userId,
+ *       actor_id:   req.auth.id_usuario,
+ *       actor_name: req.auth.nome_usuario ?? req.auth.id_usuario,
  *       actor_type: 'USER',
- *       tenant_id:  req.auth.tenantId,
+ *       tenant_id:  req.auth.id_organizacao,
  *     }),
  *   })
  *

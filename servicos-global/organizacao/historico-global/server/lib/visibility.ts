@@ -30,11 +30,11 @@ export function buildVisibilityFilter(user: AuthUser): Prisma.HistoricoLogWhereI
 
 export function extractAuthUser(req: Request): AuthUser | null {
   const auth = req.auth
-  if (!auth?.userId || !auth?.tenantId) return null
+  if (!auth?.id_usuario || !auth?.id_organizacao) return null
 
   return {
-    id: auth.userId,
-    role: auth.role ?? 'STANDARD',
-    tenant_id: auth.tenantId,
+    id: auth.id_usuario,
+    role: auth.tipo_usuario ?? 'STANDARD',
+    tenant_id: auth.id_organizacao,
   }
 }

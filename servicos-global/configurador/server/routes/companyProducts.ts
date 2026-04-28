@@ -26,7 +26,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -36,14 +36,14 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
       prisma.produtoGravityWorkspace.findMany({
         where: {
           id_workspace_produto_gravity_workspace: companyId,
-          id_organizacao_produto_gravity_workspace: req.auth.tenantId,
+          id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
         },
         orderBy: { data_criacao_produto_gravity_workspace: 'desc' },
       }),
       // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
       prisma.produtoGravityConfiguracao.findMany({
         where: {
-          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
           ativo_config_produto_gravity: true,
         },
       }),
@@ -116,7 +116,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.tenantId },
+      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -126,7 +126,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     const tenantProduct = await prisma.produtoGravityConfiguracao.findUnique({
       where: {
         id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
           chave_produto_config_produto_gravity: product_key,
         },
       },
@@ -148,7 +148,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
         },
       },
       create: {
-        id_organizacao_produto_gravity_workspace: req.auth.tenantId,
+        id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
         id_workspace_produto_gravity_workspace: companyId,
         chave_produto_produto_gravity_workspace: product_key,
         ativo_produto_gravity_workspace: true,
@@ -187,7 +187,7 @@ companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, re
       where: {
         id_workspace_produto_gravity_workspace: companyId,
         chave_produto_produto_gravity_workspace: productKey,
-        id_organizacao_produto_gravity_workspace: req.auth.tenantId,
+        id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
       },
       data: { ativo_produto_gravity_workspace: false },
     })

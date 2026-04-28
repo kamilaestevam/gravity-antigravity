@@ -5,8 +5,8 @@ declare global {
   namespace Express {
     interface Request {
       auth: {
-        tenantId: string;
-        userId?: string;
+        id_organizacao: string;
+        id_usuario?: string;
       };
     }
   }
@@ -21,8 +21,8 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
   }
 
   req.auth = {
-    tenantId,
-    userId,
+    id_organizacao: tenantId,
+    id_usuario: userId,
   };
 
   next();

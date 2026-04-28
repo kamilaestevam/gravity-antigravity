@@ -35,7 +35,7 @@ function toMensagemDto(m: {
 
 mensagensRouter.get('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async (req, res, next) => {
   try {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const { id_conversa_gabi: conversationId } = req.params
 
     const conversa = await prisma.gabiConversaCompleta.findFirst({
@@ -69,7 +69,7 @@ const createMensagemSchema = z.object({
 
 mensagensRouter.post('/api/v1/gabi/conversas/:id_conversa_gabi/mensagens', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const { id_conversa_gabi: conversationId } = req.params
     const { role, content } = createMensagemSchema.parse(req.body)
 

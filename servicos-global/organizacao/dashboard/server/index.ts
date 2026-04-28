@@ -30,7 +30,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     })
   }
 
-  req.auth = { tenantId, userId: userId ?? '' }
+  req.auth = { id_organizacao: tenantId, id_usuario: userId ?? '' }
   next()
 })
 
@@ -39,7 +39,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ---------------------------------------------------------------------------
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const tenantId = req.auth?.tenantId
+  const tenantId = req.auth?.id_organizacao
   if (tenantId) {
     req.prisma = prisma.$extends({
       query: {

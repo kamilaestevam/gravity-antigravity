@@ -10,7 +10,7 @@ declare global {
   namespace Express {
     interface Request {
       correlationId: string
-      auth: { tenantId: string; userId: string }
+      auth: { id_organizacao: string; id_usuario: string }
     }
   }
 }

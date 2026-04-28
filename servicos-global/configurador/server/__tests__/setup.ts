@@ -73,10 +73,10 @@ vi.mock('../middleware/requireAuth.js', () => ({
   requireAuth: (_req: unknown, _res: unknown, next: () => void) => {
     const req = _req as Record<string, unknown>
     req.auth = {
-      userId: 'user-test-id',
+      id_usuario: 'user-test-id',
       clerkUserId: 'clerk_test',
-      tenantId: 'tenant-test-id',
-      role: 'SUPER_ADMIN',
+      id_organizacao: 'tenant-test-id',
+      tipo_usuario: 'SUPER_ADMIN',
     }
     next()
   },

@@ -5,7 +5,7 @@ import { AppError } from '../lib/errors.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    auth?: { tenantId: string; userId: string }
+    auth?: { id_organizacao: string; id_usuario: string }
     prisma?: PrismaClient
   }
 }
@@ -48,7 +48,7 @@ const listAlertQuerySchema = z.object({
 // GET /alerts — lista alertas do usuário
 alertRouter.get('/alerts', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { dashboard_id, is_active } = listAlertQuerySchema.parse(req.query)
 
     const where: Record<string, unknown> = { user_id: userId }
@@ -77,7 +77,7 @@ alertRouter.get('/alerts', async (req, res, next) => {
 // POST /alerts — cria alerta
 alertRouter.post('/alerts', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const body = createAlertSchema.parse(req.body)
 
     // Valida que o dashboard pertence ao tenant+user
@@ -115,7 +115,7 @@ alertRouter.post('/alerts', async (req, res, next) => {
 // PUT /alerts/:id — atualiza alerta
 alertRouter.put('/alerts/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
     const body = updateAlertSchema.parse(req.body)
 
@@ -151,7 +151,7 @@ alertRouter.put('/alerts/:id', async (req, res, next) => {
 // DELETE /alerts/:id — deleta alerta
 alertRouter.delete('/alerts/:id', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id } = req.params
 
     const existing = await req.prisma!.dashboardAlert.findFirst({
@@ -173,7 +173,7 @@ alertRouter.delete('/alerts/:id', async (req, res, next) => {
 // POST /alertas/:id_alerta_dashboard/testar — testa alerta manualmente
 alertRouter.post('/alertas/:id_alerta_dashboard/testar', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth!
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth!
     const { id_alerta_dashboard } = req.params
     const id = id_alerta_dashboard
 

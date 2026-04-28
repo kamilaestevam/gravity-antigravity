@@ -52,7 +52,7 @@ function toRelatorioDto(r: {
 // ---- Workspace: Listar relatórios salvos ----
 relatoriosRouter.get('/api/v1/relatorios-salvos', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { product_id } = req.query;
 
     const where: Record<string, unknown> = {
@@ -86,7 +86,7 @@ relatoriosRouter.get('/api/v1/relatorios-salvos', authMiddleware, async (req: Re
 // ---- Workspace: Salvar relatório ----
 relatoriosRouter.post('/api/v1/relatorios-salvos', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
 
     const parse = createRelatorioSchema.safeParse(req.body);
     if (!parse.success) {
@@ -116,7 +116,7 @@ relatoriosRouter.post('/api/v1/relatorios-salvos', authMiddleware, async (req: R
 // ---- Workspace: Ver relatório por ID ----
 relatoriosRouter.get('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { id_relatorio_salvo } = req.params;
 
     const relatorio = await prisma.relatoriosSalvosUsuario.findFirst({
@@ -143,7 +143,7 @@ relatoriosRouter.get('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddle
 // ---- Workspace: Atualizar relatório ----
 relatoriosRouter.put('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { id_relatorio_salvo } = req.params;
 
     const parse = updateRelatorioSchema.safeParse(req.body);
@@ -187,7 +187,7 @@ relatoriosRouter.put('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddle
 // ---- Workspace: Deletar relatório ----
 relatoriosRouter.delete('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { id_relatorio_salvo } = req.params;
 
     const existente = await prisma.relatoriosSalvosUsuario.findFirst({
@@ -215,7 +215,7 @@ relatoriosRouter.delete('/api/v1/relatorios-salvos/:id_relatorio_salvo', authMid
 // Mock da rota de dados (unificação)
 relatoriosRouter.get('/api/v1/relatorios/:id_relatorio', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId } = req.auth;
+    const { id_organizacao: tenantId } = req.auth;
 
     res.json({
       data: [

@@ -50,7 +50,7 @@ app.use((req, _res, next) => {
     return
   }
 
-  req.auth = { tenantId, userId: userId ?? '' }
+  req.auth = { id_organizacao: tenantId, id_usuario: userId ?? '' }
   next()
 })
 

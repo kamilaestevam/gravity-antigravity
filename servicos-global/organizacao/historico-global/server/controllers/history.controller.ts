@@ -25,10 +25,10 @@ declare global {
   namespace Express {
     interface Request {
       auth: {
-        userId: string
-        tenantId: string
+        id_usuario: string
+        id_organizacao: string
         clerkUserId: string
-        role: string
+        tipo_usuario: string
       }
     }
   }
@@ -56,7 +56,7 @@ const MAX_PAGE_SIZE = 200
 /** Extrai tenant_id do request (header x-tenant-id ou req.auth do middleware). */
 function getTenantId(req: Request): string {
   // req.auth pode estar ausente em rotas com x-internal-key (chamadas inter-serviço)
-  const authTenantId = (req as { auth?: { tenantId?: string } }).auth?.tenantId
+  const authTenantId = (req as { auth?: { id_organizacao?: string } }).auth?.id_organizacao
   const tenantId = (req.headers['x-tenant-id'] as string) || authTenantId
   if (!tenantId) throw AppError.unauthorized('tenant_id obrigatório')
   return tenantId
@@ -64,7 +64,7 @@ function getTenantId(req: Request): string {
 
 /** Extrai userId do req.auth se presente (null em chamadas internas). */
 function getAuthUserId(req: Request): string | null {
-  return (req as { auth?: { userId?: string } }).auth?.userId ?? null
+  return (req as { auth?: { id_usuario?: string } }).auth?.id_usuario ?? null
 }
 
 // POST /logs

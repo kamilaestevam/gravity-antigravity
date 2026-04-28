@@ -10,17 +10,17 @@ import { auditLog } from '../../../organizacao/historico-global/src/audit-client
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { id_usuario: string; id_organizacao: string; role: string; name: string; expiry: number }>()
+const userCache = new Map<string, { id_usuario: string; id_organizacao: string; tipo_usuario: string; nome_usuario: string; expiry: number }>()
 
 declare global {
   namespace Express {
     interface Request {
       auth: {
-        userId: string
-        tenantId: string
+        id_usuario: string
+        id_organizacao: string
         clerkUserId: string
-        role: string
-        name: string
+        tipo_usuario: string
+        nome_usuario: string
       }
     }
   }
@@ -58,7 +58,7 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
-      req.auth = { userId: cached.id_usuario, tenantId: cached.id_organizacao, clerkUserId: verified.sub, role: cached.role, name: cached.name }
+      req.auth = { id_usuario: cached.id_usuario, id_organizacao: cached.id_organizacao, clerkUserId: verified.sub, tipo_usuario: cached.tipo_usuario, nome_usuario: cached.nome_usuario }
       next()
       return
     }
@@ -117,17 +117,17 @@ export async function requireAuth(
     userCache.set(cacheKey, {
       id_usuario: user.id_usuario,
       id_organizacao: user.id_organizacao_usuario,
-      role: user.tipo_usuario,
-      name: user.nome_usuario ?? '',
+      tipo_usuario: user.tipo_usuario,
+      nome_usuario: user.nome_usuario ?? '',
       expiry: Date.now() + USER_CACHE_TTL,
     })
 
     req.auth = {
-      userId: user.id_usuario,
-      tenantId: user.id_organizacao_usuario,
+      id_usuario: user.id_usuario,
+      id_organizacao: user.id_organizacao_usuario,
       clerkUserId: verified.sub,
-      role: user.tipo_usuario,
-      name: user.nome_usuario ?? '',
+      tipo_usuario: user.tipo_usuario,
+      nome_usuario: user.nome_usuario ?? '',
     }
 
     next()

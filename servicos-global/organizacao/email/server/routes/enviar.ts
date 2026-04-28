@@ -33,7 +33,7 @@ enviarRouter.post(
     }
 
     const { to, subject, body, body_html, template_id, variables, product_id } = parse.data
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     let finalSubject = subject ?? ''
     let finalHtml = body_html ?? body ?? ''

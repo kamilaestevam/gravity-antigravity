@@ -10,7 +10,7 @@ export function requireMasterRole(
   _res: Response,
   next: NextFunction
 ): void {
-  if (req.auth?.role !== 'MASTER') {
+  if (req.auth?.tipo_usuario !== 'MASTER') {
     next(new AppError('Acesso restrito a usuários Master', 403, 'FORBIDDEN'))
     return
   }

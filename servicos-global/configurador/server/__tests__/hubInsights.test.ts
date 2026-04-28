@@ -41,10 +41,10 @@ vi.mock('../middleware/rateLimiter.js', () => ({
 
 // Mock requireAuth
 const defaultAuth = {
-  userId: 'user-001',
+  id_usuario: 'user-001',
   clerkUserId: 'clerk_001',
-  tenantId: 'tenant-001',
-  role: 'ADMIN',
+  id_organizacao: 'tenant-001',
+  tipo_usuario: 'ADMIN',
 }
 
 let authOverride: Record<string, string> | null = null
@@ -163,7 +163,7 @@ describe('GET /api/v1/hub/insights', () => {
   })
 
   it('tenant diferente recebe dados isolados (cross-tenant)', async () => {
-    authOverride = { userId: 'user-999', clerkUserId: 'clerk_999', tenantId: 'tenant-999', role: 'ADMIN' }
+    authOverride = { id_usuario: 'user-999', clerkUserId: 'clerk_999', id_organizacao: 'tenant-999', tipo_usuario: 'ADMIN' }
 
     await request.get('/api/v1/hub/insights')
     expect(prismaMock.produtoGravityConfiguracao.findMany).toHaveBeenCalledWith(
@@ -176,7 +176,7 @@ describe('GET /api/v1/hub/insights', () => {
   // ── Role weights ──
 
   it('normaliza role para weights (SUPER_ADMIN → admin)', async () => {
-    authOverride = { userId: 'user-001', clerkUserId: 'clerk_001', tenantId: 'tenant-001', role: 'SUPER_ADMIN' }
+    authOverride = { id_usuario: 'user-001', clerkUserId: 'clerk_001', id_organizacao: 'tenant-001', tipo_usuario: 'SUPER_ADMIN' }
 
     prismaMock.produtoGravityConfiguracao.findMany.mockResolvedValue([
       { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },

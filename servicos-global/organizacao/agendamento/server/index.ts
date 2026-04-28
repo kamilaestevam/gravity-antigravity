@@ -6,8 +6,8 @@ declare global {
   namespace Express {
     interface Request {
       auth: {
-        tenantId: string
-        userId: string
+        id_organizacao: string
+        id_usuario: string
       }
     }
   }
@@ -51,7 +51,7 @@ app.use((req, res, next) => {
     return
   }
 
-  req.auth = { tenantId, userId: userId ?? '' }
+  req.auth = { id_organizacao: tenantId, id_usuario: userId ?? '' }
   next()
 })
 

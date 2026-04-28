@@ -50,9 +50,9 @@ hubRouter.get('/catalogo', async (_req, res, next) => {
  */
 hubRouter.get('/init', requireAuth, async (req, res, next) => {
   try {
-    const tenantId = req.auth.tenantId
-    const userId = req.auth.userId
-    const role = req.auth.role
+    const tenantId = req.auth.id_organizacao
+    const userId = req.auth.id_usuario
+    const role = req.auth.tipo_usuario
 
     // Tudo em paralelo — 1 único requireAuth
     const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
@@ -161,9 +161,9 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
  */
 hubRouter.get('/insights', requireAuth, async (req, res) => {
   try {
-    const tenantId = req.auth.tenantId
-    const userId = req.auth.userId
-    const role = normalizeHubRole(req.auth.role)
+    const tenantId = req.auth.id_organizacao
+    const userId = req.auth.id_usuario
+    const role = normalizeHubRole(req.auth.tipo_usuario)
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
     const configs = await prisma.produtoGravityConfiguracao.findMany({

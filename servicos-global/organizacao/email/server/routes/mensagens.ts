@@ -19,7 +19,7 @@ mensagensRouter.get(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_thread_email } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: {
@@ -57,7 +57,7 @@ mensagensRouter.post(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_thread_email } = req.params
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     const parse = responderSchema.safeParse(req.body)
     if (!parse.success) {

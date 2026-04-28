@@ -125,8 +125,8 @@ export function emitToUser(userId: string, event: string, data: Record<string, u
  *      (uso restrito a chamadas S2S internas com x-internal-key — nunca para tráfego de browser)
  */
 function resolveAuthContext(req: Request): { tenant_id: string; user_id: string } | null {
-  if (req.auth?.tenantId && req.auth?.userId) {
-    return { tenant_id: req.auth.tenantId, user_id: req.auth.userId }
+  if (req.auth?.id_organizacao && req.auth?.id_usuario) {
+    return { tenant_id: req.auth.id_organizacao, user_id: req.auth.id_usuario }
   }
 
   const internalKeyValidated = req.headers['x-internal-validated'] === '1'

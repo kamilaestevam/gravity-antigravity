@@ -34,7 +34,7 @@ function toConversaDto(c: {
 
 conversasRouter.post('/api/v1/gabi/conversas', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const { title, product_id } = createConversaSchema.parse(req.body)
 
     const result = await prisma.gabiConversaCompleta.create({
@@ -54,7 +54,7 @@ conversasRouter.post('/api/v1/gabi/conversas', async (req, res, next) => {
 
 conversasRouter.get('/api/v1/gabi/conversas', async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const conversas = await prisma.gabiConversaCompleta.findMany({
       where: {
         id_organizacao_gabi_conversa: tenantId,
@@ -70,7 +70,7 @@ conversasRouter.get('/api/v1/gabi/conversas', async (req, res, next) => {
 
 conversasRouter.delete('/api/v1/gabi/conversas/:id_conversa_gabi', async (req, res, next) => {
   try {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const { id_conversa_gabi: id } = req.params
 
     const conversa = await prisma.gabiConversaCompleta.findUnique({

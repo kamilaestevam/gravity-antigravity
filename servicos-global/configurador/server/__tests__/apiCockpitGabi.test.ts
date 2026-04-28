@@ -23,10 +23,10 @@ vi.mock('../middleware/rateLimiter.js', () => ({
 
 // Mock requireAuth
 const defaultAuth = {
-  userId: 'admin-001',
+  id_usuario: 'admin-001',
   clerkUserId: 'clerk_admin',
-  tenantId: 'tenant-001',
-  role: 'SUPER_ADMIN',
+  id_organizacao: 'tenant-001',
+  tipo_usuario: 'SUPER_ADMIN',
 }
 
 vi.mock('../middleware/requireAuth.js', () => ({

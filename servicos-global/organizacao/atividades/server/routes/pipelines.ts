@@ -55,7 +55,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page, limit, busca, etapa, empresa_id, contato_id, product_id } = query.data
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
 
     const where = {
       ...(busca && {
@@ -100,7 +100,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id_pipeline', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const pipeline = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!pipeline) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
     res.json(pipeline)
@@ -126,9 +126,9 @@ router.post('/', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const pipeline = await db.pipeline.create({
-      data: { ...result.data, user_id: req.auth.userId },
+      data: { ...result.data, user_id: req.auth.id_usuario },
     })
     res.status(201).json(pipeline)
   } catch (err) {
@@ -153,7 +153,7 @@ router.patch('/:id_pipeline', async (req, res, next) => {
       })
     }
 
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!existing) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
 
@@ -173,7 +173,7 @@ router.patch('/:id_pipeline', async (req, res, next) => {
 
 router.delete('/:id_pipeline', async (req, res, next) => {
   try {
-    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const db = withTenantIsolation(prisma, req.auth.id_organizacao)
     const existing = await db.pipeline.findFirst({ where: { id: req.params.id_pipeline } })
     if (!existing) throw new AppError('Pipeline não encontrado', 404, 'NOT_FOUND')
 

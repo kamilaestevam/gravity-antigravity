@@ -25,7 +25,7 @@ setInterval(() => {
 }, 5 * 60_000)
 
 export function fieldHelpRateLimit(req: Request, _res: Response, next: NextFunction): void {
-  const tenantId = req.auth?.tenantId ?? 'anonymous'
+  const tenantId = req.auth?.id_organizacao ?? 'anonymous'
   const now = Date.now()
 
   let win = windows.get(tenantId)

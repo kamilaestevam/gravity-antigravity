@@ -33,7 +33,7 @@ templatesRouter.get(
   '/api/v1/templates-email',
   authMiddleware,
   async (req: Request, res: Response, _next: NextFunction) => {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const templates = await prisma.emailTemplate.findMany({
       where: { id_organizacao_template_email: tenantId },
@@ -55,7 +55,7 @@ templatesRouter.post(
       return next(new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR'))
     }
 
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     // Verificar slug duplicado no tenant
     const existing = await prisma.emailTemplate.findFirst({
@@ -94,7 +94,7 @@ templatesRouter.put(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_template_email } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const parse = templateUpdateSchema.safeParse(req.body)
     if (!parse.success) {
@@ -151,7 +151,7 @@ templatesRouter.delete(
   authMiddleware,
   async (req: Request, res: Response, next: NextFunction) => {
     const { id_template_email } = req.params
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.emailTemplate.findFirst({
       where: {

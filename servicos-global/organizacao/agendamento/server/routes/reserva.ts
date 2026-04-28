@@ -46,7 +46,7 @@ function toReservaDto(r: {
 reservaRouter.post('/', async (req, res, next) => {
   try {
     const data = reservaSchema.parse(req.body)
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
 
     const slot = await prisma.usuarioHorarioDisponivel.findFirst({
       where: {
@@ -95,7 +95,7 @@ reservaRouter.post('/', async (req, res, next) => {
 
 reservaRouter.get('/', async (req, res, next) => {
   try {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const reservas = await prisma.usuarioReservaAgenda.findMany({
       where: { id_organizacao_reserva_agenda: tenantId },
       include: { horario_reserva_agenda: true },
@@ -110,7 +110,7 @@ reservaRouter.get('/', async (req, res, next) => {
 reservaRouter.get('/usuario/:id_usuario', async (req, res, next) => {
   try {
     const { id_usuario } = req.params as { id_usuario: string }
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const reservas = await prisma.usuarioReservaAgenda.findMany({
       where: {
@@ -131,7 +131,7 @@ reservaRouter.patch('/:id_reserva/status', async (req, res, next) => {
     const { status } = z
       .object({ status: z.enum(['confirmado', 'cancelado', 'pendente']) })
       .parse(req.body)
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioReservaAgenda.findFirst({
       where: {
@@ -156,7 +156,7 @@ reservaRouter.patch('/:id_reserva/status', async (req, res, next) => {
 reservaRouter.delete('/:id_reserva', async (req, res, next) => {
   try {
     const { id_reserva } = req.params as { id_reserva: string }
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
 
     const existing = await prisma.usuarioReservaAgenda.findFirst({
       where: {

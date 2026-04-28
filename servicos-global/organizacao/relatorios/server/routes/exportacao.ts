@@ -40,7 +40,7 @@ function toExportJobDto(j: {
 // ---- Iniciar Exportação (Assíncrono) ----
 exportacaoRouter.post('/api/v1/relatorios/:id_relatorio/exportacoes', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { id_relatorio } = req.params;
 
     const parse = createExportSchema.safeParse(req.body);
@@ -78,7 +78,7 @@ exportacaoRouter.post('/api/v1/relatorios/:id_relatorio/exportacoes', authMiddle
 // ---- Consultar Status da Exportação ----
 exportacaoRouter.get('/api/v1/relatorios/exportacoes/:id_exportacao_relatorio', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { tenantId, userId } = req.auth;
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth;
     const { id_exportacao_relatorio } = req.params;
 
     const job = await prisma.relatorioExportar.findFirst({

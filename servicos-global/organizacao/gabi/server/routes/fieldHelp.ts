@@ -129,7 +129,7 @@ function getQuotaMensalFromHeaders(req: Request): number {
 
 fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req, res, next) => {
   try {
-    const { tenantId, userId } = req.auth
+    const { id_organizacao: tenantId, id_usuario: userId } = req.auth
     const productId = (req.headers['x-product-id'] as string | undefined) ?? 'unknown'
     const quotaMensal = getQuotaMensalFromHeaders(req)
 
@@ -221,7 +221,7 @@ fieldHelpRouter.post('/api/v1/gabi/ajuda-campo', fieldHelpRateLimit, async (req,
 
 fieldHelpRouter.get('/api/v1/gabi/quota', async (req, res, next) => {
   try {
-    const { tenantId } = req.auth
+    const { id_organizacao: tenantId } = req.auth
     const productId = (req.headers['x-product-id'] as string | undefined) ?? 'unknown'
     const quotaMensal = getQuotaMensalFromHeaders(req)
 

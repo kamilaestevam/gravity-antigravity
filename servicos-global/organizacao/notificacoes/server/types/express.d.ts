@@ -11,10 +11,10 @@ declare global {
       tenant_id: string
       user_id: string
       auth?: {
-        userId: string
-        tenantId: string
+        id_usuario: string
+        id_organizacao: string
         clerkUserId: string
-        role: string
+        tipo_usuario: string
       }
     }
   }

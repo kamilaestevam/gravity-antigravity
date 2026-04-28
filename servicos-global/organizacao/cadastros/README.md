@@ -69,7 +69,7 @@ cadastros/
 
 1. **Coordenador** valida o `fragment.prisma` e roda o script de composição → gera o `schema.prisma` consolidado (Mandamento 02 — nenhum agente edita schema diretamente).
 2. **Coordenador** cria o banco `cadastros` no Railway e roda a migration inicial.
-3. Implementar de fato os endpoints CRUD (Empresa, Moeda, Unidade, NCM) — substituir stubs por queries Prisma com filtro obrigatório por `id_organizacao` (Tenant Isolation).
+3. Implementar de fato os endpoints CRUD (Empresa, Moeda, Unidade, NCM) — substituir stubs por queries Prisma com filtro obrigatório por `id_organizacao` (Isolamento por Organização).
 4. Implementar `GET /empresas/:suid/preview-impacto` (consulta produtos via API interna).
 5. Implementar job de sincronização Portal Único → `OPE`.
 6. Implementar cache Redis no SDK do client (TTL 5min por SUID).
@@ -79,7 +79,7 @@ cadastros/
 
 - **Mandamento 02:** este serviço NÃO toca em `schema.prisma`. Só fornece `fragment.prisma`.
 - **DDD nomenclatura:** PT-BR em todo código, sem `@map`/`@@map`, booleans sem prefixo `is_`.
-- **Tenant Isolation:** toda query (futura) precisa de filtro por `id_organizacao` — Empresas e OPE são per-tenant. Catálogos (Moeda, Unidade, NCM) são globais.
+- **Isolamento por Organização:** toda query (futura) precisa de filtro por `id_organizacao` — Empresas e OPE são per-organizacao. Catálogos (Moeda, Unidade, NCM) são globais.
 - **Snapshot obrigatório:** produtos consumidores (Pedido, LPCO, NF Importação) DEVEM gravar snapshot dos campos críticos da Empresa no momento da emissão. Cadastros não é dependência hard de runtime para pedidos já emitidos.
 - **Comunicação inter-serviço:** apenas REST com header `x-internal-key`. Sem JOINs cross-database.
 

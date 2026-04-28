@@ -17,7 +17,7 @@ scripts/
 | Arquivo | Consumidor |
 |---|---|
 | `apply-rls.sql` | `package.json:db:apply-rls` + `.github/workflows/security.yml` |
-| `apply-rls-user.sql` | RLS por user_id (documentado em auditoria de segurança) |
+| `apply-rls-user.sql` | RLS por id_usuario (documentado em auditoria de segurança) |
 | `compose-tenant-schema.ts` | `package.json:db:compose` + `.github/workflows/deploy.yml` |
 | `check-deps.ts` | `package.json:check:deps` + lint-staged pre-commit |
 | `seed-staging.ts` | `package.json:db:seed:staging` |

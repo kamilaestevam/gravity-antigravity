@@ -5,7 +5,7 @@ Este documento define o padrão técnico absoluto para a criação de qualquer n
 ## 1. Localização e Isolamento (Monorepo)
 
 Todo produto deve residir em:
-`produto/[nome-do-produto]/`
+`servicos-global/organizacao/[nome-do-produto]/` (Era Nova — pós-Onda Gamma-3)
 
 Cada produto é um serviço independente, com seu próprio **Frontend (Client)**, **Backend (Server)** e **Banco de Dados (Schema Prisma)**.
 
@@ -67,7 +67,7 @@ Nenhum produto compartilha banco com outro. O schema Prisma é gerado por compos
 2. **`fragment.prisma`**: Contém os models específicos do produto.
 3. **`compose-schema.js`**: Script de automação que gera o `schema.prisma` final concatenando os dois acima.
 
-**Regra Absoluta:** Todo model persistente (exceto caches/logs públicos) DEVE possuir o campo `tenant_id` e índices compostos por `tenant_id` para garantir o RLS (Row Level Security).
+**Regra Absoluta:** Todo model persistente (exceto caches/logs públicos) DEVE possuir o campo `id_organizacao` e índices compostos por `id_organizacao` para garantir o RLS (Row Level Security).
 
 ---
 

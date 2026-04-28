@@ -70,7 +70,7 @@ testes/
 | `HUB` | hub/ | servicos-global/shell/ |
 | `CORE` | core/ | nucleo-global/ |
 | `MARKET` | marketplace/ | servicos-global/marketplace/ |
-| `TENANT` | tenant/ | servicos-global/tenant/ |
+| `ORG` | organizacao/ | servicos-global/organizacao/ |
 | `DBASE` | dbase/ | configurador/prisma/ |
 | `PEDIDO` | pedido/ | servicos-global/organizacao/pedido/ |
 | `NFIMP` | nf-importacao/ | servicos-global/organizacao/nf-importacao/ |

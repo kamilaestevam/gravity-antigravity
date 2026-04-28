@@ -10,7 +10,7 @@ O **Histórico Global** é o serviço base de Auditoria e Log do Gravity (Onda 3
 - **Multiaxial:** Grava ações tanto de Clientes/Staff (USER/ADMIN) quanto rotinas e IAs nativos (GABI_IA / SYSTEM).
 
 ### Coordenador / Líder Técnico (Arquitetura)
-- **Tenant Isolation Absoluto:** Todo log obrigatoriamente vincula-se a um `tenant_id`. Nenhuma leitura escapa do filtro e a modelagem do Prisma está enraizada nisso com índices rápidos (`@@index([tenant_id])`).
+- **Isolamento Absoluto por Organização:** Todo log obrigatoriamente vincula-se a um `id_organizacao`. Nenhuma leitura escapa do filtro e a modelagem do Prisma está enraizada nisso com índices rápidos (`@@index([id_organizacao])`).
 - **Esquema Flexível:** Um `HistoryLog` abstrai o estado mutado (JSON) através do campo PostgreSQL `JSONB`, suportando Diffs e Payloads de formatos complexos passados pelas frentes (`useHistoricoLogger`).
 
 ### QA (Segurança e Validação)

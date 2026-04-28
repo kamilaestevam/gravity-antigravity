@@ -1,5 +1,5 @@
 /**
- * PainelAnexos.tsx — Painel de Anexos do Pedido / Item
+ * AnexosPainel.tsx — Painel de Anexos do Pedido / Item
  *
  * Usado dentro do DrawerPedido e na view de item.
  * Suporta drag-and-drop, upload com barra de progresso,
@@ -63,7 +63,7 @@ function formatarTamanho(bytes: number): string {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function PainelAnexos({ vinculo, vinculo_id, somenteLeitura = false }: PainelAnexosProps) {
+export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: AnexosPainelProps) {
   const [anexos, setAnexos] = useState<Anexo[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)

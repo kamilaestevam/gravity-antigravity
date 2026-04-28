@@ -13,7 +13,7 @@ import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global
 import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
-import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './colunasPai'
+import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './ColunasPai'
 import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module

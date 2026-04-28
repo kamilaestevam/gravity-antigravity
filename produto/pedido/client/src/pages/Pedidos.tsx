@@ -81,7 +81,7 @@ import {
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
-import { renderAgregado, buildColunasPai } from '../components/lista/colunasPai'
+import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
 import { ModalGerarPdf } from '../components/ModalGerarPdf'

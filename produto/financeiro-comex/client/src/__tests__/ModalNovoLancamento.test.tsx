@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ModalNovoLancamento from '../pages/Movimentacao/ModalNovoLancamento'
+import ModalNovoLancamentoFinanceiro from '../pages/Movimentacao/ModalFinanceiroNovoLancamento'
 
 vi.mock('../shared/api', () => ({
   lancamentos: {
@@ -34,7 +34,7 @@ function renderModal(props = {}) {
   const onClose = vi.fn()
   const onSalvo = vi.fn()
   render(
-    <ModalNovoLancamento
+    <ModalNovoLancamentoFinanceiro
       processoId="proc-1"
       tipoOperacao="IMPORTACAO"
       onClose={onClose}
@@ -45,7 +45,7 @@ function renderModal(props = {}) {
   return { onClose, onSalvo }
 }
 
-describe('ModalNovoLancamento', () => {
+describe('ModalNovoLancamentoFinanceiro', () => {
   it('renderiza campos obrigatorios', async () => {
     renderModal()
     await waitFor(() => {

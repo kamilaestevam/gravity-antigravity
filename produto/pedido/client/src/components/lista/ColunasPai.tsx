@@ -1,5 +1,5 @@
 /**
- * colunasPai.tsx — Definição de colunas do Pedido (linha pai)
+ * ColunasPai.tsx — Definição de colunas do Pedido (linha pai)
  *
  * Exporta buildColunasPai(t) (GTColuna<Pedido>[]) e o _regrasAlertasRef compartilhado.
  * Separado para manter ListaPedidos.tsx abaixo de 2000 linhas.

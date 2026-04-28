@@ -6,7 +6,7 @@ description: "Use esta skill sempre que for criar ou modificar serviço, produto
 # Gravity — Observabilidade Mínima (Convenção Técnica)
 
 > **Convenção universal.** Todo serviço/produto Gravity DEVE expor o conjunto mínimo de métricas e DEVE registrar log de auditoria em ações sensíveis.
-> Implementação completa (configuração Sentry, integração Express+Prisma, dashboards Grafana, alertas, profiling) está em `governanca/operacao/performance-monitoring/SKILL.md`.
+> Implementação completa (configuração Sentry, integração Express+Prisma, dashboards Grafana, alertas, profiling) está em [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md).
 
 ## Métricas Obrigatórias por Serviço
 
@@ -42,9 +42,9 @@ Toda ação privilegiada DEVE gerar log no `historico` com `actor_type` e `trigg
 | Ação | Log obrigatório? | Detalhes mínimos |
 |:---|:---|:---|
 | Impersonação de usuário (Gravity Admin) | **SIM** | `actor_type: 'gravity_admin'`, `triggered_by: idAdmin`, `impersonating: idUsuario` |
-| Acesso de Gravity Admin a histórico de organização | **SIM** | `action: 'ACESSO_ADMIN'`, `entity: 'historico'`, `description` |
+| Acesso de Gravity Admin a histórico de organizacao | **SIM** | `action: 'ACESSO_ADMIN'`, `entity: 'historico'`, `description` |
 | Deploy/Rollback de serviço | **SIM** | versão antes/depois, ator, timestamp |
-| Alteração de plano/financeiro de organização | **SIM** | valor antes/depois, ator |
+| Alteração de plano/financeiro de organizacao | **SIM** | valor antes/depois, ator |
 | Geração/revogação de token de API | **SIM** | escopo, expiração, prefixo (preview) |
 
 > Ação sensível sem log → falha de compliance, **trabalho rejeitado pelo QA**.
@@ -62,13 +62,13 @@ res.on('finish', () => {
 })
 ```
 
-> Implementação completa do `apiObservabilityMiddleware` (incluindo persistência em `ApiRequestLog` e `checkApiAlerts`) está em `produtos-gravity/configurador/admin/SKILL.md`.
+> Implementação completa do `apiObservabilityMiddleware` (incluindo persistência em `ApiRequestLog` e `checkApiAlerts`) está em [Configurador Admin](../../../produtos-gravity/configurador/admin/SKILL.md).
 
 ---
 
 ## Onde Está a Implementação
 
-- **Configuração Sentry (Express, Prisma, profiling)** → `governanca/operacao/performance-monitoring/SKILL.md`
-- **Dashboards Grafana e alertas por canal** → mesma skill
-- **Schema Prisma de `ApiRequestLog`, `ApiMonitor`, `ApiIncident`** → `produtos-gravity/configurador/admin/SKILL.md`
-- **Metas de SLA (200ms p95, 99,9% uptime, budget de latência)** → `governanca/lei/sla-metas/SKILL.md`
+- **Configuração Sentry (Express, Prisma, profiling)** → [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md)
+- **Dashboards Grafana e alertas por canal** → [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md)
+- **Schema Prisma de `ApiRequestLog`, `ApiMonitor`, `ApiIncident`** → [Configurador Admin](../../../produtos-gravity/configurador/admin/SKILL.md)
+- **Metas de SLA (200ms p95, 99,9% uptime, budget de latência)** → [SLA Metas](../../lei/sla-metas/SKILL.md)

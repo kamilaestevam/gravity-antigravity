@@ -1,9 +1,9 @@
 import React from 'react'
 import { Warning, Trash } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { SelecaoExcluirProps } from './tipos'
 
-export function SelecaoExcluirGlobal({
+export function ModalConfirmarExcluirGlobal({
   aberto,
   titulo,
   descricao,
@@ -13,7 +13,7 @@ export function SelecaoExcluirGlobal({
 }: SelecaoExcluirProps) {
 
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={aoCancelar}
       tamanho="md"
@@ -177,6 +177,6 @@ export function SelecaoExcluirGlobal({
       )}
     >
       <div style={{ display: 'none' }} />
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

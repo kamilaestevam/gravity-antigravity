@@ -10,7 +10,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
@@ -549,7 +549,7 @@ export function DeployAdmin() {
               rotulo: 'Dados do Deploy',
               conteudo: (
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <SecaoFormularioGlobal titulo="Identificação" icone={<Buildings size={16} />} />
+                  <SecaoFormulario titulo="Identificação" icone={<Buildings size={16} />} />
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <CampoGeralGlobal label="Área afetada" obrigatorio>
@@ -591,7 +591,7 @@ export function DeployAdmin() {
                     />
                   </CampoGeralGlobal>
 
-                  <SecaoFormularioGlobal titulo="Destino e Resultado" icone={<CloudArrowUp size={16} />} />
+                  <SecaoFormulario titulo="Destino e Resultado" icone={<CloudArrowUp size={16} />} />
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <CampoGeralGlobal label="Ambiente">

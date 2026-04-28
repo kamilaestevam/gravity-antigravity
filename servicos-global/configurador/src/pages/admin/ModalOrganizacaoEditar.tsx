@@ -10,7 +10,7 @@ import {
   Ticket,
   Warning
 } from '@phosphor-icons/react'
-import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
@@ -173,7 +173,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
         {/* ── Seção: Identidade ─────────────────────────────────────── */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <SecaoFormularioGlobal
+            <SecaoFormulario
               icone={<IdentificationCard size={16} weight="duotone" />}
               titulo={t('admin.testes-gerais.org.secao_identidade')}
               tooltip={t('admin.testes-gerais.org.secao_identidade_tooltip')}
@@ -283,7 +283,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
         {/* ── Seção: Acesso e Web ───────────────────────────────────── */}
         <div>
-          <SecaoFormularioGlobal
+          <SecaoFormulario
             icone={<Globe size={16} weight="duotone" />}
             titulo={t('admin.testes-gerais.org.secao_acesso_web')}
           />

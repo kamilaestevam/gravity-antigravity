@@ -31,7 +31,7 @@ import {
   Spinner,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { ColunaUsuario } from '../../shared/types'
 import { colunasUsuarioApi } from '../../shared/api'
 import { COLUNAS_PAI_CHAVES } from '../../pages/Pedidos'
@@ -284,7 +284,7 @@ export function GerenciadorColunas() {
         </DndContext>
       )}
 
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirColunaId !== null}
         titulo="Excluir coluna"
         descricao="Os valores existentes serão preservados."

@@ -29,9 +29,9 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
-import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
+import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi } from '../shared/api'
 import './DrawerPedido.css'
@@ -463,7 +463,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       >
                         {form.moeda_pedido || t('pedido.drawer.selecionar_moeda')}
                       </button>
-                      <ModalTabelaMoeda
+                      <ModalTabelaMoedaGlobal
                         aberto={modalMoedaAberta}
                         aoFechar={() => setModalMoedaAberta(false)}
                         aoSelecionar={(sigla) => handleChange('moeda_pedido', sigla)}
@@ -785,7 +785,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
           </div>
         )}
       </div>
-      <ModalGlobal
+      <ModalOverlay
         aberto={confirmarFecharSemSalvar}
         aoFechar={() => setConfirmarFecharSemSalvar(false)}
         titulo={t('pedido.drawer.confirm_titulo')}
@@ -798,7 +798,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
         <p style={{ margin: 0, color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
           {t('pedido.drawer.confirm_msg')}
         </p>
-      </ModalGlobal>
+      </ModalOverlay>
     </div>
   )
 }

@@ -38,7 +38,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, type PdfTemplate } from '../shared/api'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
@@ -4489,7 +4489,7 @@ export default function Configuracoes() {
 
       </main>
 
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirTemplateId !== null}
         titulo="Excluir template"
         descricao="Esta ação não pode ser desfeita."

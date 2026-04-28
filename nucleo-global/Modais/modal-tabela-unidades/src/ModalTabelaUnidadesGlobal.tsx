@@ -1,8 +1,8 @@
 /**
- * ModalTabelaUnidades.tsx — Modal com tabela de unidades de medida Siscomex
+ * ModalTabelaUnidadesGlobal.tsx — Modal com tabela de unidades de medida Siscomex
  *
  * Uso:
- *   <ModalTabelaUnidades
+ *   <ModalTabelaUnidadesGlobal
  *     aberto={open}
  *     aoFechar={() => setOpen(false)}
  *     aoSelecionar={(sigla) => setUnidade(sigla)}
@@ -12,7 +12,7 @@
 
 import React, { useState } from 'react'
 import { Ruler, MagnifyingGlass } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { UNIDADES_SISCOMEX, type UnidadeMedida } from './dados.js'
 import './modal-tabela-unidades.css'
 
@@ -29,7 +29,7 @@ export interface ModalTabelaUnidadesProps {
   unidades?: UnidadeMedida[]
 }
 
-export function ModalTabelaUnidades({
+export function ModalTabelaUnidadesGlobal({
   aberto,
   aoFechar,
   aoSelecionar,
@@ -51,7 +51,7 @@ export function ModalTabelaUnidades({
   }
 
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={aoFechar}
       titulo="Unidades de Medida"
@@ -132,6 +132,6 @@ export function ModalTabelaUnidades({
           Padrão Siscomex — Portal Único
         </p>
       </div>
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

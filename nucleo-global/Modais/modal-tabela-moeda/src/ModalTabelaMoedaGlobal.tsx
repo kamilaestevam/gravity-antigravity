@@ -1,8 +1,8 @@
 /**
- * ModalTabelaMoeda.tsx — Modal com tabela de moedas ISO 4217 / Siscomex
+ * ModalTabelaMoedaGlobal.tsx — Modal com tabela de moedas ISO 4217 / Siscomex
  *
  * Uso:
- *   <ModalTabelaMoeda
+ *   <ModalTabelaMoedaGlobal
  *     aberto={open}
  *     aoFechar={() => setOpen(false)}
  *     aoSelecionar={(sigla) => setMoeda(sigla)}
@@ -12,7 +12,7 @@
 
 import React, { useState } from 'react'
 import { CurrencyDollar, MagnifyingGlass } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { MOEDAS_SISCOMEX, type MoedaSiscomex } from './dados.js'
 import './modal-tabela-moeda.css'
 
@@ -29,7 +29,7 @@ export interface ModalTabelaMoedaProps {
   moedas?: MoedaSiscomex[]
 }
 
-export function ModalTabelaMoeda({
+export function ModalTabelaMoedaGlobal({
   aberto,
   aoFechar,
   aoSelecionar,
@@ -52,7 +52,7 @@ export function ModalTabelaMoeda({
   }
 
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={aoFechar}
       titulo="Moedas"
@@ -131,6 +131,6 @@ export function ModalTabelaMoeda({
           ISO 4217 — Padrão Siscomex
         </p>
       </div>
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

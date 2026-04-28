@@ -3,7 +3,7 @@
  * Modal com tabela de moedas ISO 4217 / Siscomex + InputMoeda composto.
  *
  * Exportações:
- *   - ModalTabelaMoeda   — modal completo com tabela e busca
+ *   - ModalTabelaMoedaGlobal   — modal completo com tabela e busca
  *   - InputMoeda         — campo select de moeda + número (lado a lado)
  *   - MOEDAS_SISCOMEX    — lista completa de moedas
  *   - OPCOES_MOEDA       — formato SelectOpcao para SelectGlobal
@@ -11,8 +11,8 @@
  *   - MoedaSiscomex      — tipo TypeScript
  */
 
-export { ModalTabelaMoeda } from './ModalMoedaTabela.js'
-export type { ModalTabelaMoedaProps } from './ModalMoedaTabela.js'
+export { ModalTabelaMoedaGlobal } from './ModalTabelaMoedaGlobal.js'
+export type { ModalTabelaMoedaProps } from './ModalTabelaMoedaGlobal.js'
 
 export { InputMoeda } from './InputMoeda.js'
 export type { InputMoedaProps } from './InputMoeda.js'

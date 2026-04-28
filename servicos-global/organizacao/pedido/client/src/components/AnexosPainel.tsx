@@ -30,7 +30,7 @@ import {
 } from '@phosphor-icons/react'
 import type { Anexo } from '../shared/types'
 import { anexosApi } from '../shared/api'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import './AnexosPainel.css'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -350,7 +350,7 @@ export function AnexosPainel({ vinculo, vinculo_id, somenteLeitura = false }: An
           </div>
         </div>
       )}
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto={confirmarExcluirAnexo !== null}
         titulo="Excluir anexo"
         descricao="Esta ação não pode ser desfeita."

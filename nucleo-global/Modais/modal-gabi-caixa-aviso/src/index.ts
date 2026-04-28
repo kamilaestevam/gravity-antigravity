@@ -2,5 +2,5 @@
  * @nucleo/modal-gabi-caixa-aviso — index
  */
 
-export { ModalGabiCaixaAviso, ModalGabiCaixaAviso as GabiCaixaAviso } from './ModalGabiCaixaAviso.js'
-export type { ModalGabiCaixaAvisoProps, InsightCardProps } from './ModalGabiCaixaAviso.js'
+export { ModalGabiCaixaAvisoGlobal, ModalGabiCaixaAvisoGlobal as GabiCaixaAviso } from './ModalGabiCaixaAvisoGlobal.js'
+export type { ModalGabiCaixaAvisoProps, InsightCardProps } from './ModalGabiCaixaAvisoGlobal.js'

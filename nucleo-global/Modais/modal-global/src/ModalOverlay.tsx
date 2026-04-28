@@ -1,22 +1,94 @@
 /**
- * @nucleo/modal-sem-sessoes-global — modal-overlay
- * ModalSemSessoesGlobal: modal com header, overlay e fechamento por ESC, sem suporte a abas/sessões.
+ * @nucleo/modal-global — modal-overlay
+ * ModalOverlay: modal com header, abas, overlay e fechamento por ESC.
  * Estilos via CSS Variables do design system Solid Slate.
  */
 
-import React, { useEffect, useRef, useId } from 'react'
+import React, { useEffect, useRef, useState, useId } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from '@phosphor-icons/react'
-import type { ModalSemSessoesProps } from './tipos.js'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import type { ModalProps, AbaModal } from './tipos.js'
 import './modal.css'
 
 // ─── Tamanhos ─────────────────────────────────────────────────────────────────
 
-const LARGURA_MODAL: Record<NonNullable<ModalSemSessoesProps['tamanho']>, string> = {
+const LARGURA_MODAL: Record<NonNullable<ModalProps['tamanho']>, string> = {
   sm: '400px',
   md: '560px',
   lg: '720px',
   xl: '960px',
   full: '100%',
+}
+
+// ─── Abas internas ────────────────────────────────────────────────────────────
+
+function NavegacaoAbas({
+  abas,
+  abaAtiva,
+  aoMudarAba,
+  idBase,
+  tipoAbas,
+}: {
+  abas: AbaModal[]
+  abaAtiva: string
+  aoMudarAba: (id: string) => void
+  idBase: string
+  tipoAbas?: 'underline' | 'pill'
+}) {
+  const isPill = tipoAbas === 'pill'
+
+  return (
+    <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}`} role="tablist" aria-label="Abas do modal">
+      {isPill ? (
+        <div className="mg-tabs-pill">
+          {abas.map((aba) => {
+            const btn = (
+              <button
+                key={aba.id}
+                id={`${idBase}-tab-${aba.id}`}
+                className={`mg-tab-pill ${abaAtiva === aba.id ? 'active' : ''}`}
+                role="tab"
+                aria-selected={abaAtiva === aba.id}
+                aria-controls={`${idBase}-panel-${aba.id}`}
+                disabled={aba.desabilitada}
+                onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
+              >
+                {aba.rotulo}
+              </button>
+            )
+            return (aba.tooltipTitulo || aba.tooltipDescricao) ? (
+              <TooltipGlobal key={aba.id} titulo={aba.tooltipTitulo} descricao={aba.tooltipDescricao}>
+                {btn}
+              </TooltipGlobal>
+            ) : btn
+          })}
+        </div>
+      ) : (
+        abas.map((aba) => {
+          const btn = (
+            <button
+              key={aba.id}
+              id={`${idBase}-tab-${aba.id}`}
+              className={`tab-underline ${abaAtiva === aba.id ? 'active' : ''}`}
+              role="tab"
+              aria-selected={abaAtiva === aba.id}
+              aria-controls={`${idBase}-panel-${aba.id}`}
+              disabled={aba.desabilitada}
+              onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
+            >
+              {aba.rotulo}
+            </button>
+          )
+          return (aba.tooltipTitulo || aba.tooltipDescricao) ? (
+            <TooltipGlobal key={aba.id} titulo={aba.tooltipTitulo} descricao={aba.tooltipDescricao}>
+              {btn}
+            </TooltipGlobal>
+          ) : btn
+        })
+      )}
+    </nav>
+  )
 }
 
 // ─── Botão de carregamento ────────────────────────────────────────────────────
@@ -27,7 +99,7 @@ function BotaoFooter({
   desabilitado,
   carregando,
   ao_clicar,
-}: NonNullable<ModalSemSessoesProps['botoes']>[number]) {
+}: NonNullable<ModalProps['botoes']>[number]) {
   const classeMap: Record<string, string> = {
     primary: 'btn btn-primary',
     secondary: 'btn btn-secondary',
@@ -49,12 +121,15 @@ function BotaoFooter({
 
 // ─── Modal Principal ──────────────────────────────────────────────────────────
 
-export function ModalSemSessoes({
+export function ModalOverlay({
   aberto,
   aoFechar,
   titulo,
   subtitulo,
   iconeTitulo,
+  abas,
+  tipoAbas = 'underline',
+  abaAtivaInicial,
   cabecalhoPersonalizado,
   children,
   botoes,
@@ -64,9 +139,26 @@ export function ModalSemSessoes({
   fecharAoClicarOverlay = true,
   fecharPorESC = true,
   semFechar = false,
-}: ModalSemSessoesProps) {
+}: ModalProps) {
   const id = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
+  const primeiraAba = abas?.[0]?.id ?? ''
+  const [abaAtiva, setAbaAtiva] = useState(abaAtivaInicial || primeiraAba)
+
+  useEffect(() => {
+    if (aberto && abaAtivaInicial) {
+      setAbaAtiva(abaAtivaInicial)
+    } else if (aberto && !abaAtivaInicial) {
+      setAbaAtiva(primeiraAba)
+    }
+  }, [aberto, abaAtivaInicial, primeiraAba])
+
+  // Sincroniza a aba ativa quando as abas mudam
+  useEffect(() => {
+    if (abas && abas.length > 0 && !abas.find((a) => a.id === abaAtiva)) {
+      setAbaAtiva(abas[0].id)
+    }
+  }, [abas, abaAtiva])
 
   // ESC handler
   useEffect(() => {
@@ -103,7 +195,9 @@ export function ModalSemSessoes({
 
   if (!aberto) return null
 
-  return (
+  const conteudoAba = abas?.find((a) => a.id === abaAtiva)?.conteudo ?? children
+
+  const modalContent = (
     <div
       className="mg-overlay"
       role="presentation"
@@ -155,16 +249,34 @@ export function ModalSemSessoes({
           </div>
         )}
 
+        {/* Abas */}
+        {abas && abas.length > 0 && (
+          <div style={{ position: 'relative', top: '1px' }}>
+            <NavegacaoAbas
+              abas={abas}
+              abaAtiva={abaAtiva}
+              aoMudarAba={setAbaAtiva}
+              idBase={id}
+              tipoAbas={tipoAbas}
+            />
+          </div>
+        )}
+
         {/* Body */}
-        <div className="mg-body modal-body">
-          {children}
+        <div
+          className="mg-body modal-body"
+          role={abas ? 'tabpanel' : undefined}
+          id={abas ? `${id}-panel-${abaAtiva}` : undefined}
+          aria-labelledby={abas ? `${id}-tab-${abaAtiva}` : undefined}
+        >
+          {conteudoAba}
         </div>
 
         {/* Footer */}
         {(botoes || renderizarFooter) && (
           <div className="mg-footer modal-footer">
             {renderizarFooter ? (
-              renderizarFooter()
+              renderizarFooter(abaAtiva)
             ) : (
               botoes?.map((botao, i) => (
                 <BotaoFooter key={`${botao.rotulo}-${i}`} {...botao} />
@@ -175,6 +287,10 @@ export function ModalSemSessoes({
       </div>
     </div>
   )
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(modalContent, document.body)
 }
 
 // ─── Modal Provider (renderiza todos do stack) ────────────────────────────────
@@ -183,16 +299,20 @@ import { useModalStack } from './use-modal.js'
 import { fecharModal } from './modal-manager.js'
 
 /**
- * ModalSemSessoesProvider: renderiza todos os modais do stack global sem sessões.
+ * ModalProvider: renderiza todos os modais do stack global.
  * Deve ser montado uma única vez na raiz da aplicação.
+ *
+ * @example
+ * // Em App.tsx
+ * <ModalProvider />
  */
-export function ModalSemSessoesProvider() {
+export function ModalProvider() {
   const { stack } = useModalStack()
 
   return (
     <>
       {stack.map((item) => (
-        <ModalSemSessoes
+        <ModalOverlay
           key={item.id}
           {...item.props}
           aberto

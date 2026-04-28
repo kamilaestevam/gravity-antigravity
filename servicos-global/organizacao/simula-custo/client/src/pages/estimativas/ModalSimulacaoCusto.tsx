@@ -8,7 +8,7 @@ import {
   Percent,
   MapPin
 } from '@phosphor-icons/react'
-import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SimulacaoInput } from '../../shared/types'
@@ -92,7 +92,7 @@ export function ModalSimulacaoCusto({
         
         {/* ── Seção: Produto & Operação ─────────────────────────── */}
         <div>
-          <SecaoFormularioGlobal
+          <SecaoFormulario
             icone={<Globe size={16} weight="duotone" />}
             titulo={t('simulacusto.modal_simulacao.secao_produto')}
           />
@@ -189,7 +189,7 @@ export function ModalSimulacaoCusto({
 
         {/* ── Seção: Alíquotas ─────────────────────────────────── */}
         <div>
-          <SecaoFormularioGlobal
+          <SecaoFormulario
             icone={<Percent size={16} weight="duotone" />}
             titulo={t('simulacusto.formulario.aliquotas')}
           />

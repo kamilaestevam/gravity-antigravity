@@ -12,7 +12,7 @@ import {
   Package
 } from '@phosphor-icons/react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
@@ -98,7 +98,7 @@ function AbaInformacoes({
       {/* Seção: Identidade */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <SecaoFormularioGlobal
+          <SecaoFormulario
             icone={<IdentificationCard size={16} weight="duotone" />}
             titulo={t('workspace.workspaces.secao_identidade')}
             tooltip="Nome e identificação visual do workspace na plataforma"
@@ -210,7 +210,7 @@ function AbaInformacoes({
 
       {/* Seção: Endereço & Web */}
       <div>
-        <SecaoFormularioGlobal
+        <SecaoFormulario
           icone={<Globe size={16} weight="duotone" />}
           titulo={t('workspace.workspaces.secao_acesso_web')}
         />

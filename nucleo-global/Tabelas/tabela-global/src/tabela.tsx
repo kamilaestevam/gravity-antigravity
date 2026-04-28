@@ -9,8 +9,8 @@ import type { KanbanColunaDef } from '@nucleo/kanban-global'
 import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { useTablePersistence } from './hooks/useTablePersistence'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import './tabela.css'
@@ -1034,7 +1034,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     </div>
 
     {confirmacaoExclusao && (
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto
         titulo={confirmacaoExclusao.acao.confirmarExclusao?.titulo ?? 'Excluir item'}
         descricao={confirmacaoExclusao.acao.confirmarExclusao?.descricao ?? 'Esta ação não pode ser desfeita.'}
@@ -1053,7 +1053,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
       const subtit   = typeof cfg.subtitulo === 'function' ? cfg.subtitulo(modalVisualizar.item) : (cfg.subtitulo ?? '')
       const onFechar = () => setModalVisualizar(null)
       return (
-        <ModalGlobal
+        <ModalOverlay
           aberto
           aoFechar={onFechar}
           titulo={cfg.icone ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{cfg.icone}{titulo}</span> : titulo}
@@ -1068,7 +1068,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
           <div style={{ padding: '0.25rem 0', maxHeight: '55vh', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
             {cfg.renderConteudo(modalVisualizar.item)}
           </div>
-        </ModalGlobal>
+        </ModalOverlay>
       )
     })()}
 

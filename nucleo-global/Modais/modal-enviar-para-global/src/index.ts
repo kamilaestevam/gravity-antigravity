@@ -1,4 +1,4 @@
-export { ModalEnviarPara, ModalEnviarPara as ModalEnviarParaGlobal } from './ModalEnviarPara'
+export { ModalEnviarParaGlobal } from './ModalEnviarParaGlobal'
 export type {
   ModalEnviarParaProps,
   UsuarioDestinatario,

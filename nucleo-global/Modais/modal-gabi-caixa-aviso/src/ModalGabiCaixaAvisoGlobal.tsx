@@ -1,20 +1,20 @@
 /**
- * @nucleo/modal-gabi-caixa-aviso — ModalGabiCaixaAviso
+ * @nucleo/modal-gabi-caixa-aviso — ModalGabiCaixaAvisoGlobal
  *
  * Card GABI AI com gradiente roxo/índigo, badge "ao vivo",
  * subtítulo e slot de insight cards aninhados.
  *
  * Uso básico:
  * ```tsx
- * <ModalGabiCaixaAviso subtitulo="3 oportunidades esta semana">
- *   <ModalGabiCaixaAviso.InsightCard
+ * <ModalGabiCaixaAvisoGlobal subtitulo="3 oportunidades esta semana">
+ *   <ModalGabiCaixaAvisoGlobal.InsightCard
  *     tag="Redução Tributária · NCM 8471"
  *     texto={<>Economize até <strong>12% em ICMS</strong>.</>}
  *     stat={{ label: 'Economia estimada', valor: 'R$ 23.400/mês' }}
  *     onLink={() => navigate('/gabi')}
  *     textoLink="Ver análise completa"
  *   />
- * </ModalGabiCaixaAviso>
+ * </ModalGabiCaixaAvisoGlobal>
  * ```
  */
 
@@ -76,7 +76,7 @@ function InsightCard({ tag, variante = 'default', texto, stat, textoLink, onLink
 
 /* ── Componente principal ── */
 
-export function ModalGabiCaixaAviso({
+export function ModalGabiCaixaAvisoGlobal({
   subtitulo,
   semBadge = false,
   children,
@@ -119,4 +119,4 @@ export function ModalGabiCaixaAviso({
 }
 
 /* Expõe InsightCard como sub-componente estático */
-ModalGabiCaixaAviso.InsightCard = InsightCard
+ModalGabiCaixaAvisoGlobal.InsightCard = InsightCard

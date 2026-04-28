@@ -22,7 +22,7 @@ import {
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
+import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem } from '../shared/types'
 import { pedidoApi } from '../shared/api'
 
@@ -317,7 +317,7 @@ export default function PedidoFormulario() {
             >
               {form.moeda_pedido || 'Selecionar moeda'}
             </button>
-            <ModalTabelaMoeda
+            <ModalTabelaMoedaGlobal
               aberto={modalMoedaAberta}
               aoFechar={() => setModalMoedaAberta(false)}
               aoSelecionar={(sigla) => handleChange('moeda_pedido', sigla)}

@@ -24,7 +24,7 @@ const defaultPlanoBadgeColor: Record<string, string> = {
   Básico: '#94a3b8',
 }
 
-export function WorkspaceSelecaoGlobal({
+export function ModalWorkspaceInicialGlobal({
   empresa,
   selecionando = false,
   onClick,

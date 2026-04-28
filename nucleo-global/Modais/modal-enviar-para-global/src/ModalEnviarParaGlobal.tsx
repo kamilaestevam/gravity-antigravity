@@ -16,12 +16,12 @@
 
 import React, { useState, useMemo } from 'react'
 import { PaperPlaneTilt, MagnifyingGlass, UserCirclePlus, X } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import type { ModalEnviarParaProps, UsuarioDestinatario } from './tipos'
 
 const CHAR_LIMIT = 500
 
-export function ModalEnviarPara({
+export function ModalEnviarParaGlobal({
   aberto,
   aoFechar,
   aoEnviar,
@@ -78,7 +78,7 @@ export function ModalEnviarPara({
   )
 
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={handleFechar}
       titulo={titulo}
@@ -340,6 +340,6 @@ export function ModalEnviarPara({
           </div>
         </div>
       </div>
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Warning, Trash } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 
 export interface ModalExclusaoProps {
   aberto: boolean
@@ -22,7 +22,7 @@ export function ModalExclusao({
 }: ModalExclusaoProps) {
   const { t } = useTranslation()
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={aoCancelar}
       tamanho="md" // Mudado de 'sm' para 'md' para ficar mais retangular e mais largo
@@ -185,6 +185,6 @@ export function ModalExclusao({
       )}
     >
       <div style={{ display: 'none' }} />
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

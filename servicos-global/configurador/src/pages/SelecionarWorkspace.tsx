@@ -45,7 +45,7 @@ import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type Eco
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './selecionar-workspace.css'
 
@@ -1105,7 +1105,7 @@ export function SelecionarWorkspace() {
           )}
         </div>
       </div>
-      <ModalGlobal
+      <ModalOverlay
         aberto={modalSemProdutos}
         aoFechar={() => setModalSemProdutos(false)}
         tamanho="md"
@@ -1249,7 +1249,7 @@ export function SelecionarWorkspace() {
         )}
       >
         <div style={{ display: 'none' }} />
-      </ModalGlobal>
+      </ModalOverlay>
 
       <ToastContainer />
     </div>

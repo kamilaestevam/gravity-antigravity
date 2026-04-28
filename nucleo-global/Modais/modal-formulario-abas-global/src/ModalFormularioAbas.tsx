@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalOverlay } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
@@ -72,7 +72,7 @@ export function ModalFormularioAbas({
   )
 
   const renderFooter = (abaAtivaId?: string) => {
-    // Em modo semAbas o ModalGlobal não propaga aba ativa — o conteúdo vem da primeira (e única) aba.
+    // Em modo semAbas o ModalOverlay não propaga aba ativa — o conteúdo vem da primeira (e única) aba.
     const abaAtual = semAbas ? abas[0] : abas.find(a => a.id === abaAtivaId)
     // Abas de ação (ex.: "Executar Manual") não têm alterações a persistir — o conteúdo da
     // aba tem seu próprio botão de ação e o footer genérico Salvar/Cancelar polui a UX.
@@ -99,7 +99,7 @@ export function ModalFormularioAbas({
   }
 
   return (
-    <ModalGlobal
+    <ModalOverlay
       aberto={aberto}
       aoFechar={aoFechar}
       titulo=""
@@ -112,6 +112,6 @@ export function ModalFormularioAbas({
       renderizarFooter={renderFooter}
     >
       {semAbas ? abas[0]?.conteudo : undefined}
-    </ModalGlobal>
+    </ModalOverlay>
   )
 }

@@ -6,7 +6,7 @@
 import React from 'react'
 import { CheckCircle, XCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { SmartImportResultado } from '../../shared/types'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -244,7 +244,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
         </div>
       )}
 
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto={confirmarReversaoAberto}
         titulo="Reverter importação"
         descricao={`${resultado.criados + resultado.atualizados} pedido(s) serão marcados como Cancelado. Esta ação não pode ser desfeita.`}

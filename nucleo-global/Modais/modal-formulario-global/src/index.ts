@@ -1,3 +1,3 @@
 export { ModalFormulario, ModalFormulario as ModalFormularioGlobal } from './ModalFormulario.js'
 export type { ModalFormularioProps, ModalFormularioProps as ModalFormularioGlobalProps } from './ModalFormulario.js'
-export * from './secao-formulario-global.js'
+export * from './SecaoFormulario.js'

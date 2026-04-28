@@ -10,7 +10,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
@@ -683,7 +683,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: 'Dados principais e categoria do produto no catálogo.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_dados_basicos')} tooltip={t('admin.overview.dados_basicos_tooltip')} />
+                <SecaoFormulario icone={<Tag size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_dados_basicos')} tooltip={t('admin.overview.dados_basicos_tooltip')} />
 
                 <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_nome_produto')}
@@ -809,7 +809,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: 'Taxa de ativação e onboarding (One-time fee).',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_setup')} />
+                <SecaoFormulario icone={<Wrench size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_setup')} />
 
                 <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_tem_setup')}
@@ -859,7 +859,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: 'Modelo de cobrança, recorrência e camadas de preço.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_valor_produto')} />
+                <SecaoFormulario icone={<Sliders size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_valor_produto')} />
 
                 <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_tipo_cobranca')}
@@ -1036,7 +1036,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: t('admin.produtos-gravity.aba_usuarios_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_usuarios')} />
+                <SecaoFormulario icone={<Users size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_usuarios')} />
 
                 <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_qtd_usuarios')}
@@ -1099,7 +1099,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: t('admin.produtos-gravity.aba_help_desk_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_help_desk')} />
+                <SecaoFormulario icone={<Headset size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_help_desk')} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <CampoGeralGlobal
@@ -1136,7 +1136,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: 'Quota mensal de tokens IA por tenant. Cada chamada GABI consome tokens reais do Gemini.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <SecaoFormularioGlobal icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por tenant/mês" />
+                <SecaoFormulario icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por tenant/mês" />
 
                 {/* Quota Padrão */}
                 <CampoGeralGlobal
@@ -1262,7 +1262,7 @@ export function ProdutosGravityAdmin() {
             tooltipDescricao: t('admin.produtos-gravity.aba_negociacao_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.negociacao_titulo')} tooltip={t('admin.produtos-gravity.negociacao_tooltip')} />
+                <SecaoFormulario icone={<Handshake size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.negociacao_titulo')} tooltip={t('admin.produtos-gravity.negociacao_tooltip')} />
 
                 <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_vincular_org')}

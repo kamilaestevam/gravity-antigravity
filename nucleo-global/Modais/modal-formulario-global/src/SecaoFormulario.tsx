@@ -8,7 +8,7 @@ export interface SecaoFormularioGlobalProps {
   marginBottom?: string | number
 }
 
-export function SecaoFormularioGlobal({
+export function SecaoFormulario({
   icone,
   titulo,
   tooltip,

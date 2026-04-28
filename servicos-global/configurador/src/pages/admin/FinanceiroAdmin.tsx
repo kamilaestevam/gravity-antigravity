@@ -12,7 +12,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
-import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { SecaoFormulario } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
@@ -630,7 +630,7 @@ export function FinanceiroAdmin() {
               rotulo: 'Dados',
               conteudo: (
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <SecaoFormularioGlobal titulo="Cliente" icone={<Buildings size={16} />} />
+                  <SecaoFormulario titulo="Cliente" icone={<Buildings size={16} />} />
 
                   <CampoGeralGlobal label="Tenant (Cliente)" obrigatorio>
                     <SelectGlobal
@@ -643,7 +643,7 @@ export function FinanceiroAdmin() {
                     />
                   </CampoGeralGlobal>
 
-                  <SecaoFormularioGlobal titulo="Fatura" icone={<CalendarBlank size={16} />} />
+                  <SecaoFormulario titulo="Fatura" icone={<CalendarBlank size={16} />} />
 
                   <CampoGeralGlobal label="Descrição" obrigatorio>
                     <input

@@ -7,7 +7,7 @@
  * - CardBasicoGlobal com periodos para estimativas de custo
  * - TooltipGlobal em campos/acoes nao-obvios
  * - CampoGeralGlobal para input de comentario
- * - SelecaoExcluirGlobal para confirmacao de exclusao
+ * - ModalConfirmarExcluirGlobal para confirmacao de exclusao
  * - useShellStore para addNotification
  * - StatusBadgeGlobal para status de etapas
  * - BotaoGlobal com variantes corretas
@@ -23,7 +23,7 @@ import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useShellStore } from '@gravity/shell'
 import {
   FlowArrow,
@@ -494,7 +494,7 @@ export default function Workflow() {
       </div>
 
       {/* ─── Modal de Confirmacao de Exclusao ───────────── */}
-      <SelecaoExcluirGlobal
+      <ModalConfirmarExcluirGlobal
         aberto={!!docToDelete}
         titulo={t('processo.workflow.excluir_doc_modal', 'Excluir Documento')}
         descricao={t('processo.workflow.excluir_doc_confirm', 'Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.')}

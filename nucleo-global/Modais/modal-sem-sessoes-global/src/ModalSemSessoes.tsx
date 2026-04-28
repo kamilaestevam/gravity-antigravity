@@ -49,7 +49,7 @@ function BotaoFooter({
 
 // ─── Modal Principal ──────────────────────────────────────────────────────────
 
-export function ModalSemSessoesGlobal({
+export function ModalSemSessoes({
   aberto,
   aoFechar,
   titulo,

@@ -22,7 +22,7 @@ export interface PassoConfig {
   icone?: React.ReactNode
 }
 
-export interface ModalPassoPassoGlobalProps {
+export interface ModalPassoPassoProps {
   titulo: string
   aberto: boolean
   passos: PassoConfig[]
@@ -40,7 +40,7 @@ export interface ModalPassoPassoGlobalProps {
   children: React.ReactNode
 }
 
-export function ModalPassoPassoGlobal({
+export function ModalPassoPasso({
   titulo,
   aberto,
   passos,

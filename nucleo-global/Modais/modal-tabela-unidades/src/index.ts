@@ -11,8 +11,8 @@
  *   - UnidadeMedida        — tipo TypeScript
  */
 
-export { ModalTabelaUnidades } from './ModalTabelaUnidades.js'
-export type { ModalTabelaUnidadesProps } from './ModalTabelaUnidades.js'
+export { ModalTabelaUnidades } from './ModalUnidadesTabela.js'
+export type { ModalTabelaUnidadesProps } from './ModalUnidadesTabela.js'
 
 export { InputUnidade } from './InputUnidade.js'
 export type { InputUnidadeProps } from './InputUnidade.js'

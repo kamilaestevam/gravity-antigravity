@@ -17,7 +17,7 @@ export interface AbaFormulario {
   ocultarBotoesSalvar?: boolean
 }
 
-export interface ModalFormularioAbasGlobalProps {
+export interface ModalFormularioAbasProps {
   aberto: boolean
   aoFechar: () => void
   aoSalvar: () => void
@@ -37,7 +37,7 @@ export interface ModalFormularioAbasGlobalProps {
   semAbas?: boolean
 }
 
-export function ModalFormularioAbasGlobal({
+export function ModalFormularioAbas({
   aberto,
   aoFechar,
   aoSalvar,

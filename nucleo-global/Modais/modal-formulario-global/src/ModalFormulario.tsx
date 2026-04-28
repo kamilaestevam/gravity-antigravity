@@ -5,7 +5,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 
-export interface ModalFormularioGlobalProps {
+export interface ModalFormularioProps {
   aberto: boolean
   aoFechar: () => void
   aoSalvar: () => void
@@ -22,7 +22,7 @@ export interface ModalFormularioGlobalProps {
   textoCancelar?: string
 }
 
-export function ModalFormularioGlobal({
+export function ModalFormulario({
   aberto,
   aoFechar,
   aoSalvar,

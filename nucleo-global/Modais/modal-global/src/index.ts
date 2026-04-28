@@ -3,7 +3,7 @@
  * Ponto único de re-exportação para o pacote @nucleo/modal-global.
  */
 
-export { ModalGlobal, ModalProvider } from './modal-overlay.js'
+export { ModalGlobal, ModalProvider } from './ModalGlobal.js'
 export { useModal, useModalLocal, useModalStack } from './use-modal.js'
 export {
   abrirModal,

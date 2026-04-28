@@ -1,1 +1,2 @@
-export * from './modal-select-global'
+export { ModalSelect, ModalSelect as ModalSelectGlobal } from './ModalSelect'
+export type { ModalSelectProps, ModalSelectProps as ModalSelectGlobalProps } from './ModalSelect'

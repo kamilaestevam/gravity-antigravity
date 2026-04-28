@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import './modal-select-global.css'
 
-export interface ModalSelectGlobalProps {
+export interface ModalSelectProps {
   /**
    * Ícone exibido ao lado do título.
    */
@@ -47,7 +47,7 @@ export interface ModalSelectGlobalProps {
   className?: string
 }
 
-export function ModalSelectGlobal({
+export function ModalSelect({
   icone,
   titulo,
   descricao,

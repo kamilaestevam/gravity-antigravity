@@ -21,7 +21,7 @@ import type { ModalEnviarParaProps, UsuarioDestinatario } from './tipos'
 
 const CHAR_LIMIT = 500
 
-export function ModalEnviarParaGlobal({
+export function ModalEnviarPara({
   aberto,
   aoFechar,
   aoEnviar,

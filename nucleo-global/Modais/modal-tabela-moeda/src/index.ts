@@ -11,8 +11,8 @@
  *   - MoedaSiscomex      — tipo TypeScript
  */
 
-export { ModalTabelaMoeda } from './ModalTabelaMoeda.js'
-export type { ModalTabelaMoedaProps } from './ModalTabelaMoeda.js'
+export { ModalTabelaMoeda } from './ModalMoedaTabela.js'
+export type { ModalTabelaMoedaProps } from './ModalMoedaTabela.js'
 
 export { InputMoeda } from './InputMoeda.js'
 export type { InputMoedaProps } from './InputMoeda.js'

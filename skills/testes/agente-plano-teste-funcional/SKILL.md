@@ -480,13 +480,13 @@ testes/testes-funcionais/
 ├── infra/
 │   └── migrate-tenants/
 │       └── shared.funcional.test.ts
-└── organização/
+└── organizacao/
     └── notificacoes/
         └── notificacoes.funcional.test.ts
 
-testes/testes-cross-organização/
+testes/testes-cross-organizacao/
 └── notificacoes/
-    └── notificacoes.cross-organização.test.ts
+    └── notificacoes.cross-organizacao.test.ts
 
 servicos-global/configurador/server/__tests__/
 ├── setup.ts                              ← setupFiles global

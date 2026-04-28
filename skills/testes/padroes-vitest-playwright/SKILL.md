@@ -1,6 +1,6 @@
 ---
-name: antigravity-testes
-description: "Use esta skill sempre que uma tarefa envolver criação ou execução de testes no projeto Gravity. Define a estrutura de pastas central, configurações técnicas de Vitest e Playwright, exemplos de código, cobertura obrigatória por módulo e contract tests com Zod. Para o processo de revisão, papel do QA e categorias obrigatórias do plano E2E, consultar antigravity-qa."
+name: antigravity-padroes-vitest-playwright
+description: "Use esta skill sempre que uma tarefa envolver criação ou execução de testes no projeto Gravity. Define a estrutura de pastas central, configurações técnicas de Vitest e Playwright, exemplos de código, cobertura obrigatória por módulo e contract tests com Zod. Para o processo de revisão, papel do QA e categorias obrigatórias do plano E2E, consultar antigravity-qa. Para visão geral dos 3 niveis e roteamento entre skills filhas, consultar antigravity-testes."
 ---
 
 # Gravity — Testes
@@ -574,55 +574,9 @@ Se um endpoint mudar o payload sem versionar, o contract test falha e bloqueia o
 | Módulo | Unitário | Funcional | E2E |
 |:---|:---|:---|:---|
 | nucleo-global | 80% | N/A | Smoke tests |
-| servicos-tenant (cada) | 70% | 100% rotas críticas | Por produto |
+| servicos-global/organizacao (cada) | 70% | 100% rotas críticas | Por produto |
 | produtos | 70% | 100% rotas críticas | 11 categorias obrigatórias |
 | configurador | 70% | 100% auth + billing | Fluxo completo de onboarding |
-
----
-
-## Contract Tests com Zod (Dream Team)
-
-Cada serviço exporta schemas Zod que funcionam como **contratos da API**. O CI valida que os contratos não foram quebrados antes do merge.
-
-### Estrutura de Contract Tests
-
-```typescript
-// servicos-global/tenant/atividades/server/contracts.ts
-export const createActivityContract = z.object({
-  title: z.string().min(1).max(200),
-  status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),
-  id_usuario: z.string().cuid(),
-  id_produto: z.string().optional(),
-})
-
-export const activityResponseContract = z.object({
-  id: z.string().cuid(),
-  id_organizacao: z.string(),
-  title: z.string(),
-  status: z.string(),
-  created_at: z.string().datetime(),
-})
-```
-
-### O que bloqueia o CI
-
-| Mudança | Breaking? | CI |
-|:---|:---|:---|
-| Adicionar campo opcional ao response | Não | Passa |
-| Remover campo do response | Sim | **Bloqueia** |
-| Mudar tipo de campo | Sim | **Bloqueia** |
-| Renomear endpoint | Sim | **Bloqueia** → versionar API |
-
-### CI job para contract tests
-
-```yaml
-contract-check:
-  runs-on: ubuntu-latest
-  steps:
-    - run: npm run test:contracts
-```
-
-> Para detalhes completos, ver skill `antigravity-contract-testing`.
 
 ---
 

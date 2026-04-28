@@ -1,0 +1,177 @@
+# Atlas DDD - Aba 6: Paginas
+
+> Gerado de planilha v52 em 2026-04-28 por `scripts/sob-demanda/gerar-atlas-ddd.py`.
+> NAO edite manualmente. Re-execute o script apos mudanca na planilha mestre.
+
+## Como ler
+
+- **Produto**: produto/servico onde a pagina vive.
+- **URL DDD**: URL final canonical da rota frontend (React Router).
+- **Arquivo DDD**: nome do arquivo `.tsx` apos rename DDD.
+- **Titulo DDD**: titulo exibido na pagina (label canonical).
+- **Area**: agrupamento navegacional (sidebar, area do produto).
+- **Tipo view**: lista, dashboard, kanban, formulario, etc.
+- **Path completo**: caminho do arquivo no monorepo.
+- **Descricao**: o que a pagina faz.
+- **Alias historico (URL)**: URL antes do rename DDD.
+
+Convencoes:
+- Apenas valores DDD-finais. Nao mostra estado pre-rename.
+- Onde aplicavel, coluna "Alias historico" mostra nome legado (util para grep e git log --follow).
+- Linhas marcadas `—` na planilha estao no apendice (nao sao acionaveis).
+
+## Tabela (127 linhas)
+
+| Produto | URL DDD | Arquivo DDD | Titulo DDD | Area | Tipo view | Path completo | Descricao | Alias historico (URL) |
+|---|---|---|---|---|---|---|---|---|
+| Configurador |  | ModalEditarOrganizacao.tsx | Organizacoes | Admin | Modal | servicos-global/configurador/src/pages/admin/ModalEditarOrganizacao.tsx | Modal de edicao de organizacao (tenant) no painel master. |  |
+| Configurador |  | ModalNovaOrganizacao.tsx | Organizacoes | Admin | Modal | servicos-global/configurador/src/pages/admin/ModalNovaOrganizacao.tsx | Modal de criacao de nova organizacao (tenant) no painel master. |  |
+| Configurador |  | ModalAgendamentoNcmSync.tsx | NCM | Admin | Modal | servicos-global/configurador/src/pages/admin/ModalAgendamentoNcmSync.tsx | Modal para agendar o cron de sincronizacao NCM Siscomex. |  |
+| Configurador |  | LogTestes.tsx | Testes | Admin | Lista | servicos-global/configurador/src/pages/admin/LogTestes.tsx | Sub-componente que renderiza a tabela de execucoes de testes — usado por TestesGeraisAdmin. |  |
+| Configurador |  | PlanosTesteAdmin.tsx | Planos de Teste | Admin | Lista | servicos-global/configurador/src/pages/admin/PlanosTesteAdmin.tsx | Sub-modulo com a lista dos planos de teste 20/20 — re-exportado mas nao montado em rota. |  |
+| Configurador |  | MetricasLLMAdmin.tsx | LLM | Admin | Lista | servicos-global/configurador/src/pages/admin/MetricasGeminiAdmin.tsx | Sub-modulo de metricas de uso de LLM (custo, tokens, latencia, cache) — re-exportado mas nao montado em rota. |  |
+| Configurador |  | ModalAgendamentoTestes.tsx | Testes | Admin | Modal | servicos-global/configurador/src/pages/admin/ModalAgendamentoTestes.tsx | Modal para agendar execucao automatica de baterias de testes. |  |
+| Configurador |  | ModalExecutarTestes.tsx | Testes | Admin | Modal | servicos-global/configurador/src/pages/admin/ModalExecutarTestes.tsx | Modal para disparar a execucao de uma bateria de testes. |  |
+| Configurador |  | TabelaWorkspaces.tsx | Workspaces | Configurador | Lista | servicos-global/configurador/src/pages/workspace/TabelaWorkspaces.tsx | Sub-componente que renderiza a tabela de workspaces — usado por Workspaces. |  |
+| Configurador |  | ModalEditarWorkspace.tsx | Workspaces | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalEditarWorkspace.tsx | Modal de edicao de workspace (filial). |  |
+| Configurador |  | TabelaUsuarios.tsx | Usuarios | Configurador | Lista | servicos-global/configurador/src/pages/workspace/TabelaUsuarios.tsx | Sub-componente que renderiza a tabela de usuarios — usado por Usuarios. |  |
+| Configurador |  | ModalEditarUsuario.tsx | Usuarios | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalEditarUsuario.tsx | Modal de edicao de usuario (dados basicos). |  |
+| Configurador |  | ModalPermissoesUsuario.tsx | Usuarios | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalPermissoesUsuario.tsx | Modal de edicao de permissoes/patente do usuario. |  |
+| Configurador |  | ModalEditarEmpresa.tsx | Empresas Parceiras | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalEditarEmpresa.tsx | Modal de edicao de empresa parceira. |  |
+| Configurador |  | ModalEditarAssinatura.tsx | Financeiro Gravity | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalEditarAssinatura.tsx | Modal de edicao de assinatura (plano, ciclo, vencimento). |  |
+| Configurador |  | Conectores.tsx | Conectores | Configurador | Lista | servicos-global/configurador/src/pages/workspace/Conectores.tsx | Catalogo/lista de conectores ERP disponiveis — re-exportado mas nao montado em rota. |  |
+| Configurador |  | DocPortal.tsx | Doc Portal | Configurador | Lista | servicos-global/configurador/src/pages/workspace/DocPortal.tsx | Portal de documentos (manuais, contratos, integracoes) — recebe props mas nao esta montado em rota. |  |
+| Configurador |  | ModalExclusao.tsx |  | Configurador | Modal | servicos-global/configurador/src/pages/workspace/ModalExclusao.tsx | Modal generico de confirmacao de exclusao usado por varias telas do workspace. |  |
+| Configurador |  | CoreDashboard.tsx | Dashboard | Configurador | Dashboard | servicos-global/configurador/src/pages/core/CoreDashboard.tsx | Dashboard inicial do Core (Meu Espaco) — importado lazy mas NAO montado em rota. |  |
+| Configurador | /admin | AdminLayout.tsx | Admin | Admin | Layout | servicos-global/configurador/src/pages/admin/AdminLayout.tsx | Layout do painel master Gravity Admin (sidebar + header + Outlet) que envolve todas as telas /admin/*. | /admin |
+| Configurador | /contato | Contato.tsx | Contato | Configurador | Formulario | servicos-global/configurador/src/pages/Contato.tsx | Pagina de contato publica (formulario de fala-conosco/comercial). | /contato |
+| Configurador | /core | Hub.tsx | Hub | Configurador | Lista | servicos-global/configurador/src/pages/Hub.tsx | Hub de produtos do workspace — grade de produtos disponiveis para o usuario. | /core |
+| Configurador | /core/* | Core.tsx |  | Configurador | Layout | servicos-global/configurador/src/pages/Core.tsx | Layout do shell pos-login (Core) — sidebar + Outlet — envolve /core/atividades, /core/email, /core/historico, etc. | /core/* |
+| Configurador | /e2e-notificacoes | E2ENotificacoesHarness.tsx | Notificacoes | Configurador | Configuração | servicos-global/configurador/src/pages/E2ENotificacoesHarness.tsx | Harness de teste E2E para o sistema de notificacoes — dev-only, sem auth. | /e2e-notificacoes |
+| Configurador | /hub | SelecionarWorkspace.tsx | Workspace | Configurador | Lista | servicos-global/configurador/src/pages/SelecionarWorkspace.tsx | Tela de selecao de workspace (filial) — listada apos login para o usuario escolher onde entrar. | /hub |
+| Configurador | /login \| /cadastro \| /recuperar-senha | AutenticacaoPage.tsx | Login | Configurador | Autenticação | servicos-global/configurador/src/pages/AuthPage.tsx | Pagina de autenticacao multi-rota (login, cadastro, recuperacao de senha) baseada em Clerk. | /sign-in/* \| /sign-up/* \| /forgot-password/* |
+| Configurador | /store | Store.tsx | Gravity Store | Configurador | Lista | servicos-global/configurador/src/pages/Store.tsx | Loja/catalogo de produtos Gravity para contratacao adicional pelo tenant. | /store |
+| Configurador | /trial | Onboarding.tsx | Onboarding | Configurador | Formulario | servicos-global/configurador/src/pages/Onboarding.tsx | Onboarding/trial signup — wizard de cadastro de novo tenant vindo do Marketplace. | /trial |
+| Configurador | /waitlist | ListaEspera.tsx | Gravity Store | Configurador | Formulario | servicos-global/configurador/src/pages/Waitlist.tsx | Lista de espera para produtos em beta/early access — captura de leads. | /waitlist |
+| Configurador | /workspace | WorkspaceLayout.tsx | Workspaces | Configurador | Layout | servicos-global/configurador/src/pages/workspace/WorkspaceLayout.tsx | Layout do shell de gestao da organizacao (sidebar + header + Outlet) que envolve /workspace/*. | /workspace |
+| Configurador | api-cockpit | ApiCockpitAdmin.tsx | API Cockpit | Admin | Lista | servicos-global/configurador/src/pages/admin/ApiCockpitAdmin.tsx | Monitor de saude das APIs Gravity (uptime, latencia, erros, custo de LLM). | api-cockpit |
+| Configurador | api-cockpit | ApiCockpit.tsx | API Cockpit | Configurador | Lista | servicos-global/configurador/src/pages/workspace/ApiCockpit.tsx | API Cockpit do tenant — tokens, webhooks, logs, playground (visao do cliente). | api-cockpit |
+| Configurador | assinaturas | Assinaturas.tsx | Assinaturas | Configurador | Lista | servicos-global/configurador/src/pages/workspace/Assinaturas.tsx | Lista de assinaturas da organizacao (produtos Gravity contratados, plano, status). | assinaturas |
+| Configurador | cadastros-globais | CadastrosGlobaisAdmin.tsx | Cadastros Globais | Admin | Lista | servicos-global/configurador/src/pages/admin/CadastrosGlobaisAdmin.tsx | Catalogos globais compartilhados por todos os tenants (NCM, Moedas, Unidades) — somente leitura. | cadastros-globais |
+| Configurador | conector-cargowise | ConectorCargoWise.tsx | CargoWise | Configurador | Configuração | servicos-global/configurador/src/pages/workspace/ConectorCargoWise.tsx | Configuracao do conector com CargoWise (credenciais, mapeamento, status). | conector-cargowise |
+| Configurador | deploy | DeployAdmin.tsx | Deploy | Admin | Lista | servicos-global/configurador/src/pages/admin/DeployAdmin.tsx | Historico de deploys da plataforma Gravity (versoes, status, ambientes). | deploy |
+| Configurador | empresas-parceiras | EmpresasParceiras.tsx | Empresas Parceiras | Configurador | Lista | servicos-global/configurador/src/pages/workspace/EmpresasParceiros.tsx | Lista de empresas parceiras da organizacao (clientes, fornecedores, transportadores). | empresas-parceiros |
+| Configurador | financeiro | FinanceiroAdmin.tsx | Financeiro Gravity | Admin | Lista | servicos-global/configurador/src/pages/admin/FinanceiroAdmin.tsx | Faturas e cobrancas dos tenants Gravity (provider Stripe). | financeiro-admin |
+| Configurador | financeiro | Financeiro.tsx | Financeiro Gravity | Configurador | Lista | servicos-global/configurador/src/pages/workspace/Financeiro.tsx | Faturas e cobrancas da propria organizacao. | financeiro |
+| Configurador | historico-global | HistoricoGlobalAdmin.tsx | Historico Global | Admin | Lista | servicos-global/configurador/src/pages/admin/HistoricoGlobalAdmin.tsx | Log global imutavel das acoes administrativas no Gravity (auditoria cross-tenant). | historico-global |
+| Configurador | historico-organizacao | HistoricoOrganizacao.tsx | Historico | Configurador | Lista | servicos-global/configurador/src/pages/workspace/HistoricoOrganizacao.tsx | Log de eventos e auditoria da organizacao do tenant logado. | historico-organizacao |
+| Configurador | ncm-integracao | NcmIntegracaoAdmin.tsx | NCM | Admin | Lista | servicos-global/configurador/src/pages/admin/NcmIntegracaoAdmin.tsx | Painel de integracao com NCM Siscomex (status, sincronizacao, agendamento). | ncm-integracao |
+| Configurador | organizacao | Organizacao.tsx | Organizacao | Configurador | Detalhe | servicos-global/configurador/src/pages/workspace/Organizacao.tsx | Tela de configuracao da propria organizacao (tenant) — dados, branding, dominio, plano. | organizacao |
+| Configurador | organizacoes | OrganizacoesAdmin.tsx | Organizacoes | Admin | Lista | servicos-global/configurador/src/pages/AdminPanel.tsx | Lista de organizacoes (tenants) no painel master — visao global de todas as orgs Gravity. | tenants |
+| Configurador | organizacoes/:id_organizacao | OrganizacaoDetalheAdmin.tsx | Organizacoes | Admin | Detalhe | servicos-global/configurador/src/pages/TenantDetail.tsx | Detalhe de uma organizacao (tenant) no painel master — dados, workspaces, usuarios, billing. | tenant/:id |
+| Configurador | produtos-gravity | ProdutosGravityAdmin.tsx | Produtos Gravity | Admin | Lista | servicos-global/configurador/src/pages/admin/ProdutosGravityAdmin.tsx | Catalogo de produtos Gravity (Pedido, Bid Cambio, Bid Frete, etc.) com status, versao e ambientes. | produtos-gravity |
+| Configurador | seguranca | SegurancaAdmin.tsx | Seguranca | Admin | Lista | servicos-global/configurador/src/pages/admin/SegurancaAdmin.tsx | Painel de seguranca da plataforma (incidentes, status geral, alertas). | seguranca-admin |
+| Configurador | taxas-cambio | TaxasCambio.tsx | Taxas de Cambio | Configurador | Lista | servicos-global/configurador/src/pages/workspace/TaxaCambio.tsx | Lista de taxas de cambio configuradas no tenant (PTAX, manual, fechamento). | taxa-cambio |
+| Configurador | testes-gerais | TestesGeraisAdmin.tsx | Testes | Admin | Lista | servicos-global/configurador/src/pages/admin/TestesGeraisAdmin.tsx | Tela principal de testes automatizados — historico, planos, metricas (wrapper que renderiza LogTestes). | testes-gerais |
+| Configurador | usuarios | Usuarios.tsx | Usuarios | Configurador | Lista | servicos-global/configurador/src/pages/workspace/Usuarios.tsx | Lista de usuarios da organizacao — patente, status, workspaces vinculados. | usuarios |
+| Configurador | usuarios-globais | UsuariosGlobaisAdmin.tsx | Usuarios Globais | Admin | Lista | servicos-global/configurador/src/pages/admin/UsuariosGlobaisAdmin.tsx | Lista global de usuarios da plataforma com papel, status e organizacoes vinculadas. | usuarios-globais |
+| Configurador | visao-geral | VisaoGeralAdmin.tsx | Visao Geral | Admin | Dashboard | servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx | Visao geral do painel master Gravity Admin (KPIs e atalhos). | visao-geral |
+| Configurador | workspaces | Workspaces.tsx | Workspaces | Configurador | Lista | servicos-global/configurador/src/pages/workspace/Workspaces.tsx | Lista de workspaces (filiais) da organizacao — gestao, criacao, suspensao. | workspaces |
+| Marketplace | / | Home.tsx | Home | Marketing | Lista | servicos-global/marketplace/src/pages/Home.tsx | Landing publica do Marketplace Gravity — apresentacao, categorias, CTA principal. | / |
+| Marketplace | /checkout | Checkout.tsx | Checkout | Marketing | Formulario | servicos-global/marketplace/src/pages/Checkout.tsx | Pagina publica de finalizacao de compra (plano + dados de pagamento). | /checkout |
+| Marketplace | /precos | Precos.tsx | Produtos Gravity | Marketing | Lista | servicos-global/marketplace/src/pages/Precos.tsx | Tabela publica de planos e precos dos produtos Gravity. | /precos |
+| Marketplace | /produtos | Produtos.tsx | Produtos Gravity | Marketing | Lista | servicos-global/marketplace/src/pages/Produtos.tsx | Catalogo publico de produtos Gravity (pedido, bid-cambio, bid-frete, simulador, etc.) com filtros. | /produtos |
+| Marketplace | /produtos/:id_produto | ProdutoDetalhe.tsx | Produtos Gravity | Marketing | Detalhe | servicos-global/marketplace/src/pages/produto/ProdutoDetalhe.tsx | Pagina publica de detalhe de um produto Gravity — descricao, screenshots, plano, CTA Trial. | /produtos/:id |
+| Marketplace | /produtos/simulador-comex | SimuladorComex.tsx | Simula Custo | Marketing | Lista | servicos-global/marketplace/src/pages/produto/SimuladorComex.tsx | Pagina publica do produto Simulador COMEX — landing especifico, ROI, calculadora. | /produtos/simulador-comex |
+| Marketplace | /trial | Trial.tsx | Produtos Gravity | Marketing | Formulario | servicos-global/marketplace/src/pages/Trial.tsx | CTA publico de inicio de trial — coleta dados basicos e redireciona para Configurador /trial. | /trial |
+| Produto |  | SecaoKanbanColunas.tsx | Colunas Kanban | pedido | Kanban | produto/pedido/client/src/pages/SecaoKanbanColunas.tsx | Sub-componente que renderiza a secao de colunas do Kanban — usado por KanbanPedidos e tela de Configuracoes. |  |
+| Produto |  | PedidosImportar.tsx | Importar | pedido | Modal | produto/pedido/client/src/pages/ImportarArquivo.tsx | Componente de importacao em massa de pedidos via arquivo (Excel/CSV/JSON) — usado em modal in-page. |  |
+| Produto |  | PedidoSnapshotCadastros.tsx | Snapshot Cadastros | pedido | Lista | produto/pedido/client/src/pages/MatrizSnapshotCadastros.tsx | Tela/componente de matriz que mostra o snapshot dos cadastros usados em cada pedido (auditoria de versoes). |  |
+| Produto |  | ProcessoLayout.tsx | Produtos Gravity | processo | Layout | produto/processo/client/src/pages/ProcessoLayout.tsx | Layout legado do produto processo — substituido por ProcessoLayout_2 (linha 22 do App.tsx). Codigo comentado e nao mais importado. |  |
+| Produto |  | ModalSimulacao.tsx | Simula Custo | simula-custo | Modal | produto/simula-custo/client/src/pages/estimativas/ModalSimulacao.tsx | Modal de simulacao rapida de custo — disparada de varias telas (estimativas, dashboard). |  |
+| Produto | /nf-importacao | NfLista.tsx | NF Importacao | nf-importacao | Lista | produto/nf-importacao/client/src/pages/NfLista.tsx | Lista de NFs de importacao do workspace — drafts, processadas, exportadas, com filtro por status. | /nf-importacao |
+| Produto | /nf-importacao/:id_nf/:aba | NfDetalhe.tsx | NF Importacao | nf-importacao | Detalhe | produto/nf-importacao/client/src/pages/NfDetalhe.tsx | Detalhe de uma NF em modo tabbed (visao geral, itens, despesas, rateio, fiscal, exportacao). | /nf-importacao/:id/:tab |
+| Produto | /nf-importacao/config/despesas | DespesasCatalogo.tsx | NF Importacao | nf-importacao | Lista | produto/nf-importacao/client/src/pages/DespesaCatalogo.tsx | Catalogo de despesas configuradas para uso nas NFs (frete, seguro, taxas, etc.). | /nf-importacao/config/despesas |
+| Produto | /nf-importacao/config/despesas-templates | DespesasTemplates.tsx | NF Importacao | nf-importacao | Lista | produto/nf-importacao/client/src/pages/DespesaTemplate.tsx | Templates de pacotes de despesas reutilizaveis (ex: importacao maritima padrao). | /nf-importacao/config/templates |
+| Produto | /nf-importacao/config/favoritos-fiscais | FavoritosFiscais.tsx | NF Importacao | nf-importacao | Lista | produto/nf-importacao/client/src/pages/FavoritosFiscais.tsx | Cadastro de favoritos fiscais (NCMs, CFOPs, CSTs frequentes) para acelerar lancamento. | /nf-importacao/config/favoritos |
+| Produto | /nf-importacao/config/layouts-exportacao | LayoutsExportacao.tsx | NF Importacao | nf-importacao | Lista | produto/nf-importacao/client/src/pages/ExportLayout.tsx | Layouts customizados de exportacao (ERP, Excel, planilha fiscal) — mapeamento de campos. | /nf-importacao/config/layouts |
+| Produto | /nf-importacao/nova | NfNovaOrigem.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaOrigem.tsx | Wizard de criacao de NF — passo 1: origem (importacao do XML/DI/manual). | /nf-importacao/nova |
+| Produto | /nf-importacao/nova/despesas | NfNovaDespesas.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaDespesas.tsx | Wizard NF — passo 3: lancamento de despesas (frete, seguro, taxas). | /nf-importacao/nova/despesas |
+| Produto | /nf-importacao/nova/duimp | NfNovaDuimp.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaDuimp.tsx | Wizard NF — passo 2: dados da DUIMP (Declaracao Unica de Importacao). | /nf-importacao/nova/duimp |
+| Produto | /nf-importacao/nova/exportacao | NfNovaExportacao.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaExportacao.tsx | Wizard NF — passo final: exportacao para ERP / arquivo / portal fiscal. | /nf-importacao/nova/exportacao |
+| Produto | /nf-importacao/nova/fiscal | NfNovaFiscal.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaFiscal.tsx | Wizard NF — passo 5: dados fiscais (CFOP, NCM, CST, base de calculo). | /nf-importacao/nova/fiscal |
+| Produto | /nf-importacao/nova/rateio | NfNovaRateio.tsx | NF Importacao | nf-importacao | Formulario | produto/nf-importacao/client/src/pages/NfNovaRateio.tsx | Wizard NF — passo 4: rateio das despesas entre os itens da NF. | /nf-importacao/nova/rateio |
+| Produto | /produto/processo/* | ProcessoLayout.tsx | Produtos Gravity | processo | Layout | produto/processo/client/src/pages/ProcessoLayout_2.tsx | Layout do produto processo — sidebar interna por aba (Workflow, Pedidos, Dados Tecnicos, Email, Financeiro). | /produto/processo/* |
+| Produto | cambios | ListaCambios.tsx | Cambios | bid-cambio | Lista | produto/bid-cambio/client/src/pages/ListaCambios.tsx | Lista de contratos de cambio do workspace — em aberto, liquidados, cancelados. | cambios |
+| Produto | cambios/:id_cambio/pagar | ModalPagamento.tsx | Pagamento | bid-cambio | Modal | produto/bid-cambio/client/src/pages/ModalPagamento.tsx | Tela em formato modal para registrar pagamento de parcela de um contrato de cambio. | cambios/:id/pagar |
+| Produto | configuracoes | Configuracoes.tsx | Configuracoes | bid-cambio | Configuração | produto/bid-cambio/client/src/pages/Configuracoes.tsx | Tela de configuracoes do produto bid-cambio (parametros, integracoes, regras de negocio). | configuracoes |
+| Produto | configuracoes | Configuracoes.tsx | Configuracoes | bid-frete | Configuração | produto/bid-frete/client/src/pages/Configuracoes.tsx | Tela de configuracoes do produto bid-frete (parametros, regras de bid, integracoes). | configuracoes |
+| Produto | configuracoes | Configuracoes.tsx | NF Importacao | pedido | Configuração | produto/pedido/client/src/pages/Configuracoes.tsx | Tela de configuracoes do produto pedido (colunas customizadas, fluxo, regras de status). | configuracoes |
+| Produto | configuracoes | Configuracoes.tsx | Configuracoes | simula-custo | Configuração | produto/simula-custo/client/src/pages/Configuracoes.tsx | Tela de configuracoes do produto simula-custo (parametros, NCMs preferidos, regras de impostos). | configuracoes |
+| Produto | corretoras | Corretoras.tsx | Corretoras | bid-cambio | Lista | produto/bid-cambio/client/src/pages/Corretoras.tsx | Lista de corretoras de cambio cadastradas no workspace. | corretoras |
+| Produto | corretoras/:id_corretora | DetalheCorretora.tsx | Detalhe | bid-cambio | Detalhe | produto/bid-cambio/client/src/pages/DetalheCorretora.tsx | Detalhe de uma corretora — dados, contatos, ranking, historico de cotacoes. | corretoras/:id |
+| Produto | cotacoes | Cotacoes.tsx | Cotacoes | bid-frete | Kanban | produto/bid-frete/client/src/pages/Cotacoes.tsx | Quadro Kanban de cotacoes de frete — colunas por status (aberta, em andamento, encerrada). | cotacoes |
+| Produto | cotacoes/:id_cotacao | DetalheCotacao.tsx | Detalhe | bid-cambio | Detalhe | produto/bid-cambio/client/src/pages/DetalheCotacao.tsx | Detalhe de uma cotacao especifica — propostas recebidas, status, historico, acoes. | cotacoes/:id |
+| Produto | cotacoes/:id_cotacao | DetalheCotacao.tsx | Detalhe | bid-frete | Detalhe | produto/bid-frete/client/src/pages/DetalheCotacao.tsx | Detalhe de uma cotacao de frete — propostas, status, historico, acoes. | cotacoes/:id |
+| Produto | cotacoes/:id_cotacao/comparativo | Comparativo.tsx | Comparativo | bid-cambio | Lista | produto/bid-cambio/client/src/pages/Comparativo.tsx | Tela de comparacao das propostas recebidas das corretoras para uma cotacao. | cotacoes/:id/comparativo |
+| Produto | cotacoes/:id_cotacao/comparativo | Comparativo.tsx | Comparativo | bid-frete | Lista | produto/bid-frete/client/src/pages/Comparativo.tsx | Tela de comparacao das propostas recebidas dos fornecedores para uma cotacao de frete. | cotacoes/:id/comparativo |
+| Produto | cotacoes/importar | CotacoesImportar.tsx | Formulario | bid-frete | Formulario | produto/bid-frete/client/src/pages/ImportarBloco.tsx | Tela de importacao em massa de cotacoes via planilha (bloco de cotacoes). | cotacoes/importar |
+| Produto | cotacoes/nova | NovaCotacao.tsx | Formulario | bid-cambio | Formulario | produto/bid-cambio/client/src/pages/NovaCotacao.tsx | Formulario de criacao de nova cotacao de cambio (entidade Cotacao). | cotacoes/nova |
+| Produto | cotacoes/nova | NovaCotacao.tsx | Formulario | bid-frete | Formulario | produto/bid-frete/client/src/pages/NovaCotacao.tsx | Formulario de criacao de nova cotacao de frete. | cotacoes/nova |
+| Produto | dados-tecnicos | DadosTecnicos.tsx | Dados Tecnicos | processo | Lista | produto/processo/client/src/pages/DadosTecnicosPage.tsx | Dados tecnicos do processo (NCM, peso, dimensao, classificacao fiscal por item). | dados-tecnicos |
+| Produto | dashboard | Dashboard.tsx | Dashboard | simula-custo | Dashboard | produto/simula-custo/client/src/pages/dashboard/DashboardSimulaCusto.tsx | Dashboard principal do produto simula-custo — KPIs de estimativas, valor agregado, status, fornecedores. | dashboard |
+| Produto | email | Email.tsx | Email | processo | Lista | produto/processo/client/src/pages/EmailPage.tsx | Caixa de emails do processo (mensagens trocadas com cliente, fornecedor, despachante). | email |
+| Produto | estimativas | EstimativasDashboard.tsx | Estimativas | simula-custo | Dashboard | produto/simula-custo/client/src/pages/estimativas/EstimativasDashboard.tsx | Lista/dashboard de estimativas de custo de importacao do workspace. | estimativas |
+| Produto | estimativas/:id_estimativa | EstimativaFormulario.tsx | Formulario | simula-custo | Formulario | produto/simula-custo/client/src/pages/estimativas/Estimativas.tsx | Tela de criacao/edicao de estimativa — mesmo arquivo serve /estimativas/nova e /estimativas/:id. | estimativas/:id |
+| Produto | fornecedores | Fornecedores.tsx | Fornecedores | bid-frete | Lista | produto/bid-frete/client/src/pages/Fornecedores.tsx | Lista de fornecedores de frete cadastrados no workspace (transportadores, agentes, armadores). | fornecedores |
+| Produto | fornecedores/:id_fornecedor | DetalheFornecedor.tsx | Detalhe | bid-frete | Detalhe | produto/bid-frete/client/src/pages/DetalheFornecedor.tsx | Detalhe de um fornecedor — dados, contatos, ranking, historico de cotacoes, tabela de precos. | fornecedores/:id |
+| Produto | historico | Historico.tsx | Historico | pedido | Lista | produto/pedido/client/src/pages/Historico.tsx | Historico de alteracoes de pedidos do workspace (auditoria). | historico |
+| Produto | importar | EstimativasImportar.tsx | Formulario | simula-custo | Formulario | produto/simula-custo/client/src/pages/importar/ImportarMassa.tsx | Tela de importacao em massa de estimativas via planilha (Excel/CSV). | importar |
+| Produto | pedidos | Pedidos.tsx | Pedidos | pedido | Lista | produto/pedido/client/src/pages/ListaPedidos.tsx | Lista de pedidos do workspace — visao tabular com filtros, edicao em massa, exportacao. | pedidos |
+| Produto | pedidos | Pedidos.tsx | Pedidos | processo | Lista | produto/processo/client/src/pages/PedidosPage.tsx | Lista dos pedidos vinculados ao processo — visao do produto Processo (consome dados do produto Pedido via API). | pedidos |
+| Produto | pedidos/:id_pedido/editar | PedidoFormulario.tsx | Formulario | pedido | Formulario | produto/pedido/client/src/pages/NovoPedido.tsx | Formulario de edicao/criacao de pedido — mesmo arquivo serve criacao (/pedidos/novo) e edicao. | pedidos/:id/editar |
+| Produto | pedidos/dashboard | PedidosDashboard.tsx | Dashboard | pedido | Dashboard | produto/pedido/client/src/pages/DashboardPedido.tsx | Dashboard de pedidos — KPIs, graficos por status, fornecedor, prazo, valor agregado. | pedidos/dashboard |
+| Produto | pedidos/kanban | PedidosKanban.tsx | Kanban | pedido | Kanban | produto/pedido/client/src/pages/KanbanPedidos.tsx | Quadro Kanban de pedidos — colunas por status, drag-and-drop entre etapas. | pedidos/kanban |
+| Produto | portal/configuracoes | Configuracoes.tsx | Configuracoes | bid-cambio | Configuração | produto/bid-cambio/client/src/pages/ConfigCorretora.tsx | Tela de configuracoes da propria corretora dentro do portal (dados, contatos, preferencias). | portal/configuracoes |
+| Produto | portal/dashboard | PortalDashboard.tsx | Dashboard | bid-cambio | Dashboard | produto/bid-cambio/client/src/pages/PortalDashboard.tsx | Dashboard do portal da corretora — visao geral das cotacoes pendentes, respostas e performance. | portal/dashboard |
+| Produto | portal/dashboard | PortalDashboard.tsx | Dashboard | bid-frete | Dashboard | produto/bid-frete/client/src/pages/PortalDashboard.tsx | Dashboard do portal do fornecedor — visao geral das cotacoes pendentes, respostas e performance. | portal/dashboard |
+| Produto | portal/desempenho | Desempenho.tsx | Dashboard | bid-cambio | Dashboard | produto/bid-cambio/client/src/pages/MeuDesempenho.tsx | Dashboard de performance da corretora logada — taxa de resposta, vitorias, ranking. | portal/desempenho |
+| Produto | portal/desempenho | Desempenho.tsx | Dashboard | bid-frete | Dashboard | produto/bid-frete/client/src/pages/MeuDesempenho.tsx | Dashboard de performance do fornecedor logado — taxa de resposta, vitorias, ranking. | portal/desempenho |
+| Produto | portal/pendentes | CotacoesPendentes.tsx | Cotacoes Pendentes | bid-cambio | Lista | produto/bid-cambio/client/src/pages/CotacoesPendentes.tsx | Lista de cotacoes pendentes de resposta para a corretora logada no portal. | portal/pendentes |
+| Produto | portal/pendentes | CotacoesPendentes.tsx | Cotacoes Pendentes | bid-frete | Lista | produto/bid-frete/client/src/pages/CotacoesPendentes.tsx | Lista de cotacoes de frete pendentes de resposta para o fornecedor logado. | portal/pendentes |
+| Produto | portal/public/responder/:token_resposta | ResponderPublico.tsx | Formulario | bid-cambio | Formulario | produto/bid-cambio/client/src/pages/ResponderPublico.tsx | Formulario PUBLICO (sem login) para corretora responder via link com token de uso unico. | portal/public/responder/:token |
+| Produto | portal/public/responder/:token_resposta | ResponderPublico.tsx | Formulario | bid-frete | Formulario | produto/bid-frete/client/src/pages/ResponderPublico.tsx | Formulario PUBLICO (sem login) para fornecedor responder via link com token de uso unico. | portal/public/responder/:token |
+| Produto | portal/responder/:id_cotacao | ResponderCotacao.tsx | Formulario | bid-cambio | Formulario | produto/bid-cambio/client/src/pages/ResponderCotacao.tsx | Formulario para a corretora logada responder a uma cotacao especifica. | portal/responder/:bidRequestId |
+| Produto | portal/responder/:id_cotacao | ResponderCotacao.tsx | Formulario | bid-frete | Formulario | produto/bid-frete/client/src/pages/ResponderCotacao.tsx | Formulario para o fornecedor logado responder uma cotacao especifica. | portal/responder/:bidRequestId |
+| Produto | portal/respostas | Respostas.tsx | Respostas | bid-cambio | Lista | produto/bid-cambio/client/src/pages/MinhasRespostas.tsx | Lista de respostas dadas pela corretora — historico de propostas enviadas. | portal/respostas |
+| Produto | portal/respostas | Respostas.tsx | Respostas | bid-frete | Lista | produto/bid-frete/client/src/pages/MinhasRespostas.tsx | Lista de respostas dadas pelo fornecedor — historico de propostas enviadas. | portal/respostas |
+| Produto | portal/tabela-precos | TabelaPrecos.tsx | Tabela de Precos | bid-frete | Lista | produto/bid-frete/client/src/pages/TabelaPrecos.tsx | Tela de gestao da tabela de precos do fornecedor (rotas, modais, valores). | portal/tabela-precos |
+| Produto | relatorios | Relatorios.tsx | Relatorios | simula-custo | Lista | produto/simula-custo/client/src/pages/relatorios/Relatorios.tsx | Lista de relatorios pre-configurados de estimativas e custos COMEX (export CSV/Excel/PDF). | relatorios |
+| Produto | visao-geral | Dashboard.tsx | Dashboard | bid-cambio | Dashboard | produto/bid-cambio/client/src/pages/Dashboard.tsx | Visao geral do produto bid-cambio (KPIs de cotacoes, contratos, performance de corretoras). | visao-geral |
+| Produto | visao-geral | Dashboard.tsx | Dashboard | bid-frete | Dashboard | produto/bid-frete/client/src/pages/Dashboard.tsx | Visao geral do produto bid-frete (KPIs de cotacoes, fornecedores, performance). | visao-geral |
+| Produto | workflow | Workflow.tsx | Workflow | processo | Lista | produto/processo/client/src/pages/WorkflowPage.tsx | Visao do workflow do processo — fluxo de etapas, status atual, proximos passos. | workflow |
+| Tenant | geral | DashboardGeral.tsx | Dashboard | Tenant | Dashboard | servicos-global/organizacao/dashboard/src/pages/DashboardGeralPage.tsx | Dashboard geral multi-produto do tenant — agregacao de KPIs de Pedido, Bid, NF, etc. | geral |
+
+
+## Apendice - Linhas SKIP / exempt (15 linhas)
+
+Linhas onde o nome DDD principal foi marcado como `—` (nao acionavel: arquivo de teste, definicao Storybook, ruido de parsing, etc.).
+
+| Produto | URL DDD | Arquivo DDD | Titulo DDD | Area | Tipo view | Path completo | Descricao | Alias historico (URL) |
+|---|---|---|---|---|---|---|---|---|
+| Produto |  |  |  |  |  |  | Gestão de categorias de despesa. | /financeiro-comex/config/categorias |
+| Produto |  |  |  |  |  |  | Gestão de condições de pagamento. | /financeiro-comex/config/condicoes |
+| Produto |  |  |  |  |  |  | Modal com histórico de alterações. |  |
+| Produto |  |  |  |  |  |  | Modal de importação de lançamentos. |  |
+| Produto |  |  |  |  | Formulario |  | Modal de criação de lançamento financeiro. |  |
+| Produto |  |  |  |  |  |  | Lançamentos financeiros do processo. | /financeiro-comex/movimentacao/:processoId |
+| Produto |  |  |  |  |  |  | Modal para visualizar anexo. |  |
+| Produto |  |  |  |  |  |  | Modal para inserir numerário (adiantamento). |  |
+| Produto |  |  | Numerario |  |  |  | Gestão de numerários por processo. | /financeiro-comex/numerario/:processoId |
+| Produto |  |  | Rateio |  |  |  | Rateio de despesas entre itens. | /financeiro-comex/rateio/:processoId |
+| Produto |  |  | LPCO |  | Detalhe |  | Detalhes de um LPCO (Licença/Permissão/Certificado). | /lpco/:id/:tab |
+| Produto |  |  | LPCO |  | Lista |  | Lista de LPCOs do workspace. | /lpco |
+| Produto |  |  | LPCO |  | Formulario |  | Formulário de criação de novo LPCO (multi-step). | /lpco/novo/:step |
+| Produto |  |  | LPCO |  |  |  | Simulador de LPCO (cálculo prévio). | /lpco/simulador |
+| Produto |  |  |  |  |  |  | Catálogo de tipos de despesa reutilizáveis. | /nf-importacao/config/despesas |
+

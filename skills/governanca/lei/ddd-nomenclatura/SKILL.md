@@ -330,6 +330,31 @@ Em dúvida? → consulta glossário canônico
 
 ---
 
+## Atlas DDD — Fonte da verdade
+
+Para nomes finais de TODOS os models, enums, rotas, campos, páginas, modais
+e componentes do monorepo, consulte:
+
+[`documentos-tecnicos/ddd-atlas/`](../../../../documentos-tecnicos/ddd-atlas/README.md)
+
+9 arquivos, um por aba da planilha mestre:
+
+1. [`01-campos.md`](../../../../documentos-tecnicos/ddd-atlas/01-campos.md) — 1528 campos (db/back/front + label de tela)
+2. [`02-rotas-api.md`](../../../../documentos-tecnicos/ddd-atlas/02-rotas-api.md) — 395 rotas backend
+3. [`03-models.md`](../../../../documentos-tecnicos/ddd-atlas/03-models.md) — 188 Prisma models
+4. [`04-enums.md`](../../../../documentos-tecnicos/ddd-atlas/04-enums.md) — 381 enum values
+5. [`05-rotas-fe.md`](../../../../documentos-tecnicos/ddd-atlas/05-rotas-fe.md) — 529 rotas frontend / inter-serviço
+6. [`06-paginas.md`](../../../../documentos-tecnicos/ddd-atlas/06-paginas.md) — 127 páginas
+7. [`07-modais.md`](../../../../documentos-tecnicos/ddd-atlas/07-modais.md) — 46 modais
+8. [`08-nucleo-global.md`](../../../../documentos-tecnicos/ddd-atlas/08-nucleo-global.md) — 106 componentes globais
+9. [`09-componentes-locais.md`](../../../../documentos-tecnicos/ddd-atlas/09-componentes-locais.md) — 22 componentes locais
+
+Atlas é regenerado automaticamente via [`scripts/sob-demanda/gerar-atlas-ddd.py`](../../../../scripts/sob-demanda/gerar-atlas-ddd.py).
+
+**Antes de criar/renomear qualquer entidade, verifique se já existe no atlas.**
+
+---
+
 ## Referências cruzadas
 
 - **Mandamento 02** — Schema intocável, só Coordenador altera
@@ -338,4 +363,5 @@ Em dúvida? → consulta glossário canônico
 - **Mandamento 09** — Zod schemas como contratos bilaterais
 - **`skills/papeis/coordenador/SKILL.md`** — Quem executa scripts de rename de schema
 - **`documentos-tecnicos/ddd/`** — Auditorias de execução por área
+- **`documentos-tecnicos/ddd-atlas/`** — Atlas com nomes DDD-finais (9 arquivos gerados)
 - **Planilha mestre DDD** — `planilha_geral_gravity.xlsx`

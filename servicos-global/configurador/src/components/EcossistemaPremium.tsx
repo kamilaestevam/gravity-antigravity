@@ -2,11 +2,11 @@ import React from 'react';
 import './premium-ecosystem-puzzle.css';
 
 /**
- * PremiumEcosystemPuzzle
+ * EcossistemaPremium
  * Componente premium que visualiza a integração dos módulos do Gravity.
  * Representa um "quebra-cabeça" onde as peças se encaixam e desencaixam.
  */
-export function PremiumEcosystemPuzzle() {
+export function EcossistemaPremium() {
   return (
     <div className="puzzle-ecosystem-container" 
          title="Ecosistema Gravity: Módulos conectados em uma única plataforma.">

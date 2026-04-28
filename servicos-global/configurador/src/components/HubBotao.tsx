@@ -2,13 +2,13 @@ import React from 'react'
 import { Graph } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
-interface HubButtonProps {
+interface HubBotaoProps {
   onClick: () => void
   label?: string
   tooltip?: string
 }
 
-export function HubButton({ onClick, label = 'Hub', tooltip = 'Voltar ao Hub' }: HubButtonProps) {
+export function HubBotao({ onClick, label = 'Hub', tooltip = 'Voltar ao Hub' }: HubBotaoProps) {
   return (
     <TooltipGlobal titulo={tooltip} descricao={tooltip}>
       <button

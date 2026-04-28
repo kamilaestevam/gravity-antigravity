@@ -51,7 +51,7 @@ import {
   exportarPDF,
   type ColunasExport,
 } from '../../services/exportService'
-import { ModalEditarEmpresa } from './ModalEditarEmpresa'
+import { ModalEditarEmpresa } from './ModalEmpresaEditar'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 

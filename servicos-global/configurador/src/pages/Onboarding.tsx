@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Storefront, Buildings, IdentificationCard, ArrowLeft, Sparkle, RocketLaunch, Users, ShoppingBagOpen, ArrowRight } from '@phosphor-icons/react'
@@ -245,7 +245,7 @@ export function Onboarding() {
             style={{ animation: 'onbStepSlide 0.28s cubic-bezier(0.16,1,0.3,1) both' }}
           >
             {passo === 1 && (
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="Nome da empresa"
                 obrigatorio
                 tooltipTitulo="Organizacao"
@@ -268,11 +268,11 @@ export function Onboarding() {
                     }}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             )}
 
             {passo === 2 && (
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="CNPJ da empresa"
                 obrigatorio
                 tooltipTitulo="CNPJ"
@@ -298,7 +298,7 @@ export function Onboarding() {
                     maxLength={18}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             )}
           </div>
 

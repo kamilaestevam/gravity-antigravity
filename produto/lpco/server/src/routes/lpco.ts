@@ -126,14 +126,14 @@ router.get('/prefill/pedido/:pedidoId', async (req: Request, res: Response, next
   } catch (err) { next(err) }
 })
 
-// ── GET /:id — Detalhar LPCO ────────────────────────────────────────────────
+// ── GET /:id_lpco — Detalhar LPCO ───────────────────────────────────────────
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_lpco', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = getTenantContext(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, tenant_id: tenantId },
       include: {
         itens: true,
         exigencias: { orderBy: { numero_exigencia: 'asc' } },
@@ -242,15 +242,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err) }
 })
 
-// ── PUT /:id — Atualizar LPCO (apenas rascunho) ─────────────────────────────
+// ── PUT /:id_lpco — Atualizar LPCO (apenas rascunho) ────────────────────────
 
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id_lpco', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma } = getTenantContext(req)
     const body = LpcoUpdateSchema.parse(req.body)
 
     const existing = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, tenant_id: tenantId },
     })
 
     if (!existing) {
@@ -262,7 +262,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const lpco = await prisma.lpco.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_lpco },
       data: { ...body, updated_by: userId },
     })
 
@@ -320,15 +320,15 @@ router.post('/:id/registrar', async (req: Request, res: Response, next: NextFunc
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/cancelar — Cancelar LPCO ──────────────────────────────────────
+// ── POST /:id_lpco/cancelar — Cancelar LPCO ─────────────────────────────────
 
-router.post('/:id/cancelar', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_lpco/cancelar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma } = getTenantContext(req)
     const { motivo } = LpcoCancelarSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, tenant_id: tenantId },
     })
 
     if (!lpco) {
@@ -337,7 +337,7 @@ router.post('/:id/cancelar', async (req: Request, res: Response, next: NextFunct
 
     await transitarStatus({
       prisma,
-      lpcoId: req.params.id,
+      lpcoId: req.params.id_lpco,
       tenantId,
       companyId: lpco.company_id,
       statusNovo: 'cancelada',
@@ -345,20 +345,20 @@ router.post('/:id/cancelar', async (req: Request, res: Response, next: NextFunct
       descricao: `Cancelamento manual: ${motivo}`,
     })
 
-    const updated = await prisma.lpco.findFirst({ where: { id: req.params.id } })
+    const updated = await prisma.lpco.findFirst({ where: { id: req.params.id_lpco } })
     res.json(updated)
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/atualizar-status — Sync manual ────────────────────────────────
+// ── POST /:id_lpco/atualizar-status — Sync manual ───────────────────────────
 
-router.post('/:id/atualizar-status', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_lpco/atualizar-status', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma } = getTenantContext(req)
     const { status } = LpcoAtualizarStatusSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, tenant_id: tenantId },
     })
 
     if (!lpco) {
@@ -367,7 +367,7 @@ router.post('/:id/atualizar-status', async (req: Request, res: Response, next: N
 
     await transitarStatus({
       prisma,
-      lpcoId: req.params.id,
+      lpcoId: req.params.id_lpco,
       tenantId,
       companyId: lpco.company_id,
       statusNovo: status,
@@ -375,7 +375,7 @@ router.post('/:id/atualizar-status', async (req: Request, res: Response, next: N
       descricao: 'Atualizacao manual de status (sync)',
     })
 
-    const updated = await prisma.lpco.findFirst({ where: { id: req.params.id } })
+    const updated = await prisma.lpco.findFirst({ where: { id: req.params.id_lpco } })
     res.json(updated)
   } catch (err) { next(err) }
 })

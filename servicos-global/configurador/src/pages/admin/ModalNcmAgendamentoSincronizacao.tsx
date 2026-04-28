@@ -47,7 +47,7 @@ function formatDatetime(iso: string | null): string {
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-export interface ModalAgendamentoNcmSyncProps {
+export interface ModalAgendamentoSincronizacaoNcmProps {
   aberto:          boolean
   aoFechar:        () => void
   aoMudarStatus?:  (ativo: boolean) => void
@@ -55,7 +55,7 @@ export interface ModalAgendamentoNcmSyncProps {
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: ModalAgendamentoNcmSyncProps) {
+export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStatus }: ModalAgendamentoSincronizacaoNcmProps) {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
 

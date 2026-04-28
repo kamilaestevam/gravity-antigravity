@@ -18,7 +18,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/apiClient'
-import { ModalAgendamentoNcmSync } from './ModalAgendamentoNcmSync'
+import { ModalAgendamentoSincronizacaoNcm } from './ModalNcmAgendamentoSincronizacao'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -377,7 +377,7 @@ export function NcmIntegracaoAdmin() {
           />
         </div>
 
-        <ModalAgendamentoNcmSync
+        <ModalAgendamentoSincronizacaoNcm
           aberto={modalAgendamentoAberto}
           aoFechar={() => {
             setModalAgendamentoAberto(false)

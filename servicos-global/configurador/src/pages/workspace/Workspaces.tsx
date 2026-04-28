@@ -9,7 +9,7 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { ModalEditarWorkspace } from './ModalEditarWorkspace'
+import { ModalEditarWorkspace } from './ModalWorkspaceEditar'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { extractApiError, extractCatchError } from '../../utils/extractApiError'

@@ -33,7 +33,7 @@ import {
 } from '@phosphor-icons/react'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { HubButton } from '../components/HubButton'
+import { HubBotao } from '../components/HubBotao'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
@@ -262,7 +262,7 @@ export function Core() {
         {/* ── Header ── */}
         <div className="ws-global-actions">
           {/* ?select=1: escape hatch que força SelecionarWorkspace mesmo com workspace preferido */}
-          <HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
+          <HubBotao onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
 
           <LocalizarExpandidoCampoGlobal
             onBuscarNavigate={(term) => {

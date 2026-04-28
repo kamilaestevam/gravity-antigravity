@@ -16,23 +16,23 @@ function ctx(req: Request) {
   }
 }
 
-router.get('/:id/documentos', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_lpco/documentos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
     const docs = await prisma.lpcoAnexos.findMany({
-      where: { lpco_id: req.params.id, tenant_id: tenantId },
+      where: { lpco_id: req.params.id_lpco, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
     })
     res.json({ data: docs })
   } catch (err) { next(err) }
 })
 
-router.post('/:id/documentos', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_lpco/documentos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma } = ctx(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, tenant_id: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 
@@ -48,7 +48,7 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: userId,
-        lpco_id: req.params.id,
+        lpco_id: req.params.id_lpco,
         nome_arquivo,
         tipo_documento,
         mime_type: mime_type ?? 'application/octet-stream',
@@ -62,16 +62,16 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
   } catch (err) { next(err) }
 })
 
-router.delete('/:id/documentos/:docId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_lpco/documentos/:id_documento', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma } = ctx(req)
 
     const doc = await prisma.lpcoAnexos.findFirst({
-      where: { id: req.params.docId, lpco_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_documento, lpco_id: req.params.id_lpco, tenant_id: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 
-    await prisma.lpcoAnexos.delete({ where: { id: req.params.docId } })
+    await prisma.lpcoAnexos.delete({ where: { id: req.params.id_documento } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

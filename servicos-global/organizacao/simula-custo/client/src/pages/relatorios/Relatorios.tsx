@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FileText, Plus, ChartLineUp, Clock, CurrencyDollar, DownloadSimple, Funnel } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { StatCardGlobal } from '@nucleo/card-global' 
+import { CardEstatisticaGlobal } from '@nucleo/card-global' 
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 
@@ -57,21 +57,21 @@ export default function Relatorios() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('simulacusto.relatorios.kpi.a_receber')}
             valor="R$ 145.200,80"
             subtexto={t('simulacusto.relatorios.kpi.subtexto_a_receber')}
             icone={<Clock weight="bold" />}
             variante="padrao"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('simulacusto.relatorios.kpi.risco')}
             valor="R$ 12.500,00"
             subtexto={t('simulacusto.relatorios.kpi.subtexto_risco')}
             icone={<Funnel weight="bold" />}
             variante="perigo"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('simulacusto.relatorios.kpi.performance')}
             valor="94.2%"
             subtexto={t('simulacusto.relatorios.kpi.subtexto_performance')}

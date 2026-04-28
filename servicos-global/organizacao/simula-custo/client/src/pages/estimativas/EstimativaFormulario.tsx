@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Calculator, ArrowLeft, FloppyDisk, Play, Plus, Trash } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { SeletorVisualizacao, type ViewMode } from '@nucleo/view-toggle-global'
+import { SeletorVisualizacaoGlobal, type ViewMode } from '@nucleo/view-toggle-global'
 import { postSimulacao, getEstimativa, criarEstimativa, atualizarEstimativa } from '../../shared/api'
 import type {
   SimulacaoInput,
@@ -211,7 +211,7 @@ export default function EstimativaFormulario() {
             </div>
           }
           viewToggle={
-            <SeletorVisualizacao
+            <SeletorVisualizacaoGlobal
               view="lista"
               onChange={(v: ViewMode) => {
                 if (v === 'dashboard') navigate('/dashboard')

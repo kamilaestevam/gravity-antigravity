@@ -36,7 +36,7 @@ import {
   Fire,
   Info,
 } from '@phosphor-icons/react'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -738,7 +738,7 @@ export function SelecionarWorkspace() {
             />
 
             {/* Seletor de idioma */}
-            <LanguageSwitcherGlobal iconOnly />
+            <SeletorIdiomaGlobal iconOnly />
 
             <div className="sw-t-sep" />
 

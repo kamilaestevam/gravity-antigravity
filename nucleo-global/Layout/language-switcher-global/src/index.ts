@@ -1,1 +1,1 @@
-export { LanguageSwitcherGlobal } from './LanguageSwitcherGlobal'
+export { SeletorIdiomaGlobal } from './SeletorIdiomaGlobal'

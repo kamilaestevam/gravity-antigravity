@@ -6,7 +6,7 @@ import {
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -511,20 +511,20 @@ export function FinanceiroAdmin() {
         }
         stats={
           <>
-            <StatCardGlobal
+            <CardEstatisticaGlobal
               titulo={t('admin.financeiro-admin.card_a_receber') ?? 'A Receber (Aberto)'}
               icone={<ChartLineUp weight="duotone" size={16} />}
               valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalAberto, currencyForCards)}</span>}
               subtexto={`${abertas.length} fatura(s) pendente(s)`}
               variante="padrao"
             />
-            <StatCardGlobal
+            <CardEstatisticaGlobal
               titulo={t('admin.financeiro-admin.card_risco') ?? 'Risco de Inadimplência'}
               valor={<span style={{ fontSize: '1.5rem' }}>{formatCents(totalInadimplencia, currencyForCards)}</span>}
               subtexto={`${inadimplentes.length} em atraso`}
               variante={inadimplentes.length > 0 ? 'perigo' : 'sucesso'}
             />
-            <StatCardGlobal
+            <CardEstatisticaGlobal
               titulo={t('admin.financeiro-admin.card_performance') ?? 'Performance'}
               valor={<span style={{ fontSize: '1.75rem' }}>{performancePct}%</span>}
               subtexto={t('admin.financeiro-admin.card_performance_subtexto') ?? 'Taxa de recebimento'}

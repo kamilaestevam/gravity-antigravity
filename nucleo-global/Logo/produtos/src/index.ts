@@ -1,6 +1,6 @@
 // Registry de produtos
-export { PRODUTO_META, getProdutoMeta } from './produtos'
-export type { ProdutoMeta } from './produtos'
+export { PRODUTO_META, getProdutoMeta } from './LogoProdutoGlobal'
+export type { ProdutoMeta } from './LogoProdutoGlobal'
 
 // Logos das zonas do sistema
 export { LogoGravity }        from './logos/LogoGravity'

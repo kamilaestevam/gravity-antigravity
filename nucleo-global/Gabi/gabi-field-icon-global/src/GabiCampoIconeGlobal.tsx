@@ -8,7 +8,7 @@ interface GabiFieldIconInternalProps extends GabiFieldIconProps {
   esgotado:    boolean
 }
 
-export function GabiFieldIcon({
+export function GabiCampoIconeGlobal({
   label,
   onConsultar,
   carregando,

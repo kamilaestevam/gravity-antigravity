@@ -18,7 +18,7 @@ import {
   TerminalWindow,
   ArrowsClockwise
 } from '@phosphor-icons/react'
-import { CardBasicoGlobal, StatCardGlobal } from '@nucleo/card-global'
+import { CardBasicoGlobal, CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -137,9 +137,9 @@ export function ApiCockpit() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         {/* KPI Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <StatCardGlobal titulo={t('admin.cockpit.status_geral')} valor={t('admin.cockpit.operacional')} variante="sucesso" />
-          <StatCardGlobal titulo={t('admin.cockpit.uptime_24h')} valor="100%" variante="primario" />
-          <StatCardGlobal titulo={t('admin.cockpit.latencia_media')} valor="24ms" variante="padrao" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.status_geral')} valor={t('admin.cockpit.operacional')} variante="sucesso" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.uptime_24h')} valor="100%" variante="primario" />
+          <CardEstatisticaGlobal titulo={t('admin.cockpit.latencia_media')} valor="24ms" variante="padrao" />
         </div>
 
         {/* Tabs Control */}

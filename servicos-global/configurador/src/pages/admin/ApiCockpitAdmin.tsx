@@ -11,7 +11,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 
 // ─── Tipos do backend api-cockpit ────────────────────────────────────────
@@ -276,22 +276,22 @@ export function ApiCockpitAdmin() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.monitor.apis_online')}
             valor={String(apisOnline)}
             variante="sucesso"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.monitor.requisicoes_24h')}
             valor={String(totalRequisicoes)}
             variante="primario"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo="GABI IA · Chamadas"
             valor={gabiLoading ? '…' : String(gabiCalls)}
             variante="primario"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo="GABI IA · Custo Mês"
             valor={gabiLoading ? '…' : fmtUSD(gabiCost)}
             variante="aviso"

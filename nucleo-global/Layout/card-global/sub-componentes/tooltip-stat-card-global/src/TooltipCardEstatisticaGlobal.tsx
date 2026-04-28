@@ -11,10 +11,10 @@ export interface TooltipStatCardGlobalProps {
 }
 
 /**
- * Tooltip nativa customizada para o contexto do StatCardGlobal.
+ * Tooltip nativa customizada para o contexto do CardEstatisticaGlobal.
  * Não é um componente global solto, é fortemente acoplado ao sub-ecossistema do Card.
  */
-export function TooltipStatCardGlobal({ icone, titulo, children }: TooltipStatCardGlobalProps) {
+export function TooltipCardEstatisticaGlobal({ icone, titulo, children }: TooltipStatCardGlobalProps) {
   return (
     <div className="scg-card__tooltip">
       {/* Cabeçalho automático: ícone + título reutizado de cima */}

@@ -8,7 +8,7 @@ import {
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
@@ -416,25 +416,25 @@ export function SegurancaAdmin() {
         aria-atomic="false"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}
       >
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo={t('admin.seguranca-admin.status_geral')}
           valor={loading ? '...' : (overallOk ? t('admin.seguranca-admin.protegido') : health?.overall || t('admin.seguranca-admin.verificando'))}
           icone={overallOk ? <ShieldCheck weight="fill" size={22} /> : <ShieldWarning weight="fill" size={22} />}
           variante={overallOk ? 'sucesso' : 'aviso'}
         />
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo={t('admin.seguranca-admin.criticos_24h')}
           valor={String(stats.criticalCount)}
           icone={<Warning weight="fill" size={22} />}
           variante={stats.criticalCount > 0 ? 'perigo' : 'sucesso'}
         />
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo={t('admin.seguranca-admin.alertas_24h')}
           valor={String(stats.warningCount)}
           icone={<ShieldWarning weight="fill" size={22} />}
           variante={stats.warningCount > 0 ? 'aviso' : 'sucesso'}
         />
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo={t('admin.seguranca-admin.bloqueados_24h')}
           valor={String(stats.blockedCount)}
           icone={<Lock weight="fill" size={22} />}

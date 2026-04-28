@@ -17,10 +17,10 @@ import './pagina-dashboard.css'
  *   icone={<ChartBar weight="duotone" size={22} />}
  *   toolbar={<FiltrosPeriodo ... />}
  *   kpis={<>
- *     <StatCardGlobal titulo="Receita" valor="R$ 150k" />
- *     <StatCardGlobal titulo="Clientes" valor={342} />
- *     <StatCardGlobal titulo="Conversão" valor="12.5%" />
- *     <StatCardGlobal titulo="Tickets" valor={18} />
+ *     <CardEstatisticaGlobal titulo="Receita" valor="R$ 150k" />
+ *     <CardEstatisticaGlobal titulo="Clientes" valor={342} />
+ *     <CardEstatisticaGlobal titulo="Conversão" valor="12.5%" />
+ *     <CardEstatisticaGlobal titulo="Tickets" valor={18} />
  *   </>}
  * >
  *   <GridGlobal colunas={2} gap={4}>

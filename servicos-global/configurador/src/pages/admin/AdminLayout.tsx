@@ -10,7 +10,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubButton } from '../../components/HubButton'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
@@ -222,7 +222,7 @@ export function AdminLayout() {
             iconOnly
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           {/* Divisor visual */}
           <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />

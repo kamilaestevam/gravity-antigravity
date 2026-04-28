@@ -35,7 +35,7 @@ import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystemNodes'
@@ -301,7 +301,7 @@ export function Core() {
             }}
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           <React.Suspense fallback={null}>
             <Notificacoes />

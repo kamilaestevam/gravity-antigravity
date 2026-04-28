@@ -4,7 +4,7 @@ import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
@@ -215,7 +215,7 @@ export function WorkspaceLayout() {
             iconOnly
           />
 
-          <LanguageSwitcherGlobal />
+          <SeletorIdiomaGlobal />
 
           {/* Divisor visual */}
           <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />

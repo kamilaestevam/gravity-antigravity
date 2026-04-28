@@ -30,7 +30,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectNcmGlobal } from '@nucleo/campo-ncm-global'
 import { ModalGlobal } from '@nucleo/modal-global'
-import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
+import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi } from '../shared/api'
@@ -440,7 +440,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-incoterm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         {t('pedido.drawer.label_incoterm')}
-                        <GabiFieldIcon campo="incoterm" label="Incoterm" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
+                        <GabiCampoIconeGlobal campo="incoterm" label="Incoterm" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
                       </label>
                       <select
                         id="dp-incoterm"
@@ -473,7 +473,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-pagamento" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         {t('pedido.drawer.label_cond_pgto')}
-                        <GabiFieldIcon campo="condicao_pagamento" label="Condição de Pagamento" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
+                        <GabiCampoIconeGlobal campo="condicao_pagamento" label="Condição de Pagamento" gabiEndpoint="/api/v1/pedidos/gabi/ajuda-campo" />
                       </label>
                       <input
                         id="dp-pagamento"

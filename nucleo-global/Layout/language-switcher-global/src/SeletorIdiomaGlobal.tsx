@@ -1,5 +1,5 @@
 /**
- * LanguageSwitcherGlobal — Seletor de idioma da plataforma Gravity.
+ * SeletorIdiomaGlobal — Seletor de idioma da plataforma Gravity.
  *
  * Renderiza um dropdown compacto com os 3 idiomas principais (PT, EN, ES).
  * Ao trocar, dispara i18next.changeLanguage() e persiste no localStorage.
@@ -32,7 +32,7 @@ interface LanguageSwitcherGlobalProps {
   iconOnly?: boolean
 }
 
-export function LanguageSwitcherGlobal({ onLanguageChange, iconOnly = false }: LanguageSwitcherGlobalProps) {
+export function SeletorIdiomaGlobal({ onLanguageChange, iconOnly = false }: LanguageSwitcherGlobalProps) {
   const { i18n, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)

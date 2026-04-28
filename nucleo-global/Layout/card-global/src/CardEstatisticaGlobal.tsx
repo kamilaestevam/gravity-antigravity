@@ -9,14 +9,14 @@ export interface StatCardGlobalProps extends StatCardProps {
 }
 
 /**
- * StatCardGlobal — Mini Dashboard Card do Gravity Design System
+ * CardEstatisticaGlobal — Mini Dashboard Card do Gravity Design System
  * 
  * Card flexível para exibição de métricas rápidas.
  * Suporta título, ícone, grande valor numérico, indicador de tendência e subtexto.
  */
-import { TooltipStatCardGlobal } from '../sub-componentes/tooltip-stat-card-global/src/tooltip-stat-card'
+import { TooltipCardEstatisticaGlobal } from '../sub-componentes/tooltip-stat-card-global/src/tooltip-stat-card'
 
-export function StatCardGlobal({
+export function CardEstatisticaGlobal({
   titulo,
   valor,
   tendencia,
@@ -65,9 +65,9 @@ export function StatCardGlobal({
       </div>
 
       {tooltip && (
-        <TooltipStatCardGlobal icone={icone} titulo={titulo}>
+        <TooltipCardEstatisticaGlobal icone={icone} titulo={titulo}>
           {tooltip}
-        </TooltipStatCardGlobal>
+        </TooltipCardEstatisticaGlobal>
       )}
     </div>
   )

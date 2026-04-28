@@ -18,8 +18,8 @@ import type { PaginaTabelaProps } from './tipos.js'
  *   icone={<Buildings weight="duotone" size={22} />}
  *   acaoPrimaria={<BotaoGlobal variante="primario">Nova Empresa</BotaoGlobal>}
  *   stats={<>
- *     <StatCardGlobal titulo="Total" valor={42} />
- *     <StatCardGlobal titulo="Ativas" valor={38} />
+ *     <CardEstatisticaGlobal titulo="Total" valor={42} />
+ *     <CardEstatisticaGlobal titulo="Ativas" valor={38} />
  *   </>}
  *   tabela={{
  *     colunas: [...],

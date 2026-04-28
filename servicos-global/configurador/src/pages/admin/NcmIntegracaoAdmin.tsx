@@ -15,7 +15,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/apiClient'
 import { ModalAgendamentoSincronizacaoNcm } from './ModalNcmAgendamentoSincronizacao'
@@ -280,25 +280,25 @@ export function NcmIntegracaoAdmin() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_ativos')}
             valor={carregando ? '—' : (status?.total_ativos ?? 0).toLocaleString('pt-BR')}
             icone={<Tag size={20} weight="duotone" />}
             cor="#10b981"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_ultima_sync')}
             valor={carregando ? '—' : ultimaSyncLabel}
             icone={<Clock size={20} weight="duotone" />}
             cor={statusCorIcone}
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_tenants')}
             valor={carregando ? '—' : String(status?.total_tenants ?? 0)}
             icone={<Buildings size={20} weight="duotone" />}
             cor="#6366f1"
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_erros')}
             valor={carregando ? '—' : String(status?.erros_48h ?? 0)}
             icone={<Database size={20} weight="duotone" />}

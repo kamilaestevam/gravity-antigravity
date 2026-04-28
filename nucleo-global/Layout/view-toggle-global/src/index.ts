@@ -1,2 +1,2 @@
-export { SeletorVisualizacao } from './SeletorVisualizacao'
-export type { ViewMode, ViewOption, SeletorVisualizacaoProps } from './SeletorVisualizacao'
+export { SeletorVisualizacaoGlobal } from './SeletorVisualizacaoGlobal'
+export type { ViewMode, ViewOption, SeletorVisualizacaoProps } from './SeletorVisualizacaoGlobal'

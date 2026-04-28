@@ -9,7 +9,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 // ---------------------------------------------------------------------------
@@ -300,19 +300,19 @@ export function TaxasCambio() {
 
       {/* Stat cards resumo */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo="USD / BRL"
           valor={taxaUSD ? `R$ ${formatarTaxa(taxaUSD.venda)}` : '—'}
           descricao={taxaUSD ? `Compra: R$ ${formatarTaxa(taxaUSD.compra)}` : 'Sincronize para atualizar'}
           icone={<CurrencyCircleDollar weight="duotone" size={20} />}
         />
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo="EUR / BRL"
           valor={taxaEUR ? `R$ ${formatarTaxa(taxaEUR.venda)}` : '—'}
           descricao={taxaEUR ? `Compra: R$ ${formatarTaxa(taxaEUR.compra)}` : 'Sincronize para atualizar'}
           icone={<CurrencyCircleDollar weight="duotone" size={20} />}
         />
-        <StatCardGlobal
+        <CardEstatisticaGlobal
           titulo="Moedas ativas"
           valor={String(taxasComDados)}
           descricao="de 6 moedas com cotação"

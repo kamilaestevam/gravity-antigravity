@@ -16,7 +16,7 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
+import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
@@ -563,7 +563,7 @@ const GTEditPopover = memo(function GTEditPopover({
             </svg>
             {colLabel}
             {overlayInfo.gabiCampo && (
-              <GabiFieldIcon
+              <GabiCampoIconeGlobal
                 campo={overlayInfo.gabiCampo}
                 label={colLabel}
                 gabiEndpoint={overlayInfo.gabiEndpoint}

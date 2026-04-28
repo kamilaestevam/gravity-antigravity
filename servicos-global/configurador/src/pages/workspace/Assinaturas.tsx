@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -433,7 +433,7 @@ export function Assinaturas() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.subscriptions.produtos_ativos')}
             icone={<Package weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{totalAtivos}</span>}
@@ -452,7 +452,7 @@ export function Assinaturas() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.subscriptions.custo_fixo')}
             icone={<CurrencyDollar weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>R$ {custoSaaSAtivos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>}
@@ -471,7 +471,7 @@ export function Assinaturas() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.subscriptions.acessos_suspensos')}
             icone={<WarningCircle weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.75rem' }}>{totalSuspensos}</span>}

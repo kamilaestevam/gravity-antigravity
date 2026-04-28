@@ -36,7 +36,7 @@ import {
   buildEcosystemNodes,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
-import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
@@ -443,7 +443,7 @@ export function Store() {
           />
 
           {/* Seletor de idioma */}
-          <LanguageSwitcherGlobal iconOnly />
+          <SeletorIdiomaGlobal iconOnly />
 
           <div className="hb-topbar-sep" />
 

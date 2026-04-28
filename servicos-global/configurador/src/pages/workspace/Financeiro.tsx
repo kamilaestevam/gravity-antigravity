@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/card-global'
+import { CardEstatisticaGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
@@ -377,7 +377,7 @@ export function Financeiro() {
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.proximo_vencimento')}
             icone={<CalendarBlank weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{vencimento?.vencimento ?? '—'}</span>}
@@ -396,7 +396,7 @@ export function Financeiro() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.valor_pagar')}
             valor={<span style={{ fontSize: '1.5rem' }}>{emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
             variante={emAberto.length ? 'aviso' : 'sucesso'}
@@ -414,7 +414,7 @@ export function Financeiro() {
               </>
             }
           />
-          <StatCardGlobal
+          <CardEstatisticaGlobal
             titulo={t('workspace.financial.faturas_abertas')}
             valor={<span style={{ fontSize: '1.75rem' }}>{emAberto.length}</span>}
             subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}

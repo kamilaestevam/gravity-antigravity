@@ -1,12 +1,12 @@
 /**
- * SeletorVisualizacao — Gravity Design System
+ * SeletorVisualizacaoGlobal — Gravity Design System
  *
  * Pill-toggle premium para alternar entre visualizações de uma tela:
  *   Dashboard · Lista · Kanban
  *
  * Uso:
  *   const [view, setView] = useState<ViewMode>('lista')
- *   <SeletorVisualizacao view={view} onChange={setView} />
+ *   <SeletorVisualizacaoGlobal view={view} onChange={setView} />
  *
  * Props opcionais `views` permitem customizar quais views aparecem.
  */
@@ -63,7 +63,7 @@ const ALL_VIEWS: ViewOption[] = [
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
-export function SeletorVisualizacao({
+export function SeletorVisualizacaoGlobal({
   view,
   onChange,
   views = ['dashboard', 'lista', 'kanban'],

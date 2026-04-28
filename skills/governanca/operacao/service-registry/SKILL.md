@@ -1,6 +1,6 @@
 ---
 name: antigravity-service-registry
-description: "Use esta skill sempre que uma tarefa envolver a declaração de serviços no PRODUCT_CONFIG de um produto, configuração da navegação do shell, ou decisão sobre qual serviço um produto deve usar. Define como declarar serviços no config.ts, a diferença entre source organização e source product, e como o shell consome a navegação."
+description: "Use esta skill sempre que uma tarefa envolver a declaração de serviços no PRODUCT_CONFIG de um produto, configuração da navegação do shell, ou decisão sobre qual serviço um produto deve usar. Define como declarar serviços no config.ts, a diferença entre source organizacao e source product, e como o shell consome a navegação."
 ---
 
 # Gravity — Service Registry
@@ -8,7 +8,7 @@ description: "Use esta skill sempre que uma tarefa envolver a declaração de se
 ## O Que é o Service Registry
 
 O **PRODUCT_CONFIG** em `src/shared/config.ts` é a fonte de verdade de um produto. Ele declara:
-- Quais serviços de organização o produto usa
+- Quais serviços de organizacao o produto usa
 - Quais serviços de produto (templates) o produto instancia
 - Como a navegação lateral é montada pelo shell
 
@@ -25,14 +25,14 @@ export interface NavigationItem {
   id: string         // identificador único da seção
   label: string      // texto exibido na sidebar
   icon: string       // nome do ícone (biblioteca do design system)
-  source: 'product' | 'organização'  // de onde vem o componente
+  source: 'product' | 'organizacao'  // de onde vem o componente
 }
 
 export const PRODUCT_CONFIG = {
   id: '[nome-do-produto]',    // identificador único no ecossistema
   name: '[Nome do Produto]',  // nome exibido na interface
 
-  // Serviços de organização que este produto usa
+  // Serviços de organizacao que este produto usa
   // O proxy será configurado automaticamente para estes serviços
   tenantServices: [
     'activities',
@@ -54,33 +54,33 @@ export const PRODUCT_CONFIG = {
     // Pages específicas do produto (source: 'product')
     { id: '[pagina-1]', label: '[Label]', icon: '[icon]', source: 'product' },
 
-    // Serviços de organização (source: 'organização')
-    { id: 'activities', label: 'Atividades', icon: 'check-circle',   source: 'organização' },
-    { id: 'email',      label: 'Email',      icon: 'mail',           source: 'organização' },
-    { id: 'whatsapp',   label: 'WhatsApp',   icon: 'message-circle', source: 'organização' },
+    // Serviços de organizacao (source: 'organizacao')
+    { id: 'activities', label: 'Atividades', icon: 'check-circle',   source: 'organizacao' },
+    { id: 'email',      label: 'Email',      icon: 'mail',           source: 'organizacao' },
+    { id: 'whatsapp',   label: 'WhatsApp',   icon: 'message-circle', source: 'organizacao' },
 
     // Serviços de produto (source: 'product')
     { id: 'helpdesk', label: 'Helpdesk', icon: 'headphones', source: 'product' },
 
-    // Serviços de organização de consolidação
-    { id: 'dashboard', label: 'Dashboard',  icon: 'layout',    source: 'organização' },
-    { id: 'reports',   label: 'Relatórios', icon: 'bar-chart', source: 'organização' },
-    { id: 'history',   label: 'Histórico',  icon: 'clock',     source: 'organização' },
-    { id: 'schedule',  label: 'Agenda',     icon: 'calendar',  source: 'organização' },
-    { id: 'gabi',      label: 'Gabi',       icon: 'cpu',       source: 'organização' },
+    // Serviços de organizacao de consolidação
+    { id: 'dashboard', label: 'Dashboard',  icon: 'layout',    source: 'organizacao' },
+    { id: 'reports',   label: 'Relatórios', icon: 'bar-chart', source: 'organizacao' },
+    { id: 'history',   label: 'Histórico',  icon: 'clock',     source: 'organizacao' },
+    { id: 'schedule',  label: 'Agenda',     icon: 'calendar',  source: 'organizacao' },
+    { id: 'gabi',      label: 'Gabi',       icon: 'cpu',       source: 'organizacao' },
   ] satisfies NavigationItem[]
 } as const
 ```
 
 ---
 
-## A Diferença entre source: organização e source: product
+## A Diferença entre source: organizacao e source: product
 
-### `source: 'organização'`
-- O componente React vem de `servicos-global/organização/[servico]/src/`
-- O backend roda no servidor de organização — não no servidor do produto
-- O produto acessa via proxy: `/api/organização/[servico]`
-- Os dados pertencem à empresa (organização), não ao produto
+### `source: 'organizacao'`
+- O componente React vem de `servicos-global/organizacao/[servico]/src/`
+- O backend roda no servidor de organizacao — não no servidor do produto
+- O produto acessa via proxy: `/api/organizacao/[servico]`
+- Os dados pertencem à empresa (organizacao), não ao produto
 - **Quando usar:** email, atividades, whatsapp, dashboard, relatórios, histórico, agenda, gabi
 
 ### `source: 'product'`
@@ -99,7 +99,7 @@ export const PRODUCT_CONFIG = {
 import { lazy, Suspense } from 'react'
 import type { NavigationItem } from '../types'
 
-// Módulos de organização — carregados via lazy loading
+// Módulos de organizacao — carregados via lazy loading
 const tenantModules: Record<string, React.LazyExoticComponent<React.FC>> = {
   activities: lazy(() => import('@tenant/atividades/src/Atividades')),
   email:      lazy(() => import('@tenant/email/src/Email')),
@@ -115,9 +115,9 @@ export function renderModule(
   item: NavigationItem,
   productPages: Record<string, React.LazyExoticComponent<React.FC>>
 ) {
-  // source: 'organização'  → carrega do tenantModules
+  // source: 'organizacao'  → carrega do tenantModules
   // source: 'product' → carrega das pages do produto
-  const Component = item.source === 'organização'
+  const Component = item.source === 'organizacao'
     ? tenantModules[item.id]
     : productPages[item.id]
 
@@ -140,16 +140,16 @@ export function renderModule(
 import { createTenantProxy } from '@tenant/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
-// Proxy automático para todos os serviços de organização declarados
-app.use('/api/organização', createTenantProxy({
-  baseUrl: process.env.TENANT_SERVICES_URL!,
+// Proxy automático para todos os serviços de organizacao declarados
+app.use('/api/organizacao', createTenantProxy({
+  baseUrl: process.env.ORGANIZACAO_SERVICES_URL!,
   services: PRODUCT_CONFIG.tenantServices
 }))
 
 // O proxy monta automaticamente:
-// /api/organização/activities → organização-services/api/v1/activities
-// /api/organização/email      → organização-services/api/v1/email
-// /api/organização/whatsapp   → organização-services/api/v1/whatsapp
+// /api/organizacao/activities → organizacao-services/api/v1/activities
+// /api/organizacao/email      → organizacao-services/api/v1/email
+// /api/organizacao/whatsapp   → organizacao-services/api/v1/whatsapp
 // etc.
 ```
 
@@ -157,7 +157,7 @@ app.use('/api/organização', createTenantProxy({
 
 ## Catálogo de Serviços Disponíveis
 
-### Serviços de Organização — usar com `source: 'organização'`
+### Serviços de Organizacao — usar com `source: 'organizacao'`
 
 | id | label sugerido | icon sugerido | O que faz |
 |:---|:---|:---|:---|
@@ -183,19 +183,19 @@ app.use('/api/organização', createTenantProxy({
 
 - Todo item de `navigation` deve ter `source` explícito — nunca implícito
 - A ordem em `navigation` define a ordem de exibição na sidebar
-- Itens com `source: 'organização'` devem estar em `tenantServices`
+- Itens com `source: 'organizacao'` devem estar em `tenantServices`
 - Itens com `source: 'product'` e que são templates devem estar em `productServices`
 - Pages específicas do produto (`source: 'product'`) não precisam de entrada em `productServices`
-- Não declarar serviços de organização que o produto não usa — gera proxy desnecessário
+- Não declarar serviços de organizacao que o produto não usa — gera proxy desnecessário
 
 ---
 
 ## Checklist — Antes de Finalizar o PRODUCT_CONFIG
 
 - [ ] `id` do produto é único no ecossistema?
-- [ ] Todos os itens de `navigation` com `source: 'organização'` estão em `tenantServices`?
+- [ ] Todos os itens de `navigation` com `source: 'organizacao'` estão em `tenantServices`?
 - [ ] Todos os templates de serviço de produto estão em `productServices`?
-- [ ] Nenhum serviço de organização declarado que o produto não vai usar?
+- [ ] Nenhum serviço de organizacao declarado que o produto não vai usar?
 - [ ] Ordem da `navigation` reflete a ordem desejada na sidebar?
 - [ ] Todos os `icon` usam nomes da biblioteca de ícones do design system?
 - [ ] `satisfies NavigationItem[]` presente para garantir tipagem?

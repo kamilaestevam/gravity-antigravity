@@ -6,7 +6,7 @@ description: Regras Invioláveis de Arquitetura de Banco de Dados B2B e Prevenç
 # 🛡️ Padrão Ouro de Segurança: Gravity Platform (Tier 1)
 
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
+> Decisões em [ADR-001](../../../documentos-tecnicos/arquitetura/schema-composition/adr-001-schema-por-organizacao.md) e [ADR-002](../../../documentos-tecnicos/governanca/lei/sdk-resolvedor-organizacao/adr-002-sdk-resolvedor-organizacao.md).
 >
 > **Nomes técnicos preservados:** o pacote npm `@gravity/resolver-organizacao`, o prefixo de schema PostgreSQL `tenant_<cuid>` e a API `req.organizacao.idOrganizacao` continuam sendo identificadores reais. Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
 

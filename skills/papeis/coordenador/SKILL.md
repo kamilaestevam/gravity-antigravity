@@ -172,7 +172,7 @@ Se algum item falhar → escalar para o Líder + DevOps. Não tente "consertar" 
 - Nenhum endpoint pode ser removido sem versionar a API
 - O Proxy consulta este arquivo para saber o que rotear
 - Os Produtos consultam este arquivo para saber o que consumir
-- Mudanças aqui exigem update em `documentos-tecnicos/api/` (DoD §6)
+- Mudanças aqui exigem update em `documentos-tecnicos/governanca/convencao-tecnica/api-design/contratos/` (DoD §6)
 
 ---
 
@@ -221,7 +221,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Schema de cada produto compõe sem conflito | Coordenador resolve naming |
 | `contracts.json` atualizado com endpoints da Onda 3 | Coordenador atualiza |
 | Testes anti-cross-organização + pool leak passam para cada serviço | Reprovação imediata |
-| `documentos-tecnicos/api/` tem entry para cada novo endpoint | Coordenador cobra do agente |
+| `documentos-tecnicos/governanca/convencao-tecnica/api-design/contratos/` tem entry para cada novo endpoint | Coordenador cobra do agente |
 
 ### Após Onda 4 — plataforma completa
 

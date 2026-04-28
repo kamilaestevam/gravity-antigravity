@@ -315,7 +315,7 @@ O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **fle
 
 ## 10 — Sistema de Cores por Zona e Produto
 
-> **Referência completa:** `documentos-tecnicos/UX/cores.html`
+> **Referência completa:** `documentos-tecnicos/ux/design-system/cores.html`
 
 ### Dois Tiers de Cor
 

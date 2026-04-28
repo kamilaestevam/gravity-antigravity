@@ -9,7 +9,7 @@ description: "Use esta skill sempre que uma tarefa envolver o painel administrat
 
 Interface exclusiva da equipe Gravity para gerenciar a plataforma como um todo. **Não é o Configurador** (que é para o cliente).
 
-- **Quem acessa:** apenas usuários com `tipo_usuario = 'GRAVITY_ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado.
+- **Quem acessa:** apenas usuários com `tipo_usuario = 'ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado.
 
 > ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 01: verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk.
 - **Princípio:** visibilidade total de todas as organizações, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
@@ -27,7 +27,7 @@ servicos-global/configurador/
     ├── usuarios/
     ├── permissoes/
     ├── assinaturas/
-    └── admin/              ← área exclusiva GRAVITY_ADMIN
+    └── admin/              ← área exclusiva ADMIN (equipe Gravity)
         ├── AdminLayout.tsx
         ├── organizacoes/
         ├── financeiro/
@@ -40,7 +40,7 @@ servicos-global/configurador/
 ```typescript
 // Middleware que protege todas as rotas /admin/*
 function requireGravityAdmin(req, res, next) {
-  if (req.auth.tipoUsuario !== 'GRAVITY_ADMIN' && !req.auth.isGravityAdmin) {
+  if (req.auth.tipoUsuario !== 'ADMIN' && !req.auth.gravityAdmin) {
     return res.status(403).json({ error: 'Acesso restrito à equipe Gravity' })
   }
   next()
@@ -114,7 +114,7 @@ Painel de controle de deploys de todos os serviços no Railway.
 | Serviço | Ambiente | Versão | Status | Último deploy | Uptime | Ações |
 |:---|:---|:---|:---|:---|:---|:---|
 | configurador | production | v2.1.4 | 🟢 Online | há 2h | 99.9% | Deploy / Rollback |
-| organização-services | production | v1.8.2 | 🟢 Online | há 5h | 100% | Deploy / Rollback |
+| organizacao-services | production | v1.8.2 | 🟢 Online | há 5h | 100% | Deploy / Rollback |
 | simulador-comex | production | v3.0.1 | 🟡 Alerta | há 1h | 98.2% | Deploy / Rollback |
 
 ---
@@ -184,7 +184,7 @@ export function apiObservabilityMiddleware(req, res, next) {
 
 ## Schema Prisma
 
-> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 02: `schema.prisma` é INTOCÁVEL. Exemplos abaixo refletem o schema atual (campos em DDD: `id_organizacao`, `tipo_usuario`, `is_gravity_admin`).
+> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 02: `schema.prisma` é INTOCÁVEL. Exemplos abaixo refletem o schema atual (campos em DDD: `id_organizacao`, `tipo_usuario`, `gravity_admin`).
 
 ```prisma
 model ApiKey {
@@ -248,8 +248,8 @@ model GravityAdmin {
   clerk_id          String   @unique
   name              String
   email             String   @unique
-  tipo_usuario      String   @default("GRAVITY_ADMIN")  // GRAVITY_ADMIN | GRAVITY_VIEWER
-  is_gravity_admin  Boolean  @default(true)
+  tipo_usuario      String   @default("ADMIN")  // ADMIN | VIEWER (subtipos internos)
+  gravity_admin     Boolean  @default(true)
   active            Boolean  @default(true)
   created_at        DateTime @default(now())
 }
@@ -259,7 +259,7 @@ model GravityAdmin {
 
 ## Checklist
 
-- [ ] Painel Admin restrito a `tipo_usuario = 'GRAVITY_ADMIN'` conforme [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md)?
+- [ ] Painel Admin restrito a `tipo_usuario = 'ADMIN'` conforme [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md)?
 - [ ] Impersonação e acessos sensíveis com log conforme [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md)?
 - [ ] Painel de Deploy Railway com logs e métricas em tempo real?
 - [ ] Gestão de API Keys com escopo, rate limit e expiração?

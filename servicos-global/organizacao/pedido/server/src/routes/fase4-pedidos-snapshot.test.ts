@@ -19,9 +19,9 @@ vi.hoisted(() => {
 import {
   buscarEmpresaPorSuid,
   buscarEmpresasPorSuids,
-} from '../../../../../servicos-global/organizacao/processos-core/src/services/cadastrosClient.js'
-import { montarSnapshotEmpresa } from '../../../../../servicos-global/organizacao/processos-core/src/services/pedidoSnapshots.js'
-import { AppError } from '../../../../../servicos-global/organizacao/processos-core/src/services/saldoEngine.js'
+} from '../../../../../../servicos-global/organizacao/processos-core/src/services/cadastrosClient.js'
+import { montarSnapshotEmpresa } from '../../../../../../servicos-global/organizacao/processos-core/src/services/pedidoSnapshots.js'
+import { AppError } from '../../../../../../servicos-global/organizacao/processos-core/src/services/saldoEngine.js'
 
 // ── Fetch mock ──────────────────────────────────────────────────────────────
 

@@ -31,7 +31,7 @@ import {
   SalvarValoresSchema,
   ListarValoresQuerySchema,
   GabiAnaliseSchema,
-} from './colunasUsuarioSchemas.js'
+} from './colunas-usuario-pedido-schemas.js'
 
 export {
   CriarColunaSchema,

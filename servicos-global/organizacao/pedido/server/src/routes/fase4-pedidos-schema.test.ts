@@ -8,8 +8,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { criarPedidoSchema } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
-import { confirmarSchema } from '../../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
+import { criarPedidoSchema } from '../../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
+import { confirmarSchema } from '../../../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
 
 const pedidoBase = {
   numero_pedido: 'PO-001',

@@ -19,7 +19,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
-import { parsearFormula, SALDO_FORMULA_PADRAO } from '../../../../../servicos-global/organizacao/processos-core/src/services/formulaEngine.js'
+import { parsearFormula, SALDO_FORMULA_PADRAO } from '../../../../../../servicos-global/organizacao/processos-core/src/services/formulaEngine.js'
 
 export const saldoFormulaRouter = Router()
 

@@ -35,7 +35,7 @@ import {
   buildContextoItem,
   SALDO_FORMULA_PADRAO,
 } from '../services/formulaEngine.js'
-import { isPropagavel } from '../../../../../produto/pedido/shared/columnPropagationConfig.js'
+import { isPropagavel } from '../../../pedido/shared/columnPropagationConfig.js'
 import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
 import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
 import { randomUUID } from 'node:crypto'

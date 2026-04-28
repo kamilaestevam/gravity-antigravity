@@ -115,13 +115,14 @@ function resolveInsightId(event: BehaviorEventType, payload: BehaviorEventInput[
 // ── Registrar evento ──────────────────────────────────────────────────────────
 
 export async function trackBehaviorEvent(
-  db: any,
+  db: Record<string, unknown>,
   tenantId: string,
   userId: string,
   input: BehaviorEventInput,
 ): Promise<void> {
   try {
-    await db.userBehaviorEvent.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db.userBehaviorEvent as any).create({
       data: {
         tenant_id:  tenantId,
         product_id: 'pedido',
@@ -149,7 +150,7 @@ export async function trackBehaviorEvent(
  *   11+ eventos   → 2.5×
  */
 export async function getUserBehaviorScores(
-  db: any,
+  db: Record<string, unknown>,
   tenantId: string,
   userId: string,
 ): Promise<Record<string, number>> {
@@ -157,7 +158,8 @@ export async function getUserBehaviorScores(
     const since = new Date()
     since.setDate(since.getDate() - 30)
 
-    const events = await db.userBehaviorEvent.findMany({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const events = await (db.userBehaviorEvent as any).findMany({
       where: {
         tenant_id:  tenantId,
         user_id:    userId,

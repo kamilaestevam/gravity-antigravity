@@ -1,6 +1,6 @@
 /**
  * index.ts — Pedido Express Server
- * Localização canônica: produto/pedido/server/
+ * Localização canônica: servicos-global/organizacao/pedido/server/
  * Porta: 8030
  * Skill: antigravity-criar-produto (Passo 7 — middlewares na ordem correta)
  *
@@ -9,7 +9,7 @@
  *   /api/v1/pedidos/config              — Status e colunas de configuração
  *   /api/v1/pedidos/importar            — Upload + parse + preview de arquivos
  *
- * Rotas de features (produto/pedido/server):
+ * Rotas de features (organizacao/pedido/server):
  *   /api/v1/pedidos/dashboard/widgets   — persistência de configuração de widgets
  *   /api/v1/pedidos/analytics/*         — integração Power BI (OData v4)
  *   /health                             — healthcheck
@@ -21,7 +21,7 @@ import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
-dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
+dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../../.env') })
 
@@ -30,32 +30,32 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { resolverOrganizacao, AppError } from '@gravity/resolver-organizacao'
-import { analyticsRouter } from './routes/analytics.js'
-import { dashboardWidgetsRouter } from './routes/dashboardWidgets.js'
-import { dashboardDataRouter } from './routes/dashboardData.js'
-import { dashboardPaineisRouter } from './routes/dashboardPaineis.js'
-import { consolidarRouter } from './routes/consolidar.js'
-import { transferirRouter, transferirHistoricoRouter } from './routes/transferir.js'
-import { edicaoEmMassaRouter } from './routes/edicaoEmMassa.js'
-import { smartImportRouter } from './routes/smartImport.js'
-import { duplicarExcluirRouter } from './routes/duplicarExcluir.js'
-import { colunasUsuarioRouter } from './routes/colunasUsuario.js'
-import { gabiProxyRouter } from './routes/gabiProxy.js'
-import { behaviorTrackingRouter } from './routes/behaviorTracking.js'
-import { anexosRouter } from './routes/anexos.js'
-import { pdfRouter } from './routes/pdf.js'
-import { loteRouter } from './routes/lote.js'
-import { kanbanPreferenciasRouter } from './routes/kanbanPreferencias.js'
-import { casasDecimaisRouter } from './routes/casasDecimais.js'
-import { saldoFormulaRouter } from './routes/saldoFormula.js'
-import { initRouter } from './routes/init.js'
-import { taxaCambioRouter } from './routes/taxaCambio.js'
-import { pedidosRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
-import { pedidosConfigRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/pedidos-config.js'
-import { importacaoRouter } from '../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
-import { apiObservability } from '../../../../servicos-global/organizacao/middleware/apiObservability.js'
-import { openapiRouter } from './routes/openapi.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/organizacao/historico-global/src/product-audit-plugin.js'
+import { analyticsRouter } from './routes/analytics-pedido.js'
+import { dashboardWidgetsRouter } from './routes/dashboard-pedido-widgets.js'
+import { dashboardDataRouter } from './routes/dashboard-pedido-dados.js'
+import { dashboardPaineisRouter } from './routes/dashboard-pedido-paineis.js'
+import { consolidarRouter } from './routes/consolidacoes-pedido.js'
+import { transferirRouter, transferirHistoricoRouter } from './routes/transferencias-pedido.js'
+import { edicaoEmMassaRouter } from './routes/edicoes-em-massa-pedido.js'
+import { smartImportRouter } from './routes/importacoes-inteligentes-pedido.js'
+import { duplicacoesPedidoRouter } from './routes/duplicacoes-pedido.js'
+import { exclusoesPedidoRouter } from './routes/exclusoes-pedido.js'
+import { colunasUsuarioRouter } from './routes/colunas-usuario-pedido.js'
+import { gabiProxyRouter } from './routes/gabi-pedido.js'
+import { behaviorTrackingRouter } from './routes/eventos-comportamento-pedido.js'
+import { anexosRouter } from './routes/anexos-pedido.js'
+import { pdfRouter } from './routes/relatorios-pdf-pedido.js'
+import { loteRouter } from './routes/alteracoes-status-lote-pedido.js'
+import { kanbanPreferenciasRouter } from './routes/kanban-pedido-preferencias.js'
+import { casasDecimaisRouter } from './routes/casas-decimais-pedido.js'
+import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
+import { initRouter } from './routes/inicializacao-pedido.js'
+import { pedidosRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
+import { pedidosConfigRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos-config.js'
+import { importacaoRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
+import { apiObservability } from '../../../../../servicos-global/organizacao/middleware/apiObservability.js'
+import { openapiRouter } from './routes/openapi-pedido.js'
+import { createProductAuditPlugin } from '../../../../../servicos-global/organizacao/historico-global/src/product-audit-plugin.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8030
@@ -102,8 +102,8 @@ app.use(requireInternalKey)
 // ── 5. Analytics — Power BI integration (auth própria dentro do router) ──────
 app.use('/api/v1/pedidos/analytics', analyticsRouter)
 
-// ── 5.1. Taxa de câmbio — proxy público para o Configurador ──────────────────
-app.use('/api/v1/taxas-cambio', taxaCambioRouter)
+// ── 5.1. Taxa de câmbio — extraído para servicos-global/organizacao/taxas-cambio/
+// (Gamma-3 leva 3). Consumers passaram a chamar o tenant service standalone.
 
 // ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
 app.use(resolverOrganizacao({
@@ -150,7 +150,8 @@ app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)
 app.use('/api/v1/pedidos/configuracoes',               saldoFormulaRouter)
 app.use('/api/v1/pedidos/config',                      pedidosConfigRouter)
 app.use('/api/v1/pedidos',                             importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
-app.use('/api/v1/pedidos',                             duplicarExcluirRouter)
+app.use('/api/v1/pedidos',                             duplicacoesPedidoRouter)  // SPLIT Gamma-3 leva 3
+app.use('/api/v1/pedidos',                             exclusoesPedidoRouter)    // SPLIT Gamma-3 leva 3
 // CRUD principal — deve vir após os routers de sub-rotas estáticas
 app.use('/api/v1/pedidos',                             pedidosRouter)      // GET /, POST /, GET /:id, PUT /:id, DELETE /:id, etc.
 // Parâmetros dinâmicos após todos os estáticos

@@ -15,7 +15,7 @@ import {
   setApiContext,
   getApiContext,
   injectUserNameGetter,
-} from '../../../produto/pedido/client/src/shared/api.js'
+} from '../../../servicos-global/organizacao/pedido/client/src/shared/api.js'
 
 // ─── setApiContext ────────────────────────────────────────────────────────────
 describe('setApiContext', () => {

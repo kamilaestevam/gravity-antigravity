@@ -71,7 +71,7 @@ const SimulaCustoApp = React.lazy(() => import('../../organizacao/simula-custo/c
 const ProcessoApp = React.lazy(() => import('../../organizacao/processo/client/src/App'))
 const BidFreteApp = React.lazy(() => import('../../organizacao/bid-frete/client/src/App'))
 const BidCambioApp = React.lazy(() => import('../../organizacao/bid-cambio/client/src/App'))
-const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
+const PedidoApp = React.lazy(() => import('../../organizacao/pedido/client/src/App'))
 
 /**
  * Guard contra routing loop do catch-all do Pedido.

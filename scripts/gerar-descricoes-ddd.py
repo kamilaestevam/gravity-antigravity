@@ -24,14 +24,14 @@ FRAGMENTS = [
     'servicos-global/tenant/relatorios/prisma/fragment.prisma',
     'servicos-global/tenant/whatsapp/prisma/fragment.prisma',
     'servicos-global/produto/helpdesk/prisma/fragment.prisma',
-    'produto/bid-cambio/server/prisma/fragment.prisma',
-    'produto/bid-frete/server/prisma/fragment.prisma',
-    'produto/financeiro-comex/server/prisma/fragment.prisma',
-    'produto/lpco/server/prisma/fragment.prisma',
-    'produto/nf-importacao/server/prisma/fragment.prisma',
-    'produto/pedido/server/prisma/fragment.prisma',
-    'produto/processo/server/prisma/fragment.prisma',
-    'produto/simula-custo/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/bid-cambio/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/bid-frete/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/financeiro-comex/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/lpco/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/nf-importacao/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/pedido/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/processo/server/prisma/fragment.prisma',
+    'servicos-global/organizacao/simula-custo/server/prisma/fragment.prisma',
 ]
 
 field_comments = {}  # (tabela, campo) -> comentário Prisma

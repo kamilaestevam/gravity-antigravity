@@ -49,7 +49,7 @@ Thumbs.db
 *storybook.log
 storybook-static
 
-produto/pedido/server/backups/
+servicos-global/organizacao/pedido/server/backups/
 
 # ── Arquivos temporarios de trabalho (planilhas, scratch) ─
 .claude/planilha-tmp.xlsx

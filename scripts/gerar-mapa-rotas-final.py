@@ -48,7 +48,7 @@ GHOST_FULL_PATHS = {
     'servicos-global/tenant/atividades/server/routes/empresas.ts',
     'servicos-global/tenant/api-cockpit/server/src/routes/observability.ts',
     'servicos-global/configurador/server/routes/serviceToken.ts',
-    'produto/pedido/server/src/routes/dashboardWidgets.ts',
+    'servicos-global/organizacao/pedido/server/src/routes/dashboardWidgets.ts',
 }
 
 # Entidade a partir do path (ou do nome do arquivo como fallback)

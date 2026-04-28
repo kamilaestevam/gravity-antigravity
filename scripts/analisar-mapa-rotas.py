@@ -12,7 +12,7 @@ GHOST_FILES = {
     'servicos-global/tenant/atividades/server/routes/empresas.ts',
     'servicos-global/tenant/api-cockpit/server/src/routes/observability.ts',
     'servicos-global/configurador/server/routes/serviceToken.ts',
-    'produto/pedido/server/src/routes/dashboardWidgets.ts',
+    'servicos-global/organizacao/pedido/server/src/routes/dashboardWidgets.ts',
 }
 
 BUG_MODELS = {

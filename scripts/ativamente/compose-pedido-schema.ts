@@ -2,7 +2,7 @@
 // COORDENADOR — Script de composição do schema do produto Pedido
 //
 // Combina schema.base.prisma + fragment.prisma do produto pedido em
-// produto/pedido/server/prisma/schema.prisma
+// servicos-global/organizacao/pedido/server/prisma/schema.prisma
 //
 // Banco-alvo: gravity-pedido-* (Railway), conectado via env DATABASE_URL
 //
@@ -20,7 +20,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const ROOT_DIR = path.resolve(__dirname, '../..')
-const PEDIDO_DIR = path.join(ROOT_DIR, 'produto', 'pedido')
+const PEDIDO_DIR = path.join(ROOT_DIR, 'servicos-global', 'organizacao', 'pedido')
 const PRISMA_DIR = path.join(PEDIDO_DIR, 'server', 'prisma')
 const OUTPUT_SCHEMA = path.join(PRISMA_DIR, 'schema.prisma')
 const BASE_SCHEMA = path.join(PRISMA_DIR, 'schema.base.prisma')
@@ -56,7 +56,7 @@ function composePedidoSchema(options: { strict?: boolean } = {}): void {
     '// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.',
     `// Gerado em: ${new Date().toISOString()}`,
     '// Banco: gravity-pedido-* (Railway)',
-    '// Produto: produto/pedido',
+    '// Produto: servicos-global/organizacao/pedido',
     '// ============================================================================',
   ].join('\n')
 

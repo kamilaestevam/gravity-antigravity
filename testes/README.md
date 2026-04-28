@@ -72,14 +72,14 @@ testes/
 | `MARKET` | marketplace/ | servicos-global/marketplace/ |
 | `TENANT` | tenant/ | servicos-global/tenant/ |
 | `DBASE` | dbase/ | configurador/prisma/ |
-| `PEDIDO` | pedido/ | produto/pedido/ |
-| `NFIMP` | nf-importacao/ | produto/nf-importacao/ |
-| `LPCO` | lpco/ | produto/lpco/ |
-| `BIDFRT` | bid-frete/ | produto/bid-frete/ |
-| `BIDCAM` | bid-cambio/ | produto/bid-cambio/ |
-| `SIMCUS` | simula-custo/ | produto/simula-custo/ |
-| `FINCOM` | financeiro-comex/ | produto/financeiro-comex/ |
-| `PROCSO` | processo/ | produto/processo/ |
+| `PEDIDO` | pedido/ | servicos-global/organizacao/pedido/ |
+| `NFIMP` | nf-importacao/ | servicos-global/organizacao/nf-importacao/ |
+| `LPCO` | lpco/ | servicos-global/organizacao/lpco/ |
+| `BIDFRT` | bid-frete/ | servicos-global/organizacao/bid-frete/ |
+| `BIDCAM` | bid-cambio/ | servicos-global/organizacao/bid-cambio/ |
+| `SIMCUS` | simula-custo/ | servicos-global/organizacao/simula-custo/ |
+| `FINCOM` | financeiro-comex/ | servicos-global/organizacao/financeiro-comex/ |
+| `PROCSO` | processo/ | servicos-global/organizacao/processo/ |
 
 ---
 

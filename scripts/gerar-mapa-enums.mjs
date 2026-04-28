@@ -22,14 +22,14 @@ const sources = [
   { local: 'Tenant', produto: 'relatorios', file: 'servicos-global/tenant/relatorios/prisma/fragment.prisma' },
   { local: 'Tenant', produto: 'whatsapp', file: 'servicos-global/tenant/whatsapp/prisma/fragment.prisma' },
   { local: 'Produto - Helpdesk (template)', produto: 'helpdesk', file: 'servicos-global/produto/helpdesk/prisma/fragment.prisma' },
-  { local: 'Produto - bid-cambio', produto: 'bid-cambio', file: 'produto/bid-cambio/server/prisma/fragment.prisma' },
-  { local: 'Produto - bid-frete', produto: 'bid-frete', file: 'produto/bid-frete/server/prisma/fragment.prisma' },
-  { local: 'Produto - financeiro-comex', produto: 'financeiro-comex', file: 'produto/financeiro-comex/server/prisma/fragment.prisma' },
-  { local: 'Produto - lpco', produto: 'lpco', file: 'produto/lpco/server/prisma/fragment.prisma' },
-  { local: 'Produto - nf-importacao', produto: 'nf-importacao', file: 'produto/nf-importacao/server/prisma/fragment.prisma' },
-  { local: 'Produto - pedido', produto: 'pedido', file: 'produto/pedido/server/prisma/fragment.prisma' },
-  { local: 'Produto - processo', produto: 'processo', file: 'produto/processo/server/prisma/fragment.prisma' },
-  { local: 'Produto - simula-custo', produto: 'simula-custo', file: 'produto/simula-custo/server/prisma/fragment.prisma' },
+  { local: 'Produto - bid-cambio', produto: 'bid-cambio', file: 'servicos-global/organizacao/bid-cambio/server/prisma/fragment.prisma' },
+  { local: 'Produto - bid-frete', produto: 'bid-frete', file: 'servicos-global/organizacao/bid-frete/server/prisma/fragment.prisma' },
+  { local: 'Produto - financeiro-comex', produto: 'financeiro-comex', file: 'servicos-global/organizacao/financeiro-comex/server/prisma/fragment.prisma' },
+  { local: 'Produto - lpco', produto: 'lpco', file: 'servicos-global/organizacao/lpco/server/prisma/fragment.prisma' },
+  { local: 'Produto - nf-importacao', produto: 'nf-importacao', file: 'servicos-global/organizacao/nf-importacao/server/prisma/fragment.prisma' },
+  { local: 'Produto - pedido', produto: 'pedido', file: 'servicos-global/organizacao/pedido/server/prisma/fragment.prisma' },
+  { local: 'Produto - processo', produto: 'processo', file: 'servicos-global/organizacao/processo/server/prisma/fragment.prisma' },
+  { local: 'Produto - simula-custo', produto: 'simula-custo', file: 'servicos-global/organizacao/simula-custo/server/prisma/fragment.prisma' },
 ]
 
 const columns = [

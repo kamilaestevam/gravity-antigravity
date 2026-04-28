@@ -23,7 +23,7 @@ import { fmtMoeda } from '../shared/types'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface ModalConsolidarProps {
+interface ModalConsolidarPedidosProps {
   pedidosSelecionados: Pedido[]
   onFechar: () => void
   onConcluido: () => void
@@ -94,7 +94,7 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, conflito_tipo_operacao: conflitoProp = false }: ModalConsolidarProps) {
+export function ModalConsolidarPedidos({ pedidosSelecionados, onFechar, onConcluido, conflito_tipo_operacao: conflitoProp = false }: ModalConsolidarPedidosProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
   const [preview, setPreview] = useState<ConsolidacaoPreview | null>(null)

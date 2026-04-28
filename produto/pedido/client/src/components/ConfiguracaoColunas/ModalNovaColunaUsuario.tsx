@@ -63,7 +63,7 @@ interface ModalNovaColunaProps {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalNovaColuna({
+export function ModalNovaColunaUsuario({
   colunaEdicao,
   onFechar,
   onSalvo,

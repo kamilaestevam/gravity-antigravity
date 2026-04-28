@@ -15,7 +15,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TipoDocumentoGerar, IdiomaDocumento, GerarDocumentoPayload, GerarPdfPayload } from '../shared/types'
 import { gerarDocumentoApi, pdfApi } from '../shared/api'
 import type { PdfTemplate } from '../shared/api'
-import './ModalGerarPdf.css'
+import './ModalPedidoGerarPdf.css'
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ export interface PedidoParaGerar {
   numero: string
 }
 
-interface ModalGerarPdfProps {
+interface ModalGerarPdfPedidoProps {
   pedidos: PedidoParaGerar[]
   onFechar: () => void
   onConcluido: () => void
@@ -47,7 +47,7 @@ type ModoGeracao = 'padrao' | 'template'
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfProps) {
+export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGerarPdfPedidoProps) {
   const { t, i18n } = useTranslation()
 
   const TIPOS_DOCUMENTO = useMemo(() => [

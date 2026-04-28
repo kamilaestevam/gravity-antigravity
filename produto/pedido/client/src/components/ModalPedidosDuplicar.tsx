@@ -20,7 +20,7 @@ import { pedidoDuplicarApi } from '../shared/api'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface ModalDuplicarProps {
+interface ModalDuplicarPedidosProps {
   pedidos: Pedido[]
   onFechar: () => void
   onConcluido: () => void
@@ -42,7 +42,7 @@ interface PreviewPedido {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarProps) {
+export function ModalDuplicarPedidos({ pedidos, onFechar, onConcluido }: ModalDuplicarPedidosProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
   const [config, setConfig] = useState<PreviewConfig | null>(null)

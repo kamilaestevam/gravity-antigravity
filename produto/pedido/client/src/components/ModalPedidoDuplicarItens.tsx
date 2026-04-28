@@ -16,7 +16,7 @@ import type { PedidoItem } from '../shared/types'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface ModalDuplicarItensProps {
+interface ModalDuplicarItensPedidoProps {
   itens: PedidoItem[]
   onFechar: () => void
   onConcluido: () => void
@@ -24,7 +24,7 @@ interface ModalDuplicarItensProps {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplicarItensProps) {
+export function ModalDuplicarItensPedido({ itens, onFechar, onConcluido }: ModalDuplicarItensPedidoProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
   const [confirmando, setConfirmando] = useState(false)

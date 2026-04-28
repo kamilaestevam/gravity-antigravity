@@ -32,11 +32,11 @@ import type {
   DecisaoDuplicata,
   SmartImportConfirmar,
 } from '../../shared/types'
-import './SmartImportModal.css'
+import './ModalPedidoSmartImport.css'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-export interface SmartImportModalProps {
+export interface ModalSmartImportPedidoProps {
   aberto: boolean
   onFechar: () => void
   onConcluido: (idsCriados: string[]) => void
@@ -91,7 +91,7 @@ function etapaParaId(e: Etapa): number {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportModalProps) {
+export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalSmartImportPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
 

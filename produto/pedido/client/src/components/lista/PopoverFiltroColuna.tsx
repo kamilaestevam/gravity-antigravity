@@ -9,7 +9,7 @@ import React, { useRef, useEffect } from 'react'
 import { ArrowUp, ArrowDown } from '@phosphor-icons/react'
 import type { FiltroAtivo } from './filtros'
 
-export interface FiltroPopoverColunaProps {
+export interface PopoverFiltroColunaProps {
   campo: string
   label: string
   tipo: 'texto' | 'numero' | 'enum'
@@ -22,7 +22,7 @@ export interface FiltroPopoverColunaProps {
   anchorRef: React.RefObject<HTMLElement>
 }
 
-export function FiltroPopoverColuna({
+export function PopoverFiltroColuna({
   campo,
   label,
   tipo,
@@ -33,7 +33,7 @@ export function FiltroPopoverColuna({
   onOrdenar,
   onFechar,
   anchorRef,
-}: FiltroPopoverColunaProps) {
+}: PopoverFiltroColunaProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   const [pos, setPos] = React.useState({ top: 0, left: 0 })

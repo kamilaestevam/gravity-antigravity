@@ -39,7 +39,7 @@ const ITEM_VAZIO: ItemForm = {
 
 // ── Props ──────────────────────────────────────────────────────────────────────
 
-export interface ModalNovoItemProps {
+export interface ModalNovoItemPedidoProps {
   aberto: boolean
   /** Pré-seleciona o pedido — pula o passo 1 */
   pedidoId?: string
@@ -112,13 +112,13 @@ const s = {
 
 // ── Componente ─────────────────────────────────────────────────────────────────
 
-export function ModalNovoItem({
+export function ModalNovoItemPedido({
   aberto,
   pedidoId: pedidoIdProp,
   numeroPedido: numeroPedidoProp,
   onFechar,
   onSalvo,
-}: ModalNovoItemProps) {
+}: ModalNovoItemPedidoProps) {
   const { addNotification } = useShellStore()
   const { t } = useTranslation()
 

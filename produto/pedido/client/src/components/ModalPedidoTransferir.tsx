@@ -71,7 +71,7 @@ const CENARIOS: CenarioInfo[] = [
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface ModalTransferirProps {
+interface ModalTransferirPedidoProps {
   pedidos: Pedido[]
   itemIdInicial?: string
   onFechar: () => void
@@ -459,7 +459,7 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
 
 // ── NOMES_PASSOS — definido dentro do componente via useMemo([t]) ─────────────
 
-export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido }: ModalTransferirProps) {
+export function ModalTransferirPedido({ pedidos, itemIdInicial, onFechar, onConcluido }: ModalTransferirPedidoProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
 

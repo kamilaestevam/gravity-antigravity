@@ -35,7 +35,7 @@ import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { ColunaUsuario } from '../../shared/types'
 import { colunasUsuarioApi } from '../../shared/api'
 import { COLUNAS_PAI_CHAVES } from '../../pages/Pedidos'
-import { ModalNovaColuna } from './ModalNovaColuna'
+import { ModalNovaColunaUsuario } from './ModalNovaColunaUsuario'
 import './GerenciadorColunas.css'
 
 // ── Labels de exibição ────────────────────────────────────────────────────────
@@ -294,7 +294,7 @@ export function GerenciadorColunas() {
       />
 
       {modalAberto && (
-        <ModalNovaColuna
+        <ModalNovaColunaUsuario
           colunaEdicao={colunaEdicao}
           onFechar={() => { setModalAberto(false); setColunaEdicao(undefined) }}
           onSalvo={handleSalvarModal}

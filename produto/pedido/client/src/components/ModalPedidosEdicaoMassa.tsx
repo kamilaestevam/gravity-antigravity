@@ -33,7 +33,7 @@ import { pedidoEdicaoMassaApi } from '../shared/api'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface ModalEdicaoEmMassaProps {
+interface ModalEdicaoMassaPedidosProps {
   pedidos: Pedido[]
   onFechar: () => void
   onConcluido: () => void
@@ -634,7 +634,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdicaoEmMassaProps) {
+export function ModalEdicaoMassaPedidos({ pedidos, onFechar, onConcluido }: ModalEdicaoMassaPedidosProps) {
   const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()

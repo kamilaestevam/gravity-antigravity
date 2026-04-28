@@ -82,23 +82,23 @@ import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { isPropagavel, getAlertavelKeys } from '../shared/columnBehaviorConfig'
 import { renderAgregado, buildColunasPai } from '../components/lista/ColunasPai'
-import { ModalConsolidar } from '../components/ModalConsolidar'
-import '../components/ModalConsolidar.css'
-import { ModalGerarPdf } from '../components/ModalGerarPdf'
-import '../components/ModalGerarPdf.css'
-import { ModalDuplicar } from '../components/ModalDuplicar'
-import '../components/ModalDuplicar.css'
-import { ModalTransferir } from '../components/ModalTransferir'
-import '../components/ModalTransferir.css'
-import { ModalEdicaoEmMassa } from '../components/ModalEdicaoEmMassa'
-import '../components/ModalEdicaoEmMassa.css'
+import { ModalConsolidarPedidos } from '../components/ModalPedidosConsolidar'
+import '../components/ModalPedidosConsolidar.css'
+import { ModalGerarPdfPedido } from '../components/ModalPedidoGerarPdf'
+import '../components/ModalPedidoGerarPdf.css'
+import { ModalDuplicarPedidos } from '../components/ModalPedidosDuplicar'
+import '../components/ModalPedidosDuplicar.css'
+import { ModalTransferirPedido } from '../components/ModalPedidoTransferir'
+import '../components/ModalPedidoTransferir.css'
+import { ModalEdicaoMassaPedidos } from '../components/ModalPedidosEdicaoMassa'
+import '../components/ModalPedidosEdicaoMassa.css'
 import { DrawerPedido } from '../components/DrawerPedido'
 import '../components/DrawerPedido.css'
 import { GabiTokenBadge, useGabiQuota } from '@nucleo/gabi-field-icon-global'
-import { ModalNovoPedido } from '../components/ModalNovoPedido'
-import { ModalNovoItem } from '../components/ModalNovoItem'
-import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
-import '../components/SmartImport/SmartImportModal.css'
+import { ModalNovoPedido } from '../components/ModalPedidoNovo'
+import { ModalNovoItemPedido } from '../components/ModalItemNovo'
+import { ModalSmartImportPedido } from '../components/SmartImport/ModalPedidoSmartImport'
+import '../components/SmartImport/ModalPedidoSmartImport.css'
 import type {
   Pedido,
   PedidoItem,
@@ -4438,7 +4438,7 @@ export default function Pedidos() {
       />
 
       {/* ── Modal Novo Item (adicionar item a pedido existente) ── */}
-      <ModalNovoItem
+      <ModalNovoItemPedido
         aberto={modalNovoItemAberto}
         onFechar={() => setModalNovoItemAberto(false)}
         onSalvo={() => {
@@ -4462,7 +4462,7 @@ export default function Pedidos() {
       />
 
       {/* ── Smart Import Modal ── */}
-      <SmartImportModal
+      <ModalSmartImportPedido
         aberto={smartImportAberto}
         onFechar={() => setSmartImportAberto(false)}
         onConcluido={(_ids) => {
@@ -4520,7 +4520,7 @@ export default function Pedidos() {
 
       {/* ── Modal Transferir Pedidos ── */}
       {modalTransferirAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
-        <ModalTransferir
+        <ModalTransferirPedido
           pedidos={
             pedidosSelecionados.length > 0
               ? pedidosSelecionados
@@ -4545,7 +4545,7 @@ export default function Pedidos() {
 
       {/* ── Modal Edição em Massa ── */}
       {modalEdicaoMassaAberto && pedidosSelecionados.length > 0 && (
-        <ModalEdicaoEmMassa
+        <ModalEdicaoMassaPedidos
           pedidos={pedidosSelecionados}
           onFechar={() => setModalEdicaoMassaAberto(false)}
           onConcluido={() => {
@@ -4558,7 +4558,7 @@ export default function Pedidos() {
 
       {/* ── Modal Consolidar Pedidos ── */}
       {modalConsolidarAberto && (
-        <ModalConsolidar
+        <ModalConsolidarPedidos
           pedidosSelecionados={pedidosSelecionados}
           conflito_tipo_operacao={hasMixedTipos}
           onFechar={() => setModalConsolidarAberto(false)}
@@ -4572,7 +4572,7 @@ export default function Pedidos() {
 
       {/* ── Modal Duplicar Pedidos ── */}
       {modalDuplicarAberto && pedidosSelecionados.length > 0 && (
-        <ModalDuplicar
+        <ModalDuplicarPedidos
           pedidos={pedidosSelecionados}
           onFechar={() => setModalDuplicarAberto(false)}
           onConcluido={() => {
@@ -4585,7 +4585,7 @@ export default function Pedidos() {
 
       {/* ── Modal Gerar Documento PDF ── */}
       {modalGerarPdfAberto && pedidosSelecionados.length > 0 && (
-        <ModalGerarPdf
+        <ModalGerarPdfPedido
           pedidos={pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))}
           onFechar={() => setModalGerarPdfAberto(false)}
           onConcluido={() => {

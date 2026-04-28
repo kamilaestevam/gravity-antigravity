@@ -108,8 +108,9 @@ export async function cotarComAgente(
       referencia_externa: data.quoteId ?? data.reference,
       detalhes: data.charges ?? data.detalhes ?? [],
     }
-  } catch (err: any) {
-    console.warn(`[Connector:Agente] Erro ao cotar via ${config.base_url}:`, err.message)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn(`[Connector:Agente] Erro ao cotar via ${config.base_url}:`, msg)
     return null
   }
 }
@@ -130,7 +131,8 @@ export async function testarConexaoAgente(config: AgenteConnectorConfig): Promis
 
     await axios.get(`${config.base_url}/health`, { headers, timeout: 10000 })
     return { ok: true, latency_ms: Date.now() - start }
-  } catch (err: any) {
-    return { ok: false, latency_ms: Date.now() - start, error: err.message }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { ok: false, latency_ms: Date.now() - start, error: msg }
   }
 }

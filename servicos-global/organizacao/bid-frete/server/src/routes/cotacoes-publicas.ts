@@ -134,4 +134,4 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
   }
 })
 
-export { router as portalPublicRouter }
+export { router as cotacoesPublicasRouter }

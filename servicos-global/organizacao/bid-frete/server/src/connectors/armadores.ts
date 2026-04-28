@@ -187,8 +187,9 @@ export async function cotarComArmadores(
     try {
       const response = await connector.cotar(req, config.credentials)
       if (response) results.push(response)
-    } catch (err: any) {
-      console.warn(`[Connector:${config.nome}] Erro ao cotar:`, err.message)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn(`[Connector:${config.nome}] Erro ao cotar:`, msg)
     }
   }
 

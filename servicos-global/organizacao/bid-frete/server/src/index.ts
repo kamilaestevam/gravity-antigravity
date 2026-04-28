@@ -1,6 +1,6 @@
 /**
  * index.ts — BID Frete Internacional Express Server
- * Localizacao canonica: produto/bid-frete/server/
+ * Localizacao canonica: servicos-global/organizacao/bid-frete/server/
  * Porta: 8023
  * Skill: antigravity-criar-produto (Passo 7 — 11 middlewares na ordem correta)
  */
@@ -11,20 +11,25 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
-import { masterDataRouter } from './routes/masterData.js'
+import { portosRouter } from './routes/portos.js'
+import { incotermsRouter } from './routes/incoterms.js'
+import { modaisRouter } from './routes/modais.js'
+import { moedasRouter } from './routes/moedas.js'
+import { paisesRouter } from './routes/paises.js'
+import { containersRouter } from './routes/containers.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { fornecedoresRouter } from './routes/fornecedores.js'
 import { bidsRouter } from './routes/bids.js'
 import { comparativoRouter } from './routes/comparativo.js'
 import { portalRouter } from './routes/portal.js'
-import { portalPublicRouter } from './routes/portalPublic.js'
+import { cotacoesPublicasRouter } from './routes/cotacoes-publicas.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { startCronJobs } from './services/cronJobs.js'
-import { rateLimitPresets } from '../../../../servicos-global/tenant/middleware/rateLimiter.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { rateLimitPresets } from '../../../../tenant/middleware/rateLimiter.js'
+import { apiObservability } from '../../../../tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -84,10 +89,15 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // --- 5. Master Data — SEM autenticacao (portos, NCMs, incoterms sao dados publicos) ---
-app.use('/api/v1', rateLimitPresets.public(), masterDataRouter)
+app.use('/api/v1', rateLimitPresets.public(), portosRouter)
+app.use('/api/v1', rateLimitPresets.public(), incotermsRouter)
+app.use('/api/v1', rateLimitPresets.public(), modaisRouter)
+app.use('/api/v1', rateLimitPresets.public(), moedasRouter)
+app.use('/api/v1', rateLimitPresets.public(), paisesRouter)
+app.use('/api/v1', rateLimitPresets.public(), containersRouter)
 
 // --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---
-app.use('/api/v1/cotacoes-publicas', rateLimitPresets.public(), portalPublicRouter)
+app.use('/api/v1/cotacoes-publicas', rateLimitPresets.public(), cotacoesPublicasRouter)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)

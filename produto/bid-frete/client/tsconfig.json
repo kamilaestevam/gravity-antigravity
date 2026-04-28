@@ -1,7 +1,0 @@
-{
-  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-produto.json"],
-  "compilerOptions": {
-    "baseUrl": "."
-  },
-  "include": ["src"]
-}

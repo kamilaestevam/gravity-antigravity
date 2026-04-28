@@ -69,8 +69,8 @@ const HistoricoTenant = React.lazy(() =>
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
 const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
 const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/src/App'))
-const BidFreteApp = React.lazy(() => import('../../../produto/bid-frete/client/src/App'))
-const BidCambioApp = React.lazy(() => import('../../../produto/bid-cambio/client/src/App'))
+const BidFreteApp = React.lazy(() => import('../../organizacao/bid-frete/client/src/App'))
+const BidCambioApp = React.lazy(() => import('../../organizacao/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
 
 /**

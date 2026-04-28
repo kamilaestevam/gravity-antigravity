@@ -83,7 +83,7 @@ export async function buscarPedidosERP(config: ErpConnectorConfig): Promise<Pedi
 
     const fm = config.field_mapping
 
-    return items.map((item: any) => ({
+    return items.map((item: Record<string, unknown>) => ({
       referencia: item[fm.referencia] ?? '',
       tipo_operacao: item[fm.tipo_operacao ?? 'tipo_operacao'] ?? 'IMPORTACAO',
       origem_codigo: item[fm.origem ?? 'origem_codigo'],
@@ -96,8 +96,9 @@ export async function buscarPedidosERP(config: ErpConnectorConfig): Promise<Pedi
       peso_kg: item[fm.peso ?? 'peso_kg'],
       data_carga_pronta: item[fm.data_carga_pronta ?? 'data_carga_pronta'],
     }))
-  } catch (err: any) {
-    console.warn(`[Connector:ERP] Erro ao buscar pedidos:`, err.message)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.warn(`[Connector:ERP] Erro ao buscar pedidos:`, msg)
     return []
   }
 }
@@ -148,7 +149,8 @@ export async function testarConexaoERP(config: ErpConnectorConfig): Promise<{
 
     const response = await axios.get(url, { headers, timeout: 15000 })
     return { ok: true, latency_ms: Date.now() - start, records_count: response.data?.d?.results?.length ?? 0 }
-  } catch (err: any) {
-    return { ok: false, latency_ms: Date.now() - start, error: err.message }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { ok: false, latency_ms: Date.now() - start, error: msg }
   }
 }

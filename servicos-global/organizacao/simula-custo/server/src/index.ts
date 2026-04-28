@@ -95,8 +95,8 @@ app.use('/api/v1/simula-custo', masterDataRouter)
 //    Em dev: INTERNAL_SERVICE_KEY=dev-key no .env
 app.use(requireInternalKey)
 
-// ─── 7. Tenant Isolation — injeta req.prisma com filtro por tenant_id ─────────
-//    tenant_id vem do header x-id-organizacao propagado pelo Gateway (JWT)
+// ─── 7. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ───
+//    id_organizacao vem do header x-id-organizacao propagado pelo Gateway (JWT)
 //    NUNCA vem do body da requisição
 app.use(tenantIsolationMiddleware)
 

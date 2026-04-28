@@ -2,7 +2,7 @@
  * dashboard.ts — Rotas GET /api/v1/simula-custo/dashboard/kpis e /api/v1/simula-custo/dashboard/recentes
  * Adaptado de: servicos-global/tenant/dashboard/server/routes.ts
  *
- * Usa req.prisma (injetado pelo tenantIsolationMiddleware) — tenant_id já filtrado.
+ * Usa req.prisma (injetado pelo tenantIsolationMiddleware) — id_organizacao já filtrado.
  * Nunca expõe dados de outros tenants.
  */
 
@@ -54,7 +54,7 @@ dashboardRouter.get('/kpis', async (req: Request, res: Response, next: NextFunct
     const cifAgg = await (prisma as any).$queryRaw<{ total: number }[]>`
       SELECT COALESCE(SUM(valor_produto / NULLIF(ptax_utilizada, 0)), 0) AS total
       FROM estimativas_trade
-      WHERE tenant_id = ${tenantId}
+      WHERE id_organizacao = ${tenantId}
         AND moeda_produto = 'USD'
     `
     const totalCifUsd = cifAgg?.[0]?.total ?? null
@@ -72,7 +72,7 @@ dashboardRouter.get('/kpis', async (req: Request, res: Response, next: NextFunct
         END AS nivel,
         COUNT(*) AS qtd
       FROM estimativas_trade
-      WHERE tenant_id = ${tenantId}
+      WHERE id_organizacao = ${tenantId}
         AND landed_cost_brl > 0
       GROUP BY nivel
     `

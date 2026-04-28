@@ -142,7 +142,7 @@ export interface ResultadoFiscal {
 
 export interface SimulaCustoEstimativa {
   id: string
-  tenant_id: string
+  id_organizacao: string
   user_id: string
   numero: string
   referencia: string | null

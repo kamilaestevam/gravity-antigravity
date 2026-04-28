@@ -1,6 +1,6 @@
 // fragment.prisma — SimulaCusto
 // Composto via scripts/compose-schema.js no schema final do produto.
-// REGRA: todo model DEVE ter tenant_id (snake_case) e os 3 índices obrigatórios.
+// REGRA: todo model DEVE ter id_organizacao (snake_case) e os 3 índices obrigatórios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
 // ─── Enums ──────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ enum SimulaCustoTipoDocumento {
 
 model SimulaCustoEstimativa {
   id              String   @id @default(cuid()) // Formato padrão Gravity: esti_id_000000001/26
-  tenant_id       String   // OBRIGATÓRIO — Nunca nullable
+  id_organizacao  String   // OBRIGATÓRIO — Nunca nullable
   company_id      String   // OBRIGATÓRIO (Workspace) — Isola os dados (Prevenção Zero-Trust)
   product_id      String   @default("simula-custo")
   user_id         String   // clerk_id do criador
@@ -122,21 +122,21 @@ model SimulaCustoEstimativa {
   updated_at      DateTime          @updatedAt
 
   // Índices obrigatórios (skill: antigravity-tenant-isolation)
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@index([company_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, numero])
-  @@index([tenant_id, status])
-  @@index([tenant_id, ncm])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, numero])
+  @@index([id_organizacao, status])
+  @@index([id_organizacao, ncm])
   @@index([processo_id])
   @@map("estimativas_trade")
 }
 
 model SimulaCustoTaxas {
   id              String      @id @default(cuid())
-  tenant_id       String      // OBRIGATÓRIO
+  id_organizacao  String      // OBRIGATÓRIO
   company_id      String      // OBRIGATÓRIO
   product_id      String      @default("simula-custo")
   user_id         String?
@@ -152,18 +152,18 @@ model SimulaCustoTaxas {
   estimativa_origem  SimulaCustoEstimativa? @relation("TaxasOrigem", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_origem_fk")
   estimativa_destino SimulaCustoEstimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade, map: "taxa_est_destino_fk")
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@index([company_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, estimativa_id])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, estimativa_id])
   @@map("taxas_estimativa_trade")
 }
 
 model SimulaCustoImpostos {
   id              String      @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String
   product_id      String      @default("simula-custo")
   user_id         String?
 
@@ -177,16 +177,16 @@ model SimulaCustoImpostos {
 
   estimativa      SimulaCustoEstimativa  @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, estimativa_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, estimativa_id])
   @@map("tributos_estimativa_trade")
 }
 
 model SimulaCustoAnexos {
   id              String        @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String
   product_id      String        @default("simula-custo")
   user_id         String?
 
@@ -198,14 +198,14 @@ model SimulaCustoAnexos {
 
   created_at      DateTime      @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, estimativa_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, estimativa_id])
   @@map("documentos_estimativa_trade")
 }
 
-// ─── Cache (sem tenant_id — dados públicos) ─────────────────────────────────────
+// ─── Cache (sem id_organizacao — dados públicos) ──────────────────────────────
 
 model SimulaCustoNcm {
   ncm             String   @id
@@ -240,12 +240,12 @@ model SimulaCustoCambio {
 
 model SimulaCustoSequencia {
   id              String   @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String
   user_id         String
   ano             Int
   ultimo_numero   Int      @default(0)
 
-  @@unique([tenant_id, user_id, ano])
-  @@index([tenant_id])
+  @@unique([id_organizacao, user_id, ano])
+  @@index([id_organizacao])
   @@map("sequencia_estimativa_trade")
 }

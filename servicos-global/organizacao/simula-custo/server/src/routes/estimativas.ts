@@ -45,9 +45,9 @@ async function gerarNumero(_prisma: unknown, tenantId: string, userId: string, o
   const ano = new Date().getFullYear()
   const prefixo = operacao === 'IMPORTACAO' ? 'IMP' : 'EXP'
   const seq = await prisma.simulaCustoSequencia.upsert({
-    where: { tenant_id_user_id_ano: { tenant_id: tenantId, user_id: userId, ano } },
+    where: { id_organizacao_user_id_ano: { id_organizacao: tenantId, user_id: userId, ano } },
     update: { ultimo_numero: { increment: 1 } },
-    create: { tenant_id: tenantId, user_id: userId, ano, ultimo_numero: 1 },
+    create: { id_organizacao: tenantId, user_id: userId, ano, ultimo_numero: 1 },
   })
   return `EST-${prefixo}-${String(seq.ultimo_numero).padStart(5, '0')}/${String(ano).slice(-2)}`
 }

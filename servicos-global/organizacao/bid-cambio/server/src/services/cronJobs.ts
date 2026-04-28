@@ -55,7 +55,7 @@ async function alertarVencimentosCambio() {
     if (parcelasVencendo.length === 0) continue
 
     // Montar e enviar e-mail
-    const processos = parcelasVencendo.map((p: any) => p.referencia_processo).filter(Boolean)
+    const processos = parcelasVencendo.map((p: { referencia_processo?: string }) => p.referencia_processo).filter(Boolean)
 
     // Fire-and-forget: notificacao + atividade
     for (const parcela of parcelasVencendo) {
@@ -127,8 +127,9 @@ async function runAll() {
   try {
     await alertarVencimentosCambio()
     await expirarCotacoesVencidas()
-  } catch (err: any) {
-    console.error('[Cron] Erro nos jobs BID Cambio:', err.message)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[Cron] Erro nos jobs BID Cambio:', message)
   }
 }
 

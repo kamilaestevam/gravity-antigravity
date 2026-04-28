@@ -11,7 +11,10 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
-import { masterDataRouter } from './routes/masterData.js'
+import { moedasRouter } from './routes/moedas.js'
+import { tiposLiquidacaoRouter } from './routes/tipos-liquidacao.js'
+import { metodosVencimentoRouter } from './routes/metodos-vencimento.js'
+import { cotacoesPtaxRouter } from './routes/cotacoes-ptax.js'
 import { cambiosRouter } from './routes/cambios.js'
 import { cotacoesRouter } from './routes/cotacoes.js'
 import { bidsRouter } from './routes/bids.js'
@@ -24,8 +27,8 @@ import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { preferenciasRouter } from './routes/preferencias.js'
 import { startCronJobs } from './services/cronJobs.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -87,8 +90,11 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // --- 5. Master Data — SEM autenticacao (moedas, PTAX sao dados publicos) ---
-// DDD: rotas tornam-se top-level (moedas, tipos-liquidacao, metodos-vencimento, cotacoes-ptax)
-app.use('/api/v1', masterDataRouter)
+// DDD: rotas top-level (4 routers split de masterData.ts em Gamma-3)
+app.use('/api/v1', moedasRouter)
+app.use('/api/v1', tiposLiquidacaoRouter)
+app.use('/api/v1', metodosVencimentoRouter)
+app.use('/api/v1', cotacoesPtaxRouter)
 
 // --- 6. Portal Publico da Corretora — SEM internal key (usa token de resposta) ---
 app.use('/api/v1/bid-cambio/portal/public', portalPublicRouter)

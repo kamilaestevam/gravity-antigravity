@@ -57,7 +57,7 @@ cotacoesRouter.get('/', async (req: Request, res: Response, next: NextFunction) 
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
     const status = req.query.status as string | undefined
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (status) where.status = status
 
     const [cotacoes, total] = await Promise.all([

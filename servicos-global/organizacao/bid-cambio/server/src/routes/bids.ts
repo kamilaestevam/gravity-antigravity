@@ -51,7 +51,7 @@ bidsRouter.post('/disparar', async (req: Request, res: Response, next: NextFunct
     expiraEm.setDate(expiraEm.getDate() + 7)
 
     const bidRequests = await Promise.all(
-      corretoras.map(async (corretora: any) => {
+      corretoras.map(async (corretora: { id: string; email?: string; nome_fantasia?: string; [key: string]: unknown }) => {
         const tokenPublico = crypto.randomUUID()
 
         const bidRequest = await (prisma as any).bidRequestCambio.create({
@@ -141,7 +141,7 @@ bidsRouter.post('/cotacao-aberta', async (req: Request, res: Response, next: Nex
     expiraEm.setDate(expiraEm.getDate() + 7)
 
     const bidRequests = await Promise.all(
-      corretoras.map(async (corretora: any) => {
+      corretoras.map(async (corretora: { id: string; email?: string; nome_fantasia?: string; [key: string]: unknown }) => {
         const tokenPublico = crypto.randomUUID()
 
         const bidRequest = await (prisma as any).bidRequestCambio.create({
@@ -216,8 +216,8 @@ bidsRouter.get('/cotacao/:id', async (req: Request, res: Response, next: NextFun
       cotacao,
       bid_requests: bidRequests,
       total: bidRequests.length,
-      respondidos: bidRequests.filter((b: any) => b.status === 'RESPONDIDO').length,
-      pendentes: bidRequests.filter((b: any) => b.status === 'ENVIADO').length,
+      respondidos: bidRequests.filter((b: { status: string }) => b.status === 'RESPONDIDO').length,
+      pendentes: bidRequests.filter((b: { status: string }) => b.status === 'ENVIADO').length,
     })
   } catch (err) { next(err) }
 })

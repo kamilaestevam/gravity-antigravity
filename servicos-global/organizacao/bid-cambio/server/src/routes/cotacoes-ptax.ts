@@ -1,40 +1,18 @@
 /**
- * masterData.ts — Dados publicos (sem autenticacao)
- * Moedas, PTAX (BCB OLINDA API), metodos de vencimento
+ * cotacoes-ptax.ts — PTAX (BCB OLINDA API)
+ *
+ * Origem: produto/bid-cambio/server/src/routes/masterData.ts (SPLIT — Gamma-3)
+ * Endpoints publicos (sem autenticacao):
+ *   GET /api/v1/cotacoes-ptax?moeda=USD
+ *   GET /api/v1/cotacoes-ptax/historico?moeda=USD&dias=30
+ *
+ * Cache in-memory com TTL 5 min. Fallback retroativo D-1, D-2, D-3.
  */
 
 import { Router, Request, Response } from 'express'
 import axios from 'axios'
 
-export const masterDataRouter = Router()
-
-// --- Constantes ---
-
-const MOEDAS = [
-  { codigo: 'USD', nome: 'Dolar Americano', simbolo: 'US$', codigoBcb: 61 },
-  { codigo: 'EUR', nome: 'Euro', simbolo: '€', codigoBcb: 222 },
-  { codigo: 'GBP', nome: 'Libra Esterlina', simbolo: '£', codigoBcb: 178 },
-  { codigo: 'CHF', nome: 'Franco Suico', simbolo: 'CHF', codigoBcb: 425 },
-  { codigo: 'CNY', nome: 'Yuan Chines', simbolo: '¥', codigoBcb: 4 },
-  { codigo: 'JPY', nome: 'Iene Japones', simbolo: '¥', codigoBcb: 470 },
-  { codigo: 'BRL', nome: 'Real Brasileiro', simbolo: 'R$', codigoBcb: null },
-]
-
-const LIQUIDACOES = [
-  { codigo: 'D0', label: 'D+0 (mesmo dia)' },
-  { codigo: 'D1', label: 'D+1 (1 dia util)' },
-  { codigo: 'D2', label: 'D+2 (2 dias uteis)' },
-]
-
-const METODOS_VENCIMENTO = [
-  { codigo: 'DATA_EMBARQUE', label: 'Data de Embarque' },
-  { codigo: 'DATA_CHEGADA', label: 'Data de Chegada' },
-  { codigo: 'DATA_REGISTRO_DI', label: 'Data de Registro da DI' },
-  { codigo: 'DATA_DESEMBARACO', label: 'Data de Desembaraco' },
-  { codigo: 'DATA_ENTREGA', label: 'Data de Entrega' },
-  { codigo: 'PRONTIDAO_CARGA', label: 'Prontidao de Carga' },
-  { codigo: 'DATA_FIXA', label: 'Data Fixa' },
-]
+export const cotacoesPtaxRouter = Router()
 
 // --- PTAX Cache (in-memory, TTL 5 min) ---
 
@@ -115,23 +93,11 @@ async function getPtaxComCache(moeda: string): Promise<PtaxResponse | null> {
 
 // --- Rotas ---
 
-masterDataRouter.get('/moedas', (_req: Request, res: Response) => {
-  res.json(MOEDAS)
-})
-
-masterDataRouter.get('/tipos-liquidacao', (_req: Request, res: Response) => {
-  res.json(LIQUIDACOES)
-})
-
-masterDataRouter.get('/metodos-vencimento', (_req: Request, res: Response) => {
-  res.json(METODOS_VENCIMENTO)
-})
-
 /**
  * GET /api/v1/cotacoes-ptax?moeda=USD
  * Retorna PTAX do dia (ou ultimo dia util) com cache de 5 min
  */
-masterDataRouter.get('/cotacoes-ptax', async (req: Request, res: Response) => {
+cotacoesPtaxRouter.get('/cotacoes-ptax', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'
 
   try {
@@ -170,7 +136,7 @@ masterDataRouter.get('/cotacoes-ptax', async (req: Request, res: Response) => {
  * GET /api/v1/cotacoes-ptax/historico?moeda=USD&dias=30
  * Retorna historico de PTAX dos ultimos N dias
  */
-masterDataRouter.get('/cotacoes-ptax/historico', async (req: Request, res: Response) => {
+cotacoesPtaxRouter.get('/cotacoes-ptax/historico', async (req: Request, res: Response) => {
   const moeda = (req.query.moeda as string) || 'USD'
   const dias = Math.min(parseInt(req.query.dias as string) || 30, 90)
 

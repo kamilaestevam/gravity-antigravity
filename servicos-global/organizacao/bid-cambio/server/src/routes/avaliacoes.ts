@@ -139,7 +139,7 @@ avaliacoesRouter.get('/ranking', async (req: Request, res: Response, next: NextF
     })
 
     res.json({
-      ranking: corretoras.map((c: any, index: number) => ({
+      ranking: corretoras.map((c: Record<string, unknown>, index: number) => ({
         posicao: index + 1,
         ...c,
       })),

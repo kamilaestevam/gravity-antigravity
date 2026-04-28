@@ -76,7 +76,7 @@ corretorasRouter.get('/', async (req: Request, res: Response, next: NextFunction
     const status = req.query.status as string | undefined
     const busca = req.query.busca as string | undefined
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (status) where.status = status
     if (busca) {
       where.OR = [

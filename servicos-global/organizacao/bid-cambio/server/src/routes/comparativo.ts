@@ -23,7 +23,15 @@ const reprovarSchema = z.object({
 
 // --- Helpers ---
 
-function calcularTags(respostas: any[]) {
+type RespostaCambio = {
+  id: string
+  taxa_oferecida: number
+  spread: number
+  corretora?: { rating?: number }
+  [key: string]: unknown
+}
+
+function calcularTags(respostas: RespostaCambio[]) {
   if (respostas.length === 0) return []
 
   const sorted = [...respostas]
@@ -32,7 +40,7 @@ function calcularTags(respostas: any[]) {
   const melhorSpread = sorted.sort((a, b) => a.spread - b.spread)[0]
   const melhorAvaliacao = sorted.sort((a, b) => (b.corretora?.rating ?? 0) - (a.corretora?.rating ?? 0))[0]
 
-  return respostas.map((r: any) => {
+  return respostas.map((r) => {
     const tags: string[] = []
     if (r.id === melhorTaxa.id) tags.push('MELHOR_TAXA')
     if (r.id === melhorSpread.id) tags.push('MELHOR_SPREAD')
@@ -41,7 +49,7 @@ function calcularTags(respostas: any[]) {
   })
 }
 
-function calcularEconomia(cotacao: any, respostaAprovada: any): number {
+function calcularEconomia(cotacao: { valor?: number }, respostaAprovada: { taxa_oferecida?: number; spread?: number }): number {
   // Economia = diferenca entre pior taxa e taxa aprovada * valor
   // Retorna economia em BRL
   const valorBase = cotacao.valor ?? 0

@@ -112,7 +112,7 @@ portalRouter.get('/minhas-respostas', async (req: Request, res: Response, next: 
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
     const status = req.query.status as string | undefined
 
-    const where: any = { corretora_id: corretoraId }
+    const where: Record<string, unknown> = { corretora_id: corretoraId }
     if (status) where.status = status
 
     const [respostas, total] = await Promise.all([

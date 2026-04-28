@@ -48,13 +48,14 @@ cambiosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     const prisma = req.prisma!
     const skip = (query.page - 1) * query.limit
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (query.status) where.status = query.status
     if (query.moeda) where.moeda = query.moeda
     if (query.data_vencimento_inicio || query.data_vencimento_fim) {
-      where.data_vencimento = {}
-      if (query.data_vencimento_inicio) where.data_vencimento.gte = new Date(query.data_vencimento_inicio)
-      if (query.data_vencimento_fim) where.data_vencimento.lte = new Date(query.data_vencimento_fim)
+      const dataRange: { gte?: Date; lte?: Date } = {}
+      if (query.data_vencimento_inicio) dataRange.gte = new Date(query.data_vencimento_inicio)
+      if (query.data_vencimento_fim) dataRange.lte = new Date(query.data_vencimento_fim)
+      where.data_vencimento = dataRange
     }
 
     const [parcelas, total] = await Promise.all([
@@ -86,7 +87,7 @@ cambiosRouter.get('/totais', async (req: Request, res: Response, next: NextFunct
     const prisma = req.prisma!
     const statusFilter = req.query.status as string | undefined
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
     if (statusFilter) where.status = statusFilter
 
     const totais = await (prisma as any).parcelaCambio.groupBy({

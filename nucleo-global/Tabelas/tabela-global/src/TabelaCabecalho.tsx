@@ -18,7 +18,7 @@ interface CabecalhoTabelaProps<T extends RegistroTabela> {
 }
 
 
-export function CabecalhoTabela<T extends RegistroTabela>({
+export function TabelaCabecalho<T extends RegistroTabela>({
   colunas,
   ordenacao,
   aoOrdenar,

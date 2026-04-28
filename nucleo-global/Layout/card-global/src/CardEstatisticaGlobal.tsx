@@ -1,7 +1,7 @@
 import React from 'react'
 import { ArrowUp, ArrowDown, ArrowRight } from '@phosphor-icons/react'
 import type { StatCardProps } from './tipos'
-import './stat-card.css'
+import './CardEstatisticaGlobal.css'
 
 export interface StatCardGlobalProps extends StatCardProps {
   /** Alinhamento do conteúdo: à esquerda (padrão) ou centralizado */

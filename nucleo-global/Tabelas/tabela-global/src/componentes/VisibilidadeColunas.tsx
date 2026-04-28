@@ -22,7 +22,7 @@ interface VisibilidadeColunasGlobalProps {
   onReordenar?: (fromKey: string, toKey: string) => void
 }
 
-export function VisibilidadeColunasGlobal({
+export function VisibilidadeColunas({
   colunas,
   visibleKeys,
   onToggle,

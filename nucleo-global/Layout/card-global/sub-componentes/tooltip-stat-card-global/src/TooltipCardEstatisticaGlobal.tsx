@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import './tooltip-stat-card.css'
+import './TooltipCardEstatisticaGlobal.css'
 
 export interface TooltipStatCardGlobalProps {
   /** Ícone opcional clonado do cabeçalho do StatCard */

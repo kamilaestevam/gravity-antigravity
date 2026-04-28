@@ -13,7 +13,7 @@ import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-glo
 import { ModalOverlay } from '@nucleo/modal-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import './tabela.css'
+import './TabelaGlobal.css'
 
 export type ColType = 'texto' | 'numero' | 'periodo'
 export type SortDir = 'asc' | 'desc'

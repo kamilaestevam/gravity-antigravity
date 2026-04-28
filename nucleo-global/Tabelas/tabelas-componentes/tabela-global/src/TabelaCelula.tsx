@@ -39,7 +39,7 @@ function BadgeCelula({
   return <span className={classeMap[classeStatus]}>{rotulo}</span>
 }
 
-export function Celula<T extends RegistroTabela>({ coluna, linha }: CelulaProps<T>) {
+export function TabelaCelula<T extends RegistroTabela>({ coluna, linha }: CelulaProps<T>) {
   const valor = linha[coluna.key]
 
   // Renderizador customizado tem prioridade

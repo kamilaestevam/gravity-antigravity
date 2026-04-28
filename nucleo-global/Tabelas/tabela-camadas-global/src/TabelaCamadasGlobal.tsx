@@ -10,7 +10,7 @@ import {
   MagnifyingGlass, CheckSquare, Square,
 } from '@phosphor-icons/react'
 import { useTablePersistence } from '../../tabela-global/src/hooks/useTablePersistence.js'
-import { VisibilidadeColunasGlobal } from '../../tabela-global/src/componentes/VisibilidadeColunasGlobal.js'
+import { VisibilidadeColunas } from '../../tabela-global/src/componentes/VisibilidadeColunas.js'
 import './tabela-camadas.css'
 import type {
   TabelaCamadasGlobalProps,
@@ -786,7 +786,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                 </button>
               </TooltipGlobal>
               {visibilidadeAberta && (
-                <VisibilidadeColunasGlobal
+                <VisibilidadeColunas
                   colunas={colunasConfig}
                   visibleKeys={visibleKeys}
                   onToggle={toggleVisibility}

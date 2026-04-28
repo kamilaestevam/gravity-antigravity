@@ -53,7 +53,7 @@ Produto valida token via @clerk/backend
 
 ```text
 servicos-global/
-├── organização/
+├── organizacao/
 ├── produto/
 ├── marketplace/
 ├── configurador/   ← AQUI
@@ -94,15 +94,15 @@ servicos-global/configurador/
 
 O Gravity opera com dois sistemas complementares:
 
-1. **Cadeia 1 — `tipo_usuario` Global:** quem o usuário é (`SUPER_ADMIN`, `GRAVITY_ADMIN`, `MASTER`, `STANDARD`, `SUPPLIER`)
+1. **Cadeia 1 — `tipo_usuario` Global:** quem o usuário é (`SUPER_ADMIN`, `ADMIN`, `MASTER`, `STANDARD`, `SUPPLIER`)
 2. **Cadeia 2 — Permissões Granulares:** o que pode fazer dentro de cada produto
 
 ### `tipo_usuario` do Sistema (Cadeia 1)
 
 ```text
-Gravity (equipe interna — is_gravity_admin = true)
+Gravity (equipe interna — gravity_admin = true)
 ├── SUPER_ADMIN     ← acesso total irrestrito
-└── GRAVITY_ADMIN   ← visualiza tudo, edita conforme permissões do SUPER_ADMIN
+└── ADMIN   ← visualiza tudo, edita conforme permissões do SUPER_ADMIN
 
 Organização (cliente)
 ├── MASTER     ← acesso total à organização
@@ -110,7 +110,7 @@ Organização (cliente)
 └── SUPPLIER   ← acesso conforme permissões do MASTER (cross-organização)
 ```
 
-> **Mandamento 04:** MASTER, SUPER_ADMIN e GRAVITY_ADMIN têm acesso global SEM depender de `UsuarioWorkspace`. STANDARD e SUPPLIER dependem do vínculo explícito.
+> **Mandamento 04:** MASTER, SUPER_ADMIN e ADMIN têm acesso global SEM depender de `UsuarioWorkspace`. STANDARD e SUPPLIER dependem do vínculo explícito.
 
 ### Habilitação em Workspace
 
@@ -206,8 +206,8 @@ Retorna campos com nomes DDD em Português:
     id_usuario:              string,  // CUID do User no Prisma
     nome_usuario:            string,  // user.name
     email_usuario:           string,  // user.email
-    tipo_usuario:            string,  // MASTER, STANDARD, SUPPLIER, GRAVITY_ADMIN, SUPER_ADMIN
-    is_gravity_admin:        boolean,
+    tipo_usuario:            string,  // MASTER, STANDARD, SUPPLIER, ADMIN, SUPER_ADMIN
+    gravity_admin:        boolean,
     id_organizacao_usuario:  string,  // user.id_organizacao
     preferred_workspace_id:  string | null,
   },
@@ -342,7 +342,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
   syncRoleToClerk: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/organização/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/organizacao/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
 }))
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({

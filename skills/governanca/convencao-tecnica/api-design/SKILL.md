@@ -246,7 +246,7 @@ GET /api/v1/cotacoes?pagina=1&limite=20&ordenar_por=data_criacao_cotacao&ordem=D
 
 ## Formato de Resposta — Erro
 
-Ver `antigravity-code-standards` para o formato completo. Resumo:
+Ver [Code Standards](../code-standards/SKILL.md) para o formato completo. Resumo:
 
 ```json
 {

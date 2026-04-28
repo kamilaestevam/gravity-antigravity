@@ -1,1 +1,1 @@
-export * from './LocalizarExpandidoCampoGlobal'
+export * from './CampoLocalizarExpandidoGlobal'

@@ -4,11 +4,11 @@
  * Requer o serviço ncm-sync rodando em /api/v1/ncm.
  */
 
-export { NcmSelectGlobal } from './NcmSelectGlobal.js'
-export type { NcmSelectGlobalProps } from './NcmSelectGlobal.js'
+export { SelectNcmGlobal } from './SelectNcmGlobal.js'
+export type { NcmSelectGlobalProps } from './SelectNcmGlobal.js'
 
-export { ModalBuscaNcm } from './ModalNcmBusca.js'
-export type { ModalBuscaNcmProps, NcmOpcao } from './ModalNcmBusca.js'
+export { CampoBuscarNcm } from './CampoBuscarNcm.js'
+export type { ModalBuscaNcmProps, NcmOpcao } from './CampoBuscarNcm.js'
 
 export { useNcmValidation } from './useNcmValidation.js'
 export type {

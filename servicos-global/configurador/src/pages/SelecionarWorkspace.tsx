@@ -40,7 +40,7 @@ import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { ToastContainer, useShellStore } from '@gravity/shell'
@@ -679,7 +679,7 @@ export function SelecionarWorkspace() {
             <span className="sw-t-module-label">HUB</span>
           </div>
           <div className="sw-t-right">
-            <LocalizarExpandidoCampoGlobal
+            <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 // Buscar em workspaces

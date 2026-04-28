@@ -1,9 +1,9 @@
 /**
- * NcmSelectGlobal.tsx — Campo de seleção de NCM
+ * SelectNcmGlobal.tsx — Campo de seleção de NCM
  *
  * Comportamento:
  *  - Input de texto para código NCM (8 dígitos)
- *  - Botão de lupa abre ModalBuscaNcm para busca por código ou descrição
+ *  - Botão de lupa abre CampoBuscarNcm para busca por código ou descrição
  *  - Validação não bloqueante via useNcmValidation (debounce 600ms)
  *  - Exibe badge de status: válido (verde) / inválido (amarelo) / sem sync (cinza)
  *  - Nunca impede o salvamento — é apenas aviso informativo
@@ -17,7 +17,7 @@
 import React, { useState, useId } from 'react'
 import { MagnifyingGlass, CheckCircle, Warning, ArrowsClockwise } from '@phosphor-icons/react'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { ModalBuscaNcm, type NcmOpcao } from './ModalNcmBusca.js'
+import { CampoBuscarNcm, type NcmOpcao } from './ModalNcmBusca.js'
 import { useNcmValidation } from './useNcmValidation.js'
 
 export interface NcmSelectGlobalProps {
@@ -33,7 +33,7 @@ export interface NcmSelectGlobalProps {
   className?:   string
 }
 
-export function NcmSelectGlobal({
+export function SelectNcmGlobal({
   value,
   onChange,
   label       = 'NCM',
@@ -159,7 +159,7 @@ export function NcmSelectGlobal({
         )}
       </CampoGeralGlobal>
 
-      <ModalBuscaNcm
+      <CampoBuscarNcm
         aberto={modalAberto}
         onFechar={() => setModalAberto(false)}
         onSelecionar={handleSelecionarModal}

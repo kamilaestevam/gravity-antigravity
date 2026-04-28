@@ -6,7 +6,7 @@ import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubButton } from '../../components/HubButton'
@@ -161,7 +161,7 @@ export function AdminLayout() {
         <div className="ws-global-actions">
           <HubButton onClick={() => navigate('/hub')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 const target = navItems.find(item => item.label.toLowerCase().includes(termLower))

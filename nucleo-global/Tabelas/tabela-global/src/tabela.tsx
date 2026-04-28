@@ -6,7 +6,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown, Columns, List, SquaresFour } from '@phosphor-icons/react'
 import { KanbanGlobal } from '@nucleo/kanban-global'
 import type { KanbanColunaDef } from '@nucleo/kanban-global'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { useTablePersistence } from './hooks/useTablePersistence'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
@@ -22,7 +22,7 @@ export interface TabelaGlobalColuna<T> {
   key: keyof T & string
   label: string
   tipo: ColType
-  render?: (valor: any, item: T) => React.ReactNode
+  render?: (valor: unknown, item: T) => React.ReactNode
   tooltipTitulo?: string
   tooltipDescricao?: string
   largura?: string | number
@@ -139,7 +139,7 @@ function PopoverFiltro({
   onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimpar, onFechar,
 }: {
   tipo: ColType, coluna: string, label: string
-  filtros: any, ordenacao: any, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
+  filtros: unknown, ordenacao: unknown, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
   minMax: { min: string; max: string }
   periodo: { inicio: Date | null; fim: Date | null }
   triggerRef: React.RefObject<HTMLButtonElement>
@@ -308,9 +308,9 @@ function PopoverFiltro({
       {tipo === 'periodo' && (
         <div style={{ padding: '0.625rem 0.5rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{t('tabela.selecionar_periodo')}</p>
-          <CalendarioCampoGlobal 
-            valor={periodo as any}
-            aoMudarValor={(v: any) => { onFiltrarPeriodo(coluna, v) }}
+          <CampoCalendarioGlobal
+            valor={periodo as unknown as { inicio: Date | null; fim: Date | null }}
+            aoMudarValor={(v: { inicio: Date | null; fim: Date | null }) => { onFiltrarPeriodo(coluna, v) }}
           />
         </div>
       )}
@@ -328,7 +328,7 @@ function PopoverFiltro({
   )
 }
 
-function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna, stickyLeft }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onFiltrarPeriodo: any, onLimparColuna: any, stickyLeft?: number }) {
+function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna, stickyLeft }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: unknown, dados: T[], onOrdenar: unknown, onToggleValor: unknown, onFiltrarNumero: unknown, onFiltrarPeriodo: unknown, onLimparColuna: unknown, stickyLeft?: number }) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
   const triggerRef = useRef<HTMLButtonElement>(null)

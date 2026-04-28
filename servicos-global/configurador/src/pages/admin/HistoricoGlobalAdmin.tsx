@@ -12,7 +12,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { useShellStore } from '@gravity/shell'
 
 // ── Tipos ─────────────────────────────────────────────────────────
@@ -623,7 +623,7 @@ export function HistoricoGlobalAdmin() {
             </div>
 
             <div style={{ width: '240px' }}>
-              <CalendarioCampoGlobal
+              <CampoCalendarioGlobal
                 placeholder="Período"
                 valor={filtroDataRange}
                 aoMudarValor={(range) => setFiltroDataRange(range)}

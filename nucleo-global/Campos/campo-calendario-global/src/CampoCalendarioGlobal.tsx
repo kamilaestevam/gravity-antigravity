@@ -25,7 +25,7 @@ function formatarDataBR(d: Date | null): string {
   return d.toLocaleDateString('pt-BR')
 }
 
-export function CalendarioCampoGlobal({
+export function CampoCalendarioGlobal({
   placeholder,
   valor = { inicio: null, fim: null },
   aoMudarValor,

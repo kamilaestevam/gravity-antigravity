@@ -36,7 +36,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { HubBotao } from '../components/HubBotao'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystemNodes'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
@@ -264,7 +264,7 @@ export function Core() {
           {/* ?select=1: escape hatch que força SelecionarWorkspace mesmo com workspace preferido */}
           <HubBotao onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const flat = navItems.flatMap(i => i.children ? i.children : [i])

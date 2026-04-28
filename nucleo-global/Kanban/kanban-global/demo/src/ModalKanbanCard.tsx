@@ -32,7 +32,7 @@ import {
   WhatsappLogo,
   Plus,
 } from '@phosphor-icons/react'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import './ModalKanbanCard.css'
@@ -210,7 +210,7 @@ function AbaInformacoes({
             aoMudarValor={v => onChange({ prioridade: v as Prioridade })}
           />
 
-          <CalendarioCampoGlobal
+          <CampoCalendarioGlobal
             label="Data e Horário"
             valor={{ inicio: form.data ? new Date(form.data) : null, fim: null }}
             aoMudarValor={v => onChange({ data: v.inicio?.toISOString() ?? form.data })}
@@ -352,7 +352,7 @@ function AbaTempo({
   return (
     <Secao titulo="Tempo e Valor" icone={<Clock size={12} />} modifier="ckm-secao--tempo">
       <div className="ckm-grid">
-        <CalendarioCampoGlobal
+        <CampoCalendarioGlobal
           label="Data de início"
           valor={{ inicio: form.data ? new Date(form.data) : null, fim: null }}
           aoMudarValor={v => onChange({ data: v.inicio?.toISOString() ?? form.data })}
@@ -414,7 +414,7 @@ function AbaProximoPasso({
         />
       </CampoGeralGlobal>
 
-      <CalendarioCampoGlobal
+      <CampoCalendarioGlobal
         label="Data prevista para o próximo passo"
         valor={{ inicio: dataProximo ? new Date(dataProximo) : null, fim: null }}
         aoMudarValor={v => onChangeData(v.inicio?.toISOString().slice(0, 16) ?? '')}
@@ -467,7 +467,7 @@ function AbaLembrete({
         </div>
       </div>
 
-      <CalendarioCampoGlobal
+      <CampoCalendarioGlobal
         label="Data e Hora do Lembrete"
         valor={{ inicio: dataLembrete ? new Date(dataLembrete) : null, fim: null }}
         aoMudarValor={v => onChangeData(v.inicio?.toISOString().slice(0, 16) ?? '')}

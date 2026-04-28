@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -715,7 +715,7 @@ export function ProdutosGravityAdmin() {
                     tooltipTitulo="VIGÊNCIA INICIAL"
                     tooltipDescricao="Define quando o produto estará disponível para comercialização geral"
                   >
-                    <CalendarioCampoGlobal
+                    <CampoCalendarioGlobal
                       valor={{
                         inicio: formDataLancamento ? new Date(formDataLancamento + 'T00:00:00') : null,
                         fim: formDataLancamento ? new Date(formDataLancamento + 'T00:00:00') : null,
@@ -1301,7 +1301,7 @@ export function ProdutosGravityAdmin() {
                         <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label={t('admin.produtos-gravity.vigencia_ilimitada')} />
                       </div>
                       {vigenciaIlimitada === 'nao' && (
-                        <CalendarioCampoGlobal
+                        <CampoCalendarioGlobal
                           placeholder={t('admin.produtos-gravity.vigencia_placeholder')}
                           valor={vigenciaPeriodo}
                           aoMudarValor={v => dirty(() => setVigenciaPeriodo(v))}

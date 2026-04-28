@@ -2,7 +2,7 @@
  * DadosTecnicos.tsx — Formulario de Dados Tecnicos do Processo
  *
  * Secoes: Importador, Exportador, Transporte Internacional, Despacho Aduaneiro, Seguro.
- * Melhorias: pill tabs, CardGraficoGlobal (gauge de preenchimento), LocalizarExpandidoCampoGlobal.
+ * Melhorias: pill tabs, CardGraficoGlobal (gauge de preenchimento), CampoLocalizarExpandidoGlobal.
  */
 
 import React, { useState, useMemo } from 'react'
@@ -29,7 +29,7 @@ import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CardGraficoGlobal } from '@nucleo/card-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { useShellStore } from '@gravity/shell'
 import './DadosTecnicos.css'
 
@@ -268,7 +268,7 @@ export default function DadosTecnicos() {
 
         <div className="dt-top-right">
           <div className="dt-search-row">
-            <LocalizarExpandidoCampoGlobal
+            <CampoLocalizarExpandidoGlobal
               placeholder={t('processo.dados_tecnicos.buscar')}
               disableGlobalDOMFilter={false}
             />

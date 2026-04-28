@@ -1,1 +1,1 @@
-export * from './CalendarioCampoGlobal'
+export * from './CampoCalendarioGlobal'

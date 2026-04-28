@@ -10,7 +10,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 import type { StatusSalvar } from '@nucleo/status-salvar-global'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { CampoCalendarioGlobal } from '@nucleo/campo-calendario-global'
 import '../atividades.css'
 
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────
@@ -920,7 +920,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 </div>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.data_horario')}</label>
-                  <CalendarioCampoGlobal
+                  <CampoCalendarioGlobal
                     valor={{ inicio: dataAtvDate, fim: null }}
                     aoMudarValor={({ inicio }) => setDataAtvDate(inicio)}
                   />
@@ -1055,7 +1055,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 </div>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.proximo_passo_data_label')}</label>
-                  <CalendarioCampoGlobal
+                  <CampoCalendarioGlobal
                     valor={{ inicio: pPassoDate, fim: null }}
                     aoMudarValor={({ inicio }) => setPPassoDate(inicio)}
                   />
@@ -1089,7 +1089,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
               <div className="ativ-grid-2" style={{ marginBottom: '1rem' }}>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.lembrete_data_hora')}</label>
-                  <CalendarioCampoGlobal
+                  <CampoCalendarioGlobal
                     valor={{ inicio: lembreteDate, fim: null }}
                     aoMudarValor={({ inicio }) => setLembreteDate(inicio)}
                   />

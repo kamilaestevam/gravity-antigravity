@@ -34,7 +34,7 @@ import {
   Truck,
   Info,
 } from '@phosphor-icons/react'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubButton } from '../../components/HubButton'
@@ -115,7 +115,7 @@ export function WorkspaceLayout() {
     fetchTipoEmpresa()
   }, [])
 
-  // Handle frontend search filtering e estado foi movido para o componente LocalizarExpandidoCampoGlobal
+  // Handle frontend search filtering e estado foi movido para o componente CampoLocalizarExpandidoGlobal
   
   useEffect(() => {
     if (isLight) {
@@ -152,7 +152,7 @@ export function WorkspaceLayout() {
         <div className="ws-global-actions">
           <HubButton onClick={() => navigate('/hub')} />
 
-          <LocalizarExpandidoCampoGlobal
+          <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const target = navItems.find(item => item.label.toLowerCase().includes(termLower))

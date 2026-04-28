@@ -15,7 +15,7 @@ export interface LocalizarExpandidoCampoGlobalProps {
   style?: React.CSSProperties
 }
 
-export function LocalizarExpandidoCampoGlobal({
+export function CampoLocalizarExpandidoGlobal({
   onBuscarNavigate,
   placeholder,
   value,

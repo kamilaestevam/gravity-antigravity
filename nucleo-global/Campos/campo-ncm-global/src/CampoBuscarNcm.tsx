@@ -1,5 +1,5 @@
 /**
- * ModalBuscaNcm.tsx — Modal de busca de NCM por código ou descrição
+ * CampoBuscarNcm.tsx — Modal de busca de NCM por código ou descrição
  *
  * Chama GET /api/v1/ncm/buscar?q=...&limite=20
  * A busca é local (cache do tenant) — não chama o Portal Único em tempo real.
@@ -45,7 +45,7 @@ async function buscarNcms(query: string, baseUrl: string): Promise<NcmOpcao[]> {
   )
 }
 
-export function ModalBuscaNcm({
+export function CampoBuscarNcm({
   aberto,
   onFechar,
   onSelecionar,

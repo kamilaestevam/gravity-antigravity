@@ -120,7 +120,7 @@ portalPublicRouter.post('/responder/:token', async (req: Request, res: Response,
 
     const resposta = await (prisma as any).bidResponseCambio.create({
       data: {
-        id_organizacao: bidRequest.id_organizacao,
+        tenant_id: bidRequest.tenant_id,
         cotacao_id: bidRequest.cotacao_id,
         bid_request_id: bidRequest.id,
         corretora_id: bidRequest.corretora_id,

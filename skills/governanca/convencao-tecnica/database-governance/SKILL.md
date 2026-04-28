@@ -48,7 +48,7 @@ model Qualquer {
 
 ### Regra 1 — Paridade Nominal Absoluta (Front = Back = Banco)
 
-**A regra mais importante do projeto.** Definida em [`documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/documentacao-tecnica.md`](../../../documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/documentacao-tecnica.md).
+**A regra mais importante do projeto.** Definida em [`documentos-tecnicos/campos-back-front-banco/documentacao-tecnica.md`](../../../documentos-tecnicos/campos-back-front-banco/documentacao-tecnica.md).
 
 ```
 nome_no_banco (PostgreSQL snake_case)
@@ -224,11 +224,11 @@ async function convidarUsuarioComVinculo(idOrganizacao: string, idUsuario: strin
 
 | Módulo | Arquivo canônico |
 |:---|:---|
-| **Pedido** | `documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/export-campos-completo-corrigido.csv` |
-| **Processo** | `documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/dicionario-master-comex.prisma` |
-| **Admin** | `documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/admin-telas-padronizacao.md` |
-| **Configurador/Workspace** | `documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/configurador-telas-padronizacao.md` |
-| **Core (IDs, modelos globais)** | `documentos-tecnicos/governanca/convencao-tecnica/database-governance/dicionarios/dicionario-dados.md` |
+| **Pedido** | `documentos-tecnicos/campos-back-front-banco/export-campos-completo-corrigido.csv` |
+| **Processo** | `documentos-tecnicos/arquitetura-do-produto/dicionario-master-comex.prisma` |
+| **Admin** | `documentos-tecnicos/campos-back-front-banco/admin-telas-padronizacao.md` |
+| **Configurador/Workspace** | `documentos-tecnicos/campos-back-front-banco/configurador-telas-padronizacao.md` |
+| **Core (IDs, modelos globais)** | `documentos-tecnicos/arquitetura-do-produto/dicionario-dados.md` |
 
 ### Convenção de nomenclatura
 

@@ -6,7 +6,7 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 # Gravity — Schema Composition
 
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/arquitetura/schema-composition/adr-001-schema-por-organizacao.md), [ADR-002](../../../documentos-tecnicos/governanca/lei/sdk-resolvedor-organizacao/adr-002-sdk-resolvedor-organizacao.md) e [ADR-003](../../../documentos-tecnicos/arquitetura/schema-composition/adr-003-migracao-dados-legados.md).
+> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 >
 > **Notas técnicas-chave:** o prefixo de schema PostgreSQL `tenant_<cuid>` é nome físico real; `tenant_id` é a coluna física antiga durante a janela de migração — o **campo Prisma é sempre `id_organizacao`** (DDD), mapeado via `@map("tenant_id")` enquanto a coluna não for renomeada.
 
@@ -51,7 +51,7 @@ DB financeiro-comex      ← schema-per-organizacao
 DB conector-erp          ← schema-per-organizacao
 ```
 
-> **Regra:** nenhum produto compartilha banco com outro produto. Provisionamento de schema novo dispara via evento `TenantProvisioned` (worker + DLQ — [ADR-003](../../../documentos-tecnicos/arquitetura/schema-composition/adr-003-migracao-dados-legados.md)).
+> **Regra:** nenhum produto compartilha banco com outro produto. Provisionamento de schema novo dispara via evento `TenantProvisioned` (worker + DLQ — [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)).
 
 ---
 

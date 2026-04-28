@@ -5,7 +5,7 @@ description: "Use esta skill sempre que precisar acessar banco de dados de produ
 
 # Gravity — SDK `@gravity/resolver-organizacao`
 
-> Implementa [ADR-001](../../../documentos-tecnicos/arquitetura/schema-composition/adr-001-schema-por-organizacao.md) (Schema-per-Organizacao) e [ADR-002](../../../documentos-tecnicos/governanca/lei/sdk-resolvedor-organizacao/adr-002-sdk-resolvedor-organizacao.md) (Contrato do SDK). Referência completa do SDK em [referencia.md](../../../documentos-tecnicos/governanca/lei/sdk-resolvedor-organizacao/referencia.md).
+> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) (Schema-per-Organizacao) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) (Contrato do SDK). Os filenames dos ADRs são históricos e não são renomeados.
 >
 > **Pacote real (v0.2.0):** `@gravity/resolver-organizacao` em `packages/resolver-organizacao/`. A nomenclatura DDD foi aplicada na API pública: funções, types, campos de interface, campos de config e códigos de erro estão todos em PT-BR sem acentos. Os únicos nomes legados que permanecem por razões físicas são o prefixo `tenant_<cuid>` no schema PostgreSQL e a coluna física legada `tenant_id` (em remoção, ver Roadmap).
 

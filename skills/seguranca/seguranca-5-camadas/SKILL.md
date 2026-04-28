@@ -105,7 +105,7 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 
 ## Camada 4 — Isolamento de Organização (pós-pivô 2026-04-17)
 
-**Proteção:** Mesmo com auth e permissão, dados de uma organização nunca vazam para outra. Após o pivô Schema-per-Organização ([ADR-001](../../../documentos-tecnicos/arquitetura/schema-composition/adr-001-schema-por-organizacao.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE id_organizacao = ?`.
+**Proteção:** Mesmo com auth e permissão, dados de uma organização nunca vazam para outra. Após o pivô Schema-per-Organização ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE id_organizacao = ?`.
 
 | Mecanismo | Camada | Função |
 |:---|:---|:---|
@@ -115,13 +115,13 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 | **ESLint + CI lint** | Build | Bloqueia `import { PrismaClient } from '@prisma/client'` fora do SDK. |
 | **PostgreSQL RLS** | Banco | Mantido **apenas** no Configurador (single-schema). Em bancos de produto, o `search_path` substitui RLS. |
 
-Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/governanca/lei/sdk-resolvedor-organizacao/adr-002-sdk-resolvedor-organizacao.md) para implementação completa.
+Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) para implementação completa.
 
 **Regras críticas (pós-pivô):**
 - O identificador de organização NUNCA vem do body — sempre de `req.organizacao.idOrganizacao` (API real do SDK, vem do `GET /api/v1/me` do Configurador, **nunca** do `publicMetadata` do Clerk — Mandamento 01)
 - Acesso a banco de produto **exclusivamente** via `withOrganizacao(req, async db => ...)` ou `withOrganizacaoContext(idOrganizacao, fn)` para workers
 - `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
-- Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/arquitetura/schema-composition/adr-003-migracao-dados-legados.md))
+- Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
 - Cache prefixado por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`; linter CI bloqueia chaves sem prefixo
 - Pre-signed URLs S3: `tenant_<id>/...` no caminho (prefixo real de path S3), TTL ≤ 300s
 

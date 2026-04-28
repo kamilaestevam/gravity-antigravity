@@ -147,7 +147,7 @@ DETECÇÃO DE CICLO:
   O mesmo sintoma já retornou após um fix anterior neste arquivo? [ ] Sim / [ ] Não
   Se SIM → PARAR IMEDIATAMENTE.
   Criar o Relatório de Impacto agora em:
-    documentos-tecnicos/dream-team/ajustes/relatorios/YYYY-MM-DD-ciclo-[arquivo].md
+    documentos-tecnicos/ajustes/YYYY-MM-DD-ciclo-[arquivo].md
   Preencher os campos: PROBLEMA, causa raiz hipótese, "Padrão de ciclo detectado: sim".
   Salvar em disco. Escalar ao Líder com o path do arquivo.
   O ciclo foi identificado. O problema não é pontual — aplicar Fase 4.
@@ -178,7 +178,7 @@ Responsabilidades:
   (ver seção "Fase 4 — Critério de Saída: Ajuste vs. Reescrita")
 
 **Entregável obrigatório:** Relatório de Impacto preenchido e salvo em
-`documentos-tecnicos/dream-team/ajustes/relatorios/YYYY-MM-DD-[descrição-curta].md`
+`documentos-tecnicos/ajustes/YYYY-MM-DD-[descrição-curta].md`
 
 ---
 
@@ -350,9 +350,9 @@ O problema **sai do escopo desta skill** e entra em escopo de refatoração/rees
 ### FASE 5 — Relatório de Impacto
 
 **Salvar obrigatoriamente em:**
-`documentos-tecnicos/dream-team/ajustes/relatorios/YYYY-MM-DD-[descrição-curta].md`
+`documentos-tecnicos/ajustes/YYYY-MM-DD-[descrição-curta].md`
 
-Criar o diretório se não existir (Ex: `mkdir -p documentos-tecnicos/dream-team/ajustes/relatorios/` ou `New-Item -ItemType Directory -Force -Path documentos-tecnicos/dream-team/ajustes/relatorios`). O arquivo deve persistir no repositório —
+Criar o diretório se não existir (Ex: `mkdir -p documentos-tecnicos/ajustes/` ou `New-Item -ItemType Directory -Force -Path documentos-tecnicos/ajustes`). O arquivo deve persistir no repositório —
 não existe apenas na conversa.
 
 ```markdown
@@ -372,7 +372,7 @@ não existe apenas na conversa.
 - **Causa raiz identificada:** ___________
 - **Arquivo e linha exatos:** ___________
 - **Relacionado a ajuste anterior?** sim / não
-  - Se sim, qual: `documentos-tecnicos/dream-team/ajustes/relatorios/[arquivo-anterior].md`
+  - Se sim, qual: `documentos-tecnicos/ajustes/[arquivo-anterior].md`
   - Padrão de ciclo detectado? ___________
 
 ---
@@ -483,7 +483,7 @@ fix(módulo): corrigir [PROBLEMA ESPECÍFICO]
 Causa: [o que causava o problema]
 Arquivos alterados: [lista]
 Dependentes verificados: [lista]
-Relatório de Impacto: documentos-tecnicos/dream-team/ajustes/relatorios/YYYY-MM-DD-[descrição].md
+Relatório de Impacto: documentos-tecnicos/ajustes/YYYY-MM-DD-[descrição].md
 Skills verificadas: [lista]
 ```
 
@@ -531,7 +531,7 @@ Cada handoff bloqueia o início do papel seguinte.
 
 ```
 HANDOFF: Analista → Cirurgião
-- Relatório de Impacto salvo em: documentos-tecnicos/dream-team/ajustes/relatorios/[arquivo].md
+- Relatório de Impacto salvo em: documentos-tecnicos/ajustes/[arquivo].md
 - Escopo Negativo declarado: sim / não
 - Risco classificado como: LOW / MEDIUM / HIGH / CRITICAL
 - Aprovação obtida: sim / não / não necessária
@@ -558,7 +558,7 @@ HANDOFF: Guardião → QA Skill
 - Checklist de governança: aprovado / reprovado em [item]
 - Nível do ajuste: LOW / MEDIUM / HIGH / CRITICAL
 - QA skill deve ser acionada: sim (MEDIUM+) / não (LOW sem regressão)
-- Relatório final disponível em: documentos-tecnicos/dream-team/ajustes/relatorios/[arquivo].md
+- Relatório final disponível em: documentos-tecnicos/ajustes/[arquivo].md
 ```
 
 ---

@@ -362,6 +362,6 @@ Atlas é regenerado automaticamente via [`scripts/sob-demanda/gerar-atlas-ddd.py
 - **Mandamento 07** — Sincronia front+back na mesma entrega
 - **Mandamento 09** — Zod schemas como contratos bilaterais
 - **`skills/papeis/coordenador/SKILL.md`** — Quem executa scripts de rename de schema
-- **`documentos-tecnicos/governanca/lei/ddd-nomenclatura/auditorias-execucao/`** — Auditorias de execução por área
+- **`documentos-tecnicos/ddd/`** — Auditorias de execução por área
 - **`documentos-tecnicos/ddd-atlas/`** — Atlas com nomes DDD-finais (9 arquivos gerados)
 - **Planilha mestre DDD** — `planilha_geral_gravity.xlsx`

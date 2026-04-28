@@ -28,7 +28,7 @@ avaliacoesRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     const input = criarAvaliacaoSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     // Verificar corretora existe
     const corretora = await (prisma as any).corretora.findFirst({

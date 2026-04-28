@@ -15,18 +15,18 @@ app.use(express.json())
 const prisma = new PrismaClient()
 
 // ---------------------------------------------------------------------------
-// Auth — injeta req.auth a partir do header x-tenant-id / x-user-id
+// Auth — injeta req.auth a partir do header x-id-organizacao / x-id-usuario
 // Em produção o gateway valida o JWT e propaga como headers internos.
 // ---------------------------------------------------------------------------
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
-  const userId = req.headers['x-user-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
+  const userId = req.headers['x-id-usuario'] as string | undefined
 
   if (!tenantId) {
     return res.status(401).json({
       status: 'error',
-      message: 'x-tenant-id header is required',
+      message: 'x-id-organizacao header is required',
     })
   }
 

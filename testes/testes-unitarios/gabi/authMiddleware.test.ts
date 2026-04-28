@@ -1,6 +1,6 @@
 // TST-UNIT-GABI-AUTH-001 — gabi authMiddleware
 // Cobre: x-user-name ausente → name = userId, presente → name = header,
-// x-internal-key inválida → 401, x-tenant-id ausente → 400.
+// x-internal-key inválida → 401, x-id-organizacao ausente → 400.
 /// <reference types="vitest/globals" />
 import type { Request, Response, NextFunction } from 'express'
 
@@ -49,7 +49,7 @@ describe('gabi authMiddleware', () => {
 
   // ── x-internal-key ────────────────────────────────────────────────────────
   it('rejeita com 401 quando x-internal-key está ausente', () => {
-    const req  = makeReq({ 'x-tenant-id': 'ten_001' })
+    const req  = makeReq({ 'x-id-organizacao': 'ten_001' })
     const next = vi.fn<Parameters<NextFunction>, void>()
 
     authMiddleware(req, mockRes, next as NextFunction)
@@ -60,7 +60,7 @@ describe('gabi authMiddleware', () => {
   })
 
   it('rejeita com 401 quando x-internal-key é inválida', () => {
-    const req  = makeReq({ 'x-internal-key': 'chave-errada', 'x-tenant-id': 'ten_001' })
+    const req  = makeReq({ 'x-internal-key': 'chave-errada', 'x-id-organizacao': 'ten_001' })
     const next = vi.fn<Parameters<NextFunction>, void>()
 
     authMiddleware(req, mockRes, next as NextFunction)
@@ -70,8 +70,8 @@ describe('gabi authMiddleware', () => {
     )
   })
 
-  // ── x-tenant-id ───────────────────────────────────────────────────────────
-  it('rejeita com 400 quando x-tenant-id está ausente mesmo com chave válida', () => {
+  // ── x-id-organizacao ───────────────────────────────────────────────────────────
+  it('rejeita com 400 quando x-id-organizacao está ausente mesmo com chave válida', () => {
     const req  = makeReq({ 'x-internal-key': VALID_KEY })
     const next = vi.fn<Parameters<NextFunction>, void>()
 
@@ -86,8 +86,8 @@ describe('gabi authMiddleware', () => {
   it('define req.auth.name = userId quando x-user-name está ausente', () => {
     const req  = makeReq({
       'x-internal-key': VALID_KEY,
-      'x-tenant-id':    'ten_002',
-      'x-user-id':      'usr_abc',
+      'x-id-organizacao':    'ten_002',
+      'x-id-usuario':      'usr_abc',
       // x-user-name ausente — deve usar userId como fallback
     })
     const next = vi.fn<Parameters<NextFunction>, void>()
@@ -101,8 +101,8 @@ describe('gabi authMiddleware', () => {
   it('define req.auth.name = header x-user-name quando presente', () => {
     const req  = makeReq({
       'x-internal-key': VALID_KEY,
-      'x-tenant-id':    'ten_003',
-      'x-user-id':      'usr_xyz',
+      'x-id-organizacao':    'ten_003',
+      'x-id-usuario':      'usr_xyz',
       'x-user-name':    'Carlos da Silva',
     })
     const next = vi.fn<Parameters<NextFunction>, void>()
@@ -115,11 +115,11 @@ describe('gabi authMiddleware', () => {
     expect(getAuth(req).tenantId).toBe('ten_003')
   })
 
-  it('usa "system" como userId quando x-user-id está ausente', () => {
+  it('usa "system" como userId quando x-id-usuario está ausente', () => {
     const req  = makeReq({
       'x-internal-key': VALID_KEY,
-      'x-tenant-id':    'ten_004',
-      // x-user-id ausente
+      'x-id-organizacao':    'ten_004',
+      // x-id-usuario ausente
     })
     const next = vi.fn<Parameters<NextFunction>, void>()
 

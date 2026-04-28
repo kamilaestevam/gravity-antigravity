@@ -35,14 +35,14 @@ router.post('/webhook', (req: Request, res: Response) => {
 })
 
 // --- Auth middleware para rotas internas (send, stream) ---
-// Requer x-tenant-id do gateway; rejeita se ausente.
+// Requer x-id-organizacao do gateway; rejeita se ausente.
 const requireTenantAuth = (req: Request, res: Response, next: NextFunction) => {
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
   if (!tenantId) {
-    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' } })
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'x-id-organizacao obrigatório' } })
   }
   ;(req as any).tenant = tenantId
-  ;(req as any).auth = { tenantId, userId: (req.headers['x-user-id'] as string) ?? '' }
+  ;(req as any).auth = { tenantId, userId: (req.headers['x-id-usuario'] as string) ?? '' }
   next()
 }
 

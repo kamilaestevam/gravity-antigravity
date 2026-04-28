@@ -32,8 +32,8 @@ function registrar(event: AuditEvent): void {
     headers: {
       'Content-Type': 'application/json',
       'x-internal-key': INTERNAL_KEY,
-      'x-tenant-id': event.tenant_id,
-      'x-user-id': event.user_id,
+      'x-id-organizacao': event.tenant_id,
+      'x-id-usuario': event.user_id,
     },
     body: JSON.stringify({
       ...event,

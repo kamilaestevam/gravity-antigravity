@@ -71,8 +71,8 @@ function buildFullApp() {
 function internalHeaders(tenantId = TENANT_ID, userId = USER_SENDER) {
   return {
     'x-internal-validated': '1',
-    'x-tenant-id':          tenantId,
-    'x-user-id':            userId,
+    'x-id-organizacao':          tenantId,
+    'x-id-usuario':            userId,
   }
 }
 
@@ -203,7 +203,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
         .set('Content-Type', 'application/json')
         .set(internalHeaders())
         .send({
-          user_ids:    [USER_SENDER], // mesmo que x-user-id
+          user_ids:    [USER_SENDER], // mesmo que x-id-usuario
           message:     'Mensagem para mim mesmo.',
           sender_name: 'Daniel',
         })
@@ -259,7 +259,7 @@ describe('notificacoes — Fase 2: testes funcionais', () => {
       const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit]
       expect(url).toContain('/api/v1/envios-email')
       expect((options.headers as Record<string, string>)['x-internal-key']).toBe('test-internal-key')
-      expect((options.headers as Record<string, string>)['x-tenant-id']).toBe(TENANT_ID)
+      expect((options.headers as Record<string, string>)['x-id-organizacao']).toBe(TENANT_ID)
     })
 
     it('email service retorna HTTP 500 → lança Error (pg-boss fará retry)', async () => {

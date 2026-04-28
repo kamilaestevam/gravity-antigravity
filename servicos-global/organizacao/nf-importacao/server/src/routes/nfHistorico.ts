@@ -13,7 +13,7 @@ function ctx(req: Request) {
   return {
     tenantId: (req as unknown as Record<string, unknown>).tenantId as string,
     prisma: (req as unknown as Record<string, unknown>).prisma as PrismaClient,
-    companyId: req.headers['x-company-id'] as string || '',
+    companyId: req.headers['x-id-workspace'] as string || '',
   }
 }
 

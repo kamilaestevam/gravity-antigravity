@@ -18,7 +18,7 @@ function ctx(req: Request) {
     tenantId: (req as unknown as Record<string, unknown>).tenantId as string,
     userId: (req as unknown as Record<string, unknown>).userId as string,
     prisma: (req as unknown as Record<string, unknown>).prisma as PrismaClient,
-    companyId: req.headers['x-company-id'] as string || '',
+    companyId: req.headers['x-id-workspace'] as string || '',
   }
 }
 
@@ -249,7 +249,7 @@ router.post('/importar/processo/:processoId', async (req: Request, res: Response
     const { tenantId, userId, prisma, companyId } = ctx(req)
 
     if (!companyId) {
-      throw new AppError('Header x-company-id obrigatorio para importar de processo', 400, 'VALIDATION_ERROR')
+      throw new AppError('Header x-id-workspace obrigatorio para importar de processo', 400, 'VALIDATION_ERROR')
     }
 
     // Buscar dados do processo via API interna do Gravity Processo

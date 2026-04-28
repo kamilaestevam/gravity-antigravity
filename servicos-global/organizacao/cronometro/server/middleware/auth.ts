@@ -34,10 +34,10 @@ declare global {
 export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   // Em produção, o gateway Clerk injeta estes headers após validar o JWT
   // Normalizar: headers podem ser string[] se duplicados
-  const rawTenantId = req.headers['x-tenant-id'] || req.headers['x-clerk-org-id']
+  const rawTenantId = req.headers['x-id-organizacao'] || req.headers['x-clerk-org-id']
   const tenantId = Array.isArray(rawTenantId) ? rawTenantId[0] : rawTenantId
 
-  const rawUserId = req.headers['x-user-id'] || req.headers['x-clerk-user-id']
+  const rawUserId = req.headers['x-id-usuario'] || req.headers['x-clerk-user-id']
   const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId
 
   if (!tenantId || !userId) {

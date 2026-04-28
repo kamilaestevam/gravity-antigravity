@@ -24,7 +24,7 @@ const API_BASE = '/api/v1'
 
 const headers = (tenantId: string) => ({
   'Content-Type': 'application/json',
-  'x-tenant-id': tenantId,
+  'x-id-organizacao': tenantId,
   'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
 })
 
@@ -135,7 +135,7 @@ export async function uploadDocumento(
   const res = await fetch(`${API_BASE}/processos/${processoId}/documentos`, {
     method: 'POST',
     headers: {
-      'x-tenant-id': tenantId,
+      'x-id-organizacao': tenantId,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
     },
     body: formData,

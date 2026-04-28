@@ -79,7 +79,7 @@ export function EtapaMapeamento({
 
   useEffect(() => {
     fetch('/api/v1/pedidos/importacoes-inteligentes/campos', {
-      headers: { 'x-tenant-id': '', 'x-internal-key': '' },
+      headers: { 'x-id-organizacao': '', 'x-internal-key': '' },
     })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (Array.isArray(data) && data.length > 0) setCamposSistema(data) })

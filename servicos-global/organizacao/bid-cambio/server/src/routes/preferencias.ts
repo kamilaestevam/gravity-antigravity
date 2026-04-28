@@ -67,7 +67,7 @@ preferenciasRouter.put('/', async (req: Request, res: Response, next: NextFuncti
     const input = preferenciaTenantSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const existente = await (prisma as any).preferenciaCambio.findFirst({
       where: {},
@@ -100,7 +100,7 @@ preferenciasRouter.put('/', async (req: Request, res: Response, next: NextFuncti
 preferenciasRouter.get('/grid', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const prisma = req.prisma!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const gridId = req.query.grid_id as string
 
     if (!gridId) {
@@ -133,7 +133,7 @@ preferenciasRouter.put('/grid', async (req: Request, res: Response, next: NextFu
   try {
     const input = preferenciaGridSchema.parse(req.body)
     const prisma = req.prisma!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const existente = await (prisma as any).preferenciaGridCambio.findFirst({
       where: { user_id: userId, grid_id: input.grid_id },

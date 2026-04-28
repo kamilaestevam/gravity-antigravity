@@ -4,11 +4,11 @@ import { Request, Response, NextFunction } from 'express'
 export const prisma = new PrismaClient()
 
 export function tenantIsolationMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const tenantId = req.headers['x-tenant-id'] as string
-  const userId = req.headers['x-user-id'] as string
+  const tenantId = req.headers['x-id-organizacao'] as string
+  const userId = req.headers['x-id-usuario'] as string
 
   if (!tenantId) {
-    res.status(400).json({ error: { code: 'MISSING_TENANT', message: 'x-tenant-id obrigatorio' } })
+    res.status(400).json({ error: { code: 'MISSING_TENANT', message: 'x-id-organizacao obrigatorio' } })
     return
   }
 

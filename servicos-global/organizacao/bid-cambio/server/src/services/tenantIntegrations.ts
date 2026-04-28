@@ -4,8 +4,8 @@
  *
  * Todos os servicos usam:
  *   - x-internal-key: autenticacao S2S
- *   - x-tenant-id: isolamento de tenant
- *   - x-user-id: rastreamento de quem fez a acao
+ *   - x-id-organizacao: isolamento de tenant
+ *   - x-id-usuario: rastreamento de quem fez a acao
  */
 
 import axios from 'axios'
@@ -26,8 +26,8 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 function s2sHeaders(tenantId: string, userId?: string) {
   return {
     'x-internal-key': INTERNAL_KEY,
-    'x-tenant-id': tenantId,
-    'x-user-id': userId ?? '',
+    'x-id-organizacao': tenantId,
+    'x-id-usuario': userId ?? '',
     'Content-Type': 'application/json',
   }
 }

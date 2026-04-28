@@ -1,5 +1,5 @@
 /**
- * portal.ts — Portal do Fornecedor (autenticado via x-internal-key + x-user-id)
+ * portal.ts — Portal do Fornecedor (autenticado via x-internal-key + x-id-usuario)
  * Rotas para fornecedores logados no Gravity (role SUPPLIER)
  *
  * GET  /dashboard           Dashboard do fornecedor
@@ -40,8 +40,8 @@ const ResponderSchema = z.object({
 // GET /dashboard — Dashboard do fornecedor
 router.get('/dashboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401)
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401)
 
     // Buscar fornecedor vinculado a este user
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
@@ -93,7 +93,7 @@ router.get('/dashboard', async (req: Request, res: Response, next: NextFunction)
 // GET /cotacoes-pendentes — Cotacoes aguardando resposta
 router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
@@ -143,7 +143,7 @@ router.get('/cotacoes-pendentes', async (req: Request, res: Response, next: Next
 // GET /respostas — Historico de respostas
 router.get('/respostas', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
@@ -181,7 +181,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
     const parsed = ResponderSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const bidRequest = await (req.prisma as any).freteIntBidPedidoCotacoes.findFirst({
       where: { id: req.params.bidRequestId },
@@ -281,7 +281,7 @@ router.post('/responder/:bidRequestId', async (req: Request, res: Response, next
 // GET /desempenho — Rating e metricas do fornecedor
 router.get('/desempenho', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })
@@ -307,7 +307,7 @@ router.get('/desempenho', async (req: Request, res: Response, next: NextFunction
 // GET /meu-billing — Resumo de cobranças do fornecedor
 router.get('/meu-billing', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.findFirst({
       where: { clerk_user_id: userId },
     })

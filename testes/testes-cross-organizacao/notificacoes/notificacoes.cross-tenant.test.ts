@@ -78,8 +78,8 @@ function buildInternalApp() {
 function headersFor(tenantId: string, userId: string) {
   return {
     'x-internal-validated': '1',
-    'x-tenant-id': tenantId,
-    'x-user-id': userId,
+    'x-id-organizacao': tenantId,
+    'x-id-usuario': userId,
   }
 }
 

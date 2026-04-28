@@ -63,7 +63,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
         const isFailure = statusCode >= 400
 
         AuditService.log({
-          tenant_id: auth.tenantId ?? (req.headers['x-tenant-id'] as string) ?? 'unknown',
+          tenant_id: auth.tenantId ?? (req.headers['x-id-organizacao'] as string) ?? 'unknown',
           actor_type,
           actor_id,
           actor_name,

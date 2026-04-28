@@ -80,13 +80,13 @@ function validarTransicao(statusAtual: string, statusNovo: string): string | nul
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getTenantId(req: Request): string {
-  const tenant_id = req.headers['x-tenant-id'] as string | undefined
-  if (!tenant_id) throw new AppError(400, 'Header x-tenant-id obrigatorio')
+  const tenant_id = req.headers['x-id-organizacao'] as string | undefined
+  if (!tenant_id) throw new AppError(400, 'Header x-id-organizacao obrigatorio')
   return tenant_id
 }
 
 function getCompanyId(req: Request): string | undefined {
-  return req.headers['x-company-id'] as string | undefined
+  return req.headers['x-id-workspace'] as string | undefined
 }
 
 // ── POST /lote/status/preview ─────────────────────────────────────────────────

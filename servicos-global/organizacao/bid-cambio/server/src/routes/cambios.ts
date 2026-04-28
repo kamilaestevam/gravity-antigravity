@@ -118,7 +118,7 @@ cambiosRouter.post('/agendar', async (req: Request, res: Response, next: NextFun
   try {
     const input = agendarSchema.parse(req.body)
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const result = await agendarParcelas(req.prisma!, tenantId, userId, input)
 
@@ -138,7 +138,7 @@ cambiosRouter.post('/pagar', async (req: Request, res: Response, next: NextFunct
   try {
     const input = pagarSchema.parse(req.body)
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const result = await pagarParcela(req.prisma!, tenantId, userId, input)
 
@@ -165,7 +165,7 @@ cambiosRouter.post('/retornar-pendente', async (req: Request, res: Response, nex
     const { parcela_id } = z.object({ parcela_id: z.string() }).parse(req.body)
     const result = await retornarParaPendente(req.prisma!, parcela_id)
 
-    historicoIntegration.registrar(req.tenantId!, req.headers['x-user-id'] as string, {
+    historicoIntegration.registrar(req.tenantId!, req.headers['x-id-usuario'] as string, {
       acao: 'RETORNAR_PENDENTE',
       entidade: 'ParcelaCambio',
       entidade_id: parcela_id,

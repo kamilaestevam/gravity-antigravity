@@ -82,8 +82,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       throw new AppError(`Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`, 400, 'VALIDATION_ERROR')
     }
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     const { fornecedor_ids, ...cotacaoData } = parsed.data
 
@@ -295,8 +295,8 @@ router.post('/bloco', async (req: Request, res: Response, next: NextFunction) =>
       throw new AppError(`Dados invalidos: ${parsed.error.issues.map(i => `[${i.path}] ${i.message}`).join('; ')}`, 400, 'VALIDATION_ERROR')
     }
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     const results: Array<{ linha: number; id?: string; numero?: string; status: 'ok' | 'erro'; erro?: string }> = []
 

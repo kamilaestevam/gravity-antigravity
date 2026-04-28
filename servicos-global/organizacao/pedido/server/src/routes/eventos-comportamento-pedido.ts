@@ -6,7 +6,7 @@
  * Registra eventos de interação do usuário para personalização dos GABI Insights (Fase 2).
  * Fire-and-forget do ponto de vista do cliente — retorna 204 imediatamente.
  *
- * Autenticação: x-internal-key + x-tenant-id (via middleware global)
+ * Autenticação: x-internal-key + x-id-organizacao (via middleware global)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'

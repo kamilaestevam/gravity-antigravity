@@ -22,7 +22,7 @@ export function authErrorLogger(
 
   if (statusCode === 401 || statusCode === 403) {
     const tenantId =
-      (req.headers['x-tenant-id'] as string) ||
+      (req.headers['x-id-organizacao'] as string) ||
       (req as any).auth?.tenantId ||
       'unknown'
 

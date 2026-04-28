@@ -43,7 +43,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       const { idOrganizacao: tenantId, idUsuario: userId, tiposUsuario: roles } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = tenantId
       const user_id    = userId
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
       const user_roles = roles
 
       const { sort, dir, limit, status, busca } = req.query

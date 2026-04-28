@@ -103,8 +103,8 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
     }
 
-    const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const tenant_id = req.headers['x-id-organizacao'] as string
+    const company_id = req.headers['x-id-workspace'] as string
     const correlation_id =
       (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID()
 
@@ -220,8 +220,8 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
 importacaoRouter.post('/exportar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { formato = 'csv', filtros } = req.body
-    const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const tenant_id = req.headers['x-id-organizacao'] as string
+    const company_id = req.headers['x-id-workspace'] as string
 
     const where: Record<string, unknown> = { id_organizacao: tenant_id, id_workspace: company_id }
     if (filtros?.status) where.status_pedido = filtros.status

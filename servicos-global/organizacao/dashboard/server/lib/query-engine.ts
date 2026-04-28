@@ -129,7 +129,7 @@ async function fetchProductWidgets(
       headers: {
         'Content-Type': 'application/json',
         'x-internal-key': internalKey ?? '',
-        'x-tenant-id': tenantId,
+        'x-id-organizacao': tenantId,
       },
       body: JSON.stringify({ metrics, filters }),
     })

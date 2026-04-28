@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const tenantHeaderSchema = z.object({
-  'x-tenant-id': z.string({ required_error: 'x-tenant-id header é obrigatório' }),
-  'x-product-id': z.string().optional(),
-  'x-user-id': z.string().optional(),
+  'x-id-organizacao': z.string({ required_error: 'x-id-organizacao header é obrigatório' }),
+  'x-id-produto': z.string().optional(),
+  'x-id-usuario': z.string().optional(),
 });
 
 export const createCategoriaSchema = z.object({

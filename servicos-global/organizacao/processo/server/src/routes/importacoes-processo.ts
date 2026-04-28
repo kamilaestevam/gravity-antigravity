@@ -23,8 +23,8 @@ async function proxyToCore(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
-      'x-tenant-id': (req.headers['x-tenant-id'] as string) ?? '',
-      'x-user-id': (req.headers['x-user-id'] as string) ?? '',
+      'x-id-organizacao': (req.headers['x-id-organizacao'] as string) ?? '',
+      'x-id-usuario': (req.headers['x-id-usuario'] as string) ?? '',
     }
 
     if (req.headers['x-correlation-id']) {

@@ -678,8 +678,8 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-tenant-id': 'onboarding',
-          'x-user-id': userName,
+          'x-id-organizacao': 'onboarding',
+          'x-id-usuario': userName,
           'x-internal-key': 'gravity-internal',
         },
         body: JSON.stringify({ conversationId: 'new', message: msg, page: pathname }),

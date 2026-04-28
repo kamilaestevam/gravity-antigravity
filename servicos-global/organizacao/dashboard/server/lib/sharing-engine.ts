@@ -47,7 +47,7 @@ function sendEmailAsync(
     headers: {
       'Content-Type': 'application/json',
       'x-internal-key': internalKey ?? '',
-      'x-tenant-id': tenantId,
+      'x-id-organizacao': tenantId,
     },
     body: JSON.stringify({
       to: recipientEmail,
@@ -73,7 +73,7 @@ function sendWhatsAppAsync(
     headers: {
       'Content-Type': 'application/json',
       'x-internal-key': internalKey ?? '',
-      'x-tenant-id': tenantId,
+      'x-id-organizacao': tenantId,
     },
     body: JSON.stringify({
       phone: recipientPhone,

@@ -48,11 +48,11 @@ function toPreferenciasDto(p: {
 // Middleware de auth simples — user_id e tenant_id via headers
 // ---------------------------------------------------------------------------
 const checkAuth = (req: Request, res: Response, next: NextFunction) => {
-  const userId = req.headers['x-user-id']
-  const tenantId = req.headers['x-tenant-id']
+  const userId = req.headers['x-id-usuario']
+  const tenantId = req.headers['x-id-organizacao']
 
   if (!userId || !tenantId) {
-    return res.status(401).json({ status: 'error', message: 'x-user-id e x-tenant-id são obrigatórios' })
+    return res.status(401).json({ status: 'error', message: 'x-id-usuario e x-id-organizacao são obrigatórios' })
   }
 
   req.user_id = userId as string

@@ -27,7 +27,7 @@ cotacoesRouter.post('/', async (req: Request, res: Response, next: NextFunction)
   try {
     const input = criarCotacaoSchema.parse(req.body)
     const prisma = req.prisma!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const cotacao = await (prisma as any).cotacaoCambio.create({
       data: {

@@ -18,6 +18,10 @@ export interface ConnectorCtx {
   userId: string
 }
 
+// Args genéricos vindos do LLM — propriedades arbitrárias com valores serializáveis
+type ConnectorArgs = Record<string, unknown>
+type GenericResult = Record<string, unknown> | unknown[]
+
 // ── Cliente HTTP base ─────────────────────────────────────────────────────────
 async function call(
   service: string,
@@ -26,7 +30,7 @@ async function call(
   body?: object,
   ctx?: ConnectorCtx,
   params?: Record<string, string | number | undefined>,
-): Promise<any> {
+): Promise<unknown> {
   const base = SERVICE_URLS[service]
   if (!base) throw new Error(`Serviço desconhecido: ${service}`)
 
@@ -46,8 +50,8 @@ async function call(
     'x-internal-key': INTERNAL_KEY,
   }
   if (ctx) {
-    headers['x-tenant-id'] = ctx.tenantId
-    headers['x-user-id']   = ctx.userId
+    headers['x-id-organizacao'] = ctx.tenantId
+    headers['x-id-usuario']   = ctx.userId
   }
 
   const controller = new AbortController()
@@ -68,66 +72,66 @@ async function call(
     }
 
     return res.json()
-  } catch (err: any) {
+  } catch (err: unknown) {
     clearTimeout(timer)
-    if (err.name === 'AbortError') throw new Error(`Timeout ao chamar ${service}${path}`)
+    if (err instanceof Error && err.name === 'AbortError') throw new Error(`Timeout ao chamar ${service}${path}`)
     throw err
   }
 }
 
 // ── LPCO ─────────────────────────────────────────────────────────────────────
-export async function listLpcos(args: any, ctx: ConnectorCtx) {
+export async function listLpcos(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('lpco', '/api/v1/lpcos', 'GET', undefined, ctx, {
-    status:        args.status,
-    orgao_anuente: args.orgao_anuente,
-    limit:         args.limit ?? 20,
+    status:        args.status as string | undefined,
+    orgao_anuente: args.orgao_anuente as string | undefined,
+    limit:         (args.limit as number | undefined) ?? 20,
   })
 }
 
-export async function getLpco(args: any, ctx: ConnectorCtx) {
+export async function getLpco(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('lpco', `/api/v1/lpcos/${args.lpco_id}`, 'GET', undefined, ctx)
 }
 
-export async function createLpco(args: any, ctx: ConnectorCtx) {
+export async function createLpco(args: ConnectorArgs, ctx: ConnectorCtx) {
   const { lpco_id: _ignore, ...body } = args
   return call('lpco', '/api/v1/lpcos', 'POST', body, ctx)
 }
 
-export async function updateLpco(args: any, ctx: ConnectorCtx) {
+export async function updateLpco(args: ConnectorArgs, ctx: ConnectorCtx) {
   const { lpco_id, ...body } = args
   return call('lpco', `/api/v1/lpcos/${lpco_id}`, 'PATCH', body, ctx)
 }
 
 // ── NF Importação ─────────────────────────────────────────────────────────────
-export async function listNfs(args: any, ctx: ConnectorCtx) {
+export async function listNfs(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('nf-importacao', '/api/v1/nf-importacao', 'GET', undefined, ctx, {
-    status: args.status,
-    limit:  args.limit ?? 20,
+    status: args.status as string | undefined,
+    limit:  (args.limit as number | undefined) ?? 20,
   })
 }
 
-export async function getNf(args: any, ctx: ConnectorCtx) {
+export async function getNf(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('nf-importacao', `/api/v1/nf-importacao/${args.nf_id}`, 'GET', undefined, ctx)
 }
 
-export async function createNf(args: any, ctx: ConnectorCtx) {
+export async function createNf(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('nf-importacao', '/api/v1/nf-importacao', 'POST', args, ctx)
 }
 
 // ── Pedido ────────────────────────────────────────────────────────────────────
-export async function listPedidos(args: any, ctx: ConnectorCtx) {
+export async function listPedidos(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('pedido', '/api/v1/pedidos', 'GET', undefined, ctx, {
-    status: args.status,
-    limit:  args.limit ?? 20,
+    status: args.status as string | undefined,
+    limit:  (args.limit as number | undefined) ?? 20,
   })
 }
 
-export async function getPedido(args: any, ctx: ConnectorCtx) {
+export async function getPedido(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('pedido', `/api/v1/pedidos/${args.pedido_id}`, 'GET', undefined, ctx)
 }
 
 // ── SimulaCusto ───────────────────────────────────────────────────────────────
-export async function simulateCost(args: any, ctx: ConnectorCtx) {
+export async function simulateCost(args: ConnectorArgs, ctx: ConnectorCtx) {
   return call('simula-custo', '/api/v1/simula-custo/simulate', 'POST', args, ctx)
 }
 
@@ -140,19 +144,20 @@ export async function getUserSummary(ctx: ConnectorCtx) {
     listPedidos({ limit: 100 }, ctx),
   ])
 
-  const safeData = (r: PromiseSettledResult<any>, label: string) =>
-    r.status === 'fulfilled' ? r.value : { error: `${label} indisponivel` }
+  const safeData = (r: PromiseSettledResult<unknown>, label: string): GenericResult =>
+    r.status === 'fulfilled' ? (r.value as GenericResult) : { error: `${label} indisponivel` }
 
-  const lpcoData   = safeData(lpcos, 'LPCO')
-  const nfData     = safeData(nfs, 'NF')
-  const pedidoData = safeData(pedidos, 'Pedido')
+  const lpcoData   = safeData(lpcos, 'LPCO') as Record<string, unknown> & { data?: unknown[]; total?: number; length?: number }
+  const nfData     = safeData(nfs, 'NF') as Record<string, unknown> & { total?: number; length?: number }
+  const pedidoData = safeData(pedidos, 'Pedido') as Record<string, unknown> & { total?: number; length?: number }
 
   // Agrupa LPCOs por status se disponível
-  let lpcoResumo: Record<string, number> = {}
-  if (Array.isArray(lpcoData?.data ?? lpcoData)) {
-    const arr: any[] = lpcoData?.data ?? lpcoData
-    arr.forEach((l: any) => {
-      const s = l.status ?? 'desconhecido'
+  const lpcoResumo: Record<string, number> = {}
+  const lpcoArrCandidate = lpcoData?.data ?? lpcoData
+  if (Array.isArray(lpcoArrCandidate)) {
+    const arr = lpcoArrCandidate as Array<Record<string, unknown>>
+    arr.forEach((l) => {
+      const s = (l.status as string | undefined) ?? 'desconhecido'
       lpcoResumo[s] = (lpcoResumo[s] ?? 0) + 1
     })
   }

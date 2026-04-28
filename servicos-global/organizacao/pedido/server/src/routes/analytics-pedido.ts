@@ -12,7 +12,7 @@
  *   GET  /api/v1/pedidos/analytics/dataset-bruto    — dados brutos paginados (refresh Power BI)
  *
  * Formato de resposta: OData JSON v4 compatível (Power BI aceita nativamente)
- * Autenticação: Bearer <ANALYTICS_API_KEY> + x-tenant-id header
+ * Autenticação: Bearer <ANALYTICS_API_KEY> + x-id-organizacao header
  *
  * Skill: skills/servicos/dashboard/SKILL.md
  */

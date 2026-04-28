@@ -18,12 +18,12 @@ function safeCompare(a: string, b: string): boolean {
  *
  * Headers esperados:
  *   Authorization: Bearer <api_key>
- *   x-tenant-id: <tenant_id>        (obrigatório)
+ *   x-id-organizacao: <tenant_id>        (obrigatório)
  */
 export function analyticsAuth(req: Request, res: Response, next: NextFunction) {
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
   if (!tenantId) {
-    return res.status(400).json({ error: 'x-tenant-id header obrigatorio' })
+    return res.status(400).json({ error: 'x-id-organizacao header obrigatorio' })
   }
 
   const authHeader = req.headers['authorization'] as string | undefined

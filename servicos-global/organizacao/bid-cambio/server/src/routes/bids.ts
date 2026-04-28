@@ -30,7 +30,7 @@ bidsRouter.post('/disparar', async (req: Request, res: Response, next: NextFunct
     const input = dispararSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const cotacao = await (prisma as any).cotacaoCambio.findFirst({
       where: { id: input.cotacao_id },
@@ -119,7 +119,7 @@ bidsRouter.post('/cotacao-aberta', async (req: Request, res: Response, next: Nex
     const input = cotacaoAbertaSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const cotacao = await (prisma as any).cotacaoCambio.findFirst({
       where: { id: input.cotacao_id },

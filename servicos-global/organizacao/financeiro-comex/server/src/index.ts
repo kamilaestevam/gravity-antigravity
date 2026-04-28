@@ -69,7 +69,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-tenant-id, x-user-id, x-company-id, x-correlation-id')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-id-organizacao, x-id-usuario, x-id-workspace, x-correlation-id')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
   if (_req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -92,7 +92,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
-  keyGenerator: (req) => (req.headers['x-tenant-id'] as string) || req.ip || 'unknown',
+  keyGenerator: (req) => (req.headers['x-id-organizacao'] as string) || req.ip || 'unknown',
   message: { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisicoes' } },
 })
 app.use('/api/', apiLimiter)
@@ -108,8 +108,8 @@ app.use(createProductAuditPlugin({
   product_id: 'financeiro-comex',
   module: 'financeiro-comex',
   getActorFromReq: (req) => {
-    const tenant_id = req.headers['x-tenant-id'] as string | undefined
-    const actor_id  = req.headers['x-user-id']   as string | undefined
+    const tenant_id = req.headers['x-id-organizacao'] as string | undefined
+    const actor_id  = req.headers['x-id-usuario']   as string | undefined
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },

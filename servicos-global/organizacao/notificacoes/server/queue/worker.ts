@@ -39,8 +39,8 @@ export async function dispatchEmail(payload: EmailJobPayload): Promise<void> {
       headers: {
         'Content-Type': 'application/json',
         'x-internal-key': INTERNAL_API_KEY,
-        'x-tenant-id': tenantId,
-        'x-user-id': userId,
+        'x-id-organizacao': tenantId,
+        'x-id-usuario': userId,
       },
       body: JSON.stringify({
         to: recipientEmails,

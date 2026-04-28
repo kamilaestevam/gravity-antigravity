@@ -76,8 +76,8 @@ async function apiFetch(
     method,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': tenantId,
-      'x-user-id': userId,
+      'x-id-organizacao': tenantId,
+      'x-id-usuario': userId,
     },
     body: body ? JSON.stringify(body) : undefined,
   })

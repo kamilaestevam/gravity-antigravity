@@ -102,7 +102,7 @@ export const NotificationDispatcher = {
             headers: {
               'Content-Type': 'application/json',
               'x-internal-key': INTERNAL_KEY,
-              'x-tenant-id': alertEvent.tenant_id,
+              'x-id-organizacao': alertEvent.tenant_id,
             },
             body: JSON.stringify({
               to: recipient,
@@ -139,7 +139,7 @@ export const NotificationDispatcher = {
             headers: {
               'Content-Type': 'application/json',
               'x-internal-key': INTERNAL_KEY,
-              'x-tenant-id': alertEvent.tenant_id,
+              'x-id-organizacao': alertEvent.tenant_id,
             },
             body: JSON.stringify({
               to: phone,

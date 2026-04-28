@@ -114,7 +114,7 @@ async function sendNotification(
       headers: {
         'Content-Type': 'application/json',
         'x-internal-key': internalKey ?? '',
-        'x-tenant-id': tenantId,
+        'x-id-organizacao': tenantId,
       },
       body: JSON.stringify({
         tenant_id: tenantId,

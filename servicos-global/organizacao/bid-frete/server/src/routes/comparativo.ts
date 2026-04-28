@@ -29,8 +29,8 @@ router.post('/:cotacaoId/aprovar', async (req: Request, res: Response, next: Nex
     const { response_id } = req.body
     if (!response_id) throw new AppError('response_id obrigatorio', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     const resultado = await comparativoEngine.aprovar(req.prisma!, req.params.cotacaoId, response_id, userId)
 
@@ -68,7 +68,7 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
 
     // Integrações S2S
     const tenantId = (req as any).tenantId
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     if (tenantId) {
       historicoIntegration.cotacaoReprovada(tenantId, userId, { id: req.params.cotacaoId, numero: req.params.cotacaoId }, motivo)
     }
@@ -82,8 +82,8 @@ router.post('/:cotacaoId/reprovar', async (req: Request, res: Response, next: Ne
 // GET /:cotacaoId/analise-ia — Análise Gabi AI das propostas
 router.get('/:cotacaoId/analise-ia', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401)
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401)
 
     // Buscar ranking
     const resultado = await comparativoEngine.ranquear(req.prisma!, req.params.cotacaoId)

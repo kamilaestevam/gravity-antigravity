@@ -70,16 +70,16 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
 }
 
 const TENANT_PUBLIC_PATHS = [
-  '/api/v1/pedidos/importacoes-inteligentes/template', // Download público — browser não envia x-tenant-id
+  '/api/v1/pedidos/importacoes-inteligentes/template', // Download público — browser não envia x-id-organizacao
 ]
 
 export function tenantIsolationMiddleware(req: Request, res: Response, next: NextFunction) {
   const isPublic = TENANT_PUBLIC_PATHS.some(p => req.path === p || req.path.startsWith(p + '/'))
   if (isPublic) return next()
 
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
   if (!tenantId) {
-    return res.status(400).json({ error: 'x-tenant-id header obrigatorio', code: 'MISSING_TENANT' })
+    return res.status(400).json({ error: 'x-id-organizacao header obrigatorio', code: 'MISSING_TENANT' })
   }
   ;(req as any).tenantId = tenantId
   ;(req as any).prisma = withTenantIsolation(basePrisma, tenantId)

@@ -40,7 +40,7 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
 }
 
 /**
- * Middleware Express: extrai tenant_id do header x-tenant-id propagado pelo Gateway (JWT).
+ * Middleware Express: extrai tenant_id do header x-id-organizacao propagado pelo Gateway (JWT).
  * Nunca aceita tenant_id do body.
  */
 export function tenantIsolationMiddleware(
@@ -48,7 +48,7 @@ export function tenantIsolationMiddleware(
   _res: Response,
   next: NextFunction
 ) {
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
 
   if (tenantId) {
     req.tenantId = tenantId

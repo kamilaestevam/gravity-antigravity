@@ -33,7 +33,7 @@ app.use((req, _res, next) => {
 })
 
 // ---------------------------------------------------------------------------
-// Auth — injeta req.auth a partir do header x-tenant-id / x-user-id
+// Auth — injeta req.auth a partir do header x-id-organizacao / x-id-usuario
 // Em produção o gateway valida o JWT e propaga como headers internos.
 // ---------------------------------------------------------------------------
 
@@ -41,12 +41,12 @@ app.use((req, res, next) => {
   // Health check não precisa de autenticação
   if (req.path === '/health') return next()
 
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
-  const userId = req.headers['x-user-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
+  const userId = req.headers['x-id-usuario'] as string | undefined
 
   if (!tenantId) {
     res.status(401).json({
-      error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' },
+      error: { code: 'UNAUTHORIZED', message: 'x-id-organizacao obrigatório' },
     })
     return
   }

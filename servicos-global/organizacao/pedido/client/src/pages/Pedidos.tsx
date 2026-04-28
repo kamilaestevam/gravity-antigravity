@@ -2888,8 +2888,8 @@ export default function Pedidos() {
     const ctx = getApiContext()
     return {
       headers: {
-        'x-tenant-id': ctx.tenantId,
-        'x-user-id': ctx.userId,
+        'x-id-organizacao': ctx.tenantId,
+        'x-id-usuario': ctx.userId,
         'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
       },
     }

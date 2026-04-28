@@ -179,7 +179,7 @@ async function fetchProduct(
   const response = await fetch(url, {
     headers: {
       'x-internal-key': ctx.internalKey,
-      'x-tenant-id': ctx.id_organizacao,
+      'x-id-organizacao': ctx.id_organizacao,
       'Content-Type': 'application/json',
     },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),

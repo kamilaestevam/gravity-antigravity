@@ -73,7 +73,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
 }
 
 function defaultKeyGenerator(req: Request): string {
-  const tenantId = req.headers['x-tenant-id'] || 'anonymous'
+  const tenantId = req.headers['x-id-organizacao'] || 'anonymous'
   const ip = req.ip || req.socket.remoteAddress || 'unknown'
   return `${tenantId}:${ip}`
 }

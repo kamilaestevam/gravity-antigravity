@@ -121,7 +121,7 @@ export function emitToUser(userId: string, event: string, data: Record<string, u
 /**
  * Resolve o contexto de tenant/usuário a partir de:
  *   1. req.auth (populado pelo requireAuth do proxy do configurador, valida JWT Clerk)
- *   2. fallback: headers x-tenant-id / x-user-id apenas se NÃO houver req.auth
+ *   2. fallback: headers x-id-organizacao / x-id-usuario apenas se NÃO houver req.auth
  *      (uso restrito a chamadas S2S internas com x-internal-key — nunca para tráfego de browser)
  */
 function resolveAuthContext(req: Request): { tenant_id: string; user_id: string } | null {
@@ -131,8 +131,8 @@ function resolveAuthContext(req: Request): { tenant_id: string; user_id: string 
 
   const internalKeyValidated = req.headers['x-internal-validated'] === '1'
   if (internalKeyValidated) {
-    const tenantId = req.headers['x-tenant-id']
-    const userId = req.headers['x-user-id']
+    const tenantId = req.headers['x-id-organizacao']
+    const userId = req.headers['x-id-usuario']
     if (typeof tenantId === 'string' && typeof userId === 'string') {
       return { tenant_id: tenantId, user_id: userId }
     }

@@ -395,7 +395,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
 
@@ -514,7 +514,7 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       // WHERE base (tenant_id injetado também pelo $extends após fix do count)
       const whereBase: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
@@ -625,7 +625,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
@@ -652,7 +652,7 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       // Garante que o pedido existe e pertence ao tenant/company antes de expor itens.
       const pedido = await db.pedido.findFirst({
@@ -714,7 +714,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedidoId = gerarId('pedi')
 
@@ -794,7 +794,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
@@ -830,7 +830,7 @@ pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunct
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
@@ -866,7 +866,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
@@ -1188,7 +1188,7 @@ pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, n
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const original = await db.pedido.findFirst({
         where: { id: req.params.id_pedido, tenant_id, company_id },
@@ -1306,7 +1306,7 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
@@ -1709,7 +1709,7 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const saldo = await saldoEngine.cancelar(db, {
         pedido_item_id: req.params.itemId,
@@ -1739,7 +1739,7 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
       const tenant_id  = ctx.idOrganizacao
-      const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
 
       const saldo = await saldoEngine.atualizarPronta(db, {
         pedido_item_id: req.params.itemId,

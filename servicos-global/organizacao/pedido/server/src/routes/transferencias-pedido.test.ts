@@ -22,8 +22,8 @@ function criarReq(overrides: Partial<Request> = {}): Request {
     body: {},
     params: {},
     headers: {
-      'x-tenant-id': 'tenant-abc',
-      'x-user-id': 'user-001',
+      'x-id-organizacao': 'tenant-abc',
+      'x-id-usuario': 'user-001',
     },
     prisma: {},
     tenantId: 'tenant-abc',

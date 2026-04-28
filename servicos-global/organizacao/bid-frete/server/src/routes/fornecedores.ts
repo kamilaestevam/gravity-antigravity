@@ -60,7 +60,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const parsed = CriarFornecedorSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError(`Dados invalidos: ${parsed.error.issues.map(i => i.message).join(', ')}`, 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const fornecedor = await (req.prisma as any).freteIntBidFornecedores.create({
       data: {
@@ -192,7 +192,7 @@ router.post('/:id/tabela', async (req: Request, res: Response, next: NextFunctio
     const parsed = TabelaPrecoSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const tabela = await (req.prisma as any).freteIntBidTabelasProntas.create({
       data: {

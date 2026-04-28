@@ -8,7 +8,7 @@
  *   PUT    /api/v1/pedidos/dashboard/widgets                                — salva configuração completa
  *   DELETE /api/v1/pedidos/dashboard/widgets/:id_widget_dashboard_pedido    — remove widget
  *
- * Autenticação: x-internal-key + x-tenant-id (via shell)
+ * Autenticação: x-internal-key + x-id-organizacao (via shell)
  * Skill: skills/servicos/dashboard/SKILL.md
  */
 

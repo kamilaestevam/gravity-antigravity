@@ -18,8 +18,8 @@ function criarReq(overrides: Record<string, unknown> = {}): Request {
   return {
     body: {},
     headers: {
-      'x-tenant-id': 'tenant-abc',
-      'x-user-id':   'user-001',
+      'x-id-organizacao': 'tenant-abc',
+      'x-id-usuario':   'user-001',
     },
     tenantId: 'tenant-abc',
     userId:   'user-001',

@@ -40,7 +40,7 @@ export function useProductMenu(): { products: ProductMenuItem[]; loading: boolea
           fetch('/api/v1/produtos').catch(() => null),
           companyId
             ? fetch(`/api/v1/workspaces/${companyId}/produtos`, {
-                headers: { 'x-tenant-id': sessionStorage.getItem('gravity_tenant_id') ?? '' },
+                headers: { 'x-id-organizacao': sessionStorage.getItem('gravity_tenant_id') ?? '' },
               }).catch(() => null)
             : Promise.resolve(null),
         ])

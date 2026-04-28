@@ -12,12 +12,12 @@ export function authMiddleware(
     return next(new AppError('Chave interna inválida ou ausente', 401, 'UNAUTHORIZED'))
   }
 
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
   if (!tenantId) {
-    return next(new AppError('tenant_id obrigatório — header x-tenant-id ausente', 400, 'MISSING_TENANT_ID'))
+    return next(new AppError('tenant_id obrigatório — header x-id-organizacao ausente', 400, 'MISSING_TENANT_ID'))
   }
 
-  const userId = (req.headers['x-user-id'] as string | undefined) ?? 'system'
+  const userId = (req.headers['x-id-usuario'] as string | undefined) ?? 'system'
 
   req.auth = { id_organizacao: tenantId, id_usuario: userId }
   next()

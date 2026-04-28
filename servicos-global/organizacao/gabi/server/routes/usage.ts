@@ -13,7 +13,7 @@ const querySchema = z.object({
 // GET /api/v1/gabi/uso — resumo de custo do mes
 usageRouter.get('/api/v1/gabi/uso', async (req, res, next) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
+    const tenantId = req.headers['x-id-organizacao'] as string
     const { month } = querySchema.parse(req.query)
 
     const now = new Date()
@@ -81,7 +81,7 @@ usageRouter.get('/api/v1/gabi/uso', async (req, res, next) => {
 // GET /api/v1/gabi/uso/historico — ultimos 6 meses
 usageRouter.get('/api/v1/gabi/uso/historico', async (req, res, next) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
+    const tenantId = req.headers['x-id-organizacao'] as string
     const sixMonthsAgo = new Date()
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 

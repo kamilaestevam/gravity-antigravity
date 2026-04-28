@@ -102,8 +102,8 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': tenantId,
-      'x-user-id':   context.userId,
+      'x-id-organizacao': tenantId,
+      'x-id-usuario':   context.userId,
       'x-user-name': context.userName,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       ...options?.headers,
@@ -364,8 +364,8 @@ export const importacaoApi = {
     return request<{ preview: Partial<Pedido>[]; total: number }>('/api/v1/pedidos/importar', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
@@ -783,8 +783,8 @@ export const smartImportApi = {
     return fetch('/api/v1/pedidos/importacoes-inteligentes/analisar', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
@@ -1278,8 +1278,8 @@ export const anexosApi = {
     return fetch('/api/v1/pedidos/anexos', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
@@ -1299,8 +1299,8 @@ export const anexosApi = {
   download: (id: string) =>
     fetch(`/api/v1/pedidos/anexos/${id}/download`, {
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },

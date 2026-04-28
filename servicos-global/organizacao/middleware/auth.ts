@@ -19,12 +19,12 @@ export function authMiddleware(
     return next()
   }
 
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
-  const userId   = req.headers['x-user-id']   as string | undefined
+  const tenantId = req.headers['x-id-organizacao'] as string | undefined
+  const userId   = req.headers['x-id-usuario']   as string | undefined
 
   if (!tenantId) {
     res.status(401).json({
-      error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' },
+      error: { code: 'UNAUTHORIZED', message: 'x-id-organizacao obrigatório' },
     })
     return
   }

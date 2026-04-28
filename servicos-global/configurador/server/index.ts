@@ -134,14 +134,14 @@ app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth,
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
-// próprio `checkAuth` que valida x-tenant-id/x-user-id (passados pelo Shell),
+// próprio `checkAuth` que valida x-id-organizacao/x-id-usuario (passados pelo Shell),
 // mas sem requireAuth as rotas ficam públicas — qualquer caller anônimo
 // podia spammar o endpoint e receber 401 ruidoso que aparecia como 500 na UI.
 app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
 import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuario/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
-// próprio `checkAuth` que valida x-tenant-id/x-user-id headers, mas sem
+// próprio `checkAuth` que valida x-id-organizacao/x-id-usuario headers, mas sem
 // requireAuth externo as rotas ficavam públicas — mesmo padrão do histórico
 // global e notificacoes. Auditoria da sessão do detetive api-cockpit encontrou.
 app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)

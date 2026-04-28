@@ -84,7 +84,7 @@ export function auditLog(payload: AuditLogPayload): void {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': payload.tenant_id,
+      'x-id-organizacao': payload.tenant_id,
       'x-internal-key': INTERNAL_KEY,
     },
     body: JSON.stringify(payload),

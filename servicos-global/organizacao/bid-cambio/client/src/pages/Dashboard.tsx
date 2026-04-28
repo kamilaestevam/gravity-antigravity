@@ -57,16 +57,16 @@ const fmtPercent = (val: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(val) + '%'
 
 function getTenantId(): string {
-  return localStorage.getItem('x-tenant-id') ?? ''
+  return localStorage.getItem('x-id-organizacao') ?? ''
 }
 
 function getTenantHeaders(): Record<string, string> {
   const tenantId = getTenantId()
-  const userId = localStorage.getItem('x-user-id') ?? ''
+  const userId = localStorage.getItem('x-id-usuario') ?? ''
   return {
     'Content-Type': 'application/json',
-    ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
-    ...(userId ? { 'x-user-id': userId } : {}),
+    ...(tenantId ? { 'x-id-organizacao': tenantId } : {}),
+    ...(userId ? { 'x-id-usuario': userId } : {}),
   }
 }
 
@@ -470,7 +470,7 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/v1/bid-cambio/dashboard/widgets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': tenantId },
+        headers: { 'Content-Type': 'application/json', 'x-id-organizacao': tenantId },
         body: JSON.stringify({
           metrics: ['saving_total', 'valor_operado', 'taxa_resposta'],
           filters: { period: '30d' },

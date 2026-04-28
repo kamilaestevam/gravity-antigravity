@@ -75,7 +75,7 @@ duplicacoesPedidoRouter.post('/duplicacoes/confirmar', async (req: Request, res:
     })
   }
 
-  const companyId = (req.headers['x-company-id'] as string | undefined)
+  const companyId = (req.headers['x-id-workspace'] as string | undefined)
 
   try {
     await withOrganizacao(req, async (rawDb) => {
@@ -103,7 +103,7 @@ duplicacoesPedidoRouter.post('/duplicacoes/itens', async (req: Request, res: Res
     })
   }
 
-  const companyId = (req.headers['x-company-id'] as string | undefined)
+  const companyId = (req.headers['x-id-workspace'] as string | undefined)
 
   try {
     await withOrganizacao(req, async (rawDb) => {

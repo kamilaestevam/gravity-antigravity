@@ -76,7 +76,7 @@ historicoOrganizacaoRouter.get(
       const response = await fetch(fetchUrl, {
         headers: {
           'x-internal-key': internalKey,
-          'x-tenant-id': id_organizacao,
+          'x-id-organizacao': id_organizacao,
           'Content-Type': 'application/json',
         },
       })

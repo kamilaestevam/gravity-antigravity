@@ -9,7 +9,7 @@
  *   GET /api/v1/pedidos/dashboard/distribuicao  — distribuição por status
  *   GET /api/v1/pedidos/dashboard/status-ncm    — itens com NCM inválido
  *
- * Autenticação: x-internal-key + x-tenant-id (via middleware global)
+ * Autenticação: x-internal-key + x-id-organizacao (via middleware global)
  *
  * Schema real (produto/pedido/server/prisma/schema.prisma):
  *   model Pedido     → db.pedido      → campos: status, valor_total_pedido,
@@ -486,7 +486,7 @@ dashboardDataRouter.get('/status-ncm', async (req: Request, res: Response) => {
       `${TENANT_SVC}/api/v1/ncm/invalidos?${params}`,
       {
         headers: {
-          'x-tenant-id':   tenantId,
+          'x-id-organizacao':   tenantId,
           'x-internal-key': INTERNAL_KEY,
         },
         signal: AbortSignal.timeout(8000),

@@ -27,8 +27,8 @@ function getHeaders(): Record<string, string> {
   return {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
-    'x-tenant-id': import.meta.env.VITE_TENANT_ID ?? '',
-    'x-user-id': import.meta.env.VITE_USER_ID ?? '',
+    'x-id-organizacao': import.meta.env.VITE_TENANT_ID ?? '',
+    'x-id-usuario': import.meta.env.VITE_USER_ID ?? '',
   }
 }
 

@@ -33,8 +33,8 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': context.tenantId,
-      'x-user-id': context.userId,
+      'x-id-organizacao': context.tenantId,
+      'x-id-usuario': context.userId,
       'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       ...options?.headers,
     },
@@ -85,8 +85,8 @@ export const importarApi = {
     return request<NFImportacao>('/api/v1/nf-importacao/importar/xml', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,
@@ -99,8 +99,8 @@ export const importarApi = {
     return request<{ preview: Partial<NFImportacao>; confianca: Record<string, number> }>('/api/v1/nf-importacao/importar/smart-read', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,
@@ -168,8 +168,8 @@ export const despesaApi = {
     return request<NFImportacaoDespesas[]>(`/api/v1/nf-importacao/${nfId}/despesas/smart-read`, {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,
@@ -320,8 +320,8 @@ export const documentoApi = {
     return request<NFImportacaoAnexo>(`/api/v1/nf-importacao/${nfId}/documentos`, {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,

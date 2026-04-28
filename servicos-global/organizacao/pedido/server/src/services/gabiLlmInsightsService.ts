@@ -86,9 +86,9 @@ async function callGabi(
       headers: {
         'Content-Type':   'application/json',
         'x-internal-key': process.env.INTERNAL_SERVICE_KEY ?? '',
-        'x-tenant-id':    tenantId,
-        'x-user-id':      userId,
-        'x-product-id':   'pedido',
+        'x-id-organizacao':    tenantId,
+        'x-id-usuario':      userId,
+        'x-id-produto':   'pedido',
         'x-gabi-quota':   process.env.GABI_QUOTA_PEDIDO ?? '50000',
       },
       body: JSON.stringify({

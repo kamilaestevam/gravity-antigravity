@@ -42,8 +42,8 @@ async function fetchPreferencias(id_usuario: string, id_organizacao: string): Pr
   try {
     const res = await fetch(BASE_URL, {
       headers: {
-        'x-user-id':   id_usuario,
-        'x-tenant-id': id_organizacao,
+        'x-id-usuario':   id_usuario,
+        'x-id-organizacao': id_organizacao,
       },
     })
     if (!res.ok) return null
@@ -69,8 +69,8 @@ async function savePreferencias(
       method:  'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id':    id_usuario,
-        'x-tenant-id':  id_organizacao,
+        'x-id-usuario':    id_usuario,
+        'x-id-organizacao':  id_organizacao,
       },
       body: JSON.stringify(payload),
     })

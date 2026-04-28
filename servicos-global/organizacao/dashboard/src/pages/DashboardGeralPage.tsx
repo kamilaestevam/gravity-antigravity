@@ -35,12 +35,12 @@ import type { DashboardWidgetConfig, DashboardConfig } from '../store/dashboardS
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getTenantHeaders(): Record<string, string> {
-  const tenantId = localStorage.getItem('x-tenant-id') ?? ''
-  const userId = localStorage.getItem('x-user-id') ?? ''
+  const tenantId = localStorage.getItem('x-id-organizacao') ?? ''
+  const userId = localStorage.getItem('x-id-usuario') ?? ''
   return {
     'Content-Type': 'application/json',
-    ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
-    ...(userId ? { 'x-user-id': userId } : {}),
+    ...(tenantId ? { 'x-id-organizacao': tenantId } : {}),
+    ...(userId ? { 'x-id-usuario': userId } : {}),
   }
 }
 

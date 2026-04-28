@@ -70,7 +70,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-tenant-id')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-id-organizacao')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
   if (_req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -97,7 +97,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.use(requireInternalKey)
 
 // --- 7. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---------
-//    tenant_id vem do header x-tenant-id propagado pelo Gateway (JWT)
+//    tenant_id vem do header x-id-organizacao propagado pelo Gateway (JWT)
 //    NUNCA vem do body da requisicao
 app.use(tenantIsolationMiddleware)
 
@@ -107,8 +107,8 @@ app.use(createProductAuditPlugin({
   product_id: 'processo',
   module: 'processo',
   getActorFromReq: (req) => {
-    const tenant_id = req.headers['x-tenant-id'] as string | undefined
-    const actor_id  = req.headers['x-user-id']   as string | undefined
+    const tenant_id = req.headers['x-id-organizacao'] as string | undefined
+    const actor_id  = req.headers['x-id-usuario']   as string | undefined
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },

@@ -30,8 +30,8 @@ router.post('/disparar', async (req: Request, res: Response, next: NextFunction)
     const parsed = DispararSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     const resultado = await bidEngine.disparar(req.prisma!, {
       cotacao_id: parsed.data.cotacao_id,
@@ -53,8 +53,8 @@ router.post('/cotacao-aberta', async (req: Request, res: Response, next: NextFun
     const parsed = CotacaoAbertaSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401, 'UNAUTHORIZED')
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401, 'UNAUTHORIZED')
 
     // Buscar todos os fornecedores ativos que aceitam cotacao aberta
     const where: Record<string, unknown> = {

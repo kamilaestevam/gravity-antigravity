@@ -39,7 +39,7 @@ const AnonymizeSchema = z.object({
  */
 export async function anonymizeActor(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const user = extractAuthUser(req)

@@ -30,8 +30,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const parsed = AvaliarSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
 
-    const userId = req.headers['x-user-id'] as string
-    if (!userId) throw new AppError('x-user-id obrigatorio', 401)
+    const userId = req.headers['x-id-usuario'] as string
+    if (!userId) throw new AppError('x-id-usuario obrigatorio', 401)
 
     // Calcular nota geral
     const notas = [parsed.data.nota_frete, parsed.data.nota_atendimento, parsed.data.nota_resposta, parsed.data.nota_confiabilidade]

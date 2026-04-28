@@ -38,7 +38,7 @@ corretorasRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     const input = criarCorretoraSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     // Verificar CNPJ duplicado
     const existente = await (prisma as any).corretora.findFirst({
@@ -120,7 +120,7 @@ corretorasRouter.put('/:id', async (req: Request, res: Response, next: NextFunct
     const input = atualizarCorretoraSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const existente = await (prisma as any).corretora.findFirst({
       where: { id: req.params.id },
@@ -159,7 +159,7 @@ corretorasRouter.patch('/:id/status', async (req: Request, res: Response, next: 
     const input = statusSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const existente = await (prisma as any).corretora.findFirst({
       where: { id: req.params.id },

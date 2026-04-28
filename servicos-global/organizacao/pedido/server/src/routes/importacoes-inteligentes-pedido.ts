@@ -206,7 +206,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
 
   // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
   const tenantId  = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
+  const companyId = (req.headers['x-id-workspace'] as string | undefined) ?? tenantId
 
   if (!parse.data.preview_id.startsWith(tenantId + '-')) {
     return res.status(403).json({

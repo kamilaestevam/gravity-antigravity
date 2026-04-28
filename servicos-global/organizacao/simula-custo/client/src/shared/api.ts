@@ -31,8 +31,8 @@ const headers = (): Record<string, string> => {
     'Content-Type': 'application/json',
     'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY ?? 'dev-key',
   }
-  if (_tenantId) h['x-tenant-id'] = _tenantId
-  if (_userId) h['x-user-id'] = _userId
+  if (_tenantId) h['x-id-organizacao'] = _tenantId
+  if (_userId) h['x-id-usuario'] = _userId
   return h
 }
 

@@ -97,7 +97,7 @@ comparativoRouter.post('/:cotacaoId/aprovar', async (req: Request, res: Response
     const input = aprovarSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const cotacao = await (prisma as any).cotacaoCambio.findFirst({
       where: { id: req.params.cotacaoId },
@@ -191,7 +191,7 @@ comparativoRouter.post('/:cotacaoId/reprovar', async (req: Request, res: Respons
     const input = reprovarSchema.parse(req.body)
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
 
     const cotacao = await (prisma as any).cotacaoCambio.findFirst({
       where: { id: req.params.cotacaoId },

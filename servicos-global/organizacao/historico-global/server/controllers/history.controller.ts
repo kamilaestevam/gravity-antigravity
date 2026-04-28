@@ -19,7 +19,7 @@ import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
 // requireAuth do configurador (ver configurador/server/middleware/requireAuth.ts).
 // Precisa ser idêntica à declaração do configurador para merge de tipos funcionar.
 // Chamadas à historico-global que não passam por requireAuth (ex: internas com
-// x-internal-key) devem usar x-tenant-id header explicitamente.
+// x-internal-key) devem usar x-id-organizacao header explicitamente.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -53,11 +53,11 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 /** Limite superior do tamanho de página para queries de listagem. */
 const MAX_PAGE_SIZE = 200
 
-/** Extrai tenant_id do request (header x-tenant-id ou req.auth do middleware). */
+/** Extrai tenant_id do request (header x-id-organizacao ou req.auth do middleware). */
 function getTenantId(req: Request): string {
   // req.auth pode estar ausente em rotas com x-internal-key (chamadas inter-serviço)
   const authTenantId = (req as { auth?: { id_organizacao?: string } }).auth?.id_organizacao
-  const tenantId = (req.headers['x-tenant-id'] as string) || authTenantId
+  const tenantId = (req.headers['x-id-organizacao'] as string) || authTenantId
   if (!tenantId) throw AppError.unauthorized('tenant_id obrigatório')
   return tenantId
 }

@@ -105,8 +105,8 @@ export function apiObservability(productId: string) {
     // Capturar no onFinish da response
     res.on('finish', () => {
       const latencyMs = Date.now() - startTime
-      const tenantId = (req as any).tenantId || req.headers['x-tenant-id'] as string || ''
-      const userId = req.headers['x-user-id'] as string || null
+      const tenantId = (req as any).tenantId || req.headers['x-id-organizacao'] as string || ''
+      const userId = req.headers['x-id-usuario'] as string || null
       const correlationId = req.headers['x-correlation-id'] as string || null
 
       const entry: ObservabilityEntry = {

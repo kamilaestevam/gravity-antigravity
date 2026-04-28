@@ -18,7 +18,7 @@ interface RateLimiterOptions {
   max?: number
   /** Mensagem de erro retornada (default: 'Too many requests') */
   message?: string
-  /** Funcao para extrair a chave de identificacao (default: IP + x-tenant-id) */
+  /** Funcao para extrair a chave de identificacao (default: IP + x-id-organizacao) */
   keyGenerator?: (req: Request) => string
   /** Callback chamado quando um request e bloqueado (para metricas/audit) */
   onBlocked?: (key: string, req: Request) => void
@@ -93,7 +93,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
 }
 
 function defaultKeyGenerator(req: Request): string {
-  const tenantId = req.headers['x-tenant-id'] || 'anonymous'
+  const tenantId = req.headers['x-id-organizacao'] || 'anonymous'
   const ip = req.ip || req.socket.remoteAddress || 'unknown'
   return `${tenantId}:${ip}`
 }
@@ -103,7 +103,7 @@ function defaultKeyGenerator(req: Request): string {
  * Importacao lazy para evitar circular dependency.
  */
 function defaultOnBlocked(key: string, req: Request): void {
-  const tenantId = (req.headers['x-tenant-id'] as string) || 'anonymous'
+  const tenantId = (req.headers['x-id-organizacao'] as string) || 'anonymous'
   const ip = req.ip || req.socket?.remoteAddress || 'unknown'
   const endpoint = req.originalUrl || req.url || 'unknown'
 

@@ -73,7 +73,7 @@
       "baseUrl": "http://localhost:8005",
       "pathPrefix": "/api/tenant/notificacoes",
       "middleware": ["rateLimitPresets.internal", "requireAuth"],
-      "note": "Montado pelo configurador (porta 8005) com auth Clerk. O checkAuth interno usa req.auth.tenantId/userId (vindos do requireAuth do proxy, que validou o JWT Clerk contra o DB). Headers x-tenant-id/x-user-id só são aceitos em chamadas S2S marcadas com x-internal-validated=1. Rota /internal protegida por x-internal-key (withInternalKeyValidation) — sem checkAuth, sem JWT. Schema-composition incluído em ce78e0b.",
+      "note": "Montado pelo configurador (porta 8005) com auth Clerk. O checkAuth interno usa req.auth.tenantId/userId (vindos do requireAuth do proxy, que validou o JWT Clerk contra o DB). Headers x-id-organizacao/x-id-usuario só são aceitos em chamadas S2S marcadas com x-internal-validated=1. Rota /internal protegida por x-internal-key (withInternalKeyValidation) — sem checkAuth, sem JWT. Schema-composition incluído em ce78e0b.",
       "endpoints": {
         "GET /": "Lista notificações do usuário no tenant atual (paginação via query take, max 100)",
         "POST /": "Cria notificação para o próprio usuário (body Zod: type, message, title?, product_id?, activity_id?). Não aceita target_user_id — destinatário é sempre o user_id do JWT.",

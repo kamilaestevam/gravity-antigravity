@@ -142,7 +142,7 @@ processosRouter.post('/', async (req: Request, res: Response) => {
 
   try {
     const prisma = (req as any).prisma
-    const userId = req.headers['x-user-id'] as string | undefined
+    const userId = req.headers['x-id-usuario'] as string | undefined
 
     const processo = await prisma.processoGravity.create({
       data: {

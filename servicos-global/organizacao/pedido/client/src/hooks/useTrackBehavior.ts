@@ -40,8 +40,8 @@ async function sendEvent(event: BehaviorEventType, payload: BehaviorPayload): Pr
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-tenant-id': ctx.tenantId,
-        'x-user-id': ctx.userId,
+        'x-id-organizacao': ctx.tenantId,
+        'x-id-usuario': ctx.userId,
         'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: JSON.stringify({ event, payload }),

@@ -199,7 +199,7 @@ export function ModalSmartImportPedido({ aberto, onFechar, onConcluido }: ModalS
         method: 'POST',
         body: formData,
         headers: {
-          'x-tenant-id':    tenantId,
+          'x-id-organizacao':    tenantId,
           'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
         },
       })

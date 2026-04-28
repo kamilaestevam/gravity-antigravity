@@ -91,7 +91,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
         method: 'POST',
         headers: {
           'Content-Type':   'application/json',
-          'x-tenant-id':    tenantId,
+          'x-id-organizacao':    tenantId,
           'x-internal-key': (import.meta as Record<string, Record<string, string>>).env?.VITE_INTERNAL_SERVICE_KEY || '',
         },
         body: JSON.stringify({ ids_criados: resultado.ids_criados }),

@@ -207,7 +207,7 @@ export const bidEngine = {
     await axios.post(`${EMAIL_SERVICE_URL}/api/v1/envios-email`, body, {
       headers: {
         'x-internal-key': INTERNAL_KEY,
-        'x-tenant-id': tenantId,
+        'x-id-organizacao': tenantId,
         'Content-Type': 'application/json',
       },
     }).catch(() => {
@@ -240,7 +240,7 @@ export const bidEngine = {
     await axios.post(`${WHATSAPP_SERVICE_URL}/api/v1/whatsapp/send`, body, {
       headers: {
         'x-internal-key': INTERNAL_KEY,
-        'x-tenant-id': tenantId,
+        'x-id-organizacao': tenantId,
         'Content-Type': 'application/json',
       },
     }).catch(() => {

@@ -17,8 +17,8 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': context.tenantId,
-      'x-user-id': context.userId,
+      'x-id-organizacao': context.tenantId,
+      'x-id-usuario': context.userId,
       'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       ...options?.headers,
     },
@@ -149,8 +149,8 @@ export const smartReadApi = {
     return request<{ jobId: string }>('/api/v1/lpcos/smart-read', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,
@@ -251,8 +251,8 @@ export const importacaoApi = {
     return request<{ jobId: string; preview: Partial<Lpco>[]; total: number }>('/api/v1/lpcos/import/planilha', {
       method: 'POST',
       headers: {
-        'x-tenant-id': context.tenantId,
-        'x-user-id': context.userId,
+        'x-id-organizacao': context.tenantId,
+        'x-id-usuario': context.userId,
         'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       },
       body: formData,

@@ -143,7 +143,7 @@ export async function requireAuth(
 function logAuthFailure(req: Request, reason: string): void {
   setImmediate(() => {
     auditLog({
-      tenant_id: (req.headers['x-tenant-id'] as string) ?? 'unknown',
+      tenant_id: (req.headers['x-id-organizacao'] as string) ?? 'unknown',
       actor_type: 'USER',
       actor_id: 'anonymous',
       actor_name: 'anonymous',

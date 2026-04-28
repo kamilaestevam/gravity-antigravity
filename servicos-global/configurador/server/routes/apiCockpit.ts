@@ -81,7 +81,7 @@ apiCockpitRouter.get('/services', async (_req, res) => {
 
 apiCockpitRouter.get('/logs', async (req, res) => {
   try {
-    const tenantId = req.auth?.id_organizacao || (req.headers['x-tenant-id'] as string) || ''
+    const tenantId = req.auth?.id_organizacao || (req.headers['x-id-organizacao'] as string) || ''
     const data = await proxyToCockpit('/logs', {
       tenant_id: tenantId,
       product_id: (req.query.product_id as string) || '',
@@ -157,7 +157,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
     const response = await fetch(url.toString(), {
       headers: {
         'x-internal-key': INTERNAL_SERVICE_KEY,
-        'x-tenant-id': id_organizacao || '__admin_global__',
+        'x-id-organizacao': id_organizacao || '__admin_global__',
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),
@@ -193,7 +193,7 @@ apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {
     const response = await fetch(url.toString(), {
       headers: {
         'x-internal-key': INTERNAL_SERVICE_KEY,
-        'x-tenant-id': id_organizacao || '__admin_global__',
+        'x-id-organizacao': id_organizacao || '__admin_global__',
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(5_000),

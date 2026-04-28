@@ -76,7 +76,7 @@ const preferenciasPadraoSchema = z.object({
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getCompanyId(req: Request): string | undefined {
-  return req.headers['x-company-id'] as string | undefined
+  return req.headers['x-id-workspace'] as string | undefined
 }
 
 // ── ACL: PedidoStatus mappers (DDD ↔ contrato externo legacy) ─────────────────

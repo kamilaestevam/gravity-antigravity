@@ -77,8 +77,8 @@ const buscarSchema = z.object({
 
 apiRoutes.get('/ncm/buscar', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const parsed = buscarSchema.safeParse(req.query)
     if (!parsed.success) {
@@ -107,8 +107,8 @@ const codigoSchema = z.string().regex(/^\d{8}$/, 'NCM deve ter 8 dígitos numér
 
 apiRoutes.get('/ncm/:id_ncm/validar', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const codigoParsed = codigoSchema.safeParse(req.params.id_ncm)
     if (!codigoParsed.success) {
@@ -166,8 +166,8 @@ apiRoutes.get('/ncm/:id_ncm/validar', async (req: Request, res: Response, next: 
 
 apiRoutes.get('/sincronizacoes-ncm/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const status = await obterStatusSync(prisma, tenantId)
     res.json(status)
@@ -185,8 +185,8 @@ const historicoSchema = z.object({
 
 apiRoutes.get('/sincronizacoes-ncm/historico', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const parsed = historicoSchema.safeParse(req.query)
     if (!parsed.success) throw new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR')
@@ -217,10 +217,10 @@ apiRoutes.get('/sincronizacoes-ncm/historico', async (req: Request, res: Respons
 
 apiRoutes.post('/sincronizacoes-ncm/disparar', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
-    const userId = req.headers['x-user-id'] as string | undefined
+    const userId = req.headers['x-id-usuario'] as string | undefined
 
     // Recuperar job EXECUTANDO órfão com mais de 2h (processo morreu sem reiniciar)
     const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
@@ -548,8 +548,8 @@ const invalidosSchema = z.object({
 
 apiRoutes.get('/ncm/invalidos', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.headers['x-tenant-id'] as string
-    if (!tenantId) throw new AppError('x-tenant-id obrigatório', 400, 'MISSING_TENANT')
+    const tenantId = req.headers['x-id-organizacao'] as string
+    if (!tenantId) throw new AppError('x-id-organizacao obrigatório', 400, 'MISSING_TENANT')
 
     const parsed = invalidosSchema.safeParse(req.query)
     if (!parsed.success) throw new AppError('Parâmetros inválidos', 400, 'VALIDATION_ERROR')

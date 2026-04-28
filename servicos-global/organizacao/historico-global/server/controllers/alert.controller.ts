@@ -9,7 +9,7 @@ const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_D
 // GET /alerts
 export async function listAlerts(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const user = extractAuthUser(req)
@@ -37,7 +37,7 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
 // PATCH /alerts/:id
 export async function updateAlert(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const parsed = AlertEventUpdateSchema.safeParse(req.body)
@@ -69,7 +69,7 @@ export async function updateAlert(req: Request, res: Response, next: NextFunctio
 // GET /alert-rules
 export async function listRules(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const user = extractAuthUser(req)
@@ -91,7 +91,7 @@ export async function listRules(req: Request, res: Response, next: NextFunction)
 // POST /alert-rules
 export async function createRule(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const parsed = AlertRuleSchema.safeParse(req.body)
@@ -116,7 +116,7 @@ export async function createRule(req: Request, res: Response, next: NextFunction
 // PUT /alert-rules/:id
 export async function updateRule(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const parsed = AlertRuleSchema.safeParse(req.body)
@@ -147,7 +147,7 @@ export async function updateRule(req: Request, res: Response, next: NextFunction
 // DELETE /alert-rules/:id
 export async function deleteRule(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    const tenant_id = (req.headers['x-id-organizacao'] as string) || (req as any).auth?.tenantId
     if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
 
     const user = extractAuthUser(req)

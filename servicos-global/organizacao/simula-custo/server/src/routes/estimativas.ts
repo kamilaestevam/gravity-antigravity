@@ -75,7 +75,7 @@ estimativasRouter.post('/', async (req: TenantRequest, res: Response, next: Next
     const data = parsed.data
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const numero = await gerarNumero(prisma, tenantId, userId, data.operacao)
 
     const estimativa = await prisma.simulaCustoEstimativa.create({
@@ -158,7 +158,7 @@ estimativasRouter.post('/:id/duplicar', async (req: TenantRequest, res: Response
   try {
     const prisma = req.prisma!
     const tenantId = req.tenantId!
-    const userId = req.headers['x-user-id'] as string
+    const userId = req.headers['x-id-usuario'] as string
     const original = await prisma.simulaCustoEstimativa.findFirst({ where: { id: req.params.id } })
     if (!original) return res.status(404).json({ error: 'Estimativa original não encontrada' })
 

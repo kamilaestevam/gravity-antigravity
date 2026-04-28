@@ -18,7 +18,8 @@ test('Functional tests for Helpdesk pending', () => { expect(true).toBe(true) })
 app.use('/api/v1/helpdesk', helpdeskRoutes);
 
 // Global error handler mock
-app.use((err: any, req: any, res: any, next: any) => {
+type AppError = Error & { statusCode?: number; code?: string }
+app.use((err: AppError, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   res.status(err.statusCode || 500).json({ error: err.message, code: err.code });
 });
 
@@ -54,7 +55,7 @@ describe('Helpdesk Routes', () => {
     const res = await request(app).post('/api/v1/helpdesk/categorias').send({
       name: 'Network'
     });
-    expect(res.status).toBe(400); // Missing x-tenant-id header
+    expect(res.status).toBe(400); // Missing x-id-organizacao header
   });
 
   it('should create a category', async () => {
@@ -62,7 +63,7 @@ describe('Helpdesk Routes', () => {
 
     const res = await request(app)
       .post('/api/v1/helpdesk/categorias')
-      .set('x-tenant-id', 't-1')
+      .set('x-id-organizacao', 't-1')
       .send({ name: 'Network' });
     
     expect(res.status).toBe(201);
@@ -75,7 +76,7 @@ describe('Helpdesk Routes', () => {
 
     const res = await request(app)
       .post('/api/v1/helpdesk/tickets')
-      .set('x-tenant-id', 't-1')
+      .set('x-id-organizacao', 't-1')
       .send({
         title: 'Issue',
         description: 'Broken logic',

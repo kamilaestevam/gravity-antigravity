@@ -1,9 +1,9 @@
-# Gravity — Modelo de Permissões de Usuário
-
 ---
 name: antigravity-permissoes
 description: "Use esta skill sempre que uma tarefa envolver permissões de usuário — definição de tipo_usuario (roles), criação de telas de gestão de usuários, middleware de autorização, permissões granulares por produto, ou qualquer lógica de acesso. Define as duas cadeias de permissão do Gravity: Cadeia 1 (tipo_usuario global) e Cadeia 2 (permissões granulares por produto). Mandamento 01: Clerk APENAS para autenticação; tipo_usuario vem do Prisma via GET /api/v1/me."
 ---
+
+# Gravity — Modelo de Permissões de Usuário
 
 ## As Duas Cadeias de Permissão
 
@@ -24,8 +24,8 @@ O Gravity opera com **duas cadeias independentes e complementares** de controle 
 
 ```
 Gravity (equipe interna)
-├── Super Admin      ← acesso total irrestrito (is_gravity_admin = true)
-└── Admin            ← acesso total, edição conforme permissões do Super Admin (is_gravity_admin = true)
+├── Super Admin      ← acesso total irrestrito (gravity_admin = true)
+└── Admin            ← acesso total, edição conforme permissões do Super Admin (gravity_admin = true)
 
 Cliente (Organização)
 ├── Master           ← acesso total à sua organização
@@ -37,7 +37,7 @@ Cliente (Organização)
 
 ### `tipo_usuario`: SUPER_ADMIN
 
-- **Pertence a:** equipe Gravity (interno) — `is_gravity_admin = true`
+- **Pertence a:** equipe Gravity (interno) — `gravity_admin = true`
 - **Acesso:** irrestrito — pode ver e editar absolutamente tudo
 - **Escopo:** Admin Panel, Configurador, todas as organizações, todos os produtos, todos os workspaces
 - **Restrições:** nenhuma — Mandamento 04: acesso global SEM `UsuarioWorkspace`
@@ -54,7 +54,7 @@ if (usuario.tipo_usuario === 'SUPER_ADMIN') {
 
 ### `tipo_usuario`: ADMIN
 
-- **Pertence a:** equipe Gravity (interno) — `is_gravity_admin = true`
+- **Pertence a:** equipe Gravity (interno) — `gravity_admin = true`
 - **Acesso padrão:** pode **visualizar** tudo (Admin Panel, Configurador, todos os clientes e produtos)
 - **Edição:** somente onde o Super Admin concedeu permissão explícita
 - **Escopo:** Admin Panel, Configurador, todas as organizações, todos os produtos
@@ -269,7 +269,7 @@ model PermissaoAdminGravity {
 // usuario.tipo_usuario vem de GET /api/v1/me (Mandamento 01)
 
 async function checkAccess(
-  usuario: { id: string; tipo_usuario: string; is_gravity_admin: boolean },
+  usuario: { id: string; tipo_usuario: string; gravity_admin: boolean },
   context: {
     idOrganizacao?: string
     idWorkspace?: string
@@ -330,8 +330,8 @@ async function checkAccess(
 ```typescript
 // shared/types/tipoUsuario.ts
 export const GRAVITY_TIPO_USUARIO = {
-  SUPER_ADMIN: 'SUPER_ADMIN',  // Equipe Gravity — acesso total (is_gravity_admin = true)
-  ADMIN:       'ADMIN',        // Equipe Gravity — acesso com permissões (is_gravity_admin = true)
+  SUPER_ADMIN: 'SUPER_ADMIN',  // Equipe Gravity — acesso total (gravity_admin = true)
+  ADMIN:       'ADMIN',        // Equipe Gravity — acesso com permissões (gravity_admin = true)
 } as const
 
 export const ORG_TIPO_USUARIO = {

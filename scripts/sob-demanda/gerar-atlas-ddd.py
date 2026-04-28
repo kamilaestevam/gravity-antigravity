@@ -64,13 +64,35 @@ def md_escape(value) -> str:
 
 
 def render_table(headers: list[str], rows: list[list]) -> str:
-    """Renderiza tabela Markdown a partir de cabecalhos e linhas."""
+    """Renderiza tabela Markdown com padding por coluna (alinhamento visual no raw)."""
     if not rows:
         return "_(sem linhas acionaveis nesta aba)_\n"
-    out = ["| " + " | ".join(headers) + " |"]
-    out.append("|" + "|".join(["---"] * len(headers)) + "|")
-    for r in rows:
-        out.append("| " + " | ".join(md_escape(c) for c in r) + " |")
+
+    # Escape e normalize todas as celulas
+    header_cells = [md_escape(h) for h in headers]
+    body_cells = [[md_escape(c) for c in r] for r in rows]
+
+    # Calcula largura maxima por coluna (cabecalho + corpo)
+    n_cols = len(header_cells)
+    widths = [len(header_cells[i]) for i in range(n_cols)]
+    for r in body_cells:
+        for i in range(n_cols):
+            if i < len(r):
+                widths[i] = max(widths[i], len(r[i]))
+    # Largura minima 3 (para o "---" do separador)
+    widths = [max(w, 3) for w in widths]
+
+    def pad_row(cells: list[str]) -> str:
+        padded = [
+            (cells[i] if i < len(cells) else "").ljust(widths[i])
+            for i in range(n_cols)
+        ]
+        return "| " + " | ".join(padded) + " |"
+
+    out = [pad_row(header_cells)]
+    out.append("| " + " | ".join("-" * w for w in widths) + " |")
+    for r in body_cells:
+        out.append(pad_row(r))
     return "\n".join(out) + "\n"
 
 

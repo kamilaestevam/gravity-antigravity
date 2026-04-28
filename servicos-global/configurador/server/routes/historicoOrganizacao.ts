@@ -65,10 +65,10 @@ historicoOrganizacaoRouter.get(
         return next(new AppError('INTERNAL_SERVICE_KEY não configurada', 500, 'CONFIG_ERROR'))
       }
 
-      // Extrair tenant_id e user_id do auth
+      // Extrair id_organizacao e id_usuario do auth
       const auth = (req as any).auth
-      const tenantId = auth?.tenantId
-      if (!tenantId) {
+      const id_organizacao = auth?.tenantId
+      if (!id_organizacao) {
         return next(new AppError('tenant_id obrigatório', 401, 'UNAUTHORIZED'))
       }
 
@@ -76,7 +76,7 @@ historicoOrganizacaoRouter.get(
       const response = await fetch(fetchUrl, {
         headers: {
           'x-internal-key': internalKey,
-          'x-tenant-id': tenantId,
+          'x-tenant-id': id_organizacao,
           'Content-Type': 'application/json',
         },
       })

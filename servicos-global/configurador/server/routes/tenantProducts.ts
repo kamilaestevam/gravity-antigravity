@@ -151,9 +151,9 @@ const ActivateProductSchema = z.object({
  */
 tenantProductsRouter.get('/:id_organizacao/produtos', requireAuth, requireGravityAdmin, async (req, res, next) => {
   try {
-    const { id_organizacao: tenantId } = req.params
+    const { id_organizacao } = req.params
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: tenantId },
+      where: { id_organizacao },
       select: { id_organizacao: true, nome_organizacao: true },
     })
     if (!tenant) {
@@ -161,7 +161,7 @@ tenantProductsRouter.get('/:id_organizacao/produtos', requireAuth, requireGravit
     }
 
     const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: { id_organizacao_config_produto_gravity: tenantId },
+      where: { id_organizacao_config_produto_gravity: id_organizacao },
       orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
@@ -201,23 +201,23 @@ tenantProductsRouter.post(
         )
       }
 
-      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+      const { id_organizacao, id_produto_gravity: productKey } = req.params
 
       const tenant = await prisma.organizacao.findUnique({
-        where: { id_organizacao: tenantId },
+        where: { id_organizacao },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       const config = await productConfigService.upsertConfig(
-        tenantId,
+        id_organizacao,
         productKey,
         parsed.data.config,
         true
       )
 
-      console.info(`[admin] produto ativado tenant_id=${tenantId} product_key=${productKey}`)
+      console.info(`[admin] produto ativado id_organizacao=${id_organizacao} product_key=${productKey}`)
 
       res.json({ activated: true, config })
     } catch (err) {
@@ -236,21 +236,21 @@ tenantProductsRouter.post(
   requireGravityAdmin,
   async (req, res, next) => {
     try {
-      const { id_organizacao: tenantId, id_produto_gravity: productKey } = req.params
+      const { id_organizacao, id_produto_gravity: productKey } = req.params
 
       const tenant = await prisma.organizacao.findUnique({
-        where: { id_organizacao: tenantId },
+        where: { id_organizacao },
       })
       if (!tenant) {
         throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
       }
 
       await productConfigService.disableProduct(
-        tenantId,
+        id_organizacao,
         productKey
       )
 
-      console.info(`[admin] produto desativado tenant_id=${tenantId} product_key=${productKey}`)
+      console.info(`[admin] produto desativado id_organizacao=${id_organizacao} product_key=${productKey}`)
 
       res.json({ deactivated: true })
     } catch (err) {

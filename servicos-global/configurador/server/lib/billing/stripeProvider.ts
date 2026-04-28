@@ -166,7 +166,7 @@ export class StripeProvider implements BillingProvider {
     const listParams: Stripe.InvoiceListParams = { limit }
     if (params.cursor) listParams.starting_after = params.cursor
     if (params.customer_id) {
-      // customer_id DEVE ser tenant_id do Gravity — valida existência antes de
+      // customer_id DEVE ser id_organizacao do Gravity — valida existência antes de
       // passar pro Stripe, impedindo enumeration cross-tenant e evitando que
       // IDs Stripe crus sejam injetados via query string.
       const tenant = await prisma.organizacao.findUnique({

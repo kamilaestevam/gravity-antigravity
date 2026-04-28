@@ -35,8 +35,8 @@ export const billingService = {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const { tenantId } = session.metadata ?? {}
-        if (!tenantId) {
+        const { tenantId: id_organizacao } = session.metadata ?? {}
+        if (!id_organizacao) {
           log.error('checkout.session.completed missing tenantId metadata', { session_id: session.id })
           break
         }
@@ -44,14 +44,14 @@ export const billingService = {
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([
           prisma.produtoGravityAssinatura.updateMany({
-            where: { id_organizacao_assinatura_produto_gravity: tenantId },
+            where: { id_organizacao_assinatura_produto_gravity: id_organizacao },
             data: {
               status_assinatura_produto_gravity: 'ATIVA',
               stripe_subscription_id: session.subscription as string,
             },
           }),
           prisma.organizacao.update({
-            where: { id_organizacao: tenantId },
+            where: { id_organizacao },
             data: { status_organizacao: 'ATIVO' },
           }),
         ])

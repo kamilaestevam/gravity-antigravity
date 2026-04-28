@@ -958,7 +958,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
     // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
     // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
     // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
-    // POST /admin/usuarios-globais/:userId/promote.
+    // POST /admin/usuarios-globais/:id_usuario/promote.
     if (req.auth.role !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }

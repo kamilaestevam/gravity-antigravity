@@ -64,7 +64,7 @@ export function Core() {
 
   useMeSync()
 
-  const companyId = sessionStorage.getItem('gravity_company_id')
+  const id_workspace = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
 
   // ── Localizador ────────────────────────────────────────────────────────────
@@ -113,11 +113,11 @@ export function Core() {
 
   // Carregar produtos ativos do workspace
   useEffect(() => {
-    if (!companyId) return
+    if (!id_workspace) return
     async function loadProducts() {
       try {
         const token = await getToken()
-        const res = await fetch(`/api/v1/workspaces/${companyId}/produtos`, {
+        const res = await fetch(`/api/v1/workspaces/${id_workspace}/produtos`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -145,7 +145,7 @@ export function Core() {
       }
     }
     loadProducts()
-  }, [companyId, getToken, isGravityAdmin])
+  }, [id_workspace, getToken, isGravityAdmin])
 
   // Menu lateral
   const navItems: NavItem[] = useMemo(() => {
@@ -241,7 +241,7 @@ export function Core() {
   }, [tooltipsDisabled])
 
   // Se não selecionou workspace, volta ao Hub (após todos os hooks)
-  if (!companyId) {
+  if (!id_workspace) {
     return <Navigate to="/hub" replace />
   }
 

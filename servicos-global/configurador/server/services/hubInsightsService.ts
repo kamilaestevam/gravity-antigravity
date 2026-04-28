@@ -3,10 +3,10 @@
  *
  * Fase 1: Busca KPIs de cada produto ativo via REST (Promise.allSettled)
  * Fase 2: Gera insights ranqueados com role-weights (role do usuário)
- * Fase 3: Cache in-memory com tenant_id isolation (TTL 5min)
+ * Fase 3: Cache in-memory com id_organizacao isolation (TTL 5min)
  *
  * Regras:
- *  - Nunca expõe dados de outro tenant (cache-key inclui tenant_id)
+ *  - Nunca expõe dados de outro tenant (cache-key inclui id_organizacao)
  *  - Sempre retorna no mínimo 2 insights (fallback seguro)
  *  - Cada fetcher tem timeout de 3s (AbortSignal.timeout)
  *  - Se nenhum produto responde, retorna fallback estático
@@ -670,8 +670,8 @@ export function normalizeHubRole(raw: string | undefined): HubUserRole {
 /**
  * Gera insights cross-produto para o Hub.
  *
- * @param tenantId         - ID do tenant (obrigatório para isolamento)
- * @param userId           - ID do usuário (para cache + personalização futura)
+ * @param id_organizacao   - ID do tenant (obrigatório para isolamento)
+ * @param id_usuario       - ID do usuário (para cache + personalização futura)
  * @param role             - Role canônico do usuário
  * @param activeProductKeys - Set de product_keys ativos para este tenant
  * @returns                - Lista ranqueada de insights, mínimo 4

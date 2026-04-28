@@ -1,7 +1,7 @@
 /**
  * create-user.ts
  * Cria um usuário no banco vinculado a um tenant existente.
- * Uso: npx tsx server/scripts/create-user.ts <email> <tenant_id> [SUPER_ADMIN|ADMIN|MASTER|PADRAO|FORNECEDOR]
+ * Uso: npx tsx server/scripts/create-user.ts <email> <id_organizacao> [SUPER_ADMIN|ADMIN|MASTER|PADRAO|FORNECEDOR]
  */
 import 'dotenv/config'
 import { PrismaClient } from '../../../../configurador/generated/index.js'
@@ -11,12 +11,12 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const email    = process.argv[2]
-  const tenantId = process.argv[3]
-  const role     = (process.argv[4] ?? 'SUPER_ADMIN') as 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+  const email          = process.argv[2]
+  const id_organizacao = process.argv[3]
+  const role           = (process.argv[4] ?? 'SUPER_ADMIN') as 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
-  if (!email || !tenantId) {
-    console.error('Uso: npx tsx server/scripts/create-user.ts <email> <tenant_id> [role]')
+  if (!email || !id_organizacao) {
+    console.error('Uso: npx tsx server/scripts/create-user.ts <email> <id_organizacao> [role]')
     process.exit(1)
   }
 
@@ -26,9 +26,9 @@ async function main() {
     process.exit(0)
   }
 
-  const tenant = await prisma.organizacao.findUnique({ where: { id_organizacao: tenantId } })
+  const tenant = await prisma.organizacao.findUnique({ where: { id_organizacao } })
   if (!tenant) {
-    console.error(`Organizacao ${tenantId} não encontrado.`)
+    console.error(`Organizacao ${id_organizacao} não encontrado.`)
     process.exit(1)
   }
 
@@ -37,7 +37,7 @@ async function main() {
       email_usuario: email,
       nome_usuario:  email.split('@')[0],
       tipo_usuario:  role,
-      id_organizacao_usuario: tenantId,
+      id_organizacao_usuario: id_organizacao,
       clerk_user_id: `pending_${Date.now()}`,  // será auto-vinculado no primeiro login
     },
   })

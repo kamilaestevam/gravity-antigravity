@@ -14,7 +14,7 @@ description: "Use esta skill para configurar auto-scaling e controle de custos n
 | Serviço | Min instâncias | Max instâncias | CPU trigger | RAM trigger |
 |:---|:---|:---|:---|:---|
 | configurador | 1 | 3 | 70% | 80% |
-| organização-services | 1 | 5 | 70% | 80% |
+| organizacao-services | 1 | 5 | 70% | 80% |
 | simula-custo | 1 | 3 | 70% | 80% |
 | bid-frete | 1 | 3 | 70% | 80% |
 | marketplace | 0 (scale-to-zero) | 2 | 60% | 70% |
@@ -52,7 +52,7 @@ Quando usar:
 | Serviço | RAM padrão | RAM máxima | vCPU padrão | vCPU máxima |
 |:---|:---|:---|:---|:---|
 | configurador | 512MB | 1GB | 0.5 | 1 |
-| organização-services | 512MB | 2GB | 0.5 | 2 |
+| organizacao-services | 512MB | 2GB | 0.5 | 2 |
 | produtos | 512MB | 1GB | 0.5 | 1 |
 | marketplace | 256MB | 512MB | 0.25 | 0.5 |
 

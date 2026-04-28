@@ -7,7 +7,7 @@ description: "Use esta skill quando precisar entender o projeto Gravity como um 
 
 ## O que é o Gravity
 
-Gravity é uma plataforma multi-organização SaaS B2B modular. Uma empresa (organização) assina a plataforma e passa a ter acesso a serviços compartilhados (email, atividades, dashboard, WhatsApp, cronômetro, etc.) e a produtos verticais especializados (como SimulaCusto, NF Importação). Cada produto usa os serviços compartilhados sem duplicar dados. Os dados da organização existem uma vez — independente de quantos produtos ela contrate.
+Gravity é uma plataforma multi-organizacao SaaS B2B modular. Uma empresa (organizacao) assina a plataforma e passa a ter acesso a serviços compartilhados (email, atividades, dashboard, WhatsApp, cronômetro, etc.) e a produtos verticais especializados (como SimulaCusto, NF Importação). Cada produto usa os serviços compartilhados sem duplicar dados. Os dados da organizacao existem uma vez — independente de quantos produtos ela contrate.
 
 ---
 
@@ -57,7 +57,7 @@ Gravity é uma plataforma multi-organização SaaS B2B modular. Uma empresa (org
 |:---|:---|
 | Resend | Envio de emails transacionais |
 | Meta / WhatsApp Cloud API | Integração de WhatsApp |
-| OpenAI | Motor da Gabi (assistente de IA do organização) |
+| OpenAI | Motor da Gabi (assistente de IA do organizacao) |
 | NF-e APIs | Emissão e importação de notas fiscais |
 
 ### Infraestrutura e Deploy
@@ -83,13 +83,11 @@ Gravity é uma plataforma multi-organização SaaS B2B modular. Uma empresa (org
 ```
 gravity/
 ├── nucleo-global/              ← componentes React puro, sem estado de servidor
-│   ├── tabela-global/          ← TabelaGlobal — tabela reutilizável
-│   ├── modal-global/           ← ModalGlobal — modal com abas
-│   ├── select/                 ← SelectGlobal
-│   └── utils/                  ← helpers compartilhados
+│   └── (estrutura por categorias PascalCase: Botoes, Campos, Tabelas, Modais,
+│        Utilidades, Composicao, etc. — ver `arquitetura/nucleo-global/SKILL.md`)
 │
 ├── servicos-global/
-│   ├── organização/                 ← serviços que existem uma vez por empresa
+│   ├── organizacao/                 ← serviços que existem uma vez por empresa
 │   │   ├── atividades/
 │   │   ├── cronometro/
 │   │   ├── email/
@@ -110,20 +108,20 @@ gravity/
 │   ├── marketplace/            ← landing e catálogo de produtos (frontend puro)
 │   └── devops/                 ← CI/CD, scripts, infraestrutura
 │
-├── produtos/                   ← cada produto é um monorepo interno
-│   ├── simulacusto/            ← primeiro produto real
+├── produto/                    ← cada produto é um monorepo interno
+│   ├── simula-custo/           ← primeiro produto real
 │   │   ├── client/             ← React
 │   │   └── server/             ← Express + Prisma
 │   └── nf-importacao/          ← próximo produto
 │
-└── scripts/                    ← compose-organização-schema.ts, compose-schema.js
+└── scripts/                    ← compose-product-schema.ts, migrate-all-tenants.ts
 ```
 
 ### Aliases TypeScript
 
 ```typescript
 @nucleo/*   → nucleo-global/*
-@organização/*   → servicos-global/organização/*       (alias técnico real — manter)
+@tenant/*   → servicos-global/organizacao/*       (alias técnico real — preservado por vite-aliases.ts)
 @produto/*  → servicos-global/produto/*
 ```
 
@@ -147,12 +145,12 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 |:---|:---|:---|
 | 1A Núcleo UI | `TabelaGlobal`, `ModalGlobal`, `SelectGlobal`, utilitários | Onda 3 (componentes) |
 | 1B Shell | Layout, sidebar, header, `Navigation.tsx`, state global | Onda 3 (frontend dos serviços) |
-| Configurador | Clerk (autenticação), multi-organização, NF-e, permissões via `tipo_usuario`, Admin Panel | Onda 4 (Auth Flow) |
+| Configurador | Clerk (autenticação), multi-organizacao, NF-e, permissões via `tipo_usuario`, Admin Panel | Onda 4 (Auth Flow) |
 
 ### Onda 3 — Serviços em Paralelo (13 agentes)
 
-**Serviços por organização (9):**
-`atividades` · `cronômetro` · `email` · `whatsapp` · `dashboard` · `relatórios` · `histórico` · `notificações` · `agendamento`
+**Serviços por organizacao (9):**
+`atividades` · `cronometro` · `email` · `whatsapp` · `dashboard` · `relatorios` · `historico` · `notificacoes` · `agendamento`
 
 **Serviços de produto (3):**
 `gabi` · `api-cockpit` · `conector-erp`
@@ -164,7 +162,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 | Agente | O que constrói |
 |:---|:---|
-| Proxy + Agregação | `createTenantProxy`, `enqueueOrgAction`, retry logic |
+| Proxy + Agregação | `createOrganizacaoProxy`, `enqueueOrganizacaoAction`, retry logic |
 | Auth Flow | JWT propagação, `GET /api/v1/me`, `GET /api/check-access` |
 | SimulaCusto | Primeiro produto real — consome todos os serviços da Onda 3 |
 | DevOps | Railway CI/CD, Vitest, Playwright, Sentry, UptimeRobot |
@@ -173,13 +171,13 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 ## As Duas Naturezas de Serviço
 
-### Serviço por Organização
+### Serviço por Organizacao
 
-- Existe **uma vez por empresa (organização)**, independente de quantos produtos ela use
-- **Todos os 11 serviços rodam em processo único — super-servidor por organização (porta 3001)**
-- Banco de dados próprio compartilhado entre os 11 serviços (`organização-db`)
+- Existe **uma vez por empresa (organizacao)**, independente de quantos produtos ela use
+- **Todos os 11 serviços rodam em processo único — super-servidor por organizacao (porta 3001)**
+- Banco de dados próprio compartilhado entre os 11 serviços (`organizacao-db`)
 - Acessado por todos os produtos via API REST (`/api/v1/[servico]` na porta 3001)
-- Dados isolados por **Schema-per-Organização** (PostgreSQL `tenant_<cuid>`) e opcionalmente `id_produto`
+- Dados isolados por **Schema-per-Organizacao** (PostgreSQL `tenant_<cuid>`) e opcionalmente `id_produto`
 - Acesso ao banco exclusivamente via `withOrganizacao`/`withOrganizacaoContext` do `@gravity/resolver-organizacao`
 
 ### Serviço de Produto
@@ -196,12 +194,12 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Banco | Pertence a | Modelo | O que armazena |
 |:---|:---|:---|:---|
 | `configurador-db` | Configurador | single-schema `public` | Organizações, Workspaces, Usuários, permissões (fonte global) |
-| `organização-db` | Serviços por organização | **Schema-per-Organização** (`tenant_<cuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
-| `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **Schema-per-Organização** | Dados isolados em schema próprio por organização |
+| `organizacao-db` | Serviços por organizacao | **Schema-per-Organizacao** (`tenant_<cuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
+| `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **Schema-per-Organizacao** | Dados isolados em schema próprio por organizacao |
 
 **Regras:**
 - Nenhum produto compartilha banco com outro produto.
-- Cada banco de produto contém N schemas (1 por organização), nomeados `tenant_<cuid_sem_hifens>` (prefixo técnico real do PostgreSQL — manter).
+- Cada banco de produto contém N schemas (1 por organizacao), nomeados `tenant_<cuid_sem_hifens>` (prefixo técnico real do PostgreSQL — manter).
 - Provisionamento de schema dispara via evento `OrganizacaoProvisionada` do Configurador (worker + DLQ).
 
 ---
@@ -210,15 +208,15 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 > As regras completas estão nas skills específicas. Este é apenas o mapa de entrada.
 
-- **Imports:** serviços por organização e produtos nunca importam código de outro serviço — só comunicam via API REST
-- **Schema:** **Schema-per-Organização** em todos os bancos de produto — 1 schema PostgreSQL por organização. Configurador permanece single-schema.
+- **Imports:** serviços por organizacao e produtos nunca importam código de outro serviço — só comunicam via API REST
+- **Schema:** **Schema-per-Organizacao** em todos os bancos de produto — 1 schema PostgreSQL por organizacao. Configurador permanece single-schema.
 - **Schema Prisma é INTOCÁVEL** (Mandamento 02): nenhum agente edita `schema.prisma` manualmente. Adeque o código ao schema.
 - **Acesso ao banco de produto:** **exclusivamente via `withOrganizacao(req, db => ...)` do `@gravity/resolver-organizacao`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia).
 - **Validação:** nenhuma rota Express sem schema Zod (Mandamento 06)
 - **Erros:** toda rota lança `AppError` — o handler global responde
 - **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-chave-interna` em toda chamada entre serviços. **Clerk APENAS para autenticação** (Mandamento 01).
 - **Autorização:** vem do Prisma via `GET /api/v1/me` (cacheado pelo SDK). PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões.
-- **DDD obrigatório** (Mandamento 03): payloads, props e variáveis usam `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `is_gravity_admin`.
+- **DDD obrigatório** (Mandamento 03): payloads, props e variáveis usam `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` (booleans sem prefixo `is_` — REGRA 5 de [DDD Nomenclatura](../ddd-nomenclatura/SKILL.md)).
 
 ---
 
@@ -229,11 +227,10 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Visão geral antes de qualquer ação | `antigravity-visao-geral` ← você está aqui |
 | **9 Mandamentos (regras absolutas)** | `antigravity-9-mandamentos` |
 | Regras gerais de comportamento do agente | `antigravity-agent-policy` |
-| Ambiente de trabalho (porta, navegador) | `antigravity-ambiente` |
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
-| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-organizacao` |
-| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-isolamento-organizacao` |
+| Serviços por organizacao vs produto, estrutura de pastas | `antigravity-servicos-organizacao` |
+| Isolamento de Organizacao (Schema-per-Organizacao + SDK) | `antigravity-isolamento-organizacao` |
 | Auth entre serviços (`x-chave-interna`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
 | Permissões de usuário (`tipo_usuario`, granulares, produtos) | `antigravity-permissoes` |

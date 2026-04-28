@@ -1,9 +1,9 @@
 ---
-name: agente-plano-teste
-description: "Use sempre que precisar criar ou expandir um plano de teste para uma tela do Gravity. O agente recebe uma tela (escopo + sublocal + screenshot/descrição/código do componente) e devolve um plano de teste no formato JSON canônico que cobre as 20 categorias do checklist 10/10. Plano é validado por humano antes de virar .spec.ts. NUNCA gera o .spec.ts diretamente — esse é trabalho de outro agente que consome este JSON. Mantém compatibilidade total com planos pré-existentes (apenas agrega, nunca remove)."
+name: agente-plano-teste-e2e
+description: "Use sempre que precisar criar ou expandir um plano de teste E2E (Playwright) para uma tela do Gravity. O agente recebe uma tela (escopo + sublocal + screenshot/descrição/código do componente) e devolve um plano JSON canônico que cobre as 20 categorias do checklist 10/10, mapeia cada passo a um data-testid e prepara estrutura de pastas testes/testes-e2e/{escopo}/. Plano é validado por humano antes de virar .spec.ts. NUNCA gera o .spec.ts diretamente. Para overview e roteamento entre planos por tipo, consultar antigravity-testes."
 ---
 
-# Agente Plano de Teste
+# Agente Plano de Teste E2E
 
 > **Missão:** dada uma tela do Gravity, produzir um plano de teste estruturado em JSON que cobre **as 20 categorias do plano 10/10**, mapeia cada passo a um `data-testid`, e fica pronto pra um humano validar e um gerador de specs converter em código.
 
@@ -102,7 +102,7 @@ JSON validado por Zod (ver [formato-plano.md](./formato-plano.md)). Estrutura ma
   id:           "TST-E2E-CONFIG-000001",     // gerado pelo agente
   versao:       "1.0",
   geradoEm:     "2026-04-15T...",
-  geradoPor:    "agente-plano-teste",
+  geradoPor:    "agente-plano-teste-e2e",
   escopo:       "CONFIG",
   sublocal:     "Organização",
   tela:         "Organização",
@@ -269,7 +269,7 @@ testes/testes-e2e/
 ├── pedido/           ├── _planos/   ├── _mapeamentos/   └── {fluxo}/{ID}.spec.ts
 ├── processo/         ├── _planos/   ├── _mapeamentos/   └── {fluxo}/{ID}.spec.ts
 ├── simula-custo/     ├── _planos/   ├── _mapeamentos/   └── {fluxo}/{ID}.spec.ts
-└── organização/           ├── _planos/   ├── _mapeamentos/   └── {servico}/{ID}.spec.ts
+└── organizacao/         ├── _planos/   ├── _mapeamentos/   └── {servico}/{ID}.spec.ts
 
 testes/
 └── test-plans-registry.json   ← índice global (ID + paths, sem o conteúdo completo)

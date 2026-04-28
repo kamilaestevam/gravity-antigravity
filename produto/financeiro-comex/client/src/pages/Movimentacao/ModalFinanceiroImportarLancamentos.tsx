@@ -23,7 +23,7 @@ interface LancamentoPreview {
   selecionado?: boolean
 }
 
-export default function ModalImportar({ processoId, onClose, onImportado }: Props) {
+export default function ModalImportarLancamentos({ processoId, onClose, onImportado }: Props) {
   const [canal, setCanal] = useState<Canal>('xml')
   const [xmlContent, setXmlContent] = useState('')
   const [duimpNumero, setDuimpNumero] = useState('')

@@ -18,7 +18,7 @@ interface EntradaHistorico {
   created_at: string
 }
 
-export default function ModalHistorico({ processoId, onClose }: Props) {
+export default function ModalHistoricoProcesso({ processoId, onClose }: Props) {
   const [entradas, setEntradas] = useState<EntradaHistorico[]>([])
   const [loading, setLoading] = useState(true)
 

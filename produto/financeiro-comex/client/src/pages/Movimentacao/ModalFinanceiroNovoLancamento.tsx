@@ -17,7 +17,7 @@ interface Props {
   onSalvo: () => void
 }
 
-export default function ModalNovoLancamento({ processoId, lancamento, tipoOperacao, onClose, onSalvo }: Props) {
+export default function ModalNovoLancamentoFinanceiro({ processoId, lancamento, tipoOperacao, onClose, onSalvo }: Props) {
   const isEdicao = !!lancamento
 
   const [categoriasList, setCategoriasList] = useState<FinanceiroCategorias[]>([])

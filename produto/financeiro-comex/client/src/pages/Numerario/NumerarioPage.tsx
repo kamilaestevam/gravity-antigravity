@@ -6,8 +6,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { numerario as numerarioApi } from '../../shared/api'
 import type { FinanceiroNumerario } from '../../shared/types'
-import ModalInserirNumerario from './ModalInserirNumerario'
-import ModalExibirAnexo from './ModalExibirAnexo'
+import ModalInserirNumerario from './ModalNumerarioInserir'
+import ModalExibirAnexoNumerario from './ModalNumerarioAnexoExibir'
 import './NumerarioPage.css'
 
 export default function NumerarioPage() {
@@ -128,7 +128,7 @@ export default function NumerarioPage() {
       )}
 
       {anexoUrl && (
-        <ModalExibirAnexo url={anexoUrl} onClose={() => setAnexoUrl(null)} />
+        <ModalExibirAnexoNumerario url={anexoUrl} onClose={() => setAnexoUrl(null)} />
       )}
     </div>
   )

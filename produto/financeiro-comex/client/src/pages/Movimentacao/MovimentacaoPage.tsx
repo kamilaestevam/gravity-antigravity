@@ -9,9 +9,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { dashboard, lancamentos as lancamentosApi } from '../../shared/api'
 import type { FinanceiroProcesso, FinanceiroLancamento } from '../../shared/types'
 import { STATUS_LABEL } from '../../shared/types'
-import ModalNovoLancamento from './ModalNovoLancamento'
-import ModalImportar from './ModalImportar'
-import ModalHistorico from './ModalHistorico'
+import ModalNovoLancamentoFinanceiro from './ModalFinanceiroNovoLancamento'
+import ModalImportarLancamentos from './ModalFinanceiroImportarLancamentos'
+import ModalHistoricoProcesso from './ModalProcessoHistorico'
 import './MovimentacaoPage.css'
 
 export default function MovimentacaoPage() {
@@ -224,7 +224,7 @@ export default function MovimentacaoPage() {
 
       {/* Modais */}
       {(showNovo || editando) && (
-        <ModalNovoLancamento
+        <ModalNovoLancamentoFinanceiro
           processoId={pid}
           lancamento={editando ?? undefined}
           tipoOperacao={financeiro?.tipo_operacao ?? 'IMPORTACAO'}
@@ -234,7 +234,7 @@ export default function MovimentacaoPage() {
       )}
 
       {showImportar && (
-        <ModalImportar
+        <ModalImportarLancamentos
           processoId={pid}
           onClose={() => setShowImportar(false)}
           onImportado={() => { setShowImportar(false); carregar() }}
@@ -242,7 +242,7 @@ export default function MovimentacaoPage() {
       )}
 
       {showHistorico && (
-        <ModalHistorico
+        <ModalHistoricoProcesso
           processoId={pid}
           onClose={() => setShowHistorico(false)}
         />

@@ -1030,7 +1030,7 @@ const editarCampoSchema = z.object({
   valor: z.unknown(),
 })
 
-pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.patch('/:id_pedido/campo', async (req: Request, res: Response, next: NextFunction) => {
   const result = editarCampoSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
@@ -1050,7 +1050,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       const tenant_id = ctx.idOrganizacao
 
       const pedido = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id },
+        where: { id: req.params.id_pedido, tenant_id },
       })
 
       if (!pedido) {
@@ -1080,7 +1080,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       if (CAMPOS_RECALCULAVEIS.has(campo)) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const itens = await db.pedidoItem.findMany({
-          where: { id_pedido: req.params.id, id_organizacao: tenant_id },
+          where: { id_pedido: req.params.id_pedido, id_organizacao: tenant_id },
         }) as any[]
 
         const dadosRecalc: Record<string, unknown> = {}
@@ -1114,13 +1114,13 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
         if (Object.keys(dadosRecalc).length > 0) {
           await db.pedido.update({
-            where: { id: req.params.id },
+            where: { id: req.params.id_pedido },
             data: dadosRecalc,
           })
         }
 
         const updatedRecalc = await db.pedido.findFirst({
-          where: { id: req.params.id, tenant_id },
+          where: { id: req.params.id_pedido, tenant_id },
           include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
         })
         return res.json(mapPedido(updatedRecalc))
@@ -1159,7 +1159,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       }
 
       const updated = await db.pedido.update({
-        where: { id: req.params.id },
+        where: { id: req.params.id_pedido },
         data: dadosUpdate,
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
@@ -1167,7 +1167,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
       if (isPropagavel(campo)) {
         await db.pedidoItem.updateMany({
-          where: { id_pedido: req.params.id, id_organizacao: tenant_id },
+          where: { id_pedido: req.params.id_pedido, id_organizacao: tenant_id },
           data: { [campo]: valor === undefined ? null : valor },
         })
       }
@@ -1179,9 +1179,9 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
   }
 })
 
-// ── POST /:id/duplicar — Duplicar pedido ──────────────────────────────────────
+// ── POST /:id_pedido/duplicar — Duplicar pedido ──────────────────────────────
 
-pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunction) => {
+pedidosRouter.post('/:id_pedido/duplicar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1191,7 +1191,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
       const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
       const original = await db.pedido.findFirst({
-        where: { id: req.params.id, tenant_id, company_id },
+        where: { id: req.params.id_pedido, tenant_id, company_id },
         include: {
           itens_pedido: { orderBy: { sequencia_item: 'asc' } },
           snapshots_empresa: true,

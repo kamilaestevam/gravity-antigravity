@@ -7,7 +7,7 @@ interface Props {
   onClose: () => void
 }
 
-export default function ModalExibirAnexo({ url, onClose }: Props) {
+export default function ModalExibirAnexoNumerario({ url, onClose }: Props) {
   return (
     <div className="fincom-modal-overlay" onClick={onClose}>
       <div className="fincom-modal fincom-modal--xl" onClick={e => e.stopPropagation()}>

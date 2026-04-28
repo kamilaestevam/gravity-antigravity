@@ -47,7 +47,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] Nenhuma variável de ambiente hardcoded no código
 - [ ] Nenhum `console.log` expondo dados de usuário ou organização
 - [ ] Nenhum `useState<T>({} as T)` (Mandamento 05) — usar `useState<T | null>(null)` + tratamento loading
-- [ ] **DDD respeitado** (Mandamento 03): `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `is_gravity_admin` em payloads/props/variáveis
+- [ ] **DDD respeitado** (Mandamento 03): `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads/props/variáveis
 - [ ] **Mandamento 02**: nenhuma alteração manual em `schema.prisma` — código adequado ao schema
 - [ ] **Mandamento 04**: Master/Super Admin reconhecidos sem `UsuarioWorkspace`
 - [ ] **Mandamento 07**: renomear campo de API atualizou TODOS os consumidores no MESMO commit
@@ -62,11 +62,11 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK — reprovação imediata
 - [ ] **Nenhum** `new PrismaClient(` no código de aplicação — reprovação imediata
 - [ ] **Nenhum** `WHERE id_organizacao = ?` em queries de produto (o schema **é** a organização)
-- [ ] Models de produto **não têm campo de identificador de organização** ()
+- [ ] Models de produto **não têm campo de identificador de organização** (Schema-per-Organizacao isola)
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` dentro de transação
 - [ ] **Nenhum** uso de PgBouncer session mode para banco de produto
 - [ ] `idOrganizacao` lido de `req.organizacao.idOrganizacao` (do `GET /api/v1/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
-- [ ] Chaves de cache prefixadas por `organização:<id>:` ou `organização:_global:` (prefixo técnico real do SDK — manter)
+- [ ] Chaves de cache prefixadas por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`
 - [ ] Teste anti-cross-organização em `testes/security/cross-tenant-isolation.test.ts`
 - [ ] Teste de pool leak (crash do handler não polui `search_path` da próxima request)
 - [ ] Nenhum endpoint retorna dados de múltiplas organizações misturados

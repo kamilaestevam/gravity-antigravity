@@ -66,9 +66,10 @@ orgAPI.get('/activities', {
 
 ```typescript
 // CADA serviço valida independentemente — nunca confiar no produto
-import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
+import { clerkMiddleware, requireAuth } from '@clerk/express'
 
-app.use(ClerkExpressRequireAuth())
+app.use(clerkMiddleware())
+app.use(requireAuth())
 ```
 
 > **Regra inviolável:** o servidor de organização NUNCA confia no produto cegamente. Ele valida o JWT de forma independente. Clerk responde APENAS por autenticação — autorização vem do Prisma (Camada 3).
@@ -121,7 +122,7 @@ Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002
 - Acesso a banco de produto **exclusivamente** via `withOrganizacao(req, async db => ...)` ou `withOrganizacaoContext(idOrganizacao, fn)` para workers
 - `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
 - Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
-- Cache prefixado por `organização:<id>:` ou `organização:_global:` (prefixo real de chave Redis — com justificativa); linter CI bloqueia chaves sem prefixo
+- Cache prefixado por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`; linter CI bloqueia chaves sem prefixo
 - Pre-signed URLs S3: `tenant_<id>/...` no caminho (prefixo real de path S3), TTL ≤ 300s
 
 ---
@@ -138,8 +139,8 @@ Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002
 | Tentativas de acesso negado | who, what_attempted, when |
 
 ```typescript
-// servicos-global/organização/historico intercepta automaticamente
-// Middleware registrado no servidor de organização
+// servicos-global/organizacao/historico intercepta automaticamente
+// Middleware registrado no servidor de organizacao
 app.use(auditMiddleware({
   ignore: ['GET'], // Só audita mutações
   sensitiveFields: ['password', 'token', 'secret'],
@@ -174,7 +175,7 @@ app.use(auditMiddleware({
 - [ ] Nenhum `new PrismaClient(`?
 - [ ] Nenhum `WHERE id_organizacao = ?` em queries de banco de produto (o schema **é** a organização)?
 - [ ] Identificador de organização lido de `req.organizacao.idOrganizacao` (API real do SDK), nunca do `publicMetadata` do Clerk?
-- [ ] Toda chave de cache prefixada por `organização:<id>:` ou `organização:_global:` (com justificativa)?
+- [ ] Toda chave de cache prefixada por `organizacao:<idOrganizacao>:` ou `organizacao:_global:`?
 - [ ] Pre-signed URLs S3 com TTL ≤ 300s e `tenant_<id>/...` no caminho?
 - [ ] Teste anti-cross-organização + teste de pool leak (`SET LOCAL` reset) implementados?
 

@@ -5,7 +5,7 @@ description: "Use esta skill sempre que for definir, validar ou avaliar metas de
 
 # Gravity — Metas de SLA (Lei)
 
-> **Lei absoluta.** Estas metas valem para TODA rota, TODO serviço, TODO produto do Gravity. A implementação (configuração de Sentry, UptimeRobot, k6 e dashboards Grafana) é executada conforme `governanca/operacao/performance-monitoring/SKILL.md`. Esta skill define apenas os **targets**.
+> **Lei absoluta.** Estas metas valem para TODA rota, TODO serviço, TODO produto do Gravity. A implementação (configuração de Sentry, UptimeRobot, k6 e dashboards Grafana) é executada conforme [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md). Esta skill define apenas os **targets**.
 
 ## Metas Fundamentais
 
@@ -56,12 +56,12 @@ Para atingir **≤ 200ms** end-to-end, cada camada tem budget fixo:
 | Stress test (5000 users) | Mensal ou pré-release | Identificar limite |
 | Spike test (0→5000 em 30s) | Trimestral | Auto-scaling funciona |
 
-> Scripts k6 e procedimentos detalhados estão em `governanca/operacao/performance-monitoring/SKILL.md`.
+> Scripts k6 e procedimentos detalhados estão em [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md).
 
 ---
 
 ## Onde Está a Implementação
 
-- **Configuração de Sentry, UptimeRobot, dashboards Grafana, alertas** → `governanca/operacao/performance-monitoring/SKILL.md`
-- **Auto-scaling Railway (min/max instâncias, triggers)** → `governanca/operacao/auto-scaling/SKILL.md`
-- **Métricas obrigatórias por serviço** → `governanca/convencao-tecnica/observabilidade-minima/SKILL.md`
+- **Configuração de Sentry, UptimeRobot, dashboards Grafana, alertas** → [Performance Monitoring](../../operacao/performance-monitoring/SKILL.md)
+- **Auto-scaling Railway (min/max instâncias, triggers)** → [Auto-Scaling](../../operacao/auto-scaling/SKILL.md)
+- **Métricas obrigatórias por serviço** → [Observabilidade Mínima](../../convencao-tecnica/observabilidade-minima/SKILL.md)

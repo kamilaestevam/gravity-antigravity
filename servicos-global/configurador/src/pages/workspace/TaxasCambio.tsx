@@ -76,7 +76,7 @@ function formatarDataHora(iso: string | undefined | null): string {
 // Componente principal
 // ---------------------------------------------------------------------------
 
-export function TaxaCambio() {
+export function TaxasCambio() {
   const [taxasAtuais, setTaxasAtuais] = useState<TaxaAtual[]>([])
   const [historico, setHistorico] = useState<HistoricoItem[]>([])
   const [moedaHistorico, setMoedaHistorico] = useState<string>('USD')
@@ -258,7 +258,7 @@ export function TaxaCambio() {
   return (
     <PaginaGlobal>
       <CabecalhoGlobal
-        titulo="Taxa de Câmbio"
+        titulo="Taxas de Câmbio"
         descricao="Cotações PTAX oficiais do Banco Central do Brasil"
         icone={<CurrencyCircleDollar weight="duotone" size={24} />}
         acoes={

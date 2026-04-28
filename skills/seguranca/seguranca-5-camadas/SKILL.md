@@ -109,7 +109,7 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 | Mecanismo | Camada | Função |
 |:---|:---|:---|
 | **Schema-per-Organização** | Banco | 1 schema PostgreSQL por organização (`tenant_<cuid>` — prefixo histórico mantido como identificador real). Tabelas de produto **não têm coluna de organização** — o schema **é** a organização. |
-| **`@gravity/tenant-resolver` SDK** | Código | Único ponto de acesso ao DB. `withTenant(req, async db => ...)` aplica `SET LOCAL search_path` dentro de `$transaction`. |
+| **`@gravity/resolver-organizacao` SDK** | Código | Único ponto de acesso ao DB. `withOrganizacao(req, async db => ...)` aplica `SET LOCAL search_path` dentro de `$transaction`. |
 | **PgBouncer transaction mode** | Pool | `SET LOCAL` morre no `COMMIT`/`ROLLBACK`. Pool leak é matematicamente impossível. |
 | **ESLint + CI lint** | Build | Bloqueia `import { PrismaClient } from '@prisma/client'` fora do SDK. |
 | **PostgreSQL RLS** | Banco | Mantido **apenas** no Configurador (single-schema). Em bancos de produto, o `search_path` substitui RLS. |
@@ -118,7 +118,7 @@ Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002
 
 **Regras críticas (pós-pivô):**
 - O identificador de organização NUNCA vem do body — sempre de `req.organizacao.idOrganizacao` (API real do SDK, vem do `GET /api/v1/me` do Configurador, **nunca** do `publicMetadata` do Clerk — Mandamento 01)
-- Acesso a banco de produto **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(idOrganizacao, fn)` para workers
+- Acesso a banco de produto **exclusivamente** via `withOrganizacao(req, async db => ...)` ou `withOrganizacaoContext(idOrganizacao, fn)` para workers
 - `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
 - Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
 - Cache prefixado por `organização:<id>:` ou `organização:_global:` (prefixo real de chave Redis — com justificativa); linter CI bloqueia chaves sem prefixo
@@ -169,7 +169,7 @@ app.use(auditMiddleware({
 - [ ] Nenhum fallback silencioso `(data?.x?.y ?? null) as TipoUsuario` (Mandamento 08)?
 
 ### Camada 4 — Isolamento (pós-pivô 2026-04-17)
-- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` do `@gravity/tenant-resolver`?
+- [ ] Acesso ao banco **exclusivamente** via `withOrganizacao(req, ...)` ou `withOrganizacaoContext(idOrganizacao, ...)` do `@gravity/resolver-organizacao`?
 - [ ] Nenhum `import { PrismaClient } from '@prisma/client'` no código (exceto dentro do SDK)?
 - [ ] Nenhum `new PrismaClient(`?
 - [ ] Nenhum `WHERE id_organizacao = ?` em queries de banco de produto (o schema **é** a organização)?

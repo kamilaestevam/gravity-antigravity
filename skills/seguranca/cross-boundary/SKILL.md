@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
     service:        'comex',
     action:         'sync-simulation',
     payload:        sim,
-    idOrganizacao:  req.organizacao.idOrganizacao,  // SDK @gravity/tenant-resolver
+    idOrganizacao:  req.organizacao.idOrganizacao,  // SDK @gravity/resolver-organizacao
     idUsuario:      req.user.id,
     idempotencyKey: `sim_${sim.id}`
   }).catch(err => console.error('Silent failure enqueued', err))

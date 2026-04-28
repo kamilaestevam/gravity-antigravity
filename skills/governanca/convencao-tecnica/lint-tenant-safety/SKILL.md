@@ -12,7 +12,7 @@ description: "Use esta skill para entender, configurar ou estender o linter cust
 
 ## Por Que Este Linter Existe
 
-O SDK `@gravity/tenant-resolver` só protege os agentes **se ninguém puder ignorá-lo**. Sem o linter, basta um `import { PrismaClient } from '@prisma/client'` para pular toda a defesa de isolamento, e ninguém vê no review.
+O SDK `@gravity/resolver-organizacao` só protege os agentes **se ninguém puder ignorá-lo**. Sem o linter, basta um `import { PrismaClient } from '@prisma/client'` para pular toda a defesa de isolamento, e ninguém vê no review.
 
 O linter:
 1. **Falha o build no CI** se detectar uma das violações listadas abaixo
@@ -48,7 +48,7 @@ import { PrismaClient } from '@prisma/client'
 import { Prisma } from '@prisma/client'
 
 // ✅ OK — tipos do Prisma podem vir via SDK re-export
-import type { Prisma } from '@gravity/tenant-resolver'
+import type { Prisma } from '@gravity/resolver-organizacao'
 ```
 
 **Implementação AST:**
@@ -62,7 +62,7 @@ module.exports = {
         if (node.source.value === '@prisma/client') {
           context.report({
             node,
-            message: 'Importar @prisma/client direto é proibido. Use @gravity/tenant-resolver.',
+            message: 'Importar @prisma/client direto é proibido. Use @gravity/resolver-organizacao.',
           })
         }
       },
@@ -81,15 +81,15 @@ Bloqueia `new PrismaClient(...)` em qualquer lugar.
 // ❌ ERRO
 const prisma = new PrismaClient()
 
-// ✅ OK — usar withTenant
-const faturas = await withTenant(req, db => db.fatura.findMany())
+// ✅ OK — usar withOrganizacao
+const faturas = await withOrganizacao(req, db => db.fatura.findMany())
 ```
 
 **Implementação:**
 ```javascript
 NewExpression(node) {
   if (node.callee.name === 'PrismaClient') {
-    context.report({ node, message: 'new PrismaClient() é proibido. Use withTenant/withTenantContext.' })
+    context.report({ node, message: 'new PrismaClient() é proibido. Use withOrganizacao/withOrganizacaoContext.' })
   }
 }
 ```
@@ -278,7 +278,7 @@ npx lint-staged
 ### Cenário 1 — Você está escrevendo código de produto ou serviço
 
 ```
-error  Importar @prisma/client direto é proibido. Use @gravity/tenant-resolver.
+error  Importar @prisma/client direto é proibido. Use @gravity/resolver-organizacao.
        @gravity/tenant-safety/no-direct-prisma-import
 ```
 

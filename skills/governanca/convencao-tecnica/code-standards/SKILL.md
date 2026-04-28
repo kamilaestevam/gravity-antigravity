@@ -50,7 +50,7 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
 ```typescript
 // ✅ correto
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { withTenant, tenantResolver } from '@gravity/tenant-resolver'
+import { withOrganizacao, resolverOrganizacao } from '@gravity/resolver-organizacao'
 
 // ❌ proibido
 import { TabelaGlobal } from '../../../nucleo-global/tabela-global'
@@ -297,14 +297,14 @@ const tenantUrl = 'http://organização-services.railway.internal:3001'
 
 ## Estrutura Obrigatória de um Servidor Express (pós-pivô — ADR-002)
 
-Todo servidor de **produto** segue esta ordem (o middleware `tenantResolver` substituiu o antigo `withTenantIsolation`):
+Todo servidor de **produto** segue esta ordem (o middleware `resolverOrganizacao` substituiu o antigo `withOrganizacaoIsolation`):
 
 ```typescript
 // server/index.ts
 import express from 'express'
 import { correlationMiddleware } from '@nucleo/middleware/correlation'
 import { requireInternalKey } from '@nucleo/middleware/internal-auth'
-import { tenantResolver, withTenant } from '@gravity/tenant-resolver'
+import { resolverOrganizacao, withOrganizacao } from '@gravity/resolver-organizacao'
 
 const app = express()
 
@@ -318,7 +318,7 @@ app.use(correlationMiddleware)
 app.use(requireInternalKey)
 
 // 4. Organização resolver — JWT + cache + injeção de req.organizacao
-app.use(tenantResolver({
+app.use(resolverOrganizacao({
   productKey: 'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
   internalKey: process.env.INTERNAL_SERVICE_KEY!,
@@ -329,10 +329,10 @@ app.get('/health', async (_req, res) => {
   res.json({ status: 'ok', service: 'pedido' })
 })
 
-// 6. Rotas de negócio — toda query DENTRO de withTenant
+// 6. Rotas de negócio — toda query DENTRO de withOrganizacao
 app.get('/api/v1/pedidos', async (req, res, next) => {
   try {
-    const data = await withTenant(req, async (db) => db.pedido.findMany())
+    const data = await withOrganizacao(req, async (db) => db.pedido.findMany())
     res.json(data)
   } catch (err) { next(err) }
 })
@@ -345,7 +345,7 @@ export { app }
 
 ### Regra inviolável de acesso ao banco
 
-- ❌ Acessar Prisma fora de `withTenant(...)` ou `withTenantContext(...)` (CRON/worker)
+- ❌ Acessar Prisma fora de `withOrganizacao(...)` ou `withOrganizacaoContext(...)` (CRON/worker)
 - ❌ Importar `PrismaClient` ou instanciar `new PrismaClient()` em produto — linter CI bloqueia
 - ✅ Toda query roda dentro de `$transaction` com `SET LOCAL search_path` injetado pelo SDK
 

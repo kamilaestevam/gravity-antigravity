@@ -8,7 +8,7 @@ description: Regras Invioláveis de Arquitetura de Banco de Dados B2B e Prevenç
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
 > Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 >
-> **Nomes técnicos preservados:** o pacote npm `@gravity/tenant-resolver`, o prefixo de schema PostgreSQL `tenant_<cuid>` e a API `req.organizacao.idOrganizacao` continuam sendo identificadores reais. Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
+> **Nomes técnicos preservados:** o pacote npm `@gravity/resolver-organizacao`, o prefixo de schema PostgreSQL `tenant_<cuid>` e a API `req.organizacao.idOrganizacao` continuam sendo identificadores reais. Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
 
 Você está trabalhando num ecossistema B2B Multi-Organização da Gravity. Vazamentos de dados cruzados entre Organizações (ex: Organização A vendo a Fatura ou DUIMP da Organização B) representam um Incidente de Severidade Crítica (Tier 1 Incident).
 **Siga as diretrizes abaixo religiosamente sob risco de corromper a plataforma.**
@@ -42,10 +42,10 @@ const data = await prisma.fatura.findMany();
 ### O que você DEVE fazer (o SDK obrigatório)
 
 ```typescript
-import { withTenant } from '@gravity/tenant-resolver';
+import { withOrganizacao } from '@gravity/resolver-organizacao';
 
 app.get('/faturas', async (req, res) => {
-  const faturas = await withTenant(req, async (db) => {
+  const faturas = await withOrganizacao(req, async (db) => {
     // db é o TransactionClient do Prisma DENTRO de $transaction.
     // SET LOCAL search_path TO tenant_<id> já foi aplicado.
     // COMMIT/ROLLBACK reseta o search_path automaticamente.
@@ -55,7 +55,7 @@ app.get('/faturas', async (req, res) => {
 });
 ```
 
-Por dentro do `withTenant`:
+Por dentro do `withOrganizacao`:
 
 ```typescript
 return _internalPrisma.$transaction(async (tx) => {
@@ -123,11 +123,11 @@ it('crash do handler não polui search_path da próxima request', async () => {
   const b = await createTestOrganizacao();
 
   await expect(
-    withTenantContext(a.id, async () => { throw new Error('crash'); })
+    withOrganizacaoContext(a.id, async () => { throw new Error('crash'); })
   ).rejects.toThrow();
 
   // Próxima request usa pool — search_path tem que estar limpo
-  const sp = await withTenantContext(b.id, async (_, db) => {
+  const sp = await withOrganizacaoContext(b.id, async (_, db) => {
     const [{ search_path }] = await db.$queryRaw<{ search_path: string }[]>`SHOW search_path`;
     return search_path;
   });
@@ -139,34 +139,34 @@ it('crash do handler não polui search_path da próxima request', async () => {
 
 ### 4.2 Linter de Organização Safety (CI bloqueia deploy)
 
-> O nome do linter (`Organização Safety`) é mantido — referencia o pacote real `@gravity/tenant-resolver` e o prefixo físico `tenant_<cuid>`.
+> O nome do linter (`Organização Safety`) é mantido — referencia o pacote real `@gravity/resolver-organizacao` e o prefixo físico `tenant_<cuid>`.
 
 Falha o build se detectar em `produto/*/server/` ou `servicos-global/organização/*/server/`:
 
 - `import { PrismaClient } from '@prisma/client'`
 - `new PrismaClient(`
-- Acesso ao banco fora de `withTenant` ou `withTenantContext`
+- Acesso ao banco fora de `withOrganizacao` ou `withOrganizacaoContext`
 - Chave de cache sem prefixo `organização:<id>:` ou `organização:_global:` (com justificativa) — prefixo do SDK mantido por compatibilidade
 
 ---
 
 ## 5. Background Jobs (ETL e Relatórios Noturnos)
 
-CRON jobs e workers usam `withTenantContext(idOrganizacao, fn)` — **nunca** acessam Prisma cru:
+CRON jobs e workers usam `withOrganizacaoContext(idOrganizacao, fn)` — **nunca** acessam Prisma cru:
 
 ```typescript
 // ✅ correto
-import { withTenantContext } from '@gravity/tenant-resolver';
+import { withOrganizacaoContext } from '@gravity/resolver-organizacao';
 
 for (const organizacao of organizacoesAtivas) {
-  await withTenantContext(organizacao.id, async (ctx, db) => {
+  await withOrganizacaoContext(organizacao.id, async (ctx, db) => {
     const resumo = await db.fatura.aggregate({ _sum: { valor: true } });
     await sendDailyEmail(organizacao.email, resumo);
   });
 }
 ```
 
-Cada iteração abre transação isolada. Falha em uma organização não polui a próxima. **Sob nenhuma hipótese** use roles `BYPASSRLS` ou conexão sem `withTenantContext` em workers que lidam com agregações ou notificações — o risco de cross-organização em massa é catastrófico.
+Cada iteração abre transação isolada. Falha em uma organização não polui a próxima. **Sob nenhuma hipótese** use roles `BYPASSRLS` ou conexão sem `withOrganizacaoContext` em workers que lidam com agregações ou notificações — o risco de cross-organização em massa é catastrófico.
 
 ---
 

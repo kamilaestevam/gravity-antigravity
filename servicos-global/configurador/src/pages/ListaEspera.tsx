@@ -10,7 +10,7 @@ const PRODUCT_NAMES: Record<string, string> = {
   'dashboard': 'Dashboard Analitico',
 }
 
-export function Waitlist() {
+export function ListaEspera() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()

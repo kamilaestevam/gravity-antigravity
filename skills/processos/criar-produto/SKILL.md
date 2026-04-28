@@ -454,8 +454,8 @@ app.use(correlationMiddleware)
 // 7. S2S Auth (x-chave-interna)
 app.use('/api/', requireInternalKey)
 
-// 8. Isolamento de Organização — Schema-per-Organização via @gravity/tenant-resolver
-//    (acesso ao banco SEMPRE via withTenant/withTenantContext; PrismaClient direto é PROIBIDO)
+// 8. Isolamento de Organização — Schema-per-Organização via @gravity/resolver-organizacao
+//    (acesso ao banco SEMPRE via withTenant/withOrganizacaoContext; PrismaClient direto é PROIBIDO)
 app.use(tenantIsolationMiddleware)
 
 // 9. Product Routes
@@ -626,11 +626,11 @@ testes/
 ## Passo 19 — Seed de Dados Demo
 
 ```typescript
-// scripts/sob-demanda/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
-import { withTenantContext } from '@gravity/tenant-resolver'
+// scripts/sob-demanda/seed-demo.ts — usar withOrganizacaoContext do @gravity/resolver-organizacao
+import { withOrganizacaoContext } from '@gravity/resolver-organizacao'
 
 export async function seedDemo(idOrganizacao: string) {
-  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+  await withOrganizacaoContext(idOrganizacao, async (_ctx, rawDb) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db = rawDb as any
     await db.recurso.createMany({
@@ -643,7 +643,7 @@ export async function seedDemo(idOrganizacao: string) {
 }
 
 export async function clearDemo(idOrganizacao: string) {
-  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+  await withOrganizacaoContext(idOrganizacao, async (_ctx, rawDb) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db = rawDb as any
     await db.recurso.deleteMany({

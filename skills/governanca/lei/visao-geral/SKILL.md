@@ -180,7 +180,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 - Banco de dados próprio compartilhado entre os 11 serviços (`organização-db`)
 - Acessado por todos os produtos via API REST (`/api/v1/[servico]` na porta 3001)
 - Dados isolados por **Schema-per-Organização** (PostgreSQL `tenant_<cuid>`) e opcionalmente `id_produto`
-- Acesso ao banco exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`
+- Acesso ao banco exclusivamente via `withOrganizacao`/`withOrganizacaoContext` do `@gravity/resolver-organizacao`
 
 ### Serviço de Produto
 
@@ -213,7 +213,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 - **Imports:** serviços por organização e produtos nunca importam código de outro serviço — só comunicam via API REST
 - **Schema:** **Schema-per-Organização** em todos os bancos de produto — 1 schema PostgreSQL por organização. Configurador permanece single-schema.
 - **Schema Prisma é INTOCÁVEL** (Mandamento 02): nenhum agente edita `schema.prisma` manualmente. Adeque o código ao schema.
-- **Acesso ao banco de produto:** **exclusivamente via `withTenant(req, db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia).
+- **Acesso ao banco de produto:** **exclusivamente via `withOrganizacao(req, db => ...)` do `@gravity/resolver-organizacao`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia).
 - **Validação:** nenhuma rota Express sem schema Zod (Mandamento 06)
 - **Erros:** toda rota lança `AppError` — o handler global responde
 - **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-chave-interna` em toda chamada entre serviços. **Clerk APENAS para autenticação** (Mandamento 01).

@@ -1,5 +1,5 @@
-// src/pages/TenantDetail.tsx
-// Painel de Auditoria de um Tenant — visão forense completa: dados + logs de atividade
+// src/pages/OrganizacaoDetalheAdmin.tsx
+// Painel de Auditoria de uma Organização — visão forense completa: dados + logs de atividade
 
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -120,7 +120,7 @@ function renderDiffTable(diffs: DiffObj[]) {
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
-export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: () => void }) {
+export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string; onBack: () => void }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<TabKey>('auditoria')
   const [loading, setLoading] = useState(true)

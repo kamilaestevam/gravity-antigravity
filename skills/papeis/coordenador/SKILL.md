@@ -196,7 +196,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Item | Rollback se falhar |
 |:---|:---|
 | Estrutura do monorepo correta | Reexecutar agente 0A |
-| `@gravity/tenant-resolver` SDK compila e tests passam | Reexecutar Tech Lead — bloqueia tudo |
+| `@gravity/resolver-organizacao` SDK compila e tests passam | Reexecutar Tech Lead — bloqueia tudo |
 | Bancos `configurador-db` e `organização-shared` criados | DevOps recria via Railway |
 | Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-organização` |
 | ESLint custom rule (bloqueia `import { PrismaClient }`) ativa em CI | Reexecutar agente DevOps |
@@ -216,7 +216,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Item | Rollback se falhar |
 |:---|:---|
 | Cada serviço por organização responde `GET /health` | Reexecutar serviço que falhou |
-| Todos os serviços usam **exclusivamente** `withTenant` ou `withTenantContext` | Reprovação imediata pelo lint CI |
+| Todos os serviços usam **exclusivamente** `withTenant` ou `withOrganizacaoContext` | Reprovação imediata pelo lint CI |
 | Schema `organização-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
 | Schema de cada produto compõe sem conflito | Coordenador resolve naming |
 | `contracts.json` atualizado com endpoints da Onda 3 | Coordenador atualiza |

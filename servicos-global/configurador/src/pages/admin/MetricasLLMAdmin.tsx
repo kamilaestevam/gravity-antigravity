@@ -17,7 +17,7 @@ interface DailyMetric {
   diffsValidados: number
 }
 
-export function MetricasGeminiAdmin() {
+export function MetricasLLMAdmin() {
   const { t } = useTranslation()
   const [daily, setDaily] = useState<DailyMetric[]>([])
   const [cache, setCache] = useState<{ cacheSize: number; cacheHits: number; cacheMisses: number; hitRate: number }>({ cacheSize: 0, cacheHits: 0, cacheMisses: 0, hitRate: 0 })

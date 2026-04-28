@@ -1,5 +1,5 @@
 /**
- * EmpresasParceiros.tsx — Gaveta do Configurador (Fase 5 DDD).
+ * EmpresasParceiras.tsx — Gaveta do Configurador (Fase 5 DDD).
  *
  * Tela tenant — NÃO é painel Admin. Só lista/edita Empresas da organização
  * logada (Tenant Isolation via header x-organizacao-id).
@@ -146,7 +146,7 @@ function StatusCell({ ativo }: { ativo: boolean }) {
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
-export function EmpresasParceiros() {
+export function EmpresasParceiras() {
   const addNotification = useShellStore((s) => s.addNotification)
   const currentUser = useShellStore((s) => s.currentUser)
   const idOrganizacao = currentUser.tenantId
@@ -177,7 +177,7 @@ export function EmpresasParceiros() {
       const parsed = listaEmpresasSchema.parse(raw)
       setEmpresas(parsed.itens)
     } catch (err) {
-      console.error('[EmpresasParceiros] erro ao carregar:', err)
+      console.error('[EmpresasParceiras] erro ao carregar:', err)
       addNotification({
         type: 'error',
         message: 'Erro inesperado ao carregar empresas.',
@@ -223,7 +223,7 @@ export function EmpresasParceiros() {
         message: `Empresa "${atualizada.nome_empresa}" ${atualizada.ativo ? 'reativada' : 'desativada'}.`,
       })
     } catch (err) {
-      console.error('[EmpresasParceiros] erro ao alternar status:', err)
+      console.error('[EmpresasParceiras] erro ao alternar status:', err)
       addNotification({ type: 'error', message: 'Erro inesperado ao atualizar empresa.' })
     }
   }
@@ -510,4 +510,4 @@ export function EmpresasParceiros() {
   )
 }
 
-export default EmpresasParceiros
+export default EmpresasParceiras

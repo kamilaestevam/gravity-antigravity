@@ -106,7 +106,7 @@ O `nucleo-global/` contém componentes React **puros** (sem estado global, sem c
 Todo produto usa um arquivo `api.ts` (ou `apiGlobal.ts`) que centraliza chamadas REST. Este arquivo:
 
 1. Configura a base URL do backend
-2. Injeta headers obrigatórios (Authorization, x-id-correlacao; o `id_organizacao` é resolvido server-side via SDK `@gravity/tenant-resolver`)
+2. Injeta headers obrigatórios (Authorization, x-id-correlacao; o `id_organizacao` é resolvido server-side via SDK `@gravity/resolver-organizacao`)
 3. Trata erros de forma padronizada
 4. Nunca expõe tokens ou dados sensíveis em logs
 
@@ -169,7 +169,7 @@ Cada organizacao tem seus dados **completamente isolados** via **Schema-per-Orga
 ### Regras Absolutas
 
 1. **Todo model Prisma** tem campo `id_organizacao String` obrigatório (mapeado no banco; ver convenção abaixo)
-2. **Toda query** ao banco roda dentro de `withOrganizacao`/`withOrganizacaoContext` do SDK `@gravity/tenant-resolver`
+2. **Toda query** ao banco roda dentro de `withOrganizacao`/`withOrganizacaoContext` do SDK `@gravity/resolver-organizacao`
 3. **Schema-per-Organizacao** ativo no PostgreSQL — `SET LOCAL search_path` por requisição
 4. **Middleware do SDK** resolve a organizacao e expõe `req.organizacao.idOrganizacao` (API real do SDK — manter o nome)
 5. Nenhum endpoint retorna dados de outra organizacao — mesmo para Master/Super Admin (que acessam por contexto explícito, sem `UsuarioWorkspace`)
@@ -264,7 +264,7 @@ O Dream Team de Produtos (PM, SME, Data Analyst, Pesquisador, UX Researcher, Bus
 - [ ] Sei qual design system usar (Solid Slate)?
 - [ ] Sei que dark mode é o padrão?
 - [ ] Sei que devo usar Lucide icons e Plus Jakarta Sans?
-- [ ] Entendo o isolamento de organizacao (Schema-per-Organizacao) e o SDK `@gravity/tenant-resolver`?
+- [ ] Entendo o isolamento de organizacao (Schema-per-Organizacao) e o SDK `@gravity/resolver-organizacao`?
 - [ ] Sei que devo reutilizar componentes do nucleo-global?
 - [ ] Entendo a arquitetura de ondas?
 - [ ] Sei onde cada tipo de código/serviço vive no monorepo?

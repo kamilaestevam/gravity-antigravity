@@ -106,7 +106,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 4 | **DDD Nomenclatura** | `skills/governanca/lei/ddd-nomenclatura/SKILL.md` | **Lei única de nomenclatura** — em conflito com qualquer outro doc, esta prevalece |
 | 5 | Terminal | `skills/governanca/lei/terminal/SKILL.md` | Autorização de comandos autônomos (instalar, build, kill-port) |
 | 6 | Isolamento de Organizacao | `skills/governanca/lei/isolamento-organizacao/SKILL.md` | Schema-per-Organizacao — **qualquer acesso a banco** |
-| 7 | SDK Resolvedor de Organizacao | `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` | `@gravity/tenant-resolver` — `withOrganizacao`, `withOrganizacaoContext`, `TenantDatabase` |
+| 7 | SDK Resolvedor de Organizacao | `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` | `@gravity/resolver-organizacao` — `withOrganizacao`, `withOrganizacaoContext`, `BancoOrganizacao` |
 | 8 | SLA Metas ⭐ | `skills/governanca/lei/sla-metas/SKILL.md` | 200ms p95, 50k req/s, 99,9% uptime, budget de latência |
 | 9 | Cost Budget ⭐ | `skills/governanca/lei/cost-budget/SKILL.md` | Limites mensais, thresholds 70/80/90/95%, bloqueio de scaling em 95% |
 | 10 | Backup Policy ⭐ | `skills/governanca/lei/backup-policy/SKILL.md` | RPO 24h, RTO 1h, backup pré-migration obrigatório, teste mensal |
@@ -309,7 +309,7 @@ CLAUDE.md                                     ← Mapa completo (carregado autom
 ### Regras Invioláveis (alinhadas aos 9 Mandamentos)
 
 - **TypeScript** strict, sem `any`, sem `@ts-ignore`, ESModules only
-- **Banco**: bancos de produto usam Schema-per-Organizacao; acesso exclusivamente via `withOrganizacao`/`withOrganizacaoContext` do `@gravity/tenant-resolver`; `PrismaClient` direto é PROIBIDO; Configurador usa single-schema `public`
+- **Banco**: bancos de produto usam Schema-per-Organizacao; acesso exclusivamente via `withOrganizacao`/`withOrganizacaoContext` do `@gravity/resolver-organizacao`; `PrismaClient` direto é PROIBIDO; Configurador usa single-schema `public`
 - **Schema Prisma**: NUNCA alterar `schema.prisma` (Mandamento 02). Apenas o Coordenador, via script
 - **DDD**: usar `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads, propriedades e variáveis (Mandamento 03 — DDD; booleans sem prefixo `is_`). Lei única: [DDD Nomenclatura](../../governanca/lei/ddd-nomenclatura/SKILL.md)
 - **Acesso global**: Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)

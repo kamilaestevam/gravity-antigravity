@@ -174,7 +174,7 @@ produto/[nome-produto]/
     │   │   └── [recurso2].ts
     │   ├── middleware/
     │   │   ├── requireInternalKey.ts
-    │   │   └── withOrganizacao.ts          # SDK @gravity/tenant-resolver
+    │   │   └── withOrganizacao.ts          # SDK @gravity/resolver-organizacao
     │   ├── services/
     │   │   └── [servicoX].ts
     │   ├── connectors/

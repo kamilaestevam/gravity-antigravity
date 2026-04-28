@@ -1,5 +1,5 @@
-// src/pages/AdminPanel.tsx
-// Painel exclusivo para gravity_admin — gestão de todos os tenants da plataforma
+// src/pages/OrganizacoesAdmin.tsx
+// Painel exclusivo para gravity_admin — gestão de todas as organizações da plataforma
 
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -89,7 +89,7 @@ const SHELL_URL = import.meta.env.VITE_SHELL_URL || 'http://localhost:8010'
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
-export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
+export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void }) {
   const { t } = useTranslation()
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [stats, setStats] = useState<Stats | null>(null)

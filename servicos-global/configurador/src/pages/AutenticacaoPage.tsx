@@ -4,7 +4,7 @@ import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import './auth.css'
 
-export function AuthPage() {
+export function AutenticacaoPage() {
   const { t } = useTranslation()
   return (
     <div className="auth-root">

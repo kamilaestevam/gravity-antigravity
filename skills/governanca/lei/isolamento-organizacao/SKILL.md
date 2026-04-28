@@ -1,6 +1,6 @@
 ---
 name: antigravity-isolamento-organizacao
-description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organizacao em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organizacao + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
+description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados da organizacao em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Organizacao + SDK obrigatório @gravity/resolver-organizacao. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
 ---
 
 # Gravity — Isolamento de Organizacao (Schema-per-Organizacao)
@@ -9,13 +9,13 @@ description: "Use esta skill sempre que uma tarefa envolver queries ao banco de 
 > O modelo anterior (`WHERE id_organizacao = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
 > Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-organizacao e Configurador como hub central). Ver [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md). Detalhes operacionais consolidados em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
 >
-> **Notas sobre nomes técnicos preservados:** apenas dois nomes legados continuam por razões físicas — o pacote npm `@gravity/tenant-resolver` (identificador registrado) e o prefixo de schema PostgreSQL `tenant_<cuid>` (objeto físico do banco). A API pública do SDK foi migrada para `withOrganizacao(req, ...)` / `withOrganizacaoContext(idOrganizacao, ...)`. Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03).
+> **Notas sobre nomes técnicos preservados:** apenas dois nomes legados continuam por razões físicas — o pacote npm `@gravity/resolver-organizacao` (identificador registrado) e o prefixo de schema PostgreSQL `tenant_<cuid>` (objeto físico do banco). A API pública do SDK foi migrada para `withOrganizacao(req, ...)` / `withOrganizacaoContext(idOrganizacao, ...)`. Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03).
 
 ---
 
 ## A Regra Mais Importante do Sistema
 
-**Em todo banco de produto, cada organizacao vive em seu próprio schema PostgreSQL exclusivo. Nenhum acesso ao banco acontece sem passar pelo SDK `@gravity/tenant-resolver`.**
+**Em todo banco de produto, cada organizacao vive em seu próprio schema PostgreSQL exclusivo. Nenhum acesso ao banco acontece sem passar pelo SDK `@gravity/resolver-organizacao`.**
 
 Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é **do PostgreSQL**, não da aplicação. Não há exceção. Não há "só desta vez".
 
@@ -34,7 +34,7 @@ Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é 
 ## A Única Forma Permitida de Acessar o Banco
 
 ```typescript
-import { withOrganizacao } from '@gravity/tenant-resolver';
+import { withOrganizacao } from '@gravity/resolver-organizacao';
 
 app.get('/pedidos', async (req, res) => {
   const pedidos = await withOrganizacao(req, async (db) => {
@@ -62,7 +62,7 @@ return _internalPrisma.$transaction(async (tx) => {
 ### Para CRON jobs e workers (sem `req`)
 
 ```typescript
-import { withOrganizacaoContext } from '@gravity/tenant-resolver';
+import { withOrganizacaoContext } from '@gravity/resolver-organizacao';
 
 // O parâmetro "tenantId" abaixo é o nome real da API pública do SDK.
 // Em payloads e variáveis de aplicação, use idOrganizacao.
@@ -197,8 +197,8 @@ O serviço de produto nunca acessa o banco do Configurador. Identidade vem via `
 
 ```typescript
 // ✅ correto — via SDK, que cacheia GET /api/v1/me (Mandamento 01: Prisma é fonte da verdade)
-// O middleware tenantResolver já fez isso. req.organizacao tem o que você precisa.
-app.get('/algo', tenantResolver(config), async (req, res) => {
+// O middleware resolverOrganizacao já fez isso. req.organizacao tem o que você precisa.
+app.get('/algo', resolverOrganizacao(config), async (req, res) => {
   const { roles } = req.organizacao;
   if (!roles.includes('PEDIDO_WRITE')) throw new AppError('Sem permissão', 403);
   // ...
@@ -228,11 +228,11 @@ Rotas administrativas em qualquer produto exigem:
 O SDK emite (Prometheus):
 
 ```
-tenant_resolver_resolve_duration_ms{quantile="0.95"}     # alvo < 5ms
-tenant_resolver_set_local_duration_ms{quantile="0.95"}   # alvo < 2ms
-tenant_resolver_cache_hit_ratio                           # alvo > 95%
-tenant_resolver_configurador_errors_total                 # alvo 0
-tenant_resolver_active_transactions                       # capacidade
+resolver_organizacao_resolve_duration_ms{quantile="0.95"}     # alvo < 5ms
+resolver_organizacao_set_local_duration_ms{quantile="0.95"}   # alvo < 2ms
+resolver_organizacao_cache_hit_ratio                           # alvo > 95%
+resolver_organizacao_configurador_errors_total                 # alvo 0
+resolver_organizacao_active_transactions                       # capacidade
 ```
 
 CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_existentes`. Divergência → alerta crítico na aba "Alertas (24h)".
@@ -242,7 +242,7 @@ CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_exi
 ## Checklist — Antes de Qualquer Acesso ao Banco de Produto
 
 - [ ] Estou usando `withOrganizacao(req, ...)` ou `withOrganizacaoContext(idOrganizacao, ...)` — não há outra forma?
-- [ ] O produto tem `@gravity/tenant-resolver` no `package.json` (e **não** `@prisma/client`)?
+- [ ] O produto tem `@gravity/resolver-organizacao` no `package.json` (e **não** `@prisma/client`)?
 - [ ] Estou dentro do callback do SDK ao tocar o banco?
 - [ ] O cache (se houver) está prefixado com `organizacao:<id_organizacao>:`?
 - [ ] O teste de cross-organizacao está implementado e passando?

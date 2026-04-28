@@ -126,7 +126,7 @@ Todo agente que escreve código garante:
 - Nenhuma variável de ambiente hardcoded
 - JWT validado em toda rota protegida via `@clerk/backend` — **Clerk APENAS para autenticação** (Mandamento 01)
 - `x-chave-interna` presente em toda chamada entre serviços
-- **Acesso ao banco de produto exclusivamente via `withOrganizacao(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
+- **Acesso ao banco de produto exclusivamente via `withOrganizacao(req, async db => ...)` do `@gravity/resolver-organizacao`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
 - Toda chave de cache prefixada por `organizacao:<id>:` (ou `organizacao:_global:` com justificativa)
 - **Autorização vem do Prisma via `GET /api/v1/me`** — PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões (Mandamento 01)
 - Identidade da organizacao vem do JWT validado pelo SDK — **nunca** do body da requisição

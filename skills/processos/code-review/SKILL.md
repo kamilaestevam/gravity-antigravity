@@ -28,7 +28,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 ### Segurança (bloqueia merge se falhar) — pós-pivô 2026-04-17 + DDD 2026-04-19
 
 - [ ] Toda rota tem validação Zod (Mandamento 06)?
-- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` do `@gravity/tenant-resolver`?
+- [ ] Acesso ao banco de produto **exclusivamente** via `withOrganizacao(req, ...)` ou `withOrganizacaoContext(idOrganizacao, ...)` do `@gravity/resolver-organizacao`?
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK?
 - [ ] **Nenhum** `new PrismaClient(`?
 - [ ] **Nenhum** `WHERE id_organizacao = ?` em models de produto (o schema **é** a organização — Schema-per-Organização)?

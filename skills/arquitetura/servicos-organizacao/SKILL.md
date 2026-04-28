@@ -16,7 +16,7 @@ Existem uma vez por organizacao, independente de quantos produtos ela use. O ema
 - **Todos os 11 serviços rodam em processo único — o super-servidor de organizacao (porta 3001)**
 - Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/organizacao/server/index.ts`) é o único `app.listen()`
 - Acessados por todos os produtos via API REST
-- Após o pivô Schema-per-Organizacao (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`); models não carregam mais `id_organizacao` como coluna
+- Após o pivô Schema-per-Organizacao (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/resolver-organizacao` (`withOrganizacao`/`withOrganizacaoContext`); models não carregam mais `id_organizacao` como coluna
 
 ### Serviços de Produto
 
@@ -158,7 +158,7 @@ Cada serviço escreve apenas seu próprio fragment. Nunca edita o `schema.prisma
 - **NÃO** carrega `id_organizacao` como coluna — o schema PostgreSQL **é** a organizacao
 - `id_produto String?` nullable para tabelas que podem ter contexto de produto
 - Sem `@@index([id_organizacao, ...])` — desnecessário (schema isola fisicamente)
-- Acesso só via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`)
+- Acesso só via SDK `@gravity/resolver-organizacao` (`withOrganizacao`/`withOrganizacaoContext`)
 
 ```prisma
 // servicos-global/organizacao/atividades/prisma/fragment.prisma
@@ -183,21 +183,21 @@ model Activity {
 
 ## Como Usar o id_produto nas Queries
 
-Acesso **sempre via SDK** — o `withTenant`/`withTenantContext` aplica `SET LOCAL search_path` para o schema da organizacao.
+Acesso **sempre via SDK** — o `withOrganizacao`/`withOrganizacaoContext` aplica `SET LOCAL search_path` para o schema da organizacao.
 
 ```typescript
 // Dentro de um produto → só dados daquele produto
-const activities = await withTenant(req, async (db) =>
+const activities = await withOrganizacao(req, async (db) =>
   db.activity.findMany({ where: { id_produto: 'simulador-comex' } })
 )
 
 // Na visão unificada "Minhas Atividades" → tudo do usuário
-const activities = await withTenant(req, async (db) =>
+const activities = await withOrganizacao(req, async (db) =>
   db.activity.findMany({ where: { id_usuario: currentUser } })
 )
 
 // No Dashboard consolidado → tudo da organizacao (schema isola)
-const count = await withTenant(req, async (db) =>
+const count = await withOrganizacao(req, async (db) =>
   db.activity.count({ where: { status: 'pending' } })
 )
 ```
@@ -306,7 +306,7 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - [ ] Se de produto: dados têm regras diferentes por produto?
 - [ ] Criou a estrutura `src/` + `server/` + `prisma/fragment.prisma`?
 - [ ] Fragment **não** tem `id_organizacao` como coluna (schema-per-organizacao isola fisicamente)?
-- [ ] Acesso ao banco somente via SDK `@gravity/tenant-resolver` (`withTenant`/`withTenantContext`)?
+- [ ] Acesso ao banco somente via SDK `@gravity/resolver-organizacao` (`withOrganizacao`/`withOrganizacaoContext`)?
 - [ ] Índices apenas para campos de domínio (não há mais `@@index([id_organizacao, ...])`)?
 - [ ] O serviço não importa código de nenhum outro serviço?
 - [ ] Barrel export no `index.ts` do `src/`?

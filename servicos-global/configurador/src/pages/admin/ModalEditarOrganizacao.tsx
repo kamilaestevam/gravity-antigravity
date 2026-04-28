@@ -14,7 +14,7 @@ import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-form
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { Tenant } from '../AdminPanel'
+import { Tenant } from '../OrganizacoesAdmin'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 export interface DadosEditarOrg {

@@ -57,8 +57,8 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 > Consultar `antigravity-isolamento-organizacao`.
 
-- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
-- [ ] `withTenantContext(idOrganizacao, fn)` em CRON jobs e workers (sem `req`)
+- [ ] Acesso ao banco de produto **exclusivamente** via `withOrganizacao(req, async db => ...)` do `@gravity/resolver-organizacao`
+- [ ] `withOrganizacaoContext(idOrganizacao, fn)` em CRON jobs e workers (sem `req`)
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK — reprovação imediata
 - [ ] **Nenhum** `new PrismaClient(` no código de aplicação — reprovação imediata
 - [ ] **Nenhum** `WHERE id_organizacao = ?` em queries de produto (o schema **é** a organização)

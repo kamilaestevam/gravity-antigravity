@@ -331,7 +331,7 @@ Cada tela do produto tem um checklist detalhado que o QA usa para validar a impl
 - [ ] Leitor de tela: todos os elementos importantes acessíveis
 
 ### Dados e Segurança
-- [ ] Dados filtrados por `id_organizacao` via SDK `@gravity/tenant-resolver` (sem dados de outra organizacao)
+- [ ] Dados filtrados por `id_organizacao` via SDK `@gravity/resolver-organizacao` (sem dados de outra organizacao)
 - [ ] Toda resposta `fetch().json()` validada via `schema.parse()` (Mandamento 06 — Validação de Contrato Zod)
 - [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão (Mandamento 01 — Isolamento Total do Clerk)
 - [ ] Paginação funcionando (se aplicável)

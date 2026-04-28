@@ -18,7 +18,7 @@ usuário decidir o próximo passo.
 
 ## Quando Esta Skill É Ativada
 
-- Ao usar o comando `/terminal`
+- Ao iniciar uma tarefa que envolva operações de terminal (ler esta skill antes)
 - Quando o agente já está no fluxo de outra skill e precisa executar operações de terminal
   como parte do trabalho (ex: reiniciar servidor após ajuste, instalar pacote novo)
 
@@ -91,7 +91,7 @@ git stash list
 ## Operações que NUNCA são executadas sem confirmação explícita
 
 - `git commit`, `git push`, `git reset`, `git checkout` com mudanças
-- `rm -rf` em diretórios que não sejam cache (`node_modules/.cache`, `.next`, `dist`)
+- `rm -rf` em diretórios que não sejam cache (`node_modules/.cache`, `.next`, `dist`, `build`). Pastas de código-fonte (ver lista em [Agent Policy](../agent-policy/SKILL.md)) **nunca** sob nenhuma circunstância.
 - `npx prisma migrate reset` (apaga o banco)
 - `npx prisma migrate deploy` (produção)
 - Qualquer operação com `--force`
@@ -192,7 +192,7 @@ AÇÃO: rm -rf node_modules/.cache (ou .next/dist) → reiniciar
 
 | Produto/Serviço | Backend | Frontend |
 |:----------------|:--------|:---------|
-| Organização Server (todos os 11 serviços) | 3001 | — |
+| Organizacao Server (todos os 11 serviços) | 3001 | — |
 | Dashboard BI (client) | — | 5010 |
 | Configurador | 8005 | 8000 |
 | Marketplace | — | 8001 |
@@ -205,24 +205,5 @@ AÇÃO: rm -rf node_modules/.cache (ou .next/dist) → reiniciar
 | Processo | 8026 | 5000 |
 | SimulaCusto | 8020 | 5180 |
 
-> Para portas atualizadas, consultar `skills/governanca/ambiente/SKILL.md`.
+> Para portas atualizadas, consultar a skill de ambiente quando criada (atualmente em planejamento).
 
----
-
-## Slash Command `/terminal`
-
-Ativa o modo terminal autônomo. Uso:
-
-```
-/terminal [descrição do que precisa fazer]
-```
-
-Exemplos:
-```
-/terminal servidor do pedido não sobe, porta 8020 em uso
-/terminal instalar dependência zod no produto pedido
-/terminal build está quebrando com erro de tipo
-```
-
-O agente identifica o problema, executa as operações necessárias da lista autorizada
-e reporta o resultado em formato compacto.

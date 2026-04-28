@@ -139,14 +139,14 @@ it('crash do handler não polui search_path da próxima request', async () => {
 
 ### 4.2 Linter de Organização Safety (CI bloqueia deploy)
 
-> O nome do linter (`Organização Safety`) é mantido — referencia o pacote real `@gravity/resolver-organizacao` e o prefixo físico `tenant_<cuid>`.
+> O linter `Organizacao Safety` referencia o pacote real `@gravity/resolver-organizacao` e o prefixo físico `tenant_<cuid>`.
 
-Falha o build se detectar em `produto/*/server/` ou `servicos-global/organização/*/server/`:
+Falha o build se detectar em `produto/*/server/` ou `servicos-global/organizacao/*/server/`:
 
 - `import { PrismaClient } from '@prisma/client'`
 - `new PrismaClient(`
 - Acesso ao banco fora de `withOrganizacao` ou `withOrganizacaoContext`
-- Chave de cache sem prefixo `organização:<id>:` ou `organização:_global:` (com justificativa) — prefixo do SDK mantido por compatibilidade
+- Chave de cache sem prefixo `organizacao:<idOrganizacao>:` ou `organizacao:_global:`
 
 ---
 
@@ -175,14 +175,14 @@ Cada iteração abre transação isolada. Falha em uma organização não polui 
 A proteção se aplica fora do banco isolando blobs e cache.
 
 ### Key-Value Cache (Redis ou in-memory)
-**OBRIGATÓRIO** prefixo de organização em toda chave. Linter CI bloqueia chaves sem o prefixo (o prefixo `organização:` é mantido por compatibilidade do SDK).
+**OBRIGATÓRIO** prefixo de organização em toda chave. Linter CI bloqueia chaves sem o prefixo `organizacao:`.
 
 ```typescript
 // ✅ correto
-await redis.set(`organização:${idOrganizacao}:produtos:${id}`, payload);
+await redis.set(`organizacao:${idOrganizacao}:produtos:${id}`, payload);
 
 // ✅ correto — cache global explícito
-await redis.set(`organização:_global:ncm:8471.30`, payload);
+await redis.set(`organizacao:_global:ncm:8471.30`, payload);
 
 // ❌ proibido
 await redis.set(`produtos:${id}`, payload);
@@ -199,8 +199,8 @@ PDFs de Fatura Comercial são estritamente privados (S3 Public ACL = off).
 ## 7. Endpoints Administrativos `/admin/*`
 
 Rotas administrativas exigem:
-- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (de `req.organizacao.roles`, vindo do `GET /api/v1/me` — Mandamento 01)
-- Header `x-target-organização-id` explícito (não inferido do JWT do admin) — nome do header mantido por compatibilidade de protocolo
+- JWT válido + `tipo_usuario === 'SUPER_ADMIN'` (de `req.organizacao.tiposUsuario`, vindo do `GET /api/v1/me` — Mandamento 01)
+- Header `x-target-organizacao-id` explícito (não inferido do JWT do admin)
 - Validação dupla pelo SDK: usuário tem permissão **E** organização alvo existe e está ativa
 - Log especial `admin_action: true`, ingerido pela aba "Eventos de Segurança"
 

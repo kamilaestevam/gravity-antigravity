@@ -64,7 +64,7 @@ export function WorkspaceLayout() {
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ userId: currentUser.id || user?.id, tenantId: currentUser.tenantId })
+  useUserPreferences({ id_usuario: currentUser.id || user?.id, id_organizacao: currentUser.tenantId })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 

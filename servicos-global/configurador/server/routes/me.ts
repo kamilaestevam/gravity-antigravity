@@ -157,17 +157,17 @@ export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>
  * Retorna true se válido, false caso contrário (frontend/GET usa para fallback).
  */
 async function isPreferredCompanyValid(
-  userId: string,
-  tenantId: string,
-  companyId: string,
+  id_usuario: string,
+  id_organizacao: string,
+  id_workspace: string,
   role: string,
 ): Promise<boolean> {
   // Admins Gravity: acesso via tenant, não via membership
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
     const company = await prisma.workspace.findFirst({
       where: {
-        id_workspace: companyId,
-        id_organizacao_workspace: tenantId,
+        id_workspace: id_workspace,
+        id_organizacao_workspace: id_organizacao,
         status_workspace: 'ATIVO',
       },
       select: { id_workspace: true },
@@ -178,9 +178,9 @@ async function isPreferredCompanyValid(
   // Clientes (MASTER/STANDARD): requer membership ativa
   const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
-      id_usuario_usuario_workspace: userId,
-      id_workspace_usuario_workspace: companyId,
-      id_organizacao_usuario_workspace: tenantId,
+      id_usuario_usuario_workspace: id_usuario,
+      id_workspace_usuario_workspace: id_workspace,
+      id_organizacao_usuario_workspace: id_organizacao,
       ativo_usuario_workspace: true,
       company: { status_workspace: 'ATIVO' },
     },

@@ -74,10 +74,10 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
     // 3. Verifica permissão granular (se solicitado)
     if (productId && resource && action) {
       const hasPermission = await permissionsService.checkPermission({
-        tenantId: id_organizacao,
-        userId: id_usuario,
-        productId,
-        companyId: id_workspace,
+        id_organizacao: id_organizacao,
+        id_usuario: id_usuario,
+        id_produto: productId,
+        id_workspace: id_workspace,
         resource,
         action: action || '',
       })

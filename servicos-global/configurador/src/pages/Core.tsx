@@ -99,8 +99,8 @@ export function Core() {
   }, [])
 
   useUserPreferences({
-    userId: user?.id,
-    tenantId: currentUser.tenantId,
+    id_usuario: user?.id,
+    id_organizacao: currentUser.tenantId,
   })
 
   const isLight = currentTheme === 'light'

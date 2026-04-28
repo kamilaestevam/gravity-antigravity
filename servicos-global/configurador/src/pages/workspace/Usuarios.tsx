@@ -33,7 +33,7 @@ export interface TenantUser {
 export type EspacoTrabalho = {
   id: string
   nome: string
-  usuarios: { userId: string; role: string; habilitado: boolean }[]
+  usuarios: { id_usuario: string; role: string; habilitado: boolean }[]
 }
 
 // ─── Auth helper (mesmo padrão de Workspaces.tsx) ──────────────────────────
@@ -262,13 +262,13 @@ export function Usuarios() {
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
   }
 
-  function handleToggleEspacoTrabalhoUser(filialId: string, userId: string) {
+  function handleToggleEspacoTrabalhoUser(filialId: string, id_usuario: string) {
     setFiliais(prev => prev.map(f => {
       if (f.id !== filialId) return f
       return {
         ...f,
         usuarios: f.usuarios.map(u =>
-          u.userId === userId ? { ...u, habilitado: !u.habilitado } : u
+          u.id_usuario === id_usuario ? { ...u, habilitado: !u.habilitado } : u
         ),
       }
     }))

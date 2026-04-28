@@ -22,11 +22,11 @@ const EnableProductSchema = z.object({
  */
 companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const { id_workspace: companyId } = req.params
+    const { id_workspace } = req.params
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.id_organizacao },
+      where: { id_workspace: id_workspace, id_organizacao_workspace: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -35,7 +35,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const [companyProducts, tenantConfigs] = await Promise.all([
       prisma.produtoGravityWorkspace.findMany({
         where: {
-          id_workspace_produto_gravity_workspace: companyId,
+          id_workspace_produto_gravity_workspace: id_workspace,
           id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
         },
         orderBy: { data_criacao_produto_gravity_workspace: 'desc' },
@@ -106,7 +106,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
  */
 companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
   try {
-    const { id_workspace: companyId } = req.params
+    const { id_workspace } = req.params
     const parsed = EnableProductSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError('product_key é obrigatório', 400, 'VALIDATION_ERROR')
@@ -116,7 +116,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: companyId, id_organizacao_workspace: req.auth.id_organizacao },
+      where: { id_workspace: id_workspace, id_organizacao_workspace: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -143,13 +143,13 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     const companyProduct = await prisma.produtoGravityWorkspace.upsert({
       where: {
         id_workspace_produto_gravity_workspace_chave_produto_produto_gravity_workspace: {
-          id_workspace_produto_gravity_workspace: companyId,
+          id_workspace_produto_gravity_workspace: id_workspace,
           chave_produto_produto_gravity_workspace: product_key,
         },
       },
       create: {
         id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
-        id_workspace_produto_gravity_workspace: companyId,
+        id_workspace_produto_gravity_workspace: id_workspace,
         chave_produto_produto_gravity_workspace: product_key,
         ativo_produto_gravity_workspace: true,
       },
@@ -181,11 +181,11 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
  */
 companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, res, next) => {
   try {
-    const { id_workspace: companyId, id_produto_gravity: productKey } = req.params
+    const { id_workspace, id_produto_gravity: productKey } = req.params
 
     await prisma.produtoGravityWorkspace.updateMany({
       where: {
-        id_workspace_produto_gravity_workspace: companyId,
+        id_workspace_produto_gravity_workspace: id_workspace,
         chave_produto_produto_gravity_workspace: productKey,
         id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
       },

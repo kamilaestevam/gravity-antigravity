@@ -50,16 +50,16 @@ hubRouter.get('/catalogo', async (_req, res, next) => {
  */
 hubRouter.get('/init', requireAuth, async (req, res, next) => {
   try {
-    const tenantId = req.auth.id_organizacao
-    const userId = req.auth.id_usuario
+    const id_organizacao = req.auth.id_organizacao
+    const id_usuario = req.auth.id_usuario
     const role = req.auth.tipo_usuario
 
     // Tudo em paralelo — 1 único requireAuth
     const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
-      tenantService.getTenantById(tenantId),
-      tenantService.getCompanies(tenantId),
+      tenantService.getTenantById(id_organizacao),
+      tenantService.getCompanies(id_organizacao),
       prisma.produtoGravityConfiguracao.findMany({
-        where: { id_organizacao_config_produto_gravity: tenantId },
+        where: { id_organizacao_config_produto_gravity: id_organizacao },
         orderBy: { data_criacao_config_produto_gravity: 'desc' },
       }).catch(() => []),
       prisma.produtoGravity.findMany({
@@ -82,7 +82,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       role === 'FORNECEDOR'
         ? Promise.resolve(null)
         : prisma.usuario.findUnique({
-            where: { id_usuario: userId },
+            where: { id_usuario: id_usuario },
             select: { preferred_company_id: true },
           }).catch(() => null),
     ])
@@ -114,7 +114,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
         prisma.usuario
           .update({
-            where: { id_usuario: userId },
+            where: { id_usuario },
             data: { preferred_company_id: null },
           })
           .catch(() => {
@@ -161,14 +161,14 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
  */
 hubRouter.get('/insights', requireAuth, async (req, res) => {
   try {
-    const tenantId = req.auth.id_organizacao
-    const userId = req.auth.id_usuario
+    const id_organizacao = req.auth.id_organizacao
+    const id_usuario = req.auth.id_usuario
     const role = normalizeHubRole(req.auth.tipo_usuario)
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
     const configs = await prisma.produtoGravityConfiguracao.findMany({
       where: {
-        id_organizacao_config_produto_gravity: tenantId,
+        id_organizacao_config_produto_gravity: id_organizacao,
         ativo_config_produto_gravity: true,
       },
       select: { chave_produto_config_produto_gravity: true },
@@ -177,8 +177,8 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const activeProductKeys = new Set(configs.map(c => c.chave_produto_config_produto_gravity))
 
     const insights = await generateHubInsights(
-      tenantId,
-      userId,
+      id_organizacao,
+      id_usuario,
       role,
       activeProductKeys,
     )

@@ -453,7 +453,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       id: 'inspect',
       icone: <MagnifyingGlass size={15} weight="bold" />,
       tooltip: 'Painel de Auditoria',
-      onClick: (item) => navigate({ name: 'tenant-detail', tenantId: item.id }),
+      onClick: (item) => navigate({ name: 'tenant-detail', id_organizacao: item.id }),
     },
   ]
 

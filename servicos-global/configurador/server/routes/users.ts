@@ -260,11 +260,11 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
 // ─── Helpers privados para PUT /:id/workspaces ──────────────────────────────
 
 async function validarWorkspacesDoTenant(
-  tenantId: string,
+  id_organizacao: string,
   workspaceIds: string[],
 ): Promise<void> {
   const empresas = await prisma.workspace.findMany({
-    where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: tenantId, status_workspace: 'ATIVO' },
+    where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: id_organizacao, status_workspace: 'ATIVO' },
     select: { id_workspace: true },
   })
   if (empresas.length !== workspaceIds.length) {
@@ -277,24 +277,24 @@ async function validarWorkspacesDoTenant(
 }
 
 async function substituirWorkspacesAtomicamente(
-  tenantId: string,
-  userId: string,
+  id_organizacao: string,
+  id_usuario: string,
   workspaceIds: string[],
   role: string,
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
     await tx.usuarioWorkspace.deleteMany({
       where: {
-        id_organizacao_usuario_workspace: tenantId,
-        id_usuario_usuario_workspace: userId,
+        id_organizacao_usuario_workspace: id_organizacao,
+        id_usuario_usuario_workspace: id_usuario,
       },
     })
     await tx.usuarioWorkspace.createMany({
       // tipo_usuario_workspace é o enum TipoUsuarioEmpresa — cast para preservar a baseline pré-onda
-      data: workspaceIds.map((companyId) => ({
-        id_organizacao_usuario_workspace: tenantId,
-        id_usuario_usuario_workspace: userId,
-        id_workspace_usuario_workspace: companyId,
+      data: workspaceIds.map((id_workspace) => ({
+        id_organizacao_usuario_workspace: id_organizacao,
+        id_usuario_usuario_workspace: id_usuario,
+        id_workspace_usuario_workspace: id_workspace,
         tipo_usuario_workspace: role as 'MASTER' | 'PADRAO' | 'FORNECEDOR',
         ativo_usuario_workspace: true,
       })),

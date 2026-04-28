@@ -16,7 +16,7 @@ const GabiOnboardingWidget = React.lazy(() =>
 
 export type Page =
   | { name: 'admin' }
-  | { name: 'tenant-detail'; tenantId: string }
+  | { name: 'tenant-detail'; id_organizacao: string }
   | { name: 'hub' }
   | { name: 'store' }
 
@@ -145,7 +145,7 @@ class ProductErrorBoundary extends React.Component<
 function OrganizacaoDetalheWrapper() {
   const { id_organizacao } = useParams()
   const navigate = useNavigate()
-  return <OrganizacaoDetalheAdmin tenantId={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
+  return <OrganizacaoDetalheAdmin id_organizacao={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
 }
 
 /** Rota raiz: se logado → /hub, se não → AutenticacaoPage */
@@ -249,7 +249,7 @@ export default function App() {
 
   const adminNavigate = (next: Page) => {
     if (next.name === 'admin') routerNavigate('/admin/organizacoes')
-    if (next.name === 'tenant-detail') routerNavigate(`/admin/organizacoes/${next.tenantId}`)
+    if (next.name === 'tenant-detail') routerNavigate(`/admin/organizacoes/${next.id_organizacao}`)
   }
 
   return (

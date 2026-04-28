@@ -427,7 +427,7 @@ export function ProdutosGravityAdmin() {
 
   const COLUNAS_NEGOCIACOES: TabelaGlobalColuna<NegociacaoEspecial>[] = [
     {
-      key: 'tenantNome', label: 'Cliente', tipo: 'texto',
+      key: 'nome_organizacao', label: 'Cliente', tipo: 'texto',
       tooltipTitulo: 'Referência ao Tenant ID', tooltipDescricao: 'Vinculação FK com a tabela de Organizations (Clerk).',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },

@@ -120,7 +120,7 @@ function renderDiffTable(diffs: DiffObj[]) {
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
-export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string; onBack: () => void }) {
+export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organizacao: string; onBack: () => void }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<TabKey>('auditoria')
   const [loading, setLoading] = useState(true)
@@ -131,7 +131,7 @@ export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string
     async function loadTenant() {
       setLoading(true)
       try {
-        const res = await adminTenantsApi.getById(tenantId)
+        const res = await adminTenantsApi.getById(id_organizacao)
         const t = res.tenant
         const mapped: TenantMock = {
           id: t.id,
@@ -158,7 +158,7 @@ export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string
 
         // Tentar carregar logs de auditoria do histórico global
         try {
-          const logsRes = await fetch(`/api/v1/admin/historico-global/logs?tenant_id=${tenantId}`)
+          const logsRes = await fetch(`/api/v1/admin/historico-global/logs?tenant_id=${id_organizacao}`)
           if (logsRes.ok) {
             const logsData = await logsRes.json()
             const mappedLogs: LogAuditoria[] = (logsData.data || []).map((dbLog: Record<string, unknown>) => ({
@@ -183,7 +183,7 @@ export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string
       }
     }
     loadTenant()
-  }, [tenantId])
+  }, [id_organizacao])
 
   if (loading) {
     return (
@@ -198,7 +198,7 @@ export function OrganizacaoDetalheAdmin({ tenantId, onBack }: { tenantId: string
     return (
       <div style={{ padding: 64, textAlign: 'center', color: '#f87171' }}>
         <div style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: 8 }}>Tenant não encontrado</div>
-        <div style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: 24 }}>ID: <code style={{ color: '#818cf8' }}>{tenantId}</code></div>
+        <div style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: 24 }}>ID: <code style={{ color: '#818cf8' }}>{id_organizacao}</code></div>
         <button onClick={onBack} style={{ color: '#818cf8', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', borderRadius: '8px', padding: '8px 20px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: '0.875rem', transition: 'all 0.15s' }}>
           ← Voltar ao painel
         </button>

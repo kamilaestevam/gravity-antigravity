@@ -18,8 +18,8 @@
 import { PrismaClient } from '@prisma/client'
 
 interface LgpdDeletionResult {
-  userId: string
-  tenantId: string
+  id_usuario: string
+  id_organizacao: string
   tablesAffected: string[]
   totalRecordsDeleted: number
   exportUrl?: string
@@ -27,8 +27,8 @@ interface LgpdDeletionResult {
 }
 
 interface LgpdExportResult {
-  userId: string
-  tenantId: string
+  id_usuario: string
+  id_organizacao: string
   data: Record<string, unknown[]>
   exportedAt: string
 }
@@ -38,25 +38,25 @@ interface LgpdExportResult {
  */
 export async function exportUserData(
   prisma: PrismaClient,
-  tenantId: string,
-  userId: string
+  id_organizacao: string,
+  id_usuario: string
 ): Promise<LgpdExportResult> {
   const data: Record<string, unknown[]> = {}
 
   // Tabelas do Configurador
   const user = await (prisma as any).user.findFirst({
-    where: { tenant_id: tenantId, clerk_user_id: userId },
+    where: { tenant_id: id_organizacao, clerk_user_id: id_usuario },
   })
   if (user) data.user = [user]
 
   const permissions = await (prisma as any).userPermission.findMany({
-    where: { tenant_id: tenantId, user_id: userId },
+    where: { tenant_id: id_organizacao, user_id: id_usuario },
   })
   if (permissions.length) data.permissions = permissions
 
   return {
-    userId,
-    tenantId,
+    id_usuario,
+    id_organizacao,
     data,
     exportedAt: new Date().toISOString(),
   }
@@ -72,8 +72,8 @@ export async function exportUserData(
  */
 export async function deleteUserData(
   prisma: PrismaClient,
-  tenantId: string,
-  userId: string,
+  id_organizacao: string,
+  id_usuario: string,
   options: { dryRun?: boolean } = {}
 ): Promise<LgpdDeletionResult> {
   const tablesAffected: string[] = []
@@ -109,12 +109,12 @@ export async function deleteUserData(
     }
 
     // Contar em todas as tabelas com id_usuario
-    await countFrom('userPermission', { tenant_id: tenantId, user_id: userId })
-    await countFrom('historyLog', { tenant_id: tenantId, user_id: userId })
+    await countFrom('userPermission', { tenant_id: id_organizacao, user_id: id_usuario })
+    await countFrom('historyLog', { tenant_id: id_organizacao, user_id: id_usuario })
 
     return {
-      userId,
-      tenantId,
+      id_usuario,
+      id_organizacao,
       tablesAffected,
       totalRecordsDeleted,
       completedAt: new Date().toISOString(),
@@ -124,24 +124,24 @@ export async function deleteUserData(
   // Exclusao real — em transacao para atomicidade
   await prisma.$transaction(async (tx) => {
     // 1. Permissoes do usuario
-    await deleteFrom('userPermission', { tenant_id: tenantId, user_id: userId })
+    await deleteFrom('userPermission', { tenant_id: id_organizacao, user_id: id_usuario })
 
     // 2. Historico (anonimizar em vez de deletar — compliance)
     try {
       await tx.historyLog.updateMany({
-        where: { tenant_id: tenantId, user_id: userId },
+        where: { tenant_id: id_organizacao, user_id: id_usuario },
         data: { user_id: 'DELETED_USER', actor_id: 'DELETED_USER' },
       })
       tablesAffected.push('historyLog (anonimizado)')
     } catch { /* tabela pode nao existir */ }
 
     // 3. Usuario record (por ultimo)
-    await deleteFrom('user', { tenant_id: tenantId, clerk_user_id: userId })
+    await deleteFrom('user', { tenant_id: id_organizacao, clerk_user_id: id_usuario })
   })
 
   return {
-    userId,
-    tenantId,
+    id_usuario,
+    id_organizacao,
     tablesAffected,
     totalRecordsDeleted,
     completedAt: new Date().toISOString(),

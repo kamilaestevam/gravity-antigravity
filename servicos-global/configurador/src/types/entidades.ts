@@ -57,8 +57,8 @@ export interface ProdutoCatalogo {
 export interface NegociacaoEspecial {
   id: string
   produtoId: string
-  tenantId: string // ID da Organização (Clerk/Gravity)
-  tenantNome: string // Nome para display facilitado
+  id_organizacao: string // ID da Organização (Clerk/Gravity)
+  nome_organizacao: string // Nome para display facilitado
   acordo: string // Descrição da condição (ex: "Desconto 20%")
   inicio?: string // ISO date
   fim?: string // ISO date

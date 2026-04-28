@@ -12,8 +12,8 @@ import { AppError } from '../lib/appError.js'
 export const serviceTokenRouter = Router()
 
 const ServiceTokenSchema = z.object({
-  tenantId: z.string(),
-  userId: z.string(),
+  id_organizacao: z.string(),
+  id_usuario: z.string(),
   scope: z.enum(['SERVICO', 'WEBHOOK', 'CRON']).default('SERVICO'),
   expiresInHours: z.number().min(1).max(720).default(24),
 })
@@ -35,7 +35,7 @@ serviceTokenRouter.post('/tokens-servico', requireInternalKey, async (req, res, 
       )
     }
 
-    const { tenantId, userId, scope, expiresInHours } = parsed.data
+    const { id_organizacao, id_usuario, scope, expiresInHours } = parsed.data
 
     // Gera token aleatório seguro
     const rawToken = `svc_${randomBytes(32).toString('hex')}`
@@ -46,8 +46,8 @@ serviceTokenRouter.post('/tokens-servico', requireInternalKey, async (req, res, 
 
     await prisma.serviceToken.create({
       data: {
-        tenant_id: tenantId,
-        user_id: userId,
+        tenant_id: id_organizacao,
+        user_id: id_usuario,
         token_hash: tokenHash,
         scope,
         expires_at: expiresAt,
@@ -92,8 +92,8 @@ serviceTokenRouter.post('/tokens-servico/verificar', requireInternalKey, async (
 
     res.json({
       valid: true,
-      tenantId: serviceToken.tenant_id,
-      userId: serviceToken.user_id,
+      id_organizacao: serviceToken.tenant_id,
+      id_usuario: serviceToken.user_id,
       scope: serviceToken.scope,
     })
   } catch (err) {

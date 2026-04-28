@@ -67,9 +67,9 @@ historicoOrganizacaoRouter.get(
 
       // Extrair id_organizacao e id_usuario do auth
       const auth = (req as any).auth
-      const id_organizacao = auth?.tenantId
+      const id_organizacao = auth?.id_organizacao
       if (!id_organizacao) {
-        return next(new AppError('tenant_id obrigatório', 401, 'UNAUTHORIZED'))
+        return next(new AppError('id_organizacao obrigatório', 401, 'UNAUTHORIZED'))
       }
 
       const fetchUrl = `${internalBaseUrl}/api/v1/admin/historico-global/logs?${params.toString()}`

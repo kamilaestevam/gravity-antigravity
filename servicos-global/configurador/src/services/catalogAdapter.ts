@@ -227,8 +227,8 @@ export const catalogApiService = {
           negs.push({
             id: n.id,
             produtoId: n.product_id,
-            tenantId: n.tenant_id,
-            tenantNome: n.tenant_name,
+            id_organizacao: n.tenant_id,
+            nome_organizacao: n.tenant_name,
             acordo: n.agreement,
             inicio: n.starts_at?.split('T')[0],
             fim: n.ends_at?.split('T')[0],

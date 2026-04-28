@@ -69,7 +69,7 @@ export function AdminLayout() {
   // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
   useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
+  useUserPreferences({ id_usuario: user?.id, id_organizacao: 'gravity-hq' })
 
   // Registra provider de token Clerk para o apiClient.
   // Precisa rodar no layout (e não nas páginas individuais) senão qualquer

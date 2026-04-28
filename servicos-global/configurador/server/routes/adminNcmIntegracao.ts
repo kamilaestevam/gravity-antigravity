@@ -100,23 +100,23 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
       throw new AppError('Apenas Super Admin pode disparar sync', 403, 'FORBIDDEN')
     }
 
-    const { id_organizacao: tenantId } = req.params
+    const { id_organizacao } = req.params
     const startMs = Date.now()
 
     const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
     await tenantPrisma.ncmSyncLog.updateMany({
-      where: { tenant_id: tenantId, status: 'RUNNING', iniciado_em: { lt: DOIS_HORAS_ATRAS } },
+      where: { tenant_id: id_organizacao, status: 'RUNNING', iniciado_em: { lt: DOIS_HORAS_ATRAS } },
       data: { status: 'ERROR', concluido_em: new Date(), erro_msg: 'Tempo limite excedido (2h) — processo presumido morto.' },
     })
 
     const emAndamento = await tenantPrisma.ncmSyncLog.findFirst({
-      where: { tenant_id: tenantId, status: 'RUNNING' },
+      where: { tenant_id: id_organizacao, status: 'RUNNING' },
     })
     if (emAndamento) {
       throw new AppError('Já existe uma sincronização em andamento para este tenant.', 409, 'SYNC_ALREADY_RUNNING')
     }
 
-    const result = await executarSync(tenantPrisma, tenantId, {
+    const result = await executarSync(tenantPrisma, id_organizacao, {
       origem:       'MANUAL',
       disparadoPor: req.auth.id_usuario,
     })
@@ -130,8 +130,8 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
       module:        'admin',
       resource_type: 'NcmSync',
       action:        'NCM_SYNC_MANUAL',
-      action_detail: `Sync OK para tenant ${tenantId} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
-      after:         { tenantId, ...result },
+      action_detail: `Sync OK para tenant ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
+      after:         { id_organizacao, ...result },
       status:        'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 

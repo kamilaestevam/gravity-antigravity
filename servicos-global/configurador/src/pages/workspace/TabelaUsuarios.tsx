@@ -37,7 +37,7 @@ const FILTROS_INICIAIS: FiltrosState = {
 
 interface TabelaUsuariosProps {
   dados: TenantUser[]
-  onDeactivate: (userId: string) => void
+  onDeactivate: (id_usuario: string) => void
 }
 
 const typeBadge: Record<string, string> = {

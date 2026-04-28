@@ -383,11 +383,11 @@ export const productCatalogService = {
   /**
    * Conta negociações ativas (is_unlimited OU ends_at futuro) para um produto.
    */
-  async countActiveNegotiations(productId: string): Promise<number> {
+  async countActiveNegotiations(id_produto: string): Promise<number> {
     const now = new Date()
     return prisma.produtoGravityNegociacaoEspecial.count({
       where: {
-        id_produto_gravity_negociacao_especial: productId,
+        id_produto_gravity_negociacao_especial: id_produto,
         OR: [
           { ilimitado_negociacao_especial: true },
           { data_fim_negociacao_especial: { gte: now } },
@@ -493,18 +493,18 @@ export const productCatalogService = {
    * Ativa produtos para um tenant específico (idempotente).
    * Usado no seed inicial via CLI.
    */
-  async activateProductsForTenant(tenantId: string, productKeys: string[]) {
+  async activateProductsForTenant(id_organizacao: string, productKeys: string[]) {
     const results = await Promise.all(
       productKeys.map(key =>
         prisma.produtoGravityConfiguracao.upsert({
           where: {
             id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-              id_organizacao_config_produto_gravity: tenantId,
+              id_organizacao_config_produto_gravity: id_organizacao,
               chave_produto_config_produto_gravity: key,
             },
           },
           create: {
-            id_organizacao_config_produto_gravity: tenantId,
+            id_organizacao_config_produto_gravity: id_organizacao,
             chave_produto_config_produto_gravity: key,
             configuracao_config_produto_gravity: {},
             ativo_config_produto_gravity: true,
@@ -513,7 +513,7 @@ export const productCatalogService = {
         }),
       ),
     )
-    return { activated: results.length, tenant_id: tenantId, products: productKeys }
+    return { activated: results.length, id_organizacao: id_organizacao, products: productKeys }
   },
 }
 

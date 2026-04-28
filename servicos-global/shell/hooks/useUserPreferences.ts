@@ -20,9 +20,9 @@ import type { Theme } from '../store/types'
 
 interface UseUserPreferencesOptions {
   /** ID do usuário autenticado (Clerk user.id) */
-  userId: string | undefined
-  /** ID do tenant ativo */
-  tenantId: string | undefined
+  id_usuario: string | undefined
+  /** ID da organização ativa */
+  id_organizacao: string | undefined
 }
 
 interface PreferenciasPayload {
@@ -38,12 +38,12 @@ const BASE_URL = '/api/tenant/preferencias'
  * Faz GET nas preferências do usuário e aplica no store.
  * Retorna as preferências remotas ou null em caso de falha.
  */
-async function fetchPreferencias(userId: string, tenantId: string): Promise<PreferenciasPayload | null> {
+async function fetchPreferencias(id_usuario: string, id_organizacao: string): Promise<PreferenciasPayload | null> {
   try {
     const res = await fetch(BASE_URL, {
       headers: {
-        'x-user-id':   userId,
-        'x-tenant-id': tenantId,
+        'x-user-id':   id_usuario,
+        'x-tenant-id': id_organizacao,
       },
     })
     if (!res.ok) return null
@@ -60,8 +60,8 @@ async function fetchPreferencias(userId: string, tenantId: string): Promise<Pref
  * Falha silenciosa — o estado local (localStorage) já foi atualizado.
  */
 async function savePreferencias(
-  userId: string,
-  tenantId: string,
+  id_usuario: string,
+  id_organizacao: string,
   payload: PreferenciasPayload,
 ): Promise<void> {
   try {
@@ -69,8 +69,8 @@ async function savePreferencias(
       method:  'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-id':    userId,
-        'x-tenant-id':  tenantId,
+        'x-user-id':    id_usuario,
+        'x-tenant-id':  id_organizacao,
       },
       body: JSON.stringify(payload),
     })
@@ -87,19 +87,19 @@ async function savePreferencias(
  * const { user } = useUser()
  * useUserPreferences({ userId: user?.id, tenantId: 'importes-sa' })
  */
-export function useUserPreferences({ userId, tenantId }: UseUserPreferencesOptions) {
+export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPreferencesOptions) {
   const store = useShellStore()
   const isInitializedRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── 1. Carrega preferências do backend na montagem ────────────────────────
   useEffect(() => {
-    if (!userId || !tenantId) return
+    if (!id_usuario || !id_organizacao) return
     if (isInitializedRef.current) return
 
     isInitializedRef.current = true
 
-    fetchPreferencias(userId, tenantId).then((prefs) => {
+    fetchPreferencias(id_usuario, id_organizacao).then((prefs) => {
       if (!prefs) return // Falhou — mantém estado do localStorage
 
       // Aplica tema se diferente
@@ -126,18 +126,18 @@ export function useUserPreferences({ userId, tenantId }: UseUserPreferencesOptio
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, tenantId])
+  }, [id_usuario, id_organizacao])
 
   // ── 2. Persiste no servidor quando o estado muda ──────────────────────────
   // Após inicialização, monitora mudanças no store e salva no backend com debounce.
   useEffect(() => {
-    if (!userId || !tenantId) return
+    if (!id_usuario || !id_organizacao) return
     if (!isInitializedRef.current) return
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
 
     debounceRef.current = setTimeout(() => {
-      savePreferencias(userId, tenantId, {
+      savePreferencias(id_usuario, id_organizacao, {
         tooltips_disabled: store.tooltipsDisabled,
         theme:             store.currentTheme,
         sidebar_open:      store.sidebarOpen,
@@ -147,5 +147,5 @@ export function useUserPreferences({ userId, tenantId }: UseUserPreferencesOptio
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [userId, tenantId, store.tooltipsDisabled, store.currentTheme, store.sidebarOpen])
+  }, [id_usuario, id_organizacao, store.tooltipsDisabled, store.currentTheme, store.sidebarOpen])
 }

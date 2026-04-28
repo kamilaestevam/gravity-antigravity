@@ -30,7 +30,7 @@ export interface HubInsight {
 export type HubUserRole = 'operador' | 'gerente' | 'diretor' | 'admin' | 'default'
 
 interface ProductFetcherContext {
-  tenantId: string
+  id_organizacao: string
   token: string
   internalKey: string
 }
@@ -144,27 +144,27 @@ const CACHE_TTL_MS = 5 * 60 * 1_000 // 5 minutos
 const CACHE_MAX_ENTRIES = 200
 const insightsCache = new Map<string, CacheEntry>()
 
-function getCacheKey(tenantId: string, userId: string): string {
-  return `${tenantId}:${userId}`
+function getCacheKey(id_organizacao: string, id_usuario: string): string {
+  return `${id_organizacao}:${id_usuario}`
 }
 
-function getCached(tenantId: string, userId: string): HubInsight[] | null {
-  const entry = insightsCache.get(getCacheKey(tenantId, userId))
+function getCached(id_organizacao: string, id_usuario: string): HubInsight[] | null {
+  const entry = insightsCache.get(getCacheKey(id_organizacao, id_usuario))
   if (!entry) return null
   if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
-    insightsCache.delete(getCacheKey(tenantId, userId))
+    insightsCache.delete(getCacheKey(id_organizacao, id_usuario))
     return null
   }
   return entry.insights
 }
 
-function setCache(tenantId: string, userId: string, insights: HubInsight[]): void {
+function setCache(id_organizacao: string, id_usuario: string, insights: HubInsight[]): void {
   // Evict oldest entries if cache is full
   if (insightsCache.size >= CACHE_MAX_ENTRIES) {
     const firstKey = insightsCache.keys().next().value as string
     insightsCache.delete(firstKey)
   }
-  insightsCache.set(getCacheKey(tenantId, userId), {
+  insightsCache.set(getCacheKey(id_organizacao, id_usuario), {
     insights,
     timestamp: Date.now(),
   })
@@ -179,7 +179,7 @@ async function fetchProduct(
   const response = await fetch(url, {
     headers: {
       'x-internal-key': ctx.internalKey,
-      'x-tenant-id': ctx.organizacaoId,
+      'x-tenant-id': ctx.id_organizacao,
       'Content-Type': 'application/json',
     },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -677,18 +677,18 @@ export function normalizeHubRole(raw: string | undefined): HubUserRole {
  * @returns                - Lista ranqueada de insights, mínimo 4
  */
 export async function generateHubInsights(
-  tenantId: string,
-  userId: string,
+  id_organizacao: string,
+  id_usuario: string,
   role: HubUserRole,
   activeProductKeys: Set<string>,
 ): Promise<HubInsight[]> {
   // 1. Check cache
-  const cached = getCached(tenantId, userId)
+  const cached = getCached(id_organizacao, id_usuario)
   if (cached) return cached
 
   // 2. Build fetch context
   const ctx: ProductFetcherContext = {
-    tenantId,
+    id_organizacao,
     token: '', // Inter-service: usamos x-internal-key, não JWT
     internalKey: INTERNAL_SERVICE_KEY,
   }
@@ -775,7 +775,7 @@ export async function generateHubInsights(
   }
 
   // 8. Cache with tenant isolation
-  setCache(tenantId, userId, result)
+  setCache(id_organizacao, id_usuario, result)
 
   return result
 }

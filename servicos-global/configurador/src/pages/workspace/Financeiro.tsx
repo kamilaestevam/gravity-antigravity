@@ -119,7 +119,7 @@ export function Financeiro() {
   }, [])
 
   // Negociações para a organização atual
-  const negociacoesOrg = negociacoes.filter(n => n.tenantNome === ORG_ATUAL)
+  const negociacoesOrg = negociacoes.filter(n => n.nome_organizacao === ORG_ATUAL)
 
   // Busca se um produto tem negociação para esta org
   const getNegociacao = (produtoId: string): NegociacaoEspecial | undefined => {
@@ -816,12 +816,12 @@ export function Financeiro() {
                     <div>
                       <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#10b981' }}>Acordo Especial Ativo</p>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.tenantNome}</strong>
+                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.nome_organizacao}</strong>
                       </p>
                     </div>
                   </div>
 
-                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.tenantNome} icon={<Buildings size={16} />} />
+                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao} icon={<Buildings size={16} />} />
                   <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo} icon={<Handshake size={16} />} />
                   <ReadOnlyField label="Vigência" value={
                     negProdutoAtual.ilimitada ? (

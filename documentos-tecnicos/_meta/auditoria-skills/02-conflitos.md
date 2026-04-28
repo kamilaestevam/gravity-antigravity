@@ -1,294 +1,125 @@
-# Auditoria — Conflitos entre Skills
+# 02 — Conflitos Diretos
 
-> **8 conflitos diretos detectados.** Skills se contradizem entre si. Estas são as decisões mais urgentes — bloqueiam ciclos das ondas A-D até serem resolvidas.
->
-> **Eu não decido qual está certo.** Eu apenas reporto. A decisão é do dono do projeto.
+> 8 conflitos onde 2+ skills dão instruções **opostas** ao agente.
+> Cada conflito tem `Decisão do Dono:` e `Aplicado no Commit:` para rastreabilidade.
+> Status só pode ser `✅ Resolvido` se **grep forense** retornou limpo.
 
 ---
 
-## Metadados
+## C1 — Models de produto: 3 índices vs sem índices
 
-| Campo | Valor |
+| Aspecto | Conteúdo |
 |---|---|
-| Data | 2026-04-28 |
-| Commit | `75e0b4a5` |
-| Skills lidas | 53/64 |
-| Total de conflitos | **8** |
-| Críticos | **2** (C1, C2) |
-| Altos | **4** (C3, C4, C8) |
-| Médios | **2** (C5, C6) |
-| Baixos | **1** (C7) |
+| **Severidade** | 🔴 CRÍTICA |
+| **Skill A** | `processos/criar-produto` (description, linha 24, linha 92): "models DEVE ter id_organizacao + 3 índices" |
+| **Skill B** | `governanca/lei/isolamento-organizacao` + `arquitetura/schema-composition` (pós-pivô 2026-04-17): "Models de produto NÃO têm campo nem @@index de organizacao — schema isola fisicamente" |
+| **Decisão do Dono** | Pivô Schema-per-Organizacao (2026-04-17) é a regra atual. Skills devem alinhar com Skill B. Models do **Configurador** (single-schema) são exceção legítima e mantêm índices. |
+| **Aplicado no Commit** | ✅ Resolvido nesta sessão — 3 ocorrências em `criar-produto/SKILL.md` corrigidas (description, linha 24, linha 92). Grep forense `grep -rn "@@index(\[id_organizacao" skills/` retornou apenas matches em (a) Configurador exceção, (b) texto "SEM @@index" correto, (c) blocos "❌ proibido". |
+| **Status Atual** | ✅ Resolvido nesta sessão |
 
 ---
 
-## Convenção da Tabela de Conflito
+## C2 — `@@map` em models: obrigatório vs proibido
 
-Cada conflito tem:
-- **Tema**: o que está sendo contradito
-- **Skill A** + citação literal
-- **Skill B** + citação literal
-- **Severidade**: Crítica / Alta / Média / Baixa
-- **Decisão pendente**: campo a ser preenchido pelo dono
-
----
-
-## C1 — 3 índices obrigatórios em models de produto
-
-**Severidade:** 🔴 **CRÍTICA** (afeta toda criação de model novo)
-
-### Skill A — exige 3 índices
-
-**`governanca/lei/agent-policy/SKILL.md`** (regra ainda ativa) e **`processos/criar-produto/SKILL.md`** (Passo 13):
-
-> "Todo model tem 3 índices: `@@index([id_organizacao])`, `@@index([id_organizacao, id_produto])`, `@@index([id_organizacao, id_usuario])`"
-
-> "todo model DEVE ter `id_organizacao`, `id_produto`, `id_usuario` e os **3 índices obrigatórios**"
-
-### Skill B — proíbe campo de organização e índice
-
-**`governanca/lei/isolamento-organizacao/SKILL.md`** (linha 82, pós-pivô 2026-04-17):
-
-> "Coluna `tenant_id` ou campo Prisma `id_organizacao` em tabelas de produto" → **PROIBIDO**
-
-**`arquitetura/schema-composition/SKILL.md`** (linha 88-98):
-
-> "Models de produto **não têm campo de Organização**. O **schema é a Organização**."
-> "Models não têm campo `id_organizacao` (o schema É a Organização)"
-> "Models não têm `@@index([id_organizacao, ...])` (o schema isola fisicamente)"
-
-### Origem do conflito
-
-Pivô arquitetural de 2026-04-17 (Schema-per-Organização) tornou os 3 índices desnecessários — o schema isola fisicamente, removendo a necessidade de filtro por `id_organizacao`. Mas `agent-policy` e `criar-produto` não foram atualizados.
-
-### Decisão pendente
-- [ ] Atualizar `agent-policy` e `criar-produto/Passo 13` removendo a exigência de 3 índices?
-- [ ] Manter como "transição" durante janela de migração ADR-003 (Fases 2-3)?
-- [ ] Outra abordagem?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🔴 CRÍTICA |
+| **Skill A** | `governanca/lei/ddd-nomenclatura` REGRA 2 (atualizada 24/04/2026): "PascalCase + `@@map('snake_case')` obrigatório em todo model; `@map` de coluna proibido" |
+| **Skill B** | `papeis/coordenador` linha 89: "Nenhum `@map` ou `@@map` (mantém naming canônico)" |
+| **Decisão do Dono** | Memory `feedback_prisma_casing` (24/04/2026) é a regra atual: PascalCase + `@@map` obrigatório. `coordenador` linha 89 estava desatualizada. |
+| **Aplicado no Commit** | ✅ Resolvido nesta sessão — `coordenador` linha 89 atualizada para "PascalCase nos models + `@@map('snake_case')` obrigatório (regra atualizada 2026-04-24, ver memory feedback_prisma_casing); `@map` de coluna continua proibido". Grep `grep -rn "Nenhum.*@@map\|sem @@map" skills/` retornou apenas matches em texto histórico de `ddd-nomenclatura` (falsos positivos aceitáveis). |
+| **Status Atual** | ✅ Resolvido nesta sessão |
 
 ---
 
-## C2 — `@@map` em models Prisma
+## C3 — Stripe como dependência: presente vs ausente
 
-**Severidade:** 🔴 **CRÍTICA** (afeta toda alteração de schema)
-
-### Skill A — `@@map` OBRIGATÓRIO
-
-**`governanca/lei/ddd-nomenclatura/SKILL.md`** (REGRA 2 + REGRA 10):
-
-> "Model Prisma em PascalCase + `@@map("snake_case")`"
-> "**`@@map("tabela_snake_case")` é obrigatório em todo model**"
-> "Atualizada em 24/04/2026 (fix_model_casing_revert)"
-
-**`governanca/convencao-tecnica/database-governance/SKILL.md`** (linha 88):
-
-> "**`@@map("tabela_snake_case")` é obrigatório em todo model** — o model fica em PascalCase (convenção Prisma), a tabela PG em snake_case"
-
-### Skill B — sem `@@map`
-
-**`papeis/coordenador/SKILL.md`** (linha 90, checklist de validação de schema):
-
-> "Nenhum `@map` ou `@@map` (mantém naming canônico)"
-
-### Origem do conflito
-
-Skill `coordenador` está desatualizada. Em 22/04/2026 a regra anterior ("model em lowercase, sem `@@map`") foi revertida em `fix_model_casing_revert` (PascalCase + `@@map` obrigatório). Coordenador ainda reflete a regra antiga.
-
-### Decisão pendente
-- [ ] Atualizar `coordenador/SKILL.md` linha 90 para refletir REGRA 2 atual de `ddd-nomenclatura`?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🟡 ALTA |
+| **Skill A** | `visao-geral` + `code-standards`: cita Stripe como dependência da plataforma |
+| **Skill B** | `produtos-gravity/configurador`: "Stripe NÃO é mais dependência — provedor de pagamento será definido pelo dono" |
+| **Decisão do Dono** | _Pendente decisão explícita do dono — provedor de pagamento ainda não escolhido_ |
+| **Aplicado no Commit** | ❌ Pendente — atualizar `visao-geral` e `code-standards` para remover Stripe das listas de dependências, mantendo placeholder "provedor de pagamento (a definir)" |
+| **Status Atual** | ❌ Pendente |
 
 ---
 
-## C3 — Stripe como dependência da plataforma
+## C4 — Master / UsuarioWorkspace via Bulk Insert vs sem vínculo
 
-**Severidade:** 🟠 **Alta** (variáveis de ambiente, código de exemplo, README)
-
-### Skill A — Stripe é dependência
-
-**`governanca/lei/visao-geral/SKILL.md`** (não menciona explicitamente Stripe na seção de stack, mas é referenciado nas ondas)
-
-**`governanca/convencao-tecnica/code-standards/SKILL.md`** (provavelmente em exemplos de env)
-
-**Vários docs e CLAUDE.md** mencionam "Stripe" como provedor de pagamento.
-
-### Skill B — Stripe NÃO é dependência
-
-**`produtos-gravity/configurador/SKILL.md`** (linhas 16, 271-273):
-
-> "Assinaturas, planos e billing (provedor de pagamento será definido pelo dono; boleto/PIX/cartão — Stripe NÃO é mais dependência da plataforma)"
-> "# Provedor de pagamento: definido pelo dono — Stripe NÃO é mais dependência"
-
-### Origem do conflito
-
-Decisão recente removeu Stripe como dependência fixa, mas várias skills/docs ainda referenciam.
-
-### Decisão pendente
-- [ ] Confirmar: Stripe está fora da plataforma? Provedor a definir?
-- [ ] Quais skills precisam atualizar (visao-geral, code-standards, deploy)?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🟡 ALTA |
+| **Skill A** | `seguranca/permissoes` (antes desta sessão): "Master é convidado → Bulk Insert para cada Workspace ativo" |
+| **Skill B** | `produtos-gravity/configurador` + `database-governance`: "Master tem acesso global SEM `UsuarioWorkspace`; legado Bulk Insert removido" + Mandamento 04 (Lógica do Limbo) |
+| **Decisão do Dono** | Mandamento 04 é a regra suprema: Master/Super Admin têm acesso global por `tipo_usuario`, sem precisar de `UsuarioWorkspace`. Padrão Bulk Insert para Master era legado. |
+| **Aplicado no Commit** | ✅ Resolvido nesta sessão — `seguranca/permissoes` reescrita: (a) comentário do middleware checkAccess; (b) fluxo de convite Master; (c) tabela "MASTER vs Standard/Supplier" reescrita; (d) checklist final. Grep `grep -rn "Master.*Bulk Insert\|Master.*UsuarioWorkspace" skills/seguranca/permissoes/` retornou apenas matches nas regras NOVAS ("Master NÃO tem UsuarioWorkspace"). |
+| **Status Atual** | ✅ Resolvido nesta sessão |
 
 ---
 
-## C4 — `UsuarioWorkspace` para Master (Bulk Insert vs sem vínculo)
+## C5 — `tipo_usuario` admin: `ADMIN` vs `GRAVITY_ADMIN`
 
-**Severidade:** 🟠 **Alta** (afeta lógica de convite + acesso)
-
-### Skill A — Master recebe Bulk Insert
-
-**`seguranca/permissoes/SKILL.md`** (linha 376):
-
-> "Master é convidado para a organização → Sistema cria UsuarioWorkspace para CADA Workspace ativo da organização (Bulk Insert snapshot) → Master tem acesso imediato a todos os Workspaces sem nenhuma FK nullable"
-
-### Skill B — Master NÃO tem `UsuarioWorkspace`
-
-**`produtos-gravity/configurador/SKILL.md`** (linha 120):
-
-> "**MASTER** tem acesso a todos os Workspaces da organização SEM `UsuarioWorkspace` (Mandamento 04). O legado de Bulk Insert para MASTER foi removido — acesso é reconhecido pelo `tipo_usuario`, não pelo vínculo."
-
-**`governanca/convencao-tecnica/database-governance/SKILL.md`** (linha 217):
-
-> "ao criar um novo `Workspace` na organização, disparar um job que cria `UsuarioWorkspace` para todos os usuários cujo `tipo_usuario` exige vínculo explícito. **Master/Super Admin são ignorados**"
-
-### Origem do conflito
-
-Mudança de comportamento — `permissoes` ainda documenta o legado.
-
-### Decisão pendente
-- [ ] Atualizar `seguranca/permissoes/SKILL.md` removendo "Bulk Insert para Master"?
-- [ ] Confirmar regra atual: Master = sem UsuarioWorkspace, acesso reconhecido por `tipo_usuario`?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🟢 MÉDIA |
+| **Skill A** | `seguranca/permissoes`: usa `ADMIN` |
+| **Skill B (anterior)** | `produtos-gravity/configurador` + `configurador/admin`: usavam `GRAVITY_ADMIN` |
+| **Decisão do Dono** | Enum canônico per `permissoes`: `{SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER}` |
+| **Aplicado no Commit** | ✅ Resolvido em sessão anterior (commits `56d2ca5d`, `578e0e87`) — `configurador` e `configurador/admin` já trocaram `GRAVITY_ADMIN` → `ADMIN` |
+| **Status Atual** | ✅ Resolvido em sessão anterior |
 
 ---
 
-## C5 — Nome do tipo de usuário admin Gravity (`ADMIN` vs `GRAVITY_ADMIN`)
+## C6 — Cor `#f472b6` Pink 400 duplicada (Configurador + Financeiro COMEX)
 
-**Severidade:** 🟡 **Média** (inconsistência de enum)
-
-### Skill A — `ADMIN`
-
-**`seguranca/permissoes/SKILL.md`** (linha 31, 56-71, tabela linha 127):
-
-> "Gravity (equipe interna)
-> ├── Super Admin → acesso total irrestrito (is_gravity_admin = true)
-> └── **Admin** → acesso total, edição conforme permissões..."
-
-### Skill B — `GRAVITY_ADMIN`
-
-**`produtos-gravity/configurador/SKILL.md`** (linhas 97, 103-106):
-
-> "1. **Cadeia 1 — `tipo_usuario` Global:** quem o usuário é (`SUPER_ADMIN`, `**GRAVITY_ADMIN**`, `MASTER`, `STANDARD`, `SUPPLIER`)"
-
-**`produtos-gravity/configurador/admin/SKILL.md`** (linha 12):
-
-> "**Quem acessa:** apenas usuários com `tipo_usuario = 'GRAVITY_ADMIN'` (ou `is_gravity_admin = true`)"
-
-### Origem do conflito
-
-Provável renomeação de `ADMIN` → `GRAVITY_ADMIN` para clareza, mas `seguranca/permissoes` não acompanhou.
-
-### Decisão pendente
-- [ ] Confirmar enum atual: `GRAVITY_ADMIN` (5 valores: SUPER_ADMIN, GRAVITY_ADMIN, MASTER, STANDARD, SUPPLIER)?
-- [ ] Atualizar `seguranca/permissoes` para usar `GRAVITY_ADMIN`?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🟢 MÉDIA |
+| **Skill** | `ux/design-system/SKILL.md` (mesmo arquivo, 2 produtos atribuem a mesma cor) |
+| **Decisão do Dono** | _Pendente_ — escolher cor única para um dos dois produtos. Sugestão: Configurador é Workspace admin (Tier 1), Financeiro COMEX é produto comum (Tier 2). Trocar Financeiro COMEX para outra cor da paleta Pink/Magenta. |
+| **Aplicado no Commit** | ❌ Pendente |
+| **Status Atual** | ❌ Pendente |
 
 ---
 
-## C6 — Cor `#f472b6` (Pink 400) usada em DOIS produtos
+## C7 — Cobertura mínima de testes: 70% vs 80%
 
-**Severidade:** 🟡 **Média** (UX — confusão visual)
-
-### Conflito interno em UMA skill
-
-**`ux/design-system/SKILL.md`** (Seção 10):
-
-> Tier 1 — Plataforma: Configurador → `#f472b6` (Pink 400)
-> Cores por Produto: Financeiro COMEX → `#f472b6` Pink 400
-
-A mesma cor está atribuída a **dois "produtos"** (Configurador como produto da plataforma + Financeiro COMEX como produto vertical). Visualmente, no chip do produto e dot da sidebar, fica indistinguível.
-
-### Origem do conflito
-
-Provavelmente duas decisões em momentos diferentes sem cross-check.
-
-### Decisão pendente
-- [ ] Trocar a cor de Configurador OU de Financeiro COMEX?
-- [ ] Sugestão técnica: Configurador é "produto especial da plataforma" (não compete com produtos verticais), poderia usar `#f472b6` exclusivamente. Financeiro COMEX recebe nova cor (ex: `#fb923c` Orange 400 — não usado por outro produto).
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | 🟢 BAIXA |
+| **Skill A** | `papeis/qa`: "Mínimo 80% em lógica crítica" |
+| **Skill B** | `processos/code-review`: "Cobertura ≥ 70%" |
+| **Skill C** | `testes/SKILL.md` (overview): "nucleo-global 80%, demais 70%" |
+| **Decisão do Dono** | Política unificada (Skill C): nucleo-global 80%, demais 70%. `papeis/qa` e `code-review` devem referenciar Skill C em vez de citar números próprios. |
+| **Aplicado no Commit** | ❌ Pendente |
+| **Status Atual** | ❌ Pendente |
 
 ---
 
-## C7 — Cobertura de testes (80% vs 70%)
+## C8 — Termo `tenant` no DDD
 
-**Severidade:** 🟢 **Baixa** (apenas inconsistência de threshold)
-
-### Skill A — 80% para lógica crítica
-
-**`papeis/qa/SKILL.md`** (linha 22):
-
-> "**Cobertura de Testes** — Obrigatório. Mínimo 80% em lógica crítica."
-
-### Skill B — 70% geral
-
-**`processos/code-review/SKILL.md`** (linha 64):
-
-> "Cobertura ≥ 70%?"
-
-**`testes/SKILL.md`** (linhas 111-112):
-
-> "`nucleo-global/`: **80%**"
-> "Demais módulos: **70%**"
-
-**`governanca/lei/agent-policy/SKILL.md`** (linha):
-
-> "Cobertura mínima: `nucleo-global` 80%, demais 70%"
-
-### Origem do conflito
-
-`qa` diz "80% em lógica crítica" sem definir o que é "crítica". As outras skills convergem em "80% nucleo, 70% demais". O `qa` provavelmente quis dizer a mesma coisa, mas a redação destoa.
-
-### Decisão pendente
-- [ ] Padronizar `qa/SKILL.md` linha 22 para "80% nucleo-global, 70% demais módulos, 100% rotas críticas (auth, financeiro, isolamento)"?
+| Aspecto | Conteúdo |
+|---|---|
+| **Severidade** | ~~🟡 ALTA~~ → **⚠️ Reclassificado** |
+| **Reclassificação** | Não é conflito. É **Dívida Técnica Consciente** documentada em múltiplas skills como nomes preservados por retrocompatibilidade física: pacote NPM `@gravity/resolver-organizacao`, prefixo de schema PG `tenant_<cuid>`, eventos `TenantProvisioned`, script `migrate-all-tenants.ts`, coluna física legada `tenant_id`. |
+| **Decisão do Dono** | Manter como dívida técnica até ADR futuro de migração. NÃO trocar ad-hoc. Documentado em `04-lacunas-divida.md`. |
+| **Aplicado no Commit** | ⚠️ Reclassificado nesta sessão (não exige ação imediata) |
+| **Status Atual** | ⚠️ Dívida técnica consciente — sem ação |
 
 ---
 
-## C8 — `tenant`/`tenant_<cuid>` em DDD
+## Resumo executivo
 
-**Severidade:** 🟠 **Alta** (afeta toda referência a SDK e schema)
+| # | Severidade | Status |
+|:---|:---:|:---|
+| C1 | 🔴 | ✅ Resolvido nesta sessão |
+| C2 | 🔴 | ✅ Resolvido nesta sessão |
+| C3 | 🟡 | ❌ Pendente |
+| C4 | 🟡 | ✅ Resolvido nesta sessão |
+| C5 | 🟢 | ✅ Resolvido em sessão anterior |
+| C6 | 🟢 | ❌ Pendente |
+| C7 | 🟢 | ❌ Pendente |
+| C8 | ⚠️ | Reclassificado para dívida técnica |
 
-### Skill A — `tenant` é termo abandonado
-
-**`governanca/lei/ddd-nomenclatura/SKILL.md`** (Glossário canônico):
-
-> "❌ Termo abandonado: `Tenant`, `tenant_id`, `tenantId`"
-> "✅ DDD canônico: `Organizacao`, `id_organizacao`"
-
-### Skill B — `tenant_<cuid>` é nome técnico preservado
-
-**`governanca/lei/sdk-resolvedor-organizacao/SKILL.md`** (várias linhas):
-
-> "**Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real registrado), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco)"
-
-**`governanca/lei/isolamento-organizacao/SKILL.md`** + 12 outras skills repetem o mesmo padrão.
-
-### Origem do conflito
-
-Decisão pragmática: termo `tenant` está em **identificadores físicos** (npm package, schema name PostgreSQL, env var `TENANT_DATABASE_URL`, header `x-organização-id` que ainda usa "tenant" internamente). Renomear esses identificadores físicos é roadmap.
-
-DDD diz "termo abandonado", mas SDK diz "preservado por compatibilidade".
-
-### Decisão pendente
-- [ ] Adicionar exceção formal em `ddd-nomenclatura/SKILL.md` com lista dos identificadores físicos preservados (`@gravity/tenant-resolver`, schema `tenant_<cuid>`, etc.) e roadmap de migração?
-- [ ] Ou aceitar que "termo abandonado" se aplica apenas a **código de aplicação** (variáveis, props, payloads), não a **identificadores físicos** (npm package, schema PG)?
-- [ ] Definir condição/data para concluir migração desses identificadores?
-
----
-
-## Resumo Executivo
-
-| # | Tema | Severidade | Bloqueia ciclo de... |
-|---|---|---|---|
-| C1 | 3 índices em models | **Crítica** | qualquer ciclo que toque banco de produto |
-| C2 | `@@map` obrigatório vs nenhum | **Crítica** | qualquer ciclo de schema |
-| C3 | Stripe | Alta | onboarding, deploy, configurador |
-| C4 | UsuarioWorkspace para Master | Alta | configurador, permissoes |
-| C5 | `ADMIN` vs `GRAVITY_ADMIN` | Média | configurador, permissoes |
-| C6 | Cor duplicada | Média | configurador (UX), financeiro-comex (UX) |
-| C7 | Cobertura 80% vs 70% | Baixa | nenhum (cosmético) |
-| C8 | `tenant` em identificadores físicos | Alta | qualquer ciclo de schema/SDK |
-
-**Recomendação:** decidir C1 e C2 antes de iniciar Onda B (arquitetura). Os outros podem ser resolvidos em paralelo.
+**4 conflitos resolvidos, 3 pendentes (C3, C6, C7), 1 reclassificado.**

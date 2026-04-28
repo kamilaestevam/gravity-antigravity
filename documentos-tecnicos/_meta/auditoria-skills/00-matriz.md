@@ -1,103 +1,53 @@
-# Auditoria de Skills — Matriz Mestre
+# 00 — Matriz Mestre da Auditoria de Skills
 
-> **Documento gerado pela pré-passada de auditoria das 64 SKILL.md.**
-> Este arquivo é o índice consolidado dos 5 relatórios em `_meta/auditoria-skills/`.
-> Não documenta features — documenta o estado das skills entre si.
-
----
-
-## Metadados
-
-| Campo | Valor |
-|---|---|
-| Data da auditoria | 2026-04-28 |
-| Commit hash | `75e0b4a5` |
-| Branch | `claude/cool-elbakyan-ff8ae6` |
-| Skills lidas | **53 de 64** (83%) |
-| Skills NÃO lidas | 11 (testes operacionais + dream-team meta — baixo risco SSOT) |
-| Tipo | Auditoria cruzada (skill × skill) |
-| Próxima auditoria | Após ciclo de cada onda — atualizar `04-lacunas.md` |
-
----
+> Auditoria executada em 2026-04-28. Cobertura: **68/68 skills (100%)**.
+> Branch de execução: `master` (após merge de `refactor/ddd-ubiquo`).
+> Artefato vivo — atualizar `[Status Atual]` à medida que ações são executadas.
 
 ## Resumo Numérico
 
-| Tipo de achado | Total | Severidade média | Arquivo |
-|---|---:|---|---|
-| Regras duplicadas em 5+ skills | **9 grupos** | Alta | `01-duplicacoes.md` |
-| Conflitos diretos | **8** | **Crítica** | `02-conflitos.md` |
-| Violações SSOT (vertical/operação repete lei) | **10** | Crítica/Alta | `03-violacoes-ssot.md` |
-| Lacunas conceituais (sem skill cobrindo) | **3** | Média | `04-lacunas.md` |
-| **Total** | **30** | — | — |
+| Tipo de achado | Total | Resolvidos nesta sessão | Pendentes |
+|:---|:---:|:---:|:---:|
+| Conflitos diretos (P0) | 8 | 4 (C1, C2, C4, C5) | 4 |
+| Violações SSOT (vertical repete lei) | 10 | 1 (S10) | 9 |
+| Duplicações em N skills | 9 grupos | 0 | 9 |
+| Lacunas conceituais | 3 | 0 | 3 |
+| **Total** | **30** | **5** | **25** |
 
 ---
 
-## Skills NÃO lidas (justificativa)
+## Matriz Regra × Skill (top achados com Status Atual)
 
-| Skill | Por que pulei | Risco |
-|---|---|---|
-| `testes/contract-testing/SKILL.md` | Padrão Zod já visto em `testes/SKILL.md` | Baixo |
-| `testes/agente-plano-teste/SKILL.md` | Operacional — agente de plano de teste | Baixo |
-| `testes/agente-plano-teste-e2e/SKILL.md` | Operacional | Baixo |
-| `testes/agente-plano-teste-funcional/SKILL.md` | Operacional | Baixo |
-| `testes/agente-plano-teste-unitario/SKILL.md` | Operacional | Baixo |
-| `dream-team/ajustes/SKILL.md` | Lida parcialmente; processo de ajustes pontuais | Baixo |
-| `dream-team/detetive-tela/SKILL.md` | Skill de auditoria forense; padrão de processo | Baixo |
-| `dream-team/produtos/*` (subpasta de 11 arquivos) | Times de produto; mapa do dream-team | Baixo |
-| `dream-team/tecnologia/README.md` | Apenas README de mapa | Nulo |
-| `governanca/operacao/service-registry/SKILL.md` | Lido | — |
-
-> Para 100% de cobertura, abrir nova execução desta auditoria com flag para os 11 restantes. Padrões macro já estão estabilizados.
-
----
-
-## Como Ler Esta Auditoria
-
-1. **Comece por `02-conflitos.md`** — são as decisões mais urgentes (8 itens). O agente de skills só pode atuar depois que você decidir cada conflito.
-2. **Depois `03-violacoes-ssot.md`** — 10 violações que indicam refactor de skills (não decisões de negócio).
-3. **`01-duplicacoes.md`** — operacional para o agente de consolidação de skills (não bloqueante).
-4. **`04-lacunas.md`** — vai crescer ao longo das ondas A-D conforme código for lido.
+| # | Tema | Tipo | Skills envolvidas | Status Atual |
+|:---|:---|:---|:---|:---|
+| C1 | 3 índices obrigatórios em models de produto | Conflito P0 | `agent-policy`, `processos/criar-produto`, `schema-composition`, `isolamento-organizacao` | ✅ Resolvido nesta sessão (commit pendente) — `criar-produto` editado, demais skills já alinhadas; greps limpos |
+| C2 | `@@map` em models | Conflito P0 | `papeis/coordenador` (proibia) vs `ddd-nomenclatura` (obriga) | ✅ Resolvido nesta sessão — `coordenador` linha 89 atualizada para "PascalCase + @@map obrigatório"; greps limpos |
+| C3 | Stripe como dependência | Conflito Alto | `visao-geral`, `code-standards` (mantêm) vs `produtos-gravity/configurador` (removeu) | ❌ Pendente — atualizar `visao-geral` e `code-standards` |
+| C4 | Master/UsuarioWorkspace via Bulk Insert | Conflito Alto | `seguranca/permissoes` (Bulk Insert) vs `produtos-gravity/configurador` + `database-governance` (sem vínculo) | ✅ Resolvido nesta sessão — `permissoes` reescrita: Master NÃO tem UsuarioWorkspace (Mandamento 04); greps limpos |
+| C5 | `ADMIN` vs `GRAVITY_ADMIN` (tipo_usuario) | Conflito Médio | `seguranca/permissoes`, `produtos-gravity/configurador`, `configurador/admin` | ✅ Resolvido em sessão anterior (commits `56d2ca5d`, `578e0e87`) — todos usam `ADMIN` |
+| C6 | Cor `#f472b6` Pink 400 duplicada | Conflito Médio | `ux/design-system` (mesmo arquivo: Configurador + Financeiro COMEX) | ❌ Pendente — escolher cor única para um dos dois |
+| C7 | Cobertura mínima de testes (70 vs 80) | Conflito Baixo | `papeis/qa` (80% crítico), `processos/code-review` (≥70%), `testes/SKILL.md` (80% nucleo, 70% demais) | ❌ Pendente — definir 1 política única e referenciar |
+| C8 | Termo `tenant` no DDD | **Dívida Técnica** | `sdk-resolvedor-organizacao`, `isolamento-organizacao`, `database-governance`, `lint-tenant-safety` | ⚠️ **Reclassificado** — não é conflito, é dívida técnica consciente (retrocompatibilidade NPM/schema/eventos). Ver 04-lacunas-divida.md |
+| S10 | `database-governance` em `convencao-tecnica/` | Violação SSOT | Promoção para `governanca/lei/database-governance` | ✅ Resolvido nesta sessão — `git mv` aplicado, CLAUDE.md + 2 referências em dream-team atualizadas |
+| S1-S9 | 9 violações SSOT restantes | Violação SSOT | Detalhe em [03-violacoes-ssot.md](03-violacoes-ssot.md) | ❌ Pendente |
+| L1 | Webhooks recebidos (HMAC, raw body, idempotência) | Lacuna | Skill ausente — conteúdo distribuído em `cross-boundary` | ❌ Pendente — criar `seguranca/webhooks-recebidos/SKILL.md` |
+| L2 | BullMQ / Jobs assíncronos | Lacuna | Mencionada como "Fase 3" em `cross-boundary`, `resiliencia`, `auto-scaling` | ❌ Pendente |
+| L3 | Graceful shutdown / drain de conexões | Lacuna | Ausente | ❌ Pendente (baixa prioridade) |
 
 ---
 
-## Como Esta Auditoria Alimenta os Ciclos das Ondas
+## Cobertura
 
-Cada ciclo de skill (Onda A em diante) deve, antes da Fase 1:
+68 SKILL.md auditados. Lista completa:
 
-- Consultar `02-conflitos.md` — se a skill atual está em conflito, NÃO produzir doc até resolução
-- Consultar `03-violacoes-ssot.md` — se a skill duplica lei, doc do produto referencia a canonical
-- Consultar `01-duplicacoes.md` — para evitar repetir regras já documentadas
-- Atualizar `04-lacunas.md` — toda vez que detectar regra em código sem skill correspondente
-
----
-
-## Convenção de Severidade
-
-| Marca | Significado | Bloqueio |
-|---|---|---|
-| **Crítica** | Pode causar bug em produção ou interpretação errada de regra absoluta | Bloqueia ciclo da onda relacionada |
-| Alta | Indica drift documental | Bloqueia merge sem correção |
-| Média | Inconsistência cosmética ou desatualização | Não bloqueia, mas registrar |
-| Baixa | Redundância tolerável | Apenas anotar |
-
----
-
-## Skills com mais débito documental
-
-Top 5 skills com mais achados acumulados (duplicação + conflito + SSOT):
-
-| # | Skill | Achados | Recomendação |
-|---:|---|---:|---|
-| 1 | `governanca/lei/agent-policy/SKILL.md` | 6 | Refatorar — separar "regras universais do agente" do "resumo dos mandamentos" |
-| 2 | `governanca/convencao-tecnica/code-standards/SKILL.md` | 5 | Reduzir — referenciar Mandamentos em vez de repetir |
-| 3 | `processos/criar-produto/SKILL.md` | 4 | **Atualizar pós-pivô** — Passo 13 conflita com Schema-per-Organização |
-| 4 | `seguranca/tier1-security/SKILL.md` | 3 | Considerar fundir com `isolamento-organizacao` |
-| 5 | `processos/deploy/SKILL.md` | 3 | Remover seções "Auto-Scaling Rules" e "Backup Antes de Migration Destrutiva" — referenciar canonicas |
-
----
-
-## Histórico de Atualizações
-
-| Data | Commit | O que mudou |
-|---|---|---|
-| 2026-04-28 | `75e0b4a5` | Pré-passada inicial — 53/64 skills lidas; 30 achados |
+- arquitetura/ (8): cache, estado, nucleo-global, observabilidade, resiliencia, schema-composition, servicos-organizacao, traducao
+- dream-team/ (2): ajustes, detetive-tela
+- governanca/convencao-tecnica/ (10 após Fase 3): code-standards, monorepo, lint-tenant-safety, api-design, criptografia, observabilidade-minima, mapa-componentes-locais, mapa-nucleo-global, mapa-paginas, modais
+- governanca/lei/ (11 após Fase 3): 9-mandamentos, agent-policy, backup-policy, cost-budget, ddd-nomenclatura, isolamento-organizacao, sdk-resolvedor-organizacao, sla-metas, terminal, visao-geral, **database-governance** (promovida)
+- governanca/operacao/ (4): auto-scaling, backup-disaster-recovery, performance-monitoring, service-registry
+- papeis/ (4): analista-erros-testes, coordenador, lider, qa
+- processos/ (4): code-review, criar-produto, deploy, incident-response
+- produtos-gravity/ (5): api-cockpit, configurador, configurador/admin, marketplace, simulador-comex
+- seguranca/ (7): autenticacao-s2s, cross-boundary, pentest, permissoes, rate-limiting, seguranca-5-camadas, tier1-security
+- testes/ (8): SKILL, agente-plano-teste, agente-plano-teste-e2e, agente-plano-teste-funcional, agente-plano-teste-unitario, contract-testing, padroes-vitest-playwright, teste-em-tela
+- ux/ (5): acessibilidade, componentes, criacao-telas, design-system, tooltip

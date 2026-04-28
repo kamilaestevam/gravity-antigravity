@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravity — Sistema de Cores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-body:      #0b1120;
+      --bg-base:      #0f172a;
+      --bg-surface:   #1e293b;
+      --bg-elevated:  #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary:#94a3b8;
+      --text-muted:   #64748b;
+      --border:       rgba(255,255,255,0.06);
+      --radius-sm:    4px;
+      --radius-md:    8px;
+      --radius-lg:    12px;
+      --radius-pill:  9999px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── Doc Header ──────────────────────────────────────────── */
+    .doc-header {
+      max-width: 960px;
+      margin: 0 auto 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .doc-header__logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .doc-header__hexagon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      flex-shrink: 0;
+    }
+    .doc-header__brand { font-size: 1.125rem; font-weight: 700; color: #818cf8; }
+    .doc-header__title { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+    .doc-header__sub   { font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.375rem; }
+    .doc-header__meta  { text-align: right; font-size: 0.75rem; color: var(--text-muted); line-height: 1.8; flex-shrink: 0; }
+
+    /* ── Sections ────────────────────────────────────────────── */
+    .section {
+      max-width: 960px;
+      margin: 0 auto 3rem;
+    }
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+    }
+    .section-sub {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Strategy Cards ──────────────────────────────────────── */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .strategy-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+    }
+    .strategy-card__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.875rem;
+    }
+    .strategy-card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .strategy-card__desc {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .strategy-card__zones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-top: 0.875rem;
+    }
+    .zone-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* ── Divider ─────────────────────────────────────────────── */
+    .divider {
+      max-width: 960px;
+      margin: 0 auto 2.5rem;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Zone Grid ───────────────────────────────────────────── */
+    .zone-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    .zone-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .zone-card__info {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .zone-card__swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+    .zone-card__name     { font-weight: 700; font-size: 0.9375rem; }
+    .zone-card__id       { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .zone-card__hex      { font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; margin-left: auto; flex-shrink: 0; }
+    .zone-card__sublabel { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ── Mini Mockup ─────────────────────────────────────────── */
+    .mini-mockup {
+      background: #0b1120;
+      display: flex;
+      flex-direction: column;
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+    .mini-topbar {
+      height: 36px;
+      background: #0f172a;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .mini-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .mini-search {
+      flex: 1;
+      height: 20px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 9999px;
+      max-width: 100px;
+    }
+    .mini-nav-btn {
+      height: 18px;
+      padding: 0 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.55rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+    .mini-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #334155;
+      flex-shrink: 0;
+    }
+    .mini-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .mini-sidebar {
+      width: 100px;
+      background: #0f172a;
+      border-right: 1px solid rgba(255,255,255,0.04);
+      padding: 0.75rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+    .mini-sidebar-header {
+      font-size: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #475569;
+      padding: 0 0.375rem;
+      margin-bottom: 0.25rem;
+      font-weight: 700;
+    }
+    .mini-nav-item {
+      height: 22px;
+      border-radius: 6px;
+      padding: 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.55rem;
+      font-weight: 500;
+      color: #64748b;
+    }
+    .mini-nav-item.active { color: #f1f5f9; }
+    .mini-nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .mini-nav-label { font-size: 0.55rem; }
+    .mini-content {
+      flex: 1;
+      padding: 0.75rem;
+      overflow: hidden;
+    }
+    .mini-page-title {
+      height: 8px;
+      width: 60%;
+      background: #334155;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .mini-kpi-row {
+      display: flex;
+      gap: 0.375rem;
+      margin-bottom: 0.5rem;
+    }
+    .mini-kpi {
+      flex: 1;
+      height: 36px;
+      background: #1e293b;
+      border-radius: 6px;
+      border-top: 2px solid transparent;
+    }
+    .mini-table {
+      background: #1e293b;
+      border-radius: 6px;
+      padding: 0.375rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .mini-table-row {
+      height: 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 3px;
+    }
+    .mini-table-row:first-child { background: rgba(255,255,255,0.07); }
+
+    /* ── Color Tag ───────────────────────────────────────────── */
+    .color-tag {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Usage Table ─────────────────────────────────────────── */
+    .usage-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .usage-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .usage-table td {
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+    .usage-table tr:last-child td { border-bottom: none; }
+    .usage-table td:first-child { color: var(--text-primary); font-weight: 600; }
+    .usage-table-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    /* ── Rules List ──────────────────────────────────────────── */
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+    .rules-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .rules-list li strong { color: var(--text-primary); }
+    .rule-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Token Block ─────────────────────────────────────────── */
+    .token-block {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 2;
+      overflow-x: auto;
+    }
+    .token-comment { color: #475569; }
+    .token-key     { color: #818cf8; }
+    .token-value   { color: #34d399; }
+    .token-string  { color: #fbbf24; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .doc-footer {
+      max-width: 960px;
+      margin: 4rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ───────────────────────────────────────────────────── -->
+  <header class="doc-header">
+    <div>
+      <div class="doc-header__logo">
+        <div class="doc-header__hexagon"></div>
+        <span class="doc-header__brand">Gravity</span>
+      </div>
+      <h1 class="doc-header__title">Sistema de Cores</h1>
+      <p class="doc-header__sub">Definição visual completa — zonas do sistema e produtos COMEX</p>
+    </div>
+    <div class="doc-header__meta">
+      <div>Versão 1.0</div>
+      <div>Atualizado: Abril 2026</div>
+      <div>Área: UX / Design System</div>
+      <div>Arquivo: <code style="font-family:'DM Mono',monospace;font-size:0.7rem">documentos-tecnicos/ux/design-system/cores.html</code></div>
+    </div>
+  </header>
+
+
+  <!-- ── 1. Estratégia ────────────────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">1 — Estratégia de Cores</h2>
+    <p class="section-sub">O sistema usa dois níveis de cor: identidade unificada da plataforma e identidade individual de cada produto.</p>
+
+    <div class="strategy-grid">
+      <div class="strategy-card">
+        <div class="strategy-card__badge" style="background:rgba(129,140,248,0.12);color:#818cf8;">
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+          Tier 1 — Plataforma
+        </div>
+        <h3 class="strategy-card__title">Zonas do Sistema</h3>
+        <p class="strategy-card__desc">HUB, Core, Admin e Configurador compartilham a cor institucional <strong style="color:#818cf8">Gravity Indigo</strong>. Comunicam unidade — são parte da infraestrutura, não de um produto específico.</p>
+        <div class="strategy-card__zones">
+          <span class="zone-chip" style="background:rgba(129,140,248,0.12);color:#818cf8;">HUB</span>
+          <span class="zone-chip" style="background:rgba(129,140,248,0.12);color:#818cf8;">Core</span>
+          <span class="zone-chip" style="background:rgba(129,140,248,0.12);color:#818cf8;">Admin</span>
+          <span class="zone-chip" style="background:rgba(244,114,182,0.12);color:#f472b6;">Configurador</span>
+        </div>
+      </div>
+      <div class="strategy-card">
+        <div class="strategy-card__badge" style="background:rgba(52,211,153,0.10);color:#34d399;">
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Tier 2 — Produtos
+        </div>
+        <h3 class="strategy-card__title">Produtos COMEX</h3>
+        <p class="strategy-card__desc">Cada produto tem sua <strong>cor de acento</strong> própria — usada sutilmente em apenas <strong>3 pontos de contato</strong>: chip do produto no topbar, indicador da sidebar e item de navegação ativo.</p>
+        <div class="strategy-card__zones">
+          <span class="zone-chip" style="background:rgba(52,211,153,0.10);color:#34d399;">SimulaCusto</span>
+          <span class="zone-chip" style="background:rgba(245,158,11,0.10);color:#f59e0b;">Pedido</span>
+          <span class="zone-chip" style="background:rgba(6,182,212,0.10);color:#06b6d4;">BID Câmbio</span>
+          <span class="zone-chip" style="background:rgba(249,115,22,0.10);color:#60a5fa;">BID Frete</span>
+          <span class="zone-chip" style="background:rgba(251,146,60,0.10);color:#f43f5e;">LPCO</span>
+          <span class="zone-chip" style="background:rgba(192,132,252,0.10);color:#c084fc;">NF Import</span>
+          <span class="zone-chip" style="background:rgba(250,204,21,0.10);color:#facc15;">Processo</span>
+          <span class="zone-chip" style="background:rgba(244,114,182,0.10);color:#f472b6;">Financeiro</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+
+  <!-- ── 2. Zonas do Sistema ───────────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">2 — Zonas do Sistema</h2>
+    <p class="section-sub">Quatro zonas de infraestrutura. Sem sidebar nativa no HUB e Core — usam o layout próprio de cada área.</p>
+
+    <div class="zone-grid">
+
+      <!-- HUB -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#818cf8,#6366f1);"></div>
+          <div>
+            <div class="zone-card__name">HUB</div>
+            <div class="zone-card__id">workspace · gateway</div>
+            <div class="zone-card__sublabel">Portal de entrada do ecossistema</div>
+          </div>
+          <div class="zone-card__hex" style="color:#818cf8;">#818cf8</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(129,140,248,0.15);color:#818cf8;">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+              Gravity HUB
+            </div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.12);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <!-- HUB sem sidebar -->
+            <div class="mini-content" style="padding:0.75rem;">
+              <div style="font-size:0.55rem;color:#64748b;margin-bottom:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">SEUS PRODUTOS</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.35rem;margin-bottom:0.5rem;">
+                <div style="background:#1e293b;border-radius:6px;height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                  <div style="width:10px;height:10px;background:rgba(52,211,153,0.3);border-radius:3px;"></div>
+                  <div style="width:24px;height:4px;background:#334155;border-radius:2px;"></div>
+                </div>
+                <div style="background:#1e293b;border-radius:6px;height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                  <div style="width:10px;height:10px;background:rgba(245,158,11,0.3);border-radius:3px;"></div>
+                  <div style="width:24px;height:4px;background:#334155;border-radius:2px;"></div>
+                </div>
+                <div style="background:#1e293b;border-radius:6px;height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                  <div style="width:10px;height:10px;background:rgba(6,182,212,0.3);border-radius:3px;"></div>
+                  <div style="width:24px;height:4px;background:#334155;border-radius:2px;"></div>
+                </div>
+                <div style="background:#1e293b;border-radius:6px;height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+                  <div style="width:10px;height:10px;background:rgba(249,115,22,0.3);border-radius:3px;"></div>
+                  <div style="width:24px;height:4px;background:#334155;border-radius:2px;"></div>
+                </div>
+              </div>
+              <div style="background:#1e293b;border-radius:6px;padding:0.375rem;display:flex;flex-direction:column;gap:0.2rem;">
+                <div style="height:8px;background:rgba(255,255,255,0.04);border-radius:2px;"></div>
+                <div style="height:8px;background:rgba(255,255,255,0.04);border-radius:2px;width:80%;"></div>
+                <div style="height:8px;background:rgba(255,255,255,0.04);border-radius:2px;width:65%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#818cf8,#6366f1);"></div>
+          <div>
+            <div class="zone-card__name">Core</div>
+            <div class="zone-card__id">processos · consolidado</div>
+            <div class="zone-card__sublabel">Central de operações COMEX</div>
+          </div>
+          <div class="zone-card__hex" style="color:#818cf8;">#818cf8</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(129,140,248,0.15);color:#818cf8;">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Core
+            </div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.12);color:#818cf8;">HUB</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar" style="width:80px;">
+              <div class="mini-sidebar-header">Core</div>
+              <div class="mini-nav-item active" style="background:rgba(129,140,248,0.12);">
+                <div class="mini-nav-dot" style="background:#818cf8;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Painel</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Processos</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Relatórios</span>
+              </div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+              </div>
+              <div class="mini-table">
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configurador -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#f472b6,#ec4899);"></div>
+          <div>
+            <div class="zone-card__name">Configurador</div>
+            <div class="zone-card__id">auth · billing · permissões</div>
+            <div class="zone-card__sublabel">Clerk + Stripe — workspace admin</div>
+          </div>
+          <div class="zone-card__hex" style="color:#f472b6;">#f472b6</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(244,114,182,0.15);color:#f472b6;">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+              Configurador
+            </div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.12);color:#818cf8;">HUB</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar" style="width:90px;">
+              <div class="mini-sidebar-header">Config</div>
+              <div class="mini-nav-item active" style="background:rgba(244,114,182,0.12);">
+                <div class="mini-nav-dot" style="background:#f472b6;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Workspace</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Usuários</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Billing</span>
+              </div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#f472b6;"></div>
+                <div class="mini-kpi" style="border-top-color:#f472b6;"></div>
+              </div>
+              <div class="mini-table">
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#818cf8,#6366f1);"></div>
+          <div>
+            <div class="zone-card__name">Admin</div>
+            <div class="zone-card__id">gravity · interno</div>
+            <div class="zone-card__sublabel">Painel interno da equipe Gravity</div>
+          </div>
+          <div class="zone-card__hex" style="color:#818cf8;">#818cf8</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(129,140,248,0.15);color:#818cf8;">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Admin
+            </div>
+            <div class="mini-search"></div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar" style="width:80px;">
+              <div class="mini-sidebar-header">Admin</div>
+              <div class="mini-nav-item active" style="background:rgba(129,140,248,0.12);">
+                <div class="mini-nav-dot" style="background:#818cf8;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Tenants</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Planos</span>
+              </div>
+              <div class="mini-nav-item">
+                <div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div>
+                <span class="mini-nav-label">Auditoria</span>
+              </div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+                <div class="mini-kpi" style="border-top-color:#818cf8;"></div>
+              </div>
+              <div class="mini-table">
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+                <div class="mini-table-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /zone-grid -->
+  </section>
+
+  <div class="divider"></div>
+
+
+  <!-- ── 3. Produtos ───────────────────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">3 — Produtos COMEX</h2>
+    <p class="section-sub">Cada produto usa sua cor de acento em exatamente 3 pontos de contato. O restante da UI permanece neutro (Solid Slate).</p>
+
+    <div class="zone-grid">
+
+      <!-- SimulaCusto -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#34d399,#10b981);"></div>
+          <div>
+            <div class="zone-card__name">SimulaCusto</div>
+            <div class="zone-card__id">simula-custo · fiscal · NCM</div>
+            <div class="zone-card__sublabel">Estimativa de custo de importação</div>
+          </div>
+          <div class="zone-card__hex" style="color:#34d399;">#34d399</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(52,211,153,0.12);color:#34d399;">● SimulaCusto</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">SimulaCusto</div>
+              <div class="mini-nav-item active" style="background:rgba(52,211,153,0.10);">
+                <div class="mini-nav-dot" style="background:#34d399;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Dashboard</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Estimativas</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Relatórios</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#34d399;"></div>
+                <div class="mini-kpi" style="border-top-color:#34d399;"></div>
+                <div class="mini-kpi" style="border-top-color:#34d399;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedido -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#f59e0b,#d97706);"></div>
+          <div>
+            <div class="zone-card__name">Pedido</div>
+            <div class="zone-card__id">pedido · pedidos · ERP</div>
+            <div class="zone-card__sublabel">Gestão de pedidos de importação</div>
+          </div>
+          <div class="zone-card__hex" style="color:#f59e0b;">#f59e0b</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(245,158,11,0.12);color:#f59e0b;">● Pedido</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">Pedido</div>
+              <div class="mini-nav-item active" style="background:rgba(245,158,11,0.10);">
+                <div class="mini-nav-dot" style="background:#f59e0b;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Pedidos</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Importar</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Histórico</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#f59e0b;"></div>
+                <div class="mini-kpi" style="border-top-color:#f59e0b;"></div>
+                <div class="mini-kpi" style="border-top-color:#f59e0b;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BID Câmbio -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#06b6d4,#0891b2);"></div>
+          <div>
+            <div class="zone-card__name">BID Câmbio</div>
+            <div class="zone-card__id">bid-cambio · câmbio · cotações</div>
+            <div class="zone-card__sublabel">Cotações e operações cambiais</div>
+          </div>
+          <div class="zone-card__hex" style="color:#06b6d4;">#06b6d4</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(6,182,212,0.12);color:#06b6d4;">● BID Câmbio</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">BID Câmbio</div>
+              <div class="mini-nav-item active" style="background:rgba(6,182,212,0.10);">
+                <div class="mini-nav-dot" style="background:#06b6d4;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Cotações</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Corretoras</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Comparativo</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#06b6d4;"></div>
+                <div class="mini-kpi" style="border-top-color:#06b6d4;"></div>
+                <div class="mini-kpi" style="border-top-color:#06b6d4;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BID Frete -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#60a5fa,#ea580c);"></div>
+          <div>
+            <div class="zone-card__name">BID Frete</div>
+            <div class="zone-card__id">bid-frete · frete · transportes</div>
+            <div class="zone-card__sublabel">Cotações de frete internacional</div>
+          </div>
+          <div class="zone-card__hex" style="color:#60a5fa;">#60a5fa</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(249,115,22,0.12);color:#60a5fa;">● BID Frete</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">BID Frete</div>
+              <div class="mini-nav-item active" style="background:rgba(249,115,22,0.10);">
+                <div class="mini-nav-dot" style="background:#60a5fa;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Cotações</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Transportes</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Histórico</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#60a5fa;"></div>
+                <div class="mini-kpi" style="border-top-color:#60a5fa;"></div>
+                <div class="mini-kpi" style="border-top-color:#60a5fa;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LPCO -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#f43f5e,#60a5fa);"></div>
+          <div>
+            <div class="zone-card__name">LPCO</div>
+            <div class="zone-card__id">lpco · licenças COMEX</div>
+            <div class="zone-card__sublabel">Licenças, permissões e certificados</div>
+          </div>
+          <div class="zone-card__hex" style="color:#f43f5e;">#f43f5e</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(251,146,60,0.12);color:#f43f5e;">● LPCO</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">LPCO</div>
+              <div class="mini-nav-item active" style="background:rgba(251,146,60,0.10);">
+                <div class="mini-nav-dot" style="background:#f43f5e;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Licenças</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Nova LPCO</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Órgãos</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#f43f5e;"></div>
+                <div class="mini-kpi" style="border-top-color:#f43f5e;"></div>
+                <div class="mini-kpi" style="border-top-color:#f43f5e;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NF Importação -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#c084fc,#a855f7);"></div>
+          <div>
+            <div class="zone-card__name">NF Importação</div>
+            <div class="zone-card__id">nf-importacao · nota fiscal</div>
+            <div class="zone-card__sublabel">Emissão e gestão de NF-e de importação</div>
+          </div>
+          <div class="zone-card__hex" style="color:#c084fc;">#c084fc</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(192,132,252,0.12);color:#c084fc;">● NF Importação</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">NF Import.</div>
+              <div class="mini-nav-item active" style="background:rgba(192,132,252,0.10);">
+                <div class="mini-nav-dot" style="background:#c084fc;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Notas</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Emitir NF</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Relatórios</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#c084fc;"></div>
+                <div class="mini-kpi" style="border-top-color:#c084fc;"></div>
+                <div class="mini-kpi" style="border-top-color:#c084fc;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processo -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#facc15,#eab308);"></div>
+          <div>
+            <div class="zone-card__name">Processo</div>
+            <div class="zone-card__id">processo · processos · consolidado</div>
+            <div class="zone-card__sublabel">Acompanhamento de processos de importação</div>
+          </div>
+          <div class="zone-card__hex" style="color:#facc15;">#facc15</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(250,204,21,0.12);color:#facc15;">● Processo</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">Processo</div>
+              <div class="mini-nav-item active" style="background:rgba(250,204,21,0.10);">
+                <div class="mini-nav-dot" style="background:#facc15;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Processos</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Timeline</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Docs</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#facc15;"></div>
+                <div class="mini-kpi" style="border-top-color:#facc15;"></div>
+                <div class="mini-kpi" style="border-top-color:#facc15;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financeiro COMEX -->
+      <div class="zone-card">
+        <div class="zone-card__info">
+          <div class="zone-card__swatch" style="background:linear-gradient(135deg,#f472b6,#ec4899);"></div>
+          <div>
+            <div class="zone-card__name">Financeiro COMEX</div>
+            <div class="zone-card__id">financeiro-comex · financeiro</div>
+            <div class="zone-card__sublabel">Gestão financeira de importações</div>
+          </div>
+          <div class="zone-card__hex" style="color:#f472b6;">#f472b6</div>
+        </div>
+        <div class="mini-mockup">
+          <div class="mini-topbar">
+            <div class="mini-chip" style="background:rgba(244,114,182,0.12);color:#f472b6;">● Financeiro</div>
+            <div class="mini-search"></div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">HUB</div>
+            <div class="mini-nav-btn" style="background:rgba(129,140,248,0.10);color:#818cf8;">Core</div>
+            <div class="mini-avatar"></div>
+          </div>
+          <div class="mini-body">
+            <div class="mini-sidebar">
+              <div class="mini-sidebar-header">Financeiro</div>
+              <div class="mini-nav-item active" style="background:rgba(244,114,182,0.10);">
+                <div class="mini-nav-dot" style="background:#f472b6;"></div>
+                <span class="mini-nav-label" style="color:#f1f5f9;">Dashboard</span>
+              </div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Contas</span></div>
+              <div class="mini-nav-item"><div style="width:6px;height:6px;border-radius:50%;background:#334155;flex-shrink:0;"></div><span class="mini-nav-label">Relatórios</span></div>
+            </div>
+            <div class="mini-content">
+              <div class="mini-page-title"></div>
+              <div class="mini-kpi-row">
+                <div class="mini-kpi" style="border-top-color:#f472b6;"></div>
+                <div class="mini-kpi" style="border-top-color:#f472b6;"></div>
+                <div class="mini-kpi" style="border-top-color:#f472b6;"></div>
+              </div>
+              <div class="mini-table"><div class="mini-table-row"></div><div class="mini-table-row"></div><div class="mini-table-row"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /zone-grid -->
+
+    <!-- Nota: conflito de cor -->
+    <div style="margin-top:1rem;padding:0.875rem 1rem;background:rgba(250,204,21,0.06);border:1px solid rgba(250,204,21,0.15);border-radius:8px;font-size:0.78rem;color:#94a3b8;display:flex;gap:0.75rem;align-items:flex-start;">
+      <span style="color:#facc15;flex-shrink:0;">⚠</span>
+      <span><strong style="color:#f1f5f9;">Atenção — colisão visual:</strong> Financeiro COMEX e Configurador compartilham <code style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#f472b6">#f472b6</code>. No Localizador (Ecosystem Nodes) podem aparecer juntos. Considerar migrar Financeiro COMEX para <code style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#e879f9">#e879f9</code> (Fuchsia 400) em revisão futura.</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+
+  <!-- ── 4. Os 3 Pontos de Contato ─────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">4 — Os 3 Pontos de Contato</h2>
+    <p class="section-sub">A cor de acento de cada produto aparece em exatamente 3 lugares. Em todo o resto, a UI usa neutros Solid Slate.</p>
+
+    <div class="usage-table-wrap">
+      <table class="usage-table">
+        <thead>
+          <tr>
+            <th>Ponto de Contato</th>
+            <th>Localização</th>
+            <th>Implementação CSS</th>
+            <th>Intensidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① Chip do produto</td>
+            <td>Topbar — lado esquerdo, ao lado do logo</td>
+            <td><code style="font-family:'DM Mono',monospace;font-size:0.72rem;">background: linear-gradient(135deg, {color}18, {color}08)</code></td>
+            <td><span class="color-tag" style="background:rgba(129,140,248,0.12);color:#818cf8;">Muito sutil — 8–10% opacidade</span></td>
+          </tr>
+          <tr>
+            <td>② Indicador da sidebar</td>
+            <td>Menu lateral — ponto colorido no item ativo</td>
+            <td><code style="font-family:'DM Mono',monospace;font-size:0.72rem;">background: {color} — dot 6×6px</code></td>
+            <td><span class="color-tag" style="background:rgba(52,211,153,0.12);color:#34d399;">Direto — 100% cor</span></td>
+          </tr>
+          <tr>
+            <td>③ Item ativo na navegação</td>
+            <td>Menu lateral — fundo do item selecionado</td>
+            <td><code style="font-family:'DM Mono',monospace;font-size:0.72rem;">background: {color}12 — texto: {color}</code></td>
+            <td><span class="color-tag" style="background:rgba(245,158,11,0.12);color:#f59e0b;">Sutil — 7% opacidade</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+
+  <!-- ── 5. Regras Obrigatórias ─────────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">5 — Regras Obrigatórias</h2>
+    <p class="section-sub">Toda implementação nova deve respeitar estas regras.</p>
+
+    <ul class="rules-list">
+      <li><span class="rule-num">1</span><span><strong>Cor de acento via prop, nunca hardcoded no componente.</strong> O componente <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">TelaProdutoGlobal</code> recebe <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">productColor</code> como prop. O valor vem de <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">getProdutoMeta(productId).color</code>.</span></li>
+      <li><span class="rule-num">2</span><span><strong>Fonte única de verdade:</strong> <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">nucleo-global/Logo/produtos/src/produtos.tsx</code> — PRODUTO_META. Nunca duplicar cor em outro arquivo.</span></li>
+      <li><span class="rule-num">3</span><span><strong>Máximo 3 pontos de contato</strong> por tela. Cores de produto nunca em: fundos de página, títulos, botões primários, badges de status, bordas de tabela.</span></li>
+      <li><span class="rule-num">4</span><span><strong>Sistema de zonas = indigo unificado.</strong> HUB, Core e Admin usam <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">#818cf8</code>. Configurador usa <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">#f472b6</code> por ser um produto de workspace (diferente dos produtos COMEX mas diferente das zonas neutras também).</span></li>
+      <li><span class="rule-num">5</span><span><strong>KPI cards com accent top-border:</strong> <code style="font-family:'DM Mono',monospace;font-size:0.72rem;">border-top: 2px solid {color}</code> — o único lugar onde a cor aparece em cards de dados.</span></li>
+      <li><span class="rule-num">6</span><span><strong>Botões primários sempre indigo</strong> (<code style="font-family:'DM Mono',monospace;font-size:0.72rem;">var(--accent)</code>) — nunca na cor do produto. Botões usam a cor da plataforma, não do produto.</span></li>
+      <li><span class="rule-num">7</span><span><strong>Light theme:</strong> as mesmas cores são mantidas. No light theme, os chips ficam mais saturados pois o fundo é branco — compensar com opacidade menor (<code style="font-family:'DM Mono',monospace;font-size:0.72rem;">06–08%</code>).</span></li>
+    </ul>
+  </section>
+
+  <div class="divider"></div>
+
+
+  <!-- ── 6. Tokens CSS ──────────────────────────────────────────────── -->
+  <section class="section">
+    <h2 class="section-title">6 — Tokens de Cor (Referência)</h2>
+    <p class="section-sub">Cores do PRODUTO_META — única fonte de verdade. Importar via <code style="font-family:'DM Mono',monospace;font-size:0.78rem;">@nucleo/logo-produtos</code>.</p>
+
+    <div class="token-block">
+      <span class="token-comment">// nucleo-global/Logo/produtos/src/produtos.tsx</span><br>
+      <span class="token-comment">// getProdutoMeta(productId).color — Fonte de verdade</span><br>
+      <br>
+      <span class="token-key">PRODUTO_META</span> = {<br>
+      &nbsp;&nbsp;<span class="token-string">'simula-custo'</span>:    &nbsp;&nbsp; color: <span class="token-value" style="color:#34d399;">'#34d399'</span>,  &nbsp;<span class="token-comment">// Emerald 400</span><br>
+      &nbsp;&nbsp;<span class="token-string">'pedido'</span>:           &nbsp;&nbsp; color: <span class="token-value" style="color:#f59e0b;">'#f59e0b'</span>,  &nbsp;<span class="token-comment">// Amber 400</span><br>
+      &nbsp;&nbsp;<span class="token-string">'bid-cambio'</span>:       &nbsp;&nbsp; color: <span class="token-value" style="color:#06b6d4;">'#06b6d4'</span>,  &nbsp;<span class="token-comment">// Cyan 500</span><br>
+      &nbsp;&nbsp;<span class="token-string">'bid-frete'</span>:        &nbsp;&nbsp; color: <span class="token-value" style="color:#60a5fa;">'#60a5fa'</span>,  &nbsp;<span class="token-comment">// Orange 500</span><br>
+      &nbsp;&nbsp;<span class="token-string">'lpco'</span>:             &nbsp;&nbsp; color: <span class="token-value" style="color:#f43f5e;">'#f43f5e'</span>,  &nbsp;<span class="token-comment">// Orange 400</span><br>
+      &nbsp;&nbsp;<span class="token-string">'nf-importacao'</span>:   &nbsp;&nbsp; color: <span class="token-value" style="color:#c084fc;">'#c084fc'</span>,  &nbsp;<span class="token-comment">// Purple 400</span><br>
+      &nbsp;&nbsp;<span class="token-string">'processo'</span>:         &nbsp;&nbsp; color: <span class="token-value" style="color:#facc15;">'#facc15'</span>,  &nbsp;<span class="token-comment">// Yellow 400</span><br>
+      &nbsp;&nbsp;<span class="token-string">'financeiro-comex'</span>: &nbsp; color: <span class="token-value" style="color:#f472b6;">'#f472b6'</span>,  &nbsp;<span class="token-comment">// Pink 400 ⚠ ver nota colisão</span><br>
+      }<br>
+      <br>
+      <span class="token-comment">// Zonas do Sistema (não estão no PRODUTO_META)</span><br>
+      <span class="token-key">GRAVITY_INDIGO</span> = <span class="token-value" style="color:#818cf8;">'#818cf8'</span>  <span class="token-comment">// HUB, Core, Admin — Indigo 400</span><br>
+      <span class="token-key">CONFIGURADOR</span>  = <span class="token-value" style="color:#f472b6;">'#f472b6'</span>  <span class="token-comment">// Configurador — Pink 400</span><br>
+    </div>
+  </section>
+
+
+  <!-- ── Footer ────────────────────────────────────────────────────── -->
+  <footer class="doc-footer">
+    <span>Gravity Platform — Design System v1.0</span>
+    <span>UX · documentos-tecnicos/ux/design-system/cores.html</span>
+  </footer>
+
+</body>
+</html>

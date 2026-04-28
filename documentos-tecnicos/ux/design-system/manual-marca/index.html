@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manual da Marca — Gravity</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg-body:#080e1a;--bg-base:#0f172a;--bg-surface:#1e293b;--bg-elevated:#334155;
+      --text-1:#f1f5f9;--text-2:#94a3b8;--text-3:#64748b;
+      --border:rgba(255,255,255,0.06);
+      --indigo:#818cf8;--accent:#6366f1;
+      --r-sm:6px;--r-md:10px;--r-lg:14px;--r-pill:9999px;
+      --sidebar-w:220px;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-body);color:var(--text-1);line-height:1.6;display:flex}
+
+    /* ── Sidebar ── */
+    .sidebar{
+      width:var(--sidebar-w);min-height:100vh;background:var(--bg-base);
+      border-right:1px solid var(--border);position:fixed;top:0;left:0;
+      display:flex;flex-direction:column;padding:2rem 0;overflow-y:auto;z-index:100;
+    }
+    .sidebar__brand{display:flex;align-items:center;gap:0.625rem;padding:0 1.25rem 1.75rem;border-bottom:1px solid var(--border);margin-bottom:1.25rem}
+    .sidebar__hex{width:28px;height:28px;background:linear-gradient(135deg,#818cf8,#6366f1);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);flex-shrink:0}
+    .sidebar__name{font-size:0.9375rem;font-weight:700;color:var(--indigo)}
+    .sidebar__section-label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);padding:0 1.25rem;margin-bottom:0.375rem}
+    .sidebar__nav{list-style:none;margin-bottom:1.5rem}
+    .sidebar__nav a{
+      display:flex;align-items:center;gap:0.5rem;padding:0.4rem 1.25rem;
+      font-size:0.8125rem;font-weight:500;color:var(--text-2);text-decoration:none;
+      transition:all 0.15s;border-left:2px solid transparent;
+    }
+    .sidebar__nav a:hover{color:var(--text-1);background:rgba(255,255,255,0.03)}
+    .sidebar__nav a.active{color:var(--indigo);border-left-color:var(--indigo);background:rgba(129,140,248,0.06)}
+    .sidebar__num{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text-3);width:18px;flex-shrink:0}
+
+    /* ── Content ── */
+    .content{margin-left:var(--sidebar-w);flex:1;padding:0}
+
+    /* ── Cover ── */
+    .cover{
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(99,102,241,0.12),transparent);
+      border-bottom:1px solid var(--border);padding:4rem 3rem;text-align:center;
+    }
+    .cover__hex{width:80px;height:80px;background:linear-gradient(135deg,#818cf8,#6366f1);clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);margin-bottom:2rem}
+    .cover__title{font-size:3rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#f1f5f9,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .cover__sub{font-size:1.125rem;color:var(--text-2);margin-top:0.75rem;max-width:480px}
+    .cover__meta{display:flex;gap:1.5rem;margin-top:2.5rem;font-size:0.78rem;color:var(--text-3)}
+    .cover__meta span{display:flex;align-items:center;gap:0.375rem}
+
+    /* ── Section ── */
+    .section{padding:4rem 3rem;border-bottom:1px solid var(--border);max-width:900px}
+    .section__num{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text-3);font-weight:500;margin-bottom:0.375rem}
+    .section__title{font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.5rem}
+    .section__desc{font-size:0.9375rem;color:var(--text-2);line-height:1.7;max-width:640px;margin-bottom:2.5rem}
+    .divider{height:1px;background:var(--border);margin:2.5rem 0}
+
+    /* ── Logo display ── */
+    .logo-showcase{
+      background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);
+      overflow:hidden;margin-bottom:1.5rem;
+    }
+    .logo-showcase__preview{
+      background:var(--bg-base);padding:3rem;display:flex;align-items:center;justify-content:center;
+      gap:3rem;flex-wrap:wrap;border-bottom:1px solid var(--border);
+    }
+    .logo-showcase__info{padding:1.5rem 2rem;display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start}
+    .logo-size-col{display:flex;flex-direction:column;align-items:center;gap:0.5rem}
+    .logo-size-lbl{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text-3)}
+    .wordmark{display:flex;align-items:center;gap:0.875rem}
+    .wordmark__name{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em}
+    .chip{display:inline-flex;align-items:center;gap:0.45rem;padding:0.2rem 0.75rem;border-radius:var(--r-pill);font-size:0.72rem;font-weight:600}
+    .info-block{flex:1;min-width:200px}
+    .info-block__name{font-weight:700;font-size:1rem;margin-bottom:0.25rem}
+    .info-block__id{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-3);margin-bottom:0.5rem}
+    .info-block__hex{font-family:'DM Mono',monospace;font-size:0.8rem;font-weight:600;margin-bottom:0.5rem}
+    .info-block__concept{font-size:0.8125rem;color:var(--text-2);line-height:1.6}
+
+    /* ── Products grid ── */
+    .products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+    .product-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+    .product-card__top{background:var(--bg-base);padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:1.25rem;border-bottom:1px solid var(--border)}
+    .product-card__sizes{display:flex;align-items:flex-end;gap:1.25rem}
+    .product-card__bottom{padding:1rem 1.25rem}
+    .product-card__name{font-weight:700;font-size:0.9375rem;margin-bottom:0.125rem}
+    .product-card__id{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--text-3);margin-bottom:0.375rem}
+    .product-card__concept{font-size:0.78rem;color:var(--text-2);line-height:1.6}
+    .product-card__hex{font-family:'DM Mono',monospace;font-size:0.72rem;font-weight:600;float:right;margin-top:-1.125rem}
+
+    /* ── Color swatches ── */
+    .color-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.875rem;margin-bottom:1.5rem}
+    .color-swatch{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
+    .color-swatch__block{height:64px}
+    .color-swatch__info{padding:0.625rem 0.75rem}
+    .color-swatch__name{font-size:0.8125rem;font-weight:600;margin-bottom:0.125rem}
+    .color-swatch__hex{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-3)}
+    .color-swatch__use{font-size:0.72rem;color:var(--text-3);margin-top:0.25rem}
+
+    /* ── Typography scale ── */
+    .type-row{display:flex;align-items:baseline;gap:1.5rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg-surface)}
+    .type-row:first-child{border-radius:var(--r-lg) var(--r-lg) 0 0}
+    .type-row:last-child{border-radius:0 0 var(--r-lg) var(--r-lg);border-bottom:none}
+    .type-meta{width:180px;flex-shrink:0}
+    .type-meta__class{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-3)}
+    .type-meta__spec{font-size:0.72rem;color:var(--text-2);margin-top:0.125rem}
+    .type-meta__use{font-size:0.7rem;color:var(--text-3);margin-top:0.125rem}
+
+    /* ── Context mockups ── */
+    .mockup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem}
+    .mockup-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+    .mockup-card__label{padding:0.75rem 1rem;font-size:0.75rem;font-weight:600;color:var(--text-2);border-bottom:1px solid var(--border)}
+    .mockup-card__preview{background:var(--bg-base);padding:1.25rem;min-height:80px;display:flex;align-items:center;justify-content:flex-start}
+
+    /* ── Mini topbar mockup ── */
+    .mini-topbar{height:40px;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;padding:0 0.875rem;gap:0.5rem;border-radius:var(--r-md);width:100%}
+    .mini-search{flex:1;height:22px;background:rgba(255,255,255,0.04);border-radius:9999px;max-width:120px}
+    .mini-btn{height:20px;padding:0 0.5rem;border-radius:9999px;font-size:0.6rem;font-weight:600;display:flex;align-items:center;white-space:nowrap}
+    .mini-avatar{width:22px;height:22px;border-radius:50%;background:#334155;flex-shrink:0}
+
+    /* ── Mini sidebar mockup ── */
+    .mini-sidebar-demo{background:#0f172a;border-radius:var(--r-md);padding:0.75rem 0.625rem;width:120px;display:flex;flex-direction:column;gap:0.25rem}
+    .mini-nav-item-demo{height:24px;border-radius:6px;padding:0 0.5rem;display:flex;align-items:center;gap:0.375rem;font-size:0.6rem;font-weight:500;color:#64748b}
+    .mini-nav-item-demo.active{color:#f1f5f9}
+    .mini-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#334155}
+
+    /* ── HUB card demo ── */
+    .hub-card-demo{background:#1e293b;border-radius:var(--r-md);padding:1rem;width:90px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;border:1px solid rgba(255,255,255,0.06)}
+    .hub-card-demo__name{font-size:0.6rem;font-weight:600;color:var(--text-2);text-align:center}
+
+    /* ── Rules do/don't ── */
+    .rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+    .rule-card{background:var(--bg-surface);border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border)}
+    .rule-card__header{padding:0.625rem 1rem;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:0.5rem}
+    .rule-card__header.ok{background:rgba(34,197,94,0.1);color:#4ade80;border-bottom:1px solid rgba(34,197,94,0.15)}
+    .rule-card__header.no{background:rgba(239,68,68,0.08);color:#f87171;border-bottom:1px solid rgba(239,68,68,0.12)}
+    .rule-card__body{padding:0.875rem 1rem;font-size:0.8125rem;color:var(--text-2);line-height:1.6}
+    .rule-card__body strong{color:var(--text-1)}
+
+    /* ── Code block ── */
+    .code-block{background:#080e1a;border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;font-family:'DM Mono',monospace;font-size:0.78rem;line-height:2;overflow-x:auto;margin-bottom:1.25rem}
+    .c-comment{color:#475569}.c-key{color:#818cf8}.c-val{color:#34d399}.c-str{color:#fbbf24}.c-type{color:#06b6d4}
+
+    /* ── Utility ── */
+    .tag{display:inline-flex;align-items:center;padding:0.15rem 0.5rem;border-radius:var(--r-pill);font-size:0.68rem;font-weight:700}
+    .subsection-title{font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--text-1)}
+    .note{background:rgba(129,140,248,0.07);border:1px solid rgba(129,140,248,0.15);border-radius:var(--r-md);padding:0.875rem 1rem;font-size:0.8125rem;color:var(--text-2);margin-bottom:1.5rem;line-height:1.6}
+    .note strong{color:var(--text-1)}
+
+    /* ── Spacing reference ── */
+    .space-row{display:flex;align-items:center;gap:1rem;padding:0.75rem 1rem;border-bottom:1px solid var(--border);background:var(--bg-surface)}
+    .space-row:first-child{border-radius:var(--r-lg) var(--r-lg) 0 0}
+    .space-row:last-child{border-radius:0 0 var(--r-lg) var(--r-lg);border-bottom:none}
+    .space-bar-wrap{width:120px;height:20px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden;flex-shrink:0}
+    .space-bar{height:100%;background:var(--indigo);opacity:0.5;border-radius:4px}
+    .space-meta{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text-2);width:80px;flex-shrink:0}
+    .space-use{font-size:0.78rem;color:var(--text-3)}
+
+    /* ── Icon weight table ── */
+    .icon-table{width:100%;border-collapse:collapse}
+    .icon-table th{text-align:left;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);padding:0.5rem 0.875rem;background:var(--bg-surface);border-bottom:1px solid var(--border)}
+    .icon-table td{padding:0.625rem 0.875rem;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.8125rem;color:var(--text-2);vertical-align:middle}
+    .icon-table tr:last-child td{border-bottom:none}
+    .icon-table td:first-child{color:var(--text-1);font-weight:600}
+    .icon-table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+
+    /* ── Footer ── */
+    .doc-footer{padding:3rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-3)}
+  </style>
+</head>
+<body>
+
+<!-- ── Sidebar ────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar__brand">
+    <div class="sidebar__hex"></div>
+    <span class="sidebar__name">Gravity</span>
+  </div>
+  <div class="sidebar__section-label">Manual da Marca</div>
+  <ul class="sidebar__nav">
+    <li><a href="#cover"><span class="sidebar__num">—</span>Capa</a></li>
+    <li><a href="#s01"><span class="sidebar__num">01</span>A Marca</a></li>
+    <li><a href="#s02"><span class="sidebar__num">02</span>Logo Gravity</a></li>
+    <li><a href="#s03"><span class="sidebar__num">03</span>Logos dos Produtos</a></li>
+    <li><a href="#s04"><span class="sidebar__num">04</span>Sistema de Cores</a></li>
+    <li><a href="#s05"><span class="sidebar__num">05</span>Tipografia</a></li>
+    <li><a href="#s06"><span class="sidebar__num">06</span>Espaçamentos</a></li>
+    <li><a href="#s07"><span class="sidebar__num">07</span>Iconografia</a></li>
+    <li><a href="#s08"><span class="sidebar__num">08</span>Aplicações</a></li>
+    <li><a href="#s09"><span class="sidebar__num">09</span>Uso Correto</a></li>
+    <li><a href="#s10"><span class="sidebar__num">10</span>Tokens & Código</a></li>
+  </ul>
+</nav>
+
+<!-- ── Content ───────────────────────────────────────── -->
+<main class="content">
+
+<!-- ── Cover ── -->
+<section id="cover" class="cover">
+  <div class="cover__hex"></div>
+  <h1 class="cover__title">Manual da Marca</h1>
+  <p class="cover__sub">Identidade visual completa da plataforma Gravity — logos, cores, tipografia e diretrizes de uso.</p>
+  <div class="cover__meta">
+    <span>Versão 1.0</span>
+    <span>Abril 2026</span>
+    <span>12 logos · 10 produtos + zonas · Dark-first</span>
+  </div>
+</section>
+
+
+<!-- ── 01 A Marca ── -->
+<section id="s01" class="section">
+  <div class="section__num">01</div>
+  <h2 class="section__title">A Marca</h2>
+  <p class="section__desc">A Gravity é uma plataforma B2B para operações de importação no mercado brasileiro — câmbio, frete, pedidos, licenças, notas fiscais, processos e análise financeira, tudo em um único ecossistema.</p>
+
+  <div class="note">
+    <strong>Princípio central:</strong> A Gravity não é um produto — é um ecossistema. A identidade visual reflete isso: uma marca-mãe forte (Gravity Indigo) que une todas as zonas, com identidades individuais sutis para cada produto.
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="subsection-title">Conceito do Ícone</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem">
+      <div style="font-size:0.8125rem;font-weight:700;color:var(--text-1);margin-bottom:0.5rem">Hexágono</div>
+      <p style="font-size:0.8rem;color:var(--text-2);line-height:1.7">Estabilidade e força. Padrão encontrado na natureza (colmeia, basalto). Seis lados = seis produtos principais interconectados.</p>
+    </div>
+    <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem">
+      <div style="font-size:0.8125rem;font-weight:700;color:var(--text-1);margin-bottom:0.5rem">Ponto Central</div>
+      <p style="font-size:0.8rem;color:var(--text-2);line-height:1.7">O núcleo da plataforma — o ponto de gravidade que atrai e conecta todos os produtos ao redor.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 02 Logo Gravity ── -->
+<section id="s02" class="section">
+  <div class="section__num">02</div>
+  <h2 class="section__title">Logo Gravity</h2>
+  <p class="section__desc">A marca principal do ecossistema. Usada no HUB, Core, Admin e em todos os materiais da plataforma.</p>
+
+  <!-- Logo principal -->
+  <div class="logo-showcase">
+    <div class="logo-showcase__preview">
+      <div class="logo-size-col">
+        <svg width="96" height="96" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+          <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="12,5.5 18.5,9.25 18.5,15.25 12,19 5.5,15.25 5.5,9.25" fill="currentColor" opacity="0.08"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </svg>
+        <span class="logo-size-lbl">96px</span>
+      </div>
+      <div class="logo-size-col">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+          <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <polygon points="12,5.5 18.5,9.25 18.5,15.25 12,19 5.5,15.25 5.5,9.25" fill="currentColor" opacity="0.08"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </svg>
+        <span class="logo-size-lbl">48px</span>
+      </div>
+      <div class="logo-size-col">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+          <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </svg>
+        <span class="logo-size-lbl">24px</span>
+      </div>
+      <div class="logo-size-col">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+          <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.15"/>
+          <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+        </svg>
+        <span class="logo-size-lbl">16px</span>
+      </div>
+      <div class="logo-size-col" style="margin-left:2rem">
+        <div class="wordmark">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+            <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" fill="currentColor"/>
+          </svg>
+          <span class="wordmark__name" style="color:#818cf8;font-size:1.5rem">Gravity</span>
+        </div>
+        <span class="logo-size-lbl" style="margin-top:0.5rem">Wordmark</span>
+      </div>
+    </div>
+    <div class="logo-showcase__info">
+      <div class="info-block">
+        <div class="info-block__name">Gravity Platform</div>
+        <div class="info-block__id">workspace · ecossistema COMEX</div>
+        <div class="info-block__hex" style="color:#818cf8">#818cf8 — Indigo 400</div>
+        <div class="info-block__concept">Hexágono + ponto central. Geometria estável que representa o campo gravitacional unindo todos os produtos.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem">
+        <div>
+          <div style="font-size:0.72rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem">Tamanho mínimo</div>
+          <span class="tag" style="background:rgba(129,140,248,0.12);color:#818cf8">16px — chip/favicon</span>
+        </div>
+        <div>
+          <div style="font-size:0.72rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.375rem">Usado em</div>
+          <div style="display:flex;gap:0.375rem;flex-wrap:wrap">
+            <span class="tag" style="background:rgba(129,140,248,0.1);color:#818cf8">HUB</span>
+            <span class="tag" style="background:rgba(129,140,248,0.1);color:#818cf8">Core</span>
+            <span class="tag" style="background:rgba(129,140,248,0.1);color:#818cf8">Admin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Área de respiro -->
+  <div class="subsection-title">Área de Respiro</div>
+  <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:2rem;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem">
+    <div style="position:relative;display:inline-flex;align-items:center;justify-content:center">
+      <div style="position:absolute;inset:-24px;border:1px dashed rgba(129,140,248,0.3);border-radius:4px"></div>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="color:#818cf8">
+        <polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3" fill="currentColor"/>
+      </svg>
+    </div>
+    <p style="font-size:0.8125rem;color:var(--text-2);margin-left:3rem;max-width:280px;line-height:1.7">Mínimo de <strong style="color:var(--text-1)">0.5× a altura do logo</strong> de espaço em todos os lados. Nunca posicionar outros elementos dentro dessa área.</p>
+  </div>
+</section>
+
+
+<!-- ── 03 Logos dos Produtos ── -->
+<section id="s03" class="section">
+  <div class="section__num">03</div>
+  <h2 class="section__title">Logos dos Produtos</h2>
+  <p class="section__desc">Cada produto e zona do ecossistema tem um ícone SVG próprio. Todos usam <code style="font-family:'DM Mono',monospace;font-size:0.8em;color:#818cf8">currentColor</code> — escalam de 16px a 256px sem degradação.</p>
+
+  <div class="subsection-title">Zonas do Sistema</div>
+  <div class="products-grid" style="margin-bottom:2rem">
+
+    <!-- HUB -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.5"/><circle cx="4.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="19.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="4.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="19.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.5"/><path d="M7 7L10 10M14 10L17 7M10 14L7 17M14 14L17 17" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.7"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.5"/><circle cx="4.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="19.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="4.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.5"/><circle cx="19.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.5"/><path d="M7 7L10 10M14 10L17 7M10 14L7 17M14 14L17 17" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.7"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><circle cx="12" cy="12" r="3.5" fill="currentColor"/><circle cx="4.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="19.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="4.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="19.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.4"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(129,140,248,0.12);color:#818cf8"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><circle cx="12" cy="12" r="3.5" fill="currentColor"/><circle cx="4.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="19.5" cy="4.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="4.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.4"/><circle cx="19.5" cy="19.5" r="1.8" fill="currentColor" opacity="0.4"/></svg>Gravity HUB</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#818cf8">#818cf8</div>
+        <div class="product-card__name">HUB</div>
+        <div class="product-card__id">workspace · gateway</div>
+        <div class="product-card__concept">Rede de nós — ponto central conectado a 4 nós externos. Portal de entrada do ecossistema.</div>
+      </div>
+    </div>
+
+    <!-- Core -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="13" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="1.5"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="13" width="8.5" height="8.5" rx="2" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="1.5"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#818cf8"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2" opacity="0.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2" opacity="0.2"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2" opacity="0.2"/><rect x="13" y="13" width="8.5" height="8.5" rx="2" opacity="0.9"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(129,140,248,0.12);color:#818cf8"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#818cf8"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2" opacity="0.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2" opacity="0.2"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2" opacity="0.2"/><rect x="13" y="13" width="8.5" height="8.5" rx="2"/></svg>Core</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#818cf8">#818cf8</div>
+        <div class="product-card__name">Core</div>
+        <div class="product-card__id">processos · central</div>
+        <div class="product-card__concept">Grid 2×2 com opacidades variadas. Múltiplos módulos organizados em uma central de operações.</div>
+      </div>
+    </div>
+
+    <!-- Configurador -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><line x1="3" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="7" x2="8" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/><circle cx="8" cy="7" r="2.5" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><circle cx="14" cy="12" r="2.5" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="17" x2="21" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/><circle cx="18" cy="17" r="2.5" fill="currentColor" opacity="0.6" stroke="currentColor" stroke-width="1.5"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><line x1="3" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="7" x2="8" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/><circle cx="8" cy="7" r="2.5" fill="currentColor" opacity="0.5" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><circle cx="14" cy="12" r="2.5" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="17" x2="21" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.22"/><line x1="3" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.45"/><circle cx="18" cy="17" r="2.5" fill="currentColor" opacity="0.6" stroke="currentColor" stroke-width="1.5"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><line x1="3" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="8" cy="7" r="2.5" fill="currentColor" opacity="0.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="14" cy="12" r="2.5" fill="currentColor"/><line x1="3" y1="17" x2="21" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="18" cy="17" r="2.5" fill="currentColor" opacity="0.6"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(244,114,182,0.12);color:#f472b6"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><line x1="3" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="8" cy="7" r="2.5" fill="currentColor" opacity="0.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="14" cy="12" r="2.5" fill="currentColor"/></svg>Configurador</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#f472b6">#f472b6</div>
+        <div class="product-card__name">Configurador</div>
+        <div class="product-card__id">auth · billing · workspace</div>
+        <div class="product-card__concept">Painel de sliders — 3 controles em posições distintas. Ajuste fino, personalização e controle do workspace.</div>
+      </div>
+    </div>
+
+    <!-- Admin -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><path d="M12 2.5L3.5 7V12C3.5 16.8 7.2 21.3 12 22.5C16.8 21.3 20.5 16.8 20.5 12V7L12 2.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" fill="currentColor" opacity="0.6" stroke="currentColor" stroke-width="1"/><path d="M7 18C7 15.2 9.2 13 12 13C14.8 13 17 15.2 17 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><path d="M12 2.5L3.5 7V12C3.5 16.8 7.2 21.3 12 22.5C16.8 21.3 20.5 16.8 20.5 12V7L12 2.5Z" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" fill="currentColor" opacity="0.6"/><path d="M7.5 18C7.5 15.5 9.5 13.5 12 13.5C14.5 13.5 16.5 15.5 16.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><path d="M12 2.5L3.5 7V12C3.5 16.8 7.2 21.3 12 22.5C16.8 21.3 20.5 16.8 20.5 12V7L12 2.5Z" fill="currentColor" opacity="0.2"/><circle cx="12" cy="10" r="3" fill="currentColor"/><path d="M7 18C7 15.2 9.2 13 12 13C14.8 13 17 15.2 17 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(129,140,248,0.12);color:#818cf8"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><path d="M12 2.5L3.5 7V12C3.5 16.8 7.2 21.3 12 22.5C16.8 21.3 20.5 16.8 20.5 12V7L12 2.5Z" fill="currentColor" opacity="0.2"/><circle cx="12" cy="10" r="3" fill="currentColor"/></svg>Admin</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#818cf8">#818cf8</div>
+        <div class="product-card__name">Admin</div>
+        <div class="product-card__id">gravity · interno</div>
+        <div class="product-card__concept">Escudo com perfil de usuário. Autoridade, proteção e acesso privilegiado à plataforma interna.</div>
+      </div>
+    </div>
+
+  </div><!-- /zonas -->
+
+  <div class="divider"></div>
+  <div class="subsection-title">Produtos COMEX</div>
+  <div class="products-grid">
+
+    <!-- SimulaCusto -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#34d399"><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="5.5" width="8" height="4.5" rx="1" fill="currentColor" opacity="0.25"/><line x1="10.5" y1="7.5" x2="14.5" y2="7.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><circle cx="9" cy="14" r="1.1" fill="currentColor"/><circle cx="12" cy="14" r="1.1" fill="currentColor"/><circle cx="15" cy="14" r="1.1" fill="currentColor"/><circle cx="9" cy="17.5" r="1.1" fill="currentColor" opacity="0.4"/><circle cx="12" cy="17.5" r="1.1" fill="currentColor" opacity="0.4"/><circle cx="15" cy="17.5" r="1.1" fill="currentColor" opacity="0.8"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#34d399"><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="5.5" width="8" height="4.5" rx="1" fill="currentColor" opacity="0.25"/><circle cx="9" cy="14" r="1.1" fill="currentColor"/><circle cx="12" cy="14" r="1.1" fill="currentColor"/><circle cx="15" cy="14" r="1.1" fill="currentColor"/><circle cx="9" cy="17.5" r="1.1" fill="currentColor" opacity="0.4"/><circle cx="12" cy="17.5" r="1.1" fill="currentColor" opacity="0.8"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#34d399"><rect x="4" y="2" width="16" height="20" rx="3" fill="currentColor" opacity="0.15"/><rect x="7" y="5" width="10" height="5" rx="1.5" fill="currentColor" opacity="0.4"/><circle cx="9" cy="14" r="1.3" fill="currentColor"/><circle cx="12" cy="14" r="1.3" fill="currentColor"/><circle cx="15" cy="14" r="1.3" fill="currentColor"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(52,211,153,0.10);color:#34d399"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#34d399"><rect x="4" y="2" width="16" height="20" rx="3" opacity="0.2"/><rect x="7" y="5" width="10" height="5" rx="1.5" opacity="0.6"/><circle cx="9" cy="15" r="1.5"/><circle cx="12" cy="15" r="1.5"/></svg>SimulaCusto</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#34d399">#34d399</div>
+        <div class="product-card__name">SimulaCusto</div>
+        <div class="product-card__id">simula-custo · fiscal · NCM</div>
+        <div class="product-card__concept">Calculadora — visor + grid de botões. Estimativa e simulação de custos de importação.</div>
+      </div>
+    </div>
+
+    <!-- Pedido -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#f59e0b"><path d="M12 3L21.5 8.5L12 14L2.5 8.5Z" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M21.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="12" y1="14" x2="12" y2="21" stroke="currentColor" stroke-width="1" opacity="0.4"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#f59e0b"><path d="M12 3L21.5 8.5L12 14L2.5 8.5Z" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M21.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#f59e0b"><path d="M12 3L21.5 8.5L12 14L2.5 8.5Z" fill="currentColor" opacity="0.3"/><path d="M2.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.15"/><path d="M21.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.6"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(245,158,11,0.10);color:#f59e0b"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#f59e0b"><path d="M12 3L21.5 8.5L12 14L2.5 8.5Z" opacity="0.4"/><path d="M2.5 8.5V15.5L12 21V14Z" opacity="0.2"/><path d="M21.5 8.5V15.5L12 21V14Z" opacity="0.8"/></svg>Pedido</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#f59e0b">#f59e0b</div>
+        <div class="product-card__name">Pedido</div>
+        <div class="product-card__id">pedido · pedidos · ERP</div>
+        <div class="product-card__concept">Caixa isométrica 3D. Volume/embalagem de importação com três faces em opacidades diferentes.</div>
+      </div>
+    </div>
+
+    <!-- BID Câmbio -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.25"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/><path d="M13.5 4.5L15.5 3L15 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 16C16 18.5 13.5 20 10.5 19.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M10.5 19.5L8.5 21L9 18.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.25"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M13.5 4.5L15.5 3L15 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 16C16 18.5 13.5 20 10.5 19.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity="0.5"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.15"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.4"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.5 4.5L15.5 3L15 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(6,182,212,0.10);color:#06b6d4"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.15"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.4"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>BID Câmbio</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#06b6d4">#06b6d4</div>
+        <div class="product-card__name">BID Câmbio</div>
+        <div class="product-card__id">bid-cambio · câmbio · cotações</div>
+        <div class="product-card__concept">Moeda com setas de conversão — círculo (coin) com arcos bidirecionais. Conversão de moedas.</div>
+      </div>
+    </div>
+
+    <!-- BID Frete -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#60a5fa"><path d="M2 15H22L20 19H4L2 15Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="3.5" y="9" width="10" height="6" rx="1" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.25"/><path d="M1 21.5C3 20 5 21.5 7 21.5S11 20 13 20S17 21.5 19 21.5S23 20 23 20" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.3"/><path d="M23 2L14 7.5L16 9.5L21.5 8L23 2Z" fill="currentColor" opacity="0.75"/><path d="M16 9.5L15 12.5L18 11.5L21.5 8" fill="currentColor" opacity="0.4"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#60a5fa"><path d="M2 15H22L20 19H4L2 15Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="3.5" y="9" width="10" height="6" rx="1" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.25"/><path d="M23 2L14 7.5L16 9.5L21.5 8L23 2Z" fill="currentColor" opacity="0.75"/><path d="M16 9.5L15 12.5L18 11.5L21.5 8" fill="currentColor" opacity="0.4"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#60a5fa"><path d="M2 15H22L20 19H4L2 15Z" fill="currentColor" opacity="0.2"/><rect x="3.5" y="9" width="10" height="6" rx="1" fill="currentColor" opacity="0.35"/><path d="M23 2L14 7.5L16 9.5L21.5 8L23 2Z" fill="currentColor" opacity="0.85"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(96,165,250,0.10);color:#60a5fa"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#60a5fa"><path d="M2 15H22L20 19H4L2 15Z" fill="currentColor" opacity="0.2"/><rect x="3.5" y="9" width="10" height="6" rx="1" fill="currentColor" opacity="0.35"/><path d="M23 2L14 7.5L16 9.5L21.5 8L23 2Z" fill="currentColor" opacity="0.85"/></svg>BID Frete</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#60a5fa">#60a5fa</div>
+        <div class="product-card__name">BID Frete</div>
+        <div class="product-card__id">bid-frete · frete · transportes</div>
+        <div class="product-card__concept">Navio + avião dart. Frete multimodal: marítimo (casco + container) e aéreo. Azul oceano.</div>
+      </div>
+    </div>
+
+    <!-- LPCO -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#f43f5e"><path d="M4 2H15.5L20 6.5V22H4V2Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15.5 2V6.5H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7" y1="13" x2="14.5" y2="13" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity="0.5"/><circle cx="15.5" cy="18.5" r="4" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.25"/><circle cx="15.5" cy="18.5" r="2.25" fill="currentColor" opacity="0.55"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#f43f5e"><path d="M4 2H15.5L20 6.5V22H4V2Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15.5 2V6.5H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="15.5" cy="18.5" r="4" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.25"/><circle cx="15.5" cy="18.5" r="2.25" fill="currentColor" opacity="0.55"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#f43f5e"><path d="M4 2H15.5L20 6.5V22H4V2Z" fill="currentColor" opacity="0.15"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15.5" cy="18.5" r="4" fill="currentColor" opacity="0.15"/><circle cx="15.5" cy="18.5" r="2.5" fill="currentColor"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(244,63,94,0.10);color:#f43f5e"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#f43f5e"><path d="M4 2H15.5L20 6.5V22H4V2Z" fill="currentColor" opacity="0.15"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15.5" cy="18.5" r="2.5" fill="currentColor"/></svg>LPCO</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#f43f5e">#f43f5e</div>
+        <div class="product-card__name">LPCO</div>
+        <div class="product-card__id">lpco · licenças · permissões</div>
+        <div class="product-card__concept">Documento com dobra + selo oficial. Licenças de MAPA, IBAMA e ANVISA. Rose = autoridade governamental.</div>
+      </div>
+    </div>
+
+    <!-- NF Importação -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#c084fc"><path d="M5 2H15L19 6V22H5V2Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15 2V6H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="7.5" y1="17" x2="7.5" y2="20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9.5" y1="17" x2="9.5" y2="20.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="11" y1="17" x2="11" y2="20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="17" x2="13" y2="20.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="14.5" y1="17" x2="14.5" y2="20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="16" y1="17" x2="16" y2="20.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#c084fc"><path d="M5 2H15L19 6V22H5V2Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15 2V6H19" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="8" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="7.5" y1="17" x2="7.5" y2="20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="17" x2="10" y2="20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="17" x2="13" y2="20.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/><line x1="15.5" y1="17" x2="15.5" y2="20.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="color:#c084fc"><path d="M5 2H15L19 6V22H5V2Z" fill="currentColor" opacity="0.15"/><line x1="8" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7.5" y1="16" x2="7.5" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10.5" y1="16" x2="10.5" y2="21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="13.5" y1="16" x2="13.5" y2="21" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="16" y1="16" x2="16" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(192,132,252,0.10);color:#c084fc"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#c084fc"><path d="M5 2H15L19 6V22H5V2Z" opacity="0.2"/><line x1="7.5" y1="16" x2="7.5" y2="21" stroke="currentColor" stroke-width="2"/><line x1="11" y1="16" x2="11" y2="21" stroke="currentColor" stroke-width="3"/><line x1="14" y1="16" x2="14" y2="21" stroke="currentColor" stroke-width="1.5"/><line x1="16.5" y1="16" x2="16.5" y2="21" stroke="currentColor" stroke-width="2"/></svg>NF Importação</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#c084fc">#c084fc</div>
+        <div class="product-card__name">NF Importação</div>
+        <div class="product-card__id">nf-importacao · nota fiscal</div>
+        <div class="product-card__concept">Nota fiscal com código de barras — página com fold + linhas de texto + barcode vertical na base.</div>
+      </div>
+    </div>
+
+    <!-- Processo -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#facc15"><rect x="1.5" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.25"/><path d="M7.5 12H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8.75 10.5L10.5 12L8.75 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.55" stroke="currentColor" stroke-width="1.25"/><path d="M16 12H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17.25 10.5L19 12L17.25 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="18.5" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.9" stroke="currentColor" stroke-width="1.25"/><rect x="1.5" y="18" width="22" height="2.5" rx="1.25" fill="currentColor" opacity="0.08"/><rect x="1.5" y="18" width="14" height="2.5" rx="1.25" fill="currentColor" opacity="0.4"/><circle cx="4.5" cy="5" r="1.5" fill="currentColor" opacity="0.5"/><line x1="4.5" y1="6.5" x2="4.5" y2="8.5" stroke="currentColor" stroke-width="1" opacity="0.4"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#facc15"><rect x="1.5" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.25"/><path d="M7.5 12H10.5L9 10.5M10.5 12L9 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.55" stroke="currentColor" stroke-width="1.25"/><path d="M16 12H18.5L17 10.5M18.5 12L17 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="18.5" y="8.5" width="6" height="7" rx="1.5" fill="currentColor" opacity="0.9" stroke="currentColor" stroke-width="1.25"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#facc15"><rect x="1.5" y="8.5" width="6" height="7" rx="2" opacity="0.3"/><rect x="10" y="8.5" width="6" height="7" rx="2" opacity="0.6"/><rect x="18.5" y="8.5" width="6" height="7" rx="2" opacity="0.95"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(250,204,21,0.10);color:#facc15"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#facc15"><rect x="1.5" y="8.5" width="6" height="7" rx="2" opacity="0.3"/><rect x="10" y="8.5" width="6" height="7" rx="2" opacity="0.6"/><rect x="18.5" y="8.5" width="6" height="7" rx="2" opacity="0.95"/></svg>Processo</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#facc15">#facc15</div>
+        <div class="product-card__name">Processo</div>
+        <div class="product-card__id">processo · processos · consolidado</div>
+        <div class="product-card__concept">Pipeline de 3 etapas com opacidade crescente e barra de progresso. Fluxo de importação.</div>
+      </div>
+    </div>
+
+    <!-- Financeiro COMEX -->
+    <div class="product-card">
+      <div class="product-card__top">
+        <div class="product-card__sizes">
+          <div class="logo-size-col"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><rect x="2" y="14" width="5" height="7" rx="1" fill="currentColor" opacity="0.25"/><rect x="9.5" y="9" width="5" height="12" rx="1" fill="currentColor" opacity="0.55"/><rect x="17" y="4" width="5" height="17" rx="1" fill="currentColor" opacity="0.9"/><line x1="1" y1="21.5" x2="23" y2="21.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.5 17L12 12L19.5 7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/><circle cx="20" cy="3.5" r="1.5" fill="currentColor" opacity="0.3"/></svg><span class="logo-size-lbl">64px</span></div>
+          <div class="logo-size-col"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><rect x="2" y="14" width="5" height="7" rx="1" fill="currentColor" opacity="0.25"/><rect x="9.5" y="9" width="5" height="12" rx="1" fill="currentColor" opacity="0.55"/><rect x="17" y="4" width="5" height="17" rx="1" fill="currentColor" opacity="0.9"/><line x1="1" y1="21.5" x2="23" y2="21.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.5 17L12 12L19.5 7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/></svg><span class="logo-size-lbl">32px</span></div>
+          <div class="logo-size-col"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:#f472b6"><rect x="2" y="14" width="5" height="7" rx="1" opacity="0.3"/><rect x="9.5" y="9" width="5" height="12" rx="1" opacity="0.6"/><rect x="17" y="4" width="5" height="17" rx="1"/></svg><span class="logo-size-lbl">16px</span></div>
+        </div>
+        <div class="chip" style="background:rgba(244,114,182,0.10);color:#f472b6"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#f472b6"><rect x="2" y="14" width="5" height="7" rx="1" opacity="0.3"/><rect x="9.5" y="9" width="5" height="12" rx="1" opacity="0.6"/><rect x="17" y="4" width="5" height="17" rx="1"/></svg>Financeiro COMEX</div>
+      </div>
+      <div class="product-card__bottom">
+        <div class="product-card__hex" style="color:#f472b6">#f472b6</div>
+        <div class="product-card__name">Financeiro COMEX</div>
+        <div class="product-card__id">financeiro-comex · financeiro</div>
+        <div class="product-card__concept">Barras ascendentes + linha de tendência. Crescimento financeiro e performance de importações.</div>
+      </div>
+    </div>
+
+  </div><!-- /produtos grid -->
+</section>
+
+
+<!-- ── 04 Sistema de Cores ── -->
+<section id="s04" class="section">
+  <div class="section__num">04</div>
+  <h2 class="section__title">Sistema de Cores</h2>
+  <p class="section__desc">Dois tiers: identidade da plataforma (unificada) e identidade de cada produto (individual e sutil).</p>
+
+  <div class="subsection-title">Tier 1 — Plataforma</div>
+  <div class="color-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:2rem">
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#818cf8"></div><div class="color-swatch__info"><div class="color-swatch__name">Gravity Indigo</div><div class="color-swatch__hex">#818cf8</div><div class="color-swatch__use">HUB · Core · Admin</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#f472b6"></div><div class="color-swatch__info"><div class="color-swatch__name">Configurador</div><div class="color-swatch__hex">#f472b6</div><div class="color-swatch__use">Configurador</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#0f172a;border:1px solid rgba(255,255,255,0.08)"></div><div class="color-swatch__info"><div class="color-swatch__name">bg-base</div><div class="color-swatch__hex">#0f172a</div><div class="color-swatch__use">Fundo principal</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#1e293b"></div><div class="color-swatch__info"><div class="color-swatch__name">bg-surface</div><div class="color-swatch__hex">#1e293b</div><div class="color-swatch__use">Cards / painéis</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#334155"></div><div class="color-swatch__info"><div class="color-swatch__name">bg-elevated</div><div class="color-swatch__hex">#334155</div><div class="color-swatch__use">Hover / bordas</div></div></div>
+  </div>
+
+  <div class="subsection-title">Tier 2 — Produtos COMEX</div>
+  <div class="color-grid" style="margin-bottom:2rem">
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#34d399"></div><div class="color-swatch__info"><div class="color-swatch__name">SimulaCusto</div><div class="color-swatch__hex">#34d399</div><div class="color-swatch__use">Emerald 400</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#f59e0b"></div><div class="color-swatch__info"><div class="color-swatch__name">Pedido</div><div class="color-swatch__hex">#f59e0b</div><div class="color-swatch__use">Amber 400</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#06b6d4"></div><div class="color-swatch__info"><div class="color-swatch__name">BID Câmbio</div><div class="color-swatch__hex">#06b6d4</div><div class="color-swatch__use">Cyan 500</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#60a5fa"></div><div class="color-swatch__info"><div class="color-swatch__name">BID Frete</div><div class="color-swatch__hex">#60a5fa</div><div class="color-swatch__use">Blue 400</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#f43f5e"></div><div class="color-swatch__info"><div class="color-swatch__name">LPCO</div><div class="color-swatch__hex">#f43f5e</div><div class="color-swatch__use">Rose 500</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#c084fc"></div><div class="color-swatch__info"><div class="color-swatch__name">NF Importação</div><div class="color-swatch__hex">#c084fc</div><div class="color-swatch__use">Purple 400</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#facc15"></div><div class="color-swatch__info"><div class="color-swatch__name">Processo</div><div class="color-swatch__hex">#facc15</div><div class="color-swatch__use">Yellow 400</div></div></div>
+    <div class="color-swatch"><div class="color-swatch__block" style="background:#f472b6"></div><div class="color-swatch__info"><div class="color-swatch__name">Financeiro</div><div class="color-swatch__hex">#f472b6</div><div class="color-swatch__use">Pink 400</div></div></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="subsection-title">Os 3 Pontos de Contato</div>
+  <div class="note">A cor de produto aparece em <strong>exatamente 3 lugares</strong> por tela. Em todo o resto, a UI usa neutros Solid Slate.</div>
+  <div class="icon-table-wrap" style="margin-bottom:1.5rem">
+    <table class="icon-table">
+      <thead><tr><th>Ponto</th><th>Localização</th><th>CSS</th><th>Intensidade</th></tr></thead>
+      <tbody>
+        <tr><td>① Chip do produto</td><td>Topbar — lado esquerdo</td><td><code style="font-family:'DM Mono',monospace;font-size:0.72rem">background: {color}12; color: {color}</code></td><td>8–10% opacidade</td></tr>
+        <tr><td>② Dot da sidebar</td><td>Item ativo — indicador</td><td><code style="font-family:'DM Mono',monospace;font-size:0.72rem">background: {color} — 6×6px circle</code></td><td>100% cor direta</td></tr>
+        <tr><td>③ Fundo item ativo</td><td>Menu lateral — selecionado</td><td><code style="font-family:'DM Mono',monospace;font-size:0.72rem">background: {color}12; color: {color}</code></td><td>7% opacidade</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── 05 Tipografia ── -->
+<section id="s05" class="section">
+  <div class="section__num">05</div>
+  <h2 class="section__title">Tipografia</h2>
+  <p class="section__desc">Plus Jakarta Sans para toda a UI. DM Mono exclusivamente para código, valores técnicos e IDs.</p>
+
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-display</div><div class="type-meta__spec">2.25rem · 700</div><div class="type-meta__use">Landing pages</div></div><span style="font-size:2.25rem;font-weight:700;color:var(--text-1)">Gravity</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-h1</div><div class="type-meta__spec">1.875rem · 700</div><div class="type-meta__use">Título de página</div></div><span style="font-size:1.875rem;font-weight:700">Estimativas</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-h2</div><div class="type-meta__spec">1.5rem · 600</div><div class="type-meta__use">Seção</div></div><span style="font-size:1.5rem;font-weight:600">Resumo Mensal</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-h3</div><div class="type-meta__spec">1.25rem · 600</div><div class="type-meta__use">Subseção</div></div><span style="font-size:1.25rem;font-weight:600">Custos por NCM</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-body-lg</div><div class="type-meta__spec">1rem · 400</div><div class="type-meta__use">Texto principal</div></div><span style="font-size:1rem">Simulação de custo de importação para produtos fiscais</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-body</div><div class="type-meta__spec">0.875rem · 400</div><div class="type-meta__use">Texto geral</div></div><span style="font-size:0.875rem">Valor calculado com base no NCM informado e taxa de câmbio atual</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-sm</div><div class="type-meta__spec">0.8125rem · 400</div><div class="type-meta__use">Labels, captions</div></div><span style="font-size:0.8125rem;color:var(--text-2)">Atualizado há 2 minutos · tenant-001</span></div>
+  <div class="type-row"><div class="type-meta"><div class="type-meta__class">.text-micro</div><div class="type-meta__spec">0.75rem · 600 · UPPER</div><div class="type-meta__use">Badges, tags, rótulos</div></div><span style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3)">Aprovado · Em andamento · NCM</span></div>
+
+  <div class="divider"></div>
+  <div class="subsection-title">DM Mono — Uso exclusivo técnico</div>
+  <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;font-family:'DM Mono',monospace;font-size:0.875rem;line-height:2">
+    <div style="color:#818cf8">#818cf8 · tenant-001 · 5178 · NCM 8471.30.19</div>
+    <div style="color:var(--text-2)">import { LogoSimulaCusto } from '@nucleo/logo-produtos'</div>
+    <div style="color:#34d399">PRODUTO_META['simula-custo'].color → '#34d399'</div>
+  </div>
+</section>
+
+
+<!-- ── 06 Espaçamentos ── -->
+<section id="s06" class="section">
+  <div class="section__num">06</div>
+  <h2 class="section__title">Espaçamentos</h2>
+  <p class="section__desc">Escala de 4px (0.25rem). Unidade lateral universal: 2rem. Nunca usar valores fora desta escala sem justificativa.</p>
+
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:4px"></div></div><div class="space-meta">4px · 0.25rem</div><div class="space-use">Gap mínimo entre ícone e badge</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:8px"></div></div><div class="space-meta">8px · 0.5rem</div><div class="space-use">Gap em botões (ícone + texto)</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:12px"></div></div><div class="space-meta">12px · 0.75rem</div><div class="space-use">Gap entre nav items</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:16px"></div></div><div class="space-meta">16px · 1rem</div><div class="space-use">Padding interno de cards pequenos</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:24px"></div></div><div class="space-meta">24px · 1.5rem</div><div class="space-use">Padding conteúdo padrão</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:32px"></div></div><div class="space-meta">32px · 2rem</div><div class="space-use">Margem lateral universal — obrigatória</div></div>
+  <div class="space-row"><div class="space-bar-wrap"><div class="space-bar" style="width:48px"></div></div><div class="space-meta">48px · 3rem</div><div class="space-use">Separação entre seções de página</div></div>
+</section>
+
+
+<!-- ── 07 Iconografia ── -->
+<section id="s07" class="section">
+  <div class="section__num">07</div>
+  <h2 class="section__title">Iconografia</h2>
+  <p class="section__desc">Biblioteca exclusiva: <strong>Phosphor Icons</strong> (<code style="font-family:'DM Mono',monospace;font-size:0.8em">@phosphor-icons/react</code>). Nenhuma outra biblioteca de ícones é permitida.</p>
+
+  <div class="icon-table-wrap" style="margin-bottom:1.5rem">
+    <table class="icon-table">
+      <thead><tr><th>Peso (weight)</th><th>Contexto</th><th>Exemplo de uso</th></tr></thead>
+      <tbody>
+        <tr><td>duotone</td><td>UI geral — padrão obrigatório</td><td>Nav items, headers, chips de produto</td></tr>
+        <tr><td>fill</td><td>Destaque / call-to-action</td><td>Botão primário, estado selecionado</td></tr>
+        <tr><td>regular</td><td>Sutil / placeholder</td><td>Inputs vazios, estados desabilitados</td></tr>
+        <tr><td>bold</td><td>Ênfase máxima</td><td>Alertas críticos, erros</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="icon-table-wrap">
+    <table class="icon-table">
+      <thead><tr><th>Contexto</th><th>Tamanho</th><th>Regra</th></tr></thead>
+      <tbody>
+        <tr><td>Badge / tag</td><td>14px</td><td>Sempre duotone, herda color do pai</td></tr>
+        <tr><td>Botão com texto</td><td>16px</td><td>Gap 0.5rem no flex container</td></tr>
+        <tr><td>Nav item / toggle</td><td>18px</td><td>Gap 0.75rem no flex container</td></tr>
+        <tr><td>Header / título inline</td><td>20px</td><td>Gap 0.5rem, color via prop explícita</td></tr>
+        <tr><td>Logo / chip produto</td><td>16px</td><td>Componente Logo próprio de cada produto</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:1.25rem"><strong>Regra de espaçamento:</strong> Ícones nunca têm margin própria. O espaçamento é sempre controlado pelo <code style="font-family:'DM Mono',monospace;font-size:0.8em">gap</code> do flex container pai.</div>
+</section>
+
+
+<!-- ── 08 Aplicações ── -->
+<section id="s08" class="section">
+  <div class="section__num">08</div>
+  <h2 class="section__title">Aplicações no Produto</h2>
+  <p class="section__desc">Como os logos e cores aparecem nos componentes reais da interface.</p>
+
+  <div class="mockup-grid">
+
+    <!-- Topbar chip -->
+    <div class="mockup-card">
+      <div class="mockup-card__label">① Topbar — Chip do produto</div>
+      <div class="mockup-card__preview" style="flex-direction:column;gap:0.75rem;align-items:stretch">
+        <div class="mini-topbar">
+          <div class="chip" style="background:rgba(52,211,153,0.12);color:#34d399;font-size:0.65rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="color:#34d399"><rect x="4" y="2" width="16" height="20" rx="3" opacity="0.2"/><rect x="7" y="5" width="10" height="5" rx="1.5" opacity="0.6"/><circle cx="9" cy="15" r="1.5"/><circle cx="12" cy="15" r="1.5"/></svg>
+            SimulaCusto
+          </div>
+          <div class="mini-search"></div>
+          <div class="mini-btn" style="background:rgba(129,140,248,0.1);color:#818cf8">HUB</div>
+          <div class="mini-btn" style="background:rgba(129,140,248,0.1);color:#818cf8">Core</div>
+          <div class="mini-avatar"></div>
+        </div>
+        <div class="mini-topbar">
+          <div class="chip" style="background:rgba(6,182,212,0.12);color:#06b6d4;font-size:0.65rem">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.15"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.4"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.5 4.5L15.5 3L15 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            BID Câmbio
+          </div>
+          <div class="mini-search"></div>
+          <div class="mini-btn" style="background:rgba(129,140,248,0.1);color:#818cf8">HUB</div>
+          <div class="mini-btn" style="background:rgba(129,140,248,0.1);color:#818cf8">Core</div>
+          <div class="mini-avatar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="mockup-card">
+      <div class="mockup-card__label">② Sidebar — Dot + item ativo</div>
+      <div class="mockup-card__preview" style="gap:1.25rem">
+        <div class="mini-sidebar-demo">
+          <div style="font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:#475569;font-weight:700;padding:0 0.25rem;margin-bottom:0.25rem">SimulaCusto</div>
+          <div class="mini-nav-item-demo active" style="background:rgba(52,211,153,0.1)"><div class="mini-dot" style="background:#34d399"></div><span style="font-size:0.55rem;color:#f1f5f9">Dashboard</span></div>
+          <div class="mini-nav-item-demo"><div class="mini-dot"></div><span style="font-size:0.55rem">Estimativas</span></div>
+          <div class="mini-nav-item-demo"><div class="mini-dot"></div><span style="font-size:0.55rem">Importar</span></div>
+          <div class="mini-nav-item-demo"><div class="mini-dot"></div><span style="font-size:0.55rem">Relatórios</span></div>
+        </div>
+        <div class="mini-sidebar-demo">
+          <div style="font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:#475569;font-weight:700;padding:0 0.25rem;margin-bottom:0.25rem">BID Frete</div>
+          <div class="mini-nav-item-demo"><div class="mini-dot"></div><span style="font-size:0.55rem">Cotações</span></div>
+          <div class="mini-nav-item-demo active" style="background:rgba(96,165,250,0.1)"><div class="mini-dot" style="background:#60a5fa"></div><span style="font-size:0.55rem;color:#f1f5f9">Transportes</span></div>
+          <div class="mini-nav-item-demo"><div class="mini-dot"></div><span style="font-size:0.55rem">Histórico</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUB card -->
+    <div class="mockup-card">
+      <div class="mockup-card__label">③ HUB — Cards de produto</div>
+      <div class="mockup-card__preview" style="gap:0.625rem;flex-wrap:wrap">
+        <div class="hub-card-demo" style="border-color:rgba(52,211,153,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="color:#34d399"><rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="5.5" width="8" height="4.5" rx="1" fill="currentColor" opacity="0.25"/><circle cx="9" cy="14" r="1.1" fill="currentColor"/><circle cx="12" cy="14" r="1.1" fill="currentColor"/><circle cx="15" cy="14" r="1.1" fill="currentColor"/></svg>
+          <div class="hub-card-demo__name">SimulaCusto</div>
+        </div>
+        <div class="hub-card-demo" style="border-color:rgba(245,158,11,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="color:#f59e0b"><path d="M12 3L21.5 8.5L12 14L2.5 8.5Z" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.08" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M21.5 8.5V15.5L12 21V14Z" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <div class="hub-card-demo__name">Pedido</div>
+        </div>
+        <div class="hub-card-demo" style="border-color:rgba(6,182,212,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="color:#06b6d4"><circle cx="12" cy="12" r="6.5" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" opacity="0.25"/><path d="M6.5 8C8 5.5 10.5 4 13.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M13.5 4.5L15.5 3L15 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="hub-card-demo__name">BID Câmbio</div>
+        </div>
+        <div class="hub-card-demo" style="border-color:rgba(96,165,250,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="color:#60a5fa"><path d="M2 15H22L20 19H4L2 15Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="3.5" y="9" width="10" height="6" rx="1" fill="currentColor" opacity="0.25" stroke="currentColor" stroke-width="1.25"/><path d="M23 2L14 7.5L16 9.5L21.5 8L23 2Z" fill="currentColor" opacity="0.75"/></svg>
+          <div class="hub-card-demo__name">BID Frete</div>
+        </div>
+        <div class="hub-card-demo" style="border-color:rgba(244,63,94,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="color:#f43f5e"><path d="M4 2H15.5L20 6.5V22H4V2Z" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="7" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="15.5" cy="18.5" r="2.25" fill="currentColor" opacity="0.55"/></svg>
+          <div class="hub-card-demo__name">LPCO</div>
+        </div>
+        <div class="hub-card-demo" style="border-color:rgba(250,204,21,0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="color:#facc15"><rect x="1.5" y="8.5" width="6" height="7" rx="2" opacity="0.3"/><rect x="10" y="8.5" width="6" height="7" rx="2" opacity="0.6"/><rect x="18.5" y="8.5" width="6" height="7" rx="2" opacity="0.95"/></svg>
+          <div class="hub-card-demo__name">Processo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localizador node -->
+    <div class="mockup-card">
+      <div class="mockup-card__label">④ Localizador — Ecosystem nodes</div>
+      <div class="mockup-card__preview" style="gap:0.5rem;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(129,140,248,0.15);border:1.5px solid rgba(129,140,248,0.4);display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:#818cf8"><polygon points="12,2 21.5,7.5 21.5,16.5 12,22 2.5,16.5 2.5,7.5" fill="currentColor" opacity="0.15"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+          </div>
+          <span style="font-size:0.6rem;color:var(--text-3)">Gravity</span>
+        </div>
+        <div style="width:20px;height:1px;background:var(--border);align-self:center;margin-top:-0.75rem"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.5);display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:#34d399"><rect x="4" y="2" width="16" height="20" rx="3" fill="currentColor" opacity="0.15"/><rect x="7" y="5" width="10" height="5" rx="1.5" fill="currentColor" opacity="0.4"/><circle cx="9" cy="14" r="1.3" fill="currentColor"/><circle cx="12" cy="14" r="1.3" fill="currentColor"/></svg>
+          </div>
+          <span style="font-size:0.6rem;color:#34d399;font-weight:600">atual</span>
+        </div>
+        <div style="width:20px;height:1px;background:var(--border);align-self:center;margin-top:-0.75rem"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.375rem;opacity:0.5">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(244,114,182,0.08);border:1px dashed rgba(244,114,182,0.3);display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:#f472b6"><line x1="3" y1="7" x2="21" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.25"/><circle cx="14" cy="12" r="2.5" fill="currentColor"/></svg>
+          </div>
+          <span style="font-size:0.6rem;color:var(--text-3)">Config</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ── 09 Uso Correto ── -->
+<section id="s09" class="section">
+  <div class="section__num">09</div>
+  <h2 class="section__title">Uso Correto vs Incorreto</h2>
+  <p class="section__desc">Diretrizes obrigatórias para manter a coerência visual em toda a plataforma.</p>
+
+  <div class="rules-grid">
+    <div class="rule-card"><div class="rule-card__header ok">✅ Correto</div><div class="rule-card__body"><strong>Cor do produto nos 3 pontos de contato</strong> — chip, sidebar dot e item ativo. O resto da UI permanece neutro Solid Slate.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">❌ Incorreto</div><div class="rule-card__body"><strong>Usar a cor do produto no fundo da página</strong> — backgrounds, banners, cabeçalhos coloridos. Quebraria o tema escuro unificado.</div></div>
+
+    <div class="rule-card"><div class="rule-card__header ok">✅ Correto</div><div class="rule-card__body"><strong>Botão primário sempre em indigo</strong> (<code style="font-family:'DM Mono',monospace;font-size:0.8em">var(--accent) = #6366f1</code>). Cor da plataforma, não do produto.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">❌ Incorreto</div><div class="rule-card__body"><strong>Botão primário na cor do produto</strong> — um botão verde (#34d399) em SimulaCusto cria inconsistência com o sistema de botões global.</div></div>
+
+    <div class="rule-card"><div class="rule-card__header ok">✅ Correto</div><div class="rule-card__body"><strong>Logo em cor canônica</strong> — usar sempre a cor definida em <code style="font-family:'DM Mono',monospace;font-size:0.8em">PRODUTO_META</code>. Importar via <code style="font-family:'DM Mono',monospace;font-size:0.8em">@nucleo/logo-produtos</code>.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">❌ Incorreto</div><div class="rule-card__body"><strong>Recolorir ou distorcer o logo</strong> — nunca usar filtro CSS, rotação, cor fora do padrão ou proporção diferente do viewBox 24×24.</div></div>
+
+    <div class="rule-card"><div class="rule-card__header ok">✅ Correto</div><div class="rule-card__body"><strong>Área de respiro ao redor do logo</strong> — mínimo 0.5× a altura do ícone de espaço em todos os lados antes de qualquer outro elemento.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">❌ Incorreto</div><div class="rule-card__body"><strong>Logo colado a bordas ou outros elementos</strong> — sem padding, sem área de respiro, logo recortado ou parcialmente visível.</div></div>
+
+    <div class="rule-card"><div class="rule-card__header ok">✅ Correto</div><div class="rule-card__body"><strong>Tamanho mínimo: 16px</strong> — abaixo disso o ícone perde legibilidade. Para favicons, usar versão simplificada do hexágono.</div></div>
+    <div class="rule-card"><div class="rule-card__header no">❌ Incorreto</div><div class="rule-card__body"><strong>Logo abaixo de 16px</strong> — os detalhes internos do ícone ficam indistinguíveis, prejudicando a identidade visual.</div></div>
+  </div>
+</section>
+
+
+<!-- ── 10 Tokens & Código ── -->
+<section id="s10" class="section">
+  <div class="section__num">10</div>
+  <h2 class="section__title">Tokens & Código</h2>
+  <p class="section__desc">Referência técnica para desenvolvedores implementarem a identidade visual corretamente.</p>
+
+  <div class="subsection-title">CSS Variables (Design Tokens)</div>
+  <div class="code-block">
+<span class="c-comment">/* === Backgrounds === */</span>
+<span class="c-key">--bg-body-dark</span>:   <span class="c-val">#0f172a</span>;
+<span class="c-key">--bg-base</span>:         <span class="c-val">#1e293b</span>;
+<span class="c-key">--bg-surface</span>:      <span class="c-val">#334155</span>;
+<span class="c-key">--bg-elevated</span>:     <span class="c-val">#475569</span>;
+
+<span class="c-comment">/* === Acento principal (Indigo 500) === */</span>
+<span class="c-key">--accent</span>:          <span class="c-val">#6366f1</span>;  <span class="c-comment">/* botões primários */</span>
+<span class="c-key">--accent-hover</span>:    <span class="c-val">#4f46e5</span>;
+
+<span class="c-comment">/* === Texto === */</span>
+<span class="c-key">--text-primary</span>:   <span class="c-val">#f1f5f9</span>;
+<span class="c-key">--text-secondary</span>: <span class="c-val">#94a3b8</span>;
+<span class="c-key">--text-muted</span>:     <span class="c-val">#64748b</span>;
+
+<span class="c-comment">/* === Status === */</span>
+<span class="c-key">--success</span>:        <span class="c-val">#22c55e</span>;
+<span class="c-key">--warning</span>:        <span class="c-val">#f59e0b</span>;
+<span class="c-key">--danger</span>:         <span class="c-val">#ef4444</span>;
+  </div>
+
+  <div class="subsection-title">PRODUTO_META — Fonte única de verdade</div>
+  <div class="code-block">
+<span class="c-comment">// nucleo-global/Logo/produtos/src/produtos.tsx</span>
+<span class="c-comment">// Import: import { getProdutoMeta } from '@nucleo/logo-produtos'</span>
+
+<span class="c-key">PRODUTO_META</span> = {
+  <span class="c-str">'simula-custo'</span>:     color: <span class="c-val">'#34d399'</span>,  <span class="c-comment">// Emerald 400</span>
+  <span class="c-str">'pedido'</span>:           color: <span class="c-val">'#f59e0b'</span>,  <span class="c-comment">// Amber 400</span>
+  <span class="c-str">'bid-cambio'</span>:       color: <span class="c-val">'#06b6d4'</span>,  <span class="c-comment">// Cyan 500</span>
+  <span class="c-str">'bid-frete'</span>:        color: <span class="c-val">'#60a5fa'</span>,  <span class="c-comment">// Blue 400</span>
+  <span class="c-str">'lpco'</span>:             color: <span class="c-val">'#f43f5e'</span>,  <span class="c-comment">// Rose 500</span>
+  <span class="c-str">'nf-importacao'</span>:   color: <span class="c-val">'#c084fc'</span>,  <span class="c-comment">// Purple 400</span>
+  <span class="c-str">'processo'</span>:         color: <span class="c-val">'#facc15'</span>,  <span class="c-comment">// Yellow 400</span>
+  <span class="c-str">'financeiro-comex'</span>: color: <span class="c-val">'#f472b6'</span>,  <span class="c-comment">// Pink 400</span>
+}
+  </div>
+
+  <div class="subsection-title">Importando logos nos produtos</div>
+  <div class="code-block">
+<span class="c-comment">// Logo individual — tamanho e cor via props</span>
+<span class="c-type">import</span> { <span class="c-key">LogoSimulaCusto</span> } <span class="c-type">from</span> <span class="c-str">'@nucleo/logo-produtos'</span>
+
+&lt;<span class="c-key">LogoSimulaCusto</span> size={<span class="c-val">20</span>} color={<span class="c-val">"#34d399"</span>} /&gt;  <span class="c-comment">// no chip</span>
+&lt;<span class="c-key">LogoSimulaCusto</span> size={<span class="c-val">64</span>} /&gt;                    <span class="c-comment">// no HUB card</span>
+
+<span class="c-comment">// Metadados via registry (cor + ícone + sublabel)</span>
+<span class="c-type">import</span> { <span class="c-key">getProdutoMeta</span> } <span class="c-type">from</span> <span class="c-str">'@nucleo/logo-produtos'</span>
+
+<span class="c-type">const</span> meta = <span class="c-key">getProdutoMeta</span>(<span class="c-str">'simula-custo'</span>)
+meta.color    <span class="c-comment">// '#34d399'</span>
+meta.icon     <span class="c-comment">// &lt;LogoSimulaCusto size={16} /&gt;</span>
+meta.sublabel <span class="c-comment">// 'fiscal · NCM'</span>
+  </div>
+
+  <div class="subsection-title">Arquivos dos logos</div>
+  <div class="code-block">
+<span class="c-comment">// nucleo-global/Logo/produtos/src/logos/</span>
+<span class="c-val">LogoGravity.tsx</span>        <span class="c-comment">// plataforma · #818cf8</span>
+<span class="c-val">LogoHub.tsx</span>            <span class="c-comment">// workspace · #818cf8</span>
+<span class="c-val">LogoCore.tsx</span>           <span class="c-comment">// processos · #818cf8</span>
+<span class="c-val">LogoConfigurador.tsx</span>   <span class="c-comment">// config · #f472b6</span>
+<span class="c-val">LogoAdmin.tsx</span>          <span class="c-comment">// admin · #818cf8</span>
+<span class="c-val">LogoSimulaCusto.tsx</span>    <span class="c-comment">// fiscal · #34d399</span>
+<span class="c-val">LogoPedido.tsx</span>         <span class="c-comment">// pedidos · #f59e0b</span>
+<span class="c-val">LogoBidCambio.tsx</span>      <span class="c-comment">// câmbio · #06b6d4</span>
+<span class="c-val">LogoBidFrete.tsx</span>       <span class="c-comment">// frete · #60a5fa</span>
+<span class="c-val">LogoLpco.tsx</span>           <span class="c-comment">// licenças · #f43f5e</span>
+<span class="c-val">LogoNfImportacao.tsx</span>   <span class="c-comment">// nota fiscal · #c084fc</span>
+<span class="c-val">LogoProcesso.tsx</span>       <span class="c-comment">// processos · #facc15</span>
+<span class="c-val">LogoFinanceiroComex.tsx</span> <span class="c-comment">// financeiro · #f472b6</span>
+  </div>
+</section>
+
+
+<!-- ── Footer ── -->
+<footer class="doc-footer">
+  <span>Gravity Platform — Manual da Marca v1.0</span>
+  <span>documentos-tecnicos/ux/design-system/manual-marca/index.html</span>
+</footer>
+
+</main>
+
+<script>
+  // Highlight sidebar link based on scroll
+  const sections = document.querySelectorAll('section[id]')
+  const links = document.querySelectorAll('.sidebar__nav a')
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'))
+        const active = document.querySelector(`.sidebar__nav a[href="#${e.target.id}"]`)
+        if (active) active.classList.add('active')
+      }
+    })
+  }, { rootMargin: '-40% 0px -55% 0px' })
+  sections.forEach(s => observer.observe(s))
+</script>
+</body>
+</html>

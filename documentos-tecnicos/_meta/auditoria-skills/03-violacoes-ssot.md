@@ -1,5 +1,9 @@
 # 03 — Violações SSOT (Single Source of Truth)
 
+> ⚠️ **NOTA DE PROCEDÊNCIA:** Este arquivo foi sincronizado de `master` (commit `707c7c5a`) na branch `claude/cool-elbakyan-ff8ae6` em 2026-04-28. **O conteúdo descreve o estado de master**, não o estado isolado desta branch. Skills no worktree desta branch ainda são da pré-Fase-3 (64 SKILL.md, sem `database-governance` em `lei/`, com nomes antigos `caching-strategy`/`state-management`/`resilience-patterns`/`i18n`). Conflitos marcados ✅ Resolvido foram resolvidos em master, e só ficarão verdadeiros nesta branch quando o merge acontecer.
+
+
+
 > Skills onde uma vertical/processo **redefine** uma regra absoluta ao invés de **referenciar** a skill canônica.
 > Princípio violado declarado em `CLAUDE.md` linha 218-220.
 

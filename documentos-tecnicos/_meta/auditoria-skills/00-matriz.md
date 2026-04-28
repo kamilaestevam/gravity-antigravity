@@ -1,5 +1,9 @@
 # 00 — Matriz Mestre da Auditoria de Skills
 
+> ⚠️ **NOTA DE PROCEDÊNCIA:** Este arquivo foi sincronizado de `master` (commit `707c7c5a`) na branch `claude/cool-elbakyan-ff8ae6` em 2026-04-28. **O conteúdo descreve o estado de master**, não o estado isolado desta branch. Skills no worktree desta branch ainda são da pré-Fase-3 (64 SKILL.md, sem `database-governance` em `lei/`, com nomes antigos `caching-strategy`/`state-management`/`resilience-patterns`/`i18n`). Conflitos marcados ✅ Resolvido foram resolvidos em master, e só ficarão verdadeiros nesta branch quando o merge acontecer.
+
+
+
 > Auditoria executada em 2026-04-28. Cobertura: **68/68 skills (100%)**.
 > Branch de execução: `master` (após merge de `refactor/ddd-ubiquo`).
 > Artefato vivo — atualizar `[Status Atual]` à medida que ações são executadas.

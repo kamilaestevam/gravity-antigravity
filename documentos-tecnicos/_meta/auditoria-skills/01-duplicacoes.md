@@ -1,5 +1,9 @@
 # 01 — Duplicações de Regras (drift risk)
 
+> ⚠️ **NOTA DE PROCEDÊNCIA:** Este arquivo foi sincronizado de `master` (commit `707c7c5a`) na branch `claude/cool-elbakyan-ff8ae6` em 2026-04-28. **O conteúdo descreve o estado de master**, não o estado isolado desta branch. Skills no worktree desta branch ainda são da pré-Fase-3 (64 SKILL.md, sem `database-governance` em `lei/`, com nomes antigos `caching-strategy`/`state-management`/`resilience-patterns`/`i18n`). Conflitos marcados ✅ Resolvido foram resolvidos em master, e só ficarão verdadeiros nesta branch quando o merge acontecer.
+
+
+
 > 9 grupos de regras absolutas que aparecem em múltiplas skills.
 > Cada duplicação = vetor de drift quando uma cópia é atualizada e as outras não.
 > Resolução: skill canônica fica com a regra; demais **referenciam** com `> ⚠️ REGRA ABSOLUTA: Ver [...]`.

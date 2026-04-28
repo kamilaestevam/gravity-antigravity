@@ -22,7 +22,7 @@ export async function executarCancelamentoAutomatico(
       status: 'em_exigencia',
       data_ultima_exigencia: { lt: dataLimite },
     },
-    select: { id: true, tenant_id: true, company_id: true },
+    select: { id: true, id_organizacao: true, company_id: true },
   })
 
   let cancelados = 0
@@ -33,7 +33,7 @@ export async function executarCancelamentoAutomatico(
       await transitarStatus({
         prisma,
         lpcoId: lpco.id,
-        tenantId: lpco.tenant_id,
+        tenantId: lpco.id_organizacao,
         companyId: lpco.company_id,
         statusNovo: 'cancelada',
         userId: 'sistema',

@@ -69,7 +69,7 @@ export const CANAL_ENTRADA_LABELS: Record<CanalEntrada, string> = {
 
 export interface Lpco {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   tipo_operacao: TipoOperacao
   tipo_lpco: TipoLpco

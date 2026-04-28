@@ -22,7 +22,7 @@ datasource db {
 
 model Lpco {
   id                    String    @id                     // lpco_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
 
@@ -77,12 +77,12 @@ model Lpco {
   historico             LpcoHistorico[]
 
   // 3 indices obrigatorios + indices de negocio
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, company_id, status])
-  @@index([tenant_id, company_id, orgao_anuente])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, company_id, status])
+  @@index([id_organizacao, company_id, orgao_anuente])
   @@index([status, data_ultima_exigencia])
   @@index([pedido_origem_id])
 
@@ -91,7 +91,7 @@ model Lpco {
 
 model LpcoItens {
   id                    String    @id                     // lpit_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
   user_id               String
@@ -122,9 +122,9 @@ model LpcoItens {
 
   lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([lpco_id])
   @@index([ncm])
 
@@ -133,7 +133,7 @@ model LpcoItens {
 
 model LpcoExigencia {
   id                    String    @id                     // lpex_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
   user_id               String
@@ -155,9 +155,9 @@ model LpcoExigencia {
 
   lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([lpco_id])
 
   @@map("lpco_exigencias")
@@ -165,7 +165,7 @@ model LpcoExigencia {
 
 model LpcoVinculo {
   id                    String    @id                     // lpvc_id_XXXXXXX/YY
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
   user_id               String
@@ -186,9 +186,9 @@ model LpcoVinculo {
 
   lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([lpco_id])
   @@index([processo_id])
 
@@ -197,7 +197,7 @@ model LpcoVinculo {
 
 model LpcoAnexos {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
   user_id               String
@@ -214,9 +214,9 @@ model LpcoAnexos {
 
   lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([lpco_id])
 
   @@map("lpco_documentos")
@@ -224,7 +224,7 @@ model LpcoAnexos {
 
 model LpcoHistorico {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   company_id            String
   product_id            String    @default("lpco")
   user_id               String?
@@ -243,9 +243,9 @@ model LpcoHistorico {
 
   lpco                  Lpco      @relation(fields: [lpco_id], references: [id])
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([lpco_id])
   @@index([lpco_id, created_at])
 
@@ -254,7 +254,7 @@ model LpcoHistorico {
 
 model PortalCredencial {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   company_id            String
 
   tipo_auth             String                            // CERTIFICADO_DIGITAL | TOKEN_OAUTH2
@@ -275,9 +275,9 @@ model PortalCredencial {
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
-  @@unique([tenant_id, company_id, tipo_auth])
+  @@index([id_organizacao])
+  @@index([id_organizacao, company_id])
+  @@unique([id_organizacao, company_id, tipo_auth])
 
   @@map("siscomex_credenciais")
 }

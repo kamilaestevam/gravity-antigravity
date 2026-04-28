@@ -22,7 +22,7 @@ router.get('/:id/exigencias', async (req: Request, res: Response, next: NextFunc
   try {
     const { tenantId, prisma } = ctx(req)
     const exigencias = await prisma.lpcoExigencia.findMany({
-      where: { lpco_id: req.params.id, tenant_id: tenantId },
+      where: { lpco_id: req.params.id, id_organizacao: tenantId },
       orderBy: { numero_exigencia: 'asc' },
     })
     res.json({ data: exigencias })
@@ -35,15 +35,15 @@ router.post('/:id/exigencias', async (req: Request, res: Response, next: NextFun
     const body = LpcoExigenciaCreateSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 
-    const count = await prisma.lpcoExigencia.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.lpcoExigencia.count({ where: { id_organizacao: tenantId } })
     const exigencia = await prisma.lpcoExigencia.create({
       data: {
         id: gerarId(PREFIXOS.EXIGENCIA, count + 1),
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: userId,
@@ -78,7 +78,7 @@ router.post('/:id/exigencias/:exId/responder', async (req: Request, res: Respons
     const { resposta } = LpcoExigenciaRespostaSchema.parse(req.body)
 
     const exigencia = await prisma.lpcoExigencia.findFirst({
-      where: { id: req.params.exId, lpco_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.exId, lpco_id: req.params.id, id_organizacao: tenantId },
     })
     if (!exigencia) throw new AppError('Exigencia nao encontrada', 404, 'NOT_FOUND')
     if (exigencia.status !== 'pendente') throw new AppError('Exigencia ja foi respondida', 422, 'ALREADY_RESPONDED')
@@ -94,10 +94,10 @@ router.post('/:id/exigencias/:exId/responder', async (req: Request, res: Respons
     })
 
     const pendentes = await prisma.lpcoExigencia.count({
-      where: { lpco_id: req.params.id, tenant_id: tenantId, status: 'pendente' },
+      where: { lpco_id: req.params.id, id_organizacao: tenantId, status: 'pendente' },
     })
 
-    const lpco = await prisma.lpco.findFirst({ where: { id: req.params.id, tenant_id: tenantId } })
+    const lpco = await prisma.lpco.findFirst({ where: { id: req.params.id, id_organizacao: tenantId } })
 
     if (pendentes === 0 && lpco?.status === 'em_exigencia') {
       await transitarStatus({

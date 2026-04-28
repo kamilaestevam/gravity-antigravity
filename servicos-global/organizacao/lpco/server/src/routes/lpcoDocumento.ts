@@ -20,7 +20,7 @@ router.get('/:id_lpco/documentos', async (req: Request, res: Response, next: Nex
   try {
     const { tenantId, prisma } = ctx(req)
     const docs = await prisma.lpcoAnexos.findMany({
-      where: { lpco_id: req.params.id_lpco, tenant_id: tenantId },
+      where: { lpco_id: req.params.id_lpco, id_organizacao: tenantId },
       orderBy: { created_at: 'desc' },
     })
     res.json({ data: docs })
@@ -32,7 +32,7 @@ router.post('/:id_lpco/documentos', async (req: Request, res: Response, next: Ne
     const { tenantId, userId, prisma } = ctx(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, id_organizacao: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 
@@ -44,7 +44,7 @@ router.post('/:id_lpco/documentos', async (req: Request, res: Response, next: Ne
 
     const doc = await prisma.lpcoAnexos.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: userId,
@@ -67,7 +67,7 @@ router.delete('/:id_lpco/documentos/:id_documento', async (req: Request, res: Re
     const { tenantId, prisma } = ctx(req)
 
     const doc = await prisma.lpcoAnexos.findFirst({
-      where: { id: req.params.id_documento, lpco_id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_documento, lpco_id: req.params.id_lpco, id_organizacao: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 

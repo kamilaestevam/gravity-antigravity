@@ -20,13 +20,13 @@ router.get('/:id/historico', async (req: Request, res: Response, next: NextFunct
     const { tenantId, prisma } = ctx(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
       select: { id: true },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 
     const historico = await prisma.lpcoHistorico.findMany({
-      where: { lpco_id: req.params.id, tenant_id: tenantId },
+      where: { lpco_id: req.params.id, id_organizacao: tenantId },
       orderBy: { created_at: 'desc' },
       take: 100,
     })

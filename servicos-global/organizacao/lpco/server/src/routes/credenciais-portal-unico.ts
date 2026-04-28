@@ -59,14 +59,14 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const { tenantId, prisma } = ctx(req)
     const companyId = req.query.company_id as string
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (companyId) where.company_id = companyId
 
     const credenciais = await prisma.portalCredencial.findMany({
       where,
       select: {
         id: true,
-        tenant_id: true,
+        id_organizacao: true,
         company_id: true,
         tipo_auth: true,
         certificado_cn: true,
@@ -97,7 +97,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     // Verificar se ja existe credencial do mesmo tipo para essa empresa
     const existente = await prisma.portalCredencial.findFirst({
       where: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: body.company_id,
         tipo_auth: body.tipo_auth,
         status: 'ativo',
@@ -113,7 +113,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     let data: Record<string, unknown> = {
-      tenant_id: tenantId,
+      id_organizacao: tenantId,
       company_id: body.company_id,
       tipo_auth: body.tipo_auth,
       status: 'ativo',
@@ -143,7 +143,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
     res.status(201).json({
       id: credencial.id,
-      tenant_id: credencial.tenant_id,
+      id_organizacao: credencial.id_organizacao,
       company_id: credencial.company_id,
       tipo_auth: credencial.tipo_auth,
       status: credencial.status,
@@ -159,7 +159,7 @@ router.put('/:id_credencial_portal_unico', async (req: Request, res: Response, n
     const { tenantId, userId, prisma } = ctx(req)
 
     const existing = await prisma.portalCredencial.findFirst({
-      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, id_organizacao: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')
@@ -215,7 +215,7 @@ router.delete('/:id_credencial_portal_unico', async (req: Request, res: Response
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.portalCredencial.findFirst({
-      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, id_organizacao: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')
@@ -240,7 +240,7 @@ router.post('/:id_credencial_portal_unico/testar', async (req: Request, res: Res
     const { tenantId, prisma } = ctx(req)
 
     const existing = await prisma.portalCredencial.findFirst({
-      where: { id: req.params.id_credencial_portal_unico, tenant_id: tenantId },
+      where: { id: req.params.id_credencial_portal_unico, id_organizacao: tenantId },
     })
 
     if (!existing) throw new AppError('Credencial nao encontrada', 404, 'NOT_FOUND')

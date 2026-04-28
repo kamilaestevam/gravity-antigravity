@@ -23,7 +23,7 @@ router.get('/:id/vinculos', async (req: Request, res: Response, next: NextFuncti
   try {
     const { tenantId, prisma } = ctx(req)
     const vinculos = await prisma.lpcoVinculo.findMany({
-      where: { lpco_id: req.params.id, tenant_id: tenantId },
+      where: { lpco_id: req.params.id, id_organizacao: tenantId },
       orderBy: { created_at: 'desc' },
     })
     res.json({ data: vinculos })
@@ -36,18 +36,18 @@ router.post('/:id/vinculos', async (req: Request, res: Response, next: NextFunct
     const body = LpcoVinculoCreateSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 
     await validarVinculo(prisma, req.params.id, tenantId, lpco.company_id, body.quantidade_vinculada ?? null)
 
-    const count = await prisma.lpcoVinculo.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.lpcoVinculo.count({ where: { id_organizacao: tenantId } })
     const vinculo = await prisma.$transaction(async (tx) => {
       const created = await tx.lpcoVinculo.create({
         data: {
           id: gerarId(PREFIXOS.VINCULO, count + 1),
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: lpco.company_id,
           product_id: 'lpco',
           user_id: userId,
@@ -64,7 +64,7 @@ router.post('/:id/vinculos', async (req: Request, res: Response, next: NextFunct
 
       await tx.lpcoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: lpco.company_id,
           product_id: 'lpco',
           user_id: userId,
@@ -87,7 +87,7 @@ router.delete('/:id/vinculos/:vincId', async (req: Request, res: Response, next:
     const { tenantId, userId, prisma } = ctx(req)
 
     const vinculo = await prisma.lpcoVinculo.findFirst({
-      where: { id: req.params.vincId, lpco_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.vincId, lpco_id: req.params.id, id_organizacao: tenantId },
     })
     if (!vinculo) throw new AppError('Vinculo nao encontrado', 404, 'NOT_FOUND')
     if (vinculo.status === 'cancelado') throw new AppError('Vinculo ja cancelado', 422, 'ALREADY_CANCELLED')
@@ -100,7 +100,7 @@ router.delete('/:id/vinculos/:vincId', async (req: Request, res: Response, next:
 
       await tx.lpcoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: vinculo.company_id,
           product_id: 'lpco',
           user_id: userId,
@@ -121,7 +121,7 @@ router.get('/:id/saldo', async (req: Request, res: Response, next: NextFunction)
     const { tenantId, prisma } = ctx(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
 

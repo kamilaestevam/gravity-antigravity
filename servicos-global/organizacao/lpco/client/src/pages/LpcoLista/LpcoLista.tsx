@@ -34,7 +34,7 @@ import './LpcoLista.css'
 
 const MOCK_LPCOS: Lpco[] = [
   {
-    id: 'lpco_id_0000001/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000001/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'ANVISA',
     modelo_lpco: 'I00004', numero_portal: '26BR000012345', pais_procedencia: 'CN',
     fundamento_legal: 'RDC 81/2008', importacao_exportador_id: null,
@@ -46,7 +46,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_at: '2026-01-10T00:00:00Z', updated_at: '2026-02-10T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000002/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000002/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'FLEX', orgao_anuente: 'MAPA',
     modelo_lpco: 'I00001', numero_portal: '26BR000012346', pais_procedencia: 'AR',
     fundamento_legal: 'IN SDA 51/2020', importacao_exportador_id: null,
@@ -57,7 +57,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_by: 'user1', created_at: '2026-02-18T00:00:00Z', updated_at: '2026-02-20T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000003/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000003/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'EXPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'IBAMA',
     modelo_lpco: 'E00012', numero_portal: null, pais_procedencia: 'US',
     fundamento_legal: 'IN IBAMA 19/2014', importacao_exportador_id: null,
@@ -68,7 +68,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_at: '2026-03-01T00:00:00Z', updated_at: '2026-03-05T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000004/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000004/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'INMETRO',
     modelo_lpco: 'I00007', numero_portal: '26BR000012350', pais_procedencia: 'DE',
     fundamento_legal: 'Portaria INMETRO 563/2016', importacao_exportador_id: null,
@@ -79,7 +79,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_at: '2026-02-25T00:00:00Z', updated_at: '2026-03-10T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000005/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000005/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'TAXA', orgao_anuente: 'DECEX',
     modelo_lpco: 'I00020', numero_portal: '26BR000012355', pais_procedencia: 'JP',
     fundamento_legal: 'Portaria SECEX 23/2011', importacao_exportador_id: null,
@@ -91,7 +91,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_at: '2026-03-04T00:00:00Z', updated_at: '2026-03-08T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000006/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000006/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'ANP',
     modelo_lpco: 'I00008', numero_portal: '26BR000012360', pais_procedencia: 'SA',
     fundamento_legal: 'Resolucao ANP 18/2018', importacao_exportador_id: null,
@@ -102,7 +102,7 @@ const MOCK_LPCOS: Lpco[] = [
     created_at: '2026-01-18T00:00:00Z', updated_at: '2026-02-15T00:00:00Z',
   },
   {
-    id: 'lpco_id_0000007/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+    id: 'lpco_id_0000007/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
     tipo_operacao: 'IMPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'ANVISA',
     modelo_lpco: 'I00005', numero_portal: null, pais_procedencia: 'FR',
     fundamento_legal: 'RDC 332/2005', importacao_exportador_id: null,

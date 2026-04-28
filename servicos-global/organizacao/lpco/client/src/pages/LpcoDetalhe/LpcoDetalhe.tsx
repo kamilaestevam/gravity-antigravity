@@ -31,7 +31,7 @@ import { STATUS_LABELS, TIPO_OPERACAO_LABELS, TIPO_LPCO_LABELS, CANAL_ENTRADA_LA
 // ── Mock ─────────────────────────────────────────────────────────────────────
 
 const MOCK_LPCO: Lpco = {
-  id: 'lpco_id_0000001/26', tenant_id: 'tenant-demo', company_id: 'comp-demo',
+  id: 'lpco_id_0000001/26', id_organizacao: 'tenant-demo', company_id: 'comp-demo',
   tipo_operacao: 'IMPORTACAO', tipo_lpco: 'POR_OPERACAO', orgao_anuente: 'ANVISA',
   modelo_lpco: 'I00004', numero_portal: '26BR000012345', pais_procedencia: 'CN',
   fundamento_legal: 'RDC 81/2008', importacao_exportador_id: null,

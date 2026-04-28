@@ -42,7 +42,7 @@ function mockPrisma(overrides: Record<string, unknown> = {}) {
 function criarLpcoMock(overrides: Record<string, unknown> = {}) {
   return {
     id: 'lpco_id_0000001/26',
-    tenant_id: 'tenant-1',
+    id_organizacao: 'tenant-1',
     company_id: 'comp-1',
     tipo_lpco: 'FLEX',
     status: 'deferida',

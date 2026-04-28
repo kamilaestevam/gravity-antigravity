@@ -202,7 +202,7 @@ export const portalUnicoApi = {
 
 interface CredencialResumo {
   id: string
-  tenant_id: string
+  id_organizacao: string
   company_id: string
   tipo_auth: string
   certificado_cn: string | null

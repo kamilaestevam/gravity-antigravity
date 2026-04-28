@@ -27,7 +27,7 @@ export async function calcularSaldo(
   companyId: string
 ): Promise<SaldoInfo> {
   const lpco = await prisma.lpco.findFirst({
-    where: { id: lpcoId, tenant_id: tenantId, company_id: companyId },
+    where: { id: lpcoId, id_organizacao: tenantId, company_id: companyId },
     include: {
       vinculos: { where: { status: 'ativo' } },
     },
@@ -61,7 +61,7 @@ export async function validarVinculo(
   quantidadeSolicitada: number | null
 ): Promise<void> {
   const lpco = await prisma.lpco.findFirst({
-    where: { id: lpcoId, tenant_id: tenantId, company_id: companyId },
+    where: { id: lpcoId, id_organizacao: tenantId, company_id: companyId },
   })
 
   if (!lpco) {
@@ -93,7 +93,7 @@ export async function validarVinculo(
   // Para POR_OPERACAO, verificar se ja tem vinculo ativo (1:1)
   if (lpco.tipo_lpco === 'POR_OPERACAO') {
     const vinculoExistente = await prisma.lpcoVinculo.findFirst({
-      where: { lpco_id: lpcoId, tenant_id: tenantId, status: 'ativo' },
+      where: { lpco_id: lpcoId, id_organizacao: tenantId, status: 'ativo' },
     })
     if (vinculoExistente) {
       throw new AppError('LPCO por operacao ja possui vinculo ativo', 400, 'VINCULO_EXISTENTE')

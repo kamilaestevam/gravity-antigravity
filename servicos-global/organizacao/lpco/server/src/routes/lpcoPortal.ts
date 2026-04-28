@@ -39,7 +39,7 @@ router.post('/:id/portal/registrar', async (req: Request, res: Response, next: N
     const adapter = getAdapter(prisma)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -104,7 +104,7 @@ router.post('/:id/portal/registrar', async (req: Request, res: Response, next: N
     // Registrar no historico
     await prisma.lpcoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: userId,
@@ -132,7 +132,7 @@ router.get('/:id/portal/sincronizar', async (req: Request, res: Response, next: 
     const adapter = getAdapter(prisma)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
 
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
@@ -206,19 +206,19 @@ router.get('/:id/portal/sincronizar', async (req: Request, res: Response, next: 
         const existente = await prisma.lpcoExigencia.findFirst({
           where: {
             lpco_id: req.params.id,
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             numero_exigencia: exPortal.numero,
           },
         })
 
         if (!existente) {
-          const count = await prisma.lpcoExigencia.count({ where: { tenant_id: tenantId } })
+          const count = await prisma.lpcoExigencia.count({ where: { id_organizacao: tenantId } })
           const { gerarId, PREFIXOS } = await import('../lib/idGenerator.js')
 
           await prisma.lpcoExigencia.create({
             data: {
               id: gerarId(PREFIXOS.EXIGENCIA, count + 1),
-              tenant_id: tenantId,
+              id_organizacao: tenantId,
               company_id: lpco.company_id,
               product_id: 'lpco',
               user_id: 'sistema',
@@ -256,7 +256,7 @@ router.post('/:id/portal/retificar', async (req: Request, res: Response, next: N
     const adapter = getAdapter(prisma)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -273,7 +273,7 @@ router.post('/:id/portal/retificar', async (req: Request, res: Response, next: N
 
     await prisma.lpcoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: userId,
@@ -299,7 +299,7 @@ router.post('/:id/portal/cancelar', async (req: Request, res: Response, next: Ne
     const { motivo } = motivoSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
 
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
@@ -334,13 +334,13 @@ router.post('/:id/portal/exigencia/:exId/responder', async (req: Request, res: R
     const { resposta } = respostaSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
     })
     if (!lpco) throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
     if (!lpco.numero_portal) throw new AppError('LPCO sem numero do Portal', 422, 'SEM_NUMERO_PORTAL')
 
     const exigencia = await prisma.lpcoExigencia.findFirst({
-      where: { id: req.params.exId, lpco_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.exId, lpco_id: req.params.id, id_organizacao: tenantId },
     })
     if (!exigencia) throw new AppError('Exigencia nao encontrada', 404, 'NOT_FOUND')
 
@@ -367,7 +367,7 @@ router.post('/:id/portal/exigencia/:exId/responder', async (req: Request, res: R
 
     // Verificar se todas foram respondidas
     const pendentes = await prisma.lpcoExigencia.count({
-      where: { lpco_id: req.params.id, tenant_id: tenantId, status: 'pendente' },
+      where: { lpco_id: req.params.id, id_organizacao: tenantId, status: 'pendente' },
     })
 
     if (pendentes === 0 && lpco.status === 'em_exigencia') {
@@ -403,7 +403,7 @@ router.post('/portal/webhook', async (req: Request, res: Response, next: NextFun
 
     // Buscar LPCO pelo numero do Portal
     const lpco = await prisma.lpco.findFirst({
-      where: { numero_portal: payload.numero, tenant_id: tenantId },
+      where: { numero_portal: payload.numero, id_organizacao: tenantId },
     })
 
     if (!lpco) {
@@ -449,7 +449,7 @@ router.post('/portal/webhook', async (req: Request, res: Response, next: NextFun
     // Registrar evento no historico (independente de transicao)
     await prisma.lpcoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: lpco.company_id,
         product_id: 'lpco',
         user_id: 'portal-webhook',

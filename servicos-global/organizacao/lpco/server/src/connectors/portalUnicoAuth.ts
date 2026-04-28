@@ -147,7 +147,7 @@ export class PortalUnicoAuth {
 
     // 2. Buscar credenciais do banco — priorizar certificado digital
     const credenciais = await this.prisma.portalCredencial.findMany({
-      where: { tenant_id: tenantId, company_id: companyId, status: 'ativo' },
+      where: { id_organizacao: tenantId, company_id: companyId, status: 'ativo' },
       orderBy: { tipo_auth: 'asc' }, // CERTIFICADO_DIGITAL vem antes de TOKEN_OAUTH2
     })
 

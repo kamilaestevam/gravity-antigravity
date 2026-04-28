@@ -67,7 +67,7 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
 
   return prisma.$transaction(async (tx) => {
     const lpco = await tx.lpco.findFirst({
-      where: { id: lpcoId, tenant_id: tenantId, company_id: companyId },
+      where: { id: lpcoId, id_organizacao: tenantId, company_id: companyId },
       include: { vinculos: { where: { status: 'ativo' } } },
     })
 
@@ -115,7 +115,7 @@ export async function transitarStatus(params: TransicaoParams): Promise<Transica
     // Historico append-only
     await tx.lpcoHistorico.create({
       data: {
-        tenant_id: tenantId,
+        id_organizacao: tenantId,
         company_id: companyId,
         product_id: 'lpco',
         user_id: userId,

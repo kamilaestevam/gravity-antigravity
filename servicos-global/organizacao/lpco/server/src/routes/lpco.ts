@@ -1,6 +1,6 @@
 /**
  * lpco.ts — Rotas CRUD de LPCOs
- * Todas as queries filtram por tenant_id + company_id (zero-trust)
+ * Todas as queries filtram por id_organizacao + company_id (zero-trust)
  * Status muda apenas via lpcoStatusEngine
  */
 
@@ -33,7 +33,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     const { tenantId, prisma } = getTenantContext(req)
     const query = LpcoListaQuerySchema.parse(req.query)
 
-    const where: Record<string, unknown> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { id_organizacao: tenantId }
     if (query.status) where.status = query.status
     if (query.tipo_operacao) where.tipo_operacao = query.tipo_operacao
     if (query.tipo_lpco) where.tipo_lpco = query.tipo_lpco
@@ -74,7 +74,7 @@ router.get('/stats', async (req: Request, res: Response, next: NextFunction) => 
 
     const counts = await prisma.lpco.groupBy({
       by: ['status'],
-      where: { tenant_id: tenantId },
+      where: { id_organizacao: tenantId },
       _count: { id: true },
     })
 
@@ -95,7 +95,7 @@ router.get('/prefill/pedido/:pedidoId', async (req: Request, res: Response, next
     const { tenantId, prisma } = getTenantContext(req)
 
     const pedido = await prisma.pedido?.findFirst({
-      where: { id: req.params.pedidoId, tenant_id: tenantId },
+      where: { id: req.params.pedidoId, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -133,7 +133,7 @@ router.get('/:id_lpco', async (req: Request, res: Response, next: NextFunction) 
     const { tenantId, prisma } = getTenantContext(req)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, id_organizacao: tenantId },
       include: {
         itens: true,
         exigencias: { orderBy: { numero_exigencia: 'asc' } },
@@ -159,14 +159,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const body = LpcoCreateSchema.parse(req.body)
 
     // Gerar ID corporativo
-    const count = await prisma.lpco.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.lpco.count({ where: { id_organizacao: tenantId } })
     const id = gerarId(PREFIXOS.LPCO, count + 1)
 
     const lpco = await prisma.$transaction(async (tx) => {
       const created = await tx.lpco.create({
         data: {
           id,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: req.body.company_id ?? tenantId,
           product_id: 'lpco',
           tipo_operacao: body.tipo_operacao,
@@ -191,13 +191,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 
       // Criar itens se fornecidos
       if (body.itens?.length) {
-        const itemCount = await tx.lpcoItens.count({ where: { tenant_id: tenantId } })
+        const itemCount = await tx.lpcoItens.count({ where: { id_organizacao: tenantId } })
         for (let i = 0; i < body.itens.length; i++) {
           const item = body.itens[i]
           await tx.lpcoItens.create({
             data: {
               id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
-              tenant_id: tenantId,
+              id_organizacao: tenantId,
               company_id: req.body.company_id ?? tenantId,
               product_id: 'lpco',
               user_id: userId,
@@ -224,7 +224,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       // Historico de criacao
       await tx.lpcoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: req.body.company_id ?? tenantId,
           product_id: 'lpco',
           user_id: userId,
@@ -250,7 +250,7 @@ router.put('/:id_lpco', async (req: Request, res: Response, next: NextFunction) 
     const body = LpcoUpdateSchema.parse(req.body)
 
     const existing = await prisma.lpco.findFirst({
-      where: { id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, id_organizacao: tenantId },
     })
 
     if (!existing) {
@@ -278,7 +278,7 @@ router.post('/:id/registrar', async (req: Request, res: Response, next: NextFunc
 
     // Buscar LPCO completo para validar
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -328,7 +328,7 @@ router.post('/:id_lpco/cancelar', async (req: Request, res: Response, next: Next
     const { motivo } = LpcoCancelarSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, id_organizacao: tenantId },
     })
 
     if (!lpco) {
@@ -358,7 +358,7 @@ router.post('/:id_lpco/atualizar-status', async (req: Request, res: Response, ne
     const { status } = LpcoAtualizarStatusSchema.parse(req.body)
 
     const lpco = await prisma.lpco.findFirst({
-      where: { id: req.params.id_lpco, tenant_id: tenantId },
+      where: { id: req.params.id_lpco, id_organizacao: tenantId },
     })
 
     if (!lpco) {
@@ -387,7 +387,7 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
     const { tenantId, userId, prisma } = getTenantContext(req)
 
     const original = await prisma.lpco.findFirst({
-      where: { id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id, id_organizacao: tenantId },
       include: { itens: true },
     })
 
@@ -395,14 +395,14 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
       throw new AppError('LPCO nao encontrado', 404, 'NOT_FOUND')
     }
 
-    const count = await prisma.lpco.count({ where: { tenant_id: tenantId } })
+    const count = await prisma.lpco.count({ where: { id_organizacao: tenantId } })
     const novoId = gerarId(PREFIXOS.LPCO, count + 1)
 
     const novo = await prisma.$transaction(async (tx) => {
       const created = await tx.lpco.create({
         data: {
           id: novoId,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: original.company_id,
           product_id: 'lpco',
           tipo_operacao: original.tipo_operacao,
@@ -425,13 +425,13 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
       })
 
       // Duplicar itens
-      const itemCount = await tx.lpcoItens.count({ where: { tenant_id: tenantId } })
+      const itemCount = await tx.lpcoItens.count({ where: { id_organizacao: tenantId } })
       for (let i = 0; i < original.itens.length; i++) {
         const item = original.itens[i]
         await tx.lpcoItens.create({
           data: {
             id: gerarId(PREFIXOS.ITEM, itemCount + i + 1),
-            tenant_id: tenantId,
+            id_organizacao: tenantId,
             company_id: original.company_id,
             product_id: 'lpco',
             user_id: userId,
@@ -456,7 +456,7 @@ router.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunct
 
       await tx.lpcoHistorico.create({
         data: {
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           company_id: original.company_id,
           product_id: 'lpco',
           user_id: userId,

@@ -54,7 +54,7 @@ export function ModalFormularioAbas({
   textoSalvar,
   textoCancelar,
   semAbas = false,
-}: ModalFormularioAbasGlobalProps) {
+}: ModalFormularioAbasProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')

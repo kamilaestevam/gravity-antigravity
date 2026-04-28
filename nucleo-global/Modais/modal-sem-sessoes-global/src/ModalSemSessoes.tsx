@@ -192,7 +192,7 @@ export function ModalSemSessoesProvider() {
   return (
     <>
       {stack.map((item) => (
-        <ModalSemSessoesGlobal
+        <ModalSemSessoes
           key={item.id}
           {...item.props}
           aberto

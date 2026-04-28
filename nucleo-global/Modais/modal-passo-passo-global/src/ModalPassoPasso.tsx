@@ -54,7 +54,7 @@ export function ModalPassoPasso({
   tamanho = 'md',
   altura,
   children,
-}: ModalPassoPassoGlobalProps) {
+}: ModalPassoPassoProps) {
   useEffect(() => {
     if (!aberto) return
     document.body.style.overflow = 'hidden'

@@ -37,7 +37,7 @@ export function ModalFormulario({
   children,
   textoSalvar,
   textoCancelar
-}: ModalFormularioGlobalProps) {
+}: ModalFormularioProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')

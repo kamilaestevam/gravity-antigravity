@@ -6,7 +6,7 @@
 
 import React from 'react'
 import { Check } from '@phosphor-icons/react'
-import type { PassoConfig } from './ModalPassoPassoGlobal.js'
+import type { PassoConfig } from './ModalPassoPasso.js'
 
 export interface StepperPassoPassoGlobalProps {
   passos: PassoConfig[]

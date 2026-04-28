@@ -1,7 +1,7 @@
 /**
  * @nucleo/campo-geral-global — CSS
  * Estilo unificado para wrapper + label + erro + hint de TODOS os campos.
- * Qualquer campo (input, select, calendário, etc.) que use <GeralCampoGlobal>
+ * Qualquer campo (input, select, calendário, etc.) que use <CampoGeralGlobal>
  * automaticamente herda esse visual.
  */
 

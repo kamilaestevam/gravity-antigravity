@@ -10,13 +10,13 @@
  *
  * Props:
  *  - value / onChange: código NCM (string de 8 dígitos)
- *  - label / obrigatorio / disabled: padrão GeralCampoGlobal
+ *  - label / obrigatorio / disabled: padrão CampoGeralGlobal
  *  - baseUrl: URL base do serviço NCM (padrão: /api/v1/ncm)
  */
 
 import React, { useState, useId } from 'react'
 import { MagnifyingGlass, CheckCircle, Warning, ArrowsClockwise } from '@phosphor-icons/react'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { ModalBuscaNcm, type NcmOpcao } from './ModalBuscaNcm.js'
 import { useNcmValidation } from './useNcmValidation.js'
 
@@ -95,7 +95,7 @@ export function NcmSelectGlobal({
 
   return (
     <div className={className}>
-      <GeralCampoGlobal
+      <CampoGeralGlobal
         label={label}
         htmlFor={id}
         obrigatorio={obrigatorio}
@@ -157,7 +157,7 @@ export function NcmSelectGlobal({
             {badgeElement}
           </div>
         )}
-      </GeralCampoGlobal>
+      </CampoGeralGlobal>
 
       <ModalBuscaNcm
         aberto={modalAberto}

@@ -13,7 +13,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -632,7 +632,7 @@ export function FinanceiroAdmin() {
                 <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <SecaoFormularioGlobal titulo="Cliente" icone={<Buildings size={16} />} />
 
-                  <GeralCampoGlobal label="Tenant (Cliente)" obrigatorio>
+                  <CampoGeralGlobal label="Tenant (Cliente)" obrigatorio>
                     <SelectGlobal
                       opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
                       valor={formTenantId}
@@ -641,11 +641,11 @@ export function FinanceiroAdmin() {
                       placeholder="Selecionar tenant..."
                       buscavel
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
                   <SecaoFormularioGlobal titulo="Fatura" icone={<CalendarBlank size={16} />} />
 
-                  <GeralCampoGlobal label="Descrição" obrigatorio>
+                  <CampoGeralGlobal label="Descrição" obrigatorio>
                     <input
                       type="text"
                       className="ws-input"
@@ -654,28 +654,28 @@ export function FinanceiroAdmin() {
                       placeholder="Ex: Assinatura mensal Gravity Pro — Abril/2026"
                       maxLength={500}
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Competência">
+                    <CampoGeralGlobal label="Competência">
                       <input
                         type="month"
                         className="ws-input"
                         value={formCompetencia}
                         onChange={e => { setFormCompetencia(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Vencimento">
+                    <CampoGeralGlobal label="Vencimento">
                       <input
                         type="date"
                         className="ws-input"
                         value={formVencimento}
                         onChange={e => { setFormVencimento(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Valor (R$)" obrigatorio>
+                    <CampoGeralGlobal label="Valor (R$)" obrigatorio>
                       <div className="ws-input-icon-wrap">
                         <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: 24, textAlign: 'center', color: 'var(--ws-muted)' }}>R$</span>
                         <input
@@ -687,11 +687,11 @@ export function FinanceiroAdmin() {
                           style={{ width: '100%' }}
                         />
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Quantidade">
+                    <CampoGeralGlobal label="Quantidade">
                       <input
                         type="number"
                         min={1}
@@ -699,9 +699,9 @@ export function FinanceiroAdmin() {
                         value={formQuantidade}
                         onChange={e => { setFormQuantidade(e.target.value); setFormDirty(true) }}
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Enviar ao criar">
+                    <CampoGeralGlobal label="Enviar ao criar">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
                         {(['sim', 'nao'] as const).map(val => (
                           <button
@@ -721,7 +721,7 @@ export function FinanceiroAdmin() {
                           </button>
                         ))}
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
                 </div>
               ),

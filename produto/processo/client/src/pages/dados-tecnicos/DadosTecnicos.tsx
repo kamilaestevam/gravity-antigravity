@@ -23,7 +23,7 @@ import {
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
@@ -303,7 +303,7 @@ export default function DadosTecnicos() {
               </TooltipGlobal>
             </p>
             <div className="em-grid">
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="Razao Social"
                 obrigatorio
                 tooltipTitulo="Razao Social"
@@ -317,8 +317,8 @@ export default function DadosTecnicos() {
                     onChange={e => set('importador_nome', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
-              <GeralCampoGlobal
+              </CampoGeralGlobal>
+              <CampoGeralGlobal
                 label="CNPJ"
                 obrigatorio
                 tooltipTitulo="CNPJ"
@@ -332,10 +332,10 @@ export default function DadosTecnicos() {
                     onChange={e => set('importador_cnpj', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
             <div className="em-grid em-grid--3">
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="Endereco"
                 tooltipTitulo="Endereco"
                 tooltipDescricao="Endereco fiscal do importador conforme cadastro na Receita Federal"
@@ -348,8 +348,8 @@ export default function DadosTecnicos() {
                     onChange={e => set('importador_endereco', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
-              <GeralCampoGlobal
+              </CampoGeralGlobal>
+              <CampoGeralGlobal
                 label="Cidade"
                 tooltipTitulo="Cidade"
                 tooltipDescricao="Municipio sede do importador informado na documentacao"
@@ -362,8 +362,8 @@ export default function DadosTecnicos() {
                     onChange={e => set('importador_cidade', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
-              <GeralCampoGlobal
+              </CampoGeralGlobal>
+              <CampoGeralGlobal
                 label="UF"
                 tooltipTitulo="Unidade Federativa"
                 tooltipDescricao="Estado do importador exigido no registro da DI"
@@ -377,7 +377,7 @@ export default function DadosTecnicos() {
                     onChange={e => set('importador_uf', e.target.value.toUpperCase())}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
           </div>
 
@@ -392,7 +392,7 @@ export default function DadosTecnicos() {
               </TooltipGlobal>
             </p>
             <div className="em-grid">
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="Nome / Razao Social"
                 obrigatorio
                 tooltipTitulo="Nome do Exportador"
@@ -406,8 +406,8 @@ export default function DadosTecnicos() {
                     onChange={e => set('exportador_nome', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
-              <GeralCampoGlobal
+              </CampoGeralGlobal>
+              <CampoGeralGlobal
                 label="Pais"
                 tooltipTitulo="Pais de Origem"
                 tooltipDescricao="Codigo ISO do pais de origem da mercadoria para fins fiscais"
@@ -421,10 +421,10 @@ export default function DadosTecnicos() {
                     onChange={e => set('exportador_pais', e.target.value.toUpperCase())}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
             <div className="em-grid">
-              <GeralCampoGlobal
+              <CampoGeralGlobal
                 label="Endereco"
                 tooltipTitulo="Endereco do Exportador"
                 tooltipDescricao="Endereco comercial do exportador conforme invoice"
@@ -437,8 +437,8 @@ export default function DadosTecnicos() {
                     onChange={e => set('exportador_endereco', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
-              <GeralCampoGlobal
+              </CampoGeralGlobal>
+              <CampoGeralGlobal
                 label="Cidade"
                 tooltipTitulo="Cidade do Exportador"
                 tooltipDescricao="Cidade sede do exportador informada nos documentos de embarque"
@@ -451,7 +451,7 @@ export default function DadosTecnicos() {
                     onChange={e => set('exportador_cidade', e.target.value)}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
           </div>
         </>
@@ -469,7 +469,7 @@ export default function DadosTecnicos() {
             </TooltipGlobal>
           </p>
           <div className="em-grid em-grid--3">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Via de Transporte"
               tooltipTitulo="Via de Transporte"
               tooltipDescricao="Modal utilizado para o transporte internacional da carga"
@@ -482,8 +482,8 @@ export default function DadosTecnicos() {
                 placeholder="Selecione..."
                 buscavel
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Tipo de Carga"
               tooltipTitulo="Tipo de Carga"
               tooltipDescricao="Classificacao da carga para calculo de frete e manuseio"
@@ -496,8 +496,8 @@ export default function DadosTecnicos() {
                 placeholder="Selecione..."
                 buscavel
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Companhia de Transporte"
               tooltipTitulo="Companhia de Transporte"
               tooltipDescricao="Transportadora responsavel pelo frete internacional"
@@ -510,10 +510,10 @@ export default function DadosTecnicos() {
                   onChange={e => set('companhia_transporte', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
           <div className="em-grid em-grid--3">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Porto de Embarque"
               tooltipTitulo="Porto de Embarque"
               tooltipDescricao="Local de partida da mercadoria no pais de origem"
@@ -526,8 +526,8 @@ export default function DadosTecnicos() {
                   onChange={e => set('porto_embarque', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Porto de Destino"
               tooltipTitulo="Porto de Destino"
               tooltipDescricao="Local de chegada da mercadoria no territorio brasileiro"
@@ -540,8 +540,8 @@ export default function DadosTecnicos() {
                   onChange={e => set('porto_destino', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Numero BL / AWB"
               tooltipTitulo="Conhecimento de Embarque"
               tooltipDescricao="Numero do BL ou AWB que comprova o embarque da mercadoria"
@@ -554,7 +554,7 @@ export default function DadosTecnicos() {
                   onChange={e => set('numero_bl_awb', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       )}
@@ -571,7 +571,7 @@ export default function DadosTecnicos() {
             </TooltipGlobal>
           </p>
           <div className="em-grid em-grid--3">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Incoterm"
               tooltipTitulo="Incoterm"
               tooltipDescricao="Termo de comercio que define as responsabilidades entre as partes"
@@ -584,8 +584,8 @@ export default function DadosTecnicos() {
                 placeholder="Selecione..."
                 buscavel
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Canal"
               tooltipTitulo="Canal de Parametrizacao"
               tooltipDescricao="Canal definido pela Receita Federal para conferencia da DI"
@@ -597,8 +597,8 @@ export default function DadosTecnicos() {
                 aoMudarValor={v => set('canal', String(v ?? ''))}
                 placeholder="Selecione..."
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Regime Tributario"
               tooltipTitulo="Regime Tributario"
               tooltipDescricao="Regime fiscal aplicado a importacao para calculo de tributos"
@@ -611,10 +611,10 @@ export default function DadosTecnicos() {
                 placeholder="Selecione..."
                 buscavel
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
           <div className="em-grid">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Recinto Alfandegado"
               tooltipTitulo="Recinto Alfandegado"
               tooltipDescricao="Local autorizado pela Receita para armazenagem e conferencia"
@@ -627,8 +627,8 @@ export default function DadosTecnicos() {
                   onChange={e => set('recinto_alfandegado', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="URFA"
               tooltipTitulo="URFA"
               tooltipDescricao="Unidade da Receita Federal responsavel pelo despacho da DI"
@@ -641,7 +641,7 @@ export default function DadosTecnicos() {
                   onChange={e => set('urfa', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       )}
@@ -658,7 +658,7 @@ export default function DadosTecnicos() {
             </TooltipGlobal>
           </p>
           <div className="em-grid">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Seguradora"
               tooltipTitulo="Seguradora"
               tooltipDescricao="Empresa responsavel pela cobertura do seguro de transporte"
@@ -671,8 +671,8 @@ export default function DadosTecnicos() {
                   onChange={e => set('seguradora', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Numero da Apolice"
               tooltipTitulo="Numero da Apolice"
               tooltipDescricao="Identificador da apolice de seguro vinculada ao embarque"
@@ -685,10 +685,10 @@ export default function DadosTecnicos() {
                   onChange={e => set('numero_apolice', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
           <div className="em-grid">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label="Valor Segurado"
               tooltipTitulo="Valor Segurado"
               tooltipDescricao="Montante total coberto pelo seguro em caso de sinistro"
@@ -702,8 +702,8 @@ export default function DadosTecnicos() {
                   onChange={e => set('valor_segurado', e.target.value)}
                 />
               </div>
-            </GeralCampoGlobal>
-            <GeralCampoGlobal
+            </CampoGeralGlobal>
+            <CampoGeralGlobal
               label="Moeda do Seguro"
               tooltipTitulo="Moeda do Seguro"
               tooltipDescricao="Moeda na qual o valor segurado esta denominado"
@@ -717,7 +717,7 @@ export default function DadosTecnicos() {
                   onChange={e => set('moeda_seguro', e.target.value.toUpperCase())}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       )}

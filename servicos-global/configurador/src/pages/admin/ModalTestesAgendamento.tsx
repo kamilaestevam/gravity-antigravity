@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Clock, Info, EnvelopeSimple, List } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 import { adminTestesApi } from '../../services/apiClient'
@@ -204,7 +204,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
 
           {/* Agendamento Automático */}
           <div className="em-grid">
-            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_agendamento_automatico')}>
+            <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_agendamento_automatico')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ width: '200px' }}>
                   <SelectGlobal
@@ -217,41 +217,41 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   {t('admin.testes-gerais.agendamento.status_label')}: {dados.agendamentoAutomatico === 'Ativado' ? t('admin.testes-gerais.agendamento.status_ativado_label') : t('admin.testes-gerais.agendamento.status_desativado_label')}
                 </span>
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           {/* Frequência & Hora & Minuto — Hora/Minuto só fazem sentido se Frequência ≠ Manual */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_frequencia')}>
+            <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_frequencia')}>
               <SelectGlobal
                 opcoes={opcoesFrequencia}
                 valor={dados.frequencia}
                 aoMudarValor={v => { if (v != null) updateDados({ frequencia: String(v) as DadosAgendamento['frequencia'] }) }}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
             <div style={{ opacity: dados.frequencia === 'Manual' ? 0.4 : 1, pointerEvents: dados.frequencia === 'Manual' ? 'none' : 'auto', transition: 'opacity 0.15s' }}>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_hora')}>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_hora')}>
                 <SelectGlobal
                   opcoes={opcoesHora}
                   valor={dados.hora}
                   aoMudarValor={v => { if (v != null) updateDados({ hora: String(v) }) }}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
             <div style={{ opacity: dados.frequencia === 'Manual' ? 0.4 : 1, pointerEvents: dados.frequencia === 'Manual' ? 'none' : 'auto', transition: 'opacity 0.15s' }}>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_minuto')}>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_minuto')}>
                 <SelectGlobal
                   opcoes={opcoesMinuto}
                   valor={dados.minuto}
                   aoMudarValor={v => { if (v != null) updateDados({ minuto: String(v) }) }}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
           </div>
 
           {/* Tipos de Teste - CORRIGIDO LAYOUT */}
           <div className="em-grid">
-            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_tipos_teste')}>
+            <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_tipos_teste')}>
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center',
@@ -275,18 +275,18 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   <span>🖥️ {t('admin.testes-gerais.agendamento.tipo_e2e')}</span>
                 </label>
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           {/* Ambiente */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_ambiente')}>
+            <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_ambiente')}>
               <SelectGlobal
                 opcoes={opcoesAmbiente}
                 valor={dados.ambiente}
                 aoMudarValor={v => { if (v != null) updateDados({ ambiente: String(v) as DadosAgendamento['ambiente'] }) }}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       )
@@ -319,7 +319,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem',
               display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' 
             }}>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_nome_receptor')}>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_nome_receptor')}>
                 <input 
                   className="ws-input-pure"
                   placeholder={t('admin.testes-gerais.agendamento.campo_nome_receptor_placeholder')}
@@ -327,8 +327,8 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   onChange={e => setNovoAlerta({...novoAlerta, nome: e.target.value})}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_contato')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_contato')}>
                 <input 
                   className="ws-input-pure"
                   placeholder={t('admin.testes-gerais.agendamento.campo_contato_placeholder')}
@@ -336,21 +336,21 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   onChange={e => setNovoAlerta({...novoAlerta, contato: e.target.value})}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_condicao')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_condicao')}>
                 <SelectGlobal 
                   opcoes={[{valor: 'Apenas Falhas', rotulo: 'Apenas Falhas'}, {valor: 'Todos os Testes', rotulo: 'Todos os Testes'}]}
                   valor={novoAlerta.condicao}
                   aoMudarValor={v => setNovoAlerta({...novoAlerta, condicao: String(v)})}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_canal')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_canal')}>
                 <SelectGlobal 
                   opcoes={[{valor: 'E-mail', rotulo: 'E-mail'}, {valor: 'WhatsApp', rotulo: 'WhatsApp'}, {valor: 'Todos', rotulo: 'Todos'}]}
                   valor={novoAlerta.canal}
                   aoMudarValor={v => setNovoAlerta({...novoAlerta, canal: String(v)})}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
               <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
                 <button 
                   onClick={handleAdicionarAlerta}

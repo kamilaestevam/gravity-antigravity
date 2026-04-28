@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import type { TenantUser, EspacoTrabalho } from './Usuarios'
 import type { NivelAcesso } from '../../types/niveis-acesso'
@@ -99,7 +99,7 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
   return (
     <div style={{ padding: '0 0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-        <GeralCampoGlobal label={t('workspace.users.tabela.nome_completo')} obrigatorio>
+        <CampoGeralGlobal label={t('workspace.users.tabela.nome_completo')} obrigatorio>
           <div className="ws-input-icon-wrap">
             <User size={16} />
             <input
@@ -109,9 +109,9 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
               style={{ width: '100%' }}
             />
           </div>
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
 
-        <GeralCampoGlobal label={t('comum.email')} obrigatorio>
+        <CampoGeralGlobal label={t('comum.email')} obrigatorio>
           <div className="ws-input-icon-wrap">
             <EnvelopeSimple size={16} />
             <input
@@ -122,9 +122,9 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
               style={{ width: '100%' }}
             />
           </div>
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
 
-        <GeralCampoGlobal label={t('workspace.users.tabela.tipo')}>
+        <CampoGeralGlobal label={t('workspace.users.tabela.tipo')}>
           <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
             <select
               value={tipo}
@@ -145,9 +145,9 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
             </select>
             <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
           </div>
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
 
-        <GeralCampoGlobal label={t('workspace.users.empresa_vinculada')}>
+        <CampoGeralGlobal label={t('workspace.users.empresa_vinculada')}>
           <div className="ws-input-icon-wrap">
             <Buildings size={16} />
             <input
@@ -156,7 +156,7 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
               style={{ width: '100%', color: 'var(--ws-muted)', cursor: 'not-allowed' }}
             />
           </div>
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
       </div>
     </div>
   )

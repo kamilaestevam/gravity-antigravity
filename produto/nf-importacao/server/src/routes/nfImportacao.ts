@@ -180,13 +180,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err) }
 })
 
-// ── GET /:id — Detalhar NF ─────────────────────────────────────────────────
+// ── GET /:id_nf — Detalhar NF ──────────────────────────────────────────────
 
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_nf', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({
@@ -210,14 +210,14 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err) }
 })
 
-// ── PUT /:id — Atualizar NF (apenas em status editavel) ────────────────────
+// ── PUT /:id_nf — Atualizar NF (apenas em status editavel) ─────────────────
 
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id_nf', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = NfUpdateSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const existing = await prisma.nFImportacao.findFirst({ where })
@@ -239,7 +239,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (body.data_entrada) updateData.data_entrada = new Date(body.data_entrada)
 
     const nf = await prisma.nFImportacao.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id_nf },
       data: updateData,
     })
 
@@ -247,13 +247,13 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err) }
 })
 
-// ── DELETE /:id — Cancelar NF (soft delete via status engine) ───────────────
+// ── DELETE /:id_nf — Cancelar NF (soft delete via status engine) ────────────
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_nf', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const existing = await prisma.nFImportacao.findFirst({ where })
@@ -264,7 +264,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 
     await transitarStatus({
       prisma,
-      nfId: req.params.id,
+      nfId: req.params.id_nf,
       tenantId,
       companyId: existing.company_id,
       statusNovo: 'cancelada',
@@ -272,7 +272,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       descricao: 'NF cancelada pelo usuario',
     })
 
-    const updated = await prisma.nFImportacao.findFirst({ where: { id: req.params.id } })
+    const updated = await prisma.nFImportacao.findFirst({ where: { id: req.params.id_nf } })
     res.json(updated)
   } catch (err) { next(err) }
 })

@@ -11,7 +11,7 @@ import {
   Warning
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { Tenant } from '../OrganizacoesAdmin'
@@ -208,7 +208,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
           <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_empresa')} obrigatorio>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_empresa')} obrigatorio>
                 <div className="ws-input-icon-wrap">
                   <Buildings size={16} />
                   <input
@@ -218,11 +218,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     style={{ width: '100%' }}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_cnpj')}>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_cnpj')}>
                 <div className="ws-input-icon-wrap">
                   <IdentificationCard size={16} />
                   <input
@@ -232,11 +232,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     style={{ width: '100%' }}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_segmento')}>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_segmento')}>
                 <SelectGlobal
                   iconeEsquerda={<Package size={16} />}
                   opcoes={OPCOES_SEGMENTOS}
@@ -245,11 +245,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                   buscavel
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_estado')}>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_estado')}>
                 <SelectGlobal
                   iconeEsquerda={<MapPin size={16} />}
                   opcoes={OPCOES_ESTADOS}
@@ -261,11 +261,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   placeholder={t('admin.testes-gerais.org.campo_estado_placeholder')}
                   buscavel
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_cidade')}>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_cidade')}>
                 <SelectGlobal
                   iconeEsquerda={<MapPin size={16} />}
                   opcoes={cidades}
@@ -276,7 +276,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   desabilitado={!estado}
                   carregando={carregandoCidades}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
           </div>
         </div>
@@ -289,7 +289,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
           />
           <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
+              <CampoGeralGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
                 <SelectGlobal
                   iconeEsquerda={<Buildings size={16} />}
                   opcoes={OPCOES_TIPOS_EMPRESA}
@@ -297,11 +297,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   aoMudarValor={(v: string | number | null) => setTipoEmpresa(String(v ?? ''))}
                   placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label={t('admin.testes-gerais.org.campo_subdominio')} obrigatorio>
+              <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_subdominio')} obrigatorio>
                 <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                   <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
                     <Globe size={16} />
@@ -352,11 +352,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     </strong>
                   </p>
                 )}
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.testes-gerais.org.campo_plano')}>
+              <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_plano')}>
                 <SelectGlobal
                   iconeEsquerda={<Ticket size={16} />}
                   opcoes={PLANOS.map(p => ({ valor: p, rotulo: p }))}
@@ -364,7 +364,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   aoMudarValor={(v: string | number | null) => setPlano(String(v ?? ''))}
                   placeholder={t('admin.testes-gerais.org.campo_plano_placeholder')}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
             </div>
           </div>
         </div>

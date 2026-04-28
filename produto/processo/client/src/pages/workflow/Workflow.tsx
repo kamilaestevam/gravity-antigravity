@@ -6,7 +6,7 @@
  * - CabecalhoGlobal com icone Phosphor duotone size={22}
  * - CardBasicoGlobal com periodos para estimativas de custo
  * - TooltipGlobal em campos/acoes nao-obvios
- * - GeralCampoGlobal para input de comentario
+ * - CampoGeralGlobal para input de comentario
  * - SelecaoExcluirGlobal para confirmacao de exclusao
  * - useShellStore para addNotification
  * - StatusBadgeGlobal para status de etapas
@@ -22,7 +22,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useShellStore } from '@gravity/shell'
 import {
@@ -364,7 +364,7 @@ export default function Workflow() {
 
           {/* Caixa de Comentario */}
           <div className="wf-comment-box">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label={t('processo.workflow.novo_comentario', 'Novo comentário')}
               tooltipTitulo={t('processo.workflow.comentario', 'Comentário')}
               tooltipDescricao={t('processo.workflow.comentario_desc', 'Adicione observações visíveis para a equipe')}
@@ -383,7 +383,7 @@ export default function Workflow() {
                   }
                 }}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
             <BotaoGlobal
               variante="primario"
               tamanho="pequeno"

@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GeralCampoGlobal, type GeralCampoGlobalProps } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal, type CampoGeralGlobalProps } from '@nucleo/campo-geral-global'
 import { CalendarBlank, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import './calendario.css'
 
-export interface CalendarioCampoGlobalProps extends Omit<GeralCampoGlobalProps, 'children'> {
+export interface CalendarioCampoGlobalProps extends Omit<CampoGeralGlobalProps, 'children'> {
   placeholder?: string
   valor?: { inicio: Date | null; fim: Date | null }
   aoMudarValor?: (valor: { inicio: Date | null; fim: Date | null }) => void
@@ -372,13 +372,13 @@ export function CalendarioCampoGlobal({
     )
   }
 
-  // Modo sem trigger: renderiza o painel diretamente inline, sem trigger ou wrapper GeralCampoGlobal
+  // Modo sem trigger: renderiza o painel diretamente inline, sem trigger ou wrapper CampoGeralGlobal
   if (semTrigger) {
     return renderPanel(true)
   }
 
   return (
-    <GeralCampoGlobal className={className} {...geralProps}>
+    <CampoGeralGlobal className={className} {...geralProps}>
       <div
         ref={containerRef}
         style={{ position: 'relative' }}
@@ -449,7 +449,7 @@ export function CalendarioCampoGlobal({
 
         {isOpen && renderPanel()}
       </div>
-    </GeralCampoGlobal>
+    </CampoGeralGlobal>
   )
 }
 

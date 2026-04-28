@@ -78,20 +78,20 @@ async function findNfEditable(prisma: PrismaClient, nfId: string, tenantId: stri
   return nf
 }
 
-// ── GET /:id/despesas — Listar despesas ─────────────────────────────────────
+// ── GET /:id_nf/despesas — Listar despesas ──────────────────────────────────
 
-router.get('/:id/despesas', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_nf/despesas', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const despesas = await prisma.nFImportacaoDespesas.findMany({
-      where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
       orderBy: { created_at: 'asc' },
       include: {
         rateios: { orderBy: { created_at: 'asc' } },
@@ -102,14 +102,14 @@ router.get('/:id/despesas', async (req: Request, res: Response, next: NextFuncti
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/despesas — Adicionar despesa ──────────────────────────────────
+// ── POST /:id_nf/despesas — Adicionar despesa ───────────────────────────────
 
-router.post('/:id/despesas', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_nf/despesas', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = DespesaCreateSchema.parse(req.body)
 
-    const nf = await findNfEditable(prisma, req.params.id, tenantId, companyId)
+    const nf = await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     const count = await prisma.nFImportacaoDespesas.count({ where: { tenant_id: tenantId } })
     const despesa = await prisma.nFImportacaoDespesas.create({
@@ -119,7 +119,7 @@ router.post('/:id/despesas', async (req: Request, res: Response, next: NextFunct
         company_id: nf.company_id,
         product_id: 'nf-importacao',
         user_id: userId,
-        nf_importacao_id: req.params.id,
+        nf_importacao_id: req.params.id_nf,
         tipo: body.tipo,
         descricao: body.descricao ?? null,
         valor_total: body.valor_total,
@@ -140,7 +140,7 @@ router.post('/:id/despesas', async (req: Request, res: Response, next: NextFunct
     if (nf.status === 'rascunho') {
       await transitarStatus({
         prisma,
-        nfId: req.params.id,
+        nfId: req.params.id_nf,
         tenantId,
         companyId: nf.company_id,
         statusNovo: 'em_composicao' as NfStatus,
@@ -153,17 +153,17 @@ router.post('/:id/despesas', async (req: Request, res: Response, next: NextFunct
   } catch (err) { next(err) }
 })
 
-// ── PUT /:id/despesas/:despesaId — Atualizar despesa ────────────────────────
+// ── PUT /:id_nf/despesas/:id_despesa — Atualizar despesa ────────────────────
 
-router.put('/:id/despesas/:despesaId', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id_nf/despesas/:id_despesa', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = DespesaUpdateSchema.parse(req.body)
 
-    await findNfEditable(prisma, req.params.id, tenantId, companyId)
+    await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     const existing = await prisma.nFImportacaoDespesas.findFirst({
-      where: { id: req.params.despesaId, nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
 
@@ -171,7 +171,7 @@ router.put('/:id/despesas/:despesaId', async (req: Request, res: Response, next:
     if (body.data_documento) updateData.data_documento = new Date(body.data_documento)
 
     const despesa = await prisma.nFImportacaoDespesas.update({
-      where: { id: req.params.despesaId },
+      where: { id: req.params.id_despesa },
       data: updateData,
     })
 
@@ -179,37 +179,37 @@ router.put('/:id/despesas/:despesaId', async (req: Request, res: Response, next:
   } catch (err) { next(err) }
 })
 
-// ── DELETE /:id/despesas/:despesaId — Remover despesa ───────────────────────
+// ── DELETE /:id_nf/despesas/:id_despesa — Remover despesa ───────────────────
 
-router.delete('/:id/despesas/:despesaId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_nf/despesas/:id_despesa', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    await findNfEditable(prisma, req.params.id, tenantId, companyId)
+    await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     const existing = await prisma.nFImportacaoDespesas.findFirst({
-      where: { id: req.params.despesaId, nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_despesa, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
     })
     if (!existing) throw new AppError('Despesa nao encontrada', 404, 'NOT_FOUND')
 
     // Deletar rateios associados primeiro
     await prisma.nFImportacaoRateio.deleteMany({
-      where: { nf_despesa_id: req.params.despesaId, tenant_id: tenantId },
+      where: { nf_despesa_id: req.params.id_despesa, tenant_id: tenantId },
     })
 
-    await prisma.nFImportacaoDespesas.delete({ where: { id: req.params.despesaId } })
+    await prisma.nFImportacaoDespesas.delete({ where: { id: req.params.id_despesa } })
     res.status(204).send()
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/despesas/smart-read — Placeholder para upload Smart Read ─────
+// ── POST /:id_nf/despesas/smart-read — Placeholder para upload Smart Read ───
 
-router.post('/:id/despesas/smart-read', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_nf/despesas/smart-read', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
     const body = SmartReadSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true, status: true } })
@@ -222,7 +222,7 @@ router.post('/:id/despesas/smart-read', async (req: Request, res: Response, next
     // Por enquanto retorna aceite do upload para processamento assincrono
     res.status(202).json({
       message: 'Documento recebido para processamento Smart Read',
-      nf_importacao_id: req.params.id,
+      nf_importacao_id: req.params.id_nf,
       storage_key: body.storage_key,
       nome_arquivo: body.nome_arquivo,
       status: 'processando',
@@ -230,14 +230,14 @@ router.post('/:id/despesas/smart-read', async (req: Request, res: Response, next
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/despesas/aplicar-template — Aplicar template de despesas ─────
+// ── POST /:id_nf/despesas/aplicar-template — Aplicar template de despesas ───
 
-router.post('/:id/despesas/aplicar-template', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_nf/despesas/aplicar-template', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = AplicarTemplateSchema.parse(req.body)
 
-    const nf = await findNfEditable(prisma, req.params.id, tenantId, companyId)
+    const nf = await findNfEditable(prisma, req.params.id_nf, tenantId, companyId)
 
     // Buscar template com itens
     const template = await prisma.nfDespesaTemplate.findFirst({
@@ -262,7 +262,7 @@ router.post('/:id/despesas/aplicar-template', async (req: Request, res: Response
           company_id: nf.company_id,
           product_id: 'nf-importacao',
           user_id: userId,
-          nf_importacao_id: req.params.id,
+          nf_importacao_id: req.params.id_nf,
           tipo: (templateItem as Record<string, unknown>).tipo as string,
           descricao: (templateItem as Record<string, unknown>).descricao as string ?? null,
           valor_total: 0,
@@ -278,7 +278,7 @@ router.post('/:id/despesas/aplicar-template', async (req: Request, res: Response
     if (nf.status === 'rascunho' && despesasCriadas.length > 0) {
       await transitarStatus({
         prisma,
-        nfId: req.params.id,
+        nfId: req.params.id_nf,
         tenantId,
         companyId: nf.company_id,
         statusNovo: 'em_composicao' as NfStatus,

@@ -14,7 +14,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { exportarExcel, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
 import { ProdutoCatalogo, NegociacaoEspecial } from '../../types/entidades'
@@ -337,7 +337,7 @@ export function Financeiro() {
   // ─── Campo Somente-Leitura Helper ──────────────────────────────────────────
 
   const ReadOnlyField = ({ label, value, icon }: { label: string; value: React.ReactNode; icon?: React.ReactNode }) => (
-    <GeralCampoGlobal label={label}>
+    <CampoGeralGlobal label={label}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '0.5rem',
         padding: '0.5rem 0.75rem', borderRadius: '8px',
@@ -348,7 +348,7 @@ export function Financeiro() {
         {icon && <span style={{ color: 'var(--ws-muted)', display: 'flex', alignItems: 'center' }}>{icon}</span>}
         {value}
       </div>
-    </GeralCampoGlobal>
+    </CampoGeralGlobal>
   )
 
   // ─── Negociação para o produto em visualização ─────────────────────────────

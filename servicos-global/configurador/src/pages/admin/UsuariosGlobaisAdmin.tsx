@@ -14,7 +14,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { ModalEditarUsuario } from '../workspace/ModalUsuarioEditar'
 import { ModalPermissoesUsuario } from '../workspace/ModalUsuarioPermissoes'
@@ -553,7 +553,7 @@ export function UsuariosGlobaisAdmin() {
         podesSalvar={!!(fNome.trim() && fEmail.trim())}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.nome_completo')}
             obrigatorio
             tooltipTitulo={t('admin.usuarios-globais.tabela.nome_completo')}
@@ -568,9 +568,9 @@ export function UsuariosGlobaisAdmin() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.email')}
             obrigatorio
             tooltipTitulo={t('admin.usuarios-globais.tabela.email_acesso')}
@@ -586,9 +586,9 @@ export function UsuariosGlobaisAdmin() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal label={t('admin.usuarios-globais.tabela.tipo')}>
+          <CampoGeralGlobal label={t('admin.usuarios-globais.tabela.tipo')}>
             <SelectGlobal
               opcoes={opcoesDisponiveis}
               valor={fTipo}
@@ -612,9 +612,9 @@ export function UsuariosGlobaisAdmin() {
                 </div>
               )}
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.usuarios-globais.tabela.organizacao')}
             tooltipTitulo={isGravityRole ? 'Organização Gravity' : t('admin.usuarios-globais.tabela.org_tooltip')}
             tooltipDescricao={isGravityRole
@@ -645,7 +645,7 @@ export function UsuariosGlobaisAdmin() {
                 placeholder={t('admin.usuarios-globais.form_org_placeholder')}
               />
             )}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       </ModalFormularioGlobal>
 

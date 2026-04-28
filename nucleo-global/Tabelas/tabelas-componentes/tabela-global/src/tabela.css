@@ -871,7 +871,7 @@ body.light-theme .tg-badge-default {
   stroke: #818cf8 !important;
 }
 
-/* Ocultar label/descrição do GeralCampoGlobal dentro do filtro */
+/* Ocultar label/descrição do CampoGeralGlobal dentro do filtro */
 .tg-popover-filtro .cg-wrapper > label,
 .tg-popover-filtro .cg-wrapper > .cg-descricao,
 .tg-popover-filtro .cg-wrapper > .cg-erro {

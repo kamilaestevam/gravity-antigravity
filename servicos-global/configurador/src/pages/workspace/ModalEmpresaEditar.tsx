@@ -26,7 +26,7 @@ import {
   Boat,
 } from '@phosphor-icons/react'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useShellStore } from '@gravity/shell'
 import {
   criarEmpresaSchema,
@@ -340,7 +340,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         {/* ── Identificação ────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.875rem' }}>
-          <GeralCampoGlobal label="RAZÃO SOCIAL" obrigatorio>
+          <CampoGeralGlobal label="RAZÃO SOCIAL" obrigatorio>
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
@@ -351,9 +351,9 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               />
             </div>
             {erro('nome_empresa') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('nome_empresa')}</span>}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal label="PAÍS (ISO-2)" obrigatorio>
+          <CampoGeralGlobal label="PAÍS (ISO-2)" obrigatorio>
             <div className="ws-input-icon-wrap">
               <MapPinLine size={16} />
               <input
@@ -365,11 +365,11 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               />
             </div>
             {erro('pais') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('pais')}</span>}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
 
         {ehBr ? (
-          <GeralCampoGlobal label="CNPJ" obrigatorio>
+          <CampoGeralGlobal label="CNPJ" obrigatorio>
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input
@@ -380,9 +380,9 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               />
             </div>
             {erro('cnpj') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('cnpj')}</span>}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         ) : (
-          <GeralCampoGlobal label="TIN (documento estrangeiro)">
+          <CampoGeralGlobal label="TIN (documento estrangeiro)">
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input
@@ -393,34 +393,34 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               />
             </div>
             {erro('tin') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('tin')}</span>}
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         )}
 
         {/* ── Endereço ────────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.875rem' }}>
-          <GeralCampoGlobal label="CIDADE">
+          <CampoGeralGlobal label="CIDADE">
             <input value={form.cidade} onChange={(e) => setCampo('cidade', e.target.value)} placeholder="São Paulo" style={{ width: '100%' }} />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal label="ESTADO/UF">
+          </CampoGeralGlobal>
+          <CampoGeralGlobal label="ESTADO/UF">
             <input value={form.estado} onChange={(e) => setCampo('estado', e.target.value)} placeholder="SP" style={{ width: '100%' }} />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal label="CEP / ZIPCODE">
+          </CampoGeralGlobal>
+          <CampoGeralGlobal label="CEP / ZIPCODE">
             <input value={form.zipcode} onChange={(e) => setCampo('zipcode', e.target.value)} placeholder="01000-000" style={{ width: '100%' }} />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
 
-        <GeralCampoGlobal label="ENDEREÇO">
+        <CampoGeralGlobal label="ENDEREÇO">
           <input
             value={form.endereco}
             onChange={(e) => setCampo('endereco', e.target.value)}
             placeholder="Rua, número, complemento"
             style={{ width: '100%' }}
           />
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
 
         {/* ── Contato ────────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-          <GeralCampoGlobal label="E-MAIL">
+          <CampoGeralGlobal label="E-MAIL">
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
               <input
@@ -432,8 +432,8 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
               />
             </div>
             {erro('email') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('email')}</span>}
-          </GeralCampoGlobal>
-          <GeralCampoGlobal label="TELEFONE">
+          </CampoGeralGlobal>
+          <CampoGeralGlobal label="TELEFONE">
             <div className="ws-input-icon-wrap">
               <Phone size={16} />
               <input
@@ -443,10 +443,10 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
 
-        <GeralCampoGlobal label="WHATSAPP (E.164)">
+        <CampoGeralGlobal label="WHATSAPP (E.164)">
           <div className="ws-input-icon-wrap">
             <WhatsappLogo size={16} />
             <input
@@ -457,7 +457,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
             />
           </div>
           {erro('whatsapp') && <span style={{ color: corErro, fontSize: '0.75rem' }}>{erro('whatsapp')}</span>}
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
 
         {/* ── Papéis operacionais ──────────────────────────────────── */}
         <div>

@@ -19,7 +19,7 @@ import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 type DadosMae = {
@@ -336,7 +336,7 @@ export function Organizacao() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_nome')}
             obrigatorio
             tooltipTitulo={t('workspace.organization.campo_nome')}
@@ -350,8 +350,8 @@ export function Organizacao() {
                 onChange={e => set('nome', e.target.value)}
               />
             </div>
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_cnpj')}
             tooltipTitulo={t('workspace.organization.campo_cnpj')}
             tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
@@ -364,10 +364,10 @@ export function Organizacao() {
                 onChange={e => set('cnpj', e.target.value)}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_estado')}
             tooltipTitulo={t('workspace.organization.campo_estado')}
             tooltipDescricao="Estado onde a empresa tem sua sede principal"
@@ -383,8 +383,8 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_cidade')}
             tooltipTitulo={t('workspace.organization.campo_cidade')}
             tooltipDescricao="A lista de cidades aparece após você escolher o estado"
@@ -399,8 +399,8 @@ export function Organizacao() {
               desabilitado={!dados.estado}
               carregando={carregandoCidades}
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_segmento')}
             tooltipTitulo={t('workspace.organization.campo_segmento')}
             tooltipDescricao="Usado para categorizar a empresa nos relatórios da plataforma"
@@ -413,8 +413,8 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </GeralCampoGlobal>
-          <GeralCampoGlobal
+          </CampoGeralGlobal>
+          <CampoGeralGlobal
             label={t('workspace.organization.campo_tipo_empresa')}
             tooltipTitulo={t('workspace.organization.campo_tipo_empresa')}
             tooltipDescricao="Categoria que define a atuação da empresa no comércio exterior"
@@ -426,7 +426,7 @@ export function Organizacao() {
               aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
               placeholder="Selecione..."
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       </div>
 

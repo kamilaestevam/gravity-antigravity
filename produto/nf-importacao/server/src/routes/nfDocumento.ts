@@ -29,20 +29,20 @@ const DocumentoCreateSchema = z.object({
   storage_key: z.string().min(1),
 })
 
-// ── GET /:id/documentos — Listar documentos ────────────────────────────────
+// ── GET /:id_nf/documentos — Listar documentos ─────────────────────────────
 
-router.get('/:id/documentos', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id_nf/documentos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const docs = await prisma.nFImportacaoAnexo.findMany({
-      where: { nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
     })
 
@@ -50,14 +50,14 @@ router.get('/:id/documentos', async (req: Request, res: Response, next: NextFunc
   } catch (err) { next(err) }
 })
 
-// ── POST /:id/documentos — Upload documento ────────────────────────────────
+// ── POST /:id_nf/documentos — Upload documento ─────────────────────────────
 
-router.post('/:id/documentos', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/:id_nf/documentos', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId, prisma, companyId } = ctx(req)
     const body = DocumentoCreateSchema.parse(req.body)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where })
@@ -69,7 +69,7 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
         company_id: nf.company_id,
         product_id: 'nf-importacao',
         user_id: userId,
-        nf_importacao_id: req.params.id,
+        nf_importacao_id: req.params.id_nf,
         nome_arquivo: body.nome_arquivo,
         tipo_documento: body.tipo_documento,
         mime_type: body.mime_type ?? 'application/octet-stream',
@@ -83,24 +83,24 @@ router.post('/:id/documentos', async (req: Request, res: Response, next: NextFun
   } catch (err) { next(err) }
 })
 
-// ── DELETE /:id/documentos/:docId — Remover documento ──────────────────────
+// ── DELETE /:id_nf/documentos/:id_documento — Remover documento ────────────
 
-router.delete('/:id/documentos/:docId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id_nf/documentos/:id_documento', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, prisma, companyId } = ctx(req)
 
-    const where: Record<string, unknown> = { id: req.params.id, tenant_id: tenantId }
+    const where: Record<string, unknown> = { id: req.params.id_nf, tenant_id: tenantId }
     if (companyId) where.company_id = companyId
 
     const nf = await prisma.nFImportacao.findFirst({ where, select: { id: true } })
     if (!nf) throw new AppError('NF Importacao nao encontrada', 404, 'NOT_FOUND')
 
     const doc = await prisma.nFImportacaoAnexo.findFirst({
-      where: { id: req.params.docId, nf_importacao_id: req.params.id, tenant_id: tenantId },
+      where: { id: req.params.id_documento, nf_importacao_id: req.params.id_nf, tenant_id: tenantId },
     })
     if (!doc) throw new AppError('Documento nao encontrado', 404, 'NOT_FOUND')
 
-    await prisma.nFImportacaoAnexo.delete({ where: { id: req.params.docId } })
+    await prisma.nFImportacaoAnexo.delete({ where: { id: req.params.id_documento } })
     res.status(204).send()
   } catch (err) { next(err) }
 })

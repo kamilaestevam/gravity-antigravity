@@ -1,6 +1,6 @@
-# Documentação Visual — GeralCampoGlobal
+# Documentação Visual — CampoGeralGlobal
 
-Referência visual baseada 100% no código `GeralCampoGlobal.tsx` + `campo-geral.css`. Garantia de 0 erros com a realidade.
+Referência visual baseada 100% no código `CampoGeralGlobal.tsx` + `campo-geral.css`. Garantia de 0 erros com a realidade.
 
 ---
 

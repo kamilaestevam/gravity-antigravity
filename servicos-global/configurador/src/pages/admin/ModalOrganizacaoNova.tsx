@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { 
@@ -139,7 +139,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label={t('admin.testes-gerais.org.campo_nome_org')}
               obrigatorio
               tooltipTitulo={t('admin.testes-gerais.org.campo_nome_tooltip')}
@@ -160,9 +160,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                   style={{ width: '100%' }}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal
+            <CampoGeralGlobal
               label={t('admin.visao-geral.campo_cnpj')}
               tooltipTitulo={t('admin.testes-gerais.org.campo_cnpj_tooltip')}
               tooltipDescricao={t('admin.testes-gerais.org.campo_cnpj_desc')}
@@ -176,10 +176,10 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                   style={{ width: '100%' }}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.testes-gerais.org.campo_subdominio_dns')}
             obrigatorio
             tooltipTitulo={t('admin.testes-gerais.org.campo_subdominio_tooltip')}
@@ -198,7 +198,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', marginTop: '0.5rem' }}>
               {t('admin.testes-gerais.org.subdominio_hint')}
             </p>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
         </div>
       )
     },
@@ -210,7 +210,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label={t('admin.visao-geral.campo_estado')}>
+            <CampoGeralGlobal label={t('admin.visao-geral.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
@@ -222,9 +222,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                 buscavel
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal label={t('admin.visao-geral.campo_cidade')}>
+            <CampoGeralGlobal label={t('admin.visao-geral.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
@@ -235,11 +235,11 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 desabilitado={!estado}
                 carregando={carregandoCidades}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label={t('admin.visao-geral.campo_segmento')}>
+            <CampoGeralGlobal label={t('admin.visao-geral.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Archive size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
@@ -248,9 +248,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                 buscavel
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
 
-            <GeralCampoGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
+            <CampoGeralGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
               <SelectGlobal
                 iconeEsquerda={<Buildings size={16} />}
                 opcoes={OPCOES_TIPOS_EMPRESA}
@@ -258,7 +258,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 aoMudarValor={v => setTipoEmpresa(String(v ?? ''))}
                 placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       )
@@ -270,7 +270,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       tooltipDescricao: t('admin.testes-gerais.org.aba_plano_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <GeralCampoGlobal label={t('admin.testes-gerais.org.campo_plano_inicial')}>
+          <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_plano_inicial')}>
             <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
               <select
                 value={plano}
@@ -281,9 +281,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               </select>
               <Ticket size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal
+          <CampoGeralGlobal
             label={t('admin.testes-gerais.org.campo_acesso_padrao')}
             tooltipTitulo={t('admin.testes-gerais.org.acesso_padrao_tooltip')}
             tooltipDescricao={t('admin.testes-gerais.org.acesso_padrao_desc')}
@@ -296,7 +296,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               placeholder={t('admin.testes-gerais.org.campo_acesso_placeholder')}
               desabilitado
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
           <div style={{
             background: 'rgba(56, 189, 248, 0.05)',

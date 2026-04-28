@@ -33,7 +33,7 @@ import {
 } from '@phosphor-icons/react'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import './CardKanbanModal.css'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -201,7 +201,7 @@ function AbaInformacoes({
       </Secao>
 
       <Secao titulo="Empresa Vinculada" icone={<BuildingOffice size={12} />} modifier="ckm-secao--empresa">
-        <GeralCampoGlobal
+        <CampoGeralGlobal
           label="Buscar empresa"
           erro={!buscaEmpresa.trim() ? 'Nenhum cliente vinculado' : undefined}
         >
@@ -214,26 +214,26 @@ function AbaInformacoes({
             />
             <span className="ckm-input-icon"><MagnifyingGlass size={14} /></span>
           </div>
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
       </Secao>
 
       <Secao titulo="Conteúdo" icone={<PencilSimple size={12} />} modifier="ckm-secao--conteudo">
-        <GeralCampoGlobal label="Título">
+        <CampoGeralGlobal label="Título">
           <input
             className="ckm-sg-input"
             value={form.nome}
             onChange={e => onChange({ nome: e.target.value })}
             placeholder="Título do card"
           />
-        </GeralCampoGlobal>
-        <GeralCampoGlobal label="Descrição">
+        </CampoGeralGlobal>
+        <CampoGeralGlobal label="Descrição">
           <textarea
             className="ckm-sg-textarea"
             value={descricao}
             onChange={e => onChangeDescricao(e.target.value)}
             placeholder="Descreva o objetivo, contexto ou detalhes deste card…"
           />
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
       </Secao>
 
       <Secao titulo="Participantes" icone={<User size={12} />} modifier="ckm-secao--participantes">
@@ -315,7 +315,7 @@ function AbaTempo({
           valor={{ inicio: form.data ? new Date(form.data) : null, fim: null }}
           aoMudarValor={v => onChange({ data: v.inicio?.toISOString() ?? form.data })}
         />
-        <GeralCampoGlobal label="Valor (R$)">
+        <CampoGeralGlobal label="Valor (R$)">
           <input
             type="number"
             className="ckm-sg-input"
@@ -324,7 +324,7 @@ function AbaTempo({
             step={0.01}
             onChange={e => onChange({ valor: parseFloat(e.target.value) || 0 })}
           />
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
         <SelectGlobal
           label="Responsável"
           buscavel={false}
@@ -332,13 +332,13 @@ function AbaTempo({
           valor={form.responsavel}
           aoMudarValor={v => onChange({ responsavel: String(v ?? '') })}
         />
-        <GeralCampoGlobal label="Valor formatado">
+        <CampoGeralGlobal label="Valor formatado">
           <input
             className="ckm-sg-input"
             readOnly
             value={form.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           />
-        </GeralCampoGlobal>
+        </CampoGeralGlobal>
       </div>
     </Secao>
   )
@@ -356,7 +356,7 @@ function AbaProximoPasso({
 }) {
   return (
     <Secao titulo="Próximo Passo" icone={<ArrowRight size={12} />} modifier="ckm-secao--proximo">
-      <GeralCampoGlobal label="O que deve acontecer a seguir?">
+      <CampoGeralGlobal label="O que deve acontecer a seguir?">
         <textarea
           className="ckm-sg-textarea"
           style={{ minHeight: 120 }}
@@ -364,7 +364,7 @@ function AbaProximoPasso({
           onChange={e => onChangePasso(e.target.value)}
           placeholder="Descreva a próxima ação necessária para avançar este card…"
         />
-      </GeralCampoGlobal>
+      </CampoGeralGlobal>
       <CalendarioCampoGlobal
         label="Data prevista para o próximo passo"
         valor={{ inicio: dataProximo ? new Date(dataProximo) : null, fim: null }}

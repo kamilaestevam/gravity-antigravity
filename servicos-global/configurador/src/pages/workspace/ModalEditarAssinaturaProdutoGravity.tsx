@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Package, CurrencyDollar, CalendarBlank, Tag, TreeStructure, CheckCircle, WarningCircle, Check, MagnifyingGlass, SelectionAll, Eraser, Broom } from '@phosphor-icons/react'
 import { getSimboloMoeda } from '../../utils/formatters'
 import type { Produto } from './Assinaturas'
@@ -81,7 +81,7 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
           rotulo: t('workspace.subscriptions.aba_dados'),
           conteudo: (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingTop: '0.5rem' }}>
-              <GeralCampoGlobal label={t('workspace.subscriptions.tabela.produto')} obrigatorio>
+              <CampoGeralGlobal label={t('workspace.subscriptions.tabela.produto')} obrigatorio>
                 <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                   <Package size={16} color="var(--ws-muted)" />
                   <input
@@ -91,9 +91,9 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
                     style={{ width: '100%', fontSize: '0.875rem' }}
                   />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
 
-              <GeralCampoGlobal label={t('workspace.subscriptions.tabela.cobranca')}>
+              <CampoGeralGlobal label={t('workspace.subscriptions.tabela.cobranca')}>
                 <div className="ws-input-icon-wrap" style={{ padding: 0, border: '1px solid rgba(255,255,255,0.06)' }}>
                   <select
                     value={billing}
@@ -106,22 +106,22 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
                   </select>
                   <Tag size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
                 </div>
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <GeralCampoGlobal label={t('workspace.subscriptions.tabela.valor')}>
+                <CampoGeralGlobal label={t('workspace.subscriptions.tabela.valor')}>
                   <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                     <CurrencyDollar size={16} color="var(--ws-muted)" />
                     <input value={valor} placeholder="R$ 0,00" onChange={e => setValor(e.target.value)} style={{ width: '100%', fontSize: '0.875rem' }} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
-                <GeralCampoGlobal label={t('workspace.subscriptions.tabela.renovacao')}>
+                <CampoGeralGlobal label={t('workspace.subscriptions.tabela.renovacao')}>
                   <div className="ws-input-icon-wrap" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
                     <CalendarBlank size={16} color="var(--ws-muted)" />
                     <input value={renovacao} placeholder="DD/MM/AAAA" onChange={e => setRenovacao(e.target.value)} style={{ width: '100%', fontSize: '0.875rem' }} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
               </div>
             </div>
           )

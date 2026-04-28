@@ -11,7 +11,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Play, CheckSquare, Square, Flask } from '@phosphor-icons/react'
 import { adminTestesApi, type TestePlanoApi } from '../../services/apiClient'
 
@@ -99,20 +99,20 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
 
           {/* Seletor de Produto + Ambiente */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <GeralCampoGlobal label="Produto / Local">
+            <CampoGeralGlobal label="Produto / Local">
               <SelectGlobal
                 opcoes={PRODUTOS}
                 valor={dadosManual.produto}
                 aoMudarValor={v => setDadosManual({ ...dadosManual, produto: String(v) })}
               />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_ambiente_origem')}>
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label={t('admin.testes-gerais.agendamento.campo_ambiente_origem')}>
               <SelectGlobal
                 opcoes={opcoesAmbiente}
                 valor={dadosManual.ambiente}
                 aoMudarValor={v => setDadosManual({ ...dadosManual, ambiente: String(v) })}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           {/* Lista de Planos — flex:1 absorve altura restante */}

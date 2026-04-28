@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 import { Clock, Info, EnvelopeSimple, Play, List, CheckCircle, XCircle, SpinnerGap } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
@@ -210,7 +210,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
 
           {/* Ativação */}
           <div className="em-grid">
-            <GeralCampoGlobal label={t('admin.ncm_modal.label_ativacao')}>
+            <CampoGeralGlobal label={t('admin.ncm_modal.label_ativacao')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ width: '200px' }}>
                   <SelectGlobal
@@ -223,21 +223,21 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
                   {ativo ? t('admin.ncm_modal.status_ativado') : t('admin.ncm_modal.status_desativado')}
                 </span>
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           {/* Frequência & Hora */}
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label={t('admin.ncm_modal.label_freq')}>
+            <CampoGeralGlobal label={t('admin.ncm_modal.label_freq')}>
               <SelectGlobal opcoes={opcoesFrequencia} valor={frequencia} aoMudarValor={v => updateFreq(String(v))} />
-            </GeralCampoGlobal>
-            <GeralCampoGlobal label={t('admin.ncm_modal.label_hora')}>
+            </CampoGeralGlobal>
+            <CampoGeralGlobal label={t('admin.ncm_modal.label_hora')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <SelectGlobal opcoes={opcoesHora}   valor={hora}   aoMudarValor={v => { if (v != null) updateHora(String(v)) }} />
                 <span style={{ color: '#475569', fontWeight: 700 }}>:</span>
                 <SelectGlobal opcoes={opcoesMinuto} valor={minuto} aoMudarValor={v => { if (v != null) updateMin(String(v)) }} />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           {/* Preview da expressão cron */}
@@ -279,36 +279,36 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
               borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem',
               display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
             }}>
-              <GeralCampoGlobal label={t('admin.ncm_modal.label_nome')}>
+              <CampoGeralGlobal label={t('admin.ncm_modal.label_nome')}>
                 <input
                   placeholder={t('admin.ncm_modal.ph_nome')}
                   value={novoNotificador.nome}
                   onChange={e => setNovoNotificador(p => ({ ...p, nome: e.target.value }))}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.875rem' }}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.ncm_modal.label_contato')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.ncm_modal.label_contato')}>
                 <input
                   placeholder={t('admin.ncm_modal.ph_contato')}
                   value={novoNotificador.contato}
                   onChange={e => setNovoNotificador(p => ({ ...p, contato: e.target.value }))}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.875rem' }}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.ncm_modal.label_condicao')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.ncm_modal.label_condicao')}>
                 <SelectGlobal
                   opcoes={opcoesCondicao}
                   valor={novoNotificador.condicao}
                   aoMudarValor={v => setNovoNotificador(p => ({ ...p, condicao: String(v) as NcmNotificador['condicao'] }))}
                 />
-              </GeralCampoGlobal>
-              <GeralCampoGlobal label={t('admin.ncm_modal.label_canal')}>
+              </CampoGeralGlobal>
+              <CampoGeralGlobal label={t('admin.ncm_modal.label_canal')}>
                 <SelectGlobal
                   opcoes={opcoesCanal}
                   valor={novoNotificador.canal}
                   aoMudarValor={v => setNovoNotificador(p => ({ ...p, canal: String(v) as NcmNotificador['canal'] }))}
                 />
-              </GeralCampoGlobal>
+              </CampoGeralGlobal>
               <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end' }}>
                 <button
                   onClick={handleAdicionarNotificador}

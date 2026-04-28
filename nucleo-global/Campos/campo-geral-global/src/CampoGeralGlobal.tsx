@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './campo-geral.css'
 
-export interface GeralCampoGlobalProps {
+export interface CampoGeralGlobalProps {
   label?: string
   tooltipTitulo?: string
   tooltipDescricao?: string
@@ -13,7 +13,7 @@ export interface GeralCampoGlobalProps {
   hint?: string
 }
 
-export function GeralCampoGlobal({
+export function CampoGeralGlobal({
   label,
   tooltipTitulo,
   tooltipDescricao,
@@ -22,7 +22,7 @@ export function GeralCampoGlobal({
   obrigatorio = false,
   erro,
   hint,
-}: GeralCampoGlobalProps) {
+}: CampoGeralGlobalProps) {
   const compLabel = label ? (obrigatorio ? `${label} *` : label) : null
 
   return (

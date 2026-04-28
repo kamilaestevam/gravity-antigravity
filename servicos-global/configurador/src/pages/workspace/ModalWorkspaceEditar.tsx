@@ -13,7 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import type { Empresa } from './Workspaces'
@@ -134,7 +134,7 @@ function AbaInformacoes({
         </div>
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label={t('workspace.organization.campo_nome')} obrigatorio>
+            <CampoGeralGlobal label={t('workspace.organization.campo_nome')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
@@ -145,11 +145,11 @@ function AbaInformacoes({
                   autoFocus={ehNovo}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div>
-            <GeralCampoGlobal label={t('workspace.organization.campo_cnpj')}>
+            <CampoGeralGlobal label={t('workspace.organization.campo_cnpj')}>
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
@@ -159,11 +159,11 @@ function AbaInformacoes({
                   style={{ width: '100%' }}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div>
-            <GeralCampoGlobal label={t('workspace.organization.campo_segmento')}>
+            <CampoGeralGlobal label={t('workspace.organization.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Package size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
@@ -172,11 +172,11 @@ function AbaInformacoes({
                 placeholder="Selecione..."
                 buscavel
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div>
-            <GeralCampoGlobal label={t('workspace.organization.campo_estado')}>
+            <CampoGeralGlobal label={t('workspace.organization.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
@@ -188,11 +188,11 @@ function AbaInformacoes({
                 placeholder="Ex: SP"
                 buscavel
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div>
-            <GeralCampoGlobal label={t('workspace.organization.campo_cidade')}>
+            <CampoGeralGlobal label={t('workspace.organization.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
@@ -203,7 +203,7 @@ function AbaInformacoes({
                 desabilitado={!empresa.estado}
                 carregando={carregandoCidades}
               />
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       </div>
@@ -216,7 +216,7 @@ function AbaInformacoes({
         />
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label={t('workspace.organization.campo_site')}>
+            <CampoGeralGlobal label={t('workspace.organization.campo_site')}>
               <div className="ws-input-icon-wrap">
                 <Link size={16} />
                 <input
@@ -226,11 +226,11 @@ function AbaInformacoes({
                   style={{ width: '100%' }}
                 />
               </div>
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
 
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label={t('workspace.workspaces.campo_subdominio')} obrigatorio>
+            <CampoGeralGlobal label={t('workspace.workspaces.campo_subdominio')} obrigatorio>
               <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
                   <Globe size={16} />
@@ -284,7 +284,7 @@ function AbaInformacoes({
                   </strong>
                 </p>
               )}
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           </div>
         </div>
       </div>

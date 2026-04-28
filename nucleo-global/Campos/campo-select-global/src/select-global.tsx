@@ -7,7 +7,7 @@
  * Dropdown renderizado via ReactDOM.createPortal (position: fixed) para
  * escapar de qualquer stacking context criado pelos containers pai.
  *
- * Usa <GeralCampoGlobal> como wrapper unificado (label, hint, erro).
+ * Usa <CampoGeralGlobal> como wrapper unificado (label, hint, erro).
  */
 
 import React, {
@@ -20,7 +20,7 @@ import React, {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import type { SelectProps, SelectOpcao } from './tipos.js'
 import './select.css'
 
@@ -523,19 +523,19 @@ export function SelectGlobal({
     </div>
   )
 
-  // ─── Se tem label/hint/erro, renderiza com GeralCampoGlobal ───────────────
+  // ─── Se tem label/hint/erro, renderiza com CampoGeralGlobal ───────────────
   // Se não tem, renderiza só o campo (ex: select inline dentro de calendário)
 
   if (label || hint || erro) {
     return (
-      <GeralCampoGlobal
+      <CampoGeralGlobal
         label={label}
         obrigatorio={obrigatorio}
         erro={erro}
         hint={hint}
       >
         {conteudoInterno}
-      </GeralCampoGlobal>
+      </CampoGeralGlobal>
     )
   }
 

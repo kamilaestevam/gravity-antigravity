@@ -24,8 +24,8 @@ import type { PaginaFormularioProps } from './tipos.js'
  * >
  *   <SecaoGlobal titulo="Dados Gerais" icone={<Buildings weight="duotone" size={14} />} card>
  *     <GridGlobal colunas={2} gap={5}>
- *       <GeralCampoGlobal label="Razão Social" ... />
- *       <GeralCampoGlobal label="CNPJ" ... />
+ *       <CampoGeralGlobal label="Razão Social" ... />
+ *       <CampoGeralGlobal label="CNPJ" ... />
  *     </GridGlobal>
  *   </SecaoGlobal>
  * </PaginaFormularioGlobal>

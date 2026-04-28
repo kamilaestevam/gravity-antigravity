@@ -9,7 +9,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { useShellStore } from '@gravity/shell'
@@ -663,7 +663,7 @@ export function Usuarios() {
         podesSalvar={!!(fNome.trim() && fEmail.trim() && ((fTipo !== 'Standard' && fTipo !== 'Fornecedor') || fTodosWorkspaces || fWorkspacesSelecionados.length > 0))}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <GeralCampoGlobal label="NOME COMPLETO" obrigatorio>
+          <CampoGeralGlobal label="NOME COMPLETO" obrigatorio>
             <div className="ws-input-icon-wrap">
               <User size={16} />
               <input
@@ -673,9 +673,9 @@ export function Usuarios() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal label="E-MAIL" obrigatorio>
+          <CampoGeralGlobal label="E-MAIL" obrigatorio>
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
               <input
@@ -686,9 +686,9 @@ export function Usuarios() {
                 style={{ width: '100%' }}
               />
             </div>
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
-          <GeralCampoGlobal label="TIPO DE USUÁRIO">
+          <CampoGeralGlobal label="TIPO DE USUÁRIO">
             <SelectGlobal
               opcoes={OPCOES_TIPO}
               valor={fTipo}
@@ -712,10 +712,10 @@ export function Usuarios() {
                 </div>
               )}
             />
-          </GeralCampoGlobal>
+          </CampoGeralGlobal>
 
           {(fTipo === 'Standard' || fTipo === 'Fornecedor') && (
-            <GeralCampoGlobal label="WORKSPACES">
+            <CampoGeralGlobal label="WORKSPACES">
               <div
                 role="checkbox"
                 aria-checked={fTodosWorkspaces}
@@ -788,7 +788,7 @@ export function Usuarios() {
                   })}
                 </div>
               )}
-            </GeralCampoGlobal>
+            </CampoGeralGlobal>
           )}
         </div>
       </ModalFormularioGlobal>

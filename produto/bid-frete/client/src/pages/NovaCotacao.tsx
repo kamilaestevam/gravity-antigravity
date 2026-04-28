@@ -3,7 +3,7 @@
  * Skill: antigravity-design-system, antigravity-componentes
  *
  * 7 etapas: Modal/Operação → Origem → Destino → Carga → Incoterm → Fornecedores → Resumo
- * Usa GeralCampoGlobal, SelectGlobal, BotaoGlobal, stepper visual
+ * Usa CampoGeralGlobal, SelectGlobal, BotaoGlobal, stepper visual
  */
 
 import React, { useState } from 'react'

@@ -11,7 +11,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@n
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { ModalExclusao } from '../workspace/ModalConfirmarExclusao'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -552,7 +552,7 @@ export function DeployAdmin() {
                   <SecaoFormularioGlobal titulo="Identificação" icone={<Buildings size={16} />} />
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Área afetada" obrigatorio>
+                    <CampoGeralGlobal label="Área afetada" obrigatorio>
                       <SelectGlobal
                         opcoes={areaOptions}
                         valor={formArea}
@@ -561,9 +561,9 @@ export function DeployAdmin() {
                         placeholder="Selecionar área..."
                         buscavel
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Versão" obrigatorio>
+                    <CampoGeralGlobal label="Versão" obrigatorio>
                       <div className="ws-input-icon-wrap">
                         <GitCommit size={16} />
                         <input
@@ -576,10 +576,10 @@ export function DeployAdmin() {
                           style={{ width: '100%' }}
                         />
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
 
-                  <GeralCampoGlobal label="O que foi alterado" obrigatorio>
+                  <CampoGeralGlobal label="O que foi alterado" obrigatorio>
                     <textarea
                       className="ws-input"
                       value={formDescription}
@@ -589,12 +589,12 @@ export function DeployAdmin() {
                       rows={3}
                       style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
                   <SecaoFormularioGlobal titulo="Destino e Resultado" icone={<CloudArrowUp size={16} />} />
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Ambiente">
+                    <CampoGeralGlobal label="Ambiente">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
                         {(['DESENVOLVIMENTO', 'HOMOLOGACAO', 'PRODUCAO', 'TODOS'] as const).map(env => (
                           <button
@@ -614,9 +614,9 @@ export function DeployAdmin() {
                           </button>
                         ))}
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
-                    <GeralCampoGlobal label="Status">
+                    <CampoGeralGlobal label="Status">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
                         {(['SUCESSO', 'EM_ANDAMENTO', 'FALHOU', 'REVERTIDO'] as const).map(st => (
                           <button
@@ -636,7 +636,7 @@ export function DeployAdmin() {
                           </button>
                         ))}
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
                 </div>
               ),

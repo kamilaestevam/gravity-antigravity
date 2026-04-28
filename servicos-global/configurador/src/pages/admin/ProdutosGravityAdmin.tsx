@@ -11,7 +11,7 @@ import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
@@ -685,7 +685,7 @@ export function ProdutosGravityAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_dados_basicos')} tooltip={t('admin.overview.dados_basicos_tooltip')} />
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_nome_produto')}
                   obrigatorio
                   tooltipTitulo="IDENTIFICAÇÃO PRINCIPAL"
@@ -695,9 +695,9 @@ export function ProdutosGravityAdmin() {
                     <ShoppingBagOpen size={16} />
                     <input placeholder={t('admin.produtos-gravity.campo_nome_placeholder')} style={{ width: '100%' }} value={formNome} onChange={e => dirty(() => setFormNome(e.target.value))} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_descricao')}
                   obrigatorio
                   tooltipTitulo="RESUMO COMERCIAL"
@@ -707,10 +707,10 @@ export function ProdutosGravityAdmin() {
                     <Tag size={16} />
                     <input placeholder={t('admin.produtos-gravity.campo_descricao_placeholder')} style={{ width: '100%' }} value={formDescricao} onChange={e => dirty(() => setFormDescricao(e.target.value))} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_data_lancamento')}
                     tooltipTitulo="VIGÊNCIA INICIAL"
                     tooltipDescricao="Define quando o produto estará disponível para comercialização geral"
@@ -731,9 +731,9 @@ export function ProdutosGravityAdmin() {
                       }}
                       placeholder={t('admin.produtos-gravity.campo_data_placeholder')}
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
 
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_status_label')}
                     tooltipTitulo="DISPONIBILIDADE"
                     tooltipDescricao="Ativo: infraestrutura pronta. Em Breve: em desenvolvimento. Suspenso: pausado. Legado: não comercializado. Inativo: descontinuado."
@@ -759,11 +759,11 @@ export function ProdutosGravityAdmin() {
                         />
                       ))}
                     </div>
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
                 </div>
 
                 {formStatus === 'ativo' && (
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_slug')}
                     obrigatorio
                     tooltipTitulo="VÍNCULO TÉCNICO"
@@ -797,7 +797,7 @@ export function ProdutosGravityAdmin() {
                         {t('admin.produtos-gravity.campo_slug_vazio')}
                       </div>
                     )}
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
                 )}
               </div>
             )
@@ -811,7 +811,7 @@ export function ProdutosGravityAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_setup')} />
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_tem_setup')}
                   tooltipTitulo="ADMISSÃO DO SERVIÇO"
                   tooltipDescricao="Define se haverá um custo único de ativação ou implantação"
@@ -820,11 +820,11 @@ export function ProdutosGravityAdmin() {
                     <TogBtn val="sim" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label={t('admin.produtos-gravity.campo_setup_sim')} />
                     <TogBtn val="nao" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label={t('admin.produtos-gravity.campo_setup_nao')} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 {temSetup === 'sim' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal
+                    <CampoGeralGlobal
                       label={t('admin.produtos-gravity.campo_moeda_setup')}
                       tooltipTitulo="MOEDA DE TRANSAÇÃO"
                       tooltipDescricao="Moeda utilizada para o faturamento inicial"
@@ -836,8 +836,8 @@ export function ProdutosGravityAdmin() {
                         iconeEsquerda={<CurrencyCircleDollar size={16} />}
                         buscavel
                       />
-                    </GeralCampoGlobal>
-                    <GeralCampoGlobal
+                    </CampoGeralGlobal>
+                    <CampoGeralGlobal
                       label={t('admin.produtos-gravity.campo_valor_setup')}
                       tooltipTitulo="INVESTIMENTO INICIAL"
                       tooltipDescricao="Montante fixo cobrado apenas no primeiro ciclo"
@@ -846,7 +846,7 @@ export function ProdutosGravityAdmin() {
                         <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaSetup)}</span>
                         <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
                   </div>
                 )}
               </div>
@@ -861,7 +861,7 @@ export function ProdutosGravityAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_valor_produto')} />
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_tipo_cobranca')}
                   tooltipTitulo="MÉTRICA DE VALOR"
                   tooltipDescricao="Especifica a unidade de medida para o cálculo do faturamento"
@@ -874,10 +874,10 @@ export function ProdutosGravityAdmin() {
                     placeholder={t('admin.produtos-gravity.campo_tipo_cobranca_placeholder')}
                     buscavel={false}
                   />
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_moeda')}
                     tooltipTitulo="MOEDA BASE"
                     tooltipDescricao="Moeda padrão para exibição e faturamento deste serviço"
@@ -889,8 +889,8 @@ export function ProdutosGravityAdmin() {
                       iconeEsquerda={<CurrencyCircleDollar size={16} />}
                       buscavel
                     />
-                  </GeralCampoGlobal>
-                  <GeralCampoGlobal
+                  </CampoGeralGlobal>
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_franquia')}
                     tooltipTitulo="VOLUME INCLUÍDO"
                     tooltipDescricao="Quantidade mínima de uso liberada sem custos extras"
@@ -899,11 +899,11 @@ export function ProdutosGravityAdmin() {
                       <Tag size={16} />
                       <input type="number" placeholder={t('admin.produtos-gravity.campo_qtd_placeholder')} style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
                     </div>
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_valor_unitario')}
                     tooltipTitulo="PREÇO POR UNIDADE"
                     tooltipDescricao="Custo aplicado cada vez que um item adicional é consumido"
@@ -912,8 +912,8 @@ export function ProdutosGravityAdmin() {
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
-                  </GeralCampoGlobal>
-                  <GeralCampoGlobal
+                  </CampoGeralGlobal>
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_valor_minimo')}
                     tooltipTitulo="PISO DE COBRANÇA"
                     tooltipDescricao="Menor valor possível a ser faturado em cada ciclo"
@@ -922,8 +922,8 @@ export function ProdutosGravityAdmin() {
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
-                  </GeralCampoGlobal>
-                  <GeralCampoGlobal
+                  </CampoGeralGlobal>
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_valor_total_produto')}
                     tooltipTitulo="PREÇO DO PACOTE"
                     tooltipDescricao="Custo fixo do serviço independentemente do volume consumido"
@@ -932,7 +932,7 @@ export function ProdutosGravityAdmin() {
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
                     </div>
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
                 </div>
 
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.25rem' }}>
@@ -962,7 +962,7 @@ export function ProdutosGravityAdmin() {
 
                         return (
                           <div key={f.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) minmax(120px, 1fr) 1.5fr 44px', gap: '12px', alignItems: 'end', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <GeralCampoGlobal label={t('admin.produtos-gravity.tier_de')}>
+                            <CampoGeralGlobal label={t('admin.produtos-gravity.tier_de')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
                                 <button type="button" onClick={() => updateFaixa({ de: Math.max(0, f.de - 1) })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
                                 <input 
@@ -978,9 +978,9 @@ export function ProdutosGravityAdmin() {
                                 />
                                 <button type="button" onClick={() => updateFaixa({ de: f.de + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
                               </div>
-                            </GeralCampoGlobal>
+                            </CampoGeralGlobal>
 
-                            <GeralCampoGlobal label={t('admin.produtos-gravity.tier_ate')}>
+                            <CampoGeralGlobal label={t('admin.produtos-gravity.tier_ate')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
                                 <button type="button" onClick={() => updateFaixa({ ate: f.ate ? Math.max(0, f.ate - 1) : undefined })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
                                 <input 
@@ -996,14 +996,14 @@ export function ProdutosGravityAdmin() {
                                 />
                                 <button type="button" onClick={() => updateFaixa({ ate: (f.ate || 0) + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
                               </div>
-                            </GeralCampoGlobal>
+                            </CampoGeralGlobal>
 
-                            <GeralCampoGlobal label={t('admin.produtos-gravity.tier_valor')}>
+                            <CampoGeralGlobal label={t('admin.produtos-gravity.tier_valor')}>
                               <div className="ws-input-icon-wrap">
                                 <span style={{ fontSize: '0.875rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                                 <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.valor} onChange={e => updateFaixa({ valor: mascaraMoeda(e.target.value) })} />
                               </div>
-                            </GeralCampoGlobal>
+                            </CampoGeralGlobal>
 
                             <button 
                               type="button" 
@@ -1038,7 +1038,7 @@ export function ProdutosGravityAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_usuarios')} />
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_qtd_usuarios')}
                   tooltipTitulo={t('admin.produtos-gravity.campo_qtd_usuarios_tooltip_titulo')}
                   tooltipDescricao={t('admin.produtos-gravity.campo_qtd_usuarios_tooltip_desc')}
@@ -1047,11 +1047,11 @@ export function ProdutosGravityAdmin() {
                     <TogBtn val="ilimitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label={t('admin.produtos-gravity.campo_qtd_ilimitada')} />
                     <TogBtn val="limitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label={t('admin.produtos-gravity.campo_qtd_limitada')} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 {limiteUsuarios === 'limitada' && (
                   <>
-                    <GeralCampoGlobal
+                    <CampoGeralGlobal
                       label={t('admin.produtos-gravity.campo_quantidade')}
                       tooltipTitulo={t('admin.produtos-gravity.campo_quantidade_tooltip_titulo')}
                       tooltipDescricao={t('admin.produtos-gravity.campo_quantidade_tooltip_desc')}
@@ -1060,10 +1060,10 @@ export function ProdutosGravityAdmin() {
                         <Users size={16} />
                         <input type="number" placeholder={t('admin.produtos-gravity.campo_qtd_placeholder')} style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
                       </div>
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <GeralCampoGlobal
+                      <CampoGeralGlobal
                         label={t('admin.produtos-gravity.campo_moeda')}
                         tooltipTitulo={t('admin.produtos-gravity.campo_moeda_excedente_tooltip_titulo')}
                         tooltipDescricao={t('admin.produtos-gravity.campo_moeda_excedente_tooltip_desc')}
@@ -1075,8 +1075,8 @@ export function ProdutosGravityAdmin() {
                           iconeEsquerda={<CurrencyCircleDollar size={16} />}
                           buscavel
                         />
-                      </GeralCampoGlobal>
-                      <GeralCampoGlobal
+                      </CampoGeralGlobal>
+                      <CampoGeralGlobal
                         label={t('admin.produtos-gravity.campo_valor_usuario_adicional')}
                         tooltipTitulo={t('admin.produtos-gravity.campo_valor_usuario_adicional_tooltip_titulo')}
                         tooltipDescricao={t('admin.produtos-gravity.campo_valor_usuario_adicional_tooltip_desc')}
@@ -1085,7 +1085,7 @@ export function ProdutosGravityAdmin() {
                           <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaUsuario)}</span>
                           <input placeholder={t('admin.produtos-gravity.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
                         </div>
-                      </GeralCampoGlobal>
+                      </CampoGeralGlobal>
                     </div>
                   </>
                 )}
@@ -1102,7 +1102,7 @@ export function ProdutosGravityAdmin() {
                 <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.aba_help_desk')} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_horas_mensais')}
                     tooltipTitulo={t('admin.produtos-gravity.campo_horas_mensais_tooltip_titulo')}
                     tooltipDescricao={t('admin.produtos-gravity.campo_horas_mensais_tooltip_desc')}
@@ -1111,8 +1111,8 @@ export function ProdutosGravityAdmin() {
                       <Clock size={16} />
                       <input type="number" placeholder={t('admin.produtos-gravity.campo_qtd_placeholder')} style={{ width: '100%' }} value={totalHoras} onChange={e => dirty(() => setTotalHoras(e.target.value))} />
                     </div>
-                  </GeralCampoGlobal>
-                  <GeralCampoGlobal
+                  </CampoGeralGlobal>
+                  <CampoGeralGlobal
                     label={t('admin.produtos-gravity.campo_moeda_hora_adicional')}
                     tooltipTitulo={t('admin.produtos-gravity.campo_moeda_hora_adicional_tooltip_titulo')}
                     tooltipDescricao={t('admin.produtos-gravity.campo_moeda_hora_adicional_tooltip_desc')}
@@ -1124,7 +1124,7 @@ export function ProdutosGravityAdmin() {
                       iconeEsquerda={<CurrencyCircleDollar size={16} />}
                       buscavel
                     />
-                  </GeralCampoGlobal>
+                  </CampoGeralGlobal>
                 </div>
               </div>
             )
@@ -1139,7 +1139,7 @@ export function ProdutosGravityAdmin() {
                 <SecaoFormularioGlobal icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por tenant/mês" />
 
                 {/* Quota Padrão */}
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label="Token padrão mensal por tenant"
                   tooltipTitulo="QUOTA MENSAL"
                   tooltipDescricao="Tokens disponíveis por mês para cada tenant deste produto. Aplica-se a todos os tenants, salvo negociação especial. Tokens não usados expiram no dia 1 de cada mês (sem rollover)."
@@ -1156,7 +1156,7 @@ export function ProdutosGravityAdmin() {
                       onChange={e => dirty(() => setGabiQuotaMensal(e.target.value))}
                     />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 {/* Referência rápida */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
@@ -1264,7 +1264,7 @@ export function ProdutosGravityAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo={t('admin.produtos-gravity.negociacao_titulo')} tooltip={t('admin.produtos-gravity.negociacao_tooltip')} />
 
-                <GeralCampoGlobal
+                <CampoGeralGlobal
                   label={t('admin.produtos-gravity.campo_vincular_org')}
                   tooltipTitulo={t('admin.produtos-gravity.campo_vincular_org_tooltip_titulo')}
                   tooltipDescricao={t('admin.produtos-gravity.campo_vincular_org_tooltip_desc')}
@@ -1273,11 +1273,11 @@ export function ProdutosGravityAdmin() {
                     <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_nao')} />
                     <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.opcao_sim')} />
                   </div>
-                </GeralCampoGlobal>
+                </CampoGeralGlobal>
 
                 {vincularOrg === 'sim' && (
                   <>
-                    <GeralCampoGlobal label={t('admin.produtos-gravity.campo_empresa_org')} obrigatorio>
+                    <CampoGeralGlobal label={t('admin.produtos-gravity.campo_empresa_org')} obrigatorio>
                       <SelectGlobal
                         opcoes={[
                           { valor: 'Importas SA', rotulo: 'Importas SA' },
@@ -1292,10 +1292,10 @@ export function ProdutosGravityAdmin() {
                         placeholder={t('admin.produtos-gravity.campo_empresa_org_placeholder')}
                         buscavel
                       />
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
 
-                    <GeralCampoGlobal label={t('admin.produtos-gravity.campo_vigencia')}>
+                    <CampoGeralGlobal label={t('admin.produtos-gravity.campo_vigencia')}>
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', marginBottom: '0.5rem' }}>
                         <TogBtn val="nao" cur={vigenciaIlimitada} set={v => dirty(() => setVigenciaIlimitada(v as 'sim' | 'nao'))} label={t('admin.produtos-gravity.vigencia_com_data')} />
                         <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label={t('admin.produtos-gravity.vigencia_ilimitada')} />
@@ -1313,7 +1313,7 @@ export function ProdutosGravityAdmin() {
                           {t('admin.produtos-gravity.vigencia_sem_expiracao')}
                         </div>
                       )}
-                    </GeralCampoGlobal>
+                    </CampoGeralGlobal>
 
                     {orgSelecionada && (
                       <div style={{ padding: '0.75rem 1rem', borderRadius: 8, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>

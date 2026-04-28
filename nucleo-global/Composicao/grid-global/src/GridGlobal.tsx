@@ -26,16 +26,16 @@ const GAP_MAP: Record<number, string> = {
  * @example
  * // Grid de formulário (match Configurador)
  * <GridGlobal colunas={2} gap={5}>
- *   <GeralCampoGlobal label="Nome" ... />
- *   <GeralCampoGlobal label="CNPJ" ... />
+ *   <CampoGeralGlobal label="Nome" ... />
+ *   <CampoGeralGlobal label="CNPJ" ... />
  * </GridGlobal>
  *
  * // Grid 4 colunas (match .em-grid--4)
  * <GridGlobal colunas={4} gap={5}>
- *   <GeralCampoGlobal ... />
- *   <GeralCampoGlobal ... />
- *   <GeralCampoGlobal ... />
- *   <GeralCampoGlobal ... />
+ *   <CampoGeralGlobal ... />
+ *   <CampoGeralGlobal ... />
+ *   <CampoGeralGlobal ... />
+ *   <CampoGeralGlobal ... />
  * </GridGlobal>
  */
 export function GridGlobal({

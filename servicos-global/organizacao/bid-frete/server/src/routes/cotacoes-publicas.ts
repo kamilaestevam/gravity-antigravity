@@ -99,7 +99,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
 
     const response = await prisma.freteIntBidPropostas.create({
       data: {
-        tenant_id: (bidRequest as any).tenant_id,
+        id_organizacao: (bidRequest as any).id_organizacao,
         product_id: 'bid-frete',
         bid_request_id: (bidRequest as any).id,
         cotacao_id: (bidRequest as any).cotacao_id,
@@ -115,7 +115,7 @@ router.post('/:token_acesso/responder', async (req: Request, res: Response, next
     if (detalhes_taxas?.length) {
       await prisma.freteIntBidPropostasTaxasCambio.createMany({
         data: detalhes_taxas.map(t => ({
-          tenant_id: (bidRequest as any).tenant_id,
+          id_organizacao: (bidRequest as any).id_organizacao,
           response_id: (response as any).id,
           ...t,
         })),

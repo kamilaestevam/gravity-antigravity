@@ -47,7 +47,7 @@ export const monetizacao = {
       cotacao_id: string
       cotacao_numero: string
       valor_frete_aprovado: number
-      tenant_id: string
+      id_organizacao: string
     }
   ): Promise<CobrancaFornecedor> {
     // Verificar quantas cotações o fornecedor já fechou (para free tier)

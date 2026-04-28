@@ -102,7 +102,7 @@ app.use('/api/v1/cotacoes-publicas', rateLimitPresets.public(), cotacoesPublicas
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)
 
-// --- 8. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---
+// --- 8. Tenant Isolation — injeta req.prisma com filtro por id_organizacao ---
 app.use(tenantIsolationMiddleware)
 
 // --- 8.1. Observabilidade — captura metricas para API Cockpit ---
@@ -111,10 +111,10 @@ app.use(createProductAuditPlugin({
   product_id: 'bid-frete',
   module: 'bid-frete',
   getActorFromReq: (req) => {
-    const tenant_id = req.headers['x-id-organizacao'] as string | undefined
+    const id_organizacao = req.headers['x-id-organizacao'] as string | undefined
     const actor_id  = req.headers['x-id-usuario']   as string | undefined
-    if (!tenant_id || !actor_id) return null
-    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+    if (!id_organizacao || !actor_id) return null
+    return { id_organizacao, actor_id, actor_name: actor_id, actor_type: 'USER' }
   },
 }))
 

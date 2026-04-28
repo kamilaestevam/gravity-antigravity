@@ -121,7 +121,7 @@ enum CambioBaseVencimento {
 /// Parcela de cambio vinculada a um pedido/processo
 model CambioParcelas {
   id                      String          @id @default(cuid())
-  tenant_id               String
+  id_organizacao               String
   product_id              String          @default("bid-cambio")
   user_id                 String
 
@@ -191,18 +191,18 @@ model CambioParcelas {
   created_at              DateTime        @default(now())
   updated_at              DateTime        @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, data_vencimento])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, status])
+  @@index([id_organizacao, data_vencimento])
   @@map("cambio_parcelas")
 }
 
 /// Anexo de comprovante de pagamento
 model CambioAnexo {
   id              String          @id @default(cuid())
-  tenant_id       String
+  id_organizacao       String
   parcela_id      String
   parcela         CambioParcelas  @relation(fields: [parcela_id], references: [id])
   nome_arquivo    String?
@@ -212,15 +212,15 @@ model CambioAnexo {
   tamanho_bytes   Int?
   created_at      DateTime        @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, parcela_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, parcela_id])
   @@map("cambio_anexos")
 }
 
 /// Forma de pagamento do cambio (config por pedido)
 model CambioFormaPagamento {
   id                    String                          @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   product_id            String                          @default("bid-cambio")
   user_id               String
   referencia_processo   String?
@@ -230,16 +230,16 @@ model CambioFormaPagamento {
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@map("cambio_formas_pagamento")
 }
 
 /// Configuracao de cada parcela dentro da forma de pagamento
 model CambioParcelasConfiguracoes {
   id                    String                  @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   forma_pagamento_id    String
   forma_pagamento       CambioFormaPagamento    @relation(fields: [forma_pagamento_id], references: [id])
   a_partir_de           CambioBaseVencimento
@@ -247,15 +247,15 @@ model CambioParcelasConfiguracoes {
   porcentagem           Decimal                 @db.Decimal(5, 2)
   ordem                 Int
 
-  @@index([tenant_id])
-  @@index([tenant_id, forma_pagamento_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, forma_pagamento_id])
   @@map("cambio_config_parcelas")
 }
 
 /// Cotacao de cambio (Pilar 2 — Marketplace)
 model CambioCotacoes {
   id                    String                  @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   product_id            String                  @default("bid-cambio")
   user_id               String
 
@@ -291,17 +291,17 @@ model CambioCotacoes {
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, status])
   @@map("cambio_cotacoes")
 }
 
 /// Disparo de cotacao para uma corretora
 model CambioCotacoesPedidos {
   id                String                       @id @default(cuid())
-  tenant_id         String
+  id_organizacao         String
   cotacao_id        String
   cotacao           CambioCotacoes               @relation(fields: [cotacao_id], references: [id])
   corretora_id      String
@@ -322,8 +322,8 @@ model CambioCotacoesPedidos {
   created_at        DateTime                  @default(now())
   updated_at        DateTime                  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, cotacao_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, cotacao_id])
   @@index([token_publico])
   @@map("cambio_bid_requests")
 }
@@ -331,7 +331,7 @@ model CambioCotacoesPedidos {
 /// Resposta de uma corretora a uma cotacao
 model CambioCotacoesRespostas {
   id                  String                    @id @default(cuid())
-  tenant_id           String
+  id_organizacao           String
   cotacao_id          String
   cotacao             CambioCotacoes            @relation(fields: [cotacao_id], references: [id])
   corretora_id        String
@@ -354,16 +354,16 @@ model CambioCotacoesRespostas {
   created_at          DateTime                  @default(now())
   updated_at          DateTime                  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, cotacao_id])
-  @@index([tenant_id, corretora_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, cotacao_id])
+  @@index([id_organizacao, corretora_id])
   @@map("cambio_bid_responses")
 }
 
 /// Cadastro de corretoras de cambio / bancos
 model CambioCorretoras {
   id                  String                          @id @default(cuid())
-  tenant_id           String
+  id_organizacao           String
   product_id          String                          @default("bid-cambio")
   user_id             String
 
@@ -388,10 +388,10 @@ model CambioCorretoras {
   created_at          DateTime            @default(now())
   updated_at          DateTime            @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, status])
   @@index([email])
   @@map("cambio_corretoras")
 }
@@ -399,7 +399,7 @@ model CambioCorretoras {
 /// Avaliacao manual de corretora
 model CambioCorretorasAvaliacoes {
   id                  String              @id @default(cuid())
-  tenant_id           String
+  id_organizacao           String
   user_id             String
   corretora_id        String
   corretora           CambioCorretoras    @relation(fields: [corretora_id], references: [id])
@@ -413,8 +413,8 @@ model CambioCorretorasAvaliacoes {
 
   created_at          DateTime    @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, corretora_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, corretora_id])
   @@map("cambio_avaliacoes")
 }
 
@@ -445,7 +445,7 @@ model CambioCorretoraClassificao {
 /// Saving por cotacao aprovada
 model CambioGanho {
   id                    String      @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   cotacao_id            String
   corretora_id          String
 
@@ -459,15 +459,15 @@ model CambioGanho {
 
   created_at            DateTime    @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, cotacao_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, cotacao_id])
   @@map("cambio_savings")
 }
 
 /// Preferencias de cambio do tenant
 model CambioPreferenciaUsuario {
   id                              String      @id @default(cuid())
-  tenant_id                       String      @unique
+  id_organizacao                       String      @unique
   product_id                      String      @default("bid-cambio")
 
   mostrar_no_financeiro           Boolean     @default(false)
@@ -478,14 +478,14 @@ model CambioPreferenciaUsuario {
 
   updated_at                      DateTime    @updatedAt
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@map("cambio_preferencias")
 }
 
 /// Preferencia de grid do usuario
 model CambioPreferenciaGrid {
   id                    String      @id @default(cuid())
-  tenant_id             String
+  id_organizacao             String
   user_id               String
 
   colunas_visiveis      String
@@ -495,7 +495,7 @@ model CambioPreferenciaGrid {
 
   updated_at            DateTime    @updatedAt
 
-  @@unique([tenant_id, user_id])
-  @@index([tenant_id])
+  @@unique([id_organizacao, user_id])
+  @@index([id_organizacao])
   @@map("cambio_preferencias_grid")
 }

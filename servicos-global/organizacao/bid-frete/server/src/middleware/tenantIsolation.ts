@@ -1,9 +1,9 @@
 /**
  * tenantIsolation.ts — Middleware de Isolamento de Tenant
- * Injeta tenant_id em todas as queries via Prisma Extension.
+ * Injeta id_organizacao em todas as queries via Prisma Extension.
  * Skill: antigravity-tenant-isolation
  *
- * REGRA ABSOLUTA: tenant_id NUNCA vem do payload — sempre do JWT/header propagado pelo Gateway.
+ * REGRA ABSOLUTA: id_organizacao NUNCA vem do payload — sempre do JWT/header propagado pelo Gateway.
  */
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
@@ -22,53 +22,53 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
     query: {
       $allModels: {
         async findMany({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async findFirst({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async findUnique({ args, query }: QueryCtx) {
-          // Segurança: injetar tenant_id no where para impedir acesso cross-tenant
+          // Segurança: injetar id_organizacao no where para impedir acesso cross-tenant
           // via ID direto. Mesmo padrão do middleware global withTenantIsolation.
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async create({ args, query }: QueryCtx) {
-          args.data = { ...(args.data as Record<string, unknown>), tenant_id: tenantId }
+          args.data = { ...(args.data as Record<string, unknown>), id_organizacao: tenantId }
           return query(args)
         },
         async createMany({ args, query }: QueryCtx) {
           if (Array.isArray(args.data)) {
-            args.data = args.data.map((d: Record<string, unknown>) => ({ ...d, tenant_id: tenantId }))
+            args.data = args.data.map((d: Record<string, unknown>) => ({ ...d, id_organizacao: tenantId }))
           } else {
-            args.data = { ...(args.data as Record<string, unknown>), tenant_id: tenantId }
+            args.data = { ...(args.data as Record<string, unknown>), id_organizacao: tenantId }
           }
           return query(args)
         },
         async update({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async updateMany({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async delete({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async deleteMany({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async count({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
         async aggregate({ args, query }: QueryCtx) {
-          args.where = { ...args.where, tenant_id: tenantId }
+          args.where = { ...args.where, id_organizacao: tenantId }
           return query(args)
         },
       }
@@ -77,8 +77,8 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
 }
 
 /**
- * Middleware Express: extrai tenant_id do header x-id-organizacao propagado pelo Gateway (JWT).
- * Nunca aceita tenant_id do body.
+ * Middleware Express: extrai id_organizacao do header x-id-organizacao propagado pelo Gateway (JWT).
+ * Nunca aceita id_organizacao do body.
  */
 export function tenantIsolationMiddleware(
   req: Request & { prisma?: PrismaClient; tenantId?: string },

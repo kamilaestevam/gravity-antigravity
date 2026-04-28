@@ -119,7 +119,7 @@ export type Incoterm = typeof INCOTERMS[number]
 
 export interface Cotacao {
   id: string
-  tenant_id: string
+  id_organizacao: string
   user_id: string | null
   numero: string
   referencia_interna: string | null
@@ -158,7 +158,7 @@ export interface Cotacao {
 
 export interface Fornecedor {
   id: string
-  tenant_id: string
+  id_organizacao: string
   nome: string
   nome_fantasia: string | null
   tipo: TipoFornecedor
@@ -183,7 +183,7 @@ export interface Fornecedor {
 
 export interface BidRequest {
   id: string
-  tenant_id: string
+  id_organizacao: string
   cotacao_id: string
   fornecedor_id: string
   fornecedor?: Fornecedor
@@ -200,7 +200,7 @@ export interface BidRequest {
 
 export interface BidResponse {
   id: string
-  tenant_id: string
+  id_organizacao: string
   cotacao_id: string
   fornecedor_id: string
   fornecedor?: Fornecedor
@@ -228,7 +228,7 @@ export interface BidResponse {
 
 export interface TabelaPreco {
   id: string
-  tenant_id: string
+  id_organizacao: string
   fornecedor_id: string
   origem_codigo: string
   origem_nome: string
@@ -250,7 +250,7 @@ export interface TabelaPreco {
 
 export interface Avaliacao {
   id: string
-  tenant_id: string
+  id_organizacao: string
   fornecedor_id: string
   cotacao_id: string | null
   nota_frete: number

@@ -38,7 +38,7 @@ router.post('/disparar', async (req: Request, res: Response, next: NextFunction)
       fornecedor_ids: parsed.data.fornecedor_ids,
       canais: parsed.data.canais,
       user_id: userId,
-      tenant_id: req.tenantId!,
+      id_organizacao: req.tenantId!,
     })
 
     res.json(resultado)
@@ -78,7 +78,7 @@ router.post('/cotacao-aberta', async (req: Request, res: Response, next: NextFun
       fornecedor_ids,
       canais: parsed.data.canais,
       user_id: userId,
-      tenant_id: req.tenantId!,
+      id_organizacao: req.tenantId!,
     })
 
     res.json(resultado)

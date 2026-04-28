@@ -7,8 +7,8 @@
  * 4. Recalcular ratings globais
  *
  * SEGURANÇA: Cron jobs operam cross-tenant por natureza (varrem todos os tenants).
- * Cada operação de escrita inclui tenant_id explícito no WHERE para evitar
- * que um bug altere dados de tenant incorreto. Leituras selecionam tenant_id
+ * Cada operação de escrita inclui id_organizacao explícito no WHERE para evitar
+ * que um bug altere dados de tenant incorreto. Leituras selecionam id_organizacao
  * para rastreabilidade e notificações por tenant.
  */
 
@@ -17,12 +17,12 @@ import { withTenantIsolation } from '../middleware/tenantIsolation.js'
 import { atividadesIntegration, notificacoesIntegration } from './tenantIntegrations.js'
 
 // Prisma global — usado APENAS para leituras cross-tenant nos cron jobs.
-// Escrita SEMPRE via withTenantIsolation ou com tenant_id explícito no WHERE.
+// Escrita SEMPRE via withTenantIsolation ou com id_organizacao explícito no WHERE.
 const cronPrisma = new PrismaClient()
 
 /**
  * Job 1: Expirar cotações que passaram da data limite
- * Segurança: update inclui tenant_id no WHERE para impedir cross-tenant write
+ * Segurança: update inclui id_organizacao no WHERE para impedir cross-tenant write
  */
 async function expirarCotacoesVencidas() {
   const agora = new Date()
@@ -33,12 +33,12 @@ async function expirarCotacoesVencidas() {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { lt: agora },
     } as any,
-    select: { id: true, numero: true, tenant_id: true, user_id: true },
+    select: { id: true, numero: true, id_organizacao: true, user_id: true },
   } as any)
 
   for (const cotacao of cotacoesVencidas as any[]) {
     // Escrita isolada por tenant
-    const tenantDb = withTenantIsolation(cronPrisma, cotacao.tenant_id)
+    const tenantDb = withTenantIsolation(cronPrisma, cotacao.id_organizacao)
 
     await tenantDb.freteIntBidCotacoes.update({
       where: { id: cotacao.id },
@@ -46,7 +46,7 @@ async function expirarCotacoesVencidas() {
     } as any)
 
     // Notificar o criador
-    notificacoesIntegration.cotacaoExpirada(cotacao.tenant_id, cotacao.user_id, {
+    notificacoesIntegration.cotacaoExpirada(cotacao.id_organizacao, cotacao.user_id, {
       cotacao_numero: cotacao.numero,
       cotacao_id: cotacao.id,
     })
@@ -79,11 +79,11 @@ async function alertarProximoVencimento() {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { gte: agora, lte: em24h },
     } as any,
-    select: { id: true, numero: true, tenant_id: true, user_id: true, data_limite_resposta: true },
+    select: { id: true, numero: true, id_organizacao: true, user_id: true, data_limite_resposta: true },
   } as any)
 
   for (const cotacao of cotacoesVencendo as any[]) {
-    atividadesIntegration.proximoVencimento(cotacao.tenant_id, cotacao.user_id, {
+    atividadesIntegration.proximoVencimento(cotacao.id_organizacao, cotacao.user_id, {
       numero: cotacao.numero,
       data_limite: cotacao.data_limite_resposta.toISOString(),
     })
@@ -107,13 +107,13 @@ async function detectarSemResposta() {
       enviado_em: { lt: ha48h },
     } as any,
     include: {
-      cotacao: { select: { id: true, numero: true, tenant_id: true, user_id: true } },
+      cotacao: { select: { id: true, numero: true, id_organizacao: true, user_id: true } },
       fornecedor: { select: { nome: true, email: true } },
     } as any,
   } as any)
 
   for (const req of requestsSemResposta as any[]) {
-    atividadesIntegration.criarAtividade(req.cotacao.tenant_id, {
+    atividadesIntegration.criarAtividade(req.cotacao.id_organizacao, {
       titulo: `Lembrar fornecedor ${req.fornecedor.nome}`,
       descricao: `O fornecedor ${req.fornecedor.nome} (${req.fornecedor.email}) não respondeu a cotação ${req.cotacao.numero} em 48h.`,
       tipo: 'FOLLOW_UP',

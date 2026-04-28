@@ -25,7 +25,7 @@ interface DispararBidOptions {
   fornecedor_ids: string[]
   canais: ('EMAIL' | 'WHATSAPP')[]
   user_id: string
-  tenant_id: string
+  id_organizacao: string
 }
 
 export const bidEngine = {
@@ -33,7 +33,7 @@ export const bidEngine = {
    * Dispara BIDs para fornecedores selecionados
    */
   async disparar(prisma: PrismaClient, options: DispararBidOptions) {
-    const { cotacao_id, fornecedor_ids, canais, user_id, tenant_id } = options
+    const { cotacao_id, fornecedor_ids, canais, user_id, id_organizacao } = options
 
     // Buscar cotacao
     const cotacao = await (prisma as any).freteIntBidCotacoes.findFirst({ where: { id: cotacao_id } })
@@ -71,9 +71,9 @@ export const bidEngine = {
         // Disparar pelo canal
         try {
           if (canal === 'EMAIL') {
-            await this.dispararEmail(cotacao, fornecedor, token, tenant_id)
+            await this.dispararEmail(cotacao, fornecedor, token, id_organizacao)
           } else if (canal === 'WHATSAPP') {
-            await this.dispararWhatsApp(cotacao, fornecedor, token, tenant_id)
+            await this.dispararWhatsApp(cotacao, fornecedor, token, id_organizacao)
           }
 
           await (prisma as any).freteIntBidPedidoCotacoes.update({

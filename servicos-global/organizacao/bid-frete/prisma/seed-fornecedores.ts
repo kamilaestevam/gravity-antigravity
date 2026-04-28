@@ -1,7 +1,7 @@
 /**
  * seed-fornecedores.ts — Seed de fornecedores para demo
  * Execução: npx tsx prisma/seed-fornecedores.ts
- * Requer tenant_id como argumento: npx tsx prisma/seed-fornecedores.ts <tenant_id>
+ * Requer id_organizacao como argumento: npx tsx prisma/seed-fornecedores.ts <id_organizacao>
  */
 
 import { PrismaClient } from '@prisma/client'
@@ -41,7 +41,7 @@ const FORNECEDORES = [
 async function seed() {
   const tenantId = process.argv[2]
   if (!tenantId) {
-    console.error('Uso: npx tsx prisma/seed-fornecedores.ts <tenant_id>')
+    console.error('Uso: npx tsx prisma/seed-fornecedores.ts <id_organizacao>')
     process.exit(1)
   }
 
@@ -53,7 +53,7 @@ async function seed() {
       await prisma.freteIntBidFornecedores.create({
         data: {
           ...forn,
-          tenant_id: tenantId,
+          id_organizacao: tenantId,
           product_id: 'bid-frete',
           status: 'ATIVO',
         } as any,

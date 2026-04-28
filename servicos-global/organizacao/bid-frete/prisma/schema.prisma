@@ -22,7 +22,7 @@ datasource db {
 // ─── Fragment: BID Frete Internacional ──────────────────────────────────────────
 
 // fragment.prisma — BID Frete Internacional
-// REGRA: todo model DEVE ter tenant_id (snake_case) e os 3 índices obrigatórios.
+// REGRA: todo model DEVE ter id_organizacao (snake_case) e os 3 índices obrigatórios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
 // ─── ENUMS ─────────────────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@ enum BidFreteIntegracao {
 
 model FreteIntBidFornecedores {
   id              String            @id @default(cuid())
-  tenant_id       String            // OBRIGATORIO — nunca nullable
+  id_organizacao       String            // OBRIGATORIO — nunca nullable
   product_id      String?           // "bid-frete"
   user_id         String?           // clerk_id se fornecedor logado (SUPPLIER)
 
@@ -148,13 +148,13 @@ model FreteIntBidFornecedores {
   avaliacoes      FreteIntBidFornecedoresAvaliacoes[]
   connectors      FreteIntBidIntegracoes[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, tipo])
-  @@index([tenant_id, status])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, tipo])
+  @@index([id_organizacao, status])
   @@index([email])
-  @@unique([tenant_id, email])
+  @@unique([id_organizacao, email])
   @@map("bid_fornecedores")
 }
 
@@ -162,7 +162,7 @@ model FreteIntBidFornecedores {
 
 model FreteIntBidCotacoes {
   id                  String              @id @default(cuid())
-  tenant_id           String              // OBRIGATORIO
+  id_organizacao           String              // OBRIGATORIO
   product_id          String?             // "bid-frete"
   user_id             String              // clerk_id do solicitante
   company_id          String?             // workspace/filial
@@ -225,12 +225,12 @@ model FreteIntBidCotacoes {
   bid_requests        FreteIntBidPedidoCotacoes[]
   bid_responses       FreteIntBidPropostas[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, status])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, created_at])
   @@index([numero])
   @@map("bid_cotacoes")
 }
@@ -239,7 +239,7 @@ model FreteIntBidCotacoes {
 
 model FreteIntBidPedidoCotacoes {
   id              String            @id @default(cuid())
-  tenant_id       String            // OBRIGATORIO
+  id_organizacao       String            // OBRIGATORIO
   product_id      String?           // "bid-frete"
   user_id         String            // quem disparou
 
@@ -269,11 +269,11 @@ model FreteIntBidPedidoCotacoes {
   fornecedor      FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
   response        FreteIntBidPropostas?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, cotacao_id])
-  @@index([tenant_id, fornecedor_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, cotacao_id])
+  @@index([id_organizacao, fornecedor_id])
   @@index([token_resposta])
   @@map("bid_requests")
 }
@@ -282,7 +282,7 @@ model FreteIntBidPedidoCotacoes {
 
 model FreteIntBidPropostas {
   id                  String            @id @default(cuid())
-  tenant_id           String            // OBRIGATORIO
+  id_organizacao           String            // OBRIGATORIO
   product_id          String?           // "bid-frete"
   user_id             String?           // clerk_id do fornecedor (se logado)
 
@@ -328,12 +328,12 @@ model FreteIntBidPropostas {
   fornecedor          FreteIntBidFornecedores        @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
   detalhes_taxas      FreteIntBidPropostasTaxasCambio[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, cotacao_id])
-  @@index([tenant_id, fornecedor_id])
-  @@index([tenant_id, valor_total])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, cotacao_id])
+  @@index([id_organizacao, fornecedor_id])
+  @@index([id_organizacao, valor_total])
   @@map("bid_responses")
 }
 
@@ -341,7 +341,7 @@ model FreteIntBidPropostas {
 
 model FreteIntBidPropostasTaxasCambio {
   id              String        @id @default(cuid())
-  tenant_id       String        // OBRIGATORIO
+  id_organizacao       String        // OBRIGATORIO
   response_id     String
 
   tipo            String        // "origem" | "destino" | "frete"
@@ -351,8 +351,8 @@ model FreteIntBidPropostasTaxasCambio {
 
   response        FreteIntBidPropostas   @relation(fields: [response_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, response_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, response_id])
   @@map("bid_detalhe_taxas")
 }
 
@@ -360,7 +360,7 @@ model FreteIntBidPropostasTaxasCambio {
 
 model FreteIntBidTabelasProntas {
   id              String          @id @default(cuid())
-  tenant_id       String          // OBRIGATORIO (tenant do fornecedor)
+  id_organizacao       String          // OBRIGATORIO (tenant do fornecedor)
   product_id      String?         // "bid-frete"
   user_id         String?         // clerk_id do fornecedor
 
@@ -395,10 +395,10 @@ model FreteIntBidTabelasProntas {
 
   fornecedor      FreteIntBidFornecedores      @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, fornecedor_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, fornecedor_id])
   @@index([origem_codigo, destino_codigo, modal])
   @@index([validade_fim])
   @@map("bid_tabelas_preco")
@@ -408,7 +408,7 @@ model FreteIntBidTabelasProntas {
 
 model FreteIntBidFornecedoresAvaliacoes {
   id              String        @id @default(cuid())
-  tenant_id       String        // OBRIGATORIO
+  id_organizacao       String        // OBRIGATORIO
   product_id      String?       // "bid-frete"
   user_id         String        // quem avaliou
 
@@ -429,9 +429,9 @@ model FreteIntBidFornecedoresAvaliacoes {
 
   fornecedor      FreteIntBidFornecedores    @relation(fields: [fornecedor_id], references: [id], onDelete: Cascade)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
   @@index([fornecedor_id])
   @@map("bid_avaliacoes")
 }
@@ -472,7 +472,7 @@ model FreteIntBidClassificacaoFornecedores {
 
 model FreteIntBidGanhoEstimado {
   id              String    @id @default(cuid())
-  tenant_id       String    // OBRIGATORIO
+  id_organizacao       String    // OBRIGATORIO
   product_id      String?   // "bid-frete"
   user_id         String
 
@@ -490,11 +490,11 @@ model FreteIntBidGanhoEstimado {
 
   created_at      DateTime  @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, company_id])
+  @@index([id_organizacao, created_at])
   @@map("bid_savings")
 }
 
@@ -502,7 +502,7 @@ model FreteIntBidGanhoEstimado {
 
 model FreteIntBidIntegracoes {
   id              String        @id @default(cuid())
-  tenant_id       String        // OBRIGATORIO
+  id_organizacao       String        // OBRIGATORIO
   product_id      String?       // "bid-frete"
   user_id         String?
 
@@ -528,10 +528,10 @@ model FreteIntBidIntegracoes {
 
   fornecedor      FreteIntBidFornecedores?   @relation(fields: [fornecedor_id], references: [id], onDelete: SetNull)
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, fornecedor_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, user_id])
+  @@index([id_organizacao, fornecedor_id])
   @@map("bid_connector_configs")
 }
 

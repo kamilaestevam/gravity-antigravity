@@ -42,7 +42,7 @@ async function enqueueOrgAction({
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       await fetch(
-        `${process.env.TENANT_SERVICES_URL}/api/organização/${service}/${action}`,
+        `${process.env.ORGANIZACAO_SERVICES_URL}/api/organizacao/${service}/${action}`,
         {
           method: 'POST',
           headers: {
@@ -168,7 +168,7 @@ O serviço de organização **deve** verificar a `x-chave-idempotencia` antes de
 Quando uma ação dispara ações em múltiplos serviços:
 
 - **NUNCA** use `await` sequencial que dependa de ambos
-- Use `Promise.allSettled` e `enqueueTenantAction` para cada um separadamente
+- Use `Promise.allSettled` e `enqueueOrgAction` para cada um separadamente
 - Isso garante que se o Fiscal falhar, o Comex não seja bloqueado e vice-versa
 
 ---
@@ -179,8 +179,7 @@ Para alta escala (milhares de ações/segundo), a tabela `FailedOrgAction` será
 
 ---
 
-## Dead Letter Queue — Evolução para BullMQ (Dream Team)
-
+## Dead Letter Queue — Evolução para BullMQ
 A tabela `FailedOrgAction` funciona bem até centenas de ações/minuto. Para alta escala, migrar para **BullMQ (Redis)**:
 
 ```typescript
@@ -199,7 +198,7 @@ await orgQueue.add('create-activity', payload, {
 // Worker — processa a fila
 new Worker('org-actions', async (job) => {
   const serviceToken = await getServiceToken(job.data.idOrganizacao, job.data.idUsuario)
-  await fetch(`${TENANT_URL}/api/organização/${job.name}`, {
+  await fetch(`${process.env.ORGANIZACAO_SERVICES_URL}/api/organizacao/${job.name}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${serviceToken}`,
@@ -215,8 +214,7 @@ new Worker('org-actions', async (job) => {
 
 ---
 
-## Endpoint de Agregação — Reduzir Chamadas HTTP (Dream Team)
-
+## Endpoint de Agregação — Reduzir Chamadas HTTP
 Quando uma tela precisa de dados de múltiplos serviços de organização, criar um endpoint de agregação no produto para reduzir overhead:
 
 ```typescript

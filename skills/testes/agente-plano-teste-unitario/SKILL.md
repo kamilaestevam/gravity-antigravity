@@ -162,7 +162,7 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 - Set + Get: valor setado é lido corretamente
 - TTL: valor expirado → `null` no get (se TTL aplicável)
 - Invalidação: invalidar chave → próximo get retorna `null`/busca nova
-- Prefixo obrigatório: chave **sempre** inclui `organização:<idOrganizacao>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
+- Prefixo obrigatório: chave **sempre** inclui `organizacao:<idOrganizacao>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
 - Duas escritas simultâneas (simuladas) → valor final determinístico
 - Ambiente: `@vitest-environment node`
 
@@ -267,7 +267,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
   syncRoleToClerk: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/organização/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/organizacao/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
 }))
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
@@ -463,7 +463,7 @@ testes/testes-unitarios/
 │       └── entity-link-factory.test.ts
 ├── pedido/
 │   └── api-context.test.ts
-└── organização/
+└── organizacao/
     └── notificacoes/
         └── webhook-resend-signature.test.ts
 

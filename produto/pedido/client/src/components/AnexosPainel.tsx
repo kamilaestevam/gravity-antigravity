@@ -31,11 +31,11 @@ import {
 import type { Anexo } from '../shared/types'
 import { anexosApi } from '../shared/api'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-import './PainelAnexos.css'
+import './AnexosPainel.css'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface PainelAnexosProps {
+interface AnexosPainelProps {
   vinculo: 'pedido' | 'item'
   vinculo_id: string
   somenteLeitura?: boolean

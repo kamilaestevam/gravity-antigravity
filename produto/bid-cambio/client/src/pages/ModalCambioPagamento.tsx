@@ -1,5 +1,5 @@
 /**
- * ModalPagamento.tsx — Modal de pagamento de cambio em 3 etapas
+ * ModalCambioPagamento.tsx — Modal de pagamento de cambio em 3 etapas
  * Step 1: Selecionar parcelas + valor
  * Step 2: Contrato, banco/corretora, taxa, valor em R$
  * Step 3: Upload comprovante
@@ -39,7 +39,7 @@ const dataBR = (iso: string | null | undefined) =>
 
 // ─── Props ─────────────────────────────────────────────────────────────────
 
-interface ModalPagamentoProps {
+interface ModalPagamentoCambioProps {
   open: boolean
   onClose: () => void
   parcelas: CambioParcelas[]
@@ -61,7 +61,7 @@ export interface PagamentoData {
 
 // ─── Componente Principal ──────────────────────────────────────────────────
 
-export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave, disabled = false }: ModalPagamentoProps) {
+export default function ModalPagamentoCambio({ open, onClose, parcelas, moeda, onSave, disabled = false }: ModalPagamentoCambioProps) {
   const { t } = useTranslation()
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)

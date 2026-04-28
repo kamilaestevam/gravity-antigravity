@@ -19,7 +19,7 @@ const DetalheCotacao = lazy(() => import('./pages/DetalheCotacao'))
 const Comparativo = lazy(() => import('./pages/Comparativo'))
 const Corretoras = lazy(() => import('./pages/Corretoras'))
 const DetalheCorretora = lazy(() => import('./pages/DetalheCorretora'))
-const ModalPagamento = lazy(() => import('./pages/ModalPagamento'))
+const ModalPagamentoCambio = lazy(() => import('./pages/ModalCambioPagamento'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 
 // --- Portal da Corretora (logado) ---
@@ -56,7 +56,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="visao-geral" replace />} />
           <Route path="visao-geral" element={<Dashboard />} />
           <Route path="cambios" element={<ListaCambios />} />
-          <Route path="cambios/:id_cambio/pagar" element={<ModalPagamento />} />
+          <Route path="cambios/:id_cambio/pagar" element={<ModalPagamentoCambio />} />
           <Route path="cotacoes" element={<NovaCotacao />} />
           <Route path="cotacoes/nova" element={<NovaCotacao />} />
           <Route path="cotacoes/:id_cotacao" element={<DetalheCotacao />} />

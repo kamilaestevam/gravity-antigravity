@@ -32,7 +32,7 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
     "baseUrl": ".",
     "paths": {
       "@nucleo/*": ["../../nucleo-global/*"],
-      "@tenant/*": ["../../servicos-global/tenant/*"],
+      "@tenant/*": ["../../servicos-global/organizacao/*"],
       "@produto/*": ["../../servicos-global/produto/*"]
     }
   }
@@ -60,7 +60,7 @@ const something = require('../utils')
 import { PrismaClient } from '@prisma/client'
 ```
 
-> **Monorepo:** Antes de alterar `package.json`, `tsconfig.json`, `vite.config.ts` ou instalar dependências, consultar `antigravity-monorepo`.
+> **Monorepo:** Antes de alterar `package.json`, `tsconfig.json`, `vite.config.ts` ou instalar dependências, consultar [Monorepo](../monorepo/SKILL.md).
 
 ---
 
@@ -90,7 +90,7 @@ app.post('/api/activities', async (req, res, next) => {
     })
   }
   // só chega aqui com dados validados
-  const activity = await prisma.activity.create({ data: result.data })
+  const activity = await withOrganizacao(req, async (db) => db.activity.create({ data: result.data }))
   res.json(activity)
 })
 ```
@@ -210,11 +210,11 @@ Para erros de validação Zod, o campo `details` é incluído:
 | Hooks | camelCase (prefixo `use`) | `useAuth.ts`, `useFetchVendas.ts` |
 | Funções e Variáveis | camelCase | `buscarDados()`, `totalVendas` |
 | Constantes Globais | UPPER_SNAKE_CASE | `API_URL`, `MAX_RETRY_ATTEMPTS` |
-| Interfaces/Types | PascalCase | `Usuario`, `IRelatorioFisico` |
+| Interfaces/Types | PascalCase | `Usuario`, `RelatorioFisico` |
 | Pastas | kebab-case | `nucleo-global`, `servicos-global` |
 | Models Prisma | PascalCase | `Activity`, `Pedido` |
 | Campos de banco | snake_case | `created_at`, `numero_pedido` |
-| Schemas de organização (Postgres) | `tenant_<uuid_sem_hifens>` | `tenant_a1b2c3d4e5f6...` |
+| Schemas de organizacao (Postgres) | `tenant_<cuid>` | `tenant_cl4abc123def0g0h1i2j3k4l5` |
 | Arquivos de server | kebab-case | `tenant-isolation.ts` |
 | Aliases de import | camelCase com `@` | `@nucleo`, `@tenant`, `@produto` |
 
@@ -238,7 +238,7 @@ Para erros de validação Zod, o campo `details` é incluído:
 
 ## Logs
 
-- Nenhum `console.log` expondo dados de usuário, organização ou variáveis de ambiente
+- Nenhum `console.log` expondo dados de usuário, organizacao ou variáveis de ambiente
 - Logs de erro usam `console.error` com correlation ID e código do erro
 - Dados sensíveis nunca aparecem em logs — mesmo em desenvolvimento
 
@@ -259,12 +259,12 @@ console.log('organizacao:', idOrganizacao, 'token:', token)
 - Todo serviço tem um template `.env.example` com todas as variáveis documentadas
 - Acesso via `process.env.NOME_DA_VARIAVEL` — nunca inline
 
-### Padrão de Naming: `SERVICO_PROVIDER_TIPO` (Dream Team)
+### Padrão de Naming: `SERVICO_PROVIDER_TIPO`
 
 ```bash
 # Banco de dados
 DATABASE_URL=postgresql://...
-TENANT_DATABASE_URL=postgresql://...
+ORGANIZACAO_DATABASE_URL=postgresql://...
 
 # Provedor + tipo
 CLERK_SECRET_KEY=sk_live_...         # provider: Clerk, tipo: secret key (APENAS autenticação — Mandamento 01)
@@ -274,7 +274,7 @@ OPENAI_API_KEY=sk-...                # provider: OpenAI, tipo: API key
 
 # Internos
 INTERNAL_SERVICE_KEY=...             # chave inter-serviço (rotacionar trimestralmente)
-TENANT_SERVICES_URL=http://organização-services.railway.internal:3001
+ORGANIZACAO_SERVICES_URL=http://organizacao-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 SENTRY_DSN=https://...
 ```
@@ -287,17 +287,17 @@ SENTRY_DSN=https://...
 
 ```typescript
 // ✅ correto
-const tenantUrl = process.env.TENANT_SERVICES_URL!
+const organizacaoUrl = process.env.ORGANIZACAO_SERVICES_URL!
 
 // ❌ proibido
-const tenantUrl = 'http://organização-services.railway.internal:3001'
+const organizacaoUrl = 'http://organizacao-services.railway.internal:3001'
 ```
 
 ---
 
 ## Estrutura Obrigatória de um Servidor Express (pós-pivô — ADR-002)
 
-Todo servidor de **produto** segue esta ordem (o middleware `resolverOrganizacao` substituiu o antigo `withOrganizacaoIsolation`):
+Todo servidor de **produto** segue esta ordem (o middleware `resolverOrganizacao` substituiu o antigo middleware de isolamento por organizacao):
 
 ```typescript
 // server/index.ts
@@ -317,14 +317,14 @@ app.use(correlationMiddleware)
 // 3. Autenticação inter-serviço
 app.use(requireInternalKey)
 
-// 4. Organização resolver — JWT + cache + injeção de req.organizacao
+// 4. Organizacao resolver — JWT + cache + injeção de req.organizacao
 app.use(resolverOrganizacao({
-  productKey: 'pedido',
+  chaveProduto: 'pedido',
   configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
-  internalKey: process.env.INTERNAL_SERVICE_KEY!,
+  chaveInterna: process.env.INTERNAL_SERVICE_KEY!,
 }))
 
-// 5. Health check — sem auth, NÃO usa banco de organização (sem search_path)
+// 5. Health check — sem auth, NÃO usa banco de organizacao (sem search_path)
 app.get('/health', async (_req, res) => {
   res.json({ status: 'ok', service: 'pedido' })
 })

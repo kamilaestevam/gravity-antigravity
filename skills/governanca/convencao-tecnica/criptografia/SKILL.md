@@ -6,7 +6,7 @@ description: "Use esta skill sempre que for implementar geração ou armazenamen
 # Gravity — Criptografia (Convenção Técnica)
 
 > **Convenção universal.** Todo serviço/produto que emite token, armazena credencial sensível ou assina webhook DEVE seguir estes algoritmos.
-> Implementação no API Cockpit (telas, fluxos, schema de tokens, conector ERP) está em `produtos-gravity/api-cockpit/SKILL.md`.
+> Implementação no API Cockpit (telas, fluxos, schema de tokens, conector ERP) está em [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md).
 
 ## Algoritmos por Tipo de Dado
 
@@ -60,7 +60,7 @@ const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.E
 
 ## Onde Está a Implementação
 
-- **Telas de gestão de tokens, modal de criação, escopo, rate limit, expiração** → `produtos-gravity/api-cockpit/SKILL.md`
-- **Playground, histórico de disparos de webhook, regenerar secret** → mesma skill
-- **Conector ERP (OData/SAP/JDBC), fluxo Gabi → query OData** → mesma skill
-- **Schema Prisma de `ApiKey` e `ErpConnection`** → `produtos-gravity/configurador/admin/SKILL.md`
+- **Telas de gestão de tokens, modal de criação, escopo, rate limit, expiração** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
+- **Playground, histórico de disparos de webhook, regenerar secret** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
+- **Conector ERP (OData/SAP/JDBC), fluxo Gabi → query OData** → [API Cockpit](../../../produtos-gravity/api-cockpit/SKILL.md)
+- **Schema Prisma de `ApiKey` e `ErpConnection`** → [Configurador Admin](../../../produtos-gravity/configurador/admin/SKILL.md)

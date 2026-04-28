@@ -68,7 +68,7 @@ const ConectorErpModule  = lazy(() => Promise.resolve({ default: () => <ModulePl
 const BidFreteModule     = lazy(() => import('../organizacao/bid-frete/client/src/App'))
 
 // Onda 3 — Produtos
-const SimulaCustoModule  = lazy(() => import('../../produto/simula-custo/client/src/App'))
+const SimulaCustoModule  = lazy(() => import('../organizacao/simula-custo/client/src/App'))
 
 // Configurador — Onda 2
 const ConfiguradorModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Configurações" />}))

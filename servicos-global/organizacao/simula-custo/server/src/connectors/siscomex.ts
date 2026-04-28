@@ -38,12 +38,13 @@ export class SiscomexConnector {
   /**
    * POST /simular-calculo-publico — Simulação padrão via Portal Único oficial.
    */
-  async simularCalculoPublico(payload: any) {
+  async simularCalculoPublico(payload: Record<string, unknown>) {
     try {
       const response = await this.client.post('/simular-calculo-publico', payload)
       return response.data
-    } catch (e: any) {
-      console.warn('[Siscomex] Falha na simulação externa:', e.message)
+    } catch (e: unknown) {
+      const err = e as { message?: string }
+      console.warn('[Siscomex] Falha na simulação externa:', err.message)
       // Se falhar, o calculator.ts local assume como fallback
       return null
     }

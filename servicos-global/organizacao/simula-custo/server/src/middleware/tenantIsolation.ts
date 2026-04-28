@@ -14,23 +14,23 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
   return prisma.$extends({
     query: {
       $allModels: {
-        async findMany({ args, query }: any) {
+        async findMany({ args, query }: { args: { where?: Record<string, unknown>; data?: Record<string, unknown> }; query: (args: unknown) => Promise<unknown> }) {
           args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         },
-        async findFirst({ args, query }: any) {
+        async findFirst({ args, query }: { args: { where?: Record<string, unknown>; data?: Record<string, unknown> }; query: (args: unknown) => Promise<unknown> }) {
           args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         },
-        async create({ args, query }: any) {
+        async create({ args, query }: { args: { where?: Record<string, unknown>; data?: Record<string, unknown> }; query: (args: unknown) => Promise<unknown> }) {
           args.data = { ...args.data, tenant_id: tenantId }
           return query(args)
         },
-        async update({ args, query }: any) {
+        async update({ args, query }: { args: { where?: Record<string, unknown>; data?: Record<string, unknown> }; query: (args: unknown) => Promise<unknown> }) {
           args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         },
-        async delete({ args, query }: any) {
+        async delete({ args, query }: { args: { where?: Record<string, unknown>; data?: Record<string, unknown> }; query: (args: unknown) => Promise<unknown> }) {
           args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         }

@@ -1,12 +1,12 @@
-// vite.config.ts — produto/simula-custo/client
+// vite.config.ts — servicos-global/organizacao/simula-custo/client
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { createNucleoAliases, createServiceAliases, createTenantAliases } from '../../../nucleo-global/vite-aliases'
+import { createNucleoAliases, createServiceAliases, createTenantAliases } from '../../../../nucleo-global/vite-aliases'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const monorepoRoot = path.resolve(__dirname, '../../..')
+const monorepoRoot = path.resolve(__dirname, '../../../..')
 
 export default defineConfig({
   plugins: [react()],

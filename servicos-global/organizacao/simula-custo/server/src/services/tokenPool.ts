@@ -71,9 +71,10 @@ export class TokenPoolService {
           this.pool.push({ token, createdAt: Date.now() })
           this.consecutiveFailures = 0
           console.log(`[TokenPool] Token resolvido. (Total: ${this.pool.length})`)
-        } catch (e: any) {
+        } catch (e: unknown) {
           this.consecutiveFailures++
-          console.error('[TokenPool] Erro na resolução:', e.message)
+          const err = e as { message?: string }
+          console.error('[TokenPool] Erro na resolução:', err.message)
 
           // Circuit breaker: após 3 falhas, suspende por 60s
           if (this.consecutiveFailures >= 3) {

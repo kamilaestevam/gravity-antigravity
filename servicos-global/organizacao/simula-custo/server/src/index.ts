@@ -1,6 +1,6 @@
 /**
  * index.ts — SimulaCusto Express Server
- * Localização canônica: produto/simula-custo/server/
+ * Localização canônica: servicos-global/organizacao/simula-custo/server/
  * Porta: 8020
  * Skill: antigravity-criar-produto (Passo 7 — 11 middlewares na ordem correta)
  */
@@ -11,7 +11,7 @@ import { dirname, resolve } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
-dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
+dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
 dotenv.config({ path: resolve(__dir, '../../../.env') })
 
@@ -27,8 +27,8 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
-import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

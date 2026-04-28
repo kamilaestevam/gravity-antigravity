@@ -55,9 +55,10 @@ export class CapSolver {
       if (!token) throw new Error('Timeout ao resolver captcha')
       return token
 
-    } catch (error: any) {
-      console.error('[CapSolver] Erro:', error.response?.data || error.message)
-      throw new Error(`Falha no Anti-Captcha: ${error.message}`)
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: unknown }; message?: string }
+      console.error('[CapSolver] Erro:', err.response?.data || err.message)
+      throw new Error(`Falha no Anti-Captcha: ${err.message ?? 'erro desconhecido'}`)
     }
   }
 }

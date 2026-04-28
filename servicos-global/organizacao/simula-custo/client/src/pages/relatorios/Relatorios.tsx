@@ -41,8 +41,8 @@ export default function Relatorios() {
   ]
 
   const acoesTabela = [
-    { id: 'edit', icone: <FileText size={16} />, tooltip: t('simulacusto.estimativas.acoes.ver_detalhes'), onClick: (item: any) => console.log('Edit', item) },
-    { id: 'download', icone: <DownloadSimple size={16} />, tooltip: t('simulacusto.relatorios.gestao_manual'), onClick: (item: any) => console.log('Download', item) },
+    { id: 'edit', icone: <FileText size={16} />, tooltip: t('simulacusto.estimativas.acoes.ver_detalhes'), onClick: (item: unknown) => console.log('Edit', item) },
+    { id: 'download', icone: <DownloadSimple size={16} />, tooltip: t('simulacusto.relatorios.gestao_manual'), onClick: (item: unknown) => console.log('Download', item) },
   ]
 
   return (

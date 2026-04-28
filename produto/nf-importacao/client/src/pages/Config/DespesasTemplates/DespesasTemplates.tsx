@@ -1,9 +1,9 @@
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { useTranslation } from 'react-i18next'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { Package } from '@phosphor-icons/react'
+import { Copy } from '@phosphor-icons/react'
 
-export default function DespesaCatalogo() {
+export default function DespesasTemplates() {
   const { t } = useTranslation()
   return (
     <PaginaGlobal
@@ -11,14 +11,14 @@ export default function DespesaCatalogo() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          icone={<Package weight="duotone" size={22} />}
-          titulo={t('nf_importacao.config.catalogo_titulo')}
-          subtitulo={t('nf_importacao.config.catalogo_subtitulo')}
+          icone={<Copy weight="duotone" size={22} />}
+          titulo={t('nf_importacao.config.template_titulo')}
+          subtitulo={t('nf_importacao.config.template_subtitulo')}
         />
       }
     >
       <div style={{ padding: '2rem', color: 'var(--ws-muted)', textAlign: 'center' }}>
-        <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
+        <Copy weight="duotone" size={48} style={{ opacity: 0.4 }} />
         <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>{t('nf_importacao.em_desenvolvimento')}</p>
       </div>
     </PaginaGlobal>

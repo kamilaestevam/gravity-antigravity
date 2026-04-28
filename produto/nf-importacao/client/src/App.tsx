@@ -20,9 +20,9 @@ const NfNovaRateio = lazy(() => import('./pages/NfNovaRateio'))
 const NfNovaFiscal = lazy(() => import('./pages/NfNovaFiscal'))
 const NfNovaExportacao = lazy(() => import('./pages/NfNovaExportacao'))
 const NfDetalhe = lazy(() => import('./pages/NfDetalhe'))
-const DespesaCatalogo = lazy(() => import('./pages/Config/DespesaCatalogo'))
-const DespesaTemplate = lazy(() => import('./pages/Config/DespesaTemplate'))
-const ExportLayout = lazy(() => import('./pages/Config/ExportLayout'))
+const DespesasCatalogo = lazy(() => import('./pages/Config/DespesasCatalogo'))
+const DespesasTemplates = lazy(() => import('./pages/Config/DespesasTemplates'))
+const LayoutsExportacao = lazy(() => import('./pages/Config/LayoutsExportacao'))
 const FavoritosFiscais = lazy(() => import('./pages/Config/FavoritosFiscais'))
 
 // ── Loading Fallback ────────────────────────────────────────────────────────
@@ -76,14 +76,14 @@ export function App() {
           <Route path="/nf-importacao/nova/exportacao" element={<NfNovaExportacao />} />
 
           {/* Detalhe com abas */}
-          <Route path="/nf-importacao/:id" element={<NfDetalhe />} />
-          <Route path="/nf-importacao/:id/:tab" element={<NfDetalhe />} />
+          <Route path="/nf-importacao/:id_nf" element={<NfDetalhe />} />
+          <Route path="/nf-importacao/:id_nf/:aba" element={<NfDetalhe />} />
 
           {/* Configuracoes */}
-          <Route path="/nf-importacao/config/despesas" element={<DespesaCatalogo />} />
-          <Route path="/nf-importacao/config/templates" element={<DespesaTemplate />} />
-          <Route path="/nf-importacao/config/layouts" element={<ExportLayout />} />
-          <Route path="/nf-importacao/config/favoritos" element={<FavoritosFiscais />} />
+          <Route path="/nf-importacao/config/despesas" element={<DespesasCatalogo />} />
+          <Route path="/nf-importacao/config/despesas-templates" element={<DespesasTemplates />} />
+          <Route path="/nf-importacao/config/layouts-exportacao" element={<LayoutsExportacao />} />
+          <Route path="/nf-importacao/config/favoritos-fiscais" element={<FavoritosFiscais />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/nf-importacao" replace />} />

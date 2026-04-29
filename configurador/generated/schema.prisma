@@ -62,7 +62,7 @@ enum APITokenServico {
 // ---------------------------------------------------------------------------
 // TENANT
 // Cada empresa que assina a plataforma Gravity é um Organizacao.
-// tenant_id = id do próprio registro (self-referencing por convenção).
+// id_organizacao = id do próprio registro (self-referencing por convenção).
 // ---------------------------------------------------------------------------
 
 model Organizacao {
@@ -101,7 +101,7 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 // USER
 // Usuário vinculado a um tenant. Autenticado via Clerk.
-// tenant_id é obrigatório — nunca nullable.
+// id_organizacao é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
 model Usuario {
@@ -139,7 +139,7 @@ model Usuario {
 // ---------------------------------------------------------------------------
 // SUBSCRIPTION
 // Uma assinatura por tenant. Gerenciada via Stripe.
-// tenant_id é obrigatório — nunca nullable.
+// id_organizacao é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityAssinatura {
@@ -631,7 +631,7 @@ model Servicos {
 // ---------------------------------------------------------------------------
 // TAXA CAMBIO
 // Cotações PTAX oficiais do BCB armazenadas para consulta centralizada.
-// Tabela global — sem tenant_id (rates são públicas, iguais para todos).
+// Tabela global — sem id_organizacao (rates são públicas, iguais para todos).
 // Alimentada via POST /api/v1/taxa-cambio/sync (busca do bid-cambio/BCB).
 // ---------------------------------------------------------------------------
 

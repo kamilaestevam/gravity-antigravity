@@ -1,0 +1,688 @@
+{
+  "agent_1": [
+    {
+      "file": "servicos-global/configurador/server/services/hubInsightsService.ts",
+      "hits": [
+        {
+          "line": 6,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 9,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 148,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 148,
+          "cat": "CACHE_KEY",
+          "pat": "userId"
+        },
+        {
+          "line": 152,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 152,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        },
+        {
+          "line": 673,
+          "cat": "COMMENT",
+          "pat": "tenantId"
+        },
+        {
+          "line": 674,
+          "cat": "COMMENT",
+          "pat": "userId"
+        },
+        {
+          "line": 686,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 686,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/tenantProducts.ts",
+      "hits": [
+        {
+          "line": 154,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 204,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 220,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 239,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 253,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "configurador/prisma/schema.prisma",
+      "hits": [
+        {
+          "line": 65,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 104,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 142,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 634,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/scripts/create-user.ts",
+      "hits": [
+        {
+          "line": 4,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 15,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 29,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 31,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/historicoOrganizacao.ts",
+      "hits": [
+        {
+          "line": 68,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 68,
+          "cat": "COMMENT",
+          "pat": "user_id"
+        },
+        {
+          "line": 70,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/OrganizacaoDetalheAdmin.tsx",
+      "hits": [
+        {
+          "line": 134,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 161,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 161,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/Core.tsx",
+      "hits": [
+        {
+          "line": 67,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 120,
+          "cat": "CACHE_KEY",
+          "pat": "companyId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/lib/billing/stripeProvider.ts",
+      "hits": [
+        {
+          "line": 169,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/admin.ts",
+      "hits": [
+        {
+          "line": 961,
+          "cat": "COMMENT",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/services/billingService.ts",
+      "hits": [
+        {
+          "line": 38,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/workspace/EmpresasParceiras.tsx",
+      "hits": [
+        {
+          "line": 152,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        }
+      ]
+    }
+  ],
+  "agent_2": [
+    {
+      "file": "servicos-global/configurador/server/routes/access.ts",
+      "hits": [
+        {
+          "line": 55,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 55,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 55,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        },
+        {
+          "line": 68,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 106,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 111,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 132,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 156,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/apiCockpit.ts",
+      "hits": [
+        {
+          "line": 147,
+          "cat": "COMMENT",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 152,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 152,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 155,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 189,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 189,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 191,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/middleware/requireAuth.ts",
+      "hits": [
+        {
+          "line": 3,
+          "cat": "COMMENT",
+          "pat": "tenantId"
+        },
+        {
+          "line": 3,
+          "cat": "COMMENT",
+          "pat": "userId"
+        },
+        {
+          "line": 13,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 13,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/Hub.tsx",
+      "hits": [
+        {
+          "line": 157,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 179,
+          "cat": "CACHE_KEY",
+          "pat": "companyId"
+        },
+        {
+          "line": 199,
+          "cat": "CACHE_KEY",
+          "pat": "companyId"
+        },
+        {
+          "line": 207,
+          "cat": "CACHE_KEY",
+          "pat": "companyId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/users.ts",
+      "hits": [
+        {
+          "line": 206,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 207,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        },
+        {
+          "line": 318,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/workspace/Usuarios.tsx",
+      "hits": [
+        {
+          "line": 168,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "company_id"
+        },
+        {
+          "line": 177,
+          "cat": "COMMENT",
+          "pat": "userId"
+        },
+        {
+          "line": 379,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/Store.tsx",
+      "hits": [
+        {
+          "line": 283,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 285,
+          "cat": "CACHE_KEY",
+          "pat": "companyId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/middleware/rateLimiter.ts",
+      "hits": [
+        {
+          "line": 76,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/scripts/relink-clerk-user.ts",
+      "hits": [
+        {
+          "line": 5,
+          "cat": "COMMENT",
+          "pat": "user_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/services/lgpdService.ts",
+      "hits": [
+        {
+          "line": 111,
+          "cat": "COMMENT",
+          "pat": "user_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/workspace/Organizacao.tsx",
+      "hits": [
+        {
+          "line": 94,
+          "cat": "CACHE_KEY",
+          "pat": "userId"
+        }
+      ]
+    }
+  ],
+  "agent_3": [
+    {
+      "file": "servicos-global/configurador/src/services/apiClient.ts",
+      "hits": [
+        {
+          "line": 317,
+          "cat": "CACHE_KEY",
+          "pat": "userId"
+        },
+        {
+          "line": 638,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 644,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 651,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 730,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 805,
+          "cat": "CACHE_KEY",
+          "pat": "userId"
+        },
+        {
+          "line": 812,
+          "cat": "CACHE_KEY",
+          "pat": "userId"
+        },
+        {
+          "line": 826,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/adminNcmIntegracao.ts",
+      "hits": [
+        {
+          "line": 40,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 103,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 119,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 133,
+          "cat": "CACHE_KEY",
+          "pat": "tenantId"
+        },
+        {
+          "line": 242,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 251,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenant_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/services/permissionsService.ts",
+      "hits": [
+        {
+          "line": 21,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 21,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 21,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        },
+        {
+          "line": 37,
+          "cat": "COMMENT",
+          "pat": "companyId"
+        },
+        {
+          "line": 73,
+          "cat": "COMMENT",
+          "pat": "company_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/auth.ts",
+      "hits": [
+        {
+          "line": 118,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "user_id"
+        },
+        {
+          "line": 144,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "user_id"
+        },
+        {
+          "line": 170,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "user_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/companyProducts.ts",
+      "hits": [
+        {
+          "line": 25,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 109,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        },
+        {
+          "line": 184,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "companyId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/hooks/useLoadSystemRole.ts",
+      "hits": [
+        {
+          "line": 5,
+          "cat": "COMMENT",
+          "pat": "userId"
+        },
+        {
+          "line": 21,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        },
+        {
+          "line": 36,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/routes/serviceToken.ts",
+      "hits": [
+        {
+          "line": 38,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "tenantId"
+        },
+        {
+          "line": 38,
+          "cat": "TS_TYPE_OR_VAR",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/admin/SegurancaAdmin.tsx",
+      "hits": [
+        {
+          "line": 326,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        },
+        {
+          "line": 373,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/server/scripts/set-super-admin.ts",
+      "hits": [
+        {
+          "line": 6,
+          "cat": "COMMENT",
+          "pat": "userId"
+        }
+      ]
+    },
+    {
+      "file": "servicos-global/configurador/src/pages/admin/NcmIntegracaoAdmin.tsx",
+      "hits": [
+        {
+          "line": 157,
+          "cat": "STRING",
+          "pat": "tenant_id"
+        }
+      ]
+    }
+  ]
+}

@@ -108,7 +108,7 @@ function defaultOnBlocked(key: string, req: Request): void {
   const endpoint = req.originalUrl || req.url || 'unknown'
 
   // Import dinamico para evitar dependencia circular no boot
-  import('../../../tenant/historico-global/server/lib/securityAuditLogger.js')
+  import('../historico-global/server/lib/securityAuditLogger.js')
     .then(({ securityAudit }) => {
       securityAudit.rateLimitHit(tenantId, { ip, endpoint, count: 0 })
     })

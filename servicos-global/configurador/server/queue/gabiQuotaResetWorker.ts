@@ -2,7 +2,7 @@
 // Worker pg-boss: chama POST /api/v1/internal/gabi/quota/resetar no dia 1 de cada mês
 // Zera tokens_usados das quotas do mês anterior
 
-import { getBoss } from '../../../tenant/historico-global/server/queue/pg-boss.js'
+import { getBoss } from '../../../organizacao/historico-global/server/queue/pg-boss.js'
 
 const GABI_QUOTA_RESET_QUEUE = 'gabi:quota:reset'
 const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:8015'

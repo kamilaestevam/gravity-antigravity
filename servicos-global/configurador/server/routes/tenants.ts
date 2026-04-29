@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { tenantService } from '../services/tenantService.js'
 import { AppError } from '../lib/appError.js'
-import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
+import { AuditService } from '../../../organizacao/historico-global/server/services/audit.service.js'
 
 export const tenantsRouter = Router()
 

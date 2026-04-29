@@ -23,7 +23,7 @@ export default defineConfig({
       // Aliases específicos de tenant devem vir ANTES do base '@tenant' de createServiceAliases
       // (Vite usa o primeiro match — mais específico deve ter precedência)
       // historico-global: nome de pasta difere do alias usado pelo produto
-      '@tenant/historico': path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts'),
+      '@organizacao/historico': path.resolve(monorepoRoot, 'servicos-global/organizacao/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
       ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades', 'cadastros']),

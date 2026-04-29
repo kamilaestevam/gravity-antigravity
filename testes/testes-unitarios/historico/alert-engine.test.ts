@@ -21,11 +21,11 @@ vi.mock('../../../servicos-global/tenant/generated/index.js', () => ({
 
 const { mockDispatch } = vi.hoisted(() => ({ mockDispatch: vi.fn() }))
 
-vi.mock('../../../servicos-global/tenant/historico-global/server/services/notification-dispatcher.js', () => ({
+vi.mock('../../../servicos-global/organizacao/historico-global/server/services/notification-dispatcher.js', () => ({
   NotificationDispatcher: { dispatch: mockDispatch },
 }))
 
-import { AlertEngine } from '../../../servicos-global/tenant/historico-global/server/services/alert-engine.js'
+import { AlertEngine } from '../../../servicos-global/organizacao/historico-global/server/services/alert-engine.js'
 import { AcaoExecutadaPor, AlertaStatus } from '../../../servicos-global/tenant/generated/index.js'
 
 const BASE_LOG = {

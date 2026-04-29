@@ -16,7 +16,7 @@ export default defineConfig({
     alias: {
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
-      '@tenant/dashboard': path.resolve(__dirname, '../src'),
+      '@organizacao/dashboard': path.resolve(__dirname, '../src'),
     },
   },
   server: {

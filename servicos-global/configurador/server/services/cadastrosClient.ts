@@ -25,7 +25,7 @@ import {
   listaEmpresasSchema,
   type CriarEmpresaInput,
   type Empresa,
-} from '../../../tenant/cadastros/shared/schemas/index.js'
+} from '../../../organizacao/cadastros/shared/schemas/index.js'
 import { AppError } from '../lib/appError.js'
 import { logger } from '../lib/logger.js'
 

@@ -40,7 +40,7 @@ import {
   type Moeda,
   type Unidade,
   type NCM,
-} from '@tenant/cadastros/shared/schemas'
+} from '@organizacao/cadastros/shared/schemas'
 
 // ─── Schemas de lista (contrato bilateral com o backend) ───────────────────
 

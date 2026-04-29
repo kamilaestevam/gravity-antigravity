@@ -19,7 +19,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { requireInternalKey } from '../middleware/requireInternalKey.js'
 import { prisma } from '../lib/prisma.js'
 import { Prisma } from '../../../../configurador/generated/index.js'
-import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
+import { AuditService } from '../../../organizacao/historico-global/server/services/audit.service.js'
 
 export const adminSecurityRouter = Router()
 export const adminSecurityInternalRouter = Router()

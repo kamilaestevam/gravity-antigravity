@@ -28,7 +28,7 @@
 
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
-import { prisma } from '../../../../tenant/server/lib/prisma.js'
+import { prisma } from '../../../server/lib/prisma.js'
 import { AppError } from '../../../middleware/appError.js'
 import { executarSync, buscarNcm, obterStatusSync } from '../services/ncmSyncEngine.js'
 import { validarNcm } from '../connectors/portalUnicoNcm.js'

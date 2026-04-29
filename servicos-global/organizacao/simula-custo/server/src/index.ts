@@ -27,8 +27,8 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
-import { apiObservability } from '../../../../../servicos-global/tenant/middleware/apiObservability.js'
-import { createProductAuditPlugin } from '../../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
+import { apiObservability } from '../../../../middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

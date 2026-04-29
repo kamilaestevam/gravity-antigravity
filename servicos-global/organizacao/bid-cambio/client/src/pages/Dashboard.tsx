@@ -37,8 +37,8 @@ import {
   useDashboardSSE,
   useDashboardLayout,
   useDashboardStore,
-} from '@tenant/dashboard'
-import type { DashboardWidgetConfig, DashboardConfig, GridLayoutItem } from '@tenant/dashboard'
+} from '@organizacao/dashboard'
+import type { DashboardWidgetConfig, DashboardConfig, GridLayoutItem } from '@organizacao/dashboard'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

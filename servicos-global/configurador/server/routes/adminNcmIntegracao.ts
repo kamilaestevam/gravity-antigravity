@@ -14,11 +14,11 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma as configuradorPrisma } from '../lib/prisma.js'
-import { prisma as tenantPrisma } from '../../../tenant/server/lib/prisma.js'
+import { prisma as tenantPrisma } from '../../../organizacao/server/lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { executarSync } from '../../../tenant/ncm-sync/server/services/ncmSyncEngine.js'
-import { reagendarJob } from '../../../tenant/ncm-sync/server/init.js'
-import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
+import { executarSync } from '../../../organizacao/ncm-sync/server/services/ncmSyncEngine.js'
+import { reagendarJob } from '../../../organizacao/ncm-sync/server/init.js'
+import { AuditService } from '../../../organizacao/historico-global/server/services/audit.service.js'
 
 export const adminNcmIntegracaoRouter = Router()
 

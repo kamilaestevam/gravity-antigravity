@@ -42,11 +42,11 @@ vi.mock(
 )
 
 // Imports dos módulos testados (após os mocks)
-import { apiRoutes }           from '../../../../servicos-global/tenant/notificacoes/server/routes/api.js'
-import { webhookResendRoutes } from '../../../../servicos-global/tenant/notificacoes/server/routes/webhook-resend.js'
-import { dispatchEmail }       from '../../../../servicos-global/tenant/notificacoes/server/queue/worker.js'
-import { errorHandler }        from '../../../../servicos-global/tenant/notificacoes/server/middleware/error-handler.js'
-import type { EmailJobPayload } from '../../../../servicos-global/tenant/notificacoes/server/queue/worker.js'
+import { apiRoutes }           from '../../../../servicos-global/organizacao/notificacoes/server/routes/api.js'
+import { webhookResendRoutes } from '../../../../servicos-global/organizacao/notificacoes/server/routes/webhook-resend.js'
+import { dispatchEmail }       from '../../../../servicos-global/organizacao/notificacoes/server/queue/worker.js'
+import { errorHandler }        from '../../../../servicos-global/organizacao/notificacoes/server/middleware/error-handler.js'
+import type { EmailJobPayload } from '../../../../servicos-global/organizacao/notificacoes/server/queue/worker.js'
 
 // ── Constantes compartilhadas ─────────────────────────────────────────────────
 const TEST_SECRET = 'whsec_Z3Jhdml0eS10ZXN0LXNlY3JldC1mb3Itdml0ZXN0ISE='

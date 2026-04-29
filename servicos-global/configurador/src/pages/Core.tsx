@@ -45,8 +45,8 @@ import './workspace/workspace.css'
 import './workspace/gabi.css'
 
 // Lazy-load componentes pesados — antes eram estáticos e bloqueavam o render do Core
-const Notificacoes = React.lazy(() => import('../../../tenant/notificacoes/src/Notificacoes').then(m => ({ default: m.Notificacoes })))
-const GabiChat = React.lazy(() => import('@tenant/gabi/src/Gabi'))
+const Notificacoes = React.lazy(() => import('../../../organizacao/notificacoes/src/Notificacoes').then(m => ({ default: m.Notificacoes })))
+const GabiChat = React.lazy(() => import('@organizacao/gabi/src/Gabi'))
 
 interface ProdutoAtivo {
   nome: string

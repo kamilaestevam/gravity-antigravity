@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
-import { DashboardGeralPage } from '@tenant/dashboard'
+import { DashboardGeralPage } from '@organizacao/dashboard'
 
 function LoadingFallback() {
   return (

@@ -138,17 +138,14 @@ model Usuario {
 
 // ---------------------------------------------------------------------------
 // SUBSCRIPTION
-// Uma assinatura por tenant. Gerenciada via Stripe.
+// Uma assinatura por tenant — vincula a Organizacao a um produto Gravity.
 // id_organizacao é obrigatório — nunca nullable.
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityAssinatura {
-  id_assinatura_produto_gravity             String                         @id @default(cuid())
-  id_organizacao_assinatura_produto_gravity String
-  status_assinatura_produto_gravity         StatusAssinaturaProdutoGravity @default(EM_TESTE)
-
-  stripe_subscription_id String? @unique
-  stripe_price_id        String?
+  id_assinatura_produto_gravity     String                         @id @default(cuid())
+  id_organizacao                    String
+  status_assinatura_produto_gravity StatusAssinaturaProdutoGravity @default(EM_TESTE)
 
   data_fim_teste_assinatura_produto_gravity      DateTime?
   data_inicio_periodo_assinatura_produto_gravity DateTime?
@@ -160,12 +157,12 @@ model ProdutoGravityAssinatura {
   data_atualizacao_assinatura_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [id_organizacao_assinatura_produto_gravity], references: [id_organizacao], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade)
 
   // Índices obrigatórios — `map` explícito porque os nomes longos colidem após truncamento PG (63 chars)
-  @@index([id_organizacao_assinatura_produto_gravity], map: "apg_org_idx")
-  @@index([id_organizacao_assinatura_produto_gravity, data_criacao_assinatura_produto_gravity], map: "apg_org_criacao_idx")
-  @@index([id_organizacao_assinatura_produto_gravity, status_assinatura_produto_gravity], map: "apg_org_status_idx")
+  @@index([id_organizacao], map: "apg_org_idx")
+  @@index([id_organizacao, data_criacao_assinatura_produto_gravity], map: "apg_org_criacao_idx")
+  @@index([id_organizacao, status_assinatura_produto_gravity], map: "apg_org_status_idx")
   @@map("assinatura_produto_gravity")
 }
 

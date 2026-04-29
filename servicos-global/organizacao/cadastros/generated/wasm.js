@@ -159,6 +159,7 @@ exports.Prisma.EmpresaScalarFieldEnum = {
 
 exports.Prisma.MoedaScalarFieldEnum = {
   codigo_moeda: 'codigo_moeda',
+  nome_moeda: 'nome_moeda',
   simbolo_moeda: 'simbolo_moeda',
   ativo_moeda: 'ativo_moeda'
 };

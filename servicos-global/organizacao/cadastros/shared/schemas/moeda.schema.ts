@@ -8,6 +8,7 @@ const moedaCodigoRegex = /^[A-Z]{3}$/
 
 export const moedaSchema = z.object({
   codigo_moeda: z.string().regex(moedaCodigoRegex, 'codigo_moeda precisa ser ISO 4217 (3 letras maiúsculas, ex: BRL, USD)'),
+  nome_moeda: z.string().min(1, 'nome_moeda obrigatório'),
   simbolo_moeda: z.string().min(1, 'simbolo_moeda obrigatório'),
   ativo_moeda: z.boolean(),
 })

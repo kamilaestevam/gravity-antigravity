@@ -84,6 +84,7 @@ model Empresa {
 
 model Moeda {
   codigo_moeda   String  @id   // BRL, USD, EUR, CNY
+  nome_moeda     String        // Real Brasileiro, Dólar Americano, Euro, Yuan
   simbolo_moeda  String
   ativo_moeda    Boolean @default(true)
 

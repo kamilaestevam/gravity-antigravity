@@ -14,12 +14,13 @@ afterAll(async () => { await limparDadosDeTeste(); await prismaTeste.$disconnect
 describe('CRUD /moedas (catálogo global)', () => {
   it('cria, busca, atualiza e desativa moeda', async () => {
     const criar = await request(app).post('/api/v1/moedas').set(headers)
-      .send({ codigo_moeda: 'ZZX', simbolo_moeda: 'Z$' })
+      .send({ codigo_moeda: 'ZZX', nome_moeda: 'Moeda de Teste', simbolo_moeda: 'Z$' })
     expect(criar.status).toBe(201)
 
     const buscar = await request(app).get('/api/v1/moedas/ZZX').set(headers)
     expect(buscar.status).toBe(200)
     expect(buscar.body.simbolo_moeda).toBe('Z$')
+    expect(buscar.body.nome_moeda).toBe('Moeda de Teste')
 
     const atualizar = await request(app).put('/api/v1/moedas/ZZX').set(headers)
       .send({ simbolo_moeda: 'ZZ$', ativo_moeda: true })
@@ -33,7 +34,7 @@ describe('CRUD /moedas (catálogo global)', () => {
 
   it('rejeita codigo fora do padrão ISO 4217', async () => {
     const res = await request(app).post('/api/v1/moedas').set(headers)
-      .send({ codigo_moeda: 'zz1', simbolo_moeda: '$' })
+      .send({ codigo_moeda: 'zz1', nome_moeda: 'Inválida', simbolo_moeda: '$' })
     expect(res.status).toBe(422)
   })
 

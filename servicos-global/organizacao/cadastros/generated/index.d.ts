@@ -2487,18 +2487,21 @@ export namespace Prisma {
 
   export type MoedaMinAggregateOutputType = {
     codigo_moeda: string | null
+    nome_moeda: string | null
     simbolo_moeda: string | null
     ativo_moeda: boolean | null
   }
 
   export type MoedaMaxAggregateOutputType = {
     codigo_moeda: string | null
+    nome_moeda: string | null
     simbolo_moeda: string | null
     ativo_moeda: boolean | null
   }
 
   export type MoedaCountAggregateOutputType = {
     codigo_moeda: number
+    nome_moeda: number
     simbolo_moeda: number
     ativo_moeda: number
     _all: number
@@ -2507,18 +2510,21 @@ export namespace Prisma {
 
   export type MoedaMinAggregateInputType = {
     codigo_moeda?: true
+    nome_moeda?: true
     simbolo_moeda?: true
     ativo_moeda?: true
   }
 
   export type MoedaMaxAggregateInputType = {
     codigo_moeda?: true
+    nome_moeda?: true
     simbolo_moeda?: true
     ativo_moeda?: true
   }
 
   export type MoedaCountAggregateInputType = {
     codigo_moeda?: true
+    nome_moeda?: true
     simbolo_moeda?: true
     ativo_moeda?: true
     _all?: true
@@ -2598,6 +2604,7 @@ export namespace Prisma {
 
   export type MoedaGroupByOutputType = {
     codigo_moeda: string
+    nome_moeda: string
     simbolo_moeda: string
     ativo_moeda: boolean
     _count: MoedaCountAggregateOutputType | null
@@ -2621,18 +2628,21 @@ export namespace Prisma {
 
   export type MoedaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     codigo_moeda?: boolean
+    nome_moeda?: boolean
     simbolo_moeda?: boolean
     ativo_moeda?: boolean
   }, ExtArgs["result"]["moeda"]>
 
   export type MoedaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     codigo_moeda?: boolean
+    nome_moeda?: boolean
     simbolo_moeda?: boolean
     ativo_moeda?: boolean
   }, ExtArgs["result"]["moeda"]>
 
   export type MoedaSelectScalar = {
     codigo_moeda?: boolean
+    nome_moeda?: boolean
     simbolo_moeda?: boolean
     ativo_moeda?: boolean
   }
@@ -2643,6 +2653,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       codigo_moeda: string
+      nome_moeda: string
       simbolo_moeda: string
       ativo_moeda: boolean
     }, ExtArgs["result"]["moeda"]>
@@ -3039,6 +3050,7 @@ export namespace Prisma {
    */ 
   interface MoedaFieldRefs {
     readonly codigo_moeda: FieldRef<"Moeda", 'String'>
+    readonly nome_moeda: FieldRef<"Moeda", 'String'>
     readonly simbolo_moeda: FieldRef<"Moeda", 'String'>
     readonly ativo_moeda: FieldRef<"Moeda", 'Boolean'>
   }
@@ -7165,6 +7177,7 @@ export namespace Prisma {
 
   export const MoedaScalarFieldEnum: {
     codigo_moeda: 'codigo_moeda',
+    nome_moeda: 'nome_moeda',
     simbolo_moeda: 'simbolo_moeda',
     ativo_moeda: 'ativo_moeda'
   };
@@ -7547,12 +7560,14 @@ export namespace Prisma {
     OR?: MoedaWhereInput[]
     NOT?: MoedaWhereInput | MoedaWhereInput[]
     codigo_moeda?: StringFilter<"Moeda"> | string
+    nome_moeda?: StringFilter<"Moeda"> | string
     simbolo_moeda?: StringFilter<"Moeda"> | string
     ativo_moeda?: BoolFilter<"Moeda"> | boolean
   }
 
   export type MoedaOrderByWithRelationInput = {
     codigo_moeda?: SortOrder
+    nome_moeda?: SortOrder
     simbolo_moeda?: SortOrder
     ativo_moeda?: SortOrder
   }
@@ -7562,12 +7577,14 @@ export namespace Prisma {
     AND?: MoedaWhereInput | MoedaWhereInput[]
     OR?: MoedaWhereInput[]
     NOT?: MoedaWhereInput | MoedaWhereInput[]
+    nome_moeda?: StringFilter<"Moeda"> | string
     simbolo_moeda?: StringFilter<"Moeda"> | string
     ativo_moeda?: BoolFilter<"Moeda"> | boolean
   }, "codigo_moeda">
 
   export type MoedaOrderByWithAggregationInput = {
     codigo_moeda?: SortOrder
+    nome_moeda?: SortOrder
     simbolo_moeda?: SortOrder
     ativo_moeda?: SortOrder
     _count?: MoedaCountOrderByAggregateInput
@@ -7580,6 +7597,7 @@ export namespace Prisma {
     OR?: MoedaScalarWhereWithAggregatesInput[]
     NOT?: MoedaScalarWhereWithAggregatesInput | MoedaScalarWhereWithAggregatesInput[]
     codigo_moeda?: StringWithAggregatesFilter<"Moeda"> | string
+    nome_moeda?: StringWithAggregatesFilter<"Moeda"> | string
     simbolo_moeda?: StringWithAggregatesFilter<"Moeda"> | string
     ativo_moeda?: BoolWithAggregatesFilter<"Moeda"> | boolean
   }
@@ -8136,42 +8154,49 @@ export namespace Prisma {
 
   export type MoedaCreateInput = {
     codigo_moeda: string
+    nome_moeda: string
     simbolo_moeda: string
     ativo_moeda?: boolean
   }
 
   export type MoedaUncheckedCreateInput = {
     codigo_moeda: string
+    nome_moeda: string
     simbolo_moeda: string
     ativo_moeda?: boolean
   }
 
   export type MoedaUpdateInput = {
     codigo_moeda?: StringFieldUpdateOperationsInput | string
+    nome_moeda?: StringFieldUpdateOperationsInput | string
     simbolo_moeda?: StringFieldUpdateOperationsInput | string
     ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaUncheckedUpdateInput = {
     codigo_moeda?: StringFieldUpdateOperationsInput | string
+    nome_moeda?: StringFieldUpdateOperationsInput | string
     simbolo_moeda?: StringFieldUpdateOperationsInput | string
     ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaCreateManyInput = {
     codigo_moeda: string
+    nome_moeda: string
     simbolo_moeda: string
     ativo_moeda?: boolean
   }
 
   export type MoedaUpdateManyMutationInput = {
     codigo_moeda?: StringFieldUpdateOperationsInput | string
+    nome_moeda?: StringFieldUpdateOperationsInput | string
     simbolo_moeda?: StringFieldUpdateOperationsInput | string
     ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaUncheckedUpdateManyInput = {
     codigo_moeda?: StringFieldUpdateOperationsInput | string
+    nome_moeda?: StringFieldUpdateOperationsInput | string
     simbolo_moeda?: StringFieldUpdateOperationsInput | string
     ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
@@ -8760,18 +8785,21 @@ export namespace Prisma {
 
   export type MoedaCountOrderByAggregateInput = {
     codigo_moeda?: SortOrder
+    nome_moeda?: SortOrder
     simbolo_moeda?: SortOrder
     ativo_moeda?: SortOrder
   }
 
   export type MoedaMaxOrderByAggregateInput = {
     codigo_moeda?: SortOrder
+    nome_moeda?: SortOrder
     simbolo_moeda?: SortOrder
     ativo_moeda?: SortOrder
   }
 
   export type MoedaMinOrderByAggregateInput = {
     codigo_moeda?: SortOrder
+    nome_moeda?: SortOrder
     simbolo_moeda?: SortOrder
     ativo_moeda?: SortOrder
   }

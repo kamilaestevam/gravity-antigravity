@@ -54,7 +54,7 @@ export const UpdateWorkspacesSchema = z.object({
 usersRouter.get('/', async (req, res, next) => {
   try {
     const users = await prisma.usuario.findMany({
-      where: { id_organizacao_usuario: req.auth.id_organizacao },
+      where: { id_organizacao: req.auth.id_organizacao },
       select: {
         id_usuario: true,
         nome_usuario: true,
@@ -64,7 +64,7 @@ usersRouter.get('/', async (req, res, next) => {
         memberships: {
           select: {
             id_usuario_workspace: true,
-            id_workspace_usuario_workspace: true,
+            id_workspace: true,
             tipo_usuario_workspace: true,
             ativo_usuario_workspace: true,
           },
@@ -82,7 +82,7 @@ usersRouter.get('/', async (req, res, next) => {
       // DTO: UsuarioWorkspace rename → contrato externo legado
       memberships: memberships.map((m) => ({
         id: m.id_usuario_workspace,
-        company_id: m.id_workspace_usuario_workspace,
+        company_id: m.id_workspace,
         tipo_usuario: m.tipo_usuario_workspace,
         is_active: m.ativo_usuario_workspace,
       })),
@@ -112,7 +112,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
 
     // Verifica se usuário já existe no tenant
     const existing = await prisma.usuario.findFirst({
-      where: { id_organizacao_usuario: req.auth.id_organizacao, email_usuario: email },
+      where: { id_organizacao: req.auth.id_organizacao, email_usuario: email },
     })
     if (existing) {
       throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
@@ -129,7 +129,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
 
     if (role === 'MASTER' || workspacesPayload === 'all') {
       empresasParaVincular = await prisma.workspace.findMany({
-        where: { id_organizacao_workspace: req.auth.id_organizacao, status_workspace: 'ATIVO' },
+        where: { id_organizacao: req.auth.id_organizacao, status_workspace: 'ATIVO' },
         select: { id_workspace: true },
       })
     } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
@@ -137,7 +137,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       empresasParaVincular = await prisma.workspace.findMany({
         where: {
           id_workspace: { in: workspacesPayload },
-          id_organizacao_workspace: req.auth.id_organizacao,
+          id_organizacao: req.auth.id_organizacao,
           status_workspace: 'ATIVO',
         },
         select: { id_workspace: true },
@@ -155,8 +155,8 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.usuario.create({
         data: {
-          id_organizacao_usuario: req.auth.id_organizacao,
-          clerk_user_id: `pending_${invitation.id}`,
+          id_organizacao: req.auth.id_organizacao,
+          id_clerk_usuario: `pending_${invitation.id}`,
           email_usuario: email,
           nome_usuario:  name,
           tipo_usuario: role,
@@ -166,9 +166,9 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       if (empresasParaVincular.length > 0) {
         await tx.usuarioWorkspace.createMany({
           data: empresasParaVincular.map((e) => ({
-            id_organizacao_usuario_workspace: req.auth.id_organizacao,
-            id_usuario_usuario_workspace: created.id_usuario,
-            id_workspace_usuario_workspace: e.id_workspace,
+            id_organizacao: req.auth.id_organizacao,
+            id_usuario: created.id_usuario,
+            id_workspace: e.id_workspace,
             tipo_usuario_workspace: role,
             ativo_usuario_workspace: true,
           })),
@@ -208,7 +208,7 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
 
     // Garante que o usuário pertence à mesma organização
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario, id_organizacao_usuario: req.auth.id_organizacao },
+      where: { id_usuario, id_organizacao: req.auth.id_organizacao },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -216,7 +216,7 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
 
     // Garante que o workspace pertence à mesma organização
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace, id_organizacao_workspace: req.auth.id_organizacao },
+      where: { id_workspace, id_organizacao: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
@@ -224,16 +224,16 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
 
     const membership = await prisma.usuarioWorkspace.upsert({
       where: {
-        id_organizacao_usuario_workspace_id_usuario_usuario_workspace_id_workspace_usuario_workspace: {
-          id_organizacao_usuario_workspace: req.auth.id_organizacao,
-          id_usuario_usuario_workspace: id_usuario,
-          id_workspace_usuario_workspace: id_workspace,
+        id_organizacao_id_usuario_id_workspace: {
+          id_organizacao: req.auth.id_organizacao,
+          id_usuario: id_usuario,
+          id_workspace: id_workspace,
         },
       },
       create: {
-        id_organizacao_usuario_workspace: req.auth.id_organizacao,
-        id_usuario_usuario_workspace: id_usuario,
-        id_workspace_usuario_workspace: id_workspace,
+        id_organizacao: req.auth.id_organizacao,
+        id_usuario: id_usuario,
+        id_workspace: id_workspace,
         tipo_usuario_workspace: role,
         ativo_usuario_workspace: true,
       },
@@ -243,9 +243,9 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
     // DTO: UsuarioWorkspace rename → contrato externo legado
     const membershipDto = {
       id: membership.id_usuario_workspace,
-      tenant_id: membership.id_organizacao_usuario_workspace,
-      user_id: membership.id_usuario_usuario_workspace,
-      company_id: membership.id_workspace_usuario_workspace,
+      tenant_id: membership.id_organizacao,
+      user_id: membership.id_usuario,
+      company_id: membership.id_workspace,
       role: membership.tipo_usuario_workspace,
       is_active: membership.ativo_usuario_workspace,
       created_at: membership.data_criacao_usuario_workspace,
@@ -264,7 +264,7 @@ async function validarWorkspacesDoTenant(
   workspaceIds: string[],
 ): Promise<void> {
   const empresas = await prisma.workspace.findMany({
-    where: { id_workspace: { in: workspaceIds }, id_organizacao_workspace: id_organizacao, status_workspace: 'ATIVO' },
+    where: { id_workspace: { in: workspaceIds }, id_organizacao: id_organizacao, status_workspace: 'ATIVO' },
     select: { id_workspace: true },
   })
   if (empresas.length !== workspaceIds.length) {
@@ -285,16 +285,16 @@ async function substituirWorkspacesAtomicamente(
   await prisma.$transaction(async (tx) => {
     await tx.usuarioWorkspace.deleteMany({
       where: {
-        id_organizacao_usuario_workspace: id_organizacao,
-        id_usuario_usuario_workspace: id_usuario,
+        id_organizacao: id_organizacao,
+        id_usuario: id_usuario,
       },
     })
     await tx.usuarioWorkspace.createMany({
       // tipo_usuario_workspace é o enum TipoUsuarioEmpresa — cast para preservar a baseline pré-onda
       data: workspaceIds.map((id_workspace) => ({
-        id_organizacao_usuario_workspace: id_organizacao,
-        id_usuario_usuario_workspace: id_usuario,
-        id_workspace_usuario_workspace: id_workspace,
+        id_organizacao: id_organizacao,
+        id_usuario: id_usuario,
+        id_workspace: id_workspace,
         tipo_usuario_workspace: role as 'MASTER' | 'PADRAO' | 'FORNECEDOR',
         ativo_usuario_workspace: true,
       })),
@@ -318,7 +318,7 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
     const id_usuario = req.params.id_usuario
 
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario, id_organizacao_usuario: req.auth.id_organizacao },
+      where: { id_usuario, id_organizacao: req.auth.id_organizacao },
       select: { id_usuario: true, tipo_usuario: true },
     })
     if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -331,12 +331,12 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
     const antesIds = await prisma.usuarioWorkspace
       .findMany({
         where: {
-          id_organizacao_usuario_workspace: req.auth.id_organizacao,
-          id_usuario_usuario_workspace: id_usuario,
+          id_organizacao: req.auth.id_organizacao,
+          id_usuario: id_usuario,
         },
-        select: { id_workspace_usuario_workspace: true },
+        select: { id_workspace: true },
       })
-      .then((ws) => ws.map((w) => w.id_workspace_usuario_workspace))
+      .then((ws) => ws.map((w) => w.id_workspace))
 
     await substituirWorkspacesAtomicamente(req.auth.id_organizacao, id_usuario, workspaceIds, user.tipo_usuario)
 
@@ -371,15 +371,15 @@ usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, ne
     }
 
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.id_organizacao },
-      select: { id_usuario: true, clerk_user_id: true, tipo_usuario: true },
+      where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
+      select: { id_usuario: true, id_clerk_usuario: true, tipo_usuario: true },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
     const updated = await prisma.usuario.update({
-      where: { id_usuario: req.params.id_usuario, id_organizacao_usuario: req.auth.id_organizacao },
+      where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
       data: { tipo_usuario: parsed.data.role },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })

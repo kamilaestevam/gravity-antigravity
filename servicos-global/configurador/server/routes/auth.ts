@@ -89,7 +89,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'user.created') {
       // Verifica se o usuário já existe (idempotência)
       const existing = await prisma.usuario.findFirst({
-        where: { clerk_user_id: data.id },
+        where: { id_clerk_usuario: data.id },
       })
       if (!existing) {
         // Usuário criado no Clerk mas sem tenant ainda — será vinculado no onboarding
@@ -99,18 +99,17 @@ authRouter.post('/clerk', async (req, res, next) => {
 
     if (type === 'user.updated' && primaryEmail) {
       await prisma.usuario.updateMany({
-        where: { clerk_user_id: data.id },
+        where: { id_clerk_usuario: data.id },
         data: {
           email_usuario: primaryEmail,
           nome_usuario:  name || 'Sem nome',
-          updated_at: new Date(),
         },
       })
     }
 
     if (type === 'user.deleted') {
       await prisma.usuario.deleteMany({
-        where: { clerk_user_id: data.id },
+        where: { id_clerk_usuario: data.id },
       })
     }
 
@@ -119,12 +118,12 @@ authRouter.post('/clerk', async (req, res, next) => {
       setImmediate(async () => {
         try {
           const user = await prisma.usuario.findFirst({
-            where: { clerk_user_id: data.user_id },
-            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            where: { id_clerk_usuario: data.user_id },
+            select: { id_usuario: true, id_organizacao: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao_usuario,
+              tenant_id: user.id_organizacao,
               actor_type: 'USER',
               actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,
@@ -145,12 +144,12 @@ authRouter.post('/clerk', async (req, res, next) => {
       setImmediate(async () => {
         try {
           const user = await prisma.usuario.findFirst({
-            where: { clerk_user_id: data.user_id },
-            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            where: { id_clerk_usuario: data.user_id },
+            select: { id_usuario: true, id_organizacao: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao_usuario,
+              tenant_id: user.id_organizacao,
               actor_type: 'USER',
               actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,
@@ -171,12 +170,12 @@ authRouter.post('/clerk', async (req, res, next) => {
       setImmediate(async () => {
         try {
           const user = await prisma.usuario.findFirst({
-            where: { clerk_user_id: data.user_id },
-            select: { id_usuario: true, id_organizacao_usuario: true, email_usuario: true, nome_usuario: true },
+            where: { id_clerk_usuario: data.user_id },
+            select: { id_usuario: true, id_organizacao: true, email_usuario: true, nome_usuario: true },
           })
           if (user) {
             auditLog({
-              tenant_id: user.id_organizacao_usuario,
+              tenant_id: user.id_organizacao,
               actor_type: 'USER',
               actor_id: user.id_usuario,
               actor_name: user.nome_usuario ?? user.email_usuario,

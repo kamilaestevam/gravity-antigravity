@@ -22,8 +22,8 @@ export const meResponseSchema = z.object({
     nome_usuario:           z.string(),
     email_usuario:          z.string().email(),
     tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
-    id_organizacao_usuario: z.string(),
-    preferred_company_id:   z.string().nullable(),
+    id_organizacao: z.string(),
+    id_workspace_preferido_usuario:   z.string().nullable(),
   }),
   organizacao: z.object({
     id_organizacao:         z.string(),
@@ -59,8 +59,8 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_usuario: true,
         email_usuario: true,
         tipo_usuario: true,
-        id_organizacao_usuario: true,
-        preferred_company_id: true,
+        id_organizacao: true,
+        id_workspace_preferido_usuario: true,
         tenant: {
           select: {
             id_organizacao: true,
@@ -80,7 +80,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
                 status_workspace: true,
                 company_products: {
                   where: { ativo_produto_gravity_workspace: true },
-                  select: { chave_produto_produto_gravity_workspace: true },
+                  select: { id_produto_gravity: true },
                 },
               },
             },
@@ -99,8 +99,8 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_usuario: usuario.nome_usuario,
         email_usuario: usuario.email_usuario,
         tipo_usuario: usuario.tipo_usuario,
-        id_organizacao_usuario: usuario.id_organizacao_usuario,
-        preferred_company_id: usuario.preferred_company_id,
+        id_organizacao: usuario.id_organizacao,
+        id_workspace_preferido_usuario: usuario.id_workspace_preferido_usuario,
       },
       organizacao: usuario.tenant
         ? {
@@ -115,7 +115,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         nome_workspace: m.company.nome_workspace,
         status: m.company.status_workspace,
         tipo_usuario: m.tipo_usuario_workspace,
-        produtos: m.company.company_products.map((p) => p.chave_produto_produto_gravity_workspace),
+        produtos: m.company.company_products.map((p) => p.id_produto_gravity),
       })),
     })
   } catch (err) {
@@ -137,7 +137,7 @@ export const updatePreferencesSchema = z.object({
 export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>
 
 /**
- * Valida se o preferred_company_id ainda é válido para o usuário.
+ * Valida se o id_workspace_preferido_usuario ainda é válido para o usuário.
  *
  * Duas rotas de validação, dependendo do role:
  *
@@ -167,7 +167,7 @@ async function isPreferredCompanyValid(
     const company = await prisma.workspace.findFirst({
       where: {
         id_workspace: id_workspace,
-        id_organizacao_workspace: id_organizacao,
+        id_organizacao: id_organizacao,
         status_workspace: 'ATIVO',
       },
       select: { id_workspace: true },
@@ -178,9 +178,9 @@ async function isPreferredCompanyValid(
   // Clientes (MASTER/STANDARD): requer membership ativa
   const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
-      id_usuario_usuario_workspace: id_usuario,
-      id_workspace_usuario_workspace: id_workspace,
-      id_organizacao_usuario_workspace: id_organizacao,
+      id_usuario: id_usuario,
+      id_workspace: id_workspace,
+      id_organizacao: id_organizacao,
       ativo_usuario_workspace: true,
       company: { status_workspace: 'ATIVO' },
     },
@@ -195,7 +195,7 @@ async function isPreferredCompanyValid(
  *
  * Regras:
  *   - Fornecedor (SUPPLIER) SEMPRE recebe null — nunca aplica skip.
- *   - Se preferred_company_id apontar para company inválida (deletada, sem
+ *   - Se id_workspace_preferido_usuario apontar para company inválida (deletada, sem
  *     acesso, ou inativa), o campo é limpo silenciosamente no banco e o
  *     endpoint retorna null (fallback silencioso).
  */
@@ -209,10 +209,10 @@ meRouter.get('/preferencias', async (req, res, next) => {
 
     const user = await prisma.usuario.findUnique({
       where: { id_usuario: req.auth.id_usuario },
-      select: { preferred_company_id: true },
+      select: { id_workspace_preferido_usuario: true },
     })
 
-    if (!user?.preferred_company_id) {
+    if (!user?.id_workspace_preferido_usuario) {
       res.json({ data: { preferredCompanyId: null } })
       return
     }
@@ -222,7 +222,7 @@ meRouter.get('/preferencias', async (req, res, next) => {
     const valid = await isPreferredCompanyValid(
       req.auth.id_usuario,
       req.auth.id_organizacao,
-      user.preferred_company_id,
+      user.id_workspace_preferido_usuario,
       req.auth.tipo_usuario,
     )
 
@@ -230,13 +230,13 @@ meRouter.get('/preferencias', async (req, res, next) => {
       // Fallback silencioso: limpa o campo e retorna null
       await prisma.usuario.update({
         where: { id_usuario: req.auth.id_usuario },
-        data: { preferred_company_id: null },
+        data: { id_workspace_preferido_usuario: null },
       })
       res.json({ data: { preferredCompanyId: null } })
       return
     }
 
-    res.json({ data: { preferredCompanyId: user.preferred_company_id } })
+    res.json({ data: { preferredCompanyId: user.id_workspace_preferido_usuario } })
   } catch (err) {
     next(err)
   }
@@ -282,7 +282,7 @@ meRouter.put('/preferencias', async (req, res, next) => {
     if (preferredCompanyId === null) {
       await prisma.usuario.update({
         where: { id_usuario: req.auth.id_usuario },
-        data: { preferred_company_id: null },
+        data: { id_workspace_preferido_usuario: null },
       })
       res.json({ data: { preferredCompanyId: null } })
       return
@@ -307,7 +307,7 @@ meRouter.put('/preferencias', async (req, res, next) => {
 
     await prisma.usuario.update({
       where: { id_usuario: req.auth.id_usuario },
-      data: { preferred_company_id: preferredCompanyId },
+      data: { id_workspace_preferido_usuario: preferredCompanyId },
     })
 
     res.json({ data: { preferredCompanyId } })

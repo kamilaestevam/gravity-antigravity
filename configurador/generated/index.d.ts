@@ -3066,11 +3066,13 @@ export namespace Prisma {
   export type ProdutoGravityCountOutputType = {
     faixas_preco_produto_gravity: number
     negociacoes_produto_gravity: number
+    ativacoes_produto_gravity: number
   }
 
   export type ProdutoGravityCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     faixas_preco_produto_gravity?: boolean | ProdutoGravityCountOutputTypeCountFaixas_preco_produto_gravityArgs
     negociacoes_produto_gravity?: boolean | ProdutoGravityCountOutputTypeCountNegociacoes_produto_gravityArgs
+    ativacoes_produto_gravity?: boolean | ProdutoGravityCountOutputTypeCountAtivacoes_produto_gravityArgs
   }
 
   // Custom InputTypes
@@ -3096,6 +3098,13 @@ export namespace Prisma {
    */
   export type ProdutoGravityCountOutputTypeCountNegociacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityNegociacaoEspecialWhereInput
+  }
+
+  /**
+   * ProdutoGravityCountOutputType without action
+   */
+  export type ProdutoGravityCountOutputTypeCountAtivacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProdutoGravityWorkspaceWhereInput
   }
 
 
@@ -11160,9 +11169,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMinAggregateOutputType = {
     id_produto_gravity_workspace: string | null
-    id_organizacao_produto_gravity_workspace: string | null
-    id_workspace_produto_gravity_workspace: string | null
-    chave_produto_produto_gravity_workspace: string | null
+    id_organizacao: string | null
+    id_workspace: string | null
+    id_produto_gravity: string | null
     ativo_produto_gravity_workspace: boolean | null
     data_criacao_produto_gravity_workspace: Date | null
     data_atualizacao_produto_gravity_workspace: Date | null
@@ -11170,9 +11179,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMaxAggregateOutputType = {
     id_produto_gravity_workspace: string | null
-    id_organizacao_produto_gravity_workspace: string | null
-    id_workspace_produto_gravity_workspace: string | null
-    chave_produto_produto_gravity_workspace: string | null
+    id_organizacao: string | null
+    id_workspace: string | null
+    id_produto_gravity: string | null
     ativo_produto_gravity_workspace: boolean | null
     data_criacao_produto_gravity_workspace: Date | null
     data_atualizacao_produto_gravity_workspace: Date | null
@@ -11180,9 +11189,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCountAggregateOutputType = {
     id_produto_gravity_workspace: number
-    id_organizacao_produto_gravity_workspace: number
-    id_workspace_produto_gravity_workspace: number
-    chave_produto_produto_gravity_workspace: number
+    id_organizacao: number
+    id_workspace: number
+    id_produto_gravity: number
     ativo_produto_gravity_workspace: number
     data_criacao_produto_gravity_workspace: number
     data_atualizacao_produto_gravity_workspace: number
@@ -11192,9 +11201,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMinAggregateInputType = {
     id_produto_gravity_workspace?: true
-    id_organizacao_produto_gravity_workspace?: true
-    id_workspace_produto_gravity_workspace?: true
-    chave_produto_produto_gravity_workspace?: true
+    id_organizacao?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     ativo_produto_gravity_workspace?: true
     data_criacao_produto_gravity_workspace?: true
     data_atualizacao_produto_gravity_workspace?: true
@@ -11202,9 +11211,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMaxAggregateInputType = {
     id_produto_gravity_workspace?: true
-    id_organizacao_produto_gravity_workspace?: true
-    id_workspace_produto_gravity_workspace?: true
-    chave_produto_produto_gravity_workspace?: true
+    id_organizacao?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     ativo_produto_gravity_workspace?: true
     data_criacao_produto_gravity_workspace?: true
     data_atualizacao_produto_gravity_workspace?: true
@@ -11212,9 +11221,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCountAggregateInputType = {
     id_produto_gravity_workspace?: true
-    id_organizacao_produto_gravity_workspace?: true
-    id_workspace_produto_gravity_workspace?: true
-    chave_produto_produto_gravity_workspace?: true
+    id_organizacao?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     ativo_produto_gravity_workspace?: true
     data_criacao_produto_gravity_workspace?: true
     data_atualizacao_produto_gravity_workspace?: true
@@ -11295,9 +11304,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceGroupByOutputType = {
     id_produto_gravity_workspace: string
-    id_organizacao_produto_gravity_workspace: string
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_organizacao: string
+    id_workspace: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace: boolean
     data_criacao_produto_gravity_workspace: Date
     data_atualizacao_produto_gravity_workspace: Date
@@ -11322,33 +11331,35 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_produto_gravity_workspace?: boolean
-    id_organizacao_produto_gravity_workspace?: boolean
-    id_workspace_produto_gravity_workspace?: boolean
-    chave_produto_produto_gravity_workspace?: boolean
+    id_organizacao?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: boolean
     data_atualizacao_produto_gravity_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_produto_gravity_workspace?: boolean
-    id_organizacao_produto_gravity_workspace?: boolean
-    id_workspace_produto_gravity_workspace?: boolean
-    chave_produto_produto_gravity_workspace?: boolean
+    id_organizacao?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: boolean
     data_atualizacao_produto_gravity_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectScalar = {
     id_produto_gravity_workspace?: boolean
-    id_organizacao_produto_gravity_workspace?: boolean
-    id_workspace_produto_gravity_workspace?: boolean
-    chave_produto_produto_gravity_workspace?: boolean
+    id_organizacao?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: boolean
     data_atualizacao_produto_gravity_workspace?: boolean
@@ -11357,10 +11368,12 @@ export namespace Prisma {
   export type ProdutoGravityWorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
   export type ProdutoGravityWorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
   export type $ProdutoGravityWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11368,12 +11381,13 @@ export namespace Prisma {
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
       company: Prisma.$WorkspacePayload<ExtArgs>
+      produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id_produto_gravity_workspace: string
-      id_organizacao_produto_gravity_workspace: string
-      id_workspace_produto_gravity_workspace: string
-      chave_produto_produto_gravity_workspace: string
+      id_organizacao: string
+      id_workspace: string
+      id_produto_gravity: string
       ativo_produto_gravity_workspace: boolean
       data_criacao_produto_gravity_workspace: Date
       data_atualizacao_produto_gravity_workspace: Date
@@ -11743,6 +11757,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     company<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    produto<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11773,9 +11788,9 @@ export namespace Prisma {
    */ 
   interface ProdutoGravityWorkspaceFieldRefs {
     readonly id_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'String'>
-    readonly id_organizacao_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'String'>
-    readonly id_workspace_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'String'>
-    readonly chave_produto_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'String'>
+    readonly id_organizacao: FieldRef<"ProdutoGravityWorkspace", 'String'>
+    readonly id_workspace: FieldRef<"ProdutoGravityWorkspace", 'String'>
+    readonly id_produto_gravity: FieldRef<"ProdutoGravityWorkspace", 'String'>
     readonly ativo_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'Boolean'>
     readonly data_criacao_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'DateTime'>
     readonly data_atualizacao_produto_gravity_workspace: FieldRef<"ProdutoGravityWorkspace", 'DateTime'>
@@ -12535,6 +12550,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: boolean
     faixas_preco_produto_gravity?: boolean | ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>
     negociacoes_produto_gravity?: boolean | ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>
+    ativacoes_produto_gravity?: boolean | ProdutoGravity$ativacoes_produto_gravityArgs<ExtArgs>
     _count?: boolean | ProdutoGravityCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravity"]>
 
@@ -12605,6 +12621,7 @@ export namespace Prisma {
   export type ProdutoGravityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     faixas_preco_produto_gravity?: boolean | ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>
     negociacoes_produto_gravity?: boolean | ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>
+    ativacoes_produto_gravity?: boolean | ProdutoGravity$ativacoes_produto_gravityArgs<ExtArgs>
     _count?: boolean | ProdutoGravityCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProdutoGravityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12614,6 +12631,7 @@ export namespace Prisma {
     objects: {
       faixas_preco_produto_gravity: Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>[]
       negociacoes_produto_gravity: Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>[]
+      ativacoes_produto_gravity: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_produto_gravity: string
@@ -13011,6 +13029,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     faixas_preco_produto_gravity<T extends ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$faixas_preco_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
     negociacoes_produto_gravity<T extends ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negociacoes_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityNegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
+    ativacoes_produto_gravity<T extends ProdutoGravity$ativacoes_produto_gravityArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$ativacoes_produto_gravityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13420,6 +13439,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProdutoGravityNegociacaoEspecialScalarFieldEnum | ProdutoGravityNegociacaoEspecialScalarFieldEnum[]
+  }
+
+  /**
+   * ProdutoGravity.ativacoes_produto_gravity
+   */
+  export type ProdutoGravity$ativacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProdutoGravityWorkspace
+     */
+    select?: ProdutoGravityWorkspaceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProdutoGravityWorkspaceInclude<ExtArgs> | null
+    where?: ProdutoGravityWorkspaceWhereInput
+    orderBy?: ProdutoGravityWorkspaceOrderByWithRelationInput | ProdutoGravityWorkspaceOrderByWithRelationInput[]
+    cursor?: ProdutoGravityWorkspaceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProdutoGravityWorkspaceScalarFieldEnum | ProdutoGravityWorkspaceScalarFieldEnum[]
   }
 
   /**
@@ -26488,9 +26527,9 @@ export namespace Prisma {
 
   export const ProdutoGravityWorkspaceScalarFieldEnum: {
     id_produto_gravity_workspace: 'id_produto_gravity_workspace',
-    id_organizacao_produto_gravity_workspace: 'id_organizacao_produto_gravity_workspace',
-    id_workspace_produto_gravity_workspace: 'id_workspace_produto_gravity_workspace',
-    chave_produto_produto_gravity_workspace: 'chave_produto_produto_gravity_workspace',
+    id_organizacao: 'id_organizacao',
+    id_workspace: 'id_workspace',
+    id_produto_gravity: 'id_produto_gravity',
     ativo_produto_gravity_workspace: 'ativo_produto_gravity_workspace',
     data_criacao_produto_gravity_workspace: 'data_criacao_produto_gravity_workspace',
     data_atualizacao_produto_gravity_workspace: 'data_atualizacao_produto_gravity_workspace'
@@ -27691,49 +27730,52 @@ export namespace Prisma {
     OR?: ProdutoGravityWorkspaceWhereInput[]
     NOT?: ProdutoGravityWorkspaceWhereInput | ProdutoGravityWorkspaceWhereInput[]
     id_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    id_organizacao_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    id_workspace_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    chave_produto_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_organizacao?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_produto_gravity?: StringFilter<"ProdutoGravityWorkspace"> | string
     ativo_produto_gravity_workspace?: BoolFilter<"ProdutoGravityWorkspace"> | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
   export type ProdutoGravityWorkspaceOrderByWithRelationInput = {
     id_produto_gravity_workspace?: SortOrder
-    id_organizacao_produto_gravity_workspace?: SortOrder
-    id_workspace_produto_gravity_workspace?: SortOrder
-    chave_produto_produto_gravity_workspace?: SortOrder
+    id_organizacao?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     ativo_produto_gravity_workspace?: SortOrder
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
     company?: WorkspaceOrderByWithRelationInput
+    produto?: ProdutoGravityOrderByWithRelationInput
   }
 
   export type ProdutoGravityWorkspaceWhereUniqueInput = Prisma.AtLeast<{
     id_produto_gravity_workspace?: string
-    id_workspace_produto_gravity_workspace_chave_produto_produto_gravity_workspace?: ProdutoGravityWorkspaceId_workspace_produto_gravity_workspaceChave_produto_produto_gravity_workspaceCompoundUniqueInput
+    id_workspace_id_produto_gravity?: ProdutoGravityWorkspaceId_workspaceId_produto_gravityCompoundUniqueInput
     AND?: ProdutoGravityWorkspaceWhereInput | ProdutoGravityWorkspaceWhereInput[]
     OR?: ProdutoGravityWorkspaceWhereInput[]
     NOT?: ProdutoGravityWorkspaceWhereInput | ProdutoGravityWorkspaceWhereInput[]
-    id_organizacao_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    id_workspace_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    chave_produto_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_organizacao?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_produto_gravity?: StringFilter<"ProdutoGravityWorkspace"> | string
     ativo_produto_gravity_workspace?: BoolFilter<"ProdutoGravityWorkspace"> | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
-  }, "id_produto_gravity_workspace" | "id_workspace_produto_gravity_workspace_chave_produto_produto_gravity_workspace">
+    produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
+  }, "id_produto_gravity_workspace" | "id_workspace_id_produto_gravity">
 
   export type ProdutoGravityWorkspaceOrderByWithAggregationInput = {
     id_produto_gravity_workspace?: SortOrder
-    id_organizacao_produto_gravity_workspace?: SortOrder
-    id_workspace_produto_gravity_workspace?: SortOrder
-    chave_produto_produto_gravity_workspace?: SortOrder
+    id_organizacao?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     ativo_produto_gravity_workspace?: SortOrder
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
@@ -27747,9 +27789,9 @@ export namespace Prisma {
     OR?: ProdutoGravityWorkspaceScalarWhereWithAggregatesInput[]
     NOT?: ProdutoGravityWorkspaceScalarWhereWithAggregatesInput | ProdutoGravityWorkspaceScalarWhereWithAggregatesInput[]
     id_produto_gravity_workspace?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
-    id_organizacao_produto_gravity_workspace?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
-    id_workspace_produto_gravity_workspace?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
-    chave_produto_produto_gravity_workspace?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
+    id_organizacao?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
+    id_workspace?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
+    id_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityWorkspace"> | string
     ativo_produto_gravity_workspace?: BoolWithAggregatesFilter<"ProdutoGravityWorkspace"> | boolean
     data_criacao_produto_gravity_workspace?: DateTimeWithAggregatesFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeWithAggregatesFilter<"ProdutoGravityWorkspace"> | Date | string
@@ -27790,6 +27832,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoListRelationFilter
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialListRelationFilter
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceListRelationFilter
   }
 
   export type ProdutoGravityOrderByWithRelationInput = {
@@ -27824,6 +27867,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: SortOrderInput | SortOrder
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoOrderByRelationAggregateInput
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialOrderByRelationAggregateInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
   }
 
   export type ProdutoGravityWhereUniqueInput = Prisma.AtLeast<{
@@ -27861,6 +27905,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoListRelationFilter
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialListRelationFilter
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceListRelationFilter
   }, "id_produto_gravity" | "slug_produto_gravity">
 
   export type ProdutoGravityOrderByWithAggregationInput = {
@@ -29770,19 +29815,19 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateInput = {
     id_produto_gravity_workspace?: string
-    chave_produto_produto_gravity_workspace: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput
     company: WorkspaceCreateNestedOneWithoutCompany_productsInput
+    produto: ProdutoGravityCreateNestedOneWithoutAtivacoes_produto_gravityInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateInput = {
     id_produto_gravity_workspace?: string
-    id_organizacao_produto_gravity_workspace: string
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_organizacao: string
+    id_workspace: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -29790,19 +29835,19 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUpdateInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput
     company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
+    produto?: ProdutoGravityUpdateOneRequiredWithoutAtivacoes_produto_gravityNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_workspace_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29810,9 +29855,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateManyInput = {
     id_produto_gravity_workspace?: string
-    id_organizacao_produto_gravity_workspace: string
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_organizacao: string
+    id_workspace: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -29820,7 +29865,6 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUpdateManyMutationInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29828,9 +29872,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUncheckedUpdateManyInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_workspace_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29868,6 +29912,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateInput = {
@@ -29902,6 +29947,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUpdateInput = {
@@ -29936,6 +29982,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateInput = {
@@ -29970,6 +30017,7 @@ export namespace Prisma {
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityCreateManyInput = {
@@ -32079,16 +32127,21 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
-  export type ProdutoGravityWorkspaceId_workspace_produto_gravity_workspaceChave_produto_produto_gravity_workspaceCompoundUniqueInput = {
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+  export type ProdutoGravityRelationFilter = {
+    is?: ProdutoGravityWhereInput
+    isNot?: ProdutoGravityWhereInput
+  }
+
+  export type ProdutoGravityWorkspaceId_workspaceId_produto_gravityCompoundUniqueInput = {
+    id_workspace: string
+    id_produto_gravity: string
   }
 
   export type ProdutoGravityWorkspaceCountOrderByAggregateInput = {
     id_produto_gravity_workspace?: SortOrder
-    id_organizacao_produto_gravity_workspace?: SortOrder
-    id_workspace_produto_gravity_workspace?: SortOrder
-    chave_produto_produto_gravity_workspace?: SortOrder
+    id_organizacao?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     ativo_produto_gravity_workspace?: SortOrder
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
@@ -32096,9 +32149,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMaxOrderByAggregateInput = {
     id_produto_gravity_workspace?: SortOrder
-    id_organizacao_produto_gravity_workspace?: SortOrder
-    id_workspace_produto_gravity_workspace?: SortOrder
-    chave_produto_produto_gravity_workspace?: SortOrder
+    id_organizacao?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     ativo_produto_gravity_workspace?: SortOrder
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
@@ -32106,9 +32159,9 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceMinOrderByAggregateInput = {
     id_produto_gravity_workspace?: SortOrder
-    id_organizacao_produto_gravity_workspace?: SortOrder
-    id_workspace_produto_gravity_workspace?: SortOrder
-    chave_produto_produto_gravity_workspace?: SortOrder
+    id_organizacao?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     ativo_produto_gravity_workspace?: SortOrder
     data_criacao_produto_gravity_workspace?: SortOrder
     data_atualizacao_produto_gravity_workspace?: SortOrder
@@ -32411,11 +32464,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type ProdutoGravityRelationFilter = {
-    is?: ProdutoGravityWhereInput
-    isNot?: ProdutoGravityWhereInput
   }
 
   export type ProdutoGravityFaixaPrecoCountOrderByAggregateInput = {
@@ -33838,6 +33886,12 @@ export namespace Prisma {
     connect?: WorkspaceWhereUniqueInput
   }
 
+  export type ProdutoGravityCreateNestedOneWithoutAtivacoes_produto_gravityInput = {
+    create?: XOR<ProdutoGravityCreateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutAtivacoes_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutAtivacoes_produto_gravityInput
+    connect?: ProdutoGravityWhereUniqueInput
+  }
+
   export type OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput = {
     create?: XOR<OrganizacaoCreateWithoutProdutoGravityWorkspaceInput, OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput>
     connectOrCreate?: OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput
@@ -33854,6 +33908,14 @@ export namespace Prisma {
     update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutCompany_productsInput, WorkspaceUpdateWithoutCompany_productsInput>, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
   }
 
+  export type ProdutoGravityUpdateOneRequiredWithoutAtivacoes_produto_gravityNestedInput = {
+    create?: XOR<ProdutoGravityCreateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutAtivacoes_produto_gravityInput>
+    connectOrCreate?: ProdutoGravityCreateOrConnectWithoutAtivacoes_produto_gravityInput
+    upsert?: ProdutoGravityUpsertWithoutAtivacoes_produto_gravityInput
+    connect?: ProdutoGravityWhereUniqueInput
+    update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutAtivacoes_produto_gravityInput, ProdutoGravityUpdateWithoutAtivacoes_produto_gravityInput>, ProdutoGravityUncheckedUpdateWithoutAtivacoes_produto_gravityInput>
+  }
+
   export type ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput = {
     create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
     connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
@@ -33868,6 +33930,13 @@ export namespace Prisma {
     connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
   }
 
+  export type ProdutoGravityWorkspaceCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput> | ProdutoGravityWorkspaceCreateWithoutProdutoInput[] | ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput | ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityWorkspaceCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+  }
+
   export type ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput = {
     create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
     connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
@@ -33880,6 +33949,13 @@ export namespace Prisma {
     connectOrCreate?: ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput | ProdutoGravityNegociacaoEspecialCreateOrConnectWithoutProdutoInput[]
     createMany?: ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope
     connect?: ProdutoGravityNegociacaoEspecialWhereUniqueInput | ProdutoGravityNegociacaoEspecialWhereUniqueInput[]
+  }
+
+  export type ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutProdutoInput = {
+    create?: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput> | ProdutoGravityWorkspaceCreateWithoutProdutoInput[] | ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput | ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput[]
+    createMany?: ProdutoGravityWorkspaceCreateManyProdutoInputEnvelope
+    connect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
   }
 
   export type EnumStatusProdutoGravityFieldUpdateOperationsInput = {
@@ -33954,6 +34030,20 @@ export namespace Prisma {
     deleteMany?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
   }
 
+  export type ProdutoGravityWorkspaceUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput> | ProdutoGravityWorkspaceCreateWithoutProdutoInput[] | ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput | ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityWorkspaceCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    disconnect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    delete?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    connect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    update?: ProdutoGravityWorkspaceUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityWorkspaceUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityWorkspaceUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityWorkspaceUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityWorkspaceScalarWhereInput | ProdutoGravityWorkspaceScalarWhereInput[]
+  }
+
   export type ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput = {
     create?: XOR<ProdutoGravityFaixaPrecoCreateWithoutProdutoInput, ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput> | ProdutoGravityFaixaPrecoCreateWithoutProdutoInput[] | ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput[]
     connectOrCreate?: ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput | ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput[]
@@ -33980,6 +34070,20 @@ export namespace Prisma {
     update?: ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateWithWhereUniqueWithoutProdutoInput[]
     updateMany?: ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityNegociacaoEspecialUpdateManyWithWhereWithoutProdutoInput[]
     deleteMany?: ProdutoGravityNegociacaoEspecialScalarWhereInput | ProdutoGravityNegociacaoEspecialScalarWhereInput[]
+  }
+
+  export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoNestedInput = {
+    create?: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput> | ProdutoGravityWorkspaceCreateWithoutProdutoInput[] | ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput[]
+    connectOrCreate?: ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput | ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput[]
+    upsert?: ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput | ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput[]
+    createMany?: ProdutoGravityWorkspaceCreateManyProdutoInputEnvelope
+    set?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    disconnect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    delete?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    connect?: ProdutoGravityWorkspaceWhereUniqueInput | ProdutoGravityWorkspaceWhereUniqueInput[]
+    update?: ProdutoGravityWorkspaceUpdateWithWhereUniqueWithoutProdutoInput | ProdutoGravityWorkspaceUpdateWithWhereUniqueWithoutProdutoInput[]
+    updateMany?: ProdutoGravityWorkspaceUpdateManyWithWhereWithoutProdutoInput | ProdutoGravityWorkspaceUpdateManyWithWhereWithoutProdutoInput[]
+    deleteMany?: ProdutoGravityWorkspaceScalarWhereInput | ProdutoGravityWorkspaceScalarWhereInput[]
   }
 
   export type ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput = {
@@ -34701,17 +34805,17 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateWithoutTenantInput = {
     id_produto_gravity_workspace?: string
-    chave_produto_produto_gravity_workspace: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
     company: WorkspaceCreateNestedOneWithoutCompany_productsInput
+    produto: ProdutoGravityCreateNestedOneWithoutAtivacoes_produto_gravityInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateWithoutTenantInput = {
     id_produto_gravity_workspace?: string
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_workspace: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -34900,9 +35004,9 @@ export namespace Prisma {
     OR?: ProdutoGravityWorkspaceScalarWhereInput[]
     NOT?: ProdutoGravityWorkspaceScalarWhereInput | ProdutoGravityWorkspaceScalarWhereInput[]
     id_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    id_organizacao_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    id_workspace_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
-    chave_produto_produto_gravity_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_organizacao?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_workspace?: StringFilter<"ProdutoGravityWorkspace"> | string
+    id_produto_gravity?: StringFilter<"ProdutoGravityWorkspace"> | string
     ativo_produto_gravity_workspace?: BoolFilter<"ProdutoGravityWorkspace"> | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
@@ -35531,17 +35635,17 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateWithoutCompanyInput = {
     id_produto_gravity_workspace?: string
-    chave_produto_produto_gravity_workspace: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput
+    produto: ProdutoGravityCreateNestedOneWithoutAtivacoes_produto_gravityInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateWithoutCompanyInput = {
     id_produto_gravity_workspace?: string
-    id_organizacao_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_organizacao: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -36008,6 +36112,79 @@ export namespace Prisma {
     create: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
   }
 
+  export type ProdutoGravityCreateWithoutAtivacoes_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput
+  }
+
+  export type ProdutoGravityUncheckedCreateWithoutAtivacoes_produto_gravityInput = {
+    id_produto_gravity?: string
+    nome_produto_gravity: string
+    slug_produto_gravity: string
+    descricao_produto_gravity: string
+    status_produto_gravity?: $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: Date | string | null
+    possui_setup_produto_gravity?: boolean
+    preco_setup_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: string
+    tipo_cobranca_produto_gravity?: $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: string
+    preco_minimo_produto_gravity?: Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: string
+    preco_total_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: string
+    tipo_limite_usuario_produto_gravity?: $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: number | null
+    preco_usuario_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: string
+    horas_helpdesk_produto_gravity?: number
+    preco_hora_extra_produto_gravity?: Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: string
+    quota_gabi_mensal_produto_gravity?: number
+    modulo_backend_produto_gravity?: string | null
+    publico_alvo_produto_gravity?: string | null
+    data_criacao_produto_gravity?: Date | string
+    data_atualizacao_produto_gravity?: Date | string
+    data_remocao_produto_gravity?: Date | string | null
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
+  }
+
+  export type ProdutoGravityCreateOrConnectWithoutAtivacoes_produto_gravityInput = {
+    where: ProdutoGravityWhereUniqueInput
+    create: XOR<ProdutoGravityCreateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutAtivacoes_produto_gravityInput>
+  }
+
   export type OrganizacaoUpsertWithoutProdutoGravityWorkspaceInput = {
     update: XOR<OrganizacaoUpdateWithoutProdutoGravityWorkspaceInput, OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput>
     create: XOR<OrganizacaoCreateWithoutProdutoGravityWorkspaceInput, OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput>
@@ -36098,6 +36275,85 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
+  export type ProdutoGravityUpsertWithoutAtivacoes_produto_gravityInput = {
+    update: XOR<ProdutoGravityUpdateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutAtivacoes_produto_gravityInput>
+    create: XOR<ProdutoGravityCreateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedCreateWithoutAtivacoes_produto_gravityInput>
+    where?: ProdutoGravityWhereInput
+  }
+
+  export type ProdutoGravityUpdateToOneWithWhereWithoutAtivacoes_produto_gravityInput = {
+    where?: ProdutoGravityWhereInput
+    data: XOR<ProdutoGravityUpdateWithoutAtivacoes_produto_gravityInput, ProdutoGravityUncheckedUpdateWithoutAtivacoes_produto_gravityInput>
+  }
+
+  export type ProdutoGravityUpdateWithoutAtivacoes_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput
+  }
+
+  export type ProdutoGravityUncheckedUpdateWithoutAtivacoes_produto_gravityInput = {
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
+    nome_produto_gravity?: StringFieldUpdateOperationsInput | string
+    slug_produto_gravity?: StringFieldUpdateOperationsInput | string
+    descricao_produto_gravity?: StringFieldUpdateOperationsInput | string
+    status_produto_gravity?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
+    data_lancamento_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    possui_setup_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    preco_setup_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_setup_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_cobranca_produto_gravity?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
+    preco_unitario_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_unitario_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_minimo_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_minimo_produto_gravity?: StringFieldUpdateOperationsInput | string
+    preco_total_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_total_produto_gravity?: StringFieldUpdateOperationsInput | string
+    tipo_limite_usuario_produto_gravity?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
+    qtd_usuarios_base_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_usuario_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_usuario_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    horas_helpdesk_produto_gravity?: IntFieldUpdateOperationsInput | number
+    preco_hora_extra_produto_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_hora_extra_produto_gravity?: StringFieldUpdateOperationsInput | string
+    quota_gabi_mensal_produto_gravity?: IntFieldUpdateOperationsInput | number
+    modulo_backend_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    publico_alvo_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
+    negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
+  }
+
   export type ProdutoGravityFaixaPrecoCreateWithoutProdutoInput = {
     id_faixa_preco_produto_gravity?: string
     faixa_de_faixa_preco_produto_gravity: number
@@ -36157,6 +36413,34 @@ export namespace Prisma {
 
   export type ProdutoGravityNegociacaoEspecialCreateManyProdutoInputEnvelope = {
     data: ProdutoGravityNegociacaoEspecialCreateManyProdutoInput | ProdutoGravityNegociacaoEspecialCreateManyProdutoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProdutoGravityWorkspaceCreateWithoutProdutoInput = {
+    id_produto_gravity_workspace?: string
+    ativo_produto_gravity_workspace?: boolean
+    data_criacao_produto_gravity_workspace?: Date | string
+    data_atualizacao_produto_gravity_workspace?: Date | string
+    tenant: OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput
+    company: WorkspaceCreateNestedOneWithoutCompany_productsInput
+  }
+
+  export type ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput = {
+    id_produto_gravity_workspace?: string
+    id_organizacao: string
+    id_workspace: string
+    ativo_produto_gravity_workspace?: boolean
+    data_criacao_produto_gravity_workspace?: Date | string
+    data_atualizacao_produto_gravity_workspace?: Date | string
+  }
+
+  export type ProdutoGravityWorkspaceCreateOrConnectWithoutProdutoInput = {
+    where: ProdutoGravityWorkspaceWhereUniqueInput
+    create: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput>
+  }
+
+  export type ProdutoGravityWorkspaceCreateManyProdutoInputEnvelope = {
+    data: ProdutoGravityWorkspaceCreateManyProdutoInput | ProdutoGravityWorkspaceCreateManyProdutoInput[]
     skipDuplicates?: boolean
   }
 
@@ -36221,6 +36505,22 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityNegociacaoEspecial"> | Date | string
   }
 
+  export type ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityWorkspaceWhereUniqueInput
+    update: XOR<ProdutoGravityWorkspaceUpdateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedUpdateWithoutProdutoInput>
+    create: XOR<ProdutoGravityWorkspaceCreateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedCreateWithoutProdutoInput>
+  }
+
+  export type ProdutoGravityWorkspaceUpdateWithWhereUniqueWithoutProdutoInput = {
+    where: ProdutoGravityWorkspaceWhereUniqueInput
+    data: XOR<ProdutoGravityWorkspaceUpdateWithoutProdutoInput, ProdutoGravityWorkspaceUncheckedUpdateWithoutProdutoInput>
+  }
+
+  export type ProdutoGravityWorkspaceUpdateManyWithWhereWithoutProdutoInput = {
+    where: ProdutoGravityWorkspaceScalarWhereInput
+    data: XOR<ProdutoGravityWorkspaceUpdateManyMutationInput, ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoInput>
+  }
+
   export type ProdutoGravityCreateWithoutFaixas_preco_produto_gravityInput = {
     id_produto_gravity?: string
     nome_produto_gravity: string
@@ -36252,6 +36552,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutFaixas_preco_produto_gravityInput = {
@@ -36285,6 +36586,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutFaixas_preco_produto_gravityInput = {
@@ -36334,6 +36636,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutFaixas_preco_produto_gravityInput = {
@@ -36367,6 +36670,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     negociacoes_produto_gravity?: ProdutoGravityNegociacaoEspecialUncheckedUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityCreateWithoutNegociacoes_produto_gravityInput = {
@@ -36400,6 +36704,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutNegociacoes_produto_gravityInput = {
@@ -36433,6 +36738,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: Date | string
     data_remocao_produto_gravity?: Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedCreateNestedManyWithoutProdutoInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutProdutoInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutNegociacoes_produto_gravityInput = {
@@ -36482,6 +36788,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUpdateManyWithoutProdutoNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutNegociacoes_produto_gravityInput = {
@@ -36515,6 +36822,7 @@ export namespace Prisma {
     data_atualizacao_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_remocao_produto_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     faixas_preco_produto_gravity?: ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoNestedInput
+    ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -36571,8 +36879,8 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateManyTenantInput = {
     id_produto_gravity_workspace?: string
-    id_workspace_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_workspace: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -36746,17 +37054,17 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUpdateWithoutTenantInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
+    produto?: ProdutoGravityUpdateOneRequiredWithoutAtivacoes_produto_gravityNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateWithoutTenantInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_workspace_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36764,8 +37072,8 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_workspace_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36867,8 +37175,8 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceCreateManyCompanyInput = {
     id_produto_gravity_workspace?: string
-    id_organizacao_produto_gravity_workspace: string
-    chave_produto_produto_gravity_workspace: string
+    id_organizacao: string
+    id_produto_gravity: string
     ativo_produto_gravity_workspace?: boolean
     data_criacao_produto_gravity_workspace?: Date | string
     data_atualizacao_produto_gravity_workspace?: Date | string
@@ -36917,17 +37225,17 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUpdateWithoutCompanyInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput
+    produto?: ProdutoGravityUpdateOneRequiredWithoutAtivacoes_produto_gravityNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateWithoutCompanyInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36935,8 +37243,8 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyInput = {
     id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
-    chave_produto_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_produto_gravity?: StringFieldUpdateOperationsInput | string
     ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37000,6 +37308,15 @@ export namespace Prisma {
     data_atualizacao_negociacao_especial_preco_produto_gravity?: Date | string
   }
 
+  export type ProdutoGravityWorkspaceCreateManyProdutoInput = {
+    id_produto_gravity_workspace?: string
+    id_organizacao: string
+    id_workspace: string
+    ativo_produto_gravity_workspace?: boolean
+    data_criacao_produto_gravity_workspace?: Date | string
+    data_atualizacao_produto_gravity_workspace?: Date | string
+  }
+
   export type ProdutoGravityFaixaPrecoUpdateWithoutProdutoInput = {
     id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
     faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
@@ -37061,6 +37378,33 @@ export namespace Prisma {
     ilimitado_negociacao_especial_preco_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
     data_criacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_negociacao_especial_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProdutoGravityWorkspaceUpdateWithoutProdutoInput = {
+    id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput
+    company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
+  }
+
+  export type ProdutoGravityWorkspaceUncheckedUpdateWithoutProdutoInput = {
+    id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoInput = {
+    id_produto_gravity_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_workspace?: StringFieldUpdateOperationsInput | string
+    ativo_produto_gravity_workspace?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

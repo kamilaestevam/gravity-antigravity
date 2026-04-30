@@ -317,26 +317,26 @@ model ProdutoGravityConfiguracao {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityWorkspace {
-  id_produto_gravity_workspace             String  @id @default(cuid())
-  id_organizacao_produto_gravity_workspace String
-  id_workspace_produto_gravity_workspace   String
-  chave_produto_produto_gravity_workspace  String // ex: "simulacusto", "gestao-atividades"
-  ativo_produto_gravity_workspace          Boolean @default(true)
+  id_produto_gravity_workspace    String  @id @default(cuid())
+  id_organizacao                  String
+  id_workspace                    String
+  id_produto_gravity              String
+  ativo_produto_gravity_workspace Boolean @default(true)
 
   // Timestamps
   data_criacao_produto_gravity_workspace     DateTime @default(now())
   data_atualizacao_produto_gravity_workspace DateTime @updatedAt
 
   // Relações
-  tenant  Organizacao @relation(fields: [id_organizacao_produto_gravity_workspace], references: [id_organizacao], onDelete: Cascade)
-  company Workspace   @relation(fields: [id_workspace_produto_gravity_workspace], references: [id_workspace], onDelete: Cascade)
+  tenant  Organizacao    @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "pgw_org_fkey")
+  company Workspace      @relation(fields: [id_workspace], references: [id_workspace], onDelete: Cascade, map: "pgw_ws_fkey")
+  produto ProdutoGravity @relation(fields: [id_produto_gravity], references: [id_produto_gravity], onDelete: Cascade, map: "pgw_produto_fkey")
 
-  // Apenas uma ativação por produto por workspace — `map` explícito para evitar colisão pós truncamento PG
-  @@unique([id_workspace_produto_gravity_workspace, chave_produto_produto_gravity_workspace], map: "pgw_ws_chave_unq")
-  // Índices obrigatórios — `map` explícito pelo mesmo motivo
-  @@index([id_organizacao_produto_gravity_workspace], map: "pgw_org_idx")
-  @@index([id_workspace_produto_gravity_workspace], map: "pgw_ws_idx")
-  @@index([id_workspace_produto_gravity_workspace, ativo_produto_gravity_workspace], map: "pgw_ws_ativo_idx")
+  // Apenas uma ativação por produto por workspace
+  @@unique([id_workspace, id_produto_gravity], map: "pgw_ws_produto_unq")
+  @@index([id_organizacao], map: "pgw_org_idx")
+  @@index([id_workspace], map: "pgw_ws_idx")
+  @@index([id_workspace, ativo_produto_gravity_workspace], map: "pgw_ws_ativo_idx")
   @@map("produto_gravity_workspace")
 }
 
@@ -420,6 +420,7 @@ model ProdutoGravity {
   // Relations
   faixas_preco_produto_gravity ProdutoGravityFaixaPreco[]
   negociacoes_produto_gravity  ProdutoGravityNegociacaoEspecial[]
+  ativacoes_produto_gravity    ProdutoGravityWorkspace[]
 
   @@index([status_produto_gravity], map: "pg_status_idx")
   @@index([slug_produto_gravity], map: "pg_slug_idx")

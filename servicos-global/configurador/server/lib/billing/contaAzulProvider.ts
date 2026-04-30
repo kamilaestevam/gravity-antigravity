@@ -3,8 +3,8 @@
 // Cobre cobrança recorrente (boleto/Pix/cartão) + emissão de NFS-e integrada.
 //
 // DECISÃO DE PRODUTO (2026-04-15): Conta Azul é o provider OFICIAL do Gravity
-// para faturamento e emissão fiscal. Stripe fica como fallback de desenvolvimento
-// e Itaú/Santander/ABRASF são skeletons alternativos documentados.
+// para faturamento e emissão fiscal. Itaú/Santander/ABRASF são skeletons
+// alternativos documentados (Stripe foi descontinuado em 2026-04-29).
 //
 // ─── CHECKLIST DE ATIVAÇÃO ─────────────────────────────────────────────────
 //

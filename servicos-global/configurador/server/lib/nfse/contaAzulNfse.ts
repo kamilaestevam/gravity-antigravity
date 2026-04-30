@@ -36,7 +36,7 @@
 // Nota: quando usando ContaAzulProvider no billing, a NFS-e já pode ser emitida
 // automaticamente junto com a venda (campo `emitir_nfse=true` no POST /v1/sales).
 // Esta classe existe para casos em que a emissão é disparada manualmente OU
-// via webhook invoice.paid quando o provider de billing é outro (ex: Stripe).
+// via webhook de fatura paga quando o provider de billing é outro.
 //
 // Docs:
 //   https://developers.contaazul.com/reference/notas-fiscais

@@ -10,7 +10,6 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
       PORT: '8005',
-      STRIPE_SECRET_KEY: 'sk_test_dummy_vitest',
       CLERK_SECRET_KEY: 'sk_test_dummy_vitest',
       INTERNAL_SERVICE_KEY: 'test-internal-key',
       CLERK_WEBHOOK_SECRET: 'whsec_dummy_vitest',

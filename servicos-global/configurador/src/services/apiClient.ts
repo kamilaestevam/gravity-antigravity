@@ -328,7 +328,7 @@ export const adminUsersApi = {
 }
 
 // ─── Admin: Billing / Faturas (BillingProvider abstrato) ────────────────────
-// Shape estável independente do provider (Stripe / Itaú / Santander / ASAAS / ...).
+// Shape estável independente do provider (Conta Azul / Itaú / Santander / ASAAS / ...).
 // Ver servicos-global/configurador/server/lib/billing/types.ts
 
 export type GravityInvoiceStatus =

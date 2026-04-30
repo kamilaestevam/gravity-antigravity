@@ -1,88 +1,32 @@
 // server/routes/billing.ts
-// Assinaturas, checkout e webhook do Stripe
-// POST /api/v1/faturas/webhook-stripe — recebe eventos do Stripe (raw body)
-// GET  /api/v1/faturas               — histórico de faturas do tenant
+// Histórico de faturas do tenant via BillingProvider configurado.
+// GET  /api/v1/faturas — histórico de faturas do tenant autenticado
+//
+// Stripe foi descontinuado em 2026-04-29; o webhook /webhook-stripe foi removido.
+// Cobrança e NFS-e seguem via Conta Azul (provider OFICIAL — ver docs/BILLING.md).
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
-import { stripe } from '../lib/stripe.js'
-import { prisma } from '../lib/prisma.js'
-import { billingService } from '../services/billingService.js'
-import { AppError } from '../lib/appError.js'
+import { getBillingProvider } from '../lib/billing/index.js'
 
 export const billingRouter = Router()
 
 /**
- * POST /api/v1/faturas/webhook-stripe
- * Endpoint para receber eventos do Stripe
- * Body: raw (buffer) — registrado ANTES do express.json() no index.ts
- */
-billingRouter.post('/webhook-stripe', async (req, res, next) => {
-  try {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-    if (!webhookSecret) {
-      throw new AppError('STRIPE_WEBHOOK_SECRET não configurada', 500, 'CONFIG_ERROR')
-    }
-
-    const sig = req.headers['stripe-signature']
-    if (!sig) {
-      throw new AppError('Assinatura Stripe ausente', 400, 'VALIDATION_ERROR')
-    }
-
-    let event
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body as Buffer,
-        sig,
-        webhookSecret
-      )
-    } catch {
-      throw new AppError('Assinatura Stripe inválida', 400, 'INVALID_SIGNATURE')
-    }
-
-    // TODO: idempotência Stripe — StripeEvent removido do DDD; reimplementar via FaturaProdutosGravity ou Redis
-
-    // Processa o evento
-    await billingService.handleStripeEvent(event)
-
-    res.json({ received: true })
-  } catch (err) {
-    next(err)
-  }
-})
-
-/**
  * GET /api/v1/faturas
- * Retorna histórico de faturas do Stripe para o tenant autenticado
+ * Retorna histórico de faturas do provider configurado para o tenant autenticado.
  */
 billingRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: req.auth.id_organizacao },
-      select: { stripe_customer_id: true },
-    })
-
-    if (!tenant?.stripe_customer_id) {
-      res.json({ invoices: [] })
-      return
-    }
-
-    const invoiceList = await stripe.invoices.list({
-      customer: tenant.stripe_customer_id,
+    const provider = getBillingProvider()
+    const result = await provider.listInvoices({
+      customer_id: req.auth.id_organizacao,
       limit: 24,
     })
 
-    const invoices = invoiceList.data.map((inv) => ({
-      id: inv.id,
-      status: inv.status,
-      amount: inv.amount_paid,
-      currency: inv.currency,
-      date: inv.created,
-      pdf: inv.invoice_pdf,
-      hostedUrl: inv.hosted_invoice_url,
-    }))
-
-    res.json({ invoices })
+    res.json({
+      invoices: result.invoices,
+      provider: provider.name,
+    })
   } catch (err) {
     next(err)
   }

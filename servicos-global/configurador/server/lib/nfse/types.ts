@@ -37,7 +37,7 @@ export interface NfseTomador {
 }
 
 export interface EmitNfseParams {
-  reference_id: string          // id externo (ex: stripe_invoice_id)
+  reference_id: string          // id externo da fatura no provider de billing
   tomador: NfseTomador
   servico: NfseServicePrestado
   competencia: string           // 'YYYY-MM'

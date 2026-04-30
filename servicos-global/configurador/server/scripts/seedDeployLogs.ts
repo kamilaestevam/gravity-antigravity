@@ -24,7 +24,7 @@ const SAMPLES = [
   {
     area: 'configurador',
     version: 'v1.5.0',
-    description: 'Detetive de Tela: Financeiro Global — abstração BillingProvider (Stripe + skeletons Itaú/Santander/Conta Azul), NfseProvider, refactor completo da tela, graceful degradation',
+    description: 'Detetive de Tela: Financeiro Global — abstração BillingProvider (Conta Azul oficial + skeletons Itaú/Santander), NfseProvider, refactor completo da tela, graceful degradation',
     environment: 'PRODUCAO' as const,
     status: 'SUCESSO' as const,
     deployed_by: 'Daniel Martins Mendes',

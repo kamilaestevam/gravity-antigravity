@@ -228,7 +228,6 @@ function fetchSecretsSnapshot() {
     secrets: [
       { name: 'INTERNAL_SERVICE_KEY', configured: !!process.env.INTERNAL_SERVICE_KEY, prefix: (process.env.INTERNAL_SERVICE_KEY ?? '').slice(0, 6) },
       { name: 'CLERK_SECRET_KEY',     configured: !!process.env.CLERK_SECRET_KEY,     prefix: (process.env.CLERK_SECRET_KEY ?? '').slice(0, 6) },
-      { name: 'STRIPE_SECRET_KEY',    configured: !!process.env.STRIPE_SECRET_KEY,    prefix: (process.env.STRIPE_SECRET_KEY ?? '').slice(0, 6) },
       { name: 'ENCRYPTION_KEY',       configured: !!process.env.ENCRYPTION_KEY,       prefix: (process.env.ENCRYPTION_KEY ?? '').slice(0, 6) },
     ],
   }

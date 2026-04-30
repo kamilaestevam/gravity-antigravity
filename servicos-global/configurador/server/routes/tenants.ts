@@ -84,7 +84,7 @@ const UpdateCompanySchema = z.object({
 /**
  * POST /api/v1/organizacoes
  * Cria uma nova organização + usuário owner durante o onboarding
- * Público — chamado logo após o checkout do Stripe
+ * Público — chamado logo após o checkout do provider de billing
  */
 tenantsRouter.post('/', async (req, res, next) => {
   try {
@@ -155,7 +155,7 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       module: 'configuracao',
@@ -209,7 +209,7 @@ tenantsRouter.post('/me/workspaces', requireAuth, async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       module: 'configuracao',
@@ -248,7 +248,7 @@ tenantsRouter.patch('/me/workspaces/:id_workspace', requireAuth, async (req, res
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       module: 'configuracao',
@@ -275,7 +275,7 @@ tenantsRouter.delete('/me/workspaces/:id_workspace', requireAuth, async (req, re
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       module: 'configuracao',

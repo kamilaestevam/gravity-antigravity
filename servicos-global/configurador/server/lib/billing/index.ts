@@ -1,11 +1,10 @@
 // server/lib/billing/index.ts
 // Factory do BillingProvider.
 // Lê a env BILLING_PROVIDER para decidir qual provider usar.
-// Providers disponíveis hoje: 'stripe'. Skeletons: 'itau', 'santander'.
+// Provider OFICIAL: 'conta_azul'. Skeletons: 'itau', 'santander'.
 
 import { logger } from '../logger.js'
 import type { BillingProvider } from './types.js'
-import { StripeProvider } from './stripeProvider.js'
 import { ContaAzulProvider } from './contaAzulProvider.js'
 import { ItauProvider } from './itauProvider.js'
 import { SantanderProvider } from './santanderProvider.js'
@@ -19,20 +18,16 @@ let cachedProvider: BillingProvider | null = null
 /**
  * Retorna o provider de billing configurado via env `BILLING_PROVIDER`.
  * Provider OFICIAL do Gravity: `conta_azul` (cobrança + NFS-e integrado).
- * Fallback de desenvolvimento: `stripe`.
  * Skeletons alternativos: `itau`, `santander` (ver BILLING.md).
  */
 export function getBillingProvider(): BillingProvider {
   if (cachedProvider) return cachedProvider
 
-  const choice = (process.env.BILLING_PROVIDER ?? 'stripe').toLowerCase()
+  const choice = (process.env.BILLING_PROVIDER ?? 'conta_azul').toLowerCase()
 
   switch (choice) {
     case 'conta_azul':
       cachedProvider = new ContaAzulProvider()
-      break
-    case 'stripe':
-      cachedProvider = new StripeProvider()
       break
     case 'itau':
       cachedProvider = new ItauProvider()
@@ -41,8 +36,8 @@ export function getBillingProvider(): BillingProvider {
       cachedProvider = new SantanderProvider()
       break
     default:
-      log.warn('BILLING_PROVIDER desconhecido — usando Stripe como fallback de dev', { choice })
-      cachedProvider = new StripeProvider()
+      log.warn('BILLING_PROVIDER desconhecido — usando Conta Azul como fallback', { choice })
+      cachedProvider = new ContaAzulProvider()
       break
   }
 

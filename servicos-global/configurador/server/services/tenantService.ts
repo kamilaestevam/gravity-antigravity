@@ -28,7 +28,7 @@ interface CreateCompanyInput {
 export const tenantService = {
   /**
    * Cria um novo tenant + usuário owner via saga Cadastros-primeiro.
-   * Chamado no onboarding após checkout do Stripe.
+   * Chamado no onboarding após checkout do provider de billing.
    *
    * Fluxo (saga com compensação):
    *   1. Pré-checks de unicidade (slug, clerk_user_id) — fail fast antes de tocar rede.

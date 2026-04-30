@@ -101,7 +101,7 @@ export function FinanceiroAdmin() {
   const [carregando, setCarregando] = useState(true)
   const [provider, setProvider] = useState<string>('—')
 
-  // Paginação cursor-based (Stripe)
+  // Paginação cursor-based
   const [cursorStack, setCursorStack] = useState<string[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
@@ -319,7 +319,7 @@ export function FinanceiroAdmin() {
       tipo: 'texto',
       align: 'center',
       tooltipTitulo: 'Invoice Number',
-      tooltipDescricao: 'Número legível da fatura gerado pelo provider (Stripe, banco, etc.)',
+      tooltipDescricao: 'Número legível da fatura gerado pelo provider (Conta Azul, banco, etc.)',
       render: (v, item) => (
         <code style={{
           fontSize: '0.8125rem', color: '#818cf8', background: 'rgba(129,140,248,0.08)',
@@ -739,7 +739,7 @@ export function FinanceiroAdmin() {
               <strong>{invoiceParaAnular?.number ?? invoiceParaAnular?.id}</strong> do cliente{' '}
               <strong>{invoiceParaAnular?.customer.name}</strong>.
               <br /><br />
-              Esta ação é irreversível no Stripe — a fatura ficará com status VOID e não poderá ser cobrada.
+              Esta ação é irreversível no provider — a fatura ficará com status VOID e não poderá ser cobrada.
             </>
           }
           nomeItem={`${invoiceParaAnular?.number ?? invoiceParaAnular?.id} — ${invoiceParaAnular?.customer.name}`}

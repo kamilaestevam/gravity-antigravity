@@ -1,7 +1,7 @@
 // server/lib/billing/types.ts
 // Contratos estáveis da camada de billing.
-// Todo provider (Stripe, ASAAS, Inter, manual, etc.) implementa o mesmo BillingProvider
-// e mapeia sua resposta para o shape GravityInvoice.
+// Todo provider (Conta Azul, ASAAS, Inter, manual, etc.) implementa o mesmo
+// BillingProvider e mapeia sua resposta para o shape GravityInvoice.
 //
 // O frontend só conhece GravityInvoice — nunca tipos específicos do SDK do provider.
 // Isso permite trocar de provider sem reescrever tela.
@@ -29,14 +29,14 @@ export interface GravityInvoiceDocument {
 }
 
 export interface GravityInvoiceCustomer {
-  id: string          // id do tenant no Gravity (ou cus_xxx do Stripe quando órfão)
+  id: string          // id do tenant no Gravity (ou id externo do provider quando órfão)
   name: string
   email: string | null
   tenant_id: string | null
 }
 
 export interface GravityInvoice {
-  id: string                       // id único do provider (ex: in_xxx no Stripe)
+  id: string                       // id único do provider
   number: string | null            // número legível (ex: 0001-0123)
   status: GravityInvoiceStatus
   customer: GravityInvoiceCustomer
@@ -48,14 +48,14 @@ export interface GravityInvoice {
   description: string              // legível, agregando line_items quando necessário
   line_items: GravityInvoiceLineItem[]
   documents: GravityInvoiceDocument[]
-  hosted_url: string | null        // página web do provider (ex: hosted_invoice_url no Stripe)
+  hosted_url: string | null        // página web do provider
   created_at: string               // ISO 8601
   provider: BillingProviderName
   provider_id: string              // id cru do provider (igual a id na maioria dos casos)
 }
 
 export interface ListInvoicesParams {
-  cursor?: string                  // paginação (starting_after no Stripe, offset no manual)
+  cursor?: string                  // paginação cursor-based
   limit?: number                   // default 50, max 100
   status?: GravityInvoiceStatus
   customer_id?: string             // filtra por tenant
@@ -89,7 +89,6 @@ export interface VoidInvoiceParams {
 // ─── BillingProvider — contrato que todos os providers implementam ──────────
 
 export type BillingProviderName =
-  | 'stripe'
   | 'manual'
   | 'conta_azul'
   | 'asaas'
@@ -102,7 +101,7 @@ export interface BillingProvider {
   readonly name: BillingProviderName
 
   /**
-   * Lista invoices. Usa cursor-based pagination para compatibilidade com Stripe.
+   * Lista invoices. Usa cursor-based pagination.
    */
   listInvoices(params: ListInvoicesParams): Promise<ListInvoicesResult>
 
@@ -118,7 +117,7 @@ export interface BillingProvider {
 
   /**
    * Anula uma invoice. O comportamento depende do provider:
-   * - Stripe: void (não pode reverter)
+   * - Conta Azul: cancelamento (DELETE /v1/sales/{id})
    * - Manual: soft-delete + status=VOID
    */
   voidInvoice(params: VoidInvoiceParams): Promise<GravityInvoice>

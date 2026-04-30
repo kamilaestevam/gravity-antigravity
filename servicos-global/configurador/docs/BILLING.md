@@ -4,7 +4,7 @@ Este documento descreve a camada de cobrança e emissão fiscal do Gravity
 Configurador, e o que precisa ser feito (código + burocracia) para ativar
 cada provider.
 
-## 🎯 Decisão de produto (2026-04-15)
+## 🎯 Decisão de produto (2026-04-15, atualizada 2026-04-29)
 
 **Provider OFICIAL do Gravity: Conta Azul.**
 
@@ -12,8 +12,10 @@ O Gravity usa **Conta Azul** como provider único para cobrança (boleto/Pix/car
 recorrente) **e** emissão de NFS-e. Uma assinatura resolve ERP financeiro +
 faturamento + fiscal. Veja a seção "Conta Azul" abaixo para o checklist completo.
 
-**Fallback de desenvolvimento: Stripe** — usado durante desenvolvimento e para
-clientes internacionais. Funcional desde o primeiro dia.
+> **Stripe foi descontinuado em 2026-04-29.** Todas as colunas `stripe_*` do banco
+> foram removidas, o webhook `/webhook-stripe`, o singleton `lib/stripe.ts`, o
+> `StripeProvider` e o `billingService` foram apagados, e a dependência `stripe`
+> saiu do `package.json`.
 
 **Alternativas documentadas (não recomendadas atualmente):** Itaú, Santander,
 ABRASF Florianópolis direto. Mantidas como skeletons para caso de mudança
@@ -25,7 +27,7 @@ estratégica futura.
 
 ### Abstração `BillingProvider`
 
-A tela `/admin/financeiro` **não conhece** Stripe, Itaú, Santander ou qualquer
+A tela `/admin/financeiro` **não conhece** Conta Azul, Itaú, Santander ou qualquer
 outro gateway. Ela só conhece o contrato `GravityInvoice` e chama métodos do
 `BillingProvider` retornado pela factory em `server/lib/billing/index.ts`.
 
@@ -46,9 +48,9 @@ outro gateway. Ela só conhece o contrato `GravityInvoice` e chama métodos do
 │     interface      │
 └────────┬───────────┘
          │
-  ┌──────┴──────┬──────────┬──────────┐
-  ▼             ▼          ▼          ▼
-Stripe    Itaú(stub)  Santander(stub) ...
+  ┌──────┴──────┬──────────┐
+  ▼             ▼          ▼
+ContaAzul    Itaú(stub)  Santander(stub)
 ```
 
 **Para trocar de provider:** mudar `BILLING_PROVIDER=<name>` no `.env`.
@@ -56,21 +58,9 @@ Nenhum código do frontend precisa ser alterado.
 
 ### Abstração `NfseProvider`
 
-Análoga ao BillingProvider, mas para emissão de NFS-e. Disparada no webhook
-`invoice.paid` do Stripe (em `billingService.handleStripeEvent`).
-
-```
-Stripe webhook invoice.paid
-         │
-         ▼
-billingService.handleInvoicePaid
-         │
-         ▼
-getNfseProvider() → null (se desabilitado) | NfseProvider
-         │
-         ▼
-provider.emit({ reference_id, tomador, servico, competencia })
-```
+Análoga ao BillingProvider, mas para emissão de NFS-e. Disparada pelo provider
+de billing após pagamento confirmado (no Conta Azul, a NFS-e pode ser emitida
+junto com a venda via `emitir_nfse: true`).
 
 Se o provider retornar null (nenhuma env var configurada), a emissão é
 **silenciosamente pulada**, e o fluxo de pagamento continua normal.
@@ -188,31 +178,6 @@ CONTA_AZUL_ENVIRONMENT=sandbox           # depois: production
 - https://developers.contaazul.com/reference/introduction
 - https://developers.contaazul.com/docs/autenticacao
 - https://developers.contaazul.com/reference/notas-fiscais
-
----
-
-### 🟢 Stripe (funcional, fallback de dev)
-
-**Status:** ativo e funcional.
-
-**Env vars (já existentes):**
-```
-BILLING_PROVIDER=stripe
-STRIPE_SECRET_KEY=sk_test_... ou sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-```
-
-**O que funciona:**
-- Listagem de invoices via `stripe.invoices.list` (todas da conta — sem filtro de customer)
-- Criação de invoice via `stripe.invoiceItems.create` + `stripe.invoices.create` + opcional `finalizeInvoice`
-- Void via `stripe.invoices.voidInvoice`
-- Reenvio via `stripe.invoices.sendInvoice`
-- PDF download direto do CDN Stripe (`invoice.invoice_pdf`)
-- Webhook `invoice.paid` dispara emissão de NFS-e se configurada
-
-**O que NÃO funciona nativamente:**
-- Emissão de NFS-e brasileira (precisa NfseProvider)
-- Multi-line items no form do admin (v1 suporta 1 linha — a abstração aceita várias)
 
 ---
 
@@ -367,31 +332,16 @@ NFEIO_COMPANY_ID=
 
 ---
 
-## Fluxo completo esperado (após ativação)
+## Fluxo completo esperado (após ativação Conta Azul)
 
 1. Admin Gravity abre `/admin/financeiro`
 2. Tela chama `GET /api/v1/admin/faturas` → `billingProvider.listInvoices()`
-3. Tela renderiza invoices reais (Stripe v1, depois Itaú/Santander)
+3. Tela renderiza invoices reais do Conta Azul
 4. Admin clica "Lançar Fatura" → preenche tenant/descrição/valor/vencimento
-5. `POST /api/v1/admin/faturas` → `billingProvider.createInvoice()`
-6. Stripe cria invoice + envia email ao cliente
-7. Cliente paga via link hosted
-8. Stripe envia webhook `invoice.paid` → `billingService.handleInvoicePaid`
-9. Se `NfseProvider` configurado: dispara emissão de NFS-e
-10. NFS-e fica em `stripe_invoice.metadata.nfe_url` (quando aplicável)
-11. Tela admin exibe ícone de NF-e ao lado do PDF
-12. Download PDF e NF-e diretos via `<a href={doc.url}>`
-
----
-
-## Migração futura Stripe → Banco direto
-
-Quando Gravity tiver conta Itaú + convênio + mTLS cert:
-
-1. Preencher env vars `ITAU_*`
-2. Implementar `itauProvider.ts` (hoje skeleton — preencher os métodos)
-3. Trocar `BILLING_PROVIDER=itau` no `.env`
-4. Rolling restart do configurador
-5. **Frontend não muda.** Nada.
-
-A camada de abstração paga o custo do skeleton para dar esse ganho no futuro.
+5. `POST /api/v1/admin/faturas` → `ContaAzulProvider.createInvoice()`
+6. Conta Azul cria venda + envia email ao cliente
+7. Cliente paga via boleto/Pix/cartão
+8. Conta Azul envia webhook `sale_paid` → handler dedicado
+9. NFS-e já foi emitida junto com a venda; `documents` ganha `nfe_url`
+10. Tela admin exibe ícone de NF-e ao lado do PDF
+11. Download PDF e NF-e diretos via `<a href={doc.url}>`

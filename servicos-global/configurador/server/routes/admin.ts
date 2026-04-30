@@ -40,7 +40,7 @@ export const adminRouter = Router()
 adminRouter.use(requireAuth, requireGravityAdmin)
 
 // Rate limit extra-restritivo nas rotas de billing — operações financeiras
-// (create/void/send) disparam calls ao Stripe que têm rate limit próprio,
+// (create/void/send) disparam calls ao provider externo que tem rate limit próprio,
 // e o /faturas pode ser usado para enumerar organizações via customer_id.
 // O preset admin (60 req/min por tenant:IP) evita flood.
 adminRouter.use('/faturas', rateLimitPresets.admin())
@@ -176,9 +176,9 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
         },
         product_configs_organizacao: {
           select: {
-            chave_produto_config_produto_gravity: true,
-            ativo_config_produto_gravity: true,
-            data_atualizacao_config_produto_gravity: true,
+            chave_produto_configuracao_produto_gravity: true,
+            ativo_configuracao_produto_gravity: true,
+            data_atualizacao_configuracao_produto_gravity: true,
           },
           take: 50,
         },
@@ -214,10 +214,8 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
         // DTO: AssinaturaProdutoGravity rename → contrato externo legado
         subscriptions: subscriptions_organizacao.map((s) => ({
           id: s.id_assinatura_produto_gravity,
-          tenant_id: s.id_organizacao_assinatura_produto_gravity,
+          tenant_id: s.id_organizacao,
           status: s.status_assinatura_produto_gravity,
-          stripe_subscription_id: s.stripe_subscription_id,
-          stripe_price_id: s.stripe_price_id,
           trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
           current_period_start: s.data_inicio_periodo_assinatura_produto_gravity,
           current_period_end: s.data_fim_periodo_assinatura_produto_gravity,
@@ -227,9 +225,9 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
         })),
         // DTO: ConfiguracaoProduto rename → contrato legado
         product_configs: product_configs_organizacao.map((pc) => ({
-          product_key: pc.chave_produto_config_produto_gravity,
-          is_active: pc.ativo_config_produto_gravity,
-          updated_at: pc.data_atualizacao_config_produto_gravity,
+          product_key: pc.chave_produto_configuracao_produto_gravity,
+          is_active: pc.ativo_configuracao_produto_gravity,
+          updated_at: pc.data_atualizacao_configuracao_produto_gravity,
         })),
       },
     })
@@ -277,7 +275,7 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -288,7 +286,7 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       action_detail: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
       before: { status: existing.status_organizacao },
       after: { status: tenant.status_organizacao },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_organizacao Prisma → id legado do contrato
@@ -328,7 +326,7 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -338,7 +336,7 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
       action: 'TENANT_CREATED',
       action_detail: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
       after: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: mapeia _count e id_organizacao → chaves legadas
@@ -375,12 +373,12 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
     const company = await prisma.workspace.update({
       where: { id_workspace: idParsed.data },
       data: { status_workspace: parsed.data.status },
-      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao_workspace: true },
+      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao: true },
     })
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -391,18 +389,18 @@ adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
       action_detail: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
       before: { status: existing.status_workspace },
       after: { status: company.status_workspace },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_workspace → id, nome_workspace → name, etc.
-    const { id_workspace, nome_workspace, status_workspace, id_organizacao_workspace, ...cRest } = company
+    const { id_workspace, nome_workspace, status_workspace, id_organizacao, ...cRest } = company
     res.json({
       workspace: {
         ...cRest,
         id: id_workspace,
         name: nome_workspace,
         status: status_workspace,
-        tenant_id: id_organizacao_workspace,
+        tenant_id: id_organizacao,
       },
     })
   } catch (err) {
@@ -480,7 +478,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
           email_usuario: true,
           tipo_usuario: true,
           data_criacao_usuario: true,
-          id_organizacao_usuario: true,
+          id_organizacao: true,
           tenant: {
             select: { nome_organizacao: true, subdominio_organizacao: true },
           },
@@ -506,7 +504,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -514,17 +512,17 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       resource_type: 'Usuario',
       action: 'USERS_GLOBAL_LIST_VIEWED',
       action_detail: `Listagem global — ${total} usuários (page=${page}, limit=${limit}${search ? `, search="${search}"` : ''})`,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_organizacao_usuario, id_usuario, ...rest }) => ({
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_organizacao, id_usuario, ...rest }) => ({
       ...rest,
       id: id_usuario,
       created_at: data_criacao_usuario,
       email: email_usuario,
       name: nome_usuario,
-      tenant_id: id_organizacao_usuario,
+      tenant_id: id_organizacao,
       // DTO: UsuarioWorkspace rename → contrato externo legado
       memberships: memberships.map((m) => ({
         id: m.id_usuario_workspace,
@@ -548,7 +546,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
 
 // ─── Billing / Invoices ─────────────────────────────────────────────────────
 // Delegadas ao BillingProvider configurado (server/lib/billing).
-// Providers suportados hoje: 'stripe'. Skeletons: 'itau', 'santander'.
+// Provider OFICIAL: 'conta_azul'. Skeletons: 'itau', 'santander'.
 // Ver docs/BILLING.md para detalhes de arquitetura e checklist de ativação.
 
 const ListInvoicesQuerySchema = z.object({
@@ -578,7 +576,7 @@ const VoidInvoiceBodySchema = z.object({
 
 /**
  * GET /api/v1/admin/faturas
- * Lista faturas via BillingProvider (Stripe por padrão).
+ * Lista faturas via BillingProvider configurado.
  */
 adminRouter.get('/faturas', async (req, res, next) => {
   try {
@@ -621,7 +619,7 @@ adminRouter.get('/faturas/:id_fatura', async (req, res, next) => {
 
 /**
  * POST /api/v1/admin/faturas
- * Cria uma fatura manual via provider (Stripe).
+ * Cria uma fatura manual via BillingProvider configurado.
  */
 adminRouter.post('/faturas', async (req, res, next) => {
   try {
@@ -637,7 +635,7 @@ adminRouter.post('/faturas', async (req, res, next) => {
     // O frontend (useHistoricoLogger) é best-effort; audit no backend é a fonte autoritária.
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -647,7 +645,7 @@ adminRouter.post('/faturas', async (req, res, next) => {
       action: 'INVOICE_CREATED',
       action_detail: `Fatura ${invoice.number ?? invoice.id} criada para tenant ${parsed.data.customer_tenant_id} — ${invoice.amount_due_cents} ${invoice.currency}`,
       after: { customer_tenant_id: parsed.data.customer_tenant_id, amount_due_cents: invoice.amount_due_cents, currency: invoice.currency, auto_finalize: parsed.data.auto_finalize },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ invoice })
@@ -658,7 +656,7 @@ adminRouter.post('/faturas', async (req, res, next) => {
 
 /**
  * POST /api/v1/admin/faturas/:id_fatura/anular
- * Anula uma fatura. Stripe: void_invoice. Manual: soft-delete.
+ * Anula uma fatura. Conta Azul: cancelamento. Manual: soft-delete.
  */
 adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
   try {
@@ -672,7 +670,7 @@ adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -683,7 +681,7 @@ adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
       action_detail: `Fatura ${invoice.number ?? invoice.id} anulada${parsed.data.reason ? ` — motivo: ${parsed.data.reason}` : ''}`,
       before: { status: 'OPEN' },
       after: { status: 'VOID', reason: parsed.data.reason ?? null },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ invoice })
@@ -703,7 +701,7 @@ adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -712,7 +710,7 @@ adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
       resource_id: invoice.id,
       action: 'INVOICE_SENT',
       action_detail: `Fatura ${invoice.number ?? invoice.id} enviada para ${invoice.customer.email ?? invoice.customer.name}`,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ invoice })
@@ -913,8 +911,8 @@ const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
  * Whitelist de env vars seguras para o processo Playwright.
  *
  * Antes, o spawn herdava todo o `process.env` — incluindo secrets sensíveis
- * (STRIPE_SECRET_KEY, CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY,
- * INTERNAL_SERVICE_KEY). Se um teste falhasse e logasse `process.env` no
+ * (CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY, INTERNAL_SERVICE_KEY).
+ * Se um teste falhasse e logasse `process.env` no
  * stack trace, esses valores iam parar nos arquivos data/test-logs/*.json
  * que são expostos via GET /admin/testes-gerais/logs.
  *
@@ -994,7 +992,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
     // Audit trail: início do run — quem disparou, com quais planos/módulos
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1003,7 +1001,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
       action: 'RUN_TESTS_STARTED',
       action_detail: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
       after: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     pwRunning = true
@@ -1083,7 +1081,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
       const erros = entries.filter(e => e.result === 'ERRO').length
       AuditService.log({
         tenant_id: req.auth.id_organizacao,
-        actor_type: 'USER',
+        actor_type: 'USUARIO',
         actor_id: req.auth.id_usuario,
         actor_name: req.auth.id_usuario,
         actor_ip: req.ip,
@@ -1092,7 +1090,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
         action: 'RUN_TESTS_COMPLETED',
         action_detail: `Run concluído — ${entries.length} testes (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
         after: { total: entries.length, aprovados, reprovados, erros },
-        status: reprovados + erros > 0 ? 'PARTIAL' : 'SUCCESS',
+        status: reprovados + erros > 0 ? 'PARCIAL' : 'SUCESSO',
       }).catch(() => { /* fire-and-forget */ })
 
       console.log(`[admin/testes-gerais/run] Run concluído — ${entries.length} entradas salvas`)
@@ -1197,7 +1195,7 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
     const erros = entries.filter(e => e.result === 'ERRO').length
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1206,7 +1204,7 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
       action: 'TEST_LOGS_INGESTED',
       action_detail: `${entries.length} test-logs ingeridos (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
       after: { total: entries.length, aprovados, reprovados, erros, persistedInDb: salvouNoBanco },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ ok: true, saved: entries.length, banco: salvouNoBanco })
@@ -1228,8 +1226,8 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 
     // Busca o tenant do usuário admin logado
     const user = await prisma.usuario.findFirst({
-      where: { clerk_user_id: req.auth.clerkUserId },
-      select: { id_organizacao_usuario: true },
+      where: { id_clerk_usuario: req.auth.clerkUserId },
+      select: { id_organizacao: true },
     })
 
     if (!user) {
@@ -1239,7 +1237,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
 
     // Campos core — sempre existem na migration init
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.id_organizacao_usuario },
+      where: { id_organizacao: user.id_organizacao },
       select: {
         id_organizacao: true,
         nome_organizacao: true,
@@ -1321,9 +1319,9 @@ adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next
 
     const user = await prisma.usuario.findUnique({
       where: { id_usuario: req.params.id_usuario },
-      select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
+      select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_clerk_usuario: true, id_organizacao: true },
     })
-    if (!user || user.id_organizacao_usuario !== req.auth.id_organizacao) {
+    if (!user || user.id_organizacao !== req.auth.id_organizacao) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -1374,7 +1372,7 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao_usuario: req.auth.id_organizacao } })
+    const existing = await prisma.usuario.findFirst({ where: { email_usuario: email, id_organizacao: req.auth.id_organizacao } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1387,8 +1385,8 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
     const user = await prisma.usuario.create({
       data: {
-        id_organizacao_usuario: req.auth.id_organizacao,
-        clerk_user_id: `pending_${invitation.id}`,
+        id_organizacao: req.auth.id_organizacao,
+        id_clerk_usuario: `pending_${invitation.id}`,
         email_usuario: email,
         nome_usuario:  name,
         tipo_usuario:  role,
@@ -1397,7 +1395,7 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1407,7 +1405,7 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
       action: 'USER_INVITED',
       action_detail: `Convite enviado — role=${role}`,
       after: { email: user.email_usuario, role: user.tipo_usuario },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
@@ -1431,8 +1429,8 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     }
 
     const user = await prisma.usuario.findFirst({
-      where: { clerk_user_id: req.auth.clerkUserId },
-      select: { id_organizacao_usuario: true },
+      where: { id_clerk_usuario: req.auth.clerkUserId },
+      select: { id_organizacao: true },
     })
 
     if (!user) {
@@ -1440,12 +1438,12 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
     }
 
     const before = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.id_organizacao_usuario },
+      where: { id_organizacao: user.id_organizacao },
       select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
-      where: { id_organizacao: user.id_organizacao_usuario },
+      where: { id_organizacao: user.id_organizacao },
       data: parsed.data,
       select: {
         id_organizacao: true,
@@ -1462,7 +1460,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1473,7 +1471,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       action_detail: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
       before: before ?? undefined,
       after: parsed.data,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO: id_organizacao → id legado do contrato
@@ -1520,7 +1518,7 @@ adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1530,7 +1528,7 @@ adminRouter.post('/testes-gerais/planos/gerar', async (req, res, next) => {
       action: 'TEST_PLAN_GENERATED',
       action_detail: `Plano ${plan.id} gerado — ${plan.passos.length} passos, cobertura ${plan.coberturaPercentual}%`,
       after: { id: plan.id, passos: plan.passos.length, cobertura: plan.coberturaPercentual },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ plan })
@@ -1583,7 +1581,7 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1592,7 +1590,7 @@ adminRouter.post('/testes-gerais/planos/:id_plano_teste/expandir', async (req, r
       resource_id: expanded.id,
       action: 'TEST_PLAN_EXPANDED',
       action_detail: `Plano ${expanded.id} expandido — ${expanded.passos.length} passos (antes: ${existingPlan.passos?.length ?? 0})`,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ plan: expanded })
@@ -1697,7 +1695,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1706,7 +1704,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/reanalisar', async (req, res
       resource_id: req.params.id_log_teste,
       action: 'TEST_LOG_REANALYZED',
       action_detail: `Re-análise Gemini — categoria=${analysis.categoria}, confiança=${analysis.confianca}`,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ analysis })
@@ -1757,7 +1755,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1768,7 +1766,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/aplicar-correcao', async (re
       action_detail: `Diff aplicado em ${diff.arquivo}`,
       before: { old: diff.old.slice(0, 200) },
       after: { new: diff.new.slice(0, 200) },
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ applied: true, arquivo: diff.arquivo })
@@ -1806,7 +1804,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, 
 
     AuditService.log({
       tenant_id: req.auth.id_organizacao,
-      actor_type: 'USER',
+      actor_type: 'USUARIO',
       actor_id: req.auth.id_usuario,
       actor_name: req.auth.id_usuario,
       actor_ip: req.ip,
@@ -1815,7 +1813,7 @@ adminRouter.post('/testes-gerais/logs/:id_log_teste/rejeitar', async (req, res, 
       resource_id: req.params.id_log_teste,
       action: 'TEST_ANALYSIS_REJECTED',
       action_detail: `Análise rejeitada — ${parsed.data.motivo.slice(0, 100)}`,
-      status: 'SUCCESS',
+      status: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ rejected: true })
@@ -2178,7 +2176,7 @@ adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
     zapProcess.on('close', (code) => {
       AuditService.log({
         tenant_id: req.auth.id_organizacao,
-        actor_type: 'USER',
+        actor_type: 'USUARIO',
         actor_id: req.auth.id_usuario,
         actor_name: req.auth.id_usuario,
         actor_ip: req.ip,

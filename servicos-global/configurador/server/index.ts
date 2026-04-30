@@ -1,6 +1,6 @@
 // server/index.ts
 // Agente Configurador — Servidor Express
-// Porta: 8005 | Banco: configurador-db | Auth: Clerk | Billing: Stripe
+// Porta: 8005 | Banco: configurador-db | Auth: Clerk | Billing: Conta Azul
 
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'node:url'
@@ -56,21 +56,18 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev", "https://js.stripe.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
-      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://api.stripe.com", "ws://localhost:*"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://*.clerk.accounts.dev"],
+      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "ws://localhost:*"],
+      frameSrc: ["'self'", "https://*.clerk.accounts.dev"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
     },
   },
   crossOriginEmbedderPolicy: false,
 }))
-
-// O webhook do Stripe precisa do body raw — registrar ANTES do json()
-app.use('/api/v1/faturas/webhook-stripe', express.raw({ type: 'application/json' }))
 
 app.use(express.json())
 app.use(cors({
@@ -101,7 +98,6 @@ app.get('/health', async (_req, res) => {
 
 // ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
-app.use('/api/v1/faturas/webhook-stripe', rateLimitPresets.webhook())
 app.use('/api/v1/catalogo', rateLimitPresets.public())
 app.use('/api/v1/admin', rateLimitPresets.admin())
 

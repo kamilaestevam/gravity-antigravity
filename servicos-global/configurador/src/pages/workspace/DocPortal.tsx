@@ -1,7 +1,7 @@
 /**
  * DocPortal.tsx
  *
- * Developer Portal — padrão Thomson Reuters / Stripe.
+ * Developer Portal — padrão Thomson Reuters.
  * Layout de 3 painéis:
  *   1. Sidebar de Endpoints (agrupados por produto)
  *   2. Painel Central com documentação request/response

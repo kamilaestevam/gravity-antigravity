@@ -62,7 +62,9 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       }
 
       // Todas as queries em paralelo — nenhuma bloqueia a outra
-      const [pedidosRaw, statusList, preferencia, padrao, colunas] = await Promise.all([
+      // NOTA: preferencia continua chamando model name errado (pedidoPreferenciaUsuario)
+      // — sera corrigido no proximo commit junto com a entrega da rota /preferencia-usuario-coluna-pedido.
+      const [pedidosRaw, statusList, preferencia, colunas] = await Promise.all([
         db.pedido.findMany({
           where,
           include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
@@ -73,8 +75,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           where: { id_organizacao: tenant_id },
           orderBy: { ordem_pedido_status: 'asc' },
         }),
-        db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }),
-        db.pedidoPreferenciaPadrao.findFirst({ where: { id_organizacao: tenant_id } }),
+        db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }).catch(() => null),
         colunasService.listar(tenant_id, user_id, user_roles, db as unknown as Record<string, unknown>),
       ])
 
@@ -114,11 +115,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           ...preferencia,
           colunas_visiveis: (preferencia as { colunas_visiveis_pedido_preferencia_usuario: string[] }).colunas_visiveis_pedido_preferencia_usuario,
           colunas_largura:  (preferencia as { colunas_largura_pedido_preferencia_usuario: Record<string, number> | null }).colunas_largura_pedido_preferencia_usuario,
-        } : (padrao ? {
-          ...padrao,
-          colunas_visiveis: (padrao as { colunas_visiveis_pedido_preferencia_padrao: string[] }).colunas_visiveis_pedido_preferencia_padrao,
-          colunas_largura:  (padrao as { colunas_largura_pedido_preferencia_padrao: Record<string, number> | null }).colunas_largura_pedido_preferencia_padrao,
-        } : null),
+        } : null,
         colunas,
       })
     })

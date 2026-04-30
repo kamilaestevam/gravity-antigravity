@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-30T21:47:05.222Z
+// Gerado em: 2026-04-30T22:23:14.552Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -234,28 +234,6 @@ model PedidoStatusConfig {
   @@map("status_pedido")
 }
 
-model PedidoColunas {
-  id_pedido_coluna             String   @id @default(cuid())
-  id_organizacao               String
-  id_workspace                 String?
-  nome_pedido_coluna           String
-  rotulo_pedido_coluna         String
-  tipo_pedido_coluna           String
-  casas_decimais_pedido_coluna Int      @default(2)
-  opcoes_pedido_coluna         Json?
-  ordem_pedido_coluna          Int      @default(0)
-  filtravel_pedido_coluna      Boolean  @default(true)
-  exibida_padrao_pedido_coluna Boolean  @default(false)
-  index_criado_pedido_coluna   Boolean  @default(false)
-  data_criacao_pedido_coluna   DateTime @default(now())
-  data_atualizacao_pedido_coluna DateTime @updatedAt
-
-  @@unique([id_organizacao, nome_pedido_coluna])
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_workspace])
-  @@map("pedido_colunas")
-}
-
 model PedidoListaColunasPreferencia {
   id_pedido_colunas_preferencia_usuario       String   @id @default(cuid())
   id_organizacao                              String
@@ -269,18 +247,6 @@ model PedidoListaColunasPreferencia {
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
   @@map("preferencia_coluna_pedido")
-}
-
-model PedidoListaColunasPadrao {
-  id_pedido_preferencia_padrao                String   @id @default(cuid())
-  id_organizacao                              String   @unique
-  id_workspace                                String?
-  colunas_visiveis_pedido_preferencia_padrao  String[]
-  colunas_largura_pedido_preferencia_padrao   Json?
-  data_atualizacao_pedido_preferencia_padrao  DateTime @updatedAt
-
-  @@index([id_organizacao])
-  @@map("preferencia_padrao_pedido")
 }
 
 model PedidoImportarAprendizadoIA {

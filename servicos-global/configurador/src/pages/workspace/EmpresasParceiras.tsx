@@ -71,12 +71,12 @@ async function getAuthHeaders(idOrganizacao: string | undefined): Promise<Record
 // ── Cell renderers ───────────────────────────────────────────────────────────
 
 const PAPEIS: Array<{ key: keyof Empresa; label: string; cor: string }> = [
-  { key: 'pode_ser_importador', label: 'Importador', cor: '#60a5fa' },
-  { key: 'pode_ser_exportador', label: 'Exportador', cor: '#34d399' },
-  { key: 'pode_ser_fabricante', label: 'Fabricante', cor: '#fbbf24' },
-  { key: 'pode_ser_agente', label: 'Agente', cor: '#c084fc' },
-  { key: 'pode_ser_despachante', label: 'Despachante', cor: '#f472b6' },
-  { key: 'pode_ser_armador', label: 'Armador', cor: '#22d3ee' },
+  { key: 'pode_ser_importador_empresa', label: 'Importador', cor: '#60a5fa' },
+  { key: 'pode_ser_exportador_empresa', label: 'Exportador', cor: '#34d399' },
+  { key: 'pode_ser_fabricante_empresa', label: 'Fabricante', cor: '#fbbf24' },
+  { key: 'pode_ser_agente_empresa', label: 'Agente', cor: '#c084fc' },
+  { key: 'pode_ser_despachante_empresa', label: 'Despachante', cor: '#f472b6' },
+  { key: 'pode_ser_armador_empresa', label: 'Armador', cor: '#22d3ee' },
 ]
 
 function ChipsPapeis({ empresa }: { empresa: Empresa }) {
@@ -109,8 +109,8 @@ function ChipsPapeis({ empresa }: { empresa: Empresa }) {
 }
 
 function DocumentoCell({ empresa }: { empresa: Empresa }) {
-  const ehBr = empresa.pais === 'BR'
-  const doc = ehBr ? empresa.cnpj : empresa.tin
+  const ehBr = empresa.pais_empresa === 'BR'
+  const doc = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
   const tipo = ehBr ? 'CNPJ' : 'TIN'
   if (!doc) {
     return <span style={{ color: 'var(--ws-muted)', fontStyle: 'italic' }}>sem documento</span>
@@ -196,12 +196,12 @@ export function EmpresasParceiras() {
     try {
       const headers = await getAuthHeaders(idOrganizacao)
       // Soft delete (DELETE) desativa; para reativar usamos PUT com { ativo: true }.
-      const res = empresa.ativo
-        ? await fetch(`/api/v1/empresas/${empresa.suid}`, {
+      const res = empresa.ativo_empresa
+        ? await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
             method: 'DELETE',
             headers,
           })
-        : await fetch(`/api/v1/empresas/${empresa.suid}`, {
+        : await fetch(`/api/v1/empresas/${empresa.suid_empresa}`, {
             method: 'PUT',
             headers,
             body: JSON.stringify({ ativo: true }),
@@ -217,10 +217,10 @@ export function EmpresasParceiras() {
       }
       const raw = await res.json()
       const atualizada = empresaSchema.parse(raw)
-      setEmpresas((prev) => prev.map((e) => (e.suid === atualizada.suid ? atualizada : e)))
+      setEmpresas((prev) => prev.map((e) => (e.suid_empresa === atualizada.suid_empresa ? atualizada : e)))
       addNotification({
         type: 'success',
-        message: `Empresa "${atualizada.nome_empresa}" ${atualizada.ativo ? 'reativada' : 'desativada'}.`,
+        message: `Empresa "${atualizada.nome_empresa}" ${atualizada.ativo_empresa ? 'reativada' : 'desativada'}.`,
       })
     } catch (err) {
       console.error('[EmpresasParceiras] erro ao alternar status:', err)
@@ -257,13 +257,13 @@ export function EmpresasParceiras() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
             <span style={{ fontWeight: 600 }}>{item.nome_empresa}</span>
-            <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.suid}</code>
+            <code style={{ fontSize: '0.625rem', color: 'var(--ws-muted)' }}>{item.suid_empresa}</code>
           </div>
         </div>
       ),
     },
     {
-      key: 'cnpj',
+      key: 'cnpj_empresa',
       label: 'Documento',
       tipo: 'texto',
       tooltipTitulo: 'Documento',
@@ -271,7 +271,7 @@ export function EmpresasParceiras() {
       render: (_, item) => <DocumentoCell empresa={item} />,
     },
     {
-      key: 'pais',
+      key: 'pais_empresa',
       label: 'Localização',
       tipo: 'texto',
       tooltipTitulo: 'Localização',
@@ -279,18 +279,18 @@ export function EmpresasParceiras() {
       render: (_, item) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
           <Globe size={14} weight="duotone" color="var(--ws-muted)" />
-          <strong style={{ fontSize: '0.8125rem' }}>{item.pais}</strong>
-          {item.cidade && (
+          <strong style={{ fontSize: '0.8125rem' }}>{item.pais_empresa}</strong>
+          {item.cidade_empresa && (
             <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>
-              · {item.cidade}
-              {item.estado ? `/${item.estado}` : ''}
+              · {item.cidade_empresa}
+              {item.estado_empresa ? `/${item.estado_empresa}` : ''}
             </span>
           )}
         </span>
       ),
     },
     {
-      key: 'pode_ser_importador',
+      key: 'pode_ser_importador_empresa',
       label: 'Funções habilitadas',
       tipo: 'texto',
       tooltipTitulo: 'Funções habilitadas',
@@ -298,12 +298,12 @@ export function EmpresasParceiras() {
       render: (_, item) => <ChipsPapeis empresa={item} />,
     },
     {
-      key: 'ativo',
+      key: 'ativo_empresa',
       label: 'Status',
       tipo: 'texto',
       tooltipTitulo: 'Status',
       tooltipDescricao: 'Empresas inativas não aparecem em dropdowns operacionais',
-      render: (_, item) => <StatusCell ativo={item.ativo} />,
+      render: (_, item) => <StatusCell ativo={item.ativo_empresa} />,
     },
   ]
 
@@ -320,7 +320,7 @@ export function EmpresasParceiras() {
       tooltip: 'Desativar/Reativar',
       onClick: (e) => void alternarAtivacao(e),
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.ativo ? 'Desativar empresa' : 'Reativar empresa'}>
+        <TooltipGlobal descricao={item.ativo_empresa ? 'Desativar empresa' : 'Reativar empresa'}>
           <button
             type="button"
             onClick={(ev) => {
@@ -343,9 +343,9 @@ export function EmpresasParceiras() {
               flexShrink: 0,
             }}
             onMouseEnter={(ev) => {
-              ev.currentTarget.style.background = item.ativo ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'
-              ev.currentTarget.style.borderColor = item.ativo ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'
-              ev.currentTarget.style.color = item.ativo ? '#fbbf24' : '#34d399'
+              ev.currentTarget.style.background = item.ativo_empresa ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'
+              ev.currentTarget.style.borderColor = item.ativo_empresa ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'
+              ev.currentTarget.style.color = item.ativo_empresa ? '#fbbf24' : '#34d399'
             }}
             onMouseLeave={(ev) => {
               ev.currentTarget.style.background = 'transparent'
@@ -353,7 +353,7 @@ export function EmpresasParceiras() {
               ev.currentTarget.style.color = '#64748b'
             }}
           >
-            {item.ativo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+            {item.ativo_empresa ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
           </button>
         </TooltipGlobal>
       ),
@@ -392,10 +392,10 @@ export function EmpresasParceiras() {
   // ── Stats ────────────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
-    const ativas = empresas.filter((e) => e.ativo)
-    const br = ativas.filter((e) => e.pais === 'BR').length
-    const estrangeiras = ativas.filter((e) => e.pais !== 'BR').length
-    const importadoras = ativas.filter((e) => e.pode_ser_importador).length
+    const ativas = empresas.filter((e) => e.ativo_empresa)
+    const br = ativas.filter((e) => e.pais_empresa === 'BR').length
+    const estrangeiras = ativas.filter((e) => e.pais_empresa !== 'BR').length
+    const importadoras = ativas.filter((e) => e.pode_ser_importador_empresa).length
     return { total: empresas.length, ativas: ativas.length, br, estrangeiras, importadoras }
   }, [empresas])
 
@@ -496,9 +496,9 @@ export function EmpresasParceiras() {
           }}
           aoSalvar={(empresaSalva) => {
             setEmpresas((prev) => {
-              const existe = prev.some((e) => e.suid === empresaSalva.suid)
+              const existe = prev.some((e) => e.suid_empresa === empresaSalva.suid_empresa)
               return existe
-                ? prev.map((e) => (e.suid === empresaSalva.suid ? empresaSalva : e))
+                ? prev.map((e) => (e.suid_empresa === empresaSalva.suid_empresa ? empresaSalva : e))
                 : [empresaSalva, ...prev]
             })
             setEmpresaEditando(null)

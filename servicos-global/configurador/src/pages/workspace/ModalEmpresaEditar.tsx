@@ -98,25 +98,25 @@ interface FormState {
 function empresaParaForm(empresa: Empresa | null): FormState {
   return {
     nome_empresa: empresa?.nome_empresa ?? '',
-    pais: empresa?.pais ?? 'BR',
-    cnpj: empresa?.cnpj ?? '',
-    tin: empresa?.tin ?? '',
-    estado: empresa?.estado ?? '',
-    cidade: empresa?.cidade ?? '',
-    endereco: empresa?.endereco ?? '',
-    zipcode: empresa?.zipcode ?? '',
-    email: empresa?.email ?? '',
-    telefone: empresa?.telefone ?? '',
-    whatsapp: empresa?.whatsapp ?? '',
+    pais: empresa?.pais_empresa ?? 'BR',
+    cnpj: empresa?.cnpj_empresa ?? '',
+    tin: empresa?.tin_empresa ?? '',
+    estado: empresa?.estado_empresa ?? '',
+    cidade: empresa?.cidade_empresa ?? '',
+    endereco: empresa?.endereco_empresa ?? '',
+    zipcode: empresa?.zipcode_empresa ?? '',
+    email: empresa?.email_empresa ?? '',
+    telefone: empresa?.telefone_empresa ?? '',
+    whatsapp: empresa?.whatsapp_empresa ?? '',
     papeis: {
-      pode_ser_importador: empresa?.pode_ser_importador ?? false,
-      pode_ser_exportador: empresa?.pode_ser_exportador ?? false,
-      pode_ser_fabricante: empresa?.pode_ser_fabricante ?? false,
-      pode_ser_agente: empresa?.pode_ser_agente ?? false,
-      pode_ser_despachante: empresa?.pode_ser_despachante ?? false,
-      pode_ser_armador: empresa?.pode_ser_armador ?? false,
+      pode_ser_importador: empresa?.pode_ser_importador_empresa ?? false,
+      pode_ser_exportador: empresa?.pode_ser_exportador_empresa ?? false,
+      pode_ser_fabricante: empresa?.pode_ser_fabricante_empresa ?? false,
+      pode_ser_agente: empresa?.pode_ser_agente_empresa ?? false,
+      pode_ser_despachante: empresa?.pode_ser_despachante_empresa ?? false,
+      pode_ser_armador: empresa?.pode_ser_armador_empresa ?? false,
     },
-    ativo: empresa?.ativo ?? true,
+    ativo: empresa?.ativo_empresa ?? true,
   }
 }
 
@@ -287,7 +287,7 @@ export function ModalEditarEmpresa({ empresa, idOrganizacao, aoFechar, aoSalvar 
       }
 
       const url = modoEdicao
-        ? `/api/v1/empresas/${empresa!.suid}`
+        ? `/api/v1/empresas/${empresa!.suid_empresa}`
         : '/api/v1/empresas'
       const res = await fetch(url, {
         method: modoEdicao ? 'PUT' : 'POST',

@@ -624,20 +624,37 @@ model Requisicoes {
 // Snapshot do ultimo health check de cada servico.
 // ---------------------------------------------------------------------------
 
-model Servicos {
-  id_servicos               String   @id @default(cuid())
-  servico_servicos          String   @unique(map: "srv_servico_unq") // ex: "configurador", "bid-frete"
-  url_servicos              String // health check URL
-  status_servicos           String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
-  latencia_ms_servicos      Int?
-  ultimo_erro_servicos      String?
-  data_verificacao_servicos DateTime @default(now())
-  data_criacao_servicos     DateTime @default(now())
-  data_atualizacao_servicos DateTime @updatedAt
+model ServicoGravity {
+  id_servico_gravity               String   @id @default(cuid())
+  nome_servico_gravity             String   @unique(map: "servico_gravity_service_key") // ex: "configurador", "bid-frete"
+  url_servico_gravity              String // health check URL
+  status_servico_gravity           String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
+  latencia_ms_servico_gravity      Int?
+  ultimo_erro_servico_gravity      String?
+  data_verificacao_servico_gravity DateTime @default(now())
 
-  @@index([status_servicos], map: "srv_status_idx")
-  @@index([data_verificacao_servicos], map: "srv_verificacao_idx")
-  @@map("servicos")
+  // Auditoria estendida + workflow de incidente
+  versao_atual_servico_gravity        String?
+  ambiente_servico_gravity            String? // dev | staging | prod
+  tipo_servico_gravity                String? // api | worker | cron | db | external
+  falhas_consecutivas_servico_gravity Int       @default(0)
+  data_ultima_falha_servico_gravity   DateTime?
+  data_recuperacao_servico_gravity    DateTime?
+  tempo_uptime_pct_servico_gravity    Decimal?  @db.Decimal(5, 2)
+  regiao_servico_gravity              String?
+  responsavel_servico_gravity         String? // squad/time
+
+  // Timestamps
+  data_criacao_servico_gravity     DateTime @default(now())
+  data_atualizacao_servico_gravity DateTime @updatedAt
+
+  @@index([status_servico_gravity], map: "servico_gravity_status_idx")
+  @@index([data_verificacao_servico_gravity], map: "servico_gravity_verificado_em_idx")
+  @@index([ambiente_servico_gravity, status_servico_gravity], map: "servico_gravity_ambiente_status_idx")
+  @@index([falhas_consecutivas_servico_gravity], map: "servico_gravity_falhas_idx")
+  @@index([responsavel_servico_gravity], map: "servico_gravity_responsavel_idx")
+  @@index([tipo_servico_gravity], map: "servico_gravity_tipo_idx")
+  @@map("servico_gravity")
 }
 
 // ---------------------------------------------------------------------------

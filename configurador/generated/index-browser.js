@@ -348,16 +348,25 @@ exports.Prisma.RequisicoesScalarFieldEnum = {
   data_criacao_requisicoes: 'data_criacao_requisicoes'
 };
 
-exports.Prisma.ServicosScalarFieldEnum = {
-  id_servicos: 'id_servicos',
-  servico_servicos: 'servico_servicos',
-  url_servicos: 'url_servicos',
-  status_servicos: 'status_servicos',
-  latencia_ms_servicos: 'latencia_ms_servicos',
-  ultimo_erro_servicos: 'ultimo_erro_servicos',
-  data_verificacao_servicos: 'data_verificacao_servicos',
-  data_criacao_servicos: 'data_criacao_servicos',
-  data_atualizacao_servicos: 'data_atualizacao_servicos'
+exports.Prisma.ServicoGravityScalarFieldEnum = {
+  id_servico_gravity: 'id_servico_gravity',
+  nome_servico_gravity: 'nome_servico_gravity',
+  url_servico_gravity: 'url_servico_gravity',
+  status_servico_gravity: 'status_servico_gravity',
+  latencia_ms_servico_gravity: 'latencia_ms_servico_gravity',
+  ultimo_erro_servico_gravity: 'ultimo_erro_servico_gravity',
+  data_verificacao_servico_gravity: 'data_verificacao_servico_gravity',
+  versao_atual_servico_gravity: 'versao_atual_servico_gravity',
+  ambiente_servico_gravity: 'ambiente_servico_gravity',
+  tipo_servico_gravity: 'tipo_servico_gravity',
+  falhas_consecutivas_servico_gravity: 'falhas_consecutivas_servico_gravity',
+  data_ultima_falha_servico_gravity: 'data_ultima_falha_servico_gravity',
+  data_recuperacao_servico_gravity: 'data_recuperacao_servico_gravity',
+  tempo_uptime_pct_servico_gravity: 'tempo_uptime_pct_servico_gravity',
+  regiao_servico_gravity: 'regiao_servico_gravity',
+  responsavel_servico_gravity: 'responsavel_servico_gravity',
+  data_criacao_servico_gravity: 'data_criacao_servico_gravity',
+  data_atualizacao_servico_gravity: 'data_atualizacao_servico_gravity'
 };
 
 exports.Prisma.CambioScalarFieldEnum = {
@@ -592,7 +601,7 @@ exports.Prisma.ModelName = {
   OrganizacaoFornecedor: 'OrganizacaoFornecedor',
   Seguranca: 'Seguranca',
   Requisicoes: 'Requisicoes',
-  Servicos: 'Servicos',
+  ServicoGravity: 'ServicoGravity',
   Cambio: 'Cambio',
   Testes: 'Testes',
   TesteAgendamento: 'TesteAgendamento',

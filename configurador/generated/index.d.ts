@@ -94,10 +94,10 @@ export type Seguranca = $Result.DefaultSelection<Prisma.$SegurancaPayload>
  */
 export type Requisicoes = $Result.DefaultSelection<Prisma.$RequisicoesPayload>
 /**
- * Model Servicos
+ * Model ServicoGravity
  * 
  */
-export type Servicos = $Result.DefaultSelection<Prisma.$ServicosPayload>
+export type ServicoGravity = $Result.DefaultSelection<Prisma.$ServicoGravityPayload>
 /**
  * Model Cambio
  * 
@@ -577,14 +577,14 @@ export class PrismaClient<
   get requisicoes(): Prisma.RequisicoesDelegate<ExtArgs>;
 
   /**
-   * `prisma.servicos`: Exposes CRUD operations for the **Servicos** model.
+   * `prisma.servicoGravity`: Exposes CRUD operations for the **ServicoGravity** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Servicos
-    * const servicos = await prisma.servicos.findMany()
+    * // Fetch zero or more ServicoGravities
+    * const servicoGravities = await prisma.servicoGravity.findMany()
     * ```
     */
-  get servicos(): Prisma.ServicosDelegate<ExtArgs>;
+  get servicoGravity(): Prisma.ServicoGravityDelegate<ExtArgs>;
 
   /**
    * `prisma.cambio`: Exposes CRUD operations for the **Cambio** model.
@@ -1102,7 +1102,7 @@ export namespace Prisma {
     OrganizacaoFornecedor: 'OrganizacaoFornecedor',
     Seguranca: 'Seguranca',
     Requisicoes: 'Requisicoes',
-    Servicos: 'Servicos',
+    ServicoGravity: 'ServicoGravity',
     Cambio: 'Cambio',
     Testes: 'Testes',
     TesteAgendamento: 'TesteAgendamento',
@@ -1124,7 +1124,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2248,73 +2248,73 @@ export namespace Prisma {
           }
         }
       }
-      Servicos: {
-        payload: Prisma.$ServicosPayload<ExtArgs>
-        fields: Prisma.ServicosFieldRefs
+      ServicoGravity: {
+        payload: Prisma.$ServicoGravityPayload<ExtArgs>
+        fields: Prisma.ServicoGravityFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ServicosFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload> | null
+            args: Prisma.ServicoGravityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ServicosFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           findFirst: {
-            args: Prisma.ServicosFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload> | null
+            args: Prisma.ServicoGravityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ServicosFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           findMany: {
-            args: Prisma.ServicosFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>[]
+            args: Prisma.ServicoGravityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>[]
           }
           create: {
-            args: Prisma.ServicosCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           createMany: {
-            args: Prisma.ServicosCreateManyArgs<ExtArgs>
+            args: Prisma.ServicoGravityCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ServicosCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>[]
+            args: Prisma.ServicoGravityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>[]
           }
           delete: {
-            args: Prisma.ServicosDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           update: {
-            args: Prisma.ServicosUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           deleteMany: {
-            args: Prisma.ServicosDeleteManyArgs<ExtArgs>
+            args: Prisma.ServicoGravityDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ServicosUpdateManyArgs<ExtArgs>
+            args: Prisma.ServicoGravityUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ServicosUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServicosPayload>
+            args: Prisma.ServicoGravityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicoGravityPayload>
           }
           aggregate: {
-            args: Prisma.ServicosAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateServicos>
+            args: Prisma.ServicoGravityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateServicoGravity>
           }
           groupBy: {
-            args: Prisma.ServicosGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ServicosGroupByOutputType>[]
+            args: Prisma.ServicoGravityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ServicoGravityGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ServicosCountArgs<ExtArgs>
-            result: $Utils.Optional<ServicosCountAggregateOutputType> | number
+            args: Prisma.ServicoGravityCountArgs<ExtArgs>
+            result: $Utils.Optional<ServicoGravityCountAggregateOutputType> | number
           }
         }
       }
@@ -19481,406 +19481,513 @@ export namespace Prisma {
 
 
   /**
-   * Model Servicos
+   * Model ServicoGravity
    */
 
-  export type AggregateServicos = {
-    _count: ServicosCountAggregateOutputType | null
-    _avg: ServicosAvgAggregateOutputType | null
-    _sum: ServicosSumAggregateOutputType | null
-    _min: ServicosMinAggregateOutputType | null
-    _max: ServicosMaxAggregateOutputType | null
+  export type AggregateServicoGravity = {
+    _count: ServicoGravityCountAggregateOutputType | null
+    _avg: ServicoGravityAvgAggregateOutputType | null
+    _sum: ServicoGravitySumAggregateOutputType | null
+    _min: ServicoGravityMinAggregateOutputType | null
+    _max: ServicoGravityMaxAggregateOutputType | null
   }
 
-  export type ServicosAvgAggregateOutputType = {
-    latencia_ms_servicos: number | null
+  export type ServicoGravityAvgAggregateOutputType = {
+    latencia_ms_servico_gravity: number | null
+    falhas_consecutivas_servico_gravity: number | null
+    tempo_uptime_pct_servico_gravity: Decimal | null
   }
 
-  export type ServicosSumAggregateOutputType = {
-    latencia_ms_servicos: number | null
+  export type ServicoGravitySumAggregateOutputType = {
+    latencia_ms_servico_gravity: number | null
+    falhas_consecutivas_servico_gravity: number | null
+    tempo_uptime_pct_servico_gravity: Decimal | null
   }
 
-  export type ServicosMinAggregateOutputType = {
-    id_servicos: string | null
-    servico_servicos: string | null
-    url_servicos: string | null
-    status_servicos: string | null
-    latencia_ms_servicos: number | null
-    ultimo_erro_servicos: string | null
-    data_verificacao_servicos: Date | null
-    data_criacao_servicos: Date | null
-    data_atualizacao_servicos: Date | null
+  export type ServicoGravityMinAggregateOutputType = {
+    id_servico_gravity: string | null
+    nome_servico_gravity: string | null
+    url_servico_gravity: string | null
+    status_servico_gravity: string | null
+    latencia_ms_servico_gravity: number | null
+    ultimo_erro_servico_gravity: string | null
+    data_verificacao_servico_gravity: Date | null
+    versao_atual_servico_gravity: string | null
+    ambiente_servico_gravity: string | null
+    tipo_servico_gravity: string | null
+    falhas_consecutivas_servico_gravity: number | null
+    data_ultima_falha_servico_gravity: Date | null
+    data_recuperacao_servico_gravity: Date | null
+    tempo_uptime_pct_servico_gravity: Decimal | null
+    regiao_servico_gravity: string | null
+    responsavel_servico_gravity: string | null
+    data_criacao_servico_gravity: Date | null
+    data_atualizacao_servico_gravity: Date | null
   }
 
-  export type ServicosMaxAggregateOutputType = {
-    id_servicos: string | null
-    servico_servicos: string | null
-    url_servicos: string | null
-    status_servicos: string | null
-    latencia_ms_servicos: number | null
-    ultimo_erro_servicos: string | null
-    data_verificacao_servicos: Date | null
-    data_criacao_servicos: Date | null
-    data_atualizacao_servicos: Date | null
+  export type ServicoGravityMaxAggregateOutputType = {
+    id_servico_gravity: string | null
+    nome_servico_gravity: string | null
+    url_servico_gravity: string | null
+    status_servico_gravity: string | null
+    latencia_ms_servico_gravity: number | null
+    ultimo_erro_servico_gravity: string | null
+    data_verificacao_servico_gravity: Date | null
+    versao_atual_servico_gravity: string | null
+    ambiente_servico_gravity: string | null
+    tipo_servico_gravity: string | null
+    falhas_consecutivas_servico_gravity: number | null
+    data_ultima_falha_servico_gravity: Date | null
+    data_recuperacao_servico_gravity: Date | null
+    tempo_uptime_pct_servico_gravity: Decimal | null
+    regiao_servico_gravity: string | null
+    responsavel_servico_gravity: string | null
+    data_criacao_servico_gravity: Date | null
+    data_atualizacao_servico_gravity: Date | null
   }
 
-  export type ServicosCountAggregateOutputType = {
-    id_servicos: number
-    servico_servicos: number
-    url_servicos: number
-    status_servicos: number
-    latencia_ms_servicos: number
-    ultimo_erro_servicos: number
-    data_verificacao_servicos: number
-    data_criacao_servicos: number
-    data_atualizacao_servicos: number
+  export type ServicoGravityCountAggregateOutputType = {
+    id_servico_gravity: number
+    nome_servico_gravity: number
+    url_servico_gravity: number
+    status_servico_gravity: number
+    latencia_ms_servico_gravity: number
+    ultimo_erro_servico_gravity: number
+    data_verificacao_servico_gravity: number
+    versao_atual_servico_gravity: number
+    ambiente_servico_gravity: number
+    tipo_servico_gravity: number
+    falhas_consecutivas_servico_gravity: number
+    data_ultima_falha_servico_gravity: number
+    data_recuperacao_servico_gravity: number
+    tempo_uptime_pct_servico_gravity: number
+    regiao_servico_gravity: number
+    responsavel_servico_gravity: number
+    data_criacao_servico_gravity: number
+    data_atualizacao_servico_gravity: number
     _all: number
   }
 
 
-  export type ServicosAvgAggregateInputType = {
-    latencia_ms_servicos?: true
+  export type ServicoGravityAvgAggregateInputType = {
+    latencia_ms_servico_gravity?: true
+    falhas_consecutivas_servico_gravity?: true
+    tempo_uptime_pct_servico_gravity?: true
   }
 
-  export type ServicosSumAggregateInputType = {
-    latencia_ms_servicos?: true
+  export type ServicoGravitySumAggregateInputType = {
+    latencia_ms_servico_gravity?: true
+    falhas_consecutivas_servico_gravity?: true
+    tempo_uptime_pct_servico_gravity?: true
   }
 
-  export type ServicosMinAggregateInputType = {
-    id_servicos?: true
-    servico_servicos?: true
-    url_servicos?: true
-    status_servicos?: true
-    latencia_ms_servicos?: true
-    ultimo_erro_servicos?: true
-    data_verificacao_servicos?: true
-    data_criacao_servicos?: true
-    data_atualizacao_servicos?: true
+  export type ServicoGravityMinAggregateInputType = {
+    id_servico_gravity?: true
+    nome_servico_gravity?: true
+    url_servico_gravity?: true
+    status_servico_gravity?: true
+    latencia_ms_servico_gravity?: true
+    ultimo_erro_servico_gravity?: true
+    data_verificacao_servico_gravity?: true
+    versao_atual_servico_gravity?: true
+    ambiente_servico_gravity?: true
+    tipo_servico_gravity?: true
+    falhas_consecutivas_servico_gravity?: true
+    data_ultima_falha_servico_gravity?: true
+    data_recuperacao_servico_gravity?: true
+    tempo_uptime_pct_servico_gravity?: true
+    regiao_servico_gravity?: true
+    responsavel_servico_gravity?: true
+    data_criacao_servico_gravity?: true
+    data_atualizacao_servico_gravity?: true
   }
 
-  export type ServicosMaxAggregateInputType = {
-    id_servicos?: true
-    servico_servicos?: true
-    url_servicos?: true
-    status_servicos?: true
-    latencia_ms_servicos?: true
-    ultimo_erro_servicos?: true
-    data_verificacao_servicos?: true
-    data_criacao_servicos?: true
-    data_atualizacao_servicos?: true
+  export type ServicoGravityMaxAggregateInputType = {
+    id_servico_gravity?: true
+    nome_servico_gravity?: true
+    url_servico_gravity?: true
+    status_servico_gravity?: true
+    latencia_ms_servico_gravity?: true
+    ultimo_erro_servico_gravity?: true
+    data_verificacao_servico_gravity?: true
+    versao_atual_servico_gravity?: true
+    ambiente_servico_gravity?: true
+    tipo_servico_gravity?: true
+    falhas_consecutivas_servico_gravity?: true
+    data_ultima_falha_servico_gravity?: true
+    data_recuperacao_servico_gravity?: true
+    tempo_uptime_pct_servico_gravity?: true
+    regiao_servico_gravity?: true
+    responsavel_servico_gravity?: true
+    data_criacao_servico_gravity?: true
+    data_atualizacao_servico_gravity?: true
   }
 
-  export type ServicosCountAggregateInputType = {
-    id_servicos?: true
-    servico_servicos?: true
-    url_servicos?: true
-    status_servicos?: true
-    latencia_ms_servicos?: true
-    ultimo_erro_servicos?: true
-    data_verificacao_servicos?: true
-    data_criacao_servicos?: true
-    data_atualizacao_servicos?: true
+  export type ServicoGravityCountAggregateInputType = {
+    id_servico_gravity?: true
+    nome_servico_gravity?: true
+    url_servico_gravity?: true
+    status_servico_gravity?: true
+    latencia_ms_servico_gravity?: true
+    ultimo_erro_servico_gravity?: true
+    data_verificacao_servico_gravity?: true
+    versao_atual_servico_gravity?: true
+    ambiente_servico_gravity?: true
+    tipo_servico_gravity?: true
+    falhas_consecutivas_servico_gravity?: true
+    data_ultima_falha_servico_gravity?: true
+    data_recuperacao_servico_gravity?: true
+    tempo_uptime_pct_servico_gravity?: true
+    regiao_servico_gravity?: true
+    responsavel_servico_gravity?: true
+    data_criacao_servico_gravity?: true
+    data_atualizacao_servico_gravity?: true
     _all?: true
   }
 
-  export type ServicosAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Servicos to aggregate.
+     * Filter which ServicoGravity to aggregate.
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Servicos to fetch.
+     * Determine the order of ServicoGravities to fetch.
      */
-    orderBy?: ServicosOrderByWithRelationInput | ServicosOrderByWithRelationInput[]
+    orderBy?: ServicoGravityOrderByWithRelationInput | ServicoGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ServicosWhereUniqueInput
+    cursor?: ServicoGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Servicos from the position of the cursor.
+     * Take `±n` ServicoGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Servicos.
+     * Skip the first `n` ServicoGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Servicos
+     * Count returned ServicoGravities
     **/
-    _count?: true | ServicosCountAggregateInputType
+    _count?: true | ServicoGravityCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: ServicosAvgAggregateInputType
+    _avg?: ServicoGravityAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: ServicosSumAggregateInputType
+    _sum?: ServicoGravitySumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ServicosMinAggregateInputType
+    _min?: ServicoGravityMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ServicosMaxAggregateInputType
+    _max?: ServicoGravityMaxAggregateInputType
   }
 
-  export type GetServicosAggregateType<T extends ServicosAggregateArgs> = {
-        [P in keyof T & keyof AggregateServicos]: P extends '_count' | 'count'
+  export type GetServicoGravityAggregateType<T extends ServicoGravityAggregateArgs> = {
+        [P in keyof T & keyof AggregateServicoGravity]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateServicos[P]>
-      : GetScalarType<T[P], AggregateServicos[P]>
+        : GetScalarType<T[P], AggregateServicoGravity[P]>
+      : GetScalarType<T[P], AggregateServicoGravity[P]>
   }
 
 
 
 
-  export type ServicosGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ServicosWhereInput
-    orderBy?: ServicosOrderByWithAggregationInput | ServicosOrderByWithAggregationInput[]
-    by: ServicosScalarFieldEnum[] | ServicosScalarFieldEnum
-    having?: ServicosScalarWhereWithAggregatesInput
+  export type ServicoGravityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServicoGravityWhereInput
+    orderBy?: ServicoGravityOrderByWithAggregationInput | ServicoGravityOrderByWithAggregationInput[]
+    by: ServicoGravityScalarFieldEnum[] | ServicoGravityScalarFieldEnum
+    having?: ServicoGravityScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ServicosCountAggregateInputType | true
-    _avg?: ServicosAvgAggregateInputType
-    _sum?: ServicosSumAggregateInputType
-    _min?: ServicosMinAggregateInputType
-    _max?: ServicosMaxAggregateInputType
+    _count?: ServicoGravityCountAggregateInputType | true
+    _avg?: ServicoGravityAvgAggregateInputType
+    _sum?: ServicoGravitySumAggregateInputType
+    _min?: ServicoGravityMinAggregateInputType
+    _max?: ServicoGravityMaxAggregateInputType
   }
 
-  export type ServicosGroupByOutputType = {
-    id_servicos: string
-    servico_servicos: string
-    url_servicos: string
-    status_servicos: string
-    latencia_ms_servicos: number | null
-    ultimo_erro_servicos: string | null
-    data_verificacao_servicos: Date
-    data_criacao_servicos: Date
-    data_atualizacao_servicos: Date
-    _count: ServicosCountAggregateOutputType | null
-    _avg: ServicosAvgAggregateOutputType | null
-    _sum: ServicosSumAggregateOutputType | null
-    _min: ServicosMinAggregateOutputType | null
-    _max: ServicosMaxAggregateOutputType | null
+  export type ServicoGravityGroupByOutputType = {
+    id_servico_gravity: string
+    nome_servico_gravity: string
+    url_servico_gravity: string
+    status_servico_gravity: string
+    latencia_ms_servico_gravity: number | null
+    ultimo_erro_servico_gravity: string | null
+    data_verificacao_servico_gravity: Date
+    versao_atual_servico_gravity: string | null
+    ambiente_servico_gravity: string | null
+    tipo_servico_gravity: string | null
+    falhas_consecutivas_servico_gravity: number
+    data_ultima_falha_servico_gravity: Date | null
+    data_recuperacao_servico_gravity: Date | null
+    tempo_uptime_pct_servico_gravity: Decimal | null
+    regiao_servico_gravity: string | null
+    responsavel_servico_gravity: string | null
+    data_criacao_servico_gravity: Date
+    data_atualizacao_servico_gravity: Date
+    _count: ServicoGravityCountAggregateOutputType | null
+    _avg: ServicoGravityAvgAggregateOutputType | null
+    _sum: ServicoGravitySumAggregateOutputType | null
+    _min: ServicoGravityMinAggregateOutputType | null
+    _max: ServicoGravityMaxAggregateOutputType | null
   }
 
-  type GetServicosGroupByPayload<T extends ServicosGroupByArgs> = Prisma.PrismaPromise<
+  type GetServicoGravityGroupByPayload<T extends ServicoGravityGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ServicosGroupByOutputType, T['by']> &
+      PickEnumerable<ServicoGravityGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ServicosGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ServicoGravityGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ServicosGroupByOutputType[P]>
-            : GetScalarType<T[P], ServicosGroupByOutputType[P]>
+              : GetScalarType<T[P], ServicoGravityGroupByOutputType[P]>
+            : GetScalarType<T[P], ServicoGravityGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ServicosSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_servicos?: boolean
-    servico_servicos?: boolean
-    url_servicos?: boolean
-    status_servicos?: boolean
-    latencia_ms_servicos?: boolean
-    ultimo_erro_servicos?: boolean
-    data_verificacao_servicos?: boolean
-    data_criacao_servicos?: boolean
-    data_atualizacao_servicos?: boolean
-  }, ExtArgs["result"]["servicos"]>
+  export type ServicoGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_servico_gravity?: boolean
+    nome_servico_gravity?: boolean
+    url_servico_gravity?: boolean
+    status_servico_gravity?: boolean
+    latencia_ms_servico_gravity?: boolean
+    ultimo_erro_servico_gravity?: boolean
+    data_verificacao_servico_gravity?: boolean
+    versao_atual_servico_gravity?: boolean
+    ambiente_servico_gravity?: boolean
+    tipo_servico_gravity?: boolean
+    falhas_consecutivas_servico_gravity?: boolean
+    data_ultima_falha_servico_gravity?: boolean
+    data_recuperacao_servico_gravity?: boolean
+    tempo_uptime_pct_servico_gravity?: boolean
+    regiao_servico_gravity?: boolean
+    responsavel_servico_gravity?: boolean
+    data_criacao_servico_gravity?: boolean
+    data_atualizacao_servico_gravity?: boolean
+  }, ExtArgs["result"]["servicoGravity"]>
 
-  export type ServicosSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_servicos?: boolean
-    servico_servicos?: boolean
-    url_servicos?: boolean
-    status_servicos?: boolean
-    latencia_ms_servicos?: boolean
-    ultimo_erro_servicos?: boolean
-    data_verificacao_servicos?: boolean
-    data_criacao_servicos?: boolean
-    data_atualizacao_servicos?: boolean
-  }, ExtArgs["result"]["servicos"]>
+  export type ServicoGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_servico_gravity?: boolean
+    nome_servico_gravity?: boolean
+    url_servico_gravity?: boolean
+    status_servico_gravity?: boolean
+    latencia_ms_servico_gravity?: boolean
+    ultimo_erro_servico_gravity?: boolean
+    data_verificacao_servico_gravity?: boolean
+    versao_atual_servico_gravity?: boolean
+    ambiente_servico_gravity?: boolean
+    tipo_servico_gravity?: boolean
+    falhas_consecutivas_servico_gravity?: boolean
+    data_ultima_falha_servico_gravity?: boolean
+    data_recuperacao_servico_gravity?: boolean
+    tempo_uptime_pct_servico_gravity?: boolean
+    regiao_servico_gravity?: boolean
+    responsavel_servico_gravity?: boolean
+    data_criacao_servico_gravity?: boolean
+    data_atualizacao_servico_gravity?: boolean
+  }, ExtArgs["result"]["servicoGravity"]>
 
-  export type ServicosSelectScalar = {
-    id_servicos?: boolean
-    servico_servicos?: boolean
-    url_servicos?: boolean
-    status_servicos?: boolean
-    latencia_ms_servicos?: boolean
-    ultimo_erro_servicos?: boolean
-    data_verificacao_servicos?: boolean
-    data_criacao_servicos?: boolean
-    data_atualizacao_servicos?: boolean
+  export type ServicoGravitySelectScalar = {
+    id_servico_gravity?: boolean
+    nome_servico_gravity?: boolean
+    url_servico_gravity?: boolean
+    status_servico_gravity?: boolean
+    latencia_ms_servico_gravity?: boolean
+    ultimo_erro_servico_gravity?: boolean
+    data_verificacao_servico_gravity?: boolean
+    versao_atual_servico_gravity?: boolean
+    ambiente_servico_gravity?: boolean
+    tipo_servico_gravity?: boolean
+    falhas_consecutivas_servico_gravity?: boolean
+    data_ultima_falha_servico_gravity?: boolean
+    data_recuperacao_servico_gravity?: boolean
+    tempo_uptime_pct_servico_gravity?: boolean
+    regiao_servico_gravity?: boolean
+    responsavel_servico_gravity?: boolean
+    data_criacao_servico_gravity?: boolean
+    data_atualizacao_servico_gravity?: boolean
   }
 
 
-  export type $ServicosPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Servicos"
+  export type $ServicoGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ServicoGravity"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_servicos: string
-      servico_servicos: string
-      url_servicos: string
-      status_servicos: string
-      latencia_ms_servicos: number | null
-      ultimo_erro_servicos: string | null
-      data_verificacao_servicos: Date
-      data_criacao_servicos: Date
-      data_atualizacao_servicos: Date
-    }, ExtArgs["result"]["servicos"]>
+      id_servico_gravity: string
+      nome_servico_gravity: string
+      url_servico_gravity: string
+      status_servico_gravity: string
+      latencia_ms_servico_gravity: number | null
+      ultimo_erro_servico_gravity: string | null
+      data_verificacao_servico_gravity: Date
+      versao_atual_servico_gravity: string | null
+      ambiente_servico_gravity: string | null
+      tipo_servico_gravity: string | null
+      falhas_consecutivas_servico_gravity: number
+      data_ultima_falha_servico_gravity: Date | null
+      data_recuperacao_servico_gravity: Date | null
+      tempo_uptime_pct_servico_gravity: Prisma.Decimal | null
+      regiao_servico_gravity: string | null
+      responsavel_servico_gravity: string | null
+      data_criacao_servico_gravity: Date
+      data_atualizacao_servico_gravity: Date
+    }, ExtArgs["result"]["servicoGravity"]>
     composites: {}
   }
 
-  type ServicosGetPayload<S extends boolean | null | undefined | ServicosDefaultArgs> = $Result.GetResult<Prisma.$ServicosPayload, S>
+  type ServicoGravityGetPayload<S extends boolean | null | undefined | ServicoGravityDefaultArgs> = $Result.GetResult<Prisma.$ServicoGravityPayload, S>
 
-  type ServicosCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ServicosFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ServicosCountAggregateInputType | true
+  type ServicoGravityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ServicoGravityFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ServicoGravityCountAggregateInputType | true
     }
 
-  export interface ServicosDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Servicos'], meta: { name: 'Servicos' } }
+  export interface ServicoGravityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServicoGravity'], meta: { name: 'ServicoGravity' } }
     /**
-     * Find zero or one Servicos that matches the filter.
-     * @param {ServicosFindUniqueArgs} args - Arguments to find a Servicos
+     * Find zero or one ServicoGravity that matches the filter.
+     * @param {ServicoGravityFindUniqueArgs} args - Arguments to find a ServicoGravity
      * @example
-     * // Get one Servicos
-     * const servicos = await prisma.servicos.findUnique({
+     * // Get one ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ServicosFindUniqueArgs>(args: SelectSubset<T, ServicosFindUniqueArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ServicoGravityFindUniqueArgs>(args: SelectSubset<T, ServicoGravityFindUniqueArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Servicos that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ServicoGravity that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ServicosFindUniqueOrThrowArgs} args - Arguments to find a Servicos
+     * @param {ServicoGravityFindUniqueOrThrowArgs} args - Arguments to find a ServicoGravity
      * @example
-     * // Get one Servicos
-     * const servicos = await prisma.servicos.findUniqueOrThrow({
+     * // Get one ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ServicosFindUniqueOrThrowArgs>(args: SelectSubset<T, ServicosFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ServicoGravityFindUniqueOrThrowArgs>(args: SelectSubset<T, ServicoGravityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Servicos that matches the filter.
+     * Find the first ServicoGravity that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosFindFirstArgs} args - Arguments to find a Servicos
+     * @param {ServicoGravityFindFirstArgs} args - Arguments to find a ServicoGravity
      * @example
-     * // Get one Servicos
-     * const servicos = await prisma.servicos.findFirst({
+     * // Get one ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ServicosFindFirstArgs>(args?: SelectSubset<T, ServicosFindFirstArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ServicoGravityFindFirstArgs>(args?: SelectSubset<T, ServicoGravityFindFirstArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Servicos that matches the filter or
+     * Find the first ServicoGravity that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosFindFirstOrThrowArgs} args - Arguments to find a Servicos
+     * @param {ServicoGravityFindFirstOrThrowArgs} args - Arguments to find a ServicoGravity
      * @example
-     * // Get one Servicos
-     * const servicos = await prisma.servicos.findFirstOrThrow({
+     * // Get one ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ServicosFindFirstOrThrowArgs>(args?: SelectSubset<T, ServicosFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ServicoGravityFindFirstOrThrowArgs>(args?: SelectSubset<T, ServicoGravityFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Servicos that matches the filter.
+     * Find zero or more ServicoGravities that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ServicoGravityFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Servicos
-     * const servicos = await prisma.servicos.findMany()
+     * // Get all ServicoGravities
+     * const servicoGravities = await prisma.servicoGravity.findMany()
      * 
-     * // Get first 10 Servicos
-     * const servicos = await prisma.servicos.findMany({ take: 10 })
+     * // Get first 10 ServicoGravities
+     * const servicoGravities = await prisma.servicoGravity.findMany({ take: 10 })
      * 
-     * // Only select the `id_servicos`
-     * const servicosWithId_servicosOnly = await prisma.servicos.findMany({ select: { id_servicos: true } })
+     * // Only select the `id_servico_gravity`
+     * const servicoGravityWithId_servico_gravityOnly = await prisma.servicoGravity.findMany({ select: { id_servico_gravity: true } })
      * 
      */
-    findMany<T extends ServicosFindManyArgs>(args?: SelectSubset<T, ServicosFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ServicoGravityFindManyArgs>(args?: SelectSubset<T, ServicoGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Servicos.
-     * @param {ServicosCreateArgs} args - Arguments to create a Servicos.
+     * Create a ServicoGravity.
+     * @param {ServicoGravityCreateArgs} args - Arguments to create a ServicoGravity.
      * @example
-     * // Create one Servicos
-     * const Servicos = await prisma.servicos.create({
+     * // Create one ServicoGravity
+     * const ServicoGravity = await prisma.servicoGravity.create({
      *   data: {
-     *     // ... data to create a Servicos
+     *     // ... data to create a ServicoGravity
      *   }
      * })
      * 
      */
-    create<T extends ServicosCreateArgs>(args: SelectSubset<T, ServicosCreateArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ServicoGravityCreateArgs>(args: SelectSubset<T, ServicoGravityCreateArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Servicos.
-     * @param {ServicosCreateManyArgs} args - Arguments to create many Servicos.
+     * Create many ServicoGravities.
+     * @param {ServicoGravityCreateManyArgs} args - Arguments to create many ServicoGravities.
      * @example
-     * // Create many Servicos
-     * const servicos = await prisma.servicos.createMany({
+     * // Create many ServicoGravities
+     * const servicoGravity = await prisma.servicoGravity.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ServicosCreateManyArgs>(args?: SelectSubset<T, ServicosCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ServicoGravityCreateManyArgs>(args?: SelectSubset<T, ServicoGravityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Servicos and returns the data saved in the database.
-     * @param {ServicosCreateManyAndReturnArgs} args - Arguments to create many Servicos.
+     * Create many ServicoGravities and returns the data saved in the database.
+     * @param {ServicoGravityCreateManyAndReturnArgs} args - Arguments to create many ServicoGravities.
      * @example
-     * // Create many Servicos
-     * const servicos = await prisma.servicos.createManyAndReturn({
+     * // Create many ServicoGravities
+     * const servicoGravity = await prisma.servicoGravity.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Servicos and only return the `id_servicos`
-     * const servicosWithId_servicosOnly = await prisma.servicos.createManyAndReturn({ 
-     *   select: { id_servicos: true },
+     * // Create many ServicoGravities and only return the `id_servico_gravity`
+     * const servicoGravityWithId_servico_gravityOnly = await prisma.servicoGravity.createManyAndReturn({ 
+     *   select: { id_servico_gravity: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -19889,28 +19996,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ServicosCreateManyAndReturnArgs>(args?: SelectSubset<T, ServicosCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ServicoGravityCreateManyAndReturnArgs>(args?: SelectSubset<T, ServicoGravityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Servicos.
-     * @param {ServicosDeleteArgs} args - Arguments to delete one Servicos.
+     * Delete a ServicoGravity.
+     * @param {ServicoGravityDeleteArgs} args - Arguments to delete one ServicoGravity.
      * @example
-     * // Delete one Servicos
-     * const Servicos = await prisma.servicos.delete({
+     * // Delete one ServicoGravity
+     * const ServicoGravity = await prisma.servicoGravity.delete({
      *   where: {
-     *     // ... filter to delete one Servicos
+     *     // ... filter to delete one ServicoGravity
      *   }
      * })
      * 
      */
-    delete<T extends ServicosDeleteArgs>(args: SelectSubset<T, ServicosDeleteArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ServicoGravityDeleteArgs>(args: SelectSubset<T, ServicoGravityDeleteArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Servicos.
-     * @param {ServicosUpdateArgs} args - Arguments to update one Servicos.
+     * Update one ServicoGravity.
+     * @param {ServicoGravityUpdateArgs} args - Arguments to update one ServicoGravity.
      * @example
-     * // Update one Servicos
-     * const servicos = await prisma.servicos.update({
+     * // Update one ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -19920,30 +20027,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ServicosUpdateArgs>(args: SelectSubset<T, ServicosUpdateArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ServicoGravityUpdateArgs>(args: SelectSubset<T, ServicoGravityUpdateArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Servicos.
-     * @param {ServicosDeleteManyArgs} args - Arguments to filter Servicos to delete.
+     * Delete zero or more ServicoGravities.
+     * @param {ServicoGravityDeleteManyArgs} args - Arguments to filter ServicoGravities to delete.
      * @example
-     * // Delete a few Servicos
-     * const { count } = await prisma.servicos.deleteMany({
+     * // Delete a few ServicoGravities
+     * const { count } = await prisma.servicoGravity.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ServicosDeleteManyArgs>(args?: SelectSubset<T, ServicosDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ServicoGravityDeleteManyArgs>(args?: SelectSubset<T, ServicoGravityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Servicos.
+     * Update zero or more ServicoGravities.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ServicoGravityUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Servicos
-     * const servicos = await prisma.servicos.updateMany({
+     * // Update many ServicoGravities
+     * const servicoGravity = await prisma.servicoGravity.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -19953,56 +20060,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ServicosUpdateManyArgs>(args: SelectSubset<T, ServicosUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ServicoGravityUpdateManyArgs>(args: SelectSubset<T, ServicoGravityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Servicos.
-     * @param {ServicosUpsertArgs} args - Arguments to update or create a Servicos.
+     * Create or update one ServicoGravity.
+     * @param {ServicoGravityUpsertArgs} args - Arguments to update or create a ServicoGravity.
      * @example
-     * // Update or create a Servicos
-     * const servicos = await prisma.servicos.upsert({
+     * // Update or create a ServicoGravity
+     * const servicoGravity = await prisma.servicoGravity.upsert({
      *   create: {
-     *     // ... data to create a Servicos
+     *     // ... data to create a ServicoGravity
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Servicos we want to update
+     *     // ... the filter for the ServicoGravity we want to update
      *   }
      * })
      */
-    upsert<T extends ServicosUpsertArgs>(args: SelectSubset<T, ServicosUpsertArgs<ExtArgs>>): Prisma__ServicosClient<$Result.GetResult<Prisma.$ServicosPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ServicoGravityUpsertArgs>(args: SelectSubset<T, ServicoGravityUpsertArgs<ExtArgs>>): Prisma__ServicoGravityClient<$Result.GetResult<Prisma.$ServicoGravityPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Servicos.
+     * Count the number of ServicoGravities.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosCountArgs} args - Arguments to filter Servicos to count.
+     * @param {ServicoGravityCountArgs} args - Arguments to filter ServicoGravities to count.
      * @example
-     * // Count the number of Servicos
-     * const count = await prisma.servicos.count({
+     * // Count the number of ServicoGravities
+     * const count = await prisma.servicoGravity.count({
      *   where: {
-     *     // ... the filter for the Servicos we want to count
+     *     // ... the filter for the ServicoGravities we want to count
      *   }
      * })
     **/
-    count<T extends ServicosCountArgs>(
-      args?: Subset<T, ServicosCountArgs>,
+    count<T extends ServicoGravityCountArgs>(
+      args?: Subset<T, ServicoGravityCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ServicosCountAggregateOutputType>
+          : GetScalarType<T['select'], ServicoGravityCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Servicos.
+     * Allows you to perform aggregations operations on a ServicoGravity.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ServicoGravityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -20022,13 +20129,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ServicosAggregateArgs>(args: Subset<T, ServicosAggregateArgs>): Prisma.PrismaPromise<GetServicosAggregateType<T>>
+    aggregate<T extends ServicoGravityAggregateArgs>(args: Subset<T, ServicoGravityAggregateArgs>): Prisma.PrismaPromise<GetServicoGravityAggregateType<T>>
 
     /**
-     * Group by Servicos.
+     * Group by ServicoGravity.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServicosGroupByArgs} args - Group by arguments.
+     * @param {ServicoGravityGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -20043,14 +20150,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ServicosGroupByArgs,
+      T extends ServicoGravityGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ServicosGroupByArgs['orderBy'] }
-        : { orderBy?: ServicosGroupByArgs['orderBy'] },
+        ? { orderBy: ServicoGravityGroupByArgs['orderBy'] }
+        : { orderBy?: ServicoGravityGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -20099,20 +20206,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ServicosGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServicosGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ServicoGravityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServicoGravityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Servicos model
+   * Fields of the ServicoGravity model
    */
-  readonly fields: ServicosFieldRefs;
+  readonly fields: ServicoGravityFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Servicos.
+   * The delegate class that acts as a "Promise-like" for ServicoGravity.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ServicosClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ServicoGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -20140,303 +20247,312 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Servicos model
+   * Fields of the ServicoGravity model
    */ 
-  interface ServicosFieldRefs {
-    readonly id_servicos: FieldRef<"Servicos", 'String'>
-    readonly servico_servicos: FieldRef<"Servicos", 'String'>
-    readonly url_servicos: FieldRef<"Servicos", 'String'>
-    readonly status_servicos: FieldRef<"Servicos", 'String'>
-    readonly latencia_ms_servicos: FieldRef<"Servicos", 'Int'>
-    readonly ultimo_erro_servicos: FieldRef<"Servicos", 'String'>
-    readonly data_verificacao_servicos: FieldRef<"Servicos", 'DateTime'>
-    readonly data_criacao_servicos: FieldRef<"Servicos", 'DateTime'>
-    readonly data_atualizacao_servicos: FieldRef<"Servicos", 'DateTime'>
+  interface ServicoGravityFieldRefs {
+    readonly id_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly nome_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly url_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly status_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly latencia_ms_servico_gravity: FieldRef<"ServicoGravity", 'Int'>
+    readonly ultimo_erro_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly data_verificacao_servico_gravity: FieldRef<"ServicoGravity", 'DateTime'>
+    readonly versao_atual_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly ambiente_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly tipo_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly falhas_consecutivas_servico_gravity: FieldRef<"ServicoGravity", 'Int'>
+    readonly data_ultima_falha_servico_gravity: FieldRef<"ServicoGravity", 'DateTime'>
+    readonly data_recuperacao_servico_gravity: FieldRef<"ServicoGravity", 'DateTime'>
+    readonly tempo_uptime_pct_servico_gravity: FieldRef<"ServicoGravity", 'Decimal'>
+    readonly regiao_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly responsavel_servico_gravity: FieldRef<"ServicoGravity", 'String'>
+    readonly data_criacao_servico_gravity: FieldRef<"ServicoGravity", 'DateTime'>
+    readonly data_atualizacao_servico_gravity: FieldRef<"ServicoGravity", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Servicos findUnique
+   * ServicoGravity findUnique
    */
-  export type ServicosFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter, which Servicos to fetch.
+     * Filter, which ServicoGravity to fetch.
      */
-    where: ServicosWhereUniqueInput
+    where: ServicoGravityWhereUniqueInput
   }
 
   /**
-   * Servicos findUniqueOrThrow
+   * ServicoGravity findUniqueOrThrow
    */
-  export type ServicosFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter, which Servicos to fetch.
+     * Filter, which ServicoGravity to fetch.
      */
-    where: ServicosWhereUniqueInput
+    where: ServicoGravityWhereUniqueInput
   }
 
   /**
-   * Servicos findFirst
+   * ServicoGravity findFirst
    */
-  export type ServicosFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter, which Servicos to fetch.
+     * Filter, which ServicoGravity to fetch.
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Servicos to fetch.
+     * Determine the order of ServicoGravities to fetch.
      */
-    orderBy?: ServicosOrderByWithRelationInput | ServicosOrderByWithRelationInput[]
+    orderBy?: ServicoGravityOrderByWithRelationInput | ServicoGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Servicos.
+     * Sets the position for searching for ServicoGravities.
      */
-    cursor?: ServicosWhereUniqueInput
+    cursor?: ServicoGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Servicos from the position of the cursor.
+     * Take `±n` ServicoGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Servicos.
+     * Skip the first `n` ServicoGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Servicos.
+     * Filter by unique combinations of ServicoGravities.
      */
-    distinct?: ServicosScalarFieldEnum | ServicosScalarFieldEnum[]
+    distinct?: ServicoGravityScalarFieldEnum | ServicoGravityScalarFieldEnum[]
   }
 
   /**
-   * Servicos findFirstOrThrow
+   * ServicoGravity findFirstOrThrow
    */
-  export type ServicosFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter, which Servicos to fetch.
+     * Filter, which ServicoGravity to fetch.
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Servicos to fetch.
+     * Determine the order of ServicoGravities to fetch.
      */
-    orderBy?: ServicosOrderByWithRelationInput | ServicosOrderByWithRelationInput[]
+    orderBy?: ServicoGravityOrderByWithRelationInput | ServicoGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Servicos.
+     * Sets the position for searching for ServicoGravities.
      */
-    cursor?: ServicosWhereUniqueInput
+    cursor?: ServicoGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Servicos from the position of the cursor.
+     * Take `±n` ServicoGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Servicos.
+     * Skip the first `n` ServicoGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Servicos.
+     * Filter by unique combinations of ServicoGravities.
      */
-    distinct?: ServicosScalarFieldEnum | ServicosScalarFieldEnum[]
+    distinct?: ServicoGravityScalarFieldEnum | ServicoGravityScalarFieldEnum[]
   }
 
   /**
-   * Servicos findMany
+   * ServicoGravity findMany
    */
-  export type ServicosFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter, which Servicos to fetch.
+     * Filter, which ServicoGravities to fetch.
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Servicos to fetch.
+     * Determine the order of ServicoGravities to fetch.
      */
-    orderBy?: ServicosOrderByWithRelationInput | ServicosOrderByWithRelationInput[]
+    orderBy?: ServicoGravityOrderByWithRelationInput | ServicoGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Servicos.
+     * Sets the position for listing ServicoGravities.
      */
-    cursor?: ServicosWhereUniqueInput
+    cursor?: ServicoGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Servicos from the position of the cursor.
+     * Take `±n` ServicoGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Servicos.
+     * Skip the first `n` ServicoGravities.
      */
     skip?: number
-    distinct?: ServicosScalarFieldEnum | ServicosScalarFieldEnum[]
+    distinct?: ServicoGravityScalarFieldEnum | ServicoGravityScalarFieldEnum[]
   }
 
   /**
-   * Servicos create
+   * ServicoGravity create
    */
-  export type ServicosCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * The data needed to create a Servicos.
+     * The data needed to create a ServicoGravity.
      */
-    data: XOR<ServicosCreateInput, ServicosUncheckedCreateInput>
+    data: XOR<ServicoGravityCreateInput, ServicoGravityUncheckedCreateInput>
   }
 
   /**
-   * Servicos createMany
+   * ServicoGravity createMany
    */
-  export type ServicosCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Servicos.
+     * The data used to create many ServicoGravities.
      */
-    data: ServicosCreateManyInput | ServicosCreateManyInput[]
+    data: ServicoGravityCreateManyInput | ServicoGravityCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Servicos createManyAndReturn
+   * ServicoGravity createManyAndReturn
    */
-  export type ServicosCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ServicoGravitySelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Servicos.
+     * The data used to create many ServicoGravities.
      */
-    data: ServicosCreateManyInput | ServicosCreateManyInput[]
+    data: ServicoGravityCreateManyInput | ServicoGravityCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Servicos update
+   * ServicoGravity update
    */
-  export type ServicosUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * The data needed to update a Servicos.
+     * The data needed to update a ServicoGravity.
      */
-    data: XOR<ServicosUpdateInput, ServicosUncheckedUpdateInput>
+    data: XOR<ServicoGravityUpdateInput, ServicoGravityUncheckedUpdateInput>
     /**
-     * Choose, which Servicos to update.
+     * Choose, which ServicoGravity to update.
      */
-    where: ServicosWhereUniqueInput
+    where: ServicoGravityWhereUniqueInput
   }
 
   /**
-   * Servicos updateMany
+   * ServicoGravity updateMany
    */
-  export type ServicosUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Servicos.
+     * The data used to update ServicoGravities.
      */
-    data: XOR<ServicosUpdateManyMutationInput, ServicosUncheckedUpdateManyInput>
+    data: XOR<ServicoGravityUpdateManyMutationInput, ServicoGravityUncheckedUpdateManyInput>
     /**
-     * Filter which Servicos to update
+     * Filter which ServicoGravities to update
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
   }
 
   /**
-   * Servicos upsert
+   * ServicoGravity upsert
    */
-  export type ServicosUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * The filter to search for the Servicos to update in case it exists.
+     * The filter to search for the ServicoGravity to update in case it exists.
      */
-    where: ServicosWhereUniqueInput
+    where: ServicoGravityWhereUniqueInput
     /**
-     * In case the Servicos found by the `where` argument doesn't exist, create a new Servicos with this data.
+     * In case the ServicoGravity found by the `where` argument doesn't exist, create a new ServicoGravity with this data.
      */
-    create: XOR<ServicosCreateInput, ServicosUncheckedCreateInput>
+    create: XOR<ServicoGravityCreateInput, ServicoGravityUncheckedCreateInput>
     /**
-     * In case the Servicos was found with the provided `where` argument, update it with this data.
+     * In case the ServicoGravity was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ServicosUpdateInput, ServicosUncheckedUpdateInput>
+    update: XOR<ServicoGravityUpdateInput, ServicoGravityUncheckedUpdateInput>
   }
 
   /**
-   * Servicos delete
+   * ServicoGravity delete
    */
-  export type ServicosDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
     /**
-     * Filter which Servicos to delete.
+     * Filter which ServicoGravity to delete.
      */
-    where: ServicosWhereUniqueInput
+    where: ServicoGravityWhereUniqueInput
   }
 
   /**
-   * Servicos deleteMany
+   * ServicoGravity deleteMany
    */
-  export type ServicosDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Servicos to delete
+     * Filter which ServicoGravities to delete
      */
-    where?: ServicosWhereInput
+    where?: ServicoGravityWhereInput
   }
 
   /**
-   * Servicos without action
+   * ServicoGravity without action
    */
-  export type ServicosDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ServicoGravityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Servicos
+     * Select specific fields to fetch from the ServicoGravity
      */
-    select?: ServicosSelect<ExtArgs> | null
+    select?: ServicoGravitySelect<ExtArgs> | null
   }
 
 
@@ -26850,19 +26966,28 @@ export namespace Prisma {
   export type RequisicoesScalarFieldEnum = (typeof RequisicoesScalarFieldEnum)[keyof typeof RequisicoesScalarFieldEnum]
 
 
-  export const ServicosScalarFieldEnum: {
-    id_servicos: 'id_servicos',
-    servico_servicos: 'servico_servicos',
-    url_servicos: 'url_servicos',
-    status_servicos: 'status_servicos',
-    latencia_ms_servicos: 'latencia_ms_servicos',
-    ultimo_erro_servicos: 'ultimo_erro_servicos',
-    data_verificacao_servicos: 'data_verificacao_servicos',
-    data_criacao_servicos: 'data_criacao_servicos',
-    data_atualizacao_servicos: 'data_atualizacao_servicos'
+  export const ServicoGravityScalarFieldEnum: {
+    id_servico_gravity: 'id_servico_gravity',
+    nome_servico_gravity: 'nome_servico_gravity',
+    url_servico_gravity: 'url_servico_gravity',
+    status_servico_gravity: 'status_servico_gravity',
+    latencia_ms_servico_gravity: 'latencia_ms_servico_gravity',
+    ultimo_erro_servico_gravity: 'ultimo_erro_servico_gravity',
+    data_verificacao_servico_gravity: 'data_verificacao_servico_gravity',
+    versao_atual_servico_gravity: 'versao_atual_servico_gravity',
+    ambiente_servico_gravity: 'ambiente_servico_gravity',
+    tipo_servico_gravity: 'tipo_servico_gravity',
+    falhas_consecutivas_servico_gravity: 'falhas_consecutivas_servico_gravity',
+    data_ultima_falha_servico_gravity: 'data_ultima_falha_servico_gravity',
+    data_recuperacao_servico_gravity: 'data_recuperacao_servico_gravity',
+    tempo_uptime_pct_servico_gravity: 'tempo_uptime_pct_servico_gravity',
+    regiao_servico_gravity: 'regiao_servico_gravity',
+    responsavel_servico_gravity: 'responsavel_servico_gravity',
+    data_criacao_servico_gravity: 'data_criacao_servico_gravity',
+    data_atualizacao_servico_gravity: 'data_atualizacao_servico_gravity'
   };
 
-  export type ServicosScalarFieldEnum = (typeof ServicosScalarFieldEnum)[keyof typeof ServicosScalarFieldEnum]
+  export type ServicoGravityScalarFieldEnum = (typeof ServicoGravityScalarFieldEnum)[keyof typeof ServicoGravityScalarFieldEnum]
 
 
   export const CambioScalarFieldEnum: {
@@ -28702,78 +28827,123 @@ export namespace Prisma {
     data_criacao_requisicoes?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
   }
 
-  export type ServicosWhereInput = {
-    AND?: ServicosWhereInput | ServicosWhereInput[]
-    OR?: ServicosWhereInput[]
-    NOT?: ServicosWhereInput | ServicosWhereInput[]
-    id_servicos?: StringFilter<"Servicos"> | string
-    servico_servicos?: StringFilter<"Servicos"> | string
-    url_servicos?: StringFilter<"Servicos"> | string
-    status_servicos?: StringFilter<"Servicos"> | string
-    latencia_ms_servicos?: IntNullableFilter<"Servicos"> | number | null
-    ultimo_erro_servicos?: StringNullableFilter<"Servicos"> | string | null
-    data_verificacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
-    data_criacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
-    data_atualizacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
+  export type ServicoGravityWhereInput = {
+    AND?: ServicoGravityWhereInput | ServicoGravityWhereInput[]
+    OR?: ServicoGravityWhereInput[]
+    NOT?: ServicoGravityWhereInput | ServicoGravityWhereInput[]
+    id_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    nome_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    url_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    status_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    latencia_ms_servico_gravity?: IntNullableFilter<"ServicoGravity"> | number | null
+    ultimo_erro_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    data_verificacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
+    versao_atual_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    ambiente_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    tipo_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    falhas_consecutivas_servico_gravity?: IntFilter<"ServicoGravity"> | number
+    data_ultima_falha_servico_gravity?: DateTimeNullableFilter<"ServicoGravity"> | Date | string | null
+    data_recuperacao_servico_gravity?: DateTimeNullableFilter<"ServicoGravity"> | Date | string | null
+    tempo_uptime_pct_servico_gravity?: DecimalNullableFilter<"ServicoGravity"> | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    responsavel_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    data_criacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
   }
 
-  export type ServicosOrderByWithRelationInput = {
-    id_servicos?: SortOrder
-    servico_servicos?: SortOrder
-    url_servicos?: SortOrder
-    status_servicos?: SortOrder
-    latencia_ms_servicos?: SortOrderInput | SortOrder
-    ultimo_erro_servicos?: SortOrderInput | SortOrder
-    data_verificacao_servicos?: SortOrder
-    data_criacao_servicos?: SortOrder
-    data_atualizacao_servicos?: SortOrder
+  export type ServicoGravityOrderByWithRelationInput = {
+    id_servico_gravity?: SortOrder
+    nome_servico_gravity?: SortOrder
+    url_servico_gravity?: SortOrder
+    status_servico_gravity?: SortOrder
+    latencia_ms_servico_gravity?: SortOrderInput | SortOrder
+    ultimo_erro_servico_gravity?: SortOrderInput | SortOrder
+    data_verificacao_servico_gravity?: SortOrder
+    versao_atual_servico_gravity?: SortOrderInput | SortOrder
+    ambiente_servico_gravity?: SortOrderInput | SortOrder
+    tipo_servico_gravity?: SortOrderInput | SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    data_ultima_falha_servico_gravity?: SortOrderInput | SortOrder
+    data_recuperacao_servico_gravity?: SortOrderInput | SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrderInput | SortOrder
+    regiao_servico_gravity?: SortOrderInput | SortOrder
+    responsavel_servico_gravity?: SortOrderInput | SortOrder
+    data_criacao_servico_gravity?: SortOrder
+    data_atualizacao_servico_gravity?: SortOrder
   }
 
-  export type ServicosWhereUniqueInput = Prisma.AtLeast<{
-    id_servicos?: string
-    servico_servicos?: string
-    AND?: ServicosWhereInput | ServicosWhereInput[]
-    OR?: ServicosWhereInput[]
-    NOT?: ServicosWhereInput | ServicosWhereInput[]
-    url_servicos?: StringFilter<"Servicos"> | string
-    status_servicos?: StringFilter<"Servicos"> | string
-    latencia_ms_servicos?: IntNullableFilter<"Servicos"> | number | null
-    ultimo_erro_servicos?: StringNullableFilter<"Servicos"> | string | null
-    data_verificacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
-    data_criacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
-    data_atualizacao_servicos?: DateTimeFilter<"Servicos"> | Date | string
-  }, "id_servicos" | "servico_servicos">
+  export type ServicoGravityWhereUniqueInput = Prisma.AtLeast<{
+    id_servico_gravity?: string
+    nome_servico_gravity?: string
+    AND?: ServicoGravityWhereInput | ServicoGravityWhereInput[]
+    OR?: ServicoGravityWhereInput[]
+    NOT?: ServicoGravityWhereInput | ServicoGravityWhereInput[]
+    url_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    status_servico_gravity?: StringFilter<"ServicoGravity"> | string
+    latencia_ms_servico_gravity?: IntNullableFilter<"ServicoGravity"> | number | null
+    ultimo_erro_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    data_verificacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
+    versao_atual_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    ambiente_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    tipo_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    falhas_consecutivas_servico_gravity?: IntFilter<"ServicoGravity"> | number
+    data_ultima_falha_servico_gravity?: DateTimeNullableFilter<"ServicoGravity"> | Date | string | null
+    data_recuperacao_servico_gravity?: DateTimeNullableFilter<"ServicoGravity"> | Date | string | null
+    tempo_uptime_pct_servico_gravity?: DecimalNullableFilter<"ServicoGravity"> | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    responsavel_servico_gravity?: StringNullableFilter<"ServicoGravity"> | string | null
+    data_criacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFilter<"ServicoGravity"> | Date | string
+  }, "id_servico_gravity" | "nome_servico_gravity">
 
-  export type ServicosOrderByWithAggregationInput = {
-    id_servicos?: SortOrder
-    servico_servicos?: SortOrder
-    url_servicos?: SortOrder
-    status_servicos?: SortOrder
-    latencia_ms_servicos?: SortOrderInput | SortOrder
-    ultimo_erro_servicos?: SortOrderInput | SortOrder
-    data_verificacao_servicos?: SortOrder
-    data_criacao_servicos?: SortOrder
-    data_atualizacao_servicos?: SortOrder
-    _count?: ServicosCountOrderByAggregateInput
-    _avg?: ServicosAvgOrderByAggregateInput
-    _max?: ServicosMaxOrderByAggregateInput
-    _min?: ServicosMinOrderByAggregateInput
-    _sum?: ServicosSumOrderByAggregateInput
+  export type ServicoGravityOrderByWithAggregationInput = {
+    id_servico_gravity?: SortOrder
+    nome_servico_gravity?: SortOrder
+    url_servico_gravity?: SortOrder
+    status_servico_gravity?: SortOrder
+    latencia_ms_servico_gravity?: SortOrderInput | SortOrder
+    ultimo_erro_servico_gravity?: SortOrderInput | SortOrder
+    data_verificacao_servico_gravity?: SortOrder
+    versao_atual_servico_gravity?: SortOrderInput | SortOrder
+    ambiente_servico_gravity?: SortOrderInput | SortOrder
+    tipo_servico_gravity?: SortOrderInput | SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    data_ultima_falha_servico_gravity?: SortOrderInput | SortOrder
+    data_recuperacao_servico_gravity?: SortOrderInput | SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrderInput | SortOrder
+    regiao_servico_gravity?: SortOrderInput | SortOrder
+    responsavel_servico_gravity?: SortOrderInput | SortOrder
+    data_criacao_servico_gravity?: SortOrder
+    data_atualizacao_servico_gravity?: SortOrder
+    _count?: ServicoGravityCountOrderByAggregateInput
+    _avg?: ServicoGravityAvgOrderByAggregateInput
+    _max?: ServicoGravityMaxOrderByAggregateInput
+    _min?: ServicoGravityMinOrderByAggregateInput
+    _sum?: ServicoGravitySumOrderByAggregateInput
   }
 
-  export type ServicosScalarWhereWithAggregatesInput = {
-    AND?: ServicosScalarWhereWithAggregatesInput | ServicosScalarWhereWithAggregatesInput[]
-    OR?: ServicosScalarWhereWithAggregatesInput[]
-    NOT?: ServicosScalarWhereWithAggregatesInput | ServicosScalarWhereWithAggregatesInput[]
-    id_servicos?: StringWithAggregatesFilter<"Servicos"> | string
-    servico_servicos?: StringWithAggregatesFilter<"Servicos"> | string
-    url_servicos?: StringWithAggregatesFilter<"Servicos"> | string
-    status_servicos?: StringWithAggregatesFilter<"Servicos"> | string
-    latencia_ms_servicos?: IntNullableWithAggregatesFilter<"Servicos"> | number | null
-    ultimo_erro_servicos?: StringNullableWithAggregatesFilter<"Servicos"> | string | null
-    data_verificacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
-    data_criacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
-    data_atualizacao_servicos?: DateTimeWithAggregatesFilter<"Servicos"> | Date | string
+  export type ServicoGravityScalarWhereWithAggregatesInput = {
+    AND?: ServicoGravityScalarWhereWithAggregatesInput | ServicoGravityScalarWhereWithAggregatesInput[]
+    OR?: ServicoGravityScalarWhereWithAggregatesInput[]
+    NOT?: ServicoGravityScalarWhereWithAggregatesInput | ServicoGravityScalarWhereWithAggregatesInput[]
+    id_servico_gravity?: StringWithAggregatesFilter<"ServicoGravity"> | string
+    nome_servico_gravity?: StringWithAggregatesFilter<"ServicoGravity"> | string
+    url_servico_gravity?: StringWithAggregatesFilter<"ServicoGravity"> | string
+    status_servico_gravity?: StringWithAggregatesFilter<"ServicoGravity"> | string
+    latencia_ms_servico_gravity?: IntNullableWithAggregatesFilter<"ServicoGravity"> | number | null
+    ultimo_erro_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    data_verificacao_servico_gravity?: DateTimeWithAggregatesFilter<"ServicoGravity"> | Date | string
+    versao_atual_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    ambiente_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    tipo_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    falhas_consecutivas_servico_gravity?: IntWithAggregatesFilter<"ServicoGravity"> | number
+    data_ultima_falha_servico_gravity?: DateTimeNullableWithAggregatesFilter<"ServicoGravity"> | Date | string | null
+    data_recuperacao_servico_gravity?: DateTimeNullableWithAggregatesFilter<"ServicoGravity"> | Date | string | null
+    tempo_uptime_pct_servico_gravity?: DecimalNullableWithAggregatesFilter<"ServicoGravity"> | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    responsavel_servico_gravity?: StringNullableWithAggregatesFilter<"ServicoGravity"> | string | null
+    data_criacao_servico_gravity?: DateTimeWithAggregatesFilter<"ServicoGravity"> | Date | string
+    data_atualizacao_servico_gravity?: DateTimeWithAggregatesFilter<"ServicoGravity"> | Date | string
   }
 
   export type CambioWhereInput = {
@@ -31003,88 +31173,151 @@ export namespace Prisma {
     data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServicosCreateInput = {
-    id_servicos?: string
-    servico_servicos: string
-    url_servicos: string
-    status_servicos?: string
-    latencia_ms_servicos?: number | null
-    ultimo_erro_servicos?: string | null
-    data_verificacao_servicos?: Date | string
-    data_criacao_servicos?: Date | string
-    data_atualizacao_servicos?: Date | string
+  export type ServicoGravityCreateInput = {
+    id_servico_gravity?: string
+    nome_servico_gravity: string
+    url_servico_gravity: string
+    status_servico_gravity?: string
+    latencia_ms_servico_gravity?: number | null
+    ultimo_erro_servico_gravity?: string | null
+    data_verificacao_servico_gravity?: Date | string
+    versao_atual_servico_gravity?: string | null
+    ambiente_servico_gravity?: string | null
+    tipo_servico_gravity?: string | null
+    falhas_consecutivas_servico_gravity?: number
+    data_ultima_falha_servico_gravity?: Date | string | null
+    data_recuperacao_servico_gravity?: Date | string | null
+    tempo_uptime_pct_servico_gravity?: Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: string | null
+    responsavel_servico_gravity?: string | null
+    data_criacao_servico_gravity?: Date | string
+    data_atualizacao_servico_gravity?: Date | string
   }
 
-  export type ServicosUncheckedCreateInput = {
-    id_servicos?: string
-    servico_servicos: string
-    url_servicos: string
-    status_servicos?: string
-    latencia_ms_servicos?: number | null
-    ultimo_erro_servicos?: string | null
-    data_verificacao_servicos?: Date | string
-    data_criacao_servicos?: Date | string
-    data_atualizacao_servicos?: Date | string
+  export type ServicoGravityUncheckedCreateInput = {
+    id_servico_gravity?: string
+    nome_servico_gravity: string
+    url_servico_gravity: string
+    status_servico_gravity?: string
+    latencia_ms_servico_gravity?: number | null
+    ultimo_erro_servico_gravity?: string | null
+    data_verificacao_servico_gravity?: Date | string
+    versao_atual_servico_gravity?: string | null
+    ambiente_servico_gravity?: string | null
+    tipo_servico_gravity?: string | null
+    falhas_consecutivas_servico_gravity?: number
+    data_ultima_falha_servico_gravity?: Date | string | null
+    data_recuperacao_servico_gravity?: Date | string | null
+    tempo_uptime_pct_servico_gravity?: Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: string | null
+    responsavel_servico_gravity?: string | null
+    data_criacao_servico_gravity?: Date | string
+    data_atualizacao_servico_gravity?: Date | string
   }
 
-  export type ServicosUpdateInput = {
-    id_servicos?: StringFieldUpdateOperationsInput | string
-    servico_servicos?: StringFieldUpdateOperationsInput | string
-    url_servicos?: StringFieldUpdateOperationsInput | string
-    status_servicos?: StringFieldUpdateOperationsInput | string
-    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
-    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
-    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ServicoGravityUpdateInput = {
+    id_servico_gravity?: StringFieldUpdateOperationsInput | string
+    nome_servico_gravity?: StringFieldUpdateOperationsInput | string
+    url_servico_gravity?: StringFieldUpdateOperationsInput | string
+    status_servico_gravity?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servico_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    versao_atual_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    falhas_consecutivas_servico_gravity?: IntFieldUpdateOperationsInput | number
+    data_ultima_falha_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_recuperacao_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_uptime_pct_servico_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavel_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServicosUncheckedUpdateInput = {
-    id_servicos?: StringFieldUpdateOperationsInput | string
-    servico_servicos?: StringFieldUpdateOperationsInput | string
-    url_servicos?: StringFieldUpdateOperationsInput | string
-    status_servicos?: StringFieldUpdateOperationsInput | string
-    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
-    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
-    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ServicoGravityUncheckedUpdateInput = {
+    id_servico_gravity?: StringFieldUpdateOperationsInput | string
+    nome_servico_gravity?: StringFieldUpdateOperationsInput | string
+    url_servico_gravity?: StringFieldUpdateOperationsInput | string
+    status_servico_gravity?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servico_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    versao_atual_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    falhas_consecutivas_servico_gravity?: IntFieldUpdateOperationsInput | number
+    data_ultima_falha_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_recuperacao_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_uptime_pct_servico_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavel_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServicosCreateManyInput = {
-    id_servicos?: string
-    servico_servicos: string
-    url_servicos: string
-    status_servicos?: string
-    latencia_ms_servicos?: number | null
-    ultimo_erro_servicos?: string | null
-    data_verificacao_servicos?: Date | string
-    data_criacao_servicos?: Date | string
-    data_atualizacao_servicos?: Date | string
+  export type ServicoGravityCreateManyInput = {
+    id_servico_gravity?: string
+    nome_servico_gravity: string
+    url_servico_gravity: string
+    status_servico_gravity?: string
+    latencia_ms_servico_gravity?: number | null
+    ultimo_erro_servico_gravity?: string | null
+    data_verificacao_servico_gravity?: Date | string
+    versao_atual_servico_gravity?: string | null
+    ambiente_servico_gravity?: string | null
+    tipo_servico_gravity?: string | null
+    falhas_consecutivas_servico_gravity?: number
+    data_ultima_falha_servico_gravity?: Date | string | null
+    data_recuperacao_servico_gravity?: Date | string | null
+    tempo_uptime_pct_servico_gravity?: Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: string | null
+    responsavel_servico_gravity?: string | null
+    data_criacao_servico_gravity?: Date | string
+    data_atualizacao_servico_gravity?: Date | string
   }
 
-  export type ServicosUpdateManyMutationInput = {
-    id_servicos?: StringFieldUpdateOperationsInput | string
-    servico_servicos?: StringFieldUpdateOperationsInput | string
-    url_servicos?: StringFieldUpdateOperationsInput | string
-    status_servicos?: StringFieldUpdateOperationsInput | string
-    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
-    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
-    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ServicoGravityUpdateManyMutationInput = {
+    id_servico_gravity?: StringFieldUpdateOperationsInput | string
+    nome_servico_gravity?: StringFieldUpdateOperationsInput | string
+    url_servico_gravity?: StringFieldUpdateOperationsInput | string
+    status_servico_gravity?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servico_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    versao_atual_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    falhas_consecutivas_servico_gravity?: IntFieldUpdateOperationsInput | number
+    data_ultima_falha_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_recuperacao_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_uptime_pct_servico_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavel_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServicosUncheckedUpdateManyInput = {
-    id_servicos?: StringFieldUpdateOperationsInput | string
-    servico_servicos?: StringFieldUpdateOperationsInput | string
-    url_servicos?: StringFieldUpdateOperationsInput | string
-    status_servicos?: StringFieldUpdateOperationsInput | string
-    latencia_ms_servicos?: NullableIntFieldUpdateOperationsInput | number | null
-    ultimo_erro_servicos?: NullableStringFieldUpdateOperationsInput | string | null
-    data_verificacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_criacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_servicos?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ServicoGravityUncheckedUpdateManyInput = {
+    id_servico_gravity?: StringFieldUpdateOperationsInput | string
+    nome_servico_gravity?: StringFieldUpdateOperationsInput | string
+    url_servico_gravity?: StringFieldUpdateOperationsInput | string
+    status_servico_gravity?: StringFieldUpdateOperationsInput | string
+    latencia_ms_servico_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    ultimo_erro_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_verificacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    versao_atual_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    falhas_consecutivas_servico_gravity?: IntFieldUpdateOperationsInput | number
+    data_ultima_falha_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_recuperacao_servico_gravity?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_uptime_pct_servico_gravity?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    regiao_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    responsavel_servico_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_servico_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CambioCreateInput = {
@@ -33203,48 +33436,79 @@ export namespace Prisma {
     tempo_resposta_ms_requisicoes?: SortOrder
   }
 
-  export type ServicosCountOrderByAggregateInput = {
-    id_servicos?: SortOrder
-    servico_servicos?: SortOrder
-    url_servicos?: SortOrder
-    status_servicos?: SortOrder
-    latencia_ms_servicos?: SortOrder
-    ultimo_erro_servicos?: SortOrder
-    data_verificacao_servicos?: SortOrder
-    data_criacao_servicos?: SortOrder
-    data_atualizacao_servicos?: SortOrder
+  export type ServicoGravityCountOrderByAggregateInput = {
+    id_servico_gravity?: SortOrder
+    nome_servico_gravity?: SortOrder
+    url_servico_gravity?: SortOrder
+    status_servico_gravity?: SortOrder
+    latencia_ms_servico_gravity?: SortOrder
+    ultimo_erro_servico_gravity?: SortOrder
+    data_verificacao_servico_gravity?: SortOrder
+    versao_atual_servico_gravity?: SortOrder
+    ambiente_servico_gravity?: SortOrder
+    tipo_servico_gravity?: SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    data_ultima_falha_servico_gravity?: SortOrder
+    data_recuperacao_servico_gravity?: SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrder
+    regiao_servico_gravity?: SortOrder
+    responsavel_servico_gravity?: SortOrder
+    data_criacao_servico_gravity?: SortOrder
+    data_atualizacao_servico_gravity?: SortOrder
   }
 
-  export type ServicosAvgOrderByAggregateInput = {
-    latencia_ms_servicos?: SortOrder
+  export type ServicoGravityAvgOrderByAggregateInput = {
+    latencia_ms_servico_gravity?: SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrder
   }
 
-  export type ServicosMaxOrderByAggregateInput = {
-    id_servicos?: SortOrder
-    servico_servicos?: SortOrder
-    url_servicos?: SortOrder
-    status_servicos?: SortOrder
-    latencia_ms_servicos?: SortOrder
-    ultimo_erro_servicos?: SortOrder
-    data_verificacao_servicos?: SortOrder
-    data_criacao_servicos?: SortOrder
-    data_atualizacao_servicos?: SortOrder
+  export type ServicoGravityMaxOrderByAggregateInput = {
+    id_servico_gravity?: SortOrder
+    nome_servico_gravity?: SortOrder
+    url_servico_gravity?: SortOrder
+    status_servico_gravity?: SortOrder
+    latencia_ms_servico_gravity?: SortOrder
+    ultimo_erro_servico_gravity?: SortOrder
+    data_verificacao_servico_gravity?: SortOrder
+    versao_atual_servico_gravity?: SortOrder
+    ambiente_servico_gravity?: SortOrder
+    tipo_servico_gravity?: SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    data_ultima_falha_servico_gravity?: SortOrder
+    data_recuperacao_servico_gravity?: SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrder
+    regiao_servico_gravity?: SortOrder
+    responsavel_servico_gravity?: SortOrder
+    data_criacao_servico_gravity?: SortOrder
+    data_atualizacao_servico_gravity?: SortOrder
   }
 
-  export type ServicosMinOrderByAggregateInput = {
-    id_servicos?: SortOrder
-    servico_servicos?: SortOrder
-    url_servicos?: SortOrder
-    status_servicos?: SortOrder
-    latencia_ms_servicos?: SortOrder
-    ultimo_erro_servicos?: SortOrder
-    data_verificacao_servicos?: SortOrder
-    data_criacao_servicos?: SortOrder
-    data_atualizacao_servicos?: SortOrder
+  export type ServicoGravityMinOrderByAggregateInput = {
+    id_servico_gravity?: SortOrder
+    nome_servico_gravity?: SortOrder
+    url_servico_gravity?: SortOrder
+    status_servico_gravity?: SortOrder
+    latencia_ms_servico_gravity?: SortOrder
+    ultimo_erro_servico_gravity?: SortOrder
+    data_verificacao_servico_gravity?: SortOrder
+    versao_atual_servico_gravity?: SortOrder
+    ambiente_servico_gravity?: SortOrder
+    tipo_servico_gravity?: SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    data_ultima_falha_servico_gravity?: SortOrder
+    data_recuperacao_servico_gravity?: SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrder
+    regiao_servico_gravity?: SortOrder
+    responsavel_servico_gravity?: SortOrder
+    data_criacao_servico_gravity?: SortOrder
+    data_atualizacao_servico_gravity?: SortOrder
   }
 
-  export type ServicosSumOrderByAggregateInput = {
-    latencia_ms_servicos?: SortOrder
+  export type ServicoGravitySumOrderByAggregateInput = {
+    latencia_ms_servico_gravity?: SortOrder
+    falhas_consecutivas_servico_gravity?: SortOrder
+    tempo_uptime_pct_servico_gravity?: SortOrder
   }
 
   export type CambioMoeda_cambioData_cotacao_cambioBoletim_cambioCompoundUniqueInput = {
@@ -37885,9 +38149,9 @@ export namespace Prisma {
      */
     export type RequisicoesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RequisicoesDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ServicosDefaultArgs instead
+     * @deprecated Use ServicoGravityDefaultArgs instead
      */
-    export type ServicosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ServicosDefaultArgs<ExtArgs>
+    export type ServicoGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ServicoGravityDefaultArgs<ExtArgs>
     /**
      * @deprecated Use CambioDefaultArgs instead
      */

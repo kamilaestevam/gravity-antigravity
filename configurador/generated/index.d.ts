@@ -16449,7 +16449,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMinAggregateOutputType = {
     id_fornecedor_organizacao: string | null
-    clerk_user_id: string | null
+    id_clerk_usuario: string | null
     id_organizacao_fornecedor_organizacao: string | null
     status_fornecedor_organizacao: string | null
     data_criacao_fornecedor_organizacao: Date | null
@@ -16458,7 +16458,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMaxAggregateOutputType = {
     id_fornecedor_organizacao: string | null
-    clerk_user_id: string | null
+    id_clerk_usuario: string | null
     id_organizacao_fornecedor_organizacao: string | null
     status_fornecedor_organizacao: string | null
     data_criacao_fornecedor_organizacao: Date | null
@@ -16467,7 +16467,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorCountAggregateOutputType = {
     id_fornecedor_organizacao: number
-    clerk_user_id: number
+    id_clerk_usuario: number
     id_organizacao_fornecedor_organizacao: number
     status_fornecedor_organizacao: number
     data_criacao_fornecedor_organizacao: number
@@ -16478,7 +16478,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMinAggregateInputType = {
     id_fornecedor_organizacao?: true
-    clerk_user_id?: true
+    id_clerk_usuario?: true
     id_organizacao_fornecedor_organizacao?: true
     status_fornecedor_organizacao?: true
     data_criacao_fornecedor_organizacao?: true
@@ -16487,7 +16487,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMaxAggregateInputType = {
     id_fornecedor_organizacao?: true
-    clerk_user_id?: true
+    id_clerk_usuario?: true
     id_organizacao_fornecedor_organizacao?: true
     status_fornecedor_organizacao?: true
     data_criacao_fornecedor_organizacao?: true
@@ -16496,7 +16496,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorCountAggregateInputType = {
     id_fornecedor_organizacao?: true
-    clerk_user_id?: true
+    id_clerk_usuario?: true
     id_organizacao_fornecedor_organizacao?: true
     status_fornecedor_organizacao?: true
     data_criacao_fornecedor_organizacao?: true
@@ -16578,7 +16578,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorGroupByOutputType = {
     id_fornecedor_organizacao: string
-    clerk_user_id: string
+    id_clerk_usuario: string
     id_organizacao_fornecedor_organizacao: string
     status_fornecedor_organizacao: string
     data_criacao_fornecedor_organizacao: Date
@@ -16604,7 +16604,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fornecedor_organizacao?: boolean
-    clerk_user_id?: boolean
+    id_clerk_usuario?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
     status_fornecedor_organizacao?: boolean
     data_criacao_fornecedor_organizacao?: boolean
@@ -16613,7 +16613,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_fornecedor_organizacao?: boolean
-    clerk_user_id?: boolean
+    id_clerk_usuario?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
     status_fornecedor_organizacao?: boolean
     data_criacao_fornecedor_organizacao?: boolean
@@ -16622,7 +16622,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorSelectScalar = {
     id_fornecedor_organizacao?: boolean
-    clerk_user_id?: boolean
+    id_clerk_usuario?: boolean
     id_organizacao_fornecedor_organizacao?: boolean
     status_fornecedor_organizacao?: boolean
     data_criacao_fornecedor_organizacao?: boolean
@@ -16635,7 +16635,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_fornecedor_organizacao: string
-      clerk_user_id: string
+      id_clerk_usuario: string
       id_organizacao_fornecedor_organizacao: string
       status_fornecedor_organizacao: string
       data_criacao_fornecedor_organizacao: Date
@@ -17034,7 +17034,7 @@ export namespace Prisma {
    */ 
   interface OrganizacaoFornecedorFieldRefs {
     readonly id_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
-    readonly clerk_user_id: FieldRef<"OrganizacaoFornecedor", 'String'>
+    readonly id_clerk_usuario: FieldRef<"OrganizacaoFornecedor", 'String'>
     readonly id_organizacao_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
     readonly status_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'String'>
     readonly data_criacao_fornecedor_organizacao: FieldRef<"OrganizacaoFornecedor", 'DateTime'>
@@ -26608,7 +26608,7 @@ export namespace Prisma {
 
   export const OrganizacaoFornecedorScalarFieldEnum: {
     id_fornecedor_organizacao: 'id_fornecedor_organizacao',
-    clerk_user_id: 'clerk_user_id',
+    id_clerk_usuario: 'id_clerk_usuario',
     id_organizacao_fornecedor_organizacao: 'id_organizacao_fornecedor_organizacao',
     status_fornecedor_organizacao: 'status_fornecedor_organizacao',
     data_criacao_fornecedor_organizacao: 'data_criacao_fornecedor_organizacao',
@@ -28207,7 +28207,7 @@ export namespace Prisma {
     OR?: OrganizacaoFornecedorWhereInput[]
     NOT?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
     id_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
-    clerk_user_id?: StringFilter<"OrganizacaoFornecedor"> | string
+    id_clerk_usuario?: StringFilter<"OrganizacaoFornecedor"> | string
     id_organizacao_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
     status_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
     data_criacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
@@ -28216,7 +28216,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorOrderByWithRelationInput = {
     id_fornecedor_organizacao?: SortOrder
-    clerk_user_id?: SortOrder
+    id_clerk_usuario?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder
@@ -28225,20 +28225,20 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorWhereUniqueInput = Prisma.AtLeast<{
     id_fornecedor_organizacao?: string
-    clerk_user_id_id_organizacao_fornecedor_organizacao?: OrganizacaoFornecedorClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput
+    id_clerk_usuario_id_organizacao_fornecedor_organizacao?: OrganizacaoFornecedorId_clerk_usuarioId_organizacao_fornecedor_organizacaoCompoundUniqueInput
     AND?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
     OR?: OrganizacaoFornecedorWhereInput[]
     NOT?: OrganizacaoFornecedorWhereInput | OrganizacaoFornecedorWhereInput[]
-    clerk_user_id?: StringFilter<"OrganizacaoFornecedor"> | string
+    id_clerk_usuario?: StringFilter<"OrganizacaoFornecedor"> | string
     id_organizacao_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
     status_fornecedor_organizacao?: StringFilter<"OrganizacaoFornecedor"> | string
     data_criacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
     data_atualizacao_fornecedor_organizacao?: DateTimeFilter<"OrganizacaoFornecedor"> | Date | string
-  }, "id_fornecedor_organizacao" | "clerk_user_id_id_organizacao_fornecedor_organizacao">
+  }, "id_fornecedor_organizacao" | "id_clerk_usuario_id_organizacao_fornecedor_organizacao">
 
   export type OrganizacaoFornecedorOrderByWithAggregationInput = {
     id_fornecedor_organizacao?: SortOrder
-    clerk_user_id?: SortOrder
+    id_clerk_usuario?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder
@@ -28253,7 +28253,7 @@ export namespace Prisma {
     OR?: OrganizacaoFornecedorScalarWhereWithAggregatesInput[]
     NOT?: OrganizacaoFornecedorScalarWhereWithAggregatesInput | OrganizacaoFornecedorScalarWhereWithAggregatesInput[]
     id_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
-    clerk_user_id?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
+    id_clerk_usuario?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
     id_organizacao_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
     status_fornecedor_organizacao?: StringWithAggregatesFilter<"OrganizacaoFornecedor"> | string
     data_criacao_fornecedor_organizacao?: DateTimeWithAggregatesFilter<"OrganizacaoFornecedor"> | Date | string
@@ -30377,7 +30377,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorCreateInput = {
     id_fornecedor_organizacao?: string
-    clerk_user_id: string
+    id_clerk_usuario: string
     id_organizacao_fornecedor_organizacao: string
     status_fornecedor_organizacao?: string
     data_criacao_fornecedor_organizacao?: Date | string
@@ -30386,7 +30386,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorUncheckedCreateInput = {
     id_fornecedor_organizacao?: string
-    clerk_user_id: string
+    id_clerk_usuario: string
     id_organizacao_fornecedor_organizacao: string
     status_fornecedor_organizacao?: string
     data_criacao_fornecedor_organizacao?: Date | string
@@ -30395,7 +30395,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorUpdateInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
-    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     status_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30404,7 +30404,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorUncheckedUpdateInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
-    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     status_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30413,7 +30413,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorCreateManyInput = {
     id_fornecedor_organizacao?: string
-    clerk_user_id: string
+    id_clerk_usuario: string
     id_organizacao_fornecedor_organizacao: string
     status_fornecedor_organizacao?: string
     data_criacao_fornecedor_organizacao?: Date | string
@@ -30422,7 +30422,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorUpdateManyMutationInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
-    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     status_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30431,7 +30431,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorUncheckedUpdateManyInput = {
     id_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
-    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
     id_organizacao_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     status_fornecedor_organizacao?: StringFieldUpdateOperationsInput | string
     data_criacao_fornecedor_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32640,14 +32640,14 @@ export namespace Prisma {
     _max?: NestedEnumDeployStatusFilter<$PrismaModel>
   }
 
-  export type OrganizacaoFornecedorClerk_user_idId_organizacao_fornecedor_organizacaoCompoundUniqueInput = {
-    clerk_user_id: string
+  export type OrganizacaoFornecedorId_clerk_usuarioId_organizacao_fornecedor_organizacaoCompoundUniqueInput = {
+    id_clerk_usuario: string
     id_organizacao_fornecedor_organizacao: string
   }
 
   export type OrganizacaoFornecedorCountOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
-    clerk_user_id?: SortOrder
+    id_clerk_usuario?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder
@@ -32656,7 +32656,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMaxOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
-    clerk_user_id?: SortOrder
+    id_clerk_usuario?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder
@@ -32665,7 +32665,7 @@ export namespace Prisma {
 
   export type OrganizacaoFornecedorMinOrderByAggregateInput = {
     id_fornecedor_organizacao?: SortOrder
-    clerk_user_id?: SortOrder
+    id_clerk_usuario?: SortOrder
     id_organizacao_fornecedor_organizacao?: SortOrder
     status_fornecedor_organizacao?: SortOrder
     data_criacao_fornecedor_organizacao?: SortOrder

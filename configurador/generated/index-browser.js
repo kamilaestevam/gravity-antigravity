@@ -298,7 +298,7 @@ exports.Prisma.DeployScalarFieldEnum = {
 
 exports.Prisma.OrganizacaoFornecedorScalarFieldEnum = {
   id_fornecedor_organizacao: 'id_fornecedor_organizacao',
-  clerk_user_id: 'clerk_user_id',
+  id_clerk_usuario: 'id_clerk_usuario',
   id_organizacao_fornecedor_organizacao: 'id_organizacao_fornecedor_organizacao',
   status_fornecedor_organizacao: 'status_fornecedor_organizacao',
   data_criacao_fornecedor_organizacao: 'data_criacao_fornecedor_organizacao',

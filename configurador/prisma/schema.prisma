@@ -461,26 +461,25 @@ model ProdutoGravityFaixaPreco {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityNegociacaoEspecial {
-  id_negociacao_especial                 String    @id @default(cuid())
-  id_produto_gravity_negociacao_especial String
-  id_organizacao_negociacao_especial     String
-  nome_organizacao_negociacao_especial   String
-  acordo_negociacao_especial             String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
-  data_inicio_negociacao_especial        DateTime?
-  data_fim_negociacao_especial           DateTime?
-  ilimitado_negociacao_especial          Boolean   @default(false)
+  id_negociacao_especial_preco_produto_gravity                 String    @id @default(cuid())
+  id_produto_gravity                                           String
+  id_organizacao                                               String
+  nome_organizacao_negociacao_especial_preco_produto_gravity   String
+  acordo_negociacao_especial_preco_produto_gravity             String // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
+  data_inicio_negociacao_especial_preco_produto_gravity        DateTime?
+  data_fim_negociacao_especial_preco_produto_gravity           DateTime?
+  ilimitado_negociacao_especial_preco_produto_gravity          Boolean   @default(false)
 
   // Timestamps
-  data_criacao_negociacao_especial     DateTime @default(now())
-  data_atualizacao_negociacao_especial DateTime @updatedAt
+  data_criacao_negociacao_especial_preco_produto_gravity     DateTime @default(now())
+  data_atualizacao_negociacao_especial_preco_produto_gravity DateTime @updatedAt
 
   // Relations
-  produto ProdutoGravity @relation(fields: [id_produto_gravity_negociacao_especial], references: [id_produto_gravity], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity], references: [id_produto_gravity], onDelete: Cascade, map: "negociacao_especial_preco_produto_gravity_fkey")
 
-  @@index([id_produto_gravity_negociacao_especial], map: "ne_produto_idx")
-  @@index([id_organizacao_negociacao_especial], map: "ne_org_idx")
-  @@index([id_produto_gravity_negociacao_especial, id_organizacao_negociacao_especial], map: "ne_produto_org_idx")
-  @@map("negociacao_especial_produto_gravity")
+  @@index([id_produto_gravity], map: "negociacao_especial_preco_produto_gravity_idx")
+  @@index([id_organizacao], map: "negociacao_especial_preco_produto_gravity_organizacao_idx")
+  @@map("negociacao_especial_preco_produto_gravity")
 }
 
 // ---------------------------------------------------------------------------

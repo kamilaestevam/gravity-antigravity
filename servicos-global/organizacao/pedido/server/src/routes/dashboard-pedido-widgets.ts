@@ -61,29 +61,37 @@ const SaveWidgetsSchema = z.object({
   widgets: z.array(WidgetConfigSchema).min(0).max(50),
 })
 
+// Identificador do produto que esta tabela serve (DashboardModeloProduto eh poliforme).
+const ID_PRODUTO_PEDIDO = 'pedido'
+
 // ── GET — busca configuração persistida ──────────────────────────────────────
 dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const config = await db.dashboardConfig.findFirst({
-        where: { product_id: 'pedido' },
+      const config = await db.dashboardModeloProduto.findUnique({
+        where: {
+          id_organizacao_id_produto_gravity: {
+            id_organizacao:     tenantId,
+            id_produto_gravity: ID_PRODUTO_PEDIDO,
+          },
+        },
       })
 
       if (!config) {
         return res.json({ widgets: [], source: 'default' })
       }
 
-      const widgets = config.widgets_json
-        ? (JSON.parse(config.widgets_json as string) as unknown[])
-        : []
+      const raw = config.widgets_json_dashboard_modelo_produto as string | null
+      const widgets = raw ? (JSON.parse(raw) as unknown[]) : []
 
       res.json({
         widgets,
-        updated_at: config.updated_at,
-        source: 'persisted',
+        updated_at: config.data_atualizacao_dashboard_modelo_produto,
+        source:     'persisted',
       })
     })
   } catch (err) {
@@ -107,27 +115,22 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const existing = await db.dashboardConfig.findFirst({
-        where: { product_id: 'pedido' },
+      await db.dashboardModeloProduto.upsert({
+        where: {
+          id_organizacao_id_produto_gravity: {
+            id_organizacao:     tenantId,
+            id_produto_gravity: ID_PRODUTO_PEDIDO,
+          },
+        },
+        create: {
+          id_organizacao:                       tenantId,
+          id_produto_gravity:                   ID_PRODUTO_PEDIDO,
+          widgets_json_dashboard_modelo_produto: JSON.stringify(widgets),
+        },
+        update: {
+          widgets_json_dashboard_modelo_produto: JSON.stringify(widgets),
+        },
       })
-
-      if (existing) {
-        await db.dashboardConfig.update({
-          where: { id: existing.id },
-          data: {
-            widgets_json: JSON.stringify(widgets),
-            updated_at: new Date(),
-          },
-        })
-      } else {
-        await db.dashboardConfig.create({
-          data: {
-            tenant_id:    tenantId,
-            product_id:   'pedido',
-            widgets_json: JSON.stringify(widgets),
-          },
-        })
-      }
 
       res.json({ ok: true, count: widgets.length })
     })
@@ -145,22 +148,27 @@ dashboardWidgetsRouter.delete('/:id_widget_dashboard_pedido', async (req: Reques
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = rawDb as any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const config = await db.dashboardConfig.findFirst({
-        where: { product_id: 'pedido' },
+      const config = await db.dashboardModeloProduto.findUnique({
+        where: {
+          id_organizacao_id_produto_gravity: {
+            id_organizacao:     tenantId,
+            id_produto_gravity: ID_PRODUTO_PEDIDO,
+          },
+        },
       })
       if (!config) return res.status(404).json({ error: 'Configuração nao encontrada' })
 
-      const widgets = config.widgets_json
-        ? (JSON.parse(config.widgets_json as string) as Array<{ id: string }>)
-        : []
+      const raw = config.widgets_json_dashboard_modelo_produto as string | null
+      const widgets = raw ? (JSON.parse(raw) as Array<{ id: string }>) : []
 
       const filtered = widgets.filter((w) => w.id !== widgetId)
 
-      await db.dashboardConfig.update({
-        where: { id: config.id },
-        data: { widgets_json: JSON.stringify(filtered), updated_at: new Date() },
+      await db.dashboardModeloProduto.update({
+        where: { id_dashboard_modelo_produto: config.id_dashboard_modelo_produto },
+        data:  { widgets_json_dashboard_modelo_produto: JSON.stringify(filtered) },
       })
 
       res.json({ ok: true, removed: widgetId, remaining: filtered.length })

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-30T20:26:49.159Z
+// Gerado em: 2026-04-30T21:18:54.991Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -423,19 +423,21 @@ model KanbanPreferencias {
   @@map("kanban_preferencias")
 }
 
-/// Configuração de widgets do Dashboard por tenant/produto.
-model PedidoDashboardPreferencias {
-  id_dashboard_preferencias                    String   @id @default(cuid())
-  id_organizacao                               String
-  chave_produto_gravity_dashboard_preferencias String
-  widgets_json_dashboard_preferencias          String   @default("[]") @db.Text
-  data_criacao_dashboard_preferencias          DateTime @default(now())
-  data_atualizacao_dashboard_preferencias      DateTime @updatedAt
+/// Modelo padrão (template) de dashboard que o admin define por produto.
+/// PROVISORIO no banco do Pedido — quando existir serviço compartilhado
+/// de Dashboard Infrastructure, mover este model + tabela para lá.
+model DashboardModeloProduto {
+  id_dashboard_modelo_produto               String   @id @default(cuid())
+  id_organizacao                            String
+  id_produto_gravity                        String
+  widgets_json_dashboard_modelo_produto     String   @default("[]") @db.Text
+  data_criacao_dashboard_modelo_produto     DateTime @default(now())
+  data_atualizacao_dashboard_modelo_produto DateTime @updatedAt
 
-  @@unique([id_organizacao, chave_produto_gravity_dashboard_preferencias])
+  @@unique([id_organizacao, id_produto_gravity])
   @@index([id_organizacao])
-  @@index([id_organizacao, chave_produto_gravity_dashboard_preferencias])
-  @@map("dashboard_preferencias")
+  @@index([id_organizacao, id_produto_gravity])
+  @@map("dashboard_modelo_produto")
 }
 
 /// Configuração de casas decimais e formato de data por workspace (tenant).
@@ -481,21 +483,23 @@ model PedidoSaldoFormula {
   @@map("pedido_saldo_formula")
 }
 
-/// Painéis do Dashboard por usuário.
-model PedidoDashboardPainel {
-  id_dashboard_painel               String   @id @default(cuid())
-  id_organizacao                    String
-  id_usuario                        String
-  nome_dashboard_painel             String
-  ordem_dashboard_painel            Int      @default(0)
-  is_visivel_dashboard_painel       Boolean  @default(true)
-  widgets_json_dashboard_painel     String   @default("[]") @db.Text
-  data_criacao_dashboard_painel     DateTime @default(now())
-  data_atualizacao_dashboard_painel DateTime @updatedAt
+/// Painéis de dashboard pessoais por usuário.
+/// PROVISORIO no banco do Pedido — quando existir serviço compartilhado
+/// de Dashboard Infrastructure, mover este model + tabela para lá.
+model DashboardPainelUsuario {
+  id_dashboard_painel_usuario               String   @id @default(cuid())
+  id_organizacao                            String
+  id_usuario                                String
+  nome_dashboard_painel_usuario             String
+  ordem_dashboard_painel_usuario            Int      @default(0)
+  visivel_dashboard_painel_usuario          Boolean  @default(true)
+  widgets_json_dashboard_painel_usuario     String   @default("[]") @db.Text
+  data_criacao_dashboard_painel_usuario     DateTime @default(now())
+  data_atualizacao_dashboard_painel_usuario DateTime @updatedAt
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
-  @@map("dashboard_painel")
+  @@map("dashboard_painel_usuario")
 }
 
 // ============================================================================

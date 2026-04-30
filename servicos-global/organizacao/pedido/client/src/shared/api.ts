@@ -329,11 +329,11 @@ export const pedidoConfigApi = {
   listarColunas: () =>
     request<{ data: PedidoColunaConfig[] }>('/api/v1/pedidos/config/colunas'),
 
-  getPreferenciasUsuario: () =>
-    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias/usuario'),
+  obterPreferenciaUsuarioColunaPedido: () =>
+    request<{ data: PedidoPreferenciasColunas | null }>('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido'),
 
-  salvarPreferenciasUsuario: (prefs: PedidoPreferenciasColunas) =>
-    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias/usuario', {
+  salvarPreferenciaUsuarioColunaPedido: (prefs: PedidoPreferenciasColunas) =>
+    request<{ data: PedidoPreferenciasColunas }>('/api/v1/pedidos/config/preferencia-usuario-coluna-pedido', {
       method: 'PUT',
       body: JSON.stringify(prefs),
     }),

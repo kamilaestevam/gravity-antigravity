@@ -3472,12 +3472,13 @@ export default function Pedidos() {
 
     // Carregar preferências e colunas customizadas em paralelo para mesclar corretamente
     Promise.all([
-      pedidoConfigApi.getPreferenciasUsuario().catch(() => null),
+      pedidoConfigApi.obterPreferenciaUsuarioColunaPedido().catch(() => ({ data: null })),
       colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]),
-    ]).then(([prefs, lista]) => {
+    ]).then(([prefsResp, lista]) => {
       setColunasUsuario(lista)
 
-      const savedVisible: string[] = prefs?.colunas_visiveis?.length > 0
+      const prefs = prefsResp?.data ?? null
+      const savedVisible: string[] = prefs?.colunas_visiveis && prefs.colunas_visiveis.length > 0
         ? prefs.colunas_visiveis
         : COLUNAS_PADRAO_VISIVEIS
 
@@ -3493,7 +3494,7 @@ export default function Pedidos() {
 
       if (novas.length > 0) {
         // Persistir preferências com as novas colunas para que hide/show funcione corretamente
-        pedidoConfigApi.salvarPreferenciasUsuario({ colunas_visiveis: finalVisible }).catch(() => {})
+        pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({ colunas_visiveis: finalVisible }).catch(() => {})
       }
 
       setPreferencias({ colunas_visiveis: finalVisible })
@@ -3997,7 +3998,7 @@ export default function Pedidos() {
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
-    pedidoConfigApi.salvarPreferenciasUsuario({
+    pedidoConfigApi.salvarPreferenciaUsuarioColunaPedido({
       colunas_visiveis: prefs.colunas_visiveis,
     }).catch(() => { /* silent — preferências ficam localmente */ })
   }, [])

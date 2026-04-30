@@ -48,6 +48,7 @@ import { pdfRouter } from './routes/relatorios-pdf-pedido.js'
 import { loteRouter } from './routes/alteracoes-status-lote-pedido.js'
 import { kanbanPreferenciasRouter } from './routes/kanban-pedido-preferencias.js'
 import { casasDecimaisRouter } from './routes/casas-decimais-pedido.js'
+import { preferenciaUsuarioColunaPedidoRouter } from './routes/preferencia-usuario-coluna-pedido.js'
 import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
 import { pedidosRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
@@ -147,6 +148,7 @@ app.use('/api/v1/pedidos/relatorios-pdf',              pdfRouter)
 app.use('/api/v1/pedidos/alteracoes-status-lote',      loteRouter)
 app.use('/api/v1/pedidos/kanban',                      kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)
+app.use('/api/v1/pedidos/config',                      preferenciaUsuarioColunaPedidoRouter)
 app.use('/api/v1/pedidos/configuracoes',               saldoFormulaRouter)
 app.use('/api/v1/pedidos/config',                      pedidosConfigRouter)
 app.use('/api/v1/pedidos',                             importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar

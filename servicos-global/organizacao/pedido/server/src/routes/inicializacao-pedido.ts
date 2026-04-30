@@ -40,11 +40,8 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const { idOrganizacao: tenantId, idUsuario: userId, tiposUsuario: roles } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id  = tenantId
-      const user_id    = userId
-      const company_id = (req.headers['x-id-workspace'] as string | undefined) ?? tenant_id
-      const user_roles = roles
+      const { idOrganizacao, idUsuario, tiposUsuario: tiposUsuarioWorkspace } = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const idWorkspace = (req.headers['x-id-workspace'] as string | undefined) ?? idOrganizacao
 
       const { sort, dir, limit, status, busca } = req.query
 
@@ -52,7 +49,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       const sortDir    = dir === 'asc' ? 'asc' : 'desc'
       const limitNum   = Math.min(Math.max(Number(limit ?? 100), 1), 200)
 
-      const where: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
+      const where: Record<string, unknown> = { tenant_id: idOrganizacao, company_id: idWorkspace, deleted_at: null }
       if (status) {
         const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
         where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
@@ -62,8 +59,6 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       }
 
       // Todas as queries em paralelo — nenhuma bloqueia a outra
-      // NOTA: preferencia continua chamando model name errado (pedidoPreferenciaUsuario)
-      // — sera corrigido no proximo commit junto com a entrega da rota /preferencia-usuario-coluna-pedido.
       const [pedidosRaw, statusList, preferencia, colunas] = await Promise.all([
         db.pedido.findMany({
           where,
@@ -72,11 +67,13 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           take: limitNum + 1,
         }),
         db.pedidoStatus.findMany({
-          where: { id_organizacao: tenant_id },
+          where: { id_organizacao: idOrganizacao },
           orderBy: { ordem_pedido_status: 'asc' },
         }),
-        db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }).catch(() => null),
-        colunasService.listar(tenant_id, user_id, user_roles, db as unknown as Record<string, unknown>),
+        db.preferenciaUsuarioColunaPedido.findUnique({
+          where: { id_organizacao_id_usuario: { id_organizacao: idOrganizacao, id_usuario: idUsuario } },
+        }),
+        colunasService.listar(idOrganizacao, idUsuario, tiposUsuarioWorkspace, db as unknown as Record<string, unknown>),
       ])
 
       // Cursor pagination
@@ -112,9 +109,8 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           is_sistema: s.gerenciado_sistema_pedido_status,
         })) },
         preferencias: preferencia ? {
-          ...preferencia,
-          colunas_visiveis: (preferencia as { colunas_visiveis_pedido_preferencia_usuario: string[] }).colunas_visiveis_pedido_preferencia_usuario,
-          colunas_largura:  (preferencia as { colunas_largura_pedido_preferencia_usuario: Record<string, number> | null }).colunas_largura_pedido_preferencia_usuario,
+          colunas_visiveis: (preferencia as { colunas_visiveis_preferencia_usuario_coluna_pedido: string[] }).colunas_visiveis_preferencia_usuario_coluna_pedido,
+          colunas_largura:  (preferencia as { colunas_largura_preferencia_usuario_coluna_pedido: Record<string, number> | null }).colunas_largura_preferencia_usuario_coluna_pedido,
         } : null,
         colunas,
       })

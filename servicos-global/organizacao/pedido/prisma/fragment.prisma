@@ -205,19 +205,20 @@ model PedidoStatusConfig {
   @@map("status_pedido")
 }
 
-model PedidoListaColunasPreferencia {
-  id_pedido_colunas_preferencia_usuario       String   @id @default(cuid())
-  id_organizacao                              String
-  id_workspace                                String?
-  id_usuario                                  String
-  colunas_visiveis_pedido_preferencia_usuario String[]
-  colunas_largura_pedido_preferencia_usuario  Json?
-  data_atualizacao_pedido_preferencia_usuario DateTime @updatedAt
+/// Preferencia de colunas (visiveis + larguras) por usuario na lista do Pedido.
+model PreferenciaUsuarioColunaPedido {
+  id_preferencia_usuario_coluna_pedido               String   @id @default(cuid())
+  id_organizacao                                     String
+  id_workspace                                       String?
+  id_usuario                                         String
+  colunas_visiveis_preferencia_usuario_coluna_pedido String[]
+  colunas_largura_preferencia_usuario_coluna_pedido  Json?
+  data_atualizacao_preferencia_usuario_coluna_pedido DateTime @updatedAt
 
   @@unique([id_organizacao, id_usuario])
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
-  @@map("preferencia_coluna_pedido")
+  @@map("preferencia_usuario_coluna_pedido")
 }
 
 model PedidoImportarAprendizadoIA {

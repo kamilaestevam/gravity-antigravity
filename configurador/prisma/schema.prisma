@@ -257,27 +257,26 @@ model Workspace {
 // ---------------------------------------------------------------------------
 
 model UsuarioWorkspace {
-  id_usuario_workspace             String             @id @default(cuid())
-  id_organizacao_usuario_workspace String
-  id_usuario_usuario_workspace     String
-  id_workspace_usuario_workspace   String
-  tipo_usuario_workspace           TipoUsuarioWorkspace @default(PADRAO)
-  ativo_usuario_workspace          Boolean            @default(true)
+  id_usuario_workspace               String               @id @default(cuid())
+  id_organizacao                     String
+  id_usuario                         String
+  id_workspace                       String
+  tipo_usuario_workspace             TipoUsuarioWorkspace @default(PADRAO)
+  ativo_usuario_workspace            Boolean              @default(true)
 
   // Timestamps
   data_criacao_usuario_workspace     DateTime @default(now())
   data_atualizacao_usuario_workspace DateTime @updatedAt
 
   // Relações
-  user    Usuario   @relation(fields: [id_usuario_usuario_workspace], references: [id_usuario], onDelete: Cascade)
-  company Workspace @relation(fields: [id_workspace_usuario_workspace], references: [id_workspace], onDelete: Cascade)
+  user    Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "usuario_workspace_id_usuario_fkey")
+  company Workspace @relation(fields: [id_workspace], references: [id_workspace], onDelete: Cascade, map: "usuario_workspace_id_workspace_fkey")
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
-  @@unique([id_organizacao_usuario_workspace, id_usuario_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_user_ws_unq")
-  // Índices obrigatórios
-  @@index([id_organizacao_usuario_workspace], map: "uw_org_idx")
-  @@index([id_organizacao_usuario_workspace, id_usuario_usuario_workspace], map: "uw_org_user_idx")
-  @@index([id_organizacao_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_ws_idx")
+  @@unique([id_organizacao, id_usuario, id_workspace], map: "usuario_workspace_id_organizacao_id_usuario_id_workspace_key")
+  @@index([id_organizacao],                map: "usuario_workspace_id_organizacao_idx")
+  @@index([id_organizacao, id_usuario],    map: "usuario_workspace_id_organizacao_id_usuario_idx")
+  @@index([id_organizacao, id_workspace],  map: "usuario_workspace_id_organizacao_id_workspace_idx")
   @@map("usuario_workspace")
 }
 

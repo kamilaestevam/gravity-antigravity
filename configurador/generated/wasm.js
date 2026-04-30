@@ -196,9 +196,9 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
 
 exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {
   id_usuario_workspace: 'id_usuario_workspace',
-  id_organizacao_usuario_workspace: 'id_organizacao_usuario_workspace',
-  id_usuario_usuario_workspace: 'id_usuario_usuario_workspace',
-  id_workspace_usuario_workspace: 'id_workspace_usuario_workspace',
+  id_organizacao: 'id_organizacao',
+  id_usuario: 'id_usuario',
+  id_workspace: 'id_workspace',
   tipo_usuario_workspace: 'tipo_usuario_workspace',
   ativo_usuario_workspace: 'ativo_usuario_workspace',
   data_criacao_usuario_workspace: 'data_criacao_usuario_workspace',

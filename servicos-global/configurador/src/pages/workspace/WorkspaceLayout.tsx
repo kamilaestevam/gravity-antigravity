@@ -78,8 +78,8 @@ export function WorkspaceLayout() {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',
     MASTER:      'Master',
-    STANDARD:    'Standard',
-    SUPPLIER:    'Fornecedor',
+    PADRAO:      'Standard',
+    FORNECEDOR:  'Fornecedor',
   }
   const userRole = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
 

@@ -12,16 +12,17 @@ import { useShellStore } from '../store'
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
 const ROLE_LABELS: Record<string, string> = {
-  gravity_admin: 'Admin Gravity',
-  SUPER_ADMIN:   'Super Admin',
-  ADMIN:         'Admin',
-  MASTER:        'Master',
-  STANDARD:      'Standard',
-  SUPPLIER:      'Fornecedor',
+  SUPER_ADMIN: 'Super Admin',
+  ADMIN:       'Admin',
+  MASTER:      'Master',
+  PADRAO:      'Standard',
+  FORNECEDOR:  'Fornecedor',
 }
 
 export function resolveRole(raw: string): string {
-  return ROLE_LABELS[raw] ?? (raw || 'Standard')
+  const label = ROLE_LABELS[raw]
+  if (!label && raw) console.warn('[resolveRole] tipo_usuario desconhecido:', raw)
+  return label ?? 'Standard'
 }
 
 export function useMeSync() {

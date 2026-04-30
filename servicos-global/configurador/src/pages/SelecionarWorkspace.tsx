@@ -272,15 +272,14 @@ export function SelecionarWorkspace() {
   const { isGravityAdmin, role: dbRole, isReady: roleReady } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
-    ADMIN: 'Admin',
-    MASTER: 'Master',
-    STANDARD: 'Usuário',
-    SUPPLIER: 'Fornecedor',
-    gravity_admin: 'Super Admin',
+    ADMIN:       'Admin',
+    MASTER:      'Master',
+    PADRAO:      'Standard',
+    FORNECEDOR:  'Fornecedor',
   }
   const userRole = dbRole
     ? (ROLE_LABELS[dbRole] ?? dbRole)
-    : (roleReady ? 'Usuário' : '…')
+    : (roleReady ? 'Standard' : '…')
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,
@@ -527,7 +526,7 @@ export function SelecionarWorkspace() {
     carregarTudo()
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getToken, userRole])
+  }, [getToken])
 
   /* ── Menu lateral: navItems ── */
   const navItems: NavItem[] = useMemo(() => {

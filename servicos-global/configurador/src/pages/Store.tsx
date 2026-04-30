@@ -207,8 +207,8 @@ export function Store() {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',
     MASTER:      'Master',
-    STANDARD:    'Standard',
-    SUPPLIER:    'Fornecedor',
+    PADRAO:      'Standard',
+    FORNECEDOR:  'Fornecedor',
   }
   const userRoleLabel = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
 

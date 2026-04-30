@@ -164,8 +164,8 @@ export function Hub() {
     SUPER_ADMIN: t('hub.role_super_admin', 'Super Admin'),
     ADMIN:       t('hub.role_admin', 'Admin'),
     MASTER:      t('hub.role_master', 'Master'),
-    STANDARD:    t('hub.role_standard', 'Standard'),
-    SUPPLIER:    t('hub.role_fornecedor', 'Fornecedor'),
+    PADRAO:      t('hub.role_standard', 'Standard'),
+    FORNECEDOR:  t('hub.role_fornecedor', 'Fornecedor'),
   }
   const userRole = ROLE_LABELS[dbRole ?? ''] ?? t('hub.role_standard', 'Standard')
 

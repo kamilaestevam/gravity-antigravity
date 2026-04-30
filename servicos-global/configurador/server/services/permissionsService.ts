@@ -22,7 +22,7 @@ export const permissionsService = {
 
     // Busca usuário e sua role global
     const user = await prisma.usuario.findFirst({
-      where: { id_usuario: id_usuario, id_organizacao_usuario: id_organizacao },
+      where: { id_usuario: id_usuario, id_organizacao: id_organizacao },
       select: { tipo_usuario: true },
     })
 
@@ -42,11 +42,11 @@ export const permissionsService = {
 
     const permission = await prisma.usuarioPermissao.findFirst({
       where: {
-        id_organizacao_usuario_permissao: id_organizacao,
-        id_workspace_usuario_permissao: id_workspace,
-        id_usuario_usuario_permissao: id_usuario,
-        id_produto_usuario_permissao: id_produto,
-        permissao_usuario_permissao: permissionKey,
+        id_organizacao: id_organizacao,
+        id_workspace: id_workspace,
+        id_usuario: id_usuario,
+        id_produto_gravity: id_produto,
+        permissao_usuario: permissionKey,
       },
     })
 
@@ -59,23 +59,23 @@ export const permissionsService = {
   async getUserPermissions(id_organizacao: string, id_usuario: string, id_workspace?: string) {
     const rows = await prisma.usuarioPermissao.findMany({
       where: {
-        id_organizacao_usuario_permissao: id_organizacao,
-        id_usuario_usuario_permissao: id_usuario,
-        ...(id_workspace && { id_workspace_usuario_permissao: id_workspace }),
+        id_organizacao: id_organizacao,
+        id_usuario: id_usuario,
+        ...(id_workspace && { id_workspace: id_workspace }),
       },
       select: {
-        id_workspace_usuario_permissao: true,
-        id_produto_usuario_permissao: true,
-        permissao_usuario_permissao: true,
-        data_criacao_usuario_permissao: true,
+        id_workspace: true,
+        id_produto_gravity: true,
+        permissao_usuario: true,
+        data_criacao_permissao_usuario: true,
       },
     })
     // DTO: contrato externo (id_workspace, id_produto, permission, created_at)
     return rows.map((r) => ({
-      id_workspace: r.id_workspace_usuario_permissao,
-      id_produto: r.id_produto_usuario_permissao,
-      permission: r.permissao_usuario_permissao,
-      created_at: r.data_criacao_usuario_permissao,
+      id_workspace: r.id_workspace,
+      id_produto: r.id_produto_gravity,
+      permission: r.permissao_usuario,
+      created_at: r.data_criacao_permissao_usuario,
     }))
   },
 
@@ -94,22 +94,22 @@ export const permissionsService = {
       // Limpa permissões antigas do produto neste workspace
       prisma.usuarioPermissao.deleteMany({
         where: {
-          id_organizacao_usuario_permissao: id_organizacao,
-          id_workspace_usuario_permissao: id_workspace,
-          id_usuario_usuario_permissao: id_usuario,
-          id_produto_usuario_permissao: id_produto,
+          id_organizacao: id_organizacao,
+          id_workspace: id_workspace,
+          id_usuario: id_usuario,
+          id_produto_gravity: id_produto,
         },
       }),
       // Insere novas
       ...permissions.map((p) =>
         prisma.usuarioPermissao.create({
           data: {
-            id_organizacao_usuario_permissao: id_organizacao,
-            id_workspace_usuario_permissao: id_workspace,
-            id_usuario_usuario_permissao: id_usuario,
-            id_produto_usuario_permissao: id_produto,
-            permissao_usuario_permissao: p,
-            concedido_por_usuario_permissao: grantedBy,
+            id_organizacao: id_organizacao,
+            id_workspace: id_workspace,
+            id_usuario: id_usuario,
+            id_produto_gravity: id_produto,
+            permissao_usuario: p,
+            permissao_usuario_concedido_por: grantedBy,
           },
         })
       ),

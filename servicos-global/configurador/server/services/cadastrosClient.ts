@@ -75,7 +75,7 @@ export async function criarEmpresa(
   log.info('cadastros.criar_empresa.start', {
     correlation_id: ctx.correlation_id,
     id_organizacao: ctx.id_organizacao,
-    pais: payload.pais,
+    pais: payload.pais_empresa,
   })
 
   let response: Response
@@ -126,7 +126,7 @@ export async function criarEmpresa(
   log.info('cadastros.criar_empresa.success', {
     correlation_id: ctx.correlation_id,
     id_organizacao: ctx.id_organizacao,
-    suid: empresa.suid,
+    suid: empresa.suid_empresa,
   })
   return empresa
 }

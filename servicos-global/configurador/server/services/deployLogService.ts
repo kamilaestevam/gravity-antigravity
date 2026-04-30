@@ -33,7 +33,7 @@ export interface ListDeployLogsParams {
 // DTO: Deploy Prisma rename → contrato legado da UI/admin
 function toDeployDto(row: {
   id_deploy: string
-  deploy_number: number
+  numero_deploy: number
   area_deploy: string
   versao_deploy: string
   descricao_deploy: string
@@ -46,7 +46,7 @@ function toDeployDto(row: {
 }) {
   return {
     id: row.id_deploy,
-    deploy_number: row.deploy_number,
+    deploy_number: row.numero_deploy,
     area: row.area_deploy,
     version: row.versao_deploy,
     description: row.descricao_deploy,

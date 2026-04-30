@@ -128,7 +128,7 @@ export async function deleteUserData(
 
     // 2. Historico (anonimizar em vez de deletar — compliance)
     try {
-      await tx.historyLog.updateMany({
+      await (tx as any).historyLog.updateMany({
         where: { tenant_id: id_organizacao, user_id: id_usuario },
         data: { user_id: 'DELETED_USER', actor_id: 'DELETED_USER' },
       })

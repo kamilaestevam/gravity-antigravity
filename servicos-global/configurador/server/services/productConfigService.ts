@@ -4,7 +4,7 @@
 import { prisma } from '../lib/prisma.js'
 
 // Chave composta auto-gerada pelo Prisma para o @@unique de ConfiguracaoProduto
-const COMPOUND_KEY = 'id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity'
+const COMPOUND_KEY = 'id_organizacao_configuracao_produto_gravity_chave_produto_configuracao_produto_gravity'
 
 export const productConfigService = {
   /**
@@ -14,8 +14,8 @@ export const productConfigService = {
     return prisma.produtoGravityConfiguracao.findUnique({
       where: {
         [COMPOUND_KEY]: {
-          id_organizacao_config_produto_gravity: id_organizacao,
-          chave_produto_config_produto_gravity: productKey,
+          id_organizacao_configuracao_produto_gravity: id_organizacao,
+          chave_produto_configuracao_produto_gravity: productKey,
         },
       } as never,
     })
@@ -34,19 +34,19 @@ export const productConfigService = {
     return prisma.produtoGravityConfiguracao.upsert({
       where: {
         [COMPOUND_KEY]: {
-          id_organizacao_config_produto_gravity: id_organizacao,
-          chave_produto_config_produto_gravity: productKey,
+          id_organizacao_configuracao_produto_gravity: id_organizacao,
+          chave_produto_configuracao_produto_gravity: productKey,
         },
       } as never,
       create: {
-        id_organizacao_config_produto_gravity: id_organizacao,
-        chave_produto_config_produto_gravity: productKey,
+        id_organizacao_configuracao_produto_gravity: id_organizacao,
+        chave_produto_configuracao_produto_gravity: productKey,
         configuracao_config_produto_gravity: config as object,
-        ativo_config_produto_gravity: isActive,
+        ativo_configuracao_produto_gravity: isActive,
       },
       update: {
         configuracao_config_produto_gravity: config as object,
-        ativo_config_produto_gravity: isActive,
+        ativo_configuracao_produto_gravity: isActive,
       },
     })
   },
@@ -57,13 +57,13 @@ export const productConfigService = {
   async listActiveProducts(id_organizacao: string) {
     return prisma.produtoGravityConfiguracao.findMany({
       where: {
-        id_organizacao_config_produto_gravity: id_organizacao,
-        ativo_config_produto_gravity: true,
+        id_organizacao_configuracao_produto_gravity: id_organizacao,
+        ativo_configuracao_produto_gravity: true,
       },
       select: {
-        chave_produto_config_produto_gravity: true,
+        chave_produto_configuracao_produto_gravity: true,
         configuracao_config_produto_gravity: true,
-        data_atualizacao_config_produto_gravity: true,
+        data_atualizacao_configuracao_produto_gravity: true,
       },
     })
   },
@@ -74,10 +74,10 @@ export const productConfigService = {
   async disableProduct(id_organizacao: string, productKey: string) {
     return prisma.produtoGravityConfiguracao.updateMany({
       where: {
-        id_organizacao_config_produto_gravity: id_organizacao,
-        chave_produto_config_produto_gravity: productKey,
+        id_organizacao_configuracao_produto_gravity: id_organizacao,
+        chave_produto_configuracao_produto_gravity: productKey,
       },
-      data: { ativo_config_produto_gravity: false },
+      data: { ativo_configuracao_produto_gravity: false },
     })
   },
 }

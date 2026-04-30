@@ -144,25 +144,25 @@ type ProductRow = {
   data_atualizacao_produto_gravity: Date
   data_remocao_produto_gravity: Date | null
   faixas_preco_produto_gravity?: Array<{
-    id_faixa_preco: string
+    id_faixa_preco_produto_gravity: string
     id_produto_gravity_faixa_preco: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: unknown
-    moeda_faixa_preco: string
-    data_criacao_faixa_preco: Date
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: unknown
+    moeda_faixa_preco_produto_gravity: string
+    data_criacao_faixa_preco_produto_gravity: Date
   }>
   negociacoes_produto_gravity?: Array<{
-    id_negociacao_especial: string
-    id_produto_gravity_negociacao_especial: string
-    id_organizacao_negociacao_especial: string
-    nome_organizacao_negociacao_especial: string
-    acordo_negociacao_especial: string
-    data_inicio_negociacao_especial: Date | null
-    data_fim_negociacao_especial: Date | null
-    ilimitado_negociacao_especial: boolean
-    data_criacao_negociacao_especial: Date
-    data_atualizacao_negociacao_especial: Date
+    id_negociacao_especial_preco_produto_gravity: string
+    id_produto_gravity: string
+    id_organizacao: string
+    nome_organizacao_negociacao_especial_preco_produto_gravity: string
+    acordo_negociacao_especial_preco_produto_gravity: string
+    data_inicio_negociacao_especial_preco_produto_gravity: Date | null
+    data_fim_negociacao_especial_preco_produto_gravity: Date | null
+    ilimitado_negociacao_especial_preco_produto_gravity: boolean
+    data_criacao_negociacao_especial_preco_produto_gravity: Date
+    data_atualizacao_negociacao_especial_preco_produto_gravity: Date
   }>
 }
 
@@ -198,25 +198,25 @@ export function toProductDto(row: ProductRow) {
     updated_at: row.data_atualizacao_produto_gravity,
     deleted_at: row.data_remocao_produto_gravity,
     price_tiers: row.faixas_preco_produto_gravity?.map((t) => ({
-      id: t.id_faixa_preco,
+      id: t.id_faixa_preco_produto_gravity,
       product_id: t.id_produto_gravity_faixa_preco,
-      range_from: t.faixa_de_faixa_preco,
-      range_to: t.faixa_ate_faixa_preco,
-      price: t.preco_faixa_preco,
-      currency: t.moeda_faixa_preco,
-      created_at: t.data_criacao_faixa_preco,
+      range_from: t.faixa_de_faixa_preco_produto_gravity,
+      range_to: t.faixa_ate_faixa_preco_produto_gravity,
+      price: t.preco_faixa_preco_produto_gravity,
+      currency: t.moeda_faixa_preco_produto_gravity,
+      created_at: t.data_criacao_faixa_preco_produto_gravity,
     })),
     negotiations: row.negociacoes_produto_gravity?.map((n) => ({
-      id: n.id_negociacao_especial,
-      product_id: n.id_produto_gravity_negociacao_especial,
-      tenant_id: n.id_organizacao_negociacao_especial,
-      tenant_name: n.nome_organizacao_negociacao_especial,
-      agreement: n.acordo_negociacao_especial,
-      starts_at: n.data_inicio_negociacao_especial,
-      ends_at: n.data_fim_negociacao_especial,
-      is_unlimited: n.ilimitado_negociacao_especial,
-      created_at: n.data_criacao_negociacao_especial,
-      updated_at: n.data_atualizacao_negociacao_especial,
+      id: n.id_negociacao_especial_preco_produto_gravity,
+      product_id: n.id_produto_gravity,
+      tenant_id: n.id_organizacao,
+      tenant_name: n.nome_organizacao_negociacao_especial_preco_produto_gravity,
+      agreement: n.acordo_negociacao_especial_preco_produto_gravity,
+      starts_at: n.data_inicio_negociacao_especial_preco_produto_gravity,
+      ends_at: n.data_fim_negociacao_especial_preco_produto_gravity,
+      is_unlimited: n.ilimitado_negociacao_especial_preco_produto_gravity,
+      created_at: n.data_criacao_negociacao_especial_preco_produto_gravity,
+      updated_at: n.data_atualizacao_negociacao_especial_preco_produto_gravity,
     })),
   }
 }
@@ -320,10 +320,10 @@ export const productCatalogService = {
         faixas_preco_produto_gravity: price_tiers?.length
           ? {
               create: price_tiers.map(tier => ({
-                faixa_de_faixa_preco: tier.range_from,
-                faixa_ate_faixa_preco: tier.range_to,
-                preco_faixa_preco: tier.price,
-                moeda_faixa_preco: tier.currency ?? 'BRL',
+                faixa_de_faixa_preco_produto_gravity: tier.range_from,
+                faixa_ate_faixa_preco_produto_gravity: tier.range_to,
+                preco_faixa_preco_produto_gravity: tier.price,
+                moeda_faixa_preco_produto_gravity: tier.currency ?? 'BRL',
               })),
             }
           : undefined,
@@ -346,10 +346,10 @@ export const productCatalogService = {
           await tx.produtoGravityFaixaPreco.createMany({
             data: price_tiers.map(tier => ({
               id_produto_gravity_faixa_preco: id,
-              faixa_de_faixa_preco: tier.range_from,
-              faixa_ate_faixa_preco: tier.range_to,
-              preco_faixa_preco: tier.price,
-              moeda_faixa_preco: tier.currency ?? 'BRL',
+              faixa_de_faixa_preco_produto_gravity: tier.range_from,
+              faixa_ate_faixa_preco_produto_gravity: tier.range_to,
+              preco_faixa_preco_produto_gravity: tier.price,
+              moeda_faixa_preco_produto_gravity: tier.currency ?? 'BRL',
             })),
           })
         }
@@ -387,11 +387,11 @@ export const productCatalogService = {
     const now = new Date()
     return prisma.produtoGravityNegociacaoEspecial.count({
       where: {
-        id_produto_gravity_negociacao_especial: id_produto,
+        id_produto_gravity: id_produto,
         OR: [
-          { ilimitado_negociacao_especial: true },
-          { data_fim_negociacao_especial: { gte: now } },
-          { data_fim_negociacao_especial: null },
+          { ilimitado_negociacao_especial_preco_produto_gravity: true },
+          { data_fim_negociacao_especial_preco_produto_gravity: { gte: now } },
+          { data_fim_negociacao_especial_preco_produto_gravity: null },
         ],
       },
     })
@@ -498,18 +498,18 @@ export const productCatalogService = {
       productKeys.map(key =>
         prisma.produtoGravityConfiguracao.upsert({
           where: {
-            id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-              id_organizacao_config_produto_gravity: id_organizacao,
-              chave_produto_config_produto_gravity: key,
+            id_organizacao_configuracao_produto_gravity_chave_produto_configuracao_produto_gravity: {
+              id_organizacao_configuracao_produto_gravity: id_organizacao,
+              chave_produto_configuracao_produto_gravity: key,
             },
           },
           create: {
-            id_organizacao_config_produto_gravity: id_organizacao,
-            chave_produto_config_produto_gravity: key,
+            id_organizacao_configuracao_produto_gravity: id_organizacao,
+            chave_produto_configuracao_produto_gravity: key,
             configuracao_config_produto_gravity: {},
-            ativo_config_produto_gravity: true,
+            ativo_configuracao_produto_gravity: true,
           },
-          update: { ativo_config_produto_gravity: true },
+          update: { ativo_configuracao_produto_gravity: true },
         }),
       ),
     )

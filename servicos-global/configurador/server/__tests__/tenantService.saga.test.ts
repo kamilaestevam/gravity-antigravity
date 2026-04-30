@@ -152,7 +152,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     expect(prismaMock.produtoGravityAssinatura.create).toHaveBeenCalledTimes(1)
     expect(prismaMock.workspace.create).toHaveBeenCalledTimes(1)
 
-    expect(tenant.suid_empresa_organizacao).toBe(suid)
+    expect((tenant as { suid_empresa_organizacao: string }).suid_empresa_organizacao).toBe(suid)
   })
 
   it('(B) Cadastros 4xx → zero escrita local, erro propaga, sem compensação', async () => {

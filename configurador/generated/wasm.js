@@ -175,13 +175,12 @@ exports.Prisma.UsuarioPermissaoScalarFieldEnum = {
 };
 
 exports.Prisma.AdminGravityPermissaoScalarFieldEnum = {
-  id_permissao_admin_gravity: 'id_permissao_admin_gravity',
-  id_admin_permissao_admin_gravity: 'id_admin_permissao_admin_gravity',
-  recurso_permissao_admin_gravity: 'recurso_permissao_admin_gravity',
-  acao_permissao_admin_gravity: 'acao_permissao_admin_gravity',
-  concedido_por_permissao_admin_gravity: 'concedido_por_permissao_admin_gravity',
-  data_criacao_permissao_admin_gravity: 'data_criacao_permissao_admin_gravity',
-  data_atualizacao_permissao_admin_gravity: 'data_atualizacao_permissao_admin_gravity'
+  id_permissao_usuario_admin: 'id_permissao_usuario_admin',
+  id_clerk_usuario: 'id_clerk_usuario',
+  permissao_usuario_admin: 'permissao_usuario_admin',
+  concedido_por_permissao_usuario_admin: 'concedido_por_permissao_usuario_admin',
+  data_criacao_permissao_usuario_admin: 'data_criacao_permissao_usuario_admin',
+  data_atualizacao_permissao_usuario_admin: 'data_atualizacao_permissao_usuario_admin'
 };
 
 exports.Prisma.WorkspaceScalarFieldEnum = {

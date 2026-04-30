@@ -7298,65 +7298,59 @@ export namespace Prisma {
   }
 
   export type AdminGravityPermissaoMinAggregateOutputType = {
-    id_permissao_admin_gravity: string | null
-    id_admin_permissao_admin_gravity: string | null
-    recurso_permissao_admin_gravity: string | null
-    acao_permissao_admin_gravity: string | null
-    concedido_por_permissao_admin_gravity: string | null
-    data_criacao_permissao_admin_gravity: Date | null
-    data_atualizacao_permissao_admin_gravity: Date | null
+    id_permissao_usuario_admin: string | null
+    id_clerk_usuario: string | null
+    permissao_usuario_admin: string | null
+    concedido_por_permissao_usuario_admin: string | null
+    data_criacao_permissao_usuario_admin: Date | null
+    data_atualizacao_permissao_usuario_admin: Date | null
   }
 
   export type AdminGravityPermissaoMaxAggregateOutputType = {
-    id_permissao_admin_gravity: string | null
-    id_admin_permissao_admin_gravity: string | null
-    recurso_permissao_admin_gravity: string | null
-    acao_permissao_admin_gravity: string | null
-    concedido_por_permissao_admin_gravity: string | null
-    data_criacao_permissao_admin_gravity: Date | null
-    data_atualizacao_permissao_admin_gravity: Date | null
+    id_permissao_usuario_admin: string | null
+    id_clerk_usuario: string | null
+    permissao_usuario_admin: string | null
+    concedido_por_permissao_usuario_admin: string | null
+    data_criacao_permissao_usuario_admin: Date | null
+    data_atualizacao_permissao_usuario_admin: Date | null
   }
 
   export type AdminGravityPermissaoCountAggregateOutputType = {
-    id_permissao_admin_gravity: number
-    id_admin_permissao_admin_gravity: number
-    recurso_permissao_admin_gravity: number
-    acao_permissao_admin_gravity: number
-    concedido_por_permissao_admin_gravity: number
-    data_criacao_permissao_admin_gravity: number
-    data_atualizacao_permissao_admin_gravity: number
+    id_permissao_usuario_admin: number
+    id_clerk_usuario: number
+    permissao_usuario_admin: number
+    concedido_por_permissao_usuario_admin: number
+    data_criacao_permissao_usuario_admin: number
+    data_atualizacao_permissao_usuario_admin: number
     _all: number
   }
 
 
   export type AdminGravityPermissaoMinAggregateInputType = {
-    id_permissao_admin_gravity?: true
-    id_admin_permissao_admin_gravity?: true
-    recurso_permissao_admin_gravity?: true
-    acao_permissao_admin_gravity?: true
-    concedido_por_permissao_admin_gravity?: true
-    data_criacao_permissao_admin_gravity?: true
-    data_atualizacao_permissao_admin_gravity?: true
+    id_permissao_usuario_admin?: true
+    id_clerk_usuario?: true
+    permissao_usuario_admin?: true
+    concedido_por_permissao_usuario_admin?: true
+    data_criacao_permissao_usuario_admin?: true
+    data_atualizacao_permissao_usuario_admin?: true
   }
 
   export type AdminGravityPermissaoMaxAggregateInputType = {
-    id_permissao_admin_gravity?: true
-    id_admin_permissao_admin_gravity?: true
-    recurso_permissao_admin_gravity?: true
-    acao_permissao_admin_gravity?: true
-    concedido_por_permissao_admin_gravity?: true
-    data_criacao_permissao_admin_gravity?: true
-    data_atualizacao_permissao_admin_gravity?: true
+    id_permissao_usuario_admin?: true
+    id_clerk_usuario?: true
+    permissao_usuario_admin?: true
+    concedido_por_permissao_usuario_admin?: true
+    data_criacao_permissao_usuario_admin?: true
+    data_atualizacao_permissao_usuario_admin?: true
   }
 
   export type AdminGravityPermissaoCountAggregateInputType = {
-    id_permissao_admin_gravity?: true
-    id_admin_permissao_admin_gravity?: true
-    recurso_permissao_admin_gravity?: true
-    acao_permissao_admin_gravity?: true
-    concedido_por_permissao_admin_gravity?: true
-    data_criacao_permissao_admin_gravity?: true
-    data_atualizacao_permissao_admin_gravity?: true
+    id_permissao_usuario_admin?: true
+    id_clerk_usuario?: true
+    permissao_usuario_admin?: true
+    concedido_por_permissao_usuario_admin?: true
+    data_criacao_permissao_usuario_admin?: true
+    data_atualizacao_permissao_usuario_admin?: true
     _all?: true
   }
 
@@ -7433,13 +7427,12 @@ export namespace Prisma {
   }
 
   export type AdminGravityPermissaoGroupByOutputType = {
-    id_permissao_admin_gravity: string
-    id_admin_permissao_admin_gravity: string
-    recurso_permissao_admin_gravity: string
-    acao_permissao_admin_gravity: string
-    concedido_por_permissao_admin_gravity: string
-    data_criacao_permissao_admin_gravity: Date
-    data_atualizacao_permissao_admin_gravity: Date
+    id_permissao_usuario_admin: string
+    id_clerk_usuario: string
+    permissao_usuario_admin: string
+    concedido_por_permissao_usuario_admin: string
+    data_criacao_permissao_usuario_admin: Date
+    data_atualizacao_permissao_usuario_admin: Date
     _count: AdminGravityPermissaoCountAggregateOutputType | null
     _min: AdminGravityPermissaoMinAggregateOutputType | null
     _max: AdminGravityPermissaoMaxAggregateOutputType | null
@@ -7460,33 +7453,30 @@ export namespace Prisma {
 
 
   export type AdminGravityPermissaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_permissao_admin_gravity?: boolean
-    id_admin_permissao_admin_gravity?: boolean
-    recurso_permissao_admin_gravity?: boolean
-    acao_permissao_admin_gravity?: boolean
-    concedido_por_permissao_admin_gravity?: boolean
-    data_criacao_permissao_admin_gravity?: boolean
-    data_atualizacao_permissao_admin_gravity?: boolean
+    id_permissao_usuario_admin?: boolean
+    id_clerk_usuario?: boolean
+    permissao_usuario_admin?: boolean
+    concedido_por_permissao_usuario_admin?: boolean
+    data_criacao_permissao_usuario_admin?: boolean
+    data_atualizacao_permissao_usuario_admin?: boolean
   }, ExtArgs["result"]["adminGravityPermissao"]>
 
   export type AdminGravityPermissaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_permissao_admin_gravity?: boolean
-    id_admin_permissao_admin_gravity?: boolean
-    recurso_permissao_admin_gravity?: boolean
-    acao_permissao_admin_gravity?: boolean
-    concedido_por_permissao_admin_gravity?: boolean
-    data_criacao_permissao_admin_gravity?: boolean
-    data_atualizacao_permissao_admin_gravity?: boolean
+    id_permissao_usuario_admin?: boolean
+    id_clerk_usuario?: boolean
+    permissao_usuario_admin?: boolean
+    concedido_por_permissao_usuario_admin?: boolean
+    data_criacao_permissao_usuario_admin?: boolean
+    data_atualizacao_permissao_usuario_admin?: boolean
   }, ExtArgs["result"]["adminGravityPermissao"]>
 
   export type AdminGravityPermissaoSelectScalar = {
-    id_permissao_admin_gravity?: boolean
-    id_admin_permissao_admin_gravity?: boolean
-    recurso_permissao_admin_gravity?: boolean
-    acao_permissao_admin_gravity?: boolean
-    concedido_por_permissao_admin_gravity?: boolean
-    data_criacao_permissao_admin_gravity?: boolean
-    data_atualizacao_permissao_admin_gravity?: boolean
+    id_permissao_usuario_admin?: boolean
+    id_clerk_usuario?: boolean
+    permissao_usuario_admin?: boolean
+    concedido_por_permissao_usuario_admin?: boolean
+    data_criacao_permissao_usuario_admin?: boolean
+    data_atualizacao_permissao_usuario_admin?: boolean
   }
 
 
@@ -7494,13 +7484,12 @@ export namespace Prisma {
     name: "AdminGravityPermissao"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_permissao_admin_gravity: string
-      id_admin_permissao_admin_gravity: string
-      recurso_permissao_admin_gravity: string
-      acao_permissao_admin_gravity: string
-      concedido_por_permissao_admin_gravity: string
-      data_criacao_permissao_admin_gravity: Date
-      data_atualizacao_permissao_admin_gravity: Date
+      id_permissao_usuario_admin: string
+      id_clerk_usuario: string
+      permissao_usuario_admin: string
+      concedido_por_permissao_usuario_admin: string
+      data_criacao_permissao_usuario_admin: Date
+      data_atualizacao_permissao_usuario_admin: Date
     }, ExtArgs["result"]["adminGravityPermissao"]>
     composites: {}
   }
@@ -7584,8 +7573,8 @@ export namespace Prisma {
      * // Get first 10 AdminGravityPermissaos
      * const adminGravityPermissaos = await prisma.adminGravityPermissao.findMany({ take: 10 })
      * 
-     * // Only select the `id_permissao_admin_gravity`
-     * const adminGravityPermissaoWithId_permissao_admin_gravityOnly = await prisma.adminGravityPermissao.findMany({ select: { id_permissao_admin_gravity: true } })
+     * // Only select the `id_permissao_usuario_admin`
+     * const adminGravityPermissaoWithId_permissao_usuario_adminOnly = await prisma.adminGravityPermissao.findMany({ select: { id_permissao_usuario_admin: true } })
      * 
      */
     findMany<T extends AdminGravityPermissaoFindManyArgs>(args?: SelectSubset<T, AdminGravityPermissaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminGravityPermissaoPayload<ExtArgs>, T, "findMany">>
@@ -7629,9 +7618,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AdminGravityPermissaos and only return the `id_permissao_admin_gravity`
-     * const adminGravityPermissaoWithId_permissao_admin_gravityOnly = await prisma.adminGravityPermissao.createManyAndReturn({ 
-     *   select: { id_permissao_admin_gravity: true },
+     * // Create many AdminGravityPermissaos and only return the `id_permissao_usuario_admin`
+     * const adminGravityPermissaoWithId_permissao_usuario_adminOnly = await prisma.adminGravityPermissao.createManyAndReturn({ 
+     *   select: { id_permissao_usuario_admin: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -7894,13 +7883,12 @@ export namespace Prisma {
    * Fields of the AdminGravityPermissao model
    */ 
   interface AdminGravityPermissaoFieldRefs {
-    readonly id_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
-    readonly id_admin_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
-    readonly recurso_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
-    readonly acao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
-    readonly concedido_por_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'String'>
-    readonly data_criacao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'DateTime'>
-    readonly data_atualizacao_permissao_admin_gravity: FieldRef<"AdminGravityPermissao", 'DateTime'>
+    readonly id_permissao_usuario_admin: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly id_clerk_usuario: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly permissao_usuario_admin: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly concedido_por_permissao_usuario_admin: FieldRef<"AdminGravityPermissao", 'String'>
+    readonly data_criacao_permissao_usuario_admin: FieldRef<"AdminGravityPermissao", 'DateTime'>
+    readonly data_atualizacao_permissao_usuario_admin: FieldRef<"AdminGravityPermissao", 'DateTime'>
   }
     
 
@@ -26446,13 +26434,12 @@ export namespace Prisma {
 
 
   export const AdminGravityPermissaoScalarFieldEnum: {
-    id_permissao_admin_gravity: 'id_permissao_admin_gravity',
-    id_admin_permissao_admin_gravity: 'id_admin_permissao_admin_gravity',
-    recurso_permissao_admin_gravity: 'recurso_permissao_admin_gravity',
-    acao_permissao_admin_gravity: 'acao_permissao_admin_gravity',
-    concedido_por_permissao_admin_gravity: 'concedido_por_permissao_admin_gravity',
-    data_criacao_permissao_admin_gravity: 'data_criacao_permissao_admin_gravity',
-    data_atualizacao_permissao_admin_gravity: 'data_atualizacao_permissao_admin_gravity'
+    id_permissao_usuario_admin: 'id_permissao_usuario_admin',
+    id_clerk_usuario: 'id_clerk_usuario',
+    permissao_usuario_admin: 'permissao_usuario_admin',
+    concedido_por_permissao_usuario_admin: 'concedido_por_permissao_usuario_admin',
+    data_criacao_permissao_usuario_admin: 'data_criacao_permissao_usuario_admin',
+    data_atualizacao_permissao_usuario_admin: 'data_atualizacao_permissao_usuario_admin'
   };
 
   export type AdminGravityPermissaoScalarFieldEnum = (typeof AdminGravityPermissaoScalarFieldEnum)[keyof typeof AdminGravityPermissaoScalarFieldEnum]
@@ -27426,47 +27413,43 @@ export namespace Prisma {
     AND?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
     OR?: AdminGravityPermissaoWhereInput[]
     NOT?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
-    id_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    id_admin_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    recurso_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    acao_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    concedido_por_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+    id_permissao_usuario_admin?: StringFilter<"AdminGravityPermissao"> | string
+    id_clerk_usuario?: StringFilter<"AdminGravityPermissao"> | string
+    permissao_usuario_admin?: StringFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_usuario_admin?: StringFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_usuario_admin?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
   }
 
   export type AdminGravityPermissaoOrderByWithRelationInput = {
-    id_permissao_admin_gravity?: SortOrder
-    id_admin_permissao_admin_gravity?: SortOrder
-    recurso_permissao_admin_gravity?: SortOrder
-    acao_permissao_admin_gravity?: SortOrder
-    concedido_por_permissao_admin_gravity?: SortOrder
-    data_criacao_permissao_admin_gravity?: SortOrder
-    data_atualizacao_permissao_admin_gravity?: SortOrder
+    id_permissao_usuario_admin?: SortOrder
+    id_clerk_usuario?: SortOrder
+    permissao_usuario_admin?: SortOrder
+    concedido_por_permissao_usuario_admin?: SortOrder
+    data_criacao_permissao_usuario_admin?: SortOrder
+    data_atualizacao_permissao_usuario_admin?: SortOrder
   }
 
   export type AdminGravityPermissaoWhereUniqueInput = Prisma.AtLeast<{
-    id_permissao_admin_gravity?: string
-    id_admin_permissao_admin_gravity_recurso_permissao_admin_gravity_acao_permissao_admin_gravity?: AdminGravityPermissaoId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput
+    id_permissao_usuario_admin?: string
+    id_clerk_usuario_permissao_usuario_admin?: AdminGravityPermissaoId_clerk_usuarioPermissao_usuario_adminCompoundUniqueInput
     AND?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
     OR?: AdminGravityPermissaoWhereInput[]
     NOT?: AdminGravityPermissaoWhereInput | AdminGravityPermissaoWhereInput[]
-    id_admin_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    recurso_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    acao_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    concedido_por_permissao_admin_gravity?: StringFilter<"AdminGravityPermissao"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
-  }, "id_permissao_admin_gravity" | "id_admin_permissao_admin_gravity_recurso_permissao_admin_gravity_acao_permissao_admin_gravity">
+    id_clerk_usuario?: StringFilter<"AdminGravityPermissao"> | string
+    permissao_usuario_admin?: StringFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_usuario_admin?: StringFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_usuario_admin?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFilter<"AdminGravityPermissao"> | Date | string
+  }, "id_permissao_usuario_admin" | "id_clerk_usuario_permissao_usuario_admin">
 
   export type AdminGravityPermissaoOrderByWithAggregationInput = {
-    id_permissao_admin_gravity?: SortOrder
-    id_admin_permissao_admin_gravity?: SortOrder
-    recurso_permissao_admin_gravity?: SortOrder
-    acao_permissao_admin_gravity?: SortOrder
-    concedido_por_permissao_admin_gravity?: SortOrder
-    data_criacao_permissao_admin_gravity?: SortOrder
-    data_atualizacao_permissao_admin_gravity?: SortOrder
+    id_permissao_usuario_admin?: SortOrder
+    id_clerk_usuario?: SortOrder
+    permissao_usuario_admin?: SortOrder
+    concedido_por_permissao_usuario_admin?: SortOrder
+    data_criacao_permissao_usuario_admin?: SortOrder
+    data_atualizacao_permissao_usuario_admin?: SortOrder
     _count?: AdminGravityPermissaoCountOrderByAggregateInput
     _max?: AdminGravityPermissaoMaxOrderByAggregateInput
     _min?: AdminGravityPermissaoMinOrderByAggregateInput
@@ -27476,13 +27459,12 @@ export namespace Prisma {
     AND?: AdminGravityPermissaoScalarWhereWithAggregatesInput | AdminGravityPermissaoScalarWhereWithAggregatesInput[]
     OR?: AdminGravityPermissaoScalarWhereWithAggregatesInput[]
     NOT?: AdminGravityPermissaoScalarWhereWithAggregatesInput | AdminGravityPermissaoScalarWhereWithAggregatesInput[]
-    id_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
-    id_admin_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
-    recurso_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
-    acao_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
-    concedido_por_permissao_admin_gravity?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
-    data_criacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
+    id_permissao_usuario_admin?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    id_clerk_usuario?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    permissao_usuario_admin?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    concedido_por_permissao_usuario_admin?: StringWithAggregatesFilter<"AdminGravityPermissao"> | string
+    data_criacao_permissao_usuario_admin?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeWithAggregatesFilter<"AdminGravityPermissao"> | Date | string
   }
 
   export type WorkspaceWhereInput = {
@@ -29492,73 +29474,66 @@ export namespace Prisma {
   }
 
   export type AdminGravityPermissaoCreateInput = {
-    id_permissao_admin_gravity?: string
-    id_admin_permissao_admin_gravity: string
-    recurso_permissao_admin_gravity: string
-    acao_permissao_admin_gravity: string
-    concedido_por_permissao_admin_gravity: string
-    data_criacao_permissao_admin_gravity?: Date | string
-    data_atualizacao_permissao_admin_gravity?: Date | string
+    id_permissao_usuario_admin?: string
+    id_clerk_usuario: string
+    permissao_usuario_admin: string
+    concedido_por_permissao_usuario_admin: string
+    data_criacao_permissao_usuario_admin?: Date | string
+    data_atualizacao_permissao_usuario_admin?: Date | string
   }
 
   export type AdminGravityPermissaoUncheckedCreateInput = {
-    id_permissao_admin_gravity?: string
-    id_admin_permissao_admin_gravity: string
-    recurso_permissao_admin_gravity: string
-    acao_permissao_admin_gravity: string
-    concedido_por_permissao_admin_gravity: string
-    data_criacao_permissao_admin_gravity?: Date | string
-    data_atualizacao_permissao_admin_gravity?: Date | string
+    id_permissao_usuario_admin?: string
+    id_clerk_usuario: string
+    permissao_usuario_admin: string
+    concedido_por_permissao_usuario_admin: string
+    data_criacao_permissao_usuario_admin?: Date | string
+    data_atualizacao_permissao_usuario_admin?: Date | string
   }
 
   export type AdminGravityPermissaoUpdateInput = {
-    id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    acao_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    concedido_por_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    data_criacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    concedido_por_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminGravityPermissaoUncheckedUpdateInput = {
-    id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    acao_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    concedido_por_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    data_criacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    concedido_por_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminGravityPermissaoCreateManyInput = {
-    id_permissao_admin_gravity?: string
-    id_admin_permissao_admin_gravity: string
-    recurso_permissao_admin_gravity: string
-    acao_permissao_admin_gravity: string
-    concedido_por_permissao_admin_gravity: string
-    data_criacao_permissao_admin_gravity?: Date | string
-    data_atualizacao_permissao_admin_gravity?: Date | string
+    id_permissao_usuario_admin?: string
+    id_clerk_usuario: string
+    permissao_usuario_admin: string
+    concedido_por_permissao_usuario_admin: string
+    data_criacao_permissao_usuario_admin?: Date | string
+    data_atualizacao_permissao_usuario_admin?: Date | string
   }
 
   export type AdminGravityPermissaoUpdateManyMutationInput = {
-    id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    acao_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    concedido_por_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    data_criacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    concedido_por_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminGravityPermissaoUncheckedUpdateManyInput = {
-    id_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    id_admin_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    recurso_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    acao_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    concedido_por_permissao_admin_gravity?: StringFieldUpdateOperationsInput | string
-    data_criacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    data_atualizacao_permissao_admin_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    id_clerk_usuario?: StringFieldUpdateOperationsInput | string
+    permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    concedido_por_permissao_usuario_admin?: StringFieldUpdateOperationsInput | string
+    data_criacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_permissao_usuario_admin?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkspaceCreateInput = {
@@ -31868,40 +31843,36 @@ export namespace Prisma {
     data_atualizacao_usuario_permissao?: SortOrder
   }
 
-  export type AdminGravityPermissaoId_admin_permissao_admin_gravityRecurso_permissao_admin_gravityAcao_permissao_admin_gravityCompoundUniqueInput = {
-    id_admin_permissao_admin_gravity: string
-    recurso_permissao_admin_gravity: string
-    acao_permissao_admin_gravity: string
+  export type AdminGravityPermissaoId_clerk_usuarioPermissao_usuario_adminCompoundUniqueInput = {
+    id_clerk_usuario: string
+    permissao_usuario_admin: string
   }
 
   export type AdminGravityPermissaoCountOrderByAggregateInput = {
-    id_permissao_admin_gravity?: SortOrder
-    id_admin_permissao_admin_gravity?: SortOrder
-    recurso_permissao_admin_gravity?: SortOrder
-    acao_permissao_admin_gravity?: SortOrder
-    concedido_por_permissao_admin_gravity?: SortOrder
-    data_criacao_permissao_admin_gravity?: SortOrder
-    data_atualizacao_permissao_admin_gravity?: SortOrder
+    id_permissao_usuario_admin?: SortOrder
+    id_clerk_usuario?: SortOrder
+    permissao_usuario_admin?: SortOrder
+    concedido_por_permissao_usuario_admin?: SortOrder
+    data_criacao_permissao_usuario_admin?: SortOrder
+    data_atualizacao_permissao_usuario_admin?: SortOrder
   }
 
   export type AdminGravityPermissaoMaxOrderByAggregateInput = {
-    id_permissao_admin_gravity?: SortOrder
-    id_admin_permissao_admin_gravity?: SortOrder
-    recurso_permissao_admin_gravity?: SortOrder
-    acao_permissao_admin_gravity?: SortOrder
-    concedido_por_permissao_admin_gravity?: SortOrder
-    data_criacao_permissao_admin_gravity?: SortOrder
-    data_atualizacao_permissao_admin_gravity?: SortOrder
+    id_permissao_usuario_admin?: SortOrder
+    id_clerk_usuario?: SortOrder
+    permissao_usuario_admin?: SortOrder
+    concedido_por_permissao_usuario_admin?: SortOrder
+    data_criacao_permissao_usuario_admin?: SortOrder
+    data_atualizacao_permissao_usuario_admin?: SortOrder
   }
 
   export type AdminGravityPermissaoMinOrderByAggregateInput = {
-    id_permissao_admin_gravity?: SortOrder
-    id_admin_permissao_admin_gravity?: SortOrder
-    recurso_permissao_admin_gravity?: SortOrder
-    acao_permissao_admin_gravity?: SortOrder
-    concedido_por_permissao_admin_gravity?: SortOrder
-    data_criacao_permissao_admin_gravity?: SortOrder
-    data_atualizacao_permissao_admin_gravity?: SortOrder
+    id_permissao_usuario_admin?: SortOrder
+    id_clerk_usuario?: SortOrder
+    permissao_usuario_admin?: SortOrder
+    concedido_por_permissao_usuario_admin?: SortOrder
+    data_criacao_permissao_usuario_admin?: SortOrder
+    data_atualizacao_permissao_usuario_admin?: SortOrder
   }
 
   export type EnumWorkspaceStatusFilter<$PrismaModel = never> = {

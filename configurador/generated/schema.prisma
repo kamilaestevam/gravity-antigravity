@@ -205,22 +205,19 @@ model UsuarioPermissao {
 // ---------------------------------------------------------------------------
 
 model AdminGravityPermissao {
-  id_permissao_admin_gravity            String @id @default(cuid())
-  id_admin_permissao_admin_gravity      String // clerk_id do Admin Gravity
-  recurso_permissao_admin_gravity       String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
-  acao_permissao_admin_gravity          String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
-  concedido_por_permissao_admin_gravity String // clerk_id do Super Admin que concedeu
+  id_permissao_usuario_admin            String @id @default(cuid())
+  id_clerk_usuario                      String // clerk_id do Admin Gravity
+  permissao_usuario_admin               String // ex: 'editar_tenants', 'visualizar_billing', 'gerenciar_deploy'
+  concedido_por_permissao_usuario_admin String // clerk_id do Super Admin que concedeu
 
   // Timestamps
-  data_criacao_permissao_admin_gravity     DateTime @default(now())
-  data_atualizacao_permissao_admin_gravity DateTime @updatedAt
+  data_criacao_permissao_usuario_admin     DateTime @default(now())
+  data_atualizacao_permissao_usuario_admin DateTime @updatedAt
 
-  // Admin não pode ter permissão duplicada no mesmo recurso+ação
-  @@unique([id_admin_permissao_admin_gravity, recurso_permissao_admin_gravity, acao_permissao_admin_gravity], map: "pag_admin_recurso_acao_unq")
-  // Índices obrigatórios
-  @@index([id_admin_permissao_admin_gravity], map: "pag_admin_idx")
-  @@index([id_admin_permissao_admin_gravity, recurso_permissao_admin_gravity], map: "pag_admin_recurso_idx")
-  @@map("permissao_admin_gravity")
+  // Admin não pode ter a mesma permissão duplicada
+  @@unique([id_clerk_usuario, permissao_usuario_admin], map: "permissao_usuario_admin_gravity_admin_permissao_unq")
+  @@index([id_clerk_usuario], map: "permissao_usuario_admin_gravity_admin_idx")
+  @@map("permissao_usuario_admin_gravity")
 }
 
 // ---------------------------------------------------------------------------

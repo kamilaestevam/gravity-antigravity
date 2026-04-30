@@ -104,10 +104,10 @@ export type ServicoGravity = $Result.DefaultSelection<Prisma.$ServicoGravityPayl
  */
 export type Cambio = $Result.DefaultSelection<Prisma.$CambioPayload>
 /**
- * Model Testes
+ * Model Teste
  * 
  */
-export type Testes = $Result.DefaultSelection<Prisma.$TestesPayload>
+export type Teste = $Result.DefaultSelection<Prisma.$TestePayload>
 /**
  * Model TesteAgendamento
  * 
@@ -597,14 +597,14 @@ export class PrismaClient<
   get cambio(): Prisma.CambioDelegate<ExtArgs>;
 
   /**
-   * `prisma.testes`: Exposes CRUD operations for the **Testes** model.
+   * `prisma.teste`: Exposes CRUD operations for the **Teste** model.
     * Example usage:
     * ```ts
     * // Fetch zero or more Testes
-    * const testes = await prisma.testes.findMany()
+    * const testes = await prisma.teste.findMany()
     * ```
     */
-  get testes(): Prisma.TestesDelegate<ExtArgs>;
+  get teste(): Prisma.TesteDelegate<ExtArgs>;
 
   /**
    * `prisma.testeAgendamento`: Exposes CRUD operations for the **TesteAgendamento** model.
@@ -1104,7 +1104,7 @@ export namespace Prisma {
     Requisicoes: 'Requisicoes',
     ServicoGravity: 'ServicoGravity',
     Cambio: 'Cambio',
-    Testes: 'Testes',
+    Teste: 'Teste',
     TesteAgendamento: 'TesteAgendamento',
     TestePlano: 'TestePlano',
     ProdutoGravityFatura: 'ProdutoGravityFatura',
@@ -1124,7 +1124,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "testes" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
+      modelProps: "organizacao" | "usuario" | "produtoGravityAssinatura" | "usuarioPermissao" | "adminGravityPermissao" | "workspace" | "usuarioWorkspace" | "produtoGravityConfiguracao" | "produtoGravityWorkspace" | "produtoGravity" | "produtoGravityFaixaPreco" | "produtoGravityNegociacaoEspecial" | "deploy" | "organizacaoFornecedor" | "seguranca" | "requisicoes" | "servicoGravity" | "cambio" | "teste" | "testeAgendamento" | "testePlano" | "produtoGravityFatura" | "lLMMetricas"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2388,73 +2388,73 @@ export namespace Prisma {
           }
         }
       }
-      Testes: {
-        payload: Prisma.$TestesPayload<ExtArgs>
-        fields: Prisma.TestesFieldRefs
+      Teste: {
+        payload: Prisma.$TestePayload<ExtArgs>
+        fields: Prisma.TesteFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TestesFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload> | null
+            args: Prisma.TesteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TestesFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           findFirst: {
-            args: Prisma.TestesFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload> | null
+            args: Prisma.TesteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TestesFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           findMany: {
-            args: Prisma.TestesFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>[]
+            args: Prisma.TesteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>[]
           }
           create: {
-            args: Prisma.TestesCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           createMany: {
-            args: Prisma.TestesCreateManyArgs<ExtArgs>
+            args: Prisma.TesteCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TestesCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>[]
+            args: Prisma.TesteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>[]
           }
           delete: {
-            args: Prisma.TestesDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           update: {
-            args: Prisma.TestesUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           deleteMany: {
-            args: Prisma.TestesDeleteManyArgs<ExtArgs>
+            args: Prisma.TesteDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TestesUpdateManyArgs<ExtArgs>
+            args: Prisma.TesteUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TestesUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestesPayload>
+            args: Prisma.TesteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TestePayload>
           }
           aggregate: {
-            args: Prisma.TestesAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTestes>
+            args: Prisma.TesteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTeste>
           }
           groupBy: {
-            args: Prisma.TestesGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TestesGroupByOutputType>[]
+            args: Prisma.TesteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TesteGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TestesCountArgs<ExtArgs>
-            result: $Utils.Optional<TestesCountAggregateOutputType> | number
+            args: Prisma.TesteCountArgs<ExtArgs>
+            result: $Utils.Optional<TesteCountAggregateOutputType> | number
           }
         }
       }
@@ -3105,6 +3105,37 @@ export namespace Prisma {
    */
   export type ProdutoGravityCountOutputTypeCountAtivacoes_produto_gravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityWorkspaceWhereInput
+  }
+
+
+  /**
+   * Count Type TesteAgendamentoCountOutputType
+   */
+
+  export type TesteAgendamentoCountOutputType = {
+    testes: number
+  }
+
+  export type TesteAgendamentoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    testes?: boolean | TesteAgendamentoCountOutputTypeCountTestesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TesteAgendamentoCountOutputType without action
+   */
+  export type TesteAgendamentoCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TesteAgendamentoCountOutputType
+     */
+    select?: TesteAgendamentoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TesteAgendamentoCountOutputType without action
+   */
+  export type TesteAgendamentoCountOutputTypeCountTestesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TesteWhereInput
   }
 
 
@@ -21521,151 +21552,169 @@ export namespace Prisma {
 
 
   /**
-   * Model Testes
+   * Model Teste
    */
 
-  export type AggregateTestes = {
-    _count: TestesCountAggregateOutputType | null
-    _min: TestesMinAggregateOutputType | null
-    _max: TestesMaxAggregateOutputType | null
+  export type AggregateTeste = {
+    _count: TesteCountAggregateOutputType | null
+    _min: TesteMinAggregateOutputType | null
+    _max: TesteMaxAggregateOutputType | null
   }
 
-  export type TestesMinAggregateOutputType = {
-    id_testes: string | null
-    id_organizacao_testes: string | null
-    tipo_testes: string | null
-    escopo_testes: string | null
-    sublocal_testes: string | null
-    modulo_testes: string | null
-    nome_testes: string | null
-    id_plano_testes: string | null
-    resultado_testes: string | null
-    duracao_testes: string | null
-    log_erro_testes: string | null
-    screenshot_testes: string | null
-    ambiente_testes: string | null
-    id_execucao_testes: string | null
-    disparado_por_testes: string | null
-    data_criacao_testes: Date | null
+  export type TesteMinAggregateOutputType = {
+    id_teste: string | null
+    id_organizacao: string | null
+    tipo_teste: string | null
+    escopo_teste: string | null
+    sublocal_teste: string | null
+    modulo_teste: string | null
+    nome_teste: string | null
+    id_plano_teste: string | null
+    id_agendamento_teste: string | null
+    resultado_teste: string | null
+    duracao_teste: string | null
+    log_erro_teste: string | null
+    screenshot_teste: string | null
+    ambiente_teste: string | null
+    id_execucao_teste: string | null
+    disparado_por_teste: string | null
+    gatilho_teste: string | null
+    data_criacao_teste: Date | null
+    data_atualizacao_teste: Date | null
   }
 
-  export type TestesMaxAggregateOutputType = {
-    id_testes: string | null
-    id_organizacao_testes: string | null
-    tipo_testes: string | null
-    escopo_testes: string | null
-    sublocal_testes: string | null
-    modulo_testes: string | null
-    nome_testes: string | null
-    id_plano_testes: string | null
-    resultado_testes: string | null
-    duracao_testes: string | null
-    log_erro_testes: string | null
-    screenshot_testes: string | null
-    ambiente_testes: string | null
-    id_execucao_testes: string | null
-    disparado_por_testes: string | null
-    data_criacao_testes: Date | null
+  export type TesteMaxAggregateOutputType = {
+    id_teste: string | null
+    id_organizacao: string | null
+    tipo_teste: string | null
+    escopo_teste: string | null
+    sublocal_teste: string | null
+    modulo_teste: string | null
+    nome_teste: string | null
+    id_plano_teste: string | null
+    id_agendamento_teste: string | null
+    resultado_teste: string | null
+    duracao_teste: string | null
+    log_erro_teste: string | null
+    screenshot_teste: string | null
+    ambiente_teste: string | null
+    id_execucao_teste: string | null
+    disparado_por_teste: string | null
+    gatilho_teste: string | null
+    data_criacao_teste: Date | null
+    data_atualizacao_teste: Date | null
   }
 
-  export type TestesCountAggregateOutputType = {
-    id_testes: number
-    id_organizacao_testes: number
-    tipo_testes: number
-    escopo_testes: number
-    sublocal_testes: number
-    modulo_testes: number
-    nome_testes: number
-    id_plano_testes: number
-    resultado_testes: number
-    duracao_testes: number
-    log_erro_testes: number
-    analise_ia_testes: number
-    screenshot_testes: number
-    ambiente_testes: number
-    id_execucao_testes: number
-    disparado_por_testes: number
-    data_criacao_testes: number
+  export type TesteCountAggregateOutputType = {
+    id_teste: number
+    id_organizacao: number
+    tipo_teste: number
+    escopo_teste: number
+    sublocal_teste: number
+    modulo_teste: number
+    nome_teste: number
+    id_plano_teste: number
+    id_agendamento_teste: number
+    resultado_teste: number
+    duracao_teste: number
+    log_erro_teste: number
+    analise_ia_teste: number
+    screenshot_teste: number
+    ambiente_teste: number
+    id_execucao_teste: number
+    disparado_por_teste: number
+    gatilho_teste: number
+    data_criacao_teste: number
+    data_atualizacao_teste: number
     _all: number
   }
 
 
-  export type TestesMinAggregateInputType = {
-    id_testes?: true
-    id_organizacao_testes?: true
-    tipo_testes?: true
-    escopo_testes?: true
-    sublocal_testes?: true
-    modulo_testes?: true
-    nome_testes?: true
-    id_plano_testes?: true
-    resultado_testes?: true
-    duracao_testes?: true
-    log_erro_testes?: true
-    screenshot_testes?: true
-    ambiente_testes?: true
-    id_execucao_testes?: true
-    disparado_por_testes?: true
-    data_criacao_testes?: true
+  export type TesteMinAggregateInputType = {
+    id_teste?: true
+    id_organizacao?: true
+    tipo_teste?: true
+    escopo_teste?: true
+    sublocal_teste?: true
+    modulo_teste?: true
+    nome_teste?: true
+    id_plano_teste?: true
+    id_agendamento_teste?: true
+    resultado_teste?: true
+    duracao_teste?: true
+    log_erro_teste?: true
+    screenshot_teste?: true
+    ambiente_teste?: true
+    id_execucao_teste?: true
+    disparado_por_teste?: true
+    gatilho_teste?: true
+    data_criacao_teste?: true
+    data_atualizacao_teste?: true
   }
 
-  export type TestesMaxAggregateInputType = {
-    id_testes?: true
-    id_organizacao_testes?: true
-    tipo_testes?: true
-    escopo_testes?: true
-    sublocal_testes?: true
-    modulo_testes?: true
-    nome_testes?: true
-    id_plano_testes?: true
-    resultado_testes?: true
-    duracao_testes?: true
-    log_erro_testes?: true
-    screenshot_testes?: true
-    ambiente_testes?: true
-    id_execucao_testes?: true
-    disparado_por_testes?: true
-    data_criacao_testes?: true
+  export type TesteMaxAggregateInputType = {
+    id_teste?: true
+    id_organizacao?: true
+    tipo_teste?: true
+    escopo_teste?: true
+    sublocal_teste?: true
+    modulo_teste?: true
+    nome_teste?: true
+    id_plano_teste?: true
+    id_agendamento_teste?: true
+    resultado_teste?: true
+    duracao_teste?: true
+    log_erro_teste?: true
+    screenshot_teste?: true
+    ambiente_teste?: true
+    id_execucao_teste?: true
+    disparado_por_teste?: true
+    gatilho_teste?: true
+    data_criacao_teste?: true
+    data_atualizacao_teste?: true
   }
 
-  export type TestesCountAggregateInputType = {
-    id_testes?: true
-    id_organizacao_testes?: true
-    tipo_testes?: true
-    escopo_testes?: true
-    sublocal_testes?: true
-    modulo_testes?: true
-    nome_testes?: true
-    id_plano_testes?: true
-    resultado_testes?: true
-    duracao_testes?: true
-    log_erro_testes?: true
-    analise_ia_testes?: true
-    screenshot_testes?: true
-    ambiente_testes?: true
-    id_execucao_testes?: true
-    disparado_por_testes?: true
-    data_criacao_testes?: true
+  export type TesteCountAggregateInputType = {
+    id_teste?: true
+    id_organizacao?: true
+    tipo_teste?: true
+    escopo_teste?: true
+    sublocal_teste?: true
+    modulo_teste?: true
+    nome_teste?: true
+    id_plano_teste?: true
+    id_agendamento_teste?: true
+    resultado_teste?: true
+    duracao_teste?: true
+    log_erro_teste?: true
+    analise_ia_teste?: true
+    screenshot_teste?: true
+    ambiente_teste?: true
+    id_execucao_teste?: true
+    disparado_por_teste?: true
+    gatilho_teste?: true
+    data_criacao_teste?: true
+    data_atualizacao_teste?: true
     _all?: true
   }
 
-  export type TestesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Testes to aggregate.
+     * Filter which Teste to aggregate.
      */
-    where?: TestesWhereInput
+    where?: TesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Testes to fetch.
      */
-    orderBy?: TestesOrderByWithRelationInput | TestesOrderByWithRelationInput[]
+    orderBy?: TesteOrderByWithRelationInput | TesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TestesWhereUniqueInput
+    cursor?: TesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
@@ -21683,294 +21732,319 @@ export namespace Prisma {
      * 
      * Count returned Testes
     **/
-    _count?: true | TestesCountAggregateInputType
+    _count?: true | TesteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TestesMinAggregateInputType
+    _min?: TesteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TestesMaxAggregateInputType
+    _max?: TesteMaxAggregateInputType
   }
 
-  export type GetTestesAggregateType<T extends TestesAggregateArgs> = {
-        [P in keyof T & keyof AggregateTestes]: P extends '_count' | 'count'
+  export type GetTesteAggregateType<T extends TesteAggregateArgs> = {
+        [P in keyof T & keyof AggregateTeste]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTestes[P]>
-      : GetScalarType<T[P], AggregateTestes[P]>
+        : GetScalarType<T[P], AggregateTeste[P]>
+      : GetScalarType<T[P], AggregateTeste[P]>
   }
 
 
 
 
-  export type TestesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TestesWhereInput
-    orderBy?: TestesOrderByWithAggregationInput | TestesOrderByWithAggregationInput[]
-    by: TestesScalarFieldEnum[] | TestesScalarFieldEnum
-    having?: TestesScalarWhereWithAggregatesInput
+  export type TesteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TesteWhereInput
+    orderBy?: TesteOrderByWithAggregationInput | TesteOrderByWithAggregationInput[]
+    by: TesteScalarFieldEnum[] | TesteScalarFieldEnum
+    having?: TesteScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TestesCountAggregateInputType | true
-    _min?: TestesMinAggregateInputType
-    _max?: TestesMaxAggregateInputType
+    _count?: TesteCountAggregateInputType | true
+    _min?: TesteMinAggregateInputType
+    _max?: TesteMaxAggregateInputType
   }
 
-  export type TestesGroupByOutputType = {
-    id_testes: string
-    id_organizacao_testes: string
-    tipo_testes: string
-    escopo_testes: string
-    sublocal_testes: string | null
-    modulo_testes: string
-    nome_testes: string
-    id_plano_testes: string | null
-    resultado_testes: string
-    duracao_testes: string
-    log_erro_testes: string | null
-    analise_ia_testes: JsonValue | null
-    screenshot_testes: string | null
-    ambiente_testes: string
-    id_execucao_testes: string | null
-    disparado_por_testes: string | null
-    data_criacao_testes: Date
-    _count: TestesCountAggregateOutputType | null
-    _min: TestesMinAggregateOutputType | null
-    _max: TestesMaxAggregateOutputType | null
+  export type TesteGroupByOutputType = {
+    id_teste: string
+    id_organizacao: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste: string | null
+    id_agendamento_teste: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste: string | null
+    analise_ia_teste: JsonValue | null
+    screenshot_teste: string | null
+    ambiente_teste: string
+    id_execucao_teste: string | null
+    disparado_por_teste: string | null
+    gatilho_teste: string | null
+    data_criacao_teste: Date
+    data_atualizacao_teste: Date
+    _count: TesteCountAggregateOutputType | null
+    _min: TesteMinAggregateOutputType | null
+    _max: TesteMaxAggregateOutputType | null
   }
 
-  type GetTestesGroupByPayload<T extends TestesGroupByArgs> = Prisma.PrismaPromise<
+  type GetTesteGroupByPayload<T extends TesteGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TestesGroupByOutputType, T['by']> &
+      PickEnumerable<TesteGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TestesGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof TesteGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TestesGroupByOutputType[P]>
-            : GetScalarType<T[P], TestesGroupByOutputType[P]>
+              : GetScalarType<T[P], TesteGroupByOutputType[P]>
+            : GetScalarType<T[P], TesteGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TestesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_testes?: boolean
-    id_organizacao_testes?: boolean
-    tipo_testes?: boolean
-    escopo_testes?: boolean
-    sublocal_testes?: boolean
-    modulo_testes?: boolean
-    nome_testes?: boolean
-    id_plano_testes?: boolean
-    resultado_testes?: boolean
-    duracao_testes?: boolean
-    log_erro_testes?: boolean
-    analise_ia_testes?: boolean
-    screenshot_testes?: boolean
-    ambiente_testes?: boolean
-    id_execucao_testes?: boolean
-    disparado_por_testes?: boolean
-    data_criacao_testes?: boolean
-  }, ExtArgs["result"]["testes"]>
+  export type TesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_teste?: boolean
+    id_organizacao?: boolean
+    tipo_teste?: boolean
+    escopo_teste?: boolean
+    sublocal_teste?: boolean
+    modulo_teste?: boolean
+    nome_teste?: boolean
+    id_plano_teste?: boolean
+    id_agendamento_teste?: boolean
+    resultado_teste?: boolean
+    duracao_teste?: boolean
+    log_erro_teste?: boolean
+    analise_ia_teste?: boolean
+    screenshot_teste?: boolean
+    ambiente_teste?: boolean
+    id_execucao_teste?: boolean
+    disparado_por_teste?: boolean
+    gatilho_teste?: boolean
+    data_criacao_teste?: boolean
+    data_atualizacao_teste?: boolean
+    agendamento?: boolean | Teste$agendamentoArgs<ExtArgs>
+  }, ExtArgs["result"]["teste"]>
 
-  export type TestesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_testes?: boolean
-    id_organizacao_testes?: boolean
-    tipo_testes?: boolean
-    escopo_testes?: boolean
-    sublocal_testes?: boolean
-    modulo_testes?: boolean
-    nome_testes?: boolean
-    id_plano_testes?: boolean
-    resultado_testes?: boolean
-    duracao_testes?: boolean
-    log_erro_testes?: boolean
-    analise_ia_testes?: boolean
-    screenshot_testes?: boolean
-    ambiente_testes?: boolean
-    id_execucao_testes?: boolean
-    disparado_por_testes?: boolean
-    data_criacao_testes?: boolean
-  }, ExtArgs["result"]["testes"]>
+  export type TesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_teste?: boolean
+    id_organizacao?: boolean
+    tipo_teste?: boolean
+    escopo_teste?: boolean
+    sublocal_teste?: boolean
+    modulo_teste?: boolean
+    nome_teste?: boolean
+    id_plano_teste?: boolean
+    id_agendamento_teste?: boolean
+    resultado_teste?: boolean
+    duracao_teste?: boolean
+    log_erro_teste?: boolean
+    analise_ia_teste?: boolean
+    screenshot_teste?: boolean
+    ambiente_teste?: boolean
+    id_execucao_teste?: boolean
+    disparado_por_teste?: boolean
+    gatilho_teste?: boolean
+    data_criacao_teste?: boolean
+    data_atualizacao_teste?: boolean
+    agendamento?: boolean | Teste$agendamentoArgs<ExtArgs>
+  }, ExtArgs["result"]["teste"]>
 
-  export type TestesSelectScalar = {
-    id_testes?: boolean
-    id_organizacao_testes?: boolean
-    tipo_testes?: boolean
-    escopo_testes?: boolean
-    sublocal_testes?: boolean
-    modulo_testes?: boolean
-    nome_testes?: boolean
-    id_plano_testes?: boolean
-    resultado_testes?: boolean
-    duracao_testes?: boolean
-    log_erro_testes?: boolean
-    analise_ia_testes?: boolean
-    screenshot_testes?: boolean
-    ambiente_testes?: boolean
-    id_execucao_testes?: boolean
-    disparado_por_testes?: boolean
-    data_criacao_testes?: boolean
+  export type TesteSelectScalar = {
+    id_teste?: boolean
+    id_organizacao?: boolean
+    tipo_teste?: boolean
+    escopo_teste?: boolean
+    sublocal_teste?: boolean
+    modulo_teste?: boolean
+    nome_teste?: boolean
+    id_plano_teste?: boolean
+    id_agendamento_teste?: boolean
+    resultado_teste?: boolean
+    duracao_teste?: boolean
+    log_erro_teste?: boolean
+    analise_ia_teste?: boolean
+    screenshot_teste?: boolean
+    ambiente_teste?: boolean
+    id_execucao_teste?: boolean
+    disparado_por_teste?: boolean
+    gatilho_teste?: boolean
+    data_criacao_teste?: boolean
+    data_atualizacao_teste?: boolean
   }
 
+  export type TesteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agendamento?: boolean | Teste$agendamentoArgs<ExtArgs>
+  }
+  export type TesteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agendamento?: boolean | Teste$agendamentoArgs<ExtArgs>
+  }
 
-  export type $TestesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Testes"
-    objects: {}
+  export type $TestePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Teste"
+    objects: {
+      agendamento: Prisma.$TesteAgendamentoPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
-      id_testes: string
-      id_organizacao_testes: string
-      tipo_testes: string
-      escopo_testes: string
-      sublocal_testes: string | null
-      modulo_testes: string
-      nome_testes: string
-      id_plano_testes: string | null
-      resultado_testes: string
-      duracao_testes: string
-      log_erro_testes: string | null
-      analise_ia_testes: Prisma.JsonValue | null
-      screenshot_testes: string | null
-      ambiente_testes: string
-      id_execucao_testes: string | null
-      disparado_por_testes: string | null
-      data_criacao_testes: Date
-    }, ExtArgs["result"]["testes"]>
+      id_teste: string
+      id_organizacao: string
+      tipo_teste: string
+      escopo_teste: string
+      sublocal_teste: string | null
+      modulo_teste: string
+      nome_teste: string
+      id_plano_teste: string | null
+      id_agendamento_teste: string | null
+      resultado_teste: string
+      duracao_teste: string
+      log_erro_teste: string | null
+      analise_ia_teste: Prisma.JsonValue | null
+      screenshot_teste: string | null
+      ambiente_teste: string
+      id_execucao_teste: string | null
+      disparado_por_teste: string | null
+      gatilho_teste: string | null
+      data_criacao_teste: Date
+      data_atualizacao_teste: Date
+    }, ExtArgs["result"]["teste"]>
     composites: {}
   }
 
-  type TestesGetPayload<S extends boolean | null | undefined | TestesDefaultArgs> = $Result.GetResult<Prisma.$TestesPayload, S>
+  type TesteGetPayload<S extends boolean | null | undefined | TesteDefaultArgs> = $Result.GetResult<Prisma.$TestePayload, S>
 
-  type TestesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TestesFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TestesCountAggregateInputType | true
+  type TesteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TesteFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TesteCountAggregateInputType | true
     }
 
-  export interface TestesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Testes'], meta: { name: 'Testes' } }
+  export interface TesteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Teste'], meta: { name: 'Teste' } }
     /**
-     * Find zero or one Testes that matches the filter.
-     * @param {TestesFindUniqueArgs} args - Arguments to find a Testes
+     * Find zero or one Teste that matches the filter.
+     * @param {TesteFindUniqueArgs} args - Arguments to find a Teste
      * @example
-     * // Get one Testes
-     * const testes = await prisma.testes.findUnique({
+     * // Get one Teste
+     * const teste = await prisma.teste.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TestesFindUniqueArgs>(args: SelectSubset<T, TestesFindUniqueArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends TesteFindUniqueArgs>(args: SelectSubset<T, TesteFindUniqueArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Testes that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Teste that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TestesFindUniqueOrThrowArgs} args - Arguments to find a Testes
+     * @param {TesteFindUniqueOrThrowArgs} args - Arguments to find a Teste
      * @example
-     * // Get one Testes
-     * const testes = await prisma.testes.findUniqueOrThrow({
+     * // Get one Teste
+     * const teste = await prisma.teste.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TestesFindUniqueOrThrowArgs>(args: SelectSubset<T, TestesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends TesteFindUniqueOrThrowArgs>(args: SelectSubset<T, TesteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Testes that matches the filter.
+     * Find the first Teste that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesFindFirstArgs} args - Arguments to find a Testes
+     * @param {TesteFindFirstArgs} args - Arguments to find a Teste
      * @example
-     * // Get one Testes
-     * const testes = await prisma.testes.findFirst({
+     * // Get one Teste
+     * const teste = await prisma.teste.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TestesFindFirstArgs>(args?: SelectSubset<T, TestesFindFirstArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends TesteFindFirstArgs>(args?: SelectSubset<T, TesteFindFirstArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Testes that matches the filter or
+     * Find the first Teste that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesFindFirstOrThrowArgs} args - Arguments to find a Testes
+     * @param {TesteFindFirstOrThrowArgs} args - Arguments to find a Teste
      * @example
-     * // Get one Testes
-     * const testes = await prisma.testes.findFirstOrThrow({
+     * // Get one Teste
+     * const teste = await prisma.teste.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TestesFindFirstOrThrowArgs>(args?: SelectSubset<T, TestesFindFirstOrThrowArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends TesteFindFirstOrThrowArgs>(args?: SelectSubset<T, TesteFindFirstOrThrowArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
      * Find zero or more Testes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {TesteFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
      * // Get all Testes
-     * const testes = await prisma.testes.findMany()
+     * const testes = await prisma.teste.findMany()
      * 
      * // Get first 10 Testes
-     * const testes = await prisma.testes.findMany({ take: 10 })
+     * const testes = await prisma.teste.findMany({ take: 10 })
      * 
-     * // Only select the `id_testes`
-     * const testesWithId_testesOnly = await prisma.testes.findMany({ select: { id_testes: true } })
+     * // Only select the `id_teste`
+     * const testeWithId_testeOnly = await prisma.teste.findMany({ select: { id_teste: true } })
      * 
      */
-    findMany<T extends TestesFindManyArgs>(args?: SelectSubset<T, TestesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends TesteFindManyArgs>(args?: SelectSubset<T, TesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Testes.
-     * @param {TestesCreateArgs} args - Arguments to create a Testes.
+     * Create a Teste.
+     * @param {TesteCreateArgs} args - Arguments to create a Teste.
      * @example
-     * // Create one Testes
-     * const Testes = await prisma.testes.create({
+     * // Create one Teste
+     * const Teste = await prisma.teste.create({
      *   data: {
-     *     // ... data to create a Testes
+     *     // ... data to create a Teste
      *   }
      * })
      * 
      */
-    create<T extends TestesCreateArgs>(args: SelectSubset<T, TestesCreateArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends TesteCreateArgs>(args: SelectSubset<T, TesteCreateArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
      * Create many Testes.
-     * @param {TestesCreateManyArgs} args - Arguments to create many Testes.
+     * @param {TesteCreateManyArgs} args - Arguments to create many Testes.
      * @example
      * // Create many Testes
-     * const testes = await prisma.testes.createMany({
+     * const teste = await prisma.teste.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TestesCreateManyArgs>(args?: SelectSubset<T, TestesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends TesteCreateManyArgs>(args?: SelectSubset<T, TesteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
      * Create many Testes and returns the data saved in the database.
-     * @param {TestesCreateManyAndReturnArgs} args - Arguments to create many Testes.
+     * @param {TesteCreateManyAndReturnArgs} args - Arguments to create many Testes.
      * @example
      * // Create many Testes
-     * const testes = await prisma.testes.createManyAndReturn({
+     * const teste = await prisma.teste.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Testes and only return the `id_testes`
-     * const testesWithId_testesOnly = await prisma.testes.createManyAndReturn({ 
-     *   select: { id_testes: true },
+     * // Create many Testes and only return the `id_teste`
+     * const testeWithId_testeOnly = await prisma.teste.createManyAndReturn({ 
+     *   select: { id_teste: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -21979,28 +22053,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TestesCreateManyAndReturnArgs>(args?: SelectSubset<T, TestesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends TesteCreateManyAndReturnArgs>(args?: SelectSubset<T, TesteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Testes.
-     * @param {TestesDeleteArgs} args - Arguments to delete one Testes.
+     * Delete a Teste.
+     * @param {TesteDeleteArgs} args - Arguments to delete one Teste.
      * @example
-     * // Delete one Testes
-     * const Testes = await prisma.testes.delete({
+     * // Delete one Teste
+     * const Teste = await prisma.teste.delete({
      *   where: {
-     *     // ... filter to delete one Testes
+     *     // ... filter to delete one Teste
      *   }
      * })
      * 
      */
-    delete<T extends TestesDeleteArgs>(args: SelectSubset<T, TestesDeleteArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends TesteDeleteArgs>(args: SelectSubset<T, TesteDeleteArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Testes.
-     * @param {TestesUpdateArgs} args - Arguments to update one Testes.
+     * Update one Teste.
+     * @param {TesteUpdateArgs} args - Arguments to update one Teste.
      * @example
-     * // Update one Testes
-     * const testes = await prisma.testes.update({
+     * // Update one Teste
+     * const teste = await prisma.teste.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22010,30 +22084,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TestesUpdateArgs>(args: SelectSubset<T, TestesUpdateArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends TesteUpdateArgs>(args: SelectSubset<T, TesteUpdateArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
      * Delete zero or more Testes.
-     * @param {TestesDeleteManyArgs} args - Arguments to filter Testes to delete.
+     * @param {TesteDeleteManyArgs} args - Arguments to filter Testes to delete.
      * @example
      * // Delete a few Testes
-     * const { count } = await prisma.testes.deleteMany({
+     * const { count } = await prisma.teste.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TestesDeleteManyArgs>(args?: SelectSubset<T, TestesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends TesteDeleteManyArgs>(args?: SelectSubset<T, TesteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
      * Update zero or more Testes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {TesteUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
      * // Update many Testes
-     * const testes = await prisma.testes.updateMany({
+     * const teste = await prisma.teste.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22043,56 +22117,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TestesUpdateManyArgs>(args: SelectSubset<T, TestesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends TesteUpdateManyArgs>(args: SelectSubset<T, TesteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Testes.
-     * @param {TestesUpsertArgs} args - Arguments to update or create a Testes.
+     * Create or update one Teste.
+     * @param {TesteUpsertArgs} args - Arguments to update or create a Teste.
      * @example
-     * // Update or create a Testes
-     * const testes = await prisma.testes.upsert({
+     * // Update or create a Teste
+     * const teste = await prisma.teste.upsert({
      *   create: {
-     *     // ... data to create a Testes
+     *     // ... data to create a Teste
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Testes we want to update
+     *     // ... the filter for the Teste we want to update
      *   }
      * })
      */
-    upsert<T extends TestesUpsertArgs>(args: SelectSubset<T, TestesUpsertArgs<ExtArgs>>): Prisma__TestesClient<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends TesteUpsertArgs>(args: SelectSubset<T, TesteUpsertArgs<ExtArgs>>): Prisma__TesteClient<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
      * Count the number of Testes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesCountArgs} args - Arguments to filter Testes to count.
+     * @param {TesteCountArgs} args - Arguments to filter Testes to count.
      * @example
      * // Count the number of Testes
-     * const count = await prisma.testes.count({
+     * const count = await prisma.teste.count({
      *   where: {
      *     // ... the filter for the Testes we want to count
      *   }
      * })
     **/
-    count<T extends TestesCountArgs>(
-      args?: Subset<T, TestesCountArgs>,
+    count<T extends TesteCountArgs>(
+      args?: Subset<T, TesteCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TestesCountAggregateOutputType>
+          : GetScalarType<T['select'], TesteCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Testes.
+     * Allows you to perform aggregations operations on a Teste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {TesteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -22112,13 +22186,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TestesAggregateArgs>(args: Subset<T, TestesAggregateArgs>): Prisma.PrismaPromise<GetTestesAggregateType<T>>
+    aggregate<T extends TesteAggregateArgs>(args: Subset<T, TesteAggregateArgs>): Prisma.PrismaPromise<GetTesteAggregateType<T>>
 
     /**
-     * Group by Testes.
+     * Group by Teste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestesGroupByArgs} args - Group by arguments.
+     * @param {TesteGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -22133,14 +22207,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TestesGroupByArgs,
+      T extends TesteGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TestesGroupByArgs['orderBy'] }
-        : { orderBy?: TestesGroupByArgs['orderBy'] },
+        ? { orderBy: TesteGroupByArgs['orderBy'] }
+        : { orderBy?: TesteGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -22189,21 +22263,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TestesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTestesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, TesteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTesteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Testes model
+   * Fields of the Teste model
    */
-  readonly fields: TestesFieldRefs;
+  readonly fields: TesteFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Testes.
+   * The delegate class that acts as a "Promise-like" for Teste.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TestesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__TesteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    agendamento<T extends Teste$agendamentoArgs<ExtArgs> = {}>(args?: Subset<T, Teste$agendamentoArgs<ExtArgs>>): Prisma__TesteAgendamentoClient<$Result.GetResult<Prisma.$TesteAgendamentoPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22230,82 +22305,97 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Testes model
+   * Fields of the Teste model
    */ 
-  interface TestesFieldRefs {
-    readonly id_testes: FieldRef<"Testes", 'String'>
-    readonly id_organizacao_testes: FieldRef<"Testes", 'String'>
-    readonly tipo_testes: FieldRef<"Testes", 'String'>
-    readonly escopo_testes: FieldRef<"Testes", 'String'>
-    readonly sublocal_testes: FieldRef<"Testes", 'String'>
-    readonly modulo_testes: FieldRef<"Testes", 'String'>
-    readonly nome_testes: FieldRef<"Testes", 'String'>
-    readonly id_plano_testes: FieldRef<"Testes", 'String'>
-    readonly resultado_testes: FieldRef<"Testes", 'String'>
-    readonly duracao_testes: FieldRef<"Testes", 'String'>
-    readonly log_erro_testes: FieldRef<"Testes", 'String'>
-    readonly analise_ia_testes: FieldRef<"Testes", 'Json'>
-    readonly screenshot_testes: FieldRef<"Testes", 'String'>
-    readonly ambiente_testes: FieldRef<"Testes", 'String'>
-    readonly id_execucao_testes: FieldRef<"Testes", 'String'>
-    readonly disparado_por_testes: FieldRef<"Testes", 'String'>
-    readonly data_criacao_testes: FieldRef<"Testes", 'DateTime'>
+  interface TesteFieldRefs {
+    readonly id_teste: FieldRef<"Teste", 'String'>
+    readonly id_organizacao: FieldRef<"Teste", 'String'>
+    readonly tipo_teste: FieldRef<"Teste", 'String'>
+    readonly escopo_teste: FieldRef<"Teste", 'String'>
+    readonly sublocal_teste: FieldRef<"Teste", 'String'>
+    readonly modulo_teste: FieldRef<"Teste", 'String'>
+    readonly nome_teste: FieldRef<"Teste", 'String'>
+    readonly id_plano_teste: FieldRef<"Teste", 'String'>
+    readonly id_agendamento_teste: FieldRef<"Teste", 'String'>
+    readonly resultado_teste: FieldRef<"Teste", 'String'>
+    readonly duracao_teste: FieldRef<"Teste", 'String'>
+    readonly log_erro_teste: FieldRef<"Teste", 'String'>
+    readonly analise_ia_teste: FieldRef<"Teste", 'Json'>
+    readonly screenshot_teste: FieldRef<"Teste", 'String'>
+    readonly ambiente_teste: FieldRef<"Teste", 'String'>
+    readonly id_execucao_teste: FieldRef<"Teste", 'String'>
+    readonly disparado_por_teste: FieldRef<"Teste", 'String'>
+    readonly gatilho_teste: FieldRef<"Teste", 'String'>
+    readonly data_criacao_teste: FieldRef<"Teste", 'DateTime'>
+    readonly data_atualizacao_teste: FieldRef<"Teste", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Testes findUnique
+   * Teste findUnique
    */
-  export type TestesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * Filter, which Testes to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: TestesWhereUniqueInput
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * Filter, which Teste to fetch.
+     */
+    where: TesteWhereUniqueInput
   }
 
   /**
-   * Testes findUniqueOrThrow
+   * Teste findUniqueOrThrow
    */
-  export type TestesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * Filter, which Testes to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: TestesWhereUniqueInput
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * Filter, which Teste to fetch.
+     */
+    where: TesteWhereUniqueInput
   }
 
   /**
-   * Testes findFirst
+   * Teste findFirst
    */
-  export type TestesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * Filter, which Testes to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: TestesWhereInput
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * Filter, which Teste to fetch.
+     */
+    where?: TesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Testes to fetch.
      */
-    orderBy?: TestesOrderByWithRelationInput | TestesOrderByWithRelationInput[]
+    orderBy?: TesteOrderByWithRelationInput | TesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for searching for Testes.
      */
-    cursor?: TestesWhereUniqueInput
+    cursor?: TesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
@@ -22323,33 +22413,37 @@ export namespace Prisma {
      * 
      * Filter by unique combinations of Testes.
      */
-    distinct?: TestesScalarFieldEnum | TestesScalarFieldEnum[]
+    distinct?: TesteScalarFieldEnum | TesteScalarFieldEnum[]
   }
 
   /**
-   * Testes findFirstOrThrow
+   * Teste findFirstOrThrow
    */
-  export type TestesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * Filter, which Testes to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: TestesWhereInput
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * Filter, which Teste to fetch.
+     */
+    where?: TesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Testes to fetch.
      */
-    orderBy?: TestesOrderByWithRelationInput | TestesOrderByWithRelationInput[]
+    orderBy?: TesteOrderByWithRelationInput | TesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for searching for Testes.
      */
-    cursor?: TestesWhereUniqueInput
+    cursor?: TesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
@@ -22367,33 +22461,37 @@ export namespace Prisma {
      * 
      * Filter by unique combinations of Testes.
      */
-    distinct?: TestesScalarFieldEnum | TestesScalarFieldEnum[]
+    distinct?: TesteScalarFieldEnum | TesteScalarFieldEnum[]
   }
 
   /**
-   * Testes findMany
+   * Teste findMany
    */
-  export type TestesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteInclude<ExtArgs> | null
     /**
      * Filter, which Testes to fetch.
      */
-    where?: TestesWhereInput
+    where?: TesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Testes to fetch.
      */
-    orderBy?: TestesOrderByWithRelationInput | TestesOrderByWithRelationInput[]
+    orderBy?: TesteOrderByWithRelationInput | TesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for listing Testes.
      */
-    cursor?: TestesWhereUniqueInput
+    cursor?: TesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
@@ -22406,135 +22504,174 @@ export namespace Prisma {
      * Skip the first `n` Testes.
      */
     skip?: number
-    distinct?: TestesScalarFieldEnum | TestesScalarFieldEnum[]
+    distinct?: TesteScalarFieldEnum | TesteScalarFieldEnum[]
   }
 
   /**
-   * Testes create
+   * Teste create
    */
-  export type TestesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * The data needed to create a Testes.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<TestesCreateInput, TestesUncheckedCreateInput>
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Teste.
+     */
+    data: XOR<TesteCreateInput, TesteUncheckedCreateInput>
   }
 
   /**
-   * Testes createMany
+   * Teste createMany
    */
-  export type TestesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * The data used to create many Testes.
      */
-    data: TestesCreateManyInput | TestesCreateManyInput[]
+    data: TesteCreateManyInput | TesteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Testes createManyAndReturn
+   * Teste createManyAndReturn
    */
-  export type TestesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelectCreateManyAndReturn<ExtArgs> | null
+    select?: TesteSelectCreateManyAndReturn<ExtArgs> | null
     /**
      * The data used to create many Testes.
      */
-    data: TestesCreateManyInput | TestesCreateManyInput[]
+    data: TesteCreateManyInput | TesteCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Testes update
+   * Teste update
    */
-  export type TestesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * The data needed to update a Testes.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<TestesUpdateInput, TestesUncheckedUpdateInput>
+    include?: TesteInclude<ExtArgs> | null
     /**
-     * Choose, which Testes to update.
+     * The data needed to update a Teste.
      */
-    where: TestesWhereUniqueInput
+    data: XOR<TesteUpdateInput, TesteUncheckedUpdateInput>
+    /**
+     * Choose, which Teste to update.
+     */
+    where: TesteWhereUniqueInput
   }
 
   /**
-   * Testes updateMany
+   * Teste updateMany
    */
-  export type TestesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * The data used to update Testes.
      */
-    data: XOR<TestesUpdateManyMutationInput, TestesUncheckedUpdateManyInput>
+    data: XOR<TesteUpdateManyMutationInput, TesteUncheckedUpdateManyInput>
     /**
      * Filter which Testes to update
      */
-    where?: TestesWhereInput
+    where?: TesteWhereInput
   }
 
   /**
-   * Testes upsert
+   * Teste upsert
    */
-  export type TestesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * The filter to search for the Testes to update in case it exists.
+     * Choose, which related nodes to fetch as well
      */
-    where: TestesWhereUniqueInput
+    include?: TesteInclude<ExtArgs> | null
     /**
-     * In case the Testes found by the `where` argument doesn't exist, create a new Testes with this data.
+     * The filter to search for the Teste to update in case it exists.
      */
-    create: XOR<TestesCreateInput, TestesUncheckedCreateInput>
+    where: TesteWhereUniqueInput
     /**
-     * In case the Testes was found with the provided `where` argument, update it with this data.
+     * In case the Teste found by the `where` argument doesn't exist, create a new Teste with this data.
      */
-    update: XOR<TestesUpdateInput, TestesUncheckedUpdateInput>
+    create: XOR<TesteCreateInput, TesteUncheckedCreateInput>
+    /**
+     * In case the Teste was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TesteUpdateInput, TesteUncheckedUpdateInput>
   }
 
   /**
-   * Testes delete
+   * Teste delete
    */
-  export type TestesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the Teste
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteSelect<ExtArgs> | null
     /**
-     * Filter which Testes to delete.
+     * Choose, which related nodes to fetch as well
      */
-    where: TestesWhereUniqueInput
+    include?: TesteInclude<ExtArgs> | null
+    /**
+     * Filter which Teste to delete.
+     */
+    where: TesteWhereUniqueInput
   }
 
   /**
-   * Testes deleteMany
+   * Teste deleteMany
    */
-  export type TestesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type TesteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Filter which Testes to delete
      */
-    where?: TestesWhereInput
+    where?: TesteWhereInput
   }
 
   /**
-   * Testes without action
+   * Teste.agendamento
    */
-  export type TestesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Teste$agendamentoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Testes
+     * Select specific fields to fetch from the TesteAgendamento
      */
-    select?: TestesSelect<ExtArgs> | null
+    select?: TesteAgendamentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    where?: TesteAgendamentoWhereInput
+  }
+
+  /**
+   * Teste without action
+   */
+  export type TesteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teste
+     */
+    select?: TesteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteInclude<ExtArgs> | null
   }
 
 
@@ -22800,6 +22937,8 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: boolean
     data_criacao_agendamento_teste?: boolean
     data_atualizacao_agendamento_teste?: boolean
+    testes?: boolean | TesteAgendamento$testesArgs<ExtArgs>
+    _count?: boolean | TesteAgendamentoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["testeAgendamento"]>
 
   export type TesteAgendamentoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -22836,10 +22975,17 @@ export namespace Prisma {
     data_atualizacao_agendamento_teste?: boolean
   }
 
+  export type TesteAgendamentoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    testes?: boolean | TesteAgendamento$testesArgs<ExtArgs>
+    _count?: boolean | TesteAgendamentoCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type TesteAgendamentoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $TesteAgendamentoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "TesteAgendamento"
-    objects: {}
+    objects: {
+      testes: Prisma.$TestePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id_agendamento_teste: string
       id_organizacao_agendamento_teste: string
@@ -23219,6 +23365,7 @@ export namespace Prisma {
    */
   export interface Prisma__TesteAgendamentoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    testes<T extends TesteAgendamento$testesArgs<ExtArgs> = {}>(args?: Subset<T, TesteAgendamento$testesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -23275,6 +23422,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * Filter, which TesteAgendamento to fetch.
      */
     where: TesteAgendamentoWhereUniqueInput
@@ -23289,6 +23440,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * Filter, which TesteAgendamento to fetch.
      */
     where: TesteAgendamentoWhereUniqueInput
@@ -23302,6 +23457,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the TesteAgendamento
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
     /**
      * Filter, which TesteAgendamento to fetch.
      */
@@ -23347,6 +23506,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * Filter, which TesteAgendamento to fetch.
      */
     where?: TesteAgendamentoWhereInput
@@ -23391,6 +23554,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * Filter, which TesteAgendamentos to fetch.
      */
     where?: TesteAgendamentoWhereInput
@@ -23429,6 +23596,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the TesteAgendamento
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
     /**
      * The data needed to create a TesteAgendamento.
      */
@@ -23470,6 +23641,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * The data needed to update a TesteAgendamento.
      */
     data: XOR<TesteAgendamentoUpdateInput, TesteAgendamentoUncheckedUpdateInput>
@@ -23502,6 +23677,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * The filter to search for the TesteAgendamento to update in case it exists.
      */
     where: TesteAgendamentoWhereUniqueInput
@@ -23524,6 +23703,10 @@ export namespace Prisma {
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
+    /**
      * Filter which TesteAgendamento to delete.
      */
     where: TesteAgendamentoWhereUniqueInput
@@ -23540,6 +23723,26 @@ export namespace Prisma {
   }
 
   /**
+   * TesteAgendamento.testes
+   */
+  export type TesteAgendamento$testesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Teste
+     */
+    select?: TesteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteInclude<ExtArgs> | null
+    where?: TesteWhereInput
+    orderBy?: TesteOrderByWithRelationInput | TesteOrderByWithRelationInput[]
+    cursor?: TesteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TesteScalarFieldEnum | TesteScalarFieldEnum[]
+  }
+
+  /**
    * TesteAgendamento without action
    */
   export type TesteAgendamentoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -23547,6 +23750,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the TesteAgendamento
      */
     select?: TesteAgendamentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TesteAgendamentoInclude<ExtArgs> | null
   }
 
 
@@ -27005,27 +27212,30 @@ export namespace Prisma {
   export type CambioScalarFieldEnum = (typeof CambioScalarFieldEnum)[keyof typeof CambioScalarFieldEnum]
 
 
-  export const TestesScalarFieldEnum: {
-    id_testes: 'id_testes',
-    id_organizacao_testes: 'id_organizacao_testes',
-    tipo_testes: 'tipo_testes',
-    escopo_testes: 'escopo_testes',
-    sublocal_testes: 'sublocal_testes',
-    modulo_testes: 'modulo_testes',
-    nome_testes: 'nome_testes',
-    id_plano_testes: 'id_plano_testes',
-    resultado_testes: 'resultado_testes',
-    duracao_testes: 'duracao_testes',
-    log_erro_testes: 'log_erro_testes',
-    analise_ia_testes: 'analise_ia_testes',
-    screenshot_testes: 'screenshot_testes',
-    ambiente_testes: 'ambiente_testes',
-    id_execucao_testes: 'id_execucao_testes',
-    disparado_por_testes: 'disparado_por_testes',
-    data_criacao_testes: 'data_criacao_testes'
+  export const TesteScalarFieldEnum: {
+    id_teste: 'id_teste',
+    id_organizacao: 'id_organizacao',
+    tipo_teste: 'tipo_teste',
+    escopo_teste: 'escopo_teste',
+    sublocal_teste: 'sublocal_teste',
+    modulo_teste: 'modulo_teste',
+    nome_teste: 'nome_teste',
+    id_plano_teste: 'id_plano_teste',
+    id_agendamento_teste: 'id_agendamento_teste',
+    resultado_teste: 'resultado_teste',
+    duracao_teste: 'duracao_teste',
+    log_erro_teste: 'log_erro_teste',
+    analise_ia_teste: 'analise_ia_teste',
+    screenshot_teste: 'screenshot_teste',
+    ambiente_teste: 'ambiente_teste',
+    id_execucao_teste: 'id_execucao_teste',
+    disparado_por_teste: 'disparado_por_teste',
+    gatilho_teste: 'gatilho_teste',
+    data_criacao_teste: 'data_criacao_teste',
+    data_atualizacao_teste: 'data_atualizacao_teste'
   };
 
-  export type TestesScalarFieldEnum = (typeof TestesScalarFieldEnum)[keyof typeof TestesScalarFieldEnum]
+  export type TesteScalarFieldEnum = (typeof TesteScalarFieldEnum)[keyof typeof TesteScalarFieldEnum]
 
 
   export const TesteAgendamentoScalarFieldEnum: {
@@ -29021,116 +29231,134 @@ export namespace Prisma {
     data_criacao_cambio?: DateTimeWithAggregatesFilter<"Cambio"> | Date | string
   }
 
-  export type TestesWhereInput = {
-    AND?: TestesWhereInput | TestesWhereInput[]
-    OR?: TestesWhereInput[]
-    NOT?: TestesWhereInput | TestesWhereInput[]
-    id_testes?: StringFilter<"Testes"> | string
-    id_organizacao_testes?: StringFilter<"Testes"> | string
-    tipo_testes?: StringFilter<"Testes"> | string
-    escopo_testes?: StringFilter<"Testes"> | string
-    sublocal_testes?: StringNullableFilter<"Testes"> | string | null
-    modulo_testes?: StringFilter<"Testes"> | string
-    nome_testes?: StringFilter<"Testes"> | string
-    id_plano_testes?: StringNullableFilter<"Testes"> | string | null
-    resultado_testes?: StringFilter<"Testes"> | string
-    duracao_testes?: StringFilter<"Testes"> | string
-    log_erro_testes?: StringNullableFilter<"Testes"> | string | null
-    analise_ia_testes?: JsonNullableFilter<"Testes">
-    screenshot_testes?: StringNullableFilter<"Testes"> | string | null
-    ambiente_testes?: StringFilter<"Testes"> | string
-    id_execucao_testes?: StringNullableFilter<"Testes"> | string | null
-    disparado_por_testes?: StringNullableFilter<"Testes"> | string | null
-    data_criacao_testes?: DateTimeFilter<"Testes"> | Date | string
+  export type TesteWhereInput = {
+    AND?: TesteWhereInput | TesteWhereInput[]
+    OR?: TesteWhereInput[]
+    NOT?: TesteWhereInput | TesteWhereInput[]
+    id_teste?: StringFilter<"Teste"> | string
+    id_organizacao?: StringFilter<"Teste"> | string
+    tipo_teste?: StringFilter<"Teste"> | string
+    escopo_teste?: StringFilter<"Teste"> | string
+    sublocal_teste?: StringNullableFilter<"Teste"> | string | null
+    modulo_teste?: StringFilter<"Teste"> | string
+    nome_teste?: StringFilter<"Teste"> | string
+    id_plano_teste?: StringNullableFilter<"Teste"> | string | null
+    id_agendamento_teste?: StringNullableFilter<"Teste"> | string | null
+    resultado_teste?: StringFilter<"Teste"> | string
+    duracao_teste?: StringFilter<"Teste"> | string
+    log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    analise_ia_teste?: JsonNullableFilter<"Teste">
+    screenshot_teste?: StringNullableFilter<"Teste"> | string | null
+    ambiente_teste?: StringFilter<"Teste"> | string
+    id_execucao_teste?: StringNullableFilter<"Teste"> | string | null
+    disparado_por_teste?: StringNullableFilter<"Teste"> | string | null
+    gatilho_teste?: StringNullableFilter<"Teste"> | string | null
+    data_criacao_teste?: DateTimeFilter<"Teste"> | Date | string
+    data_atualizacao_teste?: DateTimeFilter<"Teste"> | Date | string
+    agendamento?: XOR<TesteAgendamentoNullableRelationFilter, TesteAgendamentoWhereInput> | null
   }
 
-  export type TestesOrderByWithRelationInput = {
-    id_testes?: SortOrder
-    id_organizacao_testes?: SortOrder
-    tipo_testes?: SortOrder
-    escopo_testes?: SortOrder
-    sublocal_testes?: SortOrderInput | SortOrder
-    modulo_testes?: SortOrder
-    nome_testes?: SortOrder
-    id_plano_testes?: SortOrderInput | SortOrder
-    resultado_testes?: SortOrder
-    duracao_testes?: SortOrder
-    log_erro_testes?: SortOrderInput | SortOrder
-    analise_ia_testes?: SortOrderInput | SortOrder
-    screenshot_testes?: SortOrderInput | SortOrder
-    ambiente_testes?: SortOrder
-    id_execucao_testes?: SortOrderInput | SortOrder
-    disparado_por_testes?: SortOrderInput | SortOrder
-    data_criacao_testes?: SortOrder
+  export type TesteOrderByWithRelationInput = {
+    id_teste?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_teste?: SortOrder
+    escopo_teste?: SortOrder
+    sublocal_teste?: SortOrderInput | SortOrder
+    modulo_teste?: SortOrder
+    nome_teste?: SortOrder
+    id_plano_teste?: SortOrderInput | SortOrder
+    id_agendamento_teste?: SortOrderInput | SortOrder
+    resultado_teste?: SortOrder
+    duracao_teste?: SortOrder
+    log_erro_teste?: SortOrderInput | SortOrder
+    analise_ia_teste?: SortOrderInput | SortOrder
+    screenshot_teste?: SortOrderInput | SortOrder
+    ambiente_teste?: SortOrder
+    id_execucao_teste?: SortOrderInput | SortOrder
+    disparado_por_teste?: SortOrderInput | SortOrder
+    gatilho_teste?: SortOrderInput | SortOrder
+    data_criacao_teste?: SortOrder
+    data_atualizacao_teste?: SortOrder
+    agendamento?: TesteAgendamentoOrderByWithRelationInput
   }
 
-  export type TestesWhereUniqueInput = Prisma.AtLeast<{
-    id_testes?: string
-    AND?: TestesWhereInput | TestesWhereInput[]
-    OR?: TestesWhereInput[]
-    NOT?: TestesWhereInput | TestesWhereInput[]
-    id_organizacao_testes?: StringFilter<"Testes"> | string
-    tipo_testes?: StringFilter<"Testes"> | string
-    escopo_testes?: StringFilter<"Testes"> | string
-    sublocal_testes?: StringNullableFilter<"Testes"> | string | null
-    modulo_testes?: StringFilter<"Testes"> | string
-    nome_testes?: StringFilter<"Testes"> | string
-    id_plano_testes?: StringNullableFilter<"Testes"> | string | null
-    resultado_testes?: StringFilter<"Testes"> | string
-    duracao_testes?: StringFilter<"Testes"> | string
-    log_erro_testes?: StringNullableFilter<"Testes"> | string | null
-    analise_ia_testes?: JsonNullableFilter<"Testes">
-    screenshot_testes?: StringNullableFilter<"Testes"> | string | null
-    ambiente_testes?: StringFilter<"Testes"> | string
-    id_execucao_testes?: StringNullableFilter<"Testes"> | string | null
-    disparado_por_testes?: StringNullableFilter<"Testes"> | string | null
-    data_criacao_testes?: DateTimeFilter<"Testes"> | Date | string
-  }, "id_testes">
+  export type TesteWhereUniqueInput = Prisma.AtLeast<{
+    id_teste?: string
+    AND?: TesteWhereInput | TesteWhereInput[]
+    OR?: TesteWhereInput[]
+    NOT?: TesteWhereInput | TesteWhereInput[]
+    id_organizacao?: StringFilter<"Teste"> | string
+    tipo_teste?: StringFilter<"Teste"> | string
+    escopo_teste?: StringFilter<"Teste"> | string
+    sublocal_teste?: StringNullableFilter<"Teste"> | string | null
+    modulo_teste?: StringFilter<"Teste"> | string
+    nome_teste?: StringFilter<"Teste"> | string
+    id_plano_teste?: StringNullableFilter<"Teste"> | string | null
+    id_agendamento_teste?: StringNullableFilter<"Teste"> | string | null
+    resultado_teste?: StringFilter<"Teste"> | string
+    duracao_teste?: StringFilter<"Teste"> | string
+    log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    analise_ia_teste?: JsonNullableFilter<"Teste">
+    screenshot_teste?: StringNullableFilter<"Teste"> | string | null
+    ambiente_teste?: StringFilter<"Teste"> | string
+    id_execucao_teste?: StringNullableFilter<"Teste"> | string | null
+    disparado_por_teste?: StringNullableFilter<"Teste"> | string | null
+    gatilho_teste?: StringNullableFilter<"Teste"> | string | null
+    data_criacao_teste?: DateTimeFilter<"Teste"> | Date | string
+    data_atualizacao_teste?: DateTimeFilter<"Teste"> | Date | string
+    agendamento?: XOR<TesteAgendamentoNullableRelationFilter, TesteAgendamentoWhereInput> | null
+  }, "id_teste">
 
-  export type TestesOrderByWithAggregationInput = {
-    id_testes?: SortOrder
-    id_organizacao_testes?: SortOrder
-    tipo_testes?: SortOrder
-    escopo_testes?: SortOrder
-    sublocal_testes?: SortOrderInput | SortOrder
-    modulo_testes?: SortOrder
-    nome_testes?: SortOrder
-    id_plano_testes?: SortOrderInput | SortOrder
-    resultado_testes?: SortOrder
-    duracao_testes?: SortOrder
-    log_erro_testes?: SortOrderInput | SortOrder
-    analise_ia_testes?: SortOrderInput | SortOrder
-    screenshot_testes?: SortOrderInput | SortOrder
-    ambiente_testes?: SortOrder
-    id_execucao_testes?: SortOrderInput | SortOrder
-    disparado_por_testes?: SortOrderInput | SortOrder
-    data_criacao_testes?: SortOrder
-    _count?: TestesCountOrderByAggregateInput
-    _max?: TestesMaxOrderByAggregateInput
-    _min?: TestesMinOrderByAggregateInput
+  export type TesteOrderByWithAggregationInput = {
+    id_teste?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_teste?: SortOrder
+    escopo_teste?: SortOrder
+    sublocal_teste?: SortOrderInput | SortOrder
+    modulo_teste?: SortOrder
+    nome_teste?: SortOrder
+    id_plano_teste?: SortOrderInput | SortOrder
+    id_agendamento_teste?: SortOrderInput | SortOrder
+    resultado_teste?: SortOrder
+    duracao_teste?: SortOrder
+    log_erro_teste?: SortOrderInput | SortOrder
+    analise_ia_teste?: SortOrderInput | SortOrder
+    screenshot_teste?: SortOrderInput | SortOrder
+    ambiente_teste?: SortOrder
+    id_execucao_teste?: SortOrderInput | SortOrder
+    disparado_por_teste?: SortOrderInput | SortOrder
+    gatilho_teste?: SortOrderInput | SortOrder
+    data_criacao_teste?: SortOrder
+    data_atualizacao_teste?: SortOrder
+    _count?: TesteCountOrderByAggregateInput
+    _max?: TesteMaxOrderByAggregateInput
+    _min?: TesteMinOrderByAggregateInput
   }
 
-  export type TestesScalarWhereWithAggregatesInput = {
-    AND?: TestesScalarWhereWithAggregatesInput | TestesScalarWhereWithAggregatesInput[]
-    OR?: TestesScalarWhereWithAggregatesInput[]
-    NOT?: TestesScalarWhereWithAggregatesInput | TestesScalarWhereWithAggregatesInput[]
-    id_testes?: StringWithAggregatesFilter<"Testes"> | string
-    id_organizacao_testes?: StringWithAggregatesFilter<"Testes"> | string
-    tipo_testes?: StringWithAggregatesFilter<"Testes"> | string
-    escopo_testes?: StringWithAggregatesFilter<"Testes"> | string
-    sublocal_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    modulo_testes?: StringWithAggregatesFilter<"Testes"> | string
-    nome_testes?: StringWithAggregatesFilter<"Testes"> | string
-    id_plano_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    resultado_testes?: StringWithAggregatesFilter<"Testes"> | string
-    duracao_testes?: StringWithAggregatesFilter<"Testes"> | string
-    log_erro_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    analise_ia_testes?: JsonNullableWithAggregatesFilter<"Testes">
-    screenshot_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    ambiente_testes?: StringWithAggregatesFilter<"Testes"> | string
-    id_execucao_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    disparado_por_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    data_criacao_testes?: DateTimeWithAggregatesFilter<"Testes"> | Date | string
+  export type TesteScalarWhereWithAggregatesInput = {
+    AND?: TesteScalarWhereWithAggregatesInput | TesteScalarWhereWithAggregatesInput[]
+    OR?: TesteScalarWhereWithAggregatesInput[]
+    NOT?: TesteScalarWhereWithAggregatesInput | TesteScalarWhereWithAggregatesInput[]
+    id_teste?: StringWithAggregatesFilter<"Teste"> | string
+    id_organizacao?: StringWithAggregatesFilter<"Teste"> | string
+    tipo_teste?: StringWithAggregatesFilter<"Teste"> | string
+    escopo_teste?: StringWithAggregatesFilter<"Teste"> | string
+    sublocal_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    modulo_teste?: StringWithAggregatesFilter<"Teste"> | string
+    nome_teste?: StringWithAggregatesFilter<"Teste"> | string
+    id_plano_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    id_agendamento_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    resultado_teste?: StringWithAggregatesFilter<"Teste"> | string
+    duracao_teste?: StringWithAggregatesFilter<"Teste"> | string
+    log_erro_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    analise_ia_teste?: JsonNullableWithAggregatesFilter<"Teste">
+    screenshot_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    ambiente_teste?: StringWithAggregatesFilter<"Teste"> | string
+    id_execucao_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    disparado_por_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    gatilho_teste?: StringNullableWithAggregatesFilter<"Teste"> | string | null
+    data_criacao_teste?: DateTimeWithAggregatesFilter<"Teste"> | Date | string
+    data_atualizacao_teste?: DateTimeWithAggregatesFilter<"Teste"> | Date | string
   }
 
   export type TesteAgendamentoWhereInput = {
@@ -29151,6 +29379,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
     data_criacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
     data_atualizacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
+    testes?: TesteListRelationFilter
   }
 
   export type TesteAgendamentoOrderByWithRelationInput = {
@@ -29168,6 +29397,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: SortOrderInput | SortOrder
     data_criacao_agendamento_teste?: SortOrder
     data_atualizacao_agendamento_teste?: SortOrder
+    testes?: TesteOrderByRelationAggregateInput
   }
 
   export type TesteAgendamentoWhereUniqueInput = Prisma.AtLeast<{
@@ -29188,6 +29418,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"TesteAgendamento"> | Date | string | null
     data_criacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
     data_atualizacao_agendamento_teste?: DateTimeFilter<"TesteAgendamento"> | Date | string
+    testes?: TesteListRelationFilter
   }, "id_agendamento_teste">
 
   export type TesteAgendamentoOrderByWithAggregationInput = {
@@ -31404,144 +31635,164 @@ export namespace Prisma {
     data_criacao_cambio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestesCreateInput = {
-    id_testes?: string
-    id_organizacao_testes?: string
-    tipo_testes: string
-    escopo_testes: string
-    sublocal_testes?: string | null
-    modulo_testes: string
-    nome_testes: string
-    id_plano_testes?: string | null
-    resultado_testes: string
-    duracao_testes: string
-    log_erro_testes?: string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: string | null
-    ambiente_testes?: string
-    id_execucao_testes?: string | null
-    disparado_por_testes?: string | null
-    data_criacao_testes?: Date | string
+  export type TesteCreateInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
+    agendamento?: TesteAgendamentoCreateNestedOneWithoutTestesInput
   }
 
-  export type TestesUncheckedCreateInput = {
-    id_testes?: string
-    id_organizacao_testes?: string
-    tipo_testes: string
-    escopo_testes: string
-    sublocal_testes?: string | null
-    modulo_testes: string
-    nome_testes: string
-    id_plano_testes?: string | null
-    resultado_testes: string
-    duracao_testes: string
-    log_erro_testes?: string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: string | null
-    ambiente_testes?: string
-    id_execucao_testes?: string | null
-    disparado_por_testes?: string | null
-    data_criacao_testes?: Date | string
+  export type TesteUncheckedCreateInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    id_agendamento_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
   }
 
-  export type TestesUpdateInput = {
-    id_testes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
-    tipo_testes?: StringFieldUpdateOperationsInput | string
-    escopo_testes?: StringFieldUpdateOperationsInput | string
-    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    modulo_testes?: StringFieldUpdateOperationsInput | string
-    nome_testes?: StringFieldUpdateOperationsInput | string
-    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    resultado_testes?: StringFieldUpdateOperationsInput | string
-    duracao_testes?: StringFieldUpdateOperationsInput | string
-    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente_testes?: StringFieldUpdateOperationsInput | string
-    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type TesteUpdateInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    agendamento?: TesteAgendamentoUpdateOneWithoutTestesNestedInput
   }
 
-  export type TestesUncheckedUpdateInput = {
-    id_testes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
-    tipo_testes?: StringFieldUpdateOperationsInput | string
-    escopo_testes?: StringFieldUpdateOperationsInput | string
-    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    modulo_testes?: StringFieldUpdateOperationsInput | string
-    nome_testes?: StringFieldUpdateOperationsInput | string
-    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    resultado_testes?: StringFieldUpdateOperationsInput | string
-    duracao_testes?: StringFieldUpdateOperationsInput | string
-    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente_testes?: StringFieldUpdateOperationsInput | string
-    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type TesteUncheckedUpdateInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agendamento_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestesCreateManyInput = {
-    id_testes?: string
-    id_organizacao_testes?: string
-    tipo_testes: string
-    escopo_testes: string
-    sublocal_testes?: string | null
-    modulo_testes: string
-    nome_testes: string
-    id_plano_testes?: string | null
-    resultado_testes: string
-    duracao_testes: string
-    log_erro_testes?: string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: string | null
-    ambiente_testes?: string
-    id_execucao_testes?: string | null
-    disparado_por_testes?: string | null
-    data_criacao_testes?: Date | string
+  export type TesteCreateManyInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    id_agendamento_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
   }
 
-  export type TestesUpdateManyMutationInput = {
-    id_testes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
-    tipo_testes?: StringFieldUpdateOperationsInput | string
-    escopo_testes?: StringFieldUpdateOperationsInput | string
-    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    modulo_testes?: StringFieldUpdateOperationsInput | string
-    nome_testes?: StringFieldUpdateOperationsInput | string
-    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    resultado_testes?: StringFieldUpdateOperationsInput | string
-    duracao_testes?: StringFieldUpdateOperationsInput | string
-    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente_testes?: StringFieldUpdateOperationsInput | string
-    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type TesteUpdateManyMutationInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestesUncheckedUpdateManyInput = {
-    id_testes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
-    tipo_testes?: StringFieldUpdateOperationsInput | string
-    escopo_testes?: StringFieldUpdateOperationsInput | string
-    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    modulo_testes?: StringFieldUpdateOperationsInput | string
-    nome_testes?: StringFieldUpdateOperationsInput | string
-    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    resultado_testes?: StringFieldUpdateOperationsInput | string
-    duracao_testes?: StringFieldUpdateOperationsInput | string
-    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
-    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente_testes?: StringFieldUpdateOperationsInput | string
-    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
-    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type TesteUncheckedUpdateManyInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    id_agendamento_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TesteAgendamentoCreateInput = {
@@ -31559,6 +31810,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: Date | string | null
     data_criacao_agendamento_teste?: Date | string
     data_atualizacao_agendamento_teste?: Date | string
+    testes?: TesteCreateNestedManyWithoutAgendamentoInput
   }
 
   export type TesteAgendamentoUncheckedCreateInput = {
@@ -31576,6 +31828,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: Date | string | null
     data_criacao_agendamento_teste?: Date | string
     data_atualizacao_agendamento_teste?: Date | string
+    testes?: TesteUncheckedCreateNestedManyWithoutAgendamentoInput
   }
 
   export type TesteAgendamentoUpdateInput = {
@@ -31593,6 +31846,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    testes?: TesteUpdateManyWithoutAgendamentoNestedInput
   }
 
   export type TesteAgendamentoUncheckedUpdateInput = {
@@ -31610,6 +31864,7 @@ export namespace Prisma {
     proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    testes?: TesteUncheckedUpdateManyWithoutAgendamentoNestedInput
   }
 
   export type TesteAgendamentoCreateManyInput = {
@@ -33563,62 +33818,76 @@ export namespace Prisma {
     venda_cambio?: SortOrder
   }
 
-  export type TestesCountOrderByAggregateInput = {
-    id_testes?: SortOrder
-    id_organizacao_testes?: SortOrder
-    tipo_testes?: SortOrder
-    escopo_testes?: SortOrder
-    sublocal_testes?: SortOrder
-    modulo_testes?: SortOrder
-    nome_testes?: SortOrder
-    id_plano_testes?: SortOrder
-    resultado_testes?: SortOrder
-    duracao_testes?: SortOrder
-    log_erro_testes?: SortOrder
-    analise_ia_testes?: SortOrder
-    screenshot_testes?: SortOrder
-    ambiente_testes?: SortOrder
-    id_execucao_testes?: SortOrder
-    disparado_por_testes?: SortOrder
-    data_criacao_testes?: SortOrder
+  export type TesteAgendamentoNullableRelationFilter = {
+    is?: TesteAgendamentoWhereInput | null
+    isNot?: TesteAgendamentoWhereInput | null
   }
 
-  export type TestesMaxOrderByAggregateInput = {
-    id_testes?: SortOrder
-    id_organizacao_testes?: SortOrder
-    tipo_testes?: SortOrder
-    escopo_testes?: SortOrder
-    sublocal_testes?: SortOrder
-    modulo_testes?: SortOrder
-    nome_testes?: SortOrder
-    id_plano_testes?: SortOrder
-    resultado_testes?: SortOrder
-    duracao_testes?: SortOrder
-    log_erro_testes?: SortOrder
-    screenshot_testes?: SortOrder
-    ambiente_testes?: SortOrder
-    id_execucao_testes?: SortOrder
-    disparado_por_testes?: SortOrder
-    data_criacao_testes?: SortOrder
+  export type TesteCountOrderByAggregateInput = {
+    id_teste?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_teste?: SortOrder
+    escopo_teste?: SortOrder
+    sublocal_teste?: SortOrder
+    modulo_teste?: SortOrder
+    nome_teste?: SortOrder
+    id_plano_teste?: SortOrder
+    id_agendamento_teste?: SortOrder
+    resultado_teste?: SortOrder
+    duracao_teste?: SortOrder
+    log_erro_teste?: SortOrder
+    analise_ia_teste?: SortOrder
+    screenshot_teste?: SortOrder
+    ambiente_teste?: SortOrder
+    id_execucao_teste?: SortOrder
+    disparado_por_teste?: SortOrder
+    gatilho_teste?: SortOrder
+    data_criacao_teste?: SortOrder
+    data_atualizacao_teste?: SortOrder
   }
 
-  export type TestesMinOrderByAggregateInput = {
-    id_testes?: SortOrder
-    id_organizacao_testes?: SortOrder
-    tipo_testes?: SortOrder
-    escopo_testes?: SortOrder
-    sublocal_testes?: SortOrder
-    modulo_testes?: SortOrder
-    nome_testes?: SortOrder
-    id_plano_testes?: SortOrder
-    resultado_testes?: SortOrder
-    duracao_testes?: SortOrder
-    log_erro_testes?: SortOrder
-    screenshot_testes?: SortOrder
-    ambiente_testes?: SortOrder
-    id_execucao_testes?: SortOrder
-    disparado_por_testes?: SortOrder
-    data_criacao_testes?: SortOrder
+  export type TesteMaxOrderByAggregateInput = {
+    id_teste?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_teste?: SortOrder
+    escopo_teste?: SortOrder
+    sublocal_teste?: SortOrder
+    modulo_teste?: SortOrder
+    nome_teste?: SortOrder
+    id_plano_teste?: SortOrder
+    id_agendamento_teste?: SortOrder
+    resultado_teste?: SortOrder
+    duracao_teste?: SortOrder
+    log_erro_teste?: SortOrder
+    screenshot_teste?: SortOrder
+    ambiente_teste?: SortOrder
+    id_execucao_teste?: SortOrder
+    disparado_por_teste?: SortOrder
+    gatilho_teste?: SortOrder
+    data_criacao_teste?: SortOrder
+    data_atualizacao_teste?: SortOrder
+  }
+
+  export type TesteMinOrderByAggregateInput = {
+    id_teste?: SortOrder
+    id_organizacao?: SortOrder
+    tipo_teste?: SortOrder
+    escopo_teste?: SortOrder
+    sublocal_teste?: SortOrder
+    modulo_teste?: SortOrder
+    nome_teste?: SortOrder
+    id_plano_teste?: SortOrder
+    id_agendamento_teste?: SortOrder
+    resultado_teste?: SortOrder
+    duracao_teste?: SortOrder
+    log_erro_teste?: SortOrder
+    screenshot_teste?: SortOrder
+    ambiente_teste?: SortOrder
+    id_execucao_teste?: SortOrder
+    disparado_por_teste?: SortOrder
+    gatilho_teste?: SortOrder
+    data_criacao_teste?: SortOrder
+    data_atualizacao_teste?: SortOrder
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -33627,6 +33896,16 @@ export namespace Prisma {
     hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
     hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
     isEmpty?: boolean
+  }
+
+  export type TesteListRelationFilter = {
+    every?: TesteWhereInput
+    some?: TesteWhereInput
+    none?: TesteWhereInput
+  }
+
+  export type TesteOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type TesteAgendamentoCountOrderByAggregateInput = {
@@ -34778,13 +35057,71 @@ export namespace Prisma {
     set?: $Enums.DeployStatus
   }
 
+  export type TesteAgendamentoCreateNestedOneWithoutTestesInput = {
+    create?: XOR<TesteAgendamentoCreateWithoutTestesInput, TesteAgendamentoUncheckedCreateWithoutTestesInput>
+    connectOrCreate?: TesteAgendamentoCreateOrConnectWithoutTestesInput
+    connect?: TesteAgendamentoWhereUniqueInput
+  }
+
+  export type TesteAgendamentoUpdateOneWithoutTestesNestedInput = {
+    create?: XOR<TesteAgendamentoCreateWithoutTestesInput, TesteAgendamentoUncheckedCreateWithoutTestesInput>
+    connectOrCreate?: TesteAgendamentoCreateOrConnectWithoutTestesInput
+    upsert?: TesteAgendamentoUpsertWithoutTestesInput
+    disconnect?: TesteAgendamentoWhereInput | boolean
+    delete?: TesteAgendamentoWhereInput | boolean
+    connect?: TesteAgendamentoWhereUniqueInput
+    update?: XOR<XOR<TesteAgendamentoUpdateToOneWithWhereWithoutTestesInput, TesteAgendamentoUpdateWithoutTestesInput>, TesteAgendamentoUncheckedUpdateWithoutTestesInput>
+  }
+
   export type TesteAgendamentoCreateescopos_agendamento_testeInput = {
     set: string[]
+  }
+
+  export type TesteCreateNestedManyWithoutAgendamentoInput = {
+    create?: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput> | TesteCreateWithoutAgendamentoInput[] | TesteUncheckedCreateWithoutAgendamentoInput[]
+    connectOrCreate?: TesteCreateOrConnectWithoutAgendamentoInput | TesteCreateOrConnectWithoutAgendamentoInput[]
+    createMany?: TesteCreateManyAgendamentoInputEnvelope
+    connect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+  }
+
+  export type TesteUncheckedCreateNestedManyWithoutAgendamentoInput = {
+    create?: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput> | TesteCreateWithoutAgendamentoInput[] | TesteUncheckedCreateWithoutAgendamentoInput[]
+    connectOrCreate?: TesteCreateOrConnectWithoutAgendamentoInput | TesteCreateOrConnectWithoutAgendamentoInput[]
+    createMany?: TesteCreateManyAgendamentoInputEnvelope
+    connect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
   }
 
   export type TesteAgendamentoUpdateescopos_agendamento_testeInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type TesteUpdateManyWithoutAgendamentoNestedInput = {
+    create?: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput> | TesteCreateWithoutAgendamentoInput[] | TesteUncheckedCreateWithoutAgendamentoInput[]
+    connectOrCreate?: TesteCreateOrConnectWithoutAgendamentoInput | TesteCreateOrConnectWithoutAgendamentoInput[]
+    upsert?: TesteUpsertWithWhereUniqueWithoutAgendamentoInput | TesteUpsertWithWhereUniqueWithoutAgendamentoInput[]
+    createMany?: TesteCreateManyAgendamentoInputEnvelope
+    set?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    disconnect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    delete?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    connect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    update?: TesteUpdateWithWhereUniqueWithoutAgendamentoInput | TesteUpdateWithWhereUniqueWithoutAgendamentoInput[]
+    updateMany?: TesteUpdateManyWithWhereWithoutAgendamentoInput | TesteUpdateManyWithWhereWithoutAgendamentoInput[]
+    deleteMany?: TesteScalarWhereInput | TesteScalarWhereInput[]
+  }
+
+  export type TesteUncheckedUpdateManyWithoutAgendamentoNestedInput = {
+    create?: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput> | TesteCreateWithoutAgendamentoInput[] | TesteUncheckedCreateWithoutAgendamentoInput[]
+    connectOrCreate?: TesteCreateOrConnectWithoutAgendamentoInput | TesteCreateOrConnectWithoutAgendamentoInput[]
+    upsert?: TesteUpsertWithWhereUniqueWithoutAgendamentoInput | TesteUpsertWithWhereUniqueWithoutAgendamentoInput[]
+    createMany?: TesteCreateManyAgendamentoInputEnvelope
+    set?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    disconnect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    delete?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    connect?: TesteWhereUniqueInput | TesteWhereUniqueInput[]
+    update?: TesteUpdateWithWhereUniqueWithoutAgendamentoInput | TesteUpdateWithWhereUniqueWithoutAgendamentoInput[]
+    updateMany?: TesteUpdateManyWithWhereWithoutAgendamentoInput | TesteUpdateManyWithWhereWithoutAgendamentoInput[]
+    deleteMany?: TesteScalarWhereInput | TesteScalarWhereInput[]
   }
 
   export type TestePlanoCreateambientes_plano_testeInput = {
@@ -37481,6 +37818,186 @@ export namespace Prisma {
     ativacoes_produto_gravity?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutProdutoNestedInput
   }
 
+  export type TesteAgendamentoCreateWithoutTestesInput = {
+    id_agendamento_teste?: string
+    id_organizacao_agendamento_teste?: string
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: string
+    hora_agendamento_teste?: number
+    minuto_agendamento_teste?: number
+    tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: TesteAgendamentoCreateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: Date | string | null
+    proxima_execucao_agendamento_teste?: Date | string | null
+    data_criacao_agendamento_teste?: Date | string
+    data_atualizacao_agendamento_teste?: Date | string
+  }
+
+  export type TesteAgendamentoUncheckedCreateWithoutTestesInput = {
+    id_agendamento_teste?: string
+    id_organizacao_agendamento_teste?: string
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: string
+    hora_agendamento_teste?: number
+    minuto_agendamento_teste?: number
+    tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: TesteAgendamentoCreateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: Date | string | null
+    proxima_execucao_agendamento_teste?: Date | string | null
+    data_criacao_agendamento_teste?: Date | string
+    data_atualizacao_agendamento_teste?: Date | string
+  }
+
+  export type TesteAgendamentoCreateOrConnectWithoutTestesInput = {
+    where: TesteAgendamentoWhereUniqueInput
+    create: XOR<TesteAgendamentoCreateWithoutTestesInput, TesteAgendamentoUncheckedCreateWithoutTestesInput>
+  }
+
+  export type TesteAgendamentoUpsertWithoutTestesInput = {
+    update: XOR<TesteAgendamentoUpdateWithoutTestesInput, TesteAgendamentoUncheckedUpdateWithoutTestesInput>
+    create: XOR<TesteAgendamentoCreateWithoutTestesInput, TesteAgendamentoUncheckedCreateWithoutTestesInput>
+    where?: TesteAgendamentoWhereInput
+  }
+
+  export type TesteAgendamentoUpdateToOneWithWhereWithoutTestesInput = {
+    where?: TesteAgendamentoWhereInput
+    data: XOR<TesteAgendamentoUpdateWithoutTestesInput, TesteAgendamentoUncheckedUpdateWithoutTestesInput>
+  }
+
+  export type TesteAgendamentoUpdateWithoutTestesInput = {
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteAgendamentoUncheckedUpdateWithoutTestesInput = {
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: TesteAgendamentoUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteCreateWithoutAgendamentoInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
+  }
+
+  export type TesteUncheckedCreateWithoutAgendamentoInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
+  }
+
+  export type TesteCreateOrConnectWithoutAgendamentoInput = {
+    where: TesteWhereUniqueInput
+    create: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput>
+  }
+
+  export type TesteCreateManyAgendamentoInputEnvelope = {
+    data: TesteCreateManyAgendamentoInput | TesteCreateManyAgendamentoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TesteUpsertWithWhereUniqueWithoutAgendamentoInput = {
+    where: TesteWhereUniqueInput
+    update: XOR<TesteUpdateWithoutAgendamentoInput, TesteUncheckedUpdateWithoutAgendamentoInput>
+    create: XOR<TesteCreateWithoutAgendamentoInput, TesteUncheckedCreateWithoutAgendamentoInput>
+  }
+
+  export type TesteUpdateWithWhereUniqueWithoutAgendamentoInput = {
+    where: TesteWhereUniqueInput
+    data: XOR<TesteUpdateWithoutAgendamentoInput, TesteUncheckedUpdateWithoutAgendamentoInput>
+  }
+
+  export type TesteUpdateManyWithWhereWithoutAgendamentoInput = {
+    where: TesteScalarWhereInput
+    data: XOR<TesteUpdateManyMutationInput, TesteUncheckedUpdateManyWithoutAgendamentoInput>
+  }
+
+  export type TesteScalarWhereInput = {
+    AND?: TesteScalarWhereInput | TesteScalarWhereInput[]
+    OR?: TesteScalarWhereInput[]
+    NOT?: TesteScalarWhereInput | TesteScalarWhereInput[]
+    id_teste?: StringFilter<"Teste"> | string
+    id_organizacao?: StringFilter<"Teste"> | string
+    tipo_teste?: StringFilter<"Teste"> | string
+    escopo_teste?: StringFilter<"Teste"> | string
+    sublocal_teste?: StringNullableFilter<"Teste"> | string | null
+    modulo_teste?: StringFilter<"Teste"> | string
+    nome_teste?: StringFilter<"Teste"> | string
+    id_plano_teste?: StringNullableFilter<"Teste"> | string | null
+    id_agendamento_teste?: StringNullableFilter<"Teste"> | string | null
+    resultado_teste?: StringFilter<"Teste"> | string
+    duracao_teste?: StringFilter<"Teste"> | string
+    log_erro_teste?: StringNullableFilter<"Teste"> | string | null
+    analise_ia_teste?: JsonNullableFilter<"Teste">
+    screenshot_teste?: StringNullableFilter<"Teste"> | string | null
+    ambiente_teste?: StringFilter<"Teste"> | string
+    id_execucao_teste?: StringNullableFilter<"Teste"> | string | null
+    disparado_por_teste?: StringNullableFilter<"Teste"> | string | null
+    gatilho_teste?: StringNullableFilter<"Teste"> | string | null
+    data_criacao_teste?: DateTimeFilter<"Teste"> | Date | string
+    data_atualizacao_teste?: DateTimeFilter<"Teste"> | Date | string
+  }
+
   export type UsuarioCreateManyTenantInput = {
     id_usuario?: string
     clerk_user_id: string
@@ -38063,6 +38580,94 @@ export namespace Prisma {
     data_atualizacao_produto_gravity_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TesteCreateManyAgendamentoInput = {
+    id_teste?: string
+    id_organizacao?: string
+    tipo_teste: string
+    escopo_teste: string
+    sublocal_teste?: string | null
+    modulo_teste: string
+    nome_teste: string
+    id_plano_teste?: string | null
+    resultado_teste: string
+    duracao_teste: string
+    log_erro_teste?: string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: string | null
+    ambiente_teste?: string
+    id_execucao_teste?: string | null
+    disparado_por_teste?: string | null
+    gatilho_teste?: string | null
+    data_criacao_teste?: Date | string
+    data_atualizacao_teste?: Date | string
+  }
+
+  export type TesteUpdateWithoutAgendamentoInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteUncheckedUpdateWithoutAgendamentoInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TesteUncheckedUpdateManyWithoutAgendamentoInput = {
+    id_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
+    tipo_teste?: StringFieldUpdateOperationsInput | string
+    escopo_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_teste?: StringFieldUpdateOperationsInput | string
+    nome_teste?: StringFieldUpdateOperationsInput | string
+    id_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_teste?: StringFieldUpdateOperationsInput | string
+    duracao_teste?: StringFieldUpdateOperationsInput | string
+    log_erro_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_teste?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_teste?: StringFieldUpdateOperationsInput | string
+    id_execucao_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    gatilho_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -38084,6 +38689,10 @@ export namespace Prisma {
      * @deprecated Use ProdutoGravityCountOutputTypeDefaultArgs instead
      */
     export type ProdutoGravityCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TesteAgendamentoCountOutputTypeDefaultArgs instead
+     */
+    export type TesteAgendamentoCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TesteAgendamentoCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OrganizacaoDefaultArgs instead
      */
@@ -38157,9 +38766,9 @@ export namespace Prisma {
      */
     export type CambioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CambioDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TestesDefaultArgs instead
+     * @deprecated Use TesteDefaultArgs instead
      */
-    export type TestesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestesDefaultArgs<ExtArgs>
+    export type TesteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TesteDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TesteAgendamentoDefaultArgs instead
      */

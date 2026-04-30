@@ -381,24 +381,27 @@ exports.Prisma.CambioScalarFieldEnum = {
   data_criacao_cambio: 'data_criacao_cambio'
 };
 
-exports.Prisma.TestesScalarFieldEnum = {
-  id_testes: 'id_testes',
-  id_organizacao_testes: 'id_organizacao_testes',
-  tipo_testes: 'tipo_testes',
-  escopo_testes: 'escopo_testes',
-  sublocal_testes: 'sublocal_testes',
-  modulo_testes: 'modulo_testes',
-  nome_testes: 'nome_testes',
-  id_plano_testes: 'id_plano_testes',
-  resultado_testes: 'resultado_testes',
-  duracao_testes: 'duracao_testes',
-  log_erro_testes: 'log_erro_testes',
-  analise_ia_testes: 'analise_ia_testes',
-  screenshot_testes: 'screenshot_testes',
-  ambiente_testes: 'ambiente_testes',
-  id_execucao_testes: 'id_execucao_testes',
-  disparado_por_testes: 'disparado_por_testes',
-  data_criacao_testes: 'data_criacao_testes'
+exports.Prisma.TesteScalarFieldEnum = {
+  id_teste: 'id_teste',
+  id_organizacao: 'id_organizacao',
+  tipo_teste: 'tipo_teste',
+  escopo_teste: 'escopo_teste',
+  sublocal_teste: 'sublocal_teste',
+  modulo_teste: 'modulo_teste',
+  nome_teste: 'nome_teste',
+  id_plano_teste: 'id_plano_teste',
+  id_agendamento_teste: 'id_agendamento_teste',
+  resultado_teste: 'resultado_teste',
+  duracao_teste: 'duracao_teste',
+  log_erro_teste: 'log_erro_teste',
+  analise_ia_teste: 'analise_ia_teste',
+  screenshot_teste: 'screenshot_teste',
+  ambiente_teste: 'ambiente_teste',
+  id_execucao_teste: 'id_execucao_teste',
+  disparado_por_teste: 'disparado_por_teste',
+  gatilho_teste: 'gatilho_teste',
+  data_criacao_teste: 'data_criacao_teste',
+  data_atualizacao_teste: 'data_atualizacao_teste'
 };
 
 exports.Prisma.TesteAgendamentoScalarFieldEnum = {
@@ -603,7 +606,7 @@ exports.Prisma.ModelName = {
   Requisicoes: 'Requisicoes',
   ServicoGravity: 'ServicoGravity',
   Cambio: 'Cambio',
-  Testes: 'Testes',
+  Teste: 'Teste',
   TesteAgendamento: 'TesteAgendamento',
   TestePlano: 'TestePlano',
   ProdutoGravityFatura: 'ProdutoGravityFatura',

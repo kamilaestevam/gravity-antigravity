@@ -691,32 +691,39 @@ model Cambio {
 // Documentação completa em documentos-tecnicos/testes/tecnico/.
 // Convenção de IDs: TST-{TIPO}-{ESCOPO}-{NNNNNN}
 
-model Testes {
-  id_testes             String   @id @default(cuid())
-  id_organizacao_testes String   @default("platform") // sempre "platform" — logs globais
-  tipo_testes           String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo_testes         String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
-  sublocal_testes       String?
-  modulo_testes         String
-  nome_testes           String
-  id_plano_testes       String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
-  resultado_testes      String // APROVADO | REPROVADO | ERRO
-  duracao_testes        String
-  log_erro_testes       String?  @db.Text
-  analise_ia_testes     Json? // AiAnalysis schema do gemini-test-analyzer
-  screenshot_testes     String? // path do PNG capturado pela fixture
-  ambiente_testes       String   @default("Local") // Local | Staging | Producao
-  id_execucao_testes    String? // agrupa logs do mesmo run
-  disparado_por_testes  String? // userId que disparou (manual) ou "cron" (automático)
-  data_criacao_testes   DateTime @default(now())
+model Teste {
+  id_teste               String   @id @default(cuid())
+  id_organizacao         String   @default("platform") // sempre "platform" — logs globais
+  tipo_teste             String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_teste           String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
+  sublocal_teste         String?
+  modulo_teste           String
+  nome_teste             String
+  id_plano_teste         String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
+  id_agendamento_teste   String? // FK opcional para agendamento_teste
+  resultado_teste        String // APROVADO | REPROVADO | ERRO
+  duracao_teste          String
+  log_erro_teste         String?  @db.Text
+  analise_ia_teste       Json? // AiAnalysis schema do gemini-test-analyzer
+  screenshot_teste       String? // path do PNG capturado pela fixture
+  ambiente_teste         String   @default("Local") // Local | Staging | Producao
+  id_execucao_teste      String? // agrupa logs do mesmo run
+  disparado_por_teste    String? // userId que disparou (manual) ou "cron" (automático)
+  gatilho_teste          String? // tipo de gatilho: manual | cron | ci | post_deploy
+  data_criacao_teste     DateTime @default(now())
+  data_atualizacao_teste DateTime @updatedAt
 
-  @@index([id_organizacao_testes], map: "tst_org_idx")
-  @@index([data_criacao_testes], map: "tst_criacao_idx")
-  @@index([tipo_testes, escopo_testes], map: "tst_tipo_escopo_idx")
-  @@index([resultado_testes], map: "tst_resultado_idx")
-  @@index([id_execucao_testes], map: "tst_execucao_idx")
-  @@index([id_plano_testes], map: "tst_plano_idx")
-  @@map("testes")
+  // Relação opcional para agendamento (set null se agendamento for excluído)
+  agendamento TesteAgendamento? @relation(fields: [id_agendamento_teste], references: [id_agendamento_teste], onDelete: SetNull, map: "teste_agendamento_fkey")
+
+  @@index([id_organizacao], map: "tst_org_idx")
+  @@index([data_criacao_teste], map: "tst_criacao_idx")
+  @@index([tipo_teste, escopo_teste], map: "tst_tipo_escopo_idx")
+  @@index([resultado_teste], map: "tst_resultado_idx")
+  @@index([id_execucao_teste], map: "tst_execucao_idx")
+  @@index([id_plano_teste], map: "tst_plano_idx")
+  @@index([id_agendamento_teste], map: "tst_agendamento_idx")
+  @@map("teste")
 }
 
 model TesteAgendamento {
@@ -734,6 +741,9 @@ model TesteAgendamento {
   proxima_execucao_agendamento_teste DateTime?
   data_criacao_agendamento_teste     DateTime  @default(now())
   data_atualizacao_agendamento_teste DateTime  @updatedAt
+
+  // Relações
+  testes Teste[]
 
   @@index([id_organizacao_agendamento_teste], map: "agt_org_idx")
   @@index([ativo_agendamento_teste], map: "agt_ativo_idx")

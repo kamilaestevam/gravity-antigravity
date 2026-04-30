@@ -140,14 +140,14 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
 
 exports.Prisma.UsuarioScalarFieldEnum = {
   id_usuario: 'id_usuario',
-  id_organizacao_usuario: 'id_organizacao_usuario',
-  clerk_user_id: 'clerk_user_id',
+  id_organizacao: 'id_organizacao',
+  id_clerk_usuario: 'id_clerk_usuario',
   email_usuario: 'email_usuario',
   nome_usuario: 'nome_usuario',
   tipo_usuario: 'tipo_usuario',
-  preferred_company_id: 'preferred_company_id',
+  id_workspace_preferido_usuario: 'id_workspace_preferido_usuario',
   data_criacao_usuario: 'data_criacao_usuario',
-  updated_at: 'updated_at'
+  data_atualizacao_usuario: 'data_atualizacao_usuario'
 };
 
 exports.Prisma.ProdutoGravityAssinaturaScalarFieldEnum = {

@@ -104,34 +104,34 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id_usuario             String      @id @default(cuid())
-  id_organizacao_usuario String
-  clerk_user_id          String      @unique
-  email_usuario          String
-  nome_usuario           String
-  tipo_usuario           UsuarioTipo @default(PADRAO)
+  id_usuario                     String      @id @default(cuid())
+  id_organizacao                 String
+  id_clerk_usuario               String      @unique(map: "usuario_id_clerk_usuario_key")
+  email_usuario                  String
+  nome_usuario                   String
+  tipo_usuario                   UsuarioTipo @default(PADRAO)
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
-  preferred_company_id String?
+  id_workspace_preferido_usuario String?
 
   // Timestamps
-  data_criacao_usuario DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  data_criacao_usuario      DateTime @default(now())
+  data_atualizacao_usuario  DateTime @updatedAt
 
   // Relações
-  tenant            Organizacao        @relation(fields: [id_organizacao_usuario], references: [id_organizacao], onDelete: Cascade)
-  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id_workspace], onDelete: SetNull)
+  tenant            Organizacao        @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "usuario_id_organizacao_fkey")
+  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [id_workspace_preferido_usuario], references: [id_workspace], onDelete: SetNull, map: "usuario_id_workspace_preferido_usuario_fkey")
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
   // Email único por organização
-  @@unique([id_organizacao_usuario, email_usuario])
-  // Índices obrigatórios (id_organizacao_usuario base + compostos)
-  @@index([id_organizacao_usuario])
-  @@index([id_organizacao_usuario, data_criacao_usuario])
-  @@index([id_organizacao_usuario, tipo_usuario])
-  @@index([preferred_company_id])
+  @@unique([id_organizacao, email_usuario], map: "usuario_id_organizacao_email_usuario_key")
+  // Índices obrigatórios
+  @@index([id_organizacao],                              map: "usuario_id_organizacao_idx")
+  @@index([id_organizacao, data_criacao_usuario],        map: "usuario_id_organizacao_data_criacao_idx")
+  @@index([id_organizacao, tipo_usuario],                map: "usuario_id_organizacao_tipo_usuario_idx")
+  @@index([id_workspace_preferido_usuario],              map: "usuario_id_workspace_preferido_usuario_idx")
   @@map("usuario")
 }
 

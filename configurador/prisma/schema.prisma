@@ -324,7 +324,7 @@ model ProdutoGravityWorkspace {
   ativo_produto_gravity_workspace Boolean @default(true)
 
   // Timestamps
-  data_criacao_produto_gravity_workspace     DateTime @default(now())
+  data_contratacao_produto_gravity_workspace DateTime @default(now())
   data_atualizacao_produto_gravity_workspace DateTime @updatedAt
 
   // Relações

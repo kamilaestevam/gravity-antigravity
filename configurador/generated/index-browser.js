@@ -221,7 +221,7 @@ exports.Prisma.ProdutoGravityWorkspaceScalarFieldEnum = {
   id_workspace: 'id_workspace',
   id_produto_gravity: 'id_produto_gravity',
   ativo_produto_gravity_workspace: 'ativo_produto_gravity_workspace',
-  data_criacao_produto_gravity_workspace: 'data_criacao_produto_gravity_workspace',
+  data_contratacao_produto_gravity_workspace: 'data_contratacao_produto_gravity_workspace',
   data_atualizacao_produto_gravity_workspace: 'data_atualizacao_produto_gravity_workspace'
 };
 

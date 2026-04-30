@@ -65,11 +65,11 @@ kanbanPreferenciasRouter.get('/preferencias', async (req: Request, res: Response
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
 
-      const registro = await db.kanbanPreferencias.findFirst({
+      const registro = await db.kanbanPreferenciasGlobal.findFirst({
         where: { id_organizacao: tenant_id, id_usuario: user_id },
       })
 
-      res.json({ data: registro ? registro.preferencias_kanban_preferencias : null })
+      res.json({ data: registro ? registro.preferencias_kanban_preferencias_global : null })
     })
   } catch (err) {
     next(err)
@@ -92,13 +92,13 @@ kanbanPreferenciasRouter.put('/preferencias', async (req: Request, res: Response
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
 
-      const registro = await db.kanbanPreferencias.upsert({
+      const registro = await db.kanbanPreferenciasGlobal.upsert({
         where:  { id_organizacao_id_usuario: { id_organizacao: tenant_id, id_usuario: user_id } },
-        create: { id_organizacao: tenant_id, id_usuario: user_id, preferencias_kanban_preferencias: parsed.data },
-        update: { preferencias_kanban_preferencias: parsed.data },
+        create: { id_organizacao: tenant_id, id_usuario: user_id, preferencias_kanban_preferencias_global: parsed.data },
+        update: { preferencias_kanban_preferencias_global: parsed.data },
       })
 
-      res.json({ data: registro.preferencias_kanban_preferencias })
+      res.json({ data: registro.preferencias_kanban_preferencias_global })
     })
   } catch (err) {
     next(err)
@@ -116,7 +116,7 @@ kanbanPreferenciasRouter.delete('/preferencias', async (req: Request, res: Respo
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
 
-      await db.kanbanPreferencias.deleteMany({
+      await db.kanbanPreferenciasGlobal.deleteMany({
         where: { id_organizacao: tenant_id, id_usuario: user_id },
       })
 

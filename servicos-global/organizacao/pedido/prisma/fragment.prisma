@@ -381,18 +381,22 @@ model PedidoListaColunaUsuarioValor {
   @@map("valor_coluna_usuario_pedido")
 }
 
-model KanbanPreferencias {
-  id_kanban_preferencias            String   @id @default(cuid())
-  id_organizacao                    String
-  id_usuario                        String
-  preferencias_kanban_preferencias  Json
-  data_criacao_kanban_preferencias  DateTime @default(now())
-  data_atualizacao_kanban_preferencias DateTime @updatedAt
+/// Preferências de Kanban pessoais por usuário.
+/// "Global" no nome indica que serve QUALQUER produto Gravity (product-agnostic).
+/// PROVISORIO no banco do Pedido — quando existir serviço compartilhado
+/// de Kanban Infrastructure, mover este model + tabela para lá.
+model KanbanPreferenciasGlobal {
+  id_kanban_preferencias_global               String   @id @default(cuid())
+  id_organizacao                              String
+  id_usuario                                  String
+  preferencias_kanban_preferencias_global     Json
+  data_criacao_kanban_preferencias_global     DateTime @default(now())
+  data_atualizacao_kanban_preferencias_global DateTime @updatedAt
 
   @@unique([id_organizacao, id_usuario])
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
-  @@map("kanban_preferencias")
+  @@map("kanban_preferencias_global")
 }
 
 /// Modelo padrão (template) de dashboard que o admin define por produto.

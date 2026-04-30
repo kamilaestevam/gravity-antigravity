@@ -83,17 +83,17 @@ async function main() {
     console.log('\nDRY RUN — verificando banco...')
 
     const dbUsers = await prisma.usuario.count({
-      where: { clerk_user_id: { in: toDelete.map(u => u.id) } },
+      where: { id_clerk_usuario: { in: toDelete.map(u => u.id) } },
     })
     const dbPermissions = await prisma.usuarioPermissao.count({
-      where: { user: { clerk_user_id: { in: toDelete.map(u => u.id) } } },
+      where: { user: { id_clerk_usuario: { in: toDelete.map(u => u.id) } } },
     })
     // ↑ relação `user` é tipada — não usa nome físico de coluna
     const dbMemberships = await prisma.usuarioWorkspace.count({
-      where: { user: { clerk_user_id: { in: toDelete.map(u => u.id) } } },
+      where: { user: { id_clerk_usuario: { in: toDelete.map(u => u.id) } } },
     })
     const dbSupplier = await prisma.organizacaoFornecedor.count({
-      where: { clerk_user_id: { in: toDelete.map(u => u.id) } },
+      where: { id_clerk_usuario: { in: toDelete.map(u => u.id) } },
     })
 
     console.log(`\n--- Impacto no banco ---`)
@@ -111,10 +111,10 @@ async function main() {
 
   const deleted = await prisma.$transaction(async (tx) => {
     const sup = await tx.organizacaoFornecedor.deleteMany({
-      where: { clerk_user_id: { in: clerkIds } },
+      where: { id_clerk_usuario: { in: clerkIds } },
     })
     const users = await tx.usuario.deleteMany({
-      where: { clerk_user_id: { in: clerkIds } },
+      where: { id_clerk_usuario: { in: clerkIds } },
     })
     return { users: users.count, supplier: sup.count }
   })

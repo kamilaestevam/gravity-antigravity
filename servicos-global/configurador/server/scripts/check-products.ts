@@ -5,11 +5,11 @@ async function main() {
   configs.forEach(c =>
     console.log(
       ' -',
-      c.id_organizacao_config_produto_gravity,
+      c.id_organizacao_configuracao_produto_gravity,
       '|',
-      c.chave_produto_config_produto_gravity,
+      c.chave_produto_configuracao_produto_gravity,
       '| ativo:',
-      c.ativo_config_produto_gravity,
+      c.ativo_configuracao_produto_gravity,
     ),
   )
   await prisma.$disconnect()

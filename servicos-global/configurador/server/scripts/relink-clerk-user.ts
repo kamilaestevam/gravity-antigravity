@@ -31,7 +31,7 @@ async function main() {
 
   const user = await prisma.usuario.findFirst({
     where: { email_usuario: email },
-    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, id_organizacao_usuario: true },
+    select: { id_usuario: true, email_usuario: true, tipo_usuario: true, id_clerk_usuario: true, id_organizacao: true },
   })
 
   if (!user) {
@@ -43,22 +43,22 @@ async function main() {
   console.log(`  id:            ${user.id_usuario}`)
   console.log(`  email:         ${user.email_usuario}`)
   console.log(`  role:          ${user.tipo_usuario}`)
-  console.log(`  tenant_id:     ${user.id_organizacao_usuario}`)
-  console.log(`  clerk_user_id: ${user.clerk_user_id}`)
+  console.log(`  tenant_id:     ${user.id_organizacao}`)
+  console.log(`  id_clerk_usuario: ${user.id_clerk_usuario}`)
 
-  if (user.clerk_user_id === newClerkId) {
+  if (user.id_clerk_usuario === newClerkId) {
     console.log(`\nNada a fazer — clerk_user_id já é ${newClerkId}.`)
     return
   }
 
   const updated = await prisma.usuario.update({
     where: { id_usuario: user.id_usuario },
-    data: { clerk_user_id: newClerkId },
-    select: { id_usuario: true, email_usuario: true, clerk_user_id: true },
+    data: { id_clerk_usuario: newClerkId },
+    select: { id_usuario: true, email_usuario: true, id_clerk_usuario: true },
   })
 
   console.log(`\n✓ Atualizado:`)
-  console.log(`  clerk_user_id: ${user.clerk_user_id} → ${updated.clerk_user_id}`)
+  console.log(`  id_clerk_usuario: ${user.id_clerk_usuario} → ${updated.id_clerk_usuario}`)
   console.log(`\nReinicie o backend (ou espere o cache TTL expirar) para o requireAuth pegar o novo link.`)
 }
 

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-30T21:36:31.822Z
+// Gerado em: 2026-04-30T21:47:05.222Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -465,7 +465,7 @@ model PedidoCasasDecimais {
 
   formato_data_pedido String @default("DD/MM/AAAA")
 
-  data_criacao_casas_decimais_pedido     DateTime @default(now())
+  data_criacao_pedido_casas_decimais     DateTime @default(now())
   data_atualizacao_pedido_casas_decimais DateTime @updatedAt
 
   @@index([id_organizacao])

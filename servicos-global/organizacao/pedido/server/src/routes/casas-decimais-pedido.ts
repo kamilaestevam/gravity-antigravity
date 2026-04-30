@@ -116,10 +116,48 @@ const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string
   { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria_item' },
 ]
 
+// ── ACL: Zod (API contract) ↔ Prisma (DB columns) ────────────────────────────
+// Mapeia cada campo do Zod para a coluna correspondente no Prisma.
+// Frontend continua usando os nomes legados do Zod — esta camada absorve.
+
+const ZOD_TO_PRISMA: Record<keyof CasasDecimaisConfig, string> = {
+  valor_total_pedido:                'valor_total_pedido_casas_decimais',
+  valor_por_unidade_item:            'valor_unitario_item_casas_decimais',
+  quantidade_total_pedido:           'quantidade_total_inicial_pedido_casas_decimais',
+  quantidade_pronta_pedido_total:    'quantidade_pronta_pedido_total_casas_decimais',
+  saldo_itens_do_pedido:             'saldo_itens_do_pedido_casas_decimais',
+  quantidade_transferida_total:      'quantidade_transferida_total_pedido_casas_decimais',
+  quantidade_cancelada_total_pedido: 'quantidade_cancelada_total_pedido_casas_decimais',
+  peso_liquido_total_pedido:         'peso_liquido_total_pedido_casas_decimais',
+  peso_bruto_total_pedido:           'peso_bruto_total_pedido_casas_decimais',
+  cubagem_total_pedido:              'cubagem_total_pedido_casas_decimais',
+  formato_data:                      'formato_data_pedido',
+}
+
+function mapZodParaPrisma(configZod: CasasDecimaisConfig): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [zodKey, prismaCol] of Object.entries(ZOD_TO_PRISMA)) {
+    const v = configZod[zodKey as keyof CasasDecimaisConfig]
+    if (v !== undefined) out[prismaCol] = v
+  }
+  return out
+}
+
+function mapPrismaParaZod(registroPrisma: Record<string, unknown> | null): CasasDecimaisConfig {
+  if (!registroPrisma) return { ...DEFAULTS }
+  const out = { ...DEFAULTS } as Record<string, unknown>
+  for (const [zodKey, prismaCol] of Object.entries(ZOD_TO_PRISMA)) {
+    if (registroPrisma[prismaCol] !== undefined && registroPrisma[prismaCol] !== null) {
+      out[zodKey] = registroPrisma[prismaCol]
+    }
+  }
+  return out as CasasDecimaisConfig
+}
+
 // ── Job de migração em background ─────────────────────────────────────────────
 
-async function executarMigracaoCasasDecimais(db: BancoOrganizacao, tenant_id: string, config: CasasDecimaisConfig): Promise<void> {
-  console.log(`[CasasDecimais] Iniciando migração para tenant ${tenant_id}`)
+async function executarMigracaoCasasDecimais(db: BancoOrganizacao, idOrganizacao: string, config: CasasDecimaisConfig): Promise<void> {
+  console.log(`[CasasDecimais] Iniciando migração para organizacao ${idOrganizacao}`)
 
   // 1. Atualizar metadados casas_decimais_* nos pedidos e itens
   const updatePedidoMeta: Record<string, number> = {}
@@ -132,8 +170,8 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, tenant_id: st
   }
 
   await Promise.all([
-    db.pedido.updateMany({ where: { id_organizacao: tenant_id }, data: updatePedidoMeta }),
-    db.pedidoItem.updateMany({ where: { id_organizacao: tenant_id }, data: updateItemMeta }),
+    db.pedido.updateMany({ where: { id_organizacao: idOrganizacao }, data: updatePedidoMeta }),
+    db.pedidoItem.updateMany({ where: { id_organizacao: idOrganizacao }, data: updateItemMeta }),
   ])
 
   // 2. Arredondar valores reais no banco (ROUND SQL) — seguro: nomes de colunas são hardcoded
@@ -143,8 +181,8 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, tenant_id: st
     const casas = config[cfgKey]
     roundOps.push(
       db.$executeRawUnsafe(
-        `UPDATE pedido SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE tenant_id = $1 AND deleted_at IS NULL AND "${coluna}" IS NOT NULL`,
-        tenant_id,
+        `UPDATE pedido SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND deleted_at IS NULL AND "${coluna}" IS NOT NULL`,
+        idOrganizacao,
       ),
     )
   }
@@ -154,14 +192,14 @@ async function executarMigracaoCasasDecimais(db: BancoOrganizacao, tenant_id: st
     roundOps.push(
       db.$executeRawUnsafe(
         `UPDATE pedido_itens SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND "${coluna}" IS NOT NULL`,
-        tenant_id,
+        idOrganizacao,
       ),
     )
   }
 
   await Promise.all(roundOps)
 
-  console.log(`[CasasDecimais] Migração concluída para tenant ${tenant_id}`)
+  console.log(`[CasasDecimais] Migração concluída para organizacao ${idOrganizacao}`)
 }
 
 // ── GET /configuracoes/casas-decimais ─────────────────────────────────────────
@@ -171,11 +209,11 @@ casasDecimaisRouter.get('/casas-decimais', async (req: Request, res: Response, n
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-      const registro = await db.pedidoCasasDecimaisConfig.findUnique({
-        where: { tenant_id },
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const registro = await db.pedidoCasasDecimais.findUnique({
+        where: { id_organizacao: idOrganizacao },
       })
-      res.json({ data: registro ?? { ...DEFAULTS } })
+      res.json({ data: mapPrismaParaZod(registro) })
     })
   } catch (err) {
     next(err)
@@ -191,26 +229,26 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
       throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
     }
     const { confirmar, ...configData } = parsed.data
-    const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+    const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+    const dadosPrisma = mapZodParaPrisma(configData)
 
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = tenantId
 
-      const registro = await db.pedidoCasasDecimaisConfig.upsert({
-        where:  { tenant_id },
-        create: { tenant_id, ...configData },
-        update: { ...configData },
+      const registro = await db.pedidoCasasDecimais.upsert({
+        where:  { id_organizacao: idOrganizacao },
+        create: { id_organizacao: idOrganizacao, ...dadosPrisma },
+        update: { ...dadosPrisma },
       })
 
       const [totalPedidos, totalItens] = await Promise.all([
-        db.pedido.count({ where: { id_organizacao: tenant_id } }),
-        db.pedidoItem.count({ where: { id_organizacao: tenant_id } }),
+        db.pedido.count({ where: { id_organizacao: idOrganizacao } }),
+        db.pedidoItem.count({ where: { id_organizacao: idOrganizacao } }),
       ])
 
       res.json({
-        data: registro,
+        data: mapPrismaParaZod(registro),
         auditoria: {
           total_pedidos: totalPedidos,
           total_itens:   totalItens,
@@ -222,10 +260,10 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
     // Dispara migração APÓS a transação principal commitar
     if (confirmar === true) {
       setImmediate(() => {
-        withOrganizacaoContext(tenantId, async (ctx, rawDb) => {
+        withOrganizacaoContext(idOrganizacao, async (ctx, rawDb) => {
           await executarMigracaoCasasDecimais(rawDb, ctx.idOrganizacao, configData)
         }).catch(err => {
-          console.error(`[CasasDecimais] Erro na migração tenant=${tenantId}:`, err)
+          console.error(`[CasasDecimais] Erro na migração organizacao=${idOrganizacao}:`, err)
         })
       })
     }

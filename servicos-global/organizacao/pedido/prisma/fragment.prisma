@@ -436,7 +436,7 @@ model PedidoCasasDecimais {
 
   formato_data_pedido String @default("DD/MM/AAAA")
 
-  data_criacao_casas_decimais_pedido     DateTime @default(now())
+  data_criacao_pedido_casas_decimais     DateTime @default(now())
   data_atualizacao_pedido_casas_decimais DateTime @updatedAt
 
   @@index([id_organizacao])

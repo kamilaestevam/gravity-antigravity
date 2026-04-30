@@ -293,26 +293,26 @@ model UsuarioWorkspace {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityConfiguracao {
-  id_config_produto_gravity             String  @id @default(cuid())
-  id_organizacao_config_produto_gravity String
-  chave_produto_config_produto_gravity  String
-  configuracao_config_produto_gravity   Json    @default("{}")
-  ativo_config_produto_gravity          Boolean @default(true)
+  id_configuracao_produto_gravity             String  @id @default(cuid())
+  id_organizacao_configuracao_produto_gravity String
+  chave_produto_configuracao_produto_gravity  String
+  configuracao_config_produto_gravity         Json    @default("{}")
+  ativo_configuracao_produto_gravity          Boolean @default(true)
 
   // Timestamps
-  data_criacao_config_produto_gravity     DateTime @default(now())
-  data_atualizacao_config_produto_gravity DateTime @updatedAt
+  data_criacao_configuracao_produto_gravity     DateTime @default(now())
+  data_atualizacao_configuracao_produto_gravity DateTime @updatedAt
 
-  // Relações
-  tenant Organizacao @relation(fields: [id_organizacao_config_produto_gravity], references: [id_organizacao], onDelete: Cascade)
+  // Relações — `map` explícito para nome curto (auto seria > 63 chars)
+  tenant Organizacao @relation(fields: [id_organizacao_configuracao_produto_gravity], references: [id_organizacao], onDelete: Cascade, map: "cpg_org_fkey")
 
   // Apenas uma config por produto por tenant — `map` explícito para evitar colisão pós truncamento PG (63 chars)
-  @@unique([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_unq")
+  @@unique([id_organizacao_configuracao_produto_gravity, chave_produto_configuracao_produto_gravity], map: "cpg_org_chave_unq")
   // Índices obrigatórios — `map` explícito pelo mesmo motivo
-  @@index([id_organizacao_config_produto_gravity], map: "cpg_org_idx")
-  @@index([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_idx")
-  @@index([id_organizacao_config_produto_gravity, ativo_config_produto_gravity], map: "cpg_org_ativo_idx")
-  @@map("config_produto_gravity")
+  @@index([id_organizacao_configuracao_produto_gravity], map: "cpg_org_idx")
+  @@index([id_organizacao_configuracao_produto_gravity, chave_produto_configuracao_produto_gravity], map: "cpg_org_chave_idx")
+  @@index([id_organizacao_configuracao_produto_gravity, ativo_configuracao_produto_gravity], map: "cpg_org_ativo_idx")
+  @@map("configuracao_produto_gravity")
 }
 
 // ---------------------------------------------------------------------------

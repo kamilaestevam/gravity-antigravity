@@ -34,36 +34,36 @@ const ReordenarSchema = z.object({
 // ── ACL: mapper Prisma DDD → contrato legacy do frontend ──────────────────────
 
 interface PainelDB {
-  id_dashboard_painel_usuario:               string
+  id_dashboard_painel_usuario_global:               string
   id_organizacao:                    string
   id_usuario:                        string
-  nome_dashboard_painel_usuario:             string
-  ordem_dashboard_painel_usuario:            number
-  visivel_dashboard_painel_usuario:       boolean
-  widgets_json_dashboard_painel_usuario:     string
-  data_criacao_dashboard_painel_usuario:     Date | string
-  data_atualizacao_dashboard_painel_usuario: Date | string
+  nome_dashboard_painel_usuario_global:             string
+  ordem_dashboard_painel_usuario_global:            number
+  visivel_dashboard_painel_usuario_global:       boolean
+  widgets_json_dashboard_painel_usuario_global:     string
+  data_criacao_dashboard_painel_usuario_global:     Date | string
+  data_atualizacao_dashboard_painel_usuario_global: Date | string
 }
 
 function mapPainel(p: PainelDB): Record<string, unknown> {
   return {
-    id:           p.id_dashboard_painel_usuario,
+    id:           p.id_dashboard_painel_usuario_global,
     tenant_id:    p.id_organizacao,
     user_id:      p.id_usuario,
-    nome:         p.nome_dashboard_painel_usuario,
-    ordem:        p.ordem_dashboard_painel_usuario,
-    is_visivel:   p.visivel_dashboard_painel_usuario,
-    widgets_json: p.widgets_json_dashboard_painel_usuario,
-    created_at:   p.data_criacao_dashboard_painel_usuario,
-    updated_at:   p.data_atualizacao_dashboard_painel_usuario,
+    nome:         p.nome_dashboard_painel_usuario_global,
+    ordem:        p.ordem_dashboard_painel_usuario_global,
+    is_visivel:   p.visivel_dashboard_painel_usuario_global,
+    widgets_json: p.widgets_json_dashboard_painel_usuario_global,
+    created_at:   p.data_criacao_dashboard_painel_usuario_global,
+    updated_at:   p.data_atualizacao_dashboard_painel_usuario_global,
   }
 }
 
 function mapPatch(patch: { nome?: string; is_visivel?: boolean; widgets_json?: string }): Record<string, unknown> {
   const data: Record<string, unknown> = {}
-  if (patch.nome !== undefined)         data.nome_dashboard_painel_usuario = patch.nome
-  if (patch.is_visivel !== undefined)   data.visivel_dashboard_painel_usuario = patch.is_visivel
-  if (patch.widgets_json !== undefined) data.widgets_json_dashboard_painel_usuario = patch.widgets_json
+  if (patch.nome !== undefined)         data.nome_dashboard_painel_usuario_global = patch.nome
+  if (patch.is_visivel !== undefined)   data.visivel_dashboard_painel_usuario_global = patch.is_visivel
+  if (patch.widgets_json !== undefined) data.widgets_json_dashboard_painel_usuario_global = patch.widgets_json
   return data
 }
 
@@ -78,18 +78,18 @@ dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next:
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
 
-      let paineis = await db.dashboardPainelUsuario.findMany({
+      let paineis = await db.dashboardPainelUsuarioGlobal.findMany({
         where:   { id_organizacao: tenant_id, id_usuario: user_id },
-        orderBy: { ordem_dashboard_painel_usuario: 'asc' },
+        orderBy: { ordem_dashboard_painel_usuario_global: 'asc' },
       })
 
       if (paineis.length === 0) {
-        const padrao = await db.dashboardPainelUsuario.create({
+        const padrao = await db.dashboardPainelUsuarioGlobal.create({
           data: {
             id_organizacao:        tenant_id,
             id_usuario:            user_id,
-            nome_dashboard_painel_usuario: 'Principal',
-            ordem_dashboard_painel_usuario: 0,
+            nome_dashboard_painel_usuario_global: 'Principal',
+            ordem_dashboard_painel_usuario_global: 0,
           },
         })
         paineis = [padrao]
@@ -118,18 +118,18 @@ dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next
       const tenant_id = ctx.idOrganizacao
       const user_id   = ctx.idUsuario
 
-      const ultimo = await db.dashboardPainelUsuario.findFirst({
+      const ultimo = await db.dashboardPainelUsuarioGlobal.findFirst({
         where:   { id_organizacao: tenant_id, id_usuario: user_id },
-        orderBy: { ordem_dashboard_painel_usuario: 'desc' },
-        select:  { ordem_dashboard_painel_usuario: true },
+        orderBy: { ordem_dashboard_painel_usuario_global: 'desc' },
+        select:  { ordem_dashboard_painel_usuario_global: true },
       })
 
-      const painel = await db.dashboardPainelUsuario.create({
+      const painel = await db.dashboardPainelUsuarioGlobal.create({
         data: {
           id_organizacao:         tenant_id,
           id_usuario:             user_id,
-          nome_dashboard_painel_usuario:  parsed.data.nome,
-          ordem_dashboard_painel_usuario: (ultimo?.ordem_dashboard_painel_usuario ?? -1) + 1,
+          nome_dashboard_painel_usuario_global:  parsed.data.nome,
+          ordem_dashboard_painel_usuario_global: (ultimo?.ordem_dashboard_painel_usuario_global ?? -1) + 1,
         },
       })
 
@@ -158,9 +158,9 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Respo
 
       await Promise.all(
         parsed.data.ids.map((id, index) =>
-          db.dashboardPainelUsuario.updateMany({
-            where: { id_dashboard_painel_usuario: id, id_organizacao: tenant_id, id_usuario: user_id },
-            data:  { ordem_dashboard_painel_usuario: index },
+          db.dashboardPainelUsuarioGlobal.updateMany({
+            where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
+            data:  { ordem_dashboard_painel_usuario_global: index },
           }),
         ),
       )
@@ -189,13 +189,13 @@ dashboardPaineisRouter.put('/paineis/:id_painel_dashboard_pedido', async (req: R
       const user_id   = ctx.idUsuario
       const { id_painel_dashboard_pedido: id } = req.params
 
-      const painel = await db.dashboardPainelUsuario.findFirst({
-        where: { id_dashboard_painel_usuario: id, id_organizacao: tenant_id, id_usuario: user_id },
+      const painel = await db.dashboardPainelUsuarioGlobal.findFirst({
+        where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
       })
       if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
 
-      const atualizado = await db.dashboardPainelUsuario.update({
-        where: { id_dashboard_painel_usuario: id },
+      const atualizado = await db.dashboardPainelUsuarioGlobal.update({
+        where: { id_dashboard_painel_usuario_global: id },
         data:  mapPatch(parsed.data),
       })
 
@@ -218,19 +218,19 @@ dashboardPaineisRouter.delete('/paineis/:id_painel_dashboard_pedido', async (req
       const user_id   = ctx.idUsuario
       const { id_painel_dashboard_pedido: id } = req.params
 
-      const total = await db.dashboardPainelUsuario.count({
+      const total = await db.dashboardPainelUsuarioGlobal.count({
         where: { id_organizacao: tenant_id, id_usuario: user_id },
       })
       if (total <= 1) {
         throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')
       }
 
-      const painel = await db.dashboardPainelUsuario.findFirst({
-        where: { id_dashboard_painel_usuario: id, id_organizacao: tenant_id, id_usuario: user_id },
+      const painel = await db.dashboardPainelUsuarioGlobal.findFirst({
+        where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
       })
       if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
 
-      await db.dashboardPainelUsuario.delete({ where: { id_dashboard_painel_usuario: id } })
+      await db.dashboardPainelUsuarioGlobal.delete({ where: { id_dashboard_painel_usuario_global: id } })
 
       res.json({ data: { deletado: true } })
     })

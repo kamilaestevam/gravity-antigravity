@@ -72,7 +72,7 @@ dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const config = await db.dashboardModeloProduto.findUnique({
+      const config = await db.dashboardModeloGlobal.findUnique({
         where: {
           id_organizacao_id_produto_gravity: {
             id_organizacao:     tenantId,
@@ -85,12 +85,12 @@ dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
         return res.json({ widgets: [], source: 'default' })
       }
 
-      const raw = config.widgets_json_dashboard_modelo_produto as string | null
+      const raw = config.widgets_json_dashboard_modelo_global as string | null
       const widgets = raw ? (JSON.parse(raw) as unknown[]) : []
 
       res.json({
         widgets,
-        updated_at: config.data_atualizacao_dashboard_modelo_produto,
+        updated_at: config.data_atualizacao_dashboard_modelo_global,
         source:     'persisted',
       })
     })
@@ -115,7 +115,7 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      await db.dashboardModeloProduto.upsert({
+      await db.dashboardModeloGlobal.upsert({
         where: {
           id_organizacao_id_produto_gravity: {
             id_organizacao:     tenantId,
@@ -125,10 +125,10 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
         create: {
           id_organizacao:                       tenantId,
           id_produto_gravity:                   ID_PRODUTO_PEDIDO,
-          widgets_json_dashboard_modelo_produto: JSON.stringify(widgets),
+          widgets_json_dashboard_modelo_global: JSON.stringify(widgets),
         },
         update: {
-          widgets_json_dashboard_modelo_produto: JSON.stringify(widgets),
+          widgets_json_dashboard_modelo_global: JSON.stringify(widgets),
         },
       })
 
@@ -151,7 +151,7 @@ dashboardWidgetsRouter.delete('/:id_widget_dashboard_pedido', async (req: Reques
       const db       = rawDb as any
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
-      const config = await db.dashboardModeloProduto.findUnique({
+      const config = await db.dashboardModeloGlobal.findUnique({
         where: {
           id_organizacao_id_produto_gravity: {
             id_organizacao:     tenantId,
@@ -161,14 +161,14 @@ dashboardWidgetsRouter.delete('/:id_widget_dashboard_pedido', async (req: Reques
       })
       if (!config) return res.status(404).json({ error: 'Configuração nao encontrada' })
 
-      const raw = config.widgets_json_dashboard_modelo_produto as string | null
+      const raw = config.widgets_json_dashboard_modelo_global as string | null
       const widgets = raw ? (JSON.parse(raw) as Array<{ id: string }>) : []
 
       const filtered = widgets.filter((w) => w.id !== widgetId)
 
-      await db.dashboardModeloProduto.update({
-        where: { id_dashboard_modelo_produto: config.id_dashboard_modelo_produto },
-        data:  { widgets_json_dashboard_modelo_produto: JSON.stringify(filtered) },
+      await db.dashboardModeloGlobal.update({
+        where: { id_dashboard_modelo_global: config.id_dashboard_modelo_global },
+        data:  { widgets_json_dashboard_modelo_global: JSON.stringify(filtered) },
       })
 
       res.json({ ok: true, removed: widgetId, remaining: filtered.length })

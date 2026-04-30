@@ -17,7 +17,7 @@ const configuradorDb = new ConfiguradorPrisma({
 })
 
 const tenantDb = new TenantPrisma({
-  datasources: { db: { url: process.env.TENANT_DATABASE_URL } }
+  datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } }
 })
 
 // ----------------------------------------------------------------

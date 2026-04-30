@@ -4,7 +4,7 @@ import { AppError } from '../lib/errors.js'
 import { AlertRuleSchema, AlertEventUpdateSchema } from '../schemas/history.schema.js'
 import { extractAuthUser } from '../lib/visibility.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
 // GET /alerts
 export async function listAlerts(req: Request, res: Response, next: NextFunction) {

@@ -15,7 +15,7 @@ import { getBoss } from './pg-boss.js'
 import { PrismaClient } from '../../../generated/index.js'
 import { captureMessage } from '../lib/sentry.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
 export const INTEGRITY_QUEUE = 'audit:integrity:check'
 

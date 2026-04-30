@@ -21,7 +21,7 @@ import { AppError } from '../lib/errors.js'
 import { extractAuthUser } from '../lib/visibility.js'
 import { AuditService } from '../services/audit.service.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
 const AnonymizeSchema = z.object({
   actor_id: z.string().min(1),

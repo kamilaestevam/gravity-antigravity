@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "tsx watch server/index.ts",
+        "dev": "tsx watch --env-file=../../.env.local --env-file=.env server/index.ts",
         "dev:client": "vite",
-        "dev:full": "tsx watch server/index.ts & vite & wait",
+        "dev:full": "tsx watch --env-file=../../.env.local --env-file=.env server/index.ts & vite & wait",
         "start": "node dist/server/index.js",
         "typecheck": "tsc --noEmit",
         "prisma:generate": "prisma generate --schema=../../configurador/prisma/schema.prisma",

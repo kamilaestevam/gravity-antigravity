@@ -14,9 +14,9 @@ import { startWorker } from './queue/worker'
 import { initCron }    from './cron'
 
 export async function initNotificacoes(): Promise<void> {
-  const dbUrl = process.env.TENANT_DATABASE_URL
+  const dbUrl = process.env.ORGANIZACAO_DATABASE_URL
   if (!dbUrl) {
-    throw new Error('[notificacoes] TENANT_DATABASE_URL não definida')
+    throw new Error('[notificacoes] ORGANIZACAO_DATABASE_URL não definida')
   }
 
   await initPgBoss(dbUrl)

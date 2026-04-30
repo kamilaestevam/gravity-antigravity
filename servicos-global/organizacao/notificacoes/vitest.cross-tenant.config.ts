@@ -24,7 +24,7 @@ export default defineConfig({
     include: [root.replace(/\\/g, '/') + '/testes/testes-cross-tenant/notificacoes/**/*.test.ts'],
     env: {
       NODE_ENV: 'test',
-      TENANT_DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+      ORGANIZACAO_DATABASE_URL: 'postgres://test:test@localhost:5432/test',
       INTERNAL_API_KEY: 'test-internal-key',
     },
   },

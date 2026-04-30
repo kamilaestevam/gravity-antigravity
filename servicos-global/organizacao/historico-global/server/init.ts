@@ -16,9 +16,9 @@ import { startIntegrityCheckWorker }  from './queue/integrity-check-worker.js'
 import { startPartitionWorker }       from './queue/partition-worker.js'
 
 export async function initHistorico(): Promise<void> {
-  const databaseUrl = process.env.TENANT_DATABASE_URL
+  const databaseUrl = process.env.ORGANIZACAO_DATABASE_URL
   if (!databaseUrl) {
-    throw new Error('[historico] TENANT_DATABASE_URL não definida')
+    throw new Error('[historico] ORGANIZACAO_DATABASE_URL não definida')
   }
 
   const boss = await initPgBoss(databaseUrl)

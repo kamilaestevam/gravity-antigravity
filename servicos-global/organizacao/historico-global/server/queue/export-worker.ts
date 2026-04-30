@@ -4,7 +4,7 @@ import { tmpdir } from 'os'
 import { getBoss } from './pg-boss.js'
 import { PrismaClient, Prisma } from '../../../generated/index.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
 export const EXPORT_QUEUE = 'audit:log:export'
 export const EXPORT_DIR = join(tmpdir(), 'gravity-exports')

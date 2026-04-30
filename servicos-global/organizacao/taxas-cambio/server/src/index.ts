@@ -22,7 +22,7 @@ const __dir = dirname(fileURLToPath(import.meta.url))
 // Chaves globais (INTERNAL_SERVICE_KEY) vêm do .env.local da raiz do monorepo
 dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 // Chaves específicas do serviço vêm do .env local
-dotenv.config({ path: resolve(__dir, '../../../.env') })
+dotenv.config({ path: resolve(__dir, '../../.env') })
 
 import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'

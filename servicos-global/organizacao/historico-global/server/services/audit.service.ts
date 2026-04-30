@@ -7,7 +7,7 @@ let _prisma: PrismaClient | null = null
 function getPrisma(): PrismaClient {
   if (!_prisma) {
     _prisma = new PrismaClient({
-      datasources: { db: { url: process.env.TENANT_DATABASE_URL } },
+      datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } },
     })
   }
   return _prisma

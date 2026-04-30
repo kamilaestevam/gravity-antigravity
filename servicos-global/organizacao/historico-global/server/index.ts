@@ -42,7 +42,7 @@ app.get('/health', async (_req, res) => {
 
   try {
     const { PrismaClient } = await import('../generated/index.js')
-    const p = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+    const p = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
     await p.$queryRaw`SELECT 1`
     await p.$disconnect()
     dbStatus = 'ok'
@@ -60,7 +60,7 @@ app.get('/health', async (_req, res) => {
 
     // Conta jobs em estado 'failed' na tabela do pg-boss (DLQ)
     const { PrismaClient } = await import('../generated/index.js')
-    const p = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+    const p = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
     const result = await p.$queryRaw<[{ count: bigint }]>`
       SELECT count(*) FROM pgboss.job
       WHERE name = 'audit:log:ingestion' AND state = 'failed'
@@ -89,9 +89,9 @@ app.use(authErrorLogger)
 app.use(errorHandler)
 
 async function bootstrap() {
-  const databaseUrl = process.env.TENANT_DATABASE_URL
+  const databaseUrl = process.env.ORGANIZACAO_DATABASE_URL
   if (!databaseUrl) {
-    console.error('[historico] TENANT_DATABASE_URL não definida')
+    console.error('[historico] ORGANIZACAO_DATABASE_URL não definida')
     process.exit(1)
   }
 

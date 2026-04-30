@@ -6,7 +6,7 @@ export async function initPgBoss(databaseUrl: string) {
   if (boss) return boss
 
   if (!databaseUrl) {
-    throw new Error('TENANT_DATABASE_URL is required to initialize pg-boss')
+    throw new Error('ORGANIZACAO_DATABASE_URL is required to initialize pg-boss')
   }
 
   boss = new PgBoss(databaseUrl)

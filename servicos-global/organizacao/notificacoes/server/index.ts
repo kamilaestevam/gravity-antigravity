@@ -13,7 +13,7 @@ import { initCron } from './cron'
 dotenv.config()
 
 // Fail-fast: validar env vars críticas
-const REQUIRED_ENV = ['TENANT_DATABASE_URL', 'INTERNAL_API_KEY']
+const REQUIRED_ENV = ['ORGANIZACAO_DATABASE_URL', 'INTERNAL_API_KEY']
 for (const key of REQUIRED_ENV) {
   if (!process.env[key]) throw new Error(`[Notificacoes] Variável de ambiente obrigatória ausente: ${key}`)
 }
@@ -47,7 +47,7 @@ app.use(errorHandler)
 const PORT = 8013
 
 async function bootstrap() {
-  const dbUrl = process.env.TENANT_DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/tenant-db'
+  const dbUrl = process.env.ORGANIZACAO_DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/tenant-db'
 
   // pg-boss é não-fatal: falha não impede as rotas principais de funcionar
   try {

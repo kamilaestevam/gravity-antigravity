@@ -1,6 +1,6 @@
 import { PrismaClient } from '../../../generated/index.js'
 
-const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
 
 const EMAIL_SERVICE_URL = process.env.EMAIL_SERVICE_URL || ''
 const WHATSAPP_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || ''

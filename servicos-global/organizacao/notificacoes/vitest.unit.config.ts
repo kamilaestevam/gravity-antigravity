@@ -34,7 +34,7 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
       RESEND_WEBHOOK_SECRET: 'whsec_Z3Jhdml0eS10ZXN0LXNlY3JldC1mb3Itdml0ZXN0ISE=',
-      TENANT_DATABASE_URL:   'postgres://test:test@localhost:5432/test',
+      ORGANIZACAO_DATABASE_URL:   'postgres://test:test@localhost:5432/test',
       INTERNAL_API_KEY:      'test-internal-key',
     },
     coverage: {

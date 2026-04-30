@@ -195,7 +195,7 @@ if (process.env.NODE_ENV !== 'test') {
     }
 
     // Inicializar pg-boss e worker de audit logs
-    const tenantDbUrl = process.env.TENANT_DATABASE_URL
+    const tenantDbUrl = process.env.ORGANIZACAO_DATABASE_URL
     if (tenantDbUrl) {
       try {
         const { initPgBoss } = await import('../../organizacao/historico-global/server/queue/pg-boss.js')
@@ -222,7 +222,7 @@ if (process.env.NODE_ENV !== 'test') {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }
     } else {
-      console.warn('[configurador] TENANT_DATABASE_URL ausente — audit logs desativados')
+      console.warn('[configurador] ORGANIZACAO_DATABASE_URL ausente — audit logs desativados')
     }
   })
 }

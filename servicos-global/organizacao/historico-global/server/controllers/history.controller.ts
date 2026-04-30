@@ -45,7 +45,7 @@ interface PgBossJobMeta {
 
 let _prisma: PrismaClient | null = null
 function getPrisma(): PrismaClient {
-  if (!_prisma) _prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+  if (!_prisma) _prisma = new PrismaClient({ datasources: { db: { url: process.env.ORGANIZACAO_DATABASE_URL } } })
   return _prisma
 }
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''

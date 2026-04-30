@@ -66,7 +66,7 @@ accessRouter.get('/permissoes-acesso/verificar', async (req, res, next) => {
 
     // 2. Verifica se o produto está habilitado para a organização
     const productConfig = await productConfigService.getConfig(id_organizacao, productKey)
-    if (!productConfig?.ativo_config_produto_gravity) {
+    if (!productConfig?.ativo_configuracao_produto_gravity) {
       res.json({ allowed: false, reason: 'PRODUCT_NOT_ENABLED' })
       return
     }
@@ -111,9 +111,14 @@ accessRouter.get('/organizacao-produtos', async (req, res, next) => {
     const products = await productConfigService.listActiveProducts(id_organizacao)
 
     // Retorna também os inativos para que o Shell saiba o que esconder
-    const allConfigs = await prisma.produtoGravityConfig.findMany({
-      where: { tenant_id: id_organizacao },
-      select: { product_key: true, is_active: true, config: true, updated_at: true },
+    const allConfigs = await prisma.produtoGravityConfiguracao.findMany({
+      where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+      select: {
+        chave_produto_configuracao_produto_gravity: true,
+        ativo_configuracao_produto_gravity: true,
+        configuracao_config_produto_gravity: true,
+        data_atualizacao_configuracao_produto_gravity: true,
+      },
     })
 
     res.json({ tenant_id: id_organizacao, products: allConfigs })
@@ -179,19 +184,23 @@ accessRouter.patch('/produtos-gravity/:id_produto_gravity/status', async (req, r
       throw new AppError(`Status inválido. Use: ${validStatuses.join(', ')}`, 400, 'VALIDATION_ERROR')
     }
 
-    const product = await prisma.catalogProduct.findFirst({
-      where: { slug: req.params.id_produto_gravity },
+    const product = await prisma.produtoGravity.findFirst({
+      where: { slug_produto_gravity: req.params.id_produto_gravity },
     })
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.catalogProduct.update({
-      where: { id: product.id },
-      data: { status },
+    const updated = await prisma.produtoGravity.update({
+      where: { id_produto_gravity: product.id_produto_gravity },
+      data: { status_produto_gravity: status },
     })
 
-    res.json({ id: updated.id, slug: updated.slug, status: updated.status })
+    res.json({
+      id: updated.id_produto_gravity,
+      slug: updated.slug_produto_gravity,
+      status: updated.status_produto_gravity,
+    })
   } catch (err) {
     next(err)
   }
@@ -224,7 +233,7 @@ accessRouter.get('/permissoes-acesso/produtos-permitidos', async (req, res, next
     // DTO: ConfiguracaoProduto rename → contrato legado
     res.json({
       config: config.configuracao_config_produto_gravity,
-      is_active: config.ativo_config_produto_gravity,
+      is_active: config.ativo_configuracao_produto_gravity,
     })
   } catch (err) {
     next(err)

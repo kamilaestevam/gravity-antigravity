@@ -39,7 +39,7 @@ adminNcmIntegracaoRouter.get('/', async (_req, res, next) => {
       tenantPrisma.ncmItem.count({ where: { ativo: true } }),
       tenantPrisma.ncmItem.findMany({ select: { tenant_id: true }, distinct: ['tenant_id'] }),
       tenantPrisma.ncmSyncLog.count({ where: { status: 'ERROR', iniciado_em: { gte: limite48h } } }),
-      configuradorPrisma.tenant.count().catch(() => 0),
+      configuradorPrisma.organizacao.count().catch(() => 0),
     ])
 
     const statusAtual = emAndamento ? 'RUNNING' : (ultimaSyncCompleta?.status ?? null)
@@ -123,7 +123,7 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
 
     AuditService.log({
       tenant_id:     req.auth.id_organizacao,
-      actor_type:    'USER',
+      actor_type:    'USUARIO',
       actor_id:      req.auth.id_usuario,
       actor_name:    req.auth.id_usuario,
       actor_ip:      req.ip,
@@ -132,7 +132,7 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
       action:        'NCM_SYNC_MANUAL',
       action_detail: `Sync OK para tenant ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
       after:         { id_organizacao, ...result },
-      status:        'SUCCESS',
+      status:        'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({ sucesso: true, ...result, duracaoMs: Date.now() - startMs })
@@ -198,7 +198,7 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
 
     AuditService.log({
       tenant_id:     req.auth.id_organizacao,
-      actor_type:    'USER',
+      actor_type:    'USUARIO',
       actor_id:      req.auth.id_usuario,
       actor_name:    req.auth.id_usuario,
       actor_ip:      req.ip,
@@ -207,7 +207,7 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
       action:        'NCM_SCHEDULE_UPDATED',
       action_detail: `Agendamento ${ativo ? 'ativado' : 'desativado'} — cron: ${cron_expressao}`,
       after:         config,
-      status:        'SUCCESS',
+      status:        'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
     res.json({
@@ -253,9 +253,9 @@ adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) =>
     }
 
     // Todos os tenants ativos
-    const tenants = await configuradorPrisma.tenant.findMany({
-      select: { id: true },
-      where:  { status: 'ATIVO' },
+    const tenants = await configuradorPrisma.organizacao.findMany({
+      select: { id_organizacao: true },
+      where:  { status_organizacao: 'ATIVO' },
     })
 
     if (tenants.length === 0) {
@@ -263,7 +263,7 @@ adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) =>
     }
 
     const resultados: Array<Record<string, unknown>> = []
-    for (const { id: tid } of tenants) {
+    for (const { id_organizacao: tid } of tenants) {
       try {
         const r = await executarSync(tenantPrisma, tid, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
         resultados.push({ tenant_id: tid, sucesso: true, ...r })

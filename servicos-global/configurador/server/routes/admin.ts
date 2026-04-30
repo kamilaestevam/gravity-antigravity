@@ -486,7 +486,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
             where: { ativo_usuario_workspace: true },
             select: {
               id_usuario_workspace: true,
-              id_workspace_usuario_workspace: true,
+              id_workspace: true,
               tipo_usuario_workspace: true,
               ativo_usuario_workspace: true,
               company: {
@@ -526,7 +526,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       // DTO: UsuarioWorkspace rename → contrato externo legado
       memberships: memberships.map((m) => ({
         id: m.id_usuario_workspace,
-        company_id: m.id_workspace_usuario_workspace,
+        company_id: m.id_workspace,
         tipo_usuario: m.tipo_usuario_workspace,
         is_active: m.ativo_usuario_workspace,
         company: {
@@ -1255,15 +1255,15 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
-    let extras: { segmento_organizacao?: string | null; tipo_empresa_organizacao?: string | null } = {}
+    let extras: { segmento_organizacao?: string | null; tipo_organizacao?: string | null } = {}
     try {
       const row = await prisma.organizacao.findUnique({
         where: { id_organizacao: tenant.id_organizacao },
-        select: { segmento_organizacao: true, tipo_empresa_organizacao: true },
+        select: { segmento_organizacao: true, tipo_organizacao: true },
       })
       if (row) extras = row
     } catch {
-      // Colunas segmento_organizacao/tipo_empresa_organizacao ainda não migradas — retorna sem elas
+      // Colunas segmento_organizacao/tipo_organizacao ainda não migradas — retorna sem elas
     }
 
     // DTO: id_organizacao → id legado do contrato
@@ -1284,7 +1284,7 @@ const PlatformConfigSchema = z.object({
   estado_organizacao: z.string().max(2).optional(),
   cidade_organizacao: z.string().max(200).optional(),
   segmento_organizacao: z.string().max(200).optional(),
-  tipo_empresa_organizacao: z.string().max(500).optional(),
+  tipo_organizacao: z.string().max(500).optional(),
 })
 
 /**
@@ -1439,7 +1439,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
 
     const before = await prisma.organizacao.findUnique({
       where: { id_organizacao: user.id_organizacao },
-      select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
+      select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
@@ -1453,7 +1453,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
         estado_organizacao: true,
         cidade_organizacao: true,
         segmento_organizacao: true,
-        tipo_empresa_organizacao: true,
+        tipo_organizacao: true,
         data_criacao_organizacao: true,
       },
     })
@@ -2185,7 +2185,7 @@ adminRouter.post('/testes-gerais/pentest', async (req, res, next) => {
         action: 'PENTEST_COMPLETED',
         action_detail: `ZAP ${scanType} scan em ${targetUrl} — exit code ${code}`,
         after: { targetUrl, scanType, exitCode: code, reportFile },
-        status: code === 0 ? 'SUCCESS' : 'PARTIAL',
+        status: code === 0 ? 'SUCESSO' : 'PARCIAL',
       }).catch(() => { /* fire-and-forget */ })
     })
 

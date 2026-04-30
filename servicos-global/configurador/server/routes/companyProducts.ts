@@ -26,7 +26,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: id_workspace, id_organizacao_workspace: req.auth.id_organizacao },
+      where: { id_workspace: id_workspace, id_organizacao: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -35,31 +35,32 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const [companyProducts, tenantConfigs] = await Promise.all([
       prisma.produtoGravityWorkspace.findMany({
         where: {
-          id_workspace_produto_gravity_workspace: id_workspace,
-          id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
+          id_workspace: id_workspace,
+          id_organizacao: req.auth.id_organizacao,
         },
-        orderBy: { data_criacao_produto_gravity_workspace: 'desc' },
+        include: { produto: true },
+        orderBy: { data_contratacao_produto_gravity_workspace: 'desc' },
       }),
       // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
       prisma.produtoGravityConfiguracao.findMany({
         where: {
-          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
-          ativo_config_produto_gravity: true,
+          id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
+          ativo_configuracao_produto_gravity: true,
         },
       }),
     ])
 
     // Merge: prefere companyProduct; preenche com productConfig se não existir
-    const companyKeys = new Set(
-      companyProducts.map(cp => cp.chave_produto_produto_gravity_workspace),
+    const companyProductSlugs = new Set(
+      companyProducts.map(cp => cp.produto.slug_produto_gravity),
     )
     const fallbackConfigs = tenantConfigs.filter(
-      tc => !companyKeys.has(tc.chave_produto_config_produto_gravity),
+      tc => !companyProductSlugs.has(tc.chave_produto_configuracao_produto_gravity),
     )
 
     const allKeys = [
-      ...companyProducts.map(cp => cp.chave_produto_produto_gravity_workspace),
-      ...fallbackConfigs.map(tc => tc.chave_produto_config_produto_gravity),
+      ...companyProducts.map(cp => cp.produto.slug_produto_gravity),
+      ...fallbackConfigs.map(tc => tc.chave_produto_configuracao_produto_gravity),
     ]
 
     // Enriquece com dados do catálogo
@@ -80,17 +81,17 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const products = [
       ...companyProducts.map(cp => ({
         id: cp.id_produto_gravity_workspace,
-        product_key: cp.chave_produto_produto_gravity_workspace,
+        product_key: cp.produto.slug_produto_gravity,
         is_active: cp.ativo_produto_gravity_workspace,
-        activated_at: cp.data_criacao_produto_gravity_workspace,
-        catalog: catalogMap.get(cp.chave_produto_produto_gravity_workspace) ?? null,
+        activated_at: cp.data_contratacao_produto_gravity_workspace,
+        catalog: catalogMap.get(cp.produto.slug_produto_gravity) ?? null,
       })),
       ...fallbackConfigs.map(tc => ({
-        id: tc.id_config_produto_gravity,
-        product_key: tc.chave_produto_config_produto_gravity,
+        id: tc.id_configuracao_produto_gravity,
+        product_key: tc.chave_produto_configuracao_produto_gravity,
         is_active: true,
-        activated_at: tc.data_criacao_config_produto_gravity,
-        catalog: catalogMap.get(tc.chave_produto_config_produto_gravity) ?? null,
+        activated_at: tc.data_criacao_configuracao_produto_gravity,
+        catalog: catalogMap.get(tc.chave_produto_configuracao_produto_gravity) ?? null,
       })),
     ]
 
@@ -116,7 +117,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
 
     // Verifica se o workspace pertence ao tenant
     const company = await prisma.workspace.findFirst({
-      where: { id_workspace: id_workspace, id_organizacao_workspace: req.auth.id_organizacao },
+      where: { id_workspace: id_workspace, id_organizacao: req.auth.id_organizacao },
     })
     if (!company) {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
@@ -125,13 +126,13 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     // Verifica se o tenant contratou o produto
     const tenantProduct = await prisma.produtoGravityConfiguracao.findUnique({
       where: {
-        id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
-          chave_produto_config_produto_gravity: product_key,
+        id_organizacao_configuracao_produto_gravity_chave_produto_configuracao_produto_gravity: {
+          id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
+          chave_produto_configuracao_produto_gravity: product_key,
         },
       },
     })
-    if (!tenantProduct || !tenantProduct.ativo_config_produto_gravity) {
+    if (!tenantProduct || !tenantProduct.ativo_configuracao_produto_gravity) {
       throw new AppError(
         'Produto não contratado pelo tenant. Contrate primeiro via Store.',
         403,
@@ -139,18 +140,27 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
       )
     }
 
+    // Resolve product_key (slug) → id_produto_gravity
+    const produtoCatalogo = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: product_key },
+      select: { id_produto_gravity: true, slug_produto_gravity: true },
+    })
+    if (!produtoCatalogo) {
+      throw new AppError('Produto não encontrado no catálogo', 404, 'NOT_FOUND')
+    }
+
     // Ativa ou reativa no workspace
     const companyProduct = await prisma.produtoGravityWorkspace.upsert({
       where: {
-        id_workspace_produto_gravity_workspace_chave_produto_produto_gravity_workspace: {
-          id_workspace_produto_gravity_workspace: id_workspace,
-          chave_produto_produto_gravity_workspace: product_key,
+        id_workspace_id_produto_gravity: {
+          id_workspace: id_workspace,
+          id_produto_gravity: produtoCatalogo.id_produto_gravity,
         },
       },
       create: {
-        id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
-        id_workspace_produto_gravity_workspace: id_workspace,
-        chave_produto_produto_gravity_workspace: product_key,
+        id_organizacao: req.auth.id_organizacao,
+        id_workspace: id_workspace,
+        id_produto_gravity: produtoCatalogo.id_produto_gravity,
         ativo_produto_gravity_workspace: true,
       },
       update: {
@@ -162,11 +172,11 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     res.status(201).json({
       companyProduct: {
         id: companyProduct.id_produto_gravity_workspace,
-        tenant_id: companyProduct.id_organizacao_produto_gravity_workspace,
-        company_id: companyProduct.id_workspace_produto_gravity_workspace,
-        product_key: companyProduct.chave_produto_produto_gravity_workspace,
+        tenant_id: companyProduct.id_organizacao,
+        company_id: companyProduct.id_workspace,
+        product_key: produtoCatalogo.slug_produto_gravity,
         is_active: companyProduct.ativo_produto_gravity_workspace,
-        created_at: companyProduct.data_criacao_produto_gravity_workspace,
+        created_at: companyProduct.data_contratacao_produto_gravity_workspace,
         updated_at: companyProduct.data_atualizacao_produto_gravity_workspace,
       },
     })
@@ -183,11 +193,21 @@ companyProductsRouter.delete('/:id_produto_gravity', requireAuth, async (req, re
   try {
     const { id_workspace, id_produto_gravity: productKey } = req.params
 
+    // Resolve slug → id_produto_gravity
+    const produtoCatalogo = await prisma.produtoGravity.findUnique({
+      where: { slug_produto_gravity: productKey },
+      select: { id_produto_gravity: true },
+    })
+    if (!produtoCatalogo) {
+      res.json({ ok: true })
+      return
+    }
+
     await prisma.produtoGravityWorkspace.updateMany({
       where: {
-        id_workspace_produto_gravity_workspace: id_workspace,
-        chave_produto_produto_gravity_workspace: productKey,
-        id_organizacao_produto_gravity_workspace: req.auth.id_organizacao,
+        id_workspace: id_workspace,
+        id_produto_gravity: produtoCatalogo.id_produto_gravity,
+        id_organizacao: req.auth.id_organizacao,
       },
       data: { ativo_produto_gravity_workspace: false },
     })

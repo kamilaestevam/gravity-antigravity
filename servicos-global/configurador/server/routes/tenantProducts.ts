@@ -32,12 +32,12 @@ const SubscribeSchema = z.object({
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
     const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: { id_organizacao_config_produto_gravity: req.auth.id_organizacao },
-      orderBy: { data_criacao_config_produto_gravity: 'desc' },
+      where: { id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao },
+      orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },
     })
 
     // Enriquece com dados do catálogo
-    const slugs = configs.map(c => c.chave_produto_config_produto_gravity)
+    const slugs = configs.map(c => c.chave_produto_configuracao_produto_gravity)
     const catalogRows = await prisma.produtoGravity.findMany({
       where: { slug_produto_gravity: { in: slugs } },
     })
@@ -53,11 +53,11 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // DTO: ConfiguracaoProduto rename → contrato legado
     const products = configs.map(c => ({
-      product_key: c.chave_produto_config_produto_gravity,
-      is_active: c.ativo_config_produto_gravity,
+      product_key: c.chave_produto_configuracao_produto_gravity,
+      is_active: c.ativo_configuracao_produto_gravity,
       config: c.configuracao_config_produto_gravity,
-      subscribed_at: c.data_criacao_config_produto_gravity,
-      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
+      subscribed_at: c.data_criacao_configuracao_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_configuracao_produto_gravity) ?? null,
     }))
 
     res.json({ products })
@@ -97,19 +97,19 @@ tenantProductsRouter.post('/assinar-produto', requireAuth, async (req, res, next
     // Cria ou reativa o ProductConfig
     const config = await prisma.produtoGravityConfiguracao.upsert({
       where: {
-        id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
-          id_organizacao_config_produto_gravity: req.auth.id_organizacao,
-          chave_produto_config_produto_gravity: product_key,
+        id_organizacao_configuracao_produto_gravity_chave_produto_configuracao_produto_gravity: {
+          id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
+          chave_produto_configuracao_produto_gravity: product_key,
         },
       },
       create: {
-        id_organizacao_config_produto_gravity: req.auth.id_organizacao,
-        chave_produto_config_produto_gravity: product_key,
+        id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
+        chave_produto_configuracao_produto_gravity: product_key,
         configuracao_config_produto_gravity: {},
-        ativo_config_produto_gravity: true,
+        ativo_configuracao_produto_gravity: true,
       },
       update: {
-        ativo_config_produto_gravity: true,
+        ativo_configuracao_produto_gravity: true,
       },
     })
 
@@ -128,10 +128,10 @@ tenantProductsRouter.delete('/:id_organizacao', requireAuth, async (req, res, ne
   try {
     await prisma.produtoGravityConfiguracao.updateMany({
       where: {
-        id_organizacao_config_produto_gravity: req.auth.id_organizacao,
-        chave_produto_config_produto_gravity: req.params.id_organizacao,
+        id_organizacao_configuracao_produto_gravity: req.auth.id_organizacao,
+        chave_produto_configuracao_produto_gravity: req.params.id_organizacao,
       },
-      data: { ativo_config_produto_gravity: false },
+      data: { ativo_configuracao_produto_gravity: false },
     })
     res.json({ ok: true })
   } catch (err) {
@@ -161,19 +161,19 @@ tenantProductsRouter.get('/:id_organizacao/produtos', requireAuth, requireGravit
     }
 
     const configs = await prisma.produtoGravityConfiguracao.findMany({
-      where: { id_organizacao_config_produto_gravity: id_organizacao },
-      orderBy: { data_criacao_config_produto_gravity: 'desc' },
+      where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+      orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },
     })
 
     // DTO: ConfiguracaoProduto rename → contrato legado para painel admin
     const productsDto = configs.map(c => ({
-      id: c.id_config_produto_gravity,
-      tenant_id: c.id_organizacao_config_produto_gravity,
-      product_key: c.chave_produto_config_produto_gravity,
+      id: c.id_configuracao_produto_gravity,
+      tenant_id: c.id_organizacao_configuracao_produto_gravity,
+      product_key: c.chave_produto_configuracao_produto_gravity,
       config: c.configuracao_config_produto_gravity,
-      is_active: c.ativo_config_produto_gravity,
-      created_at: c.data_criacao_config_produto_gravity,
-      updated_at: c.data_atualizacao_config_produto_gravity,
+      is_active: c.ativo_configuracao_produto_gravity,
+      created_at: c.data_criacao_configuracao_produto_gravity,
+      updated_at: c.data_atualizacao_configuracao_produto_gravity,
     }))
 
     res.json({ tenant_id: tenant.id_organizacao, tenant_name: tenant.nome_organizacao, products: productsDto })

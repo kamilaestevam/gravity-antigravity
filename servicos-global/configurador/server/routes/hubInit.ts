@@ -59,8 +59,8 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       tenantService.getTenantById(id_organizacao),
       tenantService.getCompanies(id_organizacao),
       prisma.produtoGravityConfiguracao.findMany({
-        where: { id_organizacao_config_produto_gravity: id_organizacao },
-        orderBy: { data_criacao_config_produto_gravity: 'desc' },
+        where: { id_organizacao_configuracao_produto_gravity: id_organizacao },
+        orderBy: { data_criacao_configuracao_produto_gravity: 'desc' },
       }).catch(() => []),
       prisma.produtoGravity.findMany({
         select: {
@@ -83,7 +83,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         ? Promise.resolve(null)
         : prisma.usuario.findUnique({
             where: { id_usuario: id_usuario },
-            select: { preferred_company_id: true },
+            select: { id_workspace_preferido_usuario: true },
           }).catch(() => null),
     ])
 
@@ -92,30 +92,30 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
 
     // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub
     const products = configs.map(c => ({
-      product_key: c.chave_produto_config_produto_gravity,
-      is_active: c.ativo_config_produto_gravity,
+      product_key: c.chave_produto_configuracao_produto_gravity,
+      is_active: c.ativo_configuracao_produto_gravity,
       config: c.configuracao_config_produto_gravity,
-      subscribed_at: c.data_criacao_config_produto_gravity,
-      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
+      subscribed_at: c.data_criacao_configuracao_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_configuracao_produto_gravity) ?? null,
     }))
 
     // Workspace preferido — valida que ainda aponta para company ATIVA
     // onde o usuário tem membership ativa. Se inválido, retorna null
     // (frontend mostra tela de seleção normalmente).
     let preferredCompanyId: string | null = null
-    if (userPref?.preferred_company_id) {
+    if (userPref?.id_workspace_preferido_usuario) {
       const stillValid = companies.some(
         (c: { id: string; status?: string }) =>
-          c.id === userPref.preferred_company_id && c.status !== 'INATIVO',
+          c.id === userPref.id_workspace_preferido_usuario && c.status !== 'INATIVO',
       )
       if (stillValid) {
-        preferredCompanyId = userPref.preferred_company_id
+        preferredCompanyId = userPref.id_workspace_preferido_usuario
       } else {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
         prisma.usuario
           .update({
             where: { id_usuario },
-            data: { preferred_company_id: null },
+            data: { id_workspace_preferido_usuario: null },
           })
           .catch(() => {
             // Ignora — próxima chamada tentará de novo
@@ -168,13 +168,13 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
     const configs = await prisma.produtoGravityConfiguracao.findMany({
       where: {
-        id_organizacao_config_produto_gravity: id_organizacao,
-        ativo_config_produto_gravity: true,
+        id_organizacao_configuracao_produto_gravity: id_organizacao,
+        ativo_configuracao_produto_gravity: true,
       },
-      select: { chave_produto_config_produto_gravity: true },
+      select: { chave_produto_configuracao_produto_gravity: true },
     })
 
-    const activeProductKeys = new Set(configs.map(c => c.chave_produto_config_produto_gravity))
+    const activeProductKeys = new Set(configs.map(c => c.chave_produto_configuracao_produto_gravity))
 
     const insights = await generateHubInsights(
       id_organizacao,

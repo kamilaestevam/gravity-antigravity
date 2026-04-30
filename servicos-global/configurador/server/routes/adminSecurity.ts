@@ -110,21 +110,21 @@ async function fetchHealthSnapshot(): Promise<HealthCacheEntry['data']> {
   // Persistir snapshot no banco (fire-and-forget — não bloqueia response se upsert falhar)
   Promise.all(
     results.map((result) =>
-      prisma.servicos.upsert({
-        where: { servico_servicos: result.service },
+      prisma.servicoGravity.upsert({
+        where: { nome_servico_gravity: result.service },
         create: {
-          servico_servicos: result.service,
-          url_servicos: SERVICES.find((s) => s.name === result.service)?.url || '',
-          status_servicos: result.status,
-          latencia_ms_servicos: result.latency_ms,
-          ultimo_erro_servicos: result.error || null,
-          data_verificacao_servicos: new Date(),
+          nome_servico_gravity: result.service,
+          url_servico_gravity: SERVICES.find((s) => s.name === result.service)?.url || '',
+          status_servico_gravity: result.status,
+          latencia_ms_servico_gravity: result.latency_ms,
+          ultimo_erro_servico_gravity: result.error || null,
+          data_verificacao_servico_gravity: new Date(),
         },
         update: {
-          status_servicos: result.status,
-          latencia_ms_servicos: result.latency_ms,
-          ultimo_erro_servicos: result.error || null,
-          data_verificacao_servicos: new Date(),
+          status_servico_gravity: result.status,
+          latencia_ms_servico_gravity: result.latency_ms,
+          ultimo_erro_servico_gravity: result.error || null,
+          data_verificacao_servico_gravity: new Date(),
         },
       }),
     ),
@@ -207,7 +207,7 @@ async function fetchRateLimitMetrics() {
   const metrics = rows.map((r) => ({
     id: r.id_requisicoes,
     key: r.chave_requisicoes,
-    tenant_id: r.id_organizacao_requisicoes,
+    tenant_id: r.id_organizacao,
     ip: r.ip_requisicoes,
     endpoint: r.endpoint_requisicoes,
     count: r.contagem_requisicoes,
@@ -237,7 +237,7 @@ function auditPanelAccess(req: Request, action: string): void {
   // Fire-and-forget: registra o acesso ao painel de segurança via AuditService
   AuditService.log({
     tenant_id: req.auth.id_organizacao,
-    actor_type: 'USER',
+    actor_type: 'USUARIO',
     actor_id: req.auth.id_usuario,
     actor_name: req.auth.id_usuario,
     actor_ip: req.ip,
@@ -245,7 +245,7 @@ function auditPanelAccess(req: Request, action: string): void {
     resource_type: 'SecurityPanel',
     action,
     action_detail: `Painel de segurança — ${action}`,
-    status: 'SUCCESS',
+    status: 'SUCESSO',
   }).catch(() => { /* fire-and-forget */ })
 }
 
@@ -289,7 +289,7 @@ adminSecurityRouter.get('/', async (req, res, next) => {
     const where: Record<string, unknown> = {}
     if (query.severity) where.severidade_seguranca = query.severity
     if (query.action) where.acao_seguranca = query.action
-    if (query.tenant_id) where.id_organizacao_seguranca = query.tenant_id
+    if (query.tenant_id) where.id_organizacao = query.tenant_id
 
     const [events, total] = await Promise.all([
       prisma.seguranca.findMany({
@@ -304,7 +304,7 @@ adminSecurityRouter.get('/', async (req, res, next) => {
     // DTO: Seguranca rename → contrato legado da UI
     const eventsDto = events.map((e) => ({
       id: e.id_seguranca,
-      tenant_id: e.id_organizacao_seguranca,
+      tenant_id: e.id_organizacao,
       actor_id: e.id_ator_seguranca,
       actor_type: e.tipo_ator_seguranca,
       action: e.acao_seguranca,
@@ -313,8 +313,8 @@ adminSecurityRouter.get('/', async (req, res, next) => {
       description: e.descricao_seguranca,
       ip: e.ip_seguranca,
       endpoint: e.endpoint_seguranca,
-      user_id: e.id_usuario_seguranca,
-      product_id: e.id_produto_seguranca,
+      user_id: e.id_usuario,
+      product_id: e.id_produto_gravity,
       correlation_id: e.id_correlacao_seguranca,
       metadata: e.metadata_seguranca,
       created_at: e.data_criacao_seguranca,
@@ -411,7 +411,7 @@ adminSecurityInternalRouter.post('/', requireInternalKey, async (req, res, next)
     // Mapeia campos legados do Zod para o schema Prisma renomeado
     const event = await prisma.seguranca.create({
       data: {
-        id_organizacao_seguranca: data.tenant_id,
+        id_organizacao: data.tenant_id,
         id_ator_seguranca: data.actor_id,
         tipo_ator_seguranca: data.actor_type,
         acao_seguranca: data.action,
@@ -420,8 +420,8 @@ adminSecurityInternalRouter.post('/', requireInternalKey, async (req, res, next)
         descricao_seguranca: data.description,
         ip_seguranca: data.ip,
         endpoint_seguranca: data.endpoint,
-        id_usuario_seguranca: data.user_id,
-        id_produto_seguranca: data.product_id,
+        id_usuario: data.user_id,
+        id_produto_gravity: data.product_id,
         id_correlacao_seguranca: data.correlation_id,
         metadata_seguranca: data.metadata as Prisma.InputJsonValue | undefined,
       },
@@ -430,7 +430,7 @@ adminSecurityInternalRouter.post('/', requireInternalKey, async (req, res, next)
     res.status(201).json({
       event: {
         id: event.id_seguranca,
-        tenant_id: event.id_organizacao_seguranca,
+        tenant_id: event.id_organizacao,
         actor_id: event.id_ator_seguranca,
         actor_type: event.tipo_ator_seguranca,
         action: event.acao_seguranca,
@@ -439,8 +439,8 @@ adminSecurityInternalRouter.post('/', requireInternalKey, async (req, res, next)
         description: event.descricao_seguranca,
         ip: event.ip_seguranca,
         endpoint: event.endpoint_seguranca,
-        user_id: event.id_usuario_seguranca,
-        product_id: event.id_produto_seguranca,
+        user_id: event.id_usuario,
+        product_id: event.id_produto_gravity,
         correlation_id: event.id_correlacao_seguranca,
         metadata: event.metadata_seguranca,
         created_at: event.data_criacao_seguranca,

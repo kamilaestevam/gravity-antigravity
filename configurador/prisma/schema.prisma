@@ -173,28 +173,27 @@ model ProdutoGravityAssinatura {
 // ---------------------------------------------------------------------------
 
 model UsuarioPermissao {
-  id_usuario_permissao             String @id @default(cuid())
-  id_organizacao_usuario_permissao String
-  id_workspace_usuario_permissao   String // workspace onde se aplica (obrigatório)
-  id_usuario_usuario_permissao     String
-  id_produto_usuario_permissao     String // produto ao qual a permissão pertence
-  permissao_usuario_permissao      String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
-  concedido_por_usuario_permissao  String // clerk_id do Master que concedeu a permissão
+  id_usuario_permissao            String @id @default(cuid())
+  id_organizacao                  String
+  id_workspace                    String // workspace onde se aplica (obrigatório)
+  id_usuario                      String
+  id_produto_gravity              String // produto ao qual a permissão pertence
+  permissao_usuario               String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  permissao_usuario_concedido_por String // clerk_id do Master que concedeu a permissão
 
   // Timestamps
-  data_criacao_usuario_permissao     DateTime @default(now())
-  data_atualizacao_usuario_permissao DateTime @updatedAt
+  data_criacao_permissao_usuario     DateTime @default(now())
+  data_atualizacao_permissao_usuario DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [id_organizacao_usuario_permissao], references: [id_organizacao], onDelete: Cascade)
-  user   Usuario     @relation(fields: [id_usuario_usuario_permissao], references: [id_usuario], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "usuario_permissao_id_organizacao_fkey")
+  user   Usuario     @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "usuario_permissao_id_usuario_fkey")
 
   // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
-  @@unique([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao, id_produto_usuario_permissao, permissao_usuario_permissao])
-  // Índices obrigatórios
-  @@index([id_organizacao_usuario_permissao])
-  @@index([id_organizacao_usuario_permissao, id_usuario_usuario_permissao])
-  @@index([id_organizacao_usuario_permissao, id_workspace_usuario_permissao, id_usuario_usuario_permissao])
+  @@unique([id_organizacao, id_workspace, id_usuario, id_produto_gravity, permissao_usuario], map: "usuario_permissao_org_ws_usu_prod_perm_unq")
+  @@index([id_organizacao],                                map: "usuario_permissao_id_organizacao_idx")
+  @@index([id_organizacao, id_usuario],                    map: "usuario_permissao_id_organizacao_usuario_idx")
+  @@index([id_organizacao, id_workspace, id_usuario],      map: "usuario_permissao_id_organizacao_workspace_usuario_idx")
   @@map("usuario_permissao")
 }
 

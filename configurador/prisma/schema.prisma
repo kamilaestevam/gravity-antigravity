@@ -767,8 +767,8 @@ model ProdutoGravityFatura {
   data_criacao_fatura_produtos_gravity      DateTime            @default(now())
   data_atualizacao_fatura_produtos_gravity  DateTime            @updatedAt
 
-  @@index([id_organizacao_fatura_produtos_gravity], map: "fpg_org_idx")
-  @@index([status_fatura_produtos_gravity], map: "fpg_status_idx")
+  @@index([id_organizacao_fatura_produtos_gravity], map: "fatura_produtos_gravity_tenant_id_idx")
+  @@index([status_fatura_produtos_gravity], map: "fatura_produtos_gravity_status_fatura_servicos_gravity_idx")
   @@map("fatura_produtos_gravity")
 }
 

@@ -424,6 +424,7 @@ exports.Prisma.TesteAgendamentoScalarFieldEnum = {
 exports.Prisma.TestePlanoScalarFieldEnum = {
   id_plano_teste: 'id_plano_teste',
   id_organizacao_plano_teste: 'id_organizacao_plano_teste',
+  nome_plano_teste: 'nome_plano_teste',
   versao_plano_teste: 'versao_plano_teste',
   tipo_plano_teste: 'tipo_plano_teste',
   escopo_plano_teste: 'escopo_plano_teste',

@@ -754,6 +754,7 @@ model TesteAgendamento {
 model TestePlano {
   id_plano_teste                 String    @id // TST-E2E-CONFIG-000001
   id_organizacao_plano_teste     String    @default("platform")
+  nome_plano_teste               String
   versao_plano_teste             String    @default("1.0")
   tipo_plano_teste               String // UNI | CON | FUN | CRO | E2E | PEN
   escopo_plano_teste             String // LOGIN | CONFIG | ...

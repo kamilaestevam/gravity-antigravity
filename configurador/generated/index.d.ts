@@ -23782,6 +23782,7 @@ export namespace Prisma {
   export type TestePlanoMinAggregateOutputType = {
     id_plano_teste: string | null
     id_organizacao_plano_teste: string | null
+    nome_plano_teste: string | null
     versao_plano_teste: string | null
     tipo_plano_teste: string | null
     escopo_plano_teste: string | null
@@ -23805,6 +23806,7 @@ export namespace Prisma {
   export type TestePlanoMaxAggregateOutputType = {
     id_plano_teste: string | null
     id_organizacao_plano_teste: string | null
+    nome_plano_teste: string | null
     versao_plano_teste: string | null
     tipo_plano_teste: string | null
     escopo_plano_teste: string | null
@@ -23828,6 +23830,7 @@ export namespace Prisma {
   export type TestePlanoCountAggregateOutputType = {
     id_plano_teste: number
     id_organizacao_plano_teste: number
+    nome_plano_teste: number
     versao_plano_teste: number
     tipo_plano_teste: number
     escopo_plano_teste: number
@@ -23865,6 +23868,7 @@ export namespace Prisma {
   export type TestePlanoMinAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
+    nome_plano_teste?: true
     versao_plano_teste?: true
     tipo_plano_teste?: true
     escopo_plano_teste?: true
@@ -23888,6 +23892,7 @@ export namespace Prisma {
   export type TestePlanoMaxAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
+    nome_plano_teste?: true
     versao_plano_teste?: true
     tipo_plano_teste?: true
     escopo_plano_teste?: true
@@ -23911,6 +23916,7 @@ export namespace Prisma {
   export type TestePlanoCountAggregateInputType = {
     id_plano_teste?: true
     id_organizacao_plano_teste?: true
+    nome_plano_teste?: true
     versao_plano_teste?: true
     tipo_plano_teste?: true
     escopo_plano_teste?: true
@@ -24023,6 +24029,7 @@ export namespace Prisma {
   export type TestePlanoGroupByOutputType = {
     id_plano_teste: string
     id_organizacao_plano_teste: string
+    nome_plano_teste: string
     versao_plano_teste: string
     tipo_plano_teste: string
     escopo_plano_teste: string
@@ -24067,6 +24074,7 @@ export namespace Prisma {
   export type TestePlanoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
+    nome_plano_teste?: boolean
     versao_plano_teste?: boolean
     tipo_plano_teste?: boolean
     escopo_plano_teste?: boolean
@@ -24092,6 +24100,7 @@ export namespace Prisma {
   export type TestePlanoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
+    nome_plano_teste?: boolean
     versao_plano_teste?: boolean
     tipo_plano_teste?: boolean
     escopo_plano_teste?: boolean
@@ -24117,6 +24126,7 @@ export namespace Prisma {
   export type TestePlanoSelectScalar = {
     id_plano_teste?: boolean
     id_organizacao_plano_teste?: boolean
+    nome_plano_teste?: boolean
     versao_plano_teste?: boolean
     tipo_plano_teste?: boolean
     escopo_plano_teste?: boolean
@@ -24146,6 +24156,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id_plano_teste: string
       id_organizacao_plano_teste: string
+      nome_plano_teste: string
       versao_plano_teste: string
       tipo_plano_teste: string
       escopo_plano_teste: string
@@ -24561,6 +24572,7 @@ export namespace Prisma {
   interface TestePlanoFieldRefs {
     readonly id_plano_teste: FieldRef<"TestePlano", 'String'>
     readonly id_organizacao_plano_teste: FieldRef<"TestePlano", 'String'>
+    readonly nome_plano_teste: FieldRef<"TestePlano", 'String'>
     readonly versao_plano_teste: FieldRef<"TestePlano", 'String'>
     readonly tipo_plano_teste: FieldRef<"TestePlano", 'String'>
     readonly escopo_plano_teste: FieldRef<"TestePlano", 'String'>
@@ -27261,6 +27273,7 @@ export namespace Prisma {
   export const TestePlanoScalarFieldEnum: {
     id_plano_teste: 'id_plano_teste',
     id_organizacao_plano_teste: 'id_organizacao_plano_teste',
+    nome_plano_teste: 'nome_plano_teste',
     versao_plano_teste: 'versao_plano_teste',
     tipo_plano_teste: 'tipo_plano_teste',
     escopo_plano_teste: 'escopo_plano_teste',
@@ -29469,6 +29482,7 @@ export namespace Prisma {
     NOT?: TestePlanoWhereInput | TestePlanoWhereInput[]
     id_plano_teste?: StringFilter<"TestePlano"> | string
     id_organizacao_plano_teste?: StringFilter<"TestePlano"> | string
+    nome_plano_teste?: StringFilter<"TestePlano"> | string
     versao_plano_teste?: StringFilter<"TestePlano"> | string
     tipo_plano_teste?: StringFilter<"TestePlano"> | string
     escopo_plano_teste?: StringFilter<"TestePlano"> | string
@@ -29494,6 +29508,7 @@ export namespace Prisma {
   export type TestePlanoOrderByWithRelationInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
+    nome_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
     tipo_plano_teste?: SortOrder
     escopo_plano_teste?: SortOrder
@@ -29522,6 +29537,7 @@ export namespace Prisma {
     OR?: TestePlanoWhereInput[]
     NOT?: TestePlanoWhereInput | TestePlanoWhereInput[]
     id_organizacao_plano_teste?: StringFilter<"TestePlano"> | string
+    nome_plano_teste?: StringFilter<"TestePlano"> | string
     versao_plano_teste?: StringFilter<"TestePlano"> | string
     tipo_plano_teste?: StringFilter<"TestePlano"> | string
     escopo_plano_teste?: StringFilter<"TestePlano"> | string
@@ -29547,6 +29563,7 @@ export namespace Prisma {
   export type TestePlanoOrderByWithAggregationInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
+    nome_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
     tipo_plano_teste?: SortOrder
     escopo_plano_teste?: SortOrder
@@ -29580,6 +29597,7 @@ export namespace Prisma {
     NOT?: TestePlanoScalarWhereWithAggregatesInput | TestePlanoScalarWhereWithAggregatesInput[]
     id_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
     id_organizacao_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
+    nome_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
     versao_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
     tipo_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
     escopo_plano_teste?: StringWithAggregatesFilter<"TestePlano"> | string
@@ -31921,6 +31939,7 @@ export namespace Prisma {
   export type TestePlanoCreateInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
+    nome_plano_teste: string
     versao_plano_teste?: string
     tipo_plano_teste: string
     escopo_plano_teste: string
@@ -31946,6 +31965,7 @@ export namespace Prisma {
   export type TestePlanoUncheckedCreateInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
+    nome_plano_teste: string
     versao_plano_teste?: string
     tipo_plano_teste: string
     escopo_plano_teste: string
@@ -31971,6 +31991,7 @@ export namespace Prisma {
   export type TestePlanoUpdateInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    nome_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
     tipo_plano_teste?: StringFieldUpdateOperationsInput | string
     escopo_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -31996,6 +32017,7 @@ export namespace Prisma {
   export type TestePlanoUncheckedUpdateInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    nome_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
     tipo_plano_teste?: StringFieldUpdateOperationsInput | string
     escopo_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -32021,6 +32043,7 @@ export namespace Prisma {
   export type TestePlanoCreateManyInput = {
     id_plano_teste: string
     id_organizacao_plano_teste?: string
+    nome_plano_teste: string
     versao_plano_teste?: string
     tipo_plano_teste: string
     escopo_plano_teste: string
@@ -32046,6 +32069,7 @@ export namespace Prisma {
   export type TestePlanoUpdateManyMutationInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    nome_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
     tipo_plano_teste?: StringFieldUpdateOperationsInput | string
     escopo_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -32071,6 +32095,7 @@ export namespace Prisma {
   export type TestePlanoUncheckedUpdateManyInput = {
     id_plano_teste?: StringFieldUpdateOperationsInput | string
     id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    nome_plano_teste?: StringFieldUpdateOperationsInput | string
     versao_plano_teste?: StringFieldUpdateOperationsInput | string
     tipo_plano_teste?: StringFieldUpdateOperationsInput | string
     escopo_plano_teste?: StringFieldUpdateOperationsInput | string
@@ -33966,6 +33991,7 @@ export namespace Prisma {
   export type TestePlanoCountOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
+    nome_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
     tipo_plano_teste?: SortOrder
     escopo_plano_teste?: SortOrder
@@ -33996,6 +34022,7 @@ export namespace Prisma {
   export type TestePlanoMaxOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
+    nome_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
     tipo_plano_teste?: SortOrder
     escopo_plano_teste?: SortOrder
@@ -34019,6 +34046,7 @@ export namespace Prisma {
   export type TestePlanoMinOrderByAggregateInput = {
     id_plano_teste?: SortOrder
     id_organizacao_plano_teste?: SortOrder
+    nome_plano_teste?: SortOrder
     versao_plano_teste?: SortOrder
     tipo_plano_teste?: SortOrder
     escopo_plano_teste?: SortOrder

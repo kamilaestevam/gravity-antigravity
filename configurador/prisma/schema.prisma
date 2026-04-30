@@ -226,27 +226,33 @@ model AdminGravityPermissao {
 // ---------------------------------------------------------------------------
 
 model Workspace {
-  id_workspace             String        @id @default(cuid())
-  id_organizacao_workspace String
+  id_workspace             String          @id @default(cuid())
+  id_organizacao           String
   nome_workspace           String
-  subdominio_workspace     String?       @unique
+  subdominio_workspace     String?         @unique(map: "workspace_subdominio_key")
   cnpj_workspace           String?
   status_workspace         WorkspaceStatus @default(ATIVO)
 
+  // Endereço/contato (opcionais)
+  cidade_workspace            String?
+  estado_workspace            String?
+  endereco_workspace          String?
+  email_contato_workspace     String?
+  telefone_contato_workspace  String?
+
   // Timestamps
-  data_criacao_workspace DateTime @default(now())
-  updated_at             DateTime @updatedAt
+  data_criacao_workspace     DateTime @default(now())
+  data_atualizacao_workspace DateTime @updatedAt
 
   // Relações
-  tenant             Organizacao               @relation(fields: [id_organizacao_workspace], references: [id_organizacao], onDelete: Cascade)
+  tenant             Organizacao               @relation(fields: [id_organizacao], references: [id_organizacao], onDelete: Cascade, map: "workspace_id_organizacao_fkey")
   memberships        UsuarioWorkspace[]
   company_products   ProdutoGravityWorkspace[]
   preferred_by_users Usuario[]                 @relation("UserPreferredCompany")
 
-  // Índices obrigatórios
-  @@index([id_organizacao_workspace])
-  @@index([id_organizacao_workspace, status_workspace])
-  @@index([id_organizacao_workspace, data_criacao_workspace])
+  @@index([id_organizacao],                          map: "workspace_id_organizacao_idx")
+  @@index([id_organizacao, status_workspace],        map: "workspace_id_organizacao_status_idx")
+  @@index([id_organizacao, data_criacao_workspace],  map: "workspace_id_organizacao_data_criacao_idx")
   @@map("workspace")
 }
 

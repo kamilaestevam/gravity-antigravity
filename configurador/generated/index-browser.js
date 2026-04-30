@@ -185,13 +185,18 @@ exports.Prisma.AdminGravityPermissaoScalarFieldEnum = {
 
 exports.Prisma.WorkspaceScalarFieldEnum = {
   id_workspace: 'id_workspace',
-  id_organizacao_workspace: 'id_organizacao_workspace',
+  id_organizacao: 'id_organizacao',
   nome_workspace: 'nome_workspace',
   subdominio_workspace: 'subdominio_workspace',
   cnpj_workspace: 'cnpj_workspace',
   status_workspace: 'status_workspace',
+  cidade_workspace: 'cidade_workspace',
+  estado_workspace: 'estado_workspace',
+  endereco_workspace: 'endereco_workspace',
+  email_contato_workspace: 'email_contato_workspace',
+  telefone_contato_workspace: 'telefone_contato_workspace',
   data_criacao_workspace: 'data_criacao_workspace',
-  updated_at: 'updated_at'
+  data_atualizacao_workspace: 'data_atualizacao_workspace'
 };
 
 exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {

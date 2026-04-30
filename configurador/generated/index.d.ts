@@ -8229,70 +8229,100 @@ export namespace Prisma {
 
   export type WorkspaceMinAggregateOutputType = {
     id_workspace: string | null
-    id_organizacao_workspace: string | null
+    id_organizacao: string | null
     nome_workspace: string | null
     subdominio_workspace: string | null
     cnpj_workspace: string | null
     status_workspace: $Enums.WorkspaceStatus | null
+    cidade_workspace: string | null
+    estado_workspace: string | null
+    endereco_workspace: string | null
+    email_contato_workspace: string | null
+    telefone_contato_workspace: string | null
     data_criacao_workspace: Date | null
-    updated_at: Date | null
+    data_atualizacao_workspace: Date | null
   }
 
   export type WorkspaceMaxAggregateOutputType = {
     id_workspace: string | null
-    id_organizacao_workspace: string | null
+    id_organizacao: string | null
     nome_workspace: string | null
     subdominio_workspace: string | null
     cnpj_workspace: string | null
     status_workspace: $Enums.WorkspaceStatus | null
+    cidade_workspace: string | null
+    estado_workspace: string | null
+    endereco_workspace: string | null
+    email_contato_workspace: string | null
+    telefone_contato_workspace: string | null
     data_criacao_workspace: Date | null
-    updated_at: Date | null
+    data_atualizacao_workspace: Date | null
   }
 
   export type WorkspaceCountAggregateOutputType = {
     id_workspace: number
-    id_organizacao_workspace: number
+    id_organizacao: number
     nome_workspace: number
     subdominio_workspace: number
     cnpj_workspace: number
     status_workspace: number
+    cidade_workspace: number
+    estado_workspace: number
+    endereco_workspace: number
+    email_contato_workspace: number
+    telefone_contato_workspace: number
     data_criacao_workspace: number
-    updated_at: number
+    data_atualizacao_workspace: number
     _all: number
   }
 
 
   export type WorkspaceMinAggregateInputType = {
     id_workspace?: true
-    id_organizacao_workspace?: true
+    id_organizacao?: true
     nome_workspace?: true
     subdominio_workspace?: true
     cnpj_workspace?: true
     status_workspace?: true
+    cidade_workspace?: true
+    estado_workspace?: true
+    endereco_workspace?: true
+    email_contato_workspace?: true
+    telefone_contato_workspace?: true
     data_criacao_workspace?: true
-    updated_at?: true
+    data_atualizacao_workspace?: true
   }
 
   export type WorkspaceMaxAggregateInputType = {
     id_workspace?: true
-    id_organizacao_workspace?: true
+    id_organizacao?: true
     nome_workspace?: true
     subdominio_workspace?: true
     cnpj_workspace?: true
     status_workspace?: true
+    cidade_workspace?: true
+    estado_workspace?: true
+    endereco_workspace?: true
+    email_contato_workspace?: true
+    telefone_contato_workspace?: true
     data_criacao_workspace?: true
-    updated_at?: true
+    data_atualizacao_workspace?: true
   }
 
   export type WorkspaceCountAggregateInputType = {
     id_workspace?: true
-    id_organizacao_workspace?: true
+    id_organizacao?: true
     nome_workspace?: true
     subdominio_workspace?: true
     cnpj_workspace?: true
     status_workspace?: true
+    cidade_workspace?: true
+    estado_workspace?: true
+    endereco_workspace?: true
+    email_contato_workspace?: true
+    telefone_contato_workspace?: true
     data_criacao_workspace?: true
-    updated_at?: true
+    data_atualizacao_workspace?: true
     _all?: true
   }
 
@@ -8370,13 +8400,18 @@ export namespace Prisma {
 
   export type WorkspaceGroupByOutputType = {
     id_workspace: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace: string | null
     cnpj_workspace: string | null
     status_workspace: $Enums.WorkspaceStatus
+    cidade_workspace: string | null
+    estado_workspace: string | null
+    endereco_workspace: string | null
+    email_contato_workspace: string | null
+    telefone_contato_workspace: string | null
     data_criacao_workspace: Date
-    updated_at: Date
+    data_atualizacao_workspace: Date
     _count: WorkspaceCountAggregateOutputType | null
     _min: WorkspaceMinAggregateOutputType | null
     _max: WorkspaceMaxAggregateOutputType | null
@@ -8398,13 +8433,18 @@ export namespace Prisma {
 
   export type WorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_workspace?: boolean
-    id_organizacao_workspace?: boolean
+    id_organizacao?: boolean
     nome_workspace?: boolean
     subdominio_workspace?: boolean
     cnpj_workspace?: boolean
     status_workspace?: boolean
+    cidade_workspace?: boolean
+    estado_workspace?: boolean
+    endereco_workspace?: boolean
+    email_contato_workspace?: boolean
+    telefone_contato_workspace?: boolean
     data_criacao_workspace?: boolean
-    updated_at?: boolean
+    data_atualizacao_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
     memberships?: boolean | Workspace$membershipsArgs<ExtArgs>
     company_products?: boolean | Workspace$company_productsArgs<ExtArgs>
@@ -8414,25 +8454,35 @@ export namespace Prisma {
 
   export type WorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_workspace?: boolean
-    id_organizacao_workspace?: boolean
+    id_organizacao?: boolean
     nome_workspace?: boolean
     subdominio_workspace?: boolean
     cnpj_workspace?: boolean
     status_workspace?: boolean
+    cidade_workspace?: boolean
+    estado_workspace?: boolean
+    endereco_workspace?: boolean
+    email_contato_workspace?: boolean
+    telefone_contato_workspace?: boolean
     data_criacao_workspace?: boolean
-    updated_at?: boolean
+    data_atualizacao_workspace?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
   export type WorkspaceSelectScalar = {
     id_workspace?: boolean
-    id_organizacao_workspace?: boolean
+    id_organizacao?: boolean
     nome_workspace?: boolean
     subdominio_workspace?: boolean
     cnpj_workspace?: boolean
     status_workspace?: boolean
+    cidade_workspace?: boolean
+    estado_workspace?: boolean
+    endereco_workspace?: boolean
+    email_contato_workspace?: boolean
+    telefone_contato_workspace?: boolean
     data_criacao_workspace?: boolean
-    updated_at?: boolean
+    data_atualizacao_workspace?: boolean
   }
 
   export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8456,13 +8506,18 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id_workspace: string
-      id_organizacao_workspace: string
+      id_organizacao: string
       nome_workspace: string
       subdominio_workspace: string | null
       cnpj_workspace: string | null
       status_workspace: $Enums.WorkspaceStatus
+      cidade_workspace: string | null
+      estado_workspace: string | null
+      endereco_workspace: string | null
+      email_contato_workspace: string | null
+      telefone_contato_workspace: string | null
       data_criacao_workspace: Date
-      updated_at: Date
+      data_atualizacao_workspace: Date
     }, ExtArgs["result"]["workspace"]>
     composites: {}
   }
@@ -8861,13 +8916,18 @@ export namespace Prisma {
    */ 
   interface WorkspaceFieldRefs {
     readonly id_workspace: FieldRef<"Workspace", 'String'>
-    readonly id_organizacao_workspace: FieldRef<"Workspace", 'String'>
+    readonly id_organizacao: FieldRef<"Workspace", 'String'>
     readonly nome_workspace: FieldRef<"Workspace", 'String'>
     readonly subdominio_workspace: FieldRef<"Workspace", 'String'>
     readonly cnpj_workspace: FieldRef<"Workspace", 'String'>
     readonly status_workspace: FieldRef<"Workspace", 'WorkspaceStatus'>
+    readonly cidade_workspace: FieldRef<"Workspace", 'String'>
+    readonly estado_workspace: FieldRef<"Workspace", 'String'>
+    readonly endereco_workspace: FieldRef<"Workspace", 'String'>
+    readonly email_contato_workspace: FieldRef<"Workspace", 'String'>
+    readonly telefone_contato_workspace: FieldRef<"Workspace", 'String'>
     readonly data_criacao_workspace: FieldRef<"Workspace", 'DateTime'>
-    readonly updated_at: FieldRef<"Workspace", 'DateTime'>
+    readonly data_atualizacao_workspace: FieldRef<"Workspace", 'DateTime'>
   }
     
 
@@ -26989,13 +27049,18 @@ export namespace Prisma {
 
   export const WorkspaceScalarFieldEnum: {
     id_workspace: 'id_workspace',
-    id_organizacao_workspace: 'id_organizacao_workspace',
+    id_organizacao: 'id_organizacao',
     nome_workspace: 'nome_workspace',
     subdominio_workspace: 'subdominio_workspace',
     cnpj_workspace: 'cnpj_workspace',
     status_workspace: 'status_workspace',
+    cidade_workspace: 'cidade_workspace',
+    estado_workspace: 'estado_workspace',
+    endereco_workspace: 'endereco_workspace',
+    email_contato_workspace: 'email_contato_workspace',
+    telefone_contato_workspace: 'telefone_contato_workspace',
     data_criacao_workspace: 'data_criacao_workspace',
-    updated_at: 'updated_at'
+    data_atualizacao_workspace: 'data_atualizacao_workspace'
   };
 
   export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
@@ -28041,13 +28106,18 @@ export namespace Prisma {
     OR?: WorkspaceWhereInput[]
     NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
     id_workspace?: StringFilter<"Workspace"> | string
-    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    id_organizacao?: StringFilter<"Workspace"> | string
     nome_workspace?: StringFilter<"Workspace"> | string
     subdominio_workspace?: StringNullableFilter<"Workspace"> | string | null
     cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
     status_workspace?: EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
+    cidade_workspace?: StringNullableFilter<"Workspace"> | string | null
+    estado_workspace?: StringNullableFilter<"Workspace"> | string | null
+    endereco_workspace?: StringNullableFilter<"Workspace"> | string | null
+    email_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
+    telefone_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
     data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+    data_atualizacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
@@ -28056,13 +28126,18 @@ export namespace Prisma {
 
   export type WorkspaceOrderByWithRelationInput = {
     id_workspace?: SortOrder
-    id_organizacao_workspace?: SortOrder
+    id_organizacao?: SortOrder
     nome_workspace?: SortOrder
     subdominio_workspace?: SortOrderInput | SortOrder
     cnpj_workspace?: SortOrderInput | SortOrder
     status_workspace?: SortOrder
+    cidade_workspace?: SortOrderInput | SortOrder
+    estado_workspace?: SortOrderInput | SortOrder
+    endereco_workspace?: SortOrderInput | SortOrder
+    email_contato_workspace?: SortOrderInput | SortOrder
+    telefone_contato_workspace?: SortOrderInput | SortOrder
     data_criacao_workspace?: SortOrder
-    updated_at?: SortOrder
+    data_atualizacao_workspace?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
     memberships?: UsuarioWorkspaceOrderByRelationAggregateInput
     company_products?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
@@ -28075,12 +28150,17 @@ export namespace Prisma {
     AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
     OR?: WorkspaceWhereInput[]
     NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
-    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    id_organizacao?: StringFilter<"Workspace"> | string
     nome_workspace?: StringFilter<"Workspace"> | string
     cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
     status_workspace?: EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
+    cidade_workspace?: StringNullableFilter<"Workspace"> | string | null
+    estado_workspace?: StringNullableFilter<"Workspace"> | string | null
+    endereco_workspace?: StringNullableFilter<"Workspace"> | string | null
+    email_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
+    telefone_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
     data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+    data_atualizacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
@@ -28089,13 +28169,18 @@ export namespace Prisma {
 
   export type WorkspaceOrderByWithAggregationInput = {
     id_workspace?: SortOrder
-    id_organizacao_workspace?: SortOrder
+    id_organizacao?: SortOrder
     nome_workspace?: SortOrder
     subdominio_workspace?: SortOrderInput | SortOrder
     cnpj_workspace?: SortOrderInput | SortOrder
     status_workspace?: SortOrder
+    cidade_workspace?: SortOrderInput | SortOrder
+    estado_workspace?: SortOrderInput | SortOrder
+    endereco_workspace?: SortOrderInput | SortOrder
+    email_contato_workspace?: SortOrderInput | SortOrder
+    telefone_contato_workspace?: SortOrderInput | SortOrder
     data_criacao_workspace?: SortOrder
-    updated_at?: SortOrder
+    data_atualizacao_workspace?: SortOrder
     _count?: WorkspaceCountOrderByAggregateInput
     _max?: WorkspaceMaxOrderByAggregateInput
     _min?: WorkspaceMinOrderByAggregateInput
@@ -28106,13 +28191,18 @@ export namespace Prisma {
     OR?: WorkspaceScalarWhereWithAggregatesInput[]
     NOT?: WorkspaceScalarWhereWithAggregatesInput | WorkspaceScalarWhereWithAggregatesInput[]
     id_workspace?: StringWithAggregatesFilter<"Workspace"> | string
-    id_organizacao_workspace?: StringWithAggregatesFilter<"Workspace"> | string
+    id_organizacao?: StringWithAggregatesFilter<"Workspace"> | string
     nome_workspace?: StringWithAggregatesFilter<"Workspace"> | string
     subdominio_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
     cnpj_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
     status_workspace?: EnumWorkspaceStatusWithAggregatesFilter<"Workspace"> | $Enums.WorkspaceStatus
+    cidade_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    estado_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    endereco_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    email_contato_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    telefone_contato_workspace?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
     data_criacao_workspace?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
+    data_atualizacao_workspace?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
   }
 
   export type UsuarioWorkspaceWhereInput = {
@@ -30258,8 +30348,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
@@ -30268,13 +30363,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedCreateInput = {
     id_workspace?: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
@@ -30286,8 +30386,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -30296,13 +30401,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedUpdateInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
@@ -30310,13 +30420,18 @@ export namespace Prisma {
 
   export type WorkspaceCreateManyInput = {
     id_workspace?: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
   }
 
   export type WorkspaceUpdateManyMutationInput = {
@@ -30325,19 +30440,29 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkspaceUncheckedUpdateManyInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioWorkspaceCreateInput = {
@@ -32795,35 +32920,50 @@ export namespace Prisma {
 
   export type WorkspaceCountOrderByAggregateInput = {
     id_workspace?: SortOrder
-    id_organizacao_workspace?: SortOrder
+    id_organizacao?: SortOrder
     nome_workspace?: SortOrder
     subdominio_workspace?: SortOrder
     cnpj_workspace?: SortOrder
     status_workspace?: SortOrder
+    cidade_workspace?: SortOrder
+    estado_workspace?: SortOrder
+    endereco_workspace?: SortOrder
+    email_contato_workspace?: SortOrder
+    telefone_contato_workspace?: SortOrder
     data_criacao_workspace?: SortOrder
-    updated_at?: SortOrder
+    data_atualizacao_workspace?: SortOrder
   }
 
   export type WorkspaceMaxOrderByAggregateInput = {
     id_workspace?: SortOrder
-    id_organizacao_workspace?: SortOrder
+    id_organizacao?: SortOrder
     nome_workspace?: SortOrder
     subdominio_workspace?: SortOrder
     cnpj_workspace?: SortOrder
     status_workspace?: SortOrder
+    cidade_workspace?: SortOrder
+    estado_workspace?: SortOrder
+    endereco_workspace?: SortOrder
+    email_contato_workspace?: SortOrder
+    telefone_contato_workspace?: SortOrder
     data_criacao_workspace?: SortOrder
-    updated_at?: SortOrder
+    data_atualizacao_workspace?: SortOrder
   }
 
   export type WorkspaceMinOrderByAggregateInput = {
     id_workspace?: SortOrder
-    id_organizacao_workspace?: SortOrder
+    id_organizacao?: SortOrder
     nome_workspace?: SortOrder
     subdominio_workspace?: SortOrder
     cnpj_workspace?: SortOrder
     status_workspace?: SortOrder
+    cidade_workspace?: SortOrder
+    estado_workspace?: SortOrder
+    endereco_workspace?: SortOrder
+    email_contato_workspace?: SortOrder
+    telefone_contato_workspace?: SortOrder
     data_criacao_workspace?: SortOrder
-    updated_at?: SortOrder
+    data_atualizacao_workspace?: SortOrder
   }
 
   export type EnumWorkspaceStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -35766,8 +35906,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
@@ -35779,8 +35924,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
@@ -35966,13 +36116,18 @@ export namespace Prisma {
     OR?: WorkspaceScalarWhereInput[]
     NOT?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
     id_workspace?: StringFilter<"Workspace"> | string
-    id_organizacao_workspace?: StringFilter<"Workspace"> | string
+    id_organizacao?: StringFilter<"Workspace"> | string
     nome_workspace?: StringFilter<"Workspace"> | string
     subdominio_workspace?: StringNullableFilter<"Workspace"> | string | null
     cnpj_workspace?: StringNullableFilter<"Workspace"> | string | null
     status_workspace?: EnumWorkspaceStatusFilter<"Workspace"> | $Enums.WorkspaceStatus
+    cidade_workspace?: StringNullableFilter<"Workspace"> | string | null
+    estado_workspace?: StringNullableFilter<"Workspace"> | string | null
+    endereco_workspace?: StringNullableFilter<"Workspace"> | string | null
+    email_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
+    telefone_contato_workspace?: StringNullableFilter<"Workspace"> | string | null
     data_criacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+    data_atualizacao_workspace?: DateTimeFilter<"Workspace"> | Date | string
   }
 
   export type ProdutoGravityConfiguracaoUpsertWithWhereUniqueWithoutTenantInput = {
@@ -36086,8 +36241,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
@@ -36095,13 +36255,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedCreateWithoutPreferred_by_usersInput = {
     id_workspace?: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
   }
@@ -36243,8 +36408,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -36252,13 +36422,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
   }
@@ -36856,8 +37031,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
@@ -36865,13 +37045,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
     id_workspace?: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
@@ -36935,8 +37120,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
@@ -36944,13 +37134,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
@@ -37108,8 +37303,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
@@ -37117,13 +37317,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedCreateWithoutCompany_productsInput = {
     id_workspace?: string
-    id_organizacao_workspace: string
+    id_organizacao: string
     nome_workspace: string
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
@@ -37276,8 +37481,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
@@ -37285,13 +37495,18 @@ export namespace Prisma {
 
   export type WorkspaceUncheckedUpdateWithoutCompany_productsInput = {
     id_workspace?: StringFieldUpdateOperationsInput | string
-    id_organizacao_workspace?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_workspace?: StringFieldUpdateOperationsInput | string
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
@@ -38065,8 +38280,13 @@ export namespace Prisma {
     subdominio_workspace?: string | null
     cnpj_workspace?: string | null
     status_workspace?: $Enums.WorkspaceStatus
+    cidade_workspace?: string | null
+    estado_workspace?: string | null
+    endereco_workspace?: string | null
+    email_contato_workspace?: string | null
+    telefone_contato_workspace?: string | null
     data_criacao_workspace?: Date | string
-    updated_at?: Date | string
+    data_atualizacao_workspace?: Date | string
   }
 
   export type ProdutoGravityConfiguracaoCreateManyTenantInput = {
@@ -38196,8 +38416,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
@@ -38209,8 +38434,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
@@ -38222,8 +38452,13 @@ export namespace Prisma {
     subdominio_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     status_workspace?: EnumWorkspaceStatusFieldUpdateOperationsInput | $Enums.WorkspaceStatus
+    cidade_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    email_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_contato_workspace?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_workspace?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityConfiguracaoUpdateWithoutTenantInput = {

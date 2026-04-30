@@ -583,20 +583,28 @@ model Seguranca {
 // ---------------------------------------------------------------------------
 
 model Requisicoes {
-  id_requisicoes             String   @id @default(cuid())
-  chave_requisicoes          String // tenant:ip combo
-  id_organizacao_requisicoes String?
-  ip_requisicoes             String?
-  endpoint_requisicoes       String
-  contagem_requisicoes       Int
-  limite_maximo_requisicoes  Int
-  bloqueado_requisicoes      Boolean  @default(false)
-  inicio_janela_requisicoes  DateTime
-  data_criacao_requisicoes   DateTime @default(now())
+  id_requisicoes                String   @id @default(cuid())
+  chave_requisicoes             String // organizacao:ip combo
+  id_organizacao                String?
+  ip_requisicoes                String?
+  endpoint_requisicoes          String
+  metodo_requisicoes            String // GET | POST | PUT | DELETE | PATCH
+  status_code_requisicoes       Int // 200 | 429 | 500 ...
+  contagem_requisicoes          Int
+  limite_maximo_requisicoes     Int
+  bloqueado_requisicoes         Boolean  @default(false)
+  razao_bloqueio_requisicoes    String? // ex: "rate limit exceeded", "ip blacklisted"
+  user_agent_requisicoes        String?
+  id_usuario                    String? // quando autenticado
+  tempo_resposta_ms_requisicoes Int? // latência em milissegundos
+  inicio_janela_requisicoes     DateTime
+  data_criacao_requisicoes      DateTime @default(now())
 
-  @@index([data_criacao_requisicoes])
-  @@index([bloqueado_requisicoes, data_criacao_requisicoes])
-  @@index([id_organizacao_requisicoes])
+  @@index([id_organizacao],                                       map: "requisicoes_id_organizacao_idx")
+  @@index([data_criacao_requisicoes],                             map: "requisicoes_data_criacao_idx")
+  @@index([bloqueado_requisicoes, data_criacao_requisicoes],      map: "requisicoes_bloqueado_data_criacao_idx")
+  @@index([endpoint_requisicoes, data_criacao_requisicoes],       map: "requisicoes_endpoint_data_criacao_idx")
+  @@index([id_usuario],                                           map: "requisicoes_id_usuario_idx")
   @@map("requisicoes")
 }
 

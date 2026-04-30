@@ -324,12 +324,18 @@ exports.Prisma.SegurancaScalarFieldEnum = {
 exports.Prisma.RequisicoesScalarFieldEnum = {
   id_requisicoes: 'id_requisicoes',
   chave_requisicoes: 'chave_requisicoes',
-  id_organizacao_requisicoes: 'id_organizacao_requisicoes',
+  id_organizacao: 'id_organizacao',
   ip_requisicoes: 'ip_requisicoes',
   endpoint_requisicoes: 'endpoint_requisicoes',
+  metodo_requisicoes: 'metodo_requisicoes',
+  status_code_requisicoes: 'status_code_requisicoes',
   contagem_requisicoes: 'contagem_requisicoes',
   limite_maximo_requisicoes: 'limite_maximo_requisicoes',
   bloqueado_requisicoes: 'bloqueado_requisicoes',
+  razao_bloqueio_requisicoes: 'razao_bloqueio_requisicoes',
+  user_agent_requisicoes: 'user_agent_requisicoes',
+  id_usuario: 'id_usuario',
+  tempo_resposta_ms_requisicoes: 'tempo_resposta_ms_requisicoes',
   inicio_janela_requisicoes: 'inicio_janela_requisicoes',
   data_criacao_requisicoes: 'data_criacao_requisicoes'
 };

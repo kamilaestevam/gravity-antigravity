@@ -18349,24 +18349,34 @@ export namespace Prisma {
   }
 
   export type RequisicoesAvgAggregateOutputType = {
+    status_code_requisicoes: number | null
     contagem_requisicoes: number | null
     limite_maximo_requisicoes: number | null
+    tempo_resposta_ms_requisicoes: number | null
   }
 
   export type RequisicoesSumAggregateOutputType = {
+    status_code_requisicoes: number | null
     contagem_requisicoes: number | null
     limite_maximo_requisicoes: number | null
+    tempo_resposta_ms_requisicoes: number | null
   }
 
   export type RequisicoesMinAggregateOutputType = {
     id_requisicoes: string | null
     chave_requisicoes: string | null
-    id_organizacao_requisicoes: string | null
+    id_organizacao: string | null
     ip_requisicoes: string | null
     endpoint_requisicoes: string | null
+    metodo_requisicoes: string | null
+    status_code_requisicoes: number | null
     contagem_requisicoes: number | null
     limite_maximo_requisicoes: number | null
     bloqueado_requisicoes: boolean | null
+    razao_bloqueio_requisicoes: string | null
+    user_agent_requisicoes: string | null
+    id_usuario: string | null
+    tempo_resposta_ms_requisicoes: number | null
     inicio_janela_requisicoes: Date | null
     data_criacao_requisicoes: Date | null
   }
@@ -18374,12 +18384,18 @@ export namespace Prisma {
   export type RequisicoesMaxAggregateOutputType = {
     id_requisicoes: string | null
     chave_requisicoes: string | null
-    id_organizacao_requisicoes: string | null
+    id_organizacao: string | null
     ip_requisicoes: string | null
     endpoint_requisicoes: string | null
+    metodo_requisicoes: string | null
+    status_code_requisicoes: number | null
     contagem_requisicoes: number | null
     limite_maximo_requisicoes: number | null
     bloqueado_requisicoes: boolean | null
+    razao_bloqueio_requisicoes: string | null
+    user_agent_requisicoes: string | null
+    id_usuario: string | null
+    tempo_resposta_ms_requisicoes: number | null
     inicio_janela_requisicoes: Date | null
     data_criacao_requisicoes: Date | null
   }
@@ -18387,12 +18403,18 @@ export namespace Prisma {
   export type RequisicoesCountAggregateOutputType = {
     id_requisicoes: number
     chave_requisicoes: number
-    id_organizacao_requisicoes: number
+    id_organizacao: number
     ip_requisicoes: number
     endpoint_requisicoes: number
+    metodo_requisicoes: number
+    status_code_requisicoes: number
     contagem_requisicoes: number
     limite_maximo_requisicoes: number
     bloqueado_requisicoes: number
+    razao_bloqueio_requisicoes: number
+    user_agent_requisicoes: number
+    id_usuario: number
+    tempo_resposta_ms_requisicoes: number
     inicio_janela_requisicoes: number
     data_criacao_requisicoes: number
     _all: number
@@ -18400,24 +18422,34 @@ export namespace Prisma {
 
 
   export type RequisicoesAvgAggregateInputType = {
+    status_code_requisicoes?: true
     contagem_requisicoes?: true
     limite_maximo_requisicoes?: true
+    tempo_resposta_ms_requisicoes?: true
   }
 
   export type RequisicoesSumAggregateInputType = {
+    status_code_requisicoes?: true
     contagem_requisicoes?: true
     limite_maximo_requisicoes?: true
+    tempo_resposta_ms_requisicoes?: true
   }
 
   export type RequisicoesMinAggregateInputType = {
     id_requisicoes?: true
     chave_requisicoes?: true
-    id_organizacao_requisicoes?: true
+    id_organizacao?: true
     ip_requisicoes?: true
     endpoint_requisicoes?: true
+    metodo_requisicoes?: true
+    status_code_requisicoes?: true
     contagem_requisicoes?: true
     limite_maximo_requisicoes?: true
     bloqueado_requisicoes?: true
+    razao_bloqueio_requisicoes?: true
+    user_agent_requisicoes?: true
+    id_usuario?: true
+    tempo_resposta_ms_requisicoes?: true
     inicio_janela_requisicoes?: true
     data_criacao_requisicoes?: true
   }
@@ -18425,12 +18457,18 @@ export namespace Prisma {
   export type RequisicoesMaxAggregateInputType = {
     id_requisicoes?: true
     chave_requisicoes?: true
-    id_organizacao_requisicoes?: true
+    id_organizacao?: true
     ip_requisicoes?: true
     endpoint_requisicoes?: true
+    metodo_requisicoes?: true
+    status_code_requisicoes?: true
     contagem_requisicoes?: true
     limite_maximo_requisicoes?: true
     bloqueado_requisicoes?: true
+    razao_bloqueio_requisicoes?: true
+    user_agent_requisicoes?: true
+    id_usuario?: true
+    tempo_resposta_ms_requisicoes?: true
     inicio_janela_requisicoes?: true
     data_criacao_requisicoes?: true
   }
@@ -18438,12 +18476,18 @@ export namespace Prisma {
   export type RequisicoesCountAggregateInputType = {
     id_requisicoes?: true
     chave_requisicoes?: true
-    id_organizacao_requisicoes?: true
+    id_organizacao?: true
     ip_requisicoes?: true
     endpoint_requisicoes?: true
+    metodo_requisicoes?: true
+    status_code_requisicoes?: true
     contagem_requisicoes?: true
     limite_maximo_requisicoes?: true
     bloqueado_requisicoes?: true
+    razao_bloqueio_requisicoes?: true
+    user_agent_requisicoes?: true
+    id_usuario?: true
+    tempo_resposta_ms_requisicoes?: true
     inicio_janela_requisicoes?: true
     data_criacao_requisicoes?: true
     _all?: true
@@ -18538,12 +18582,18 @@ export namespace Prisma {
   export type RequisicoesGroupByOutputType = {
     id_requisicoes: string
     chave_requisicoes: string
-    id_organizacao_requisicoes: string | null
+    id_organizacao: string | null
     ip_requisicoes: string | null
     endpoint_requisicoes: string
+    metodo_requisicoes: string
+    status_code_requisicoes: number
     contagem_requisicoes: number
     limite_maximo_requisicoes: number
     bloqueado_requisicoes: boolean
+    razao_bloqueio_requisicoes: string | null
+    user_agent_requisicoes: string | null
+    id_usuario: string | null
+    tempo_resposta_ms_requisicoes: number | null
     inicio_janela_requisicoes: Date
     data_criacao_requisicoes: Date
     _count: RequisicoesCountAggregateOutputType | null
@@ -18570,12 +18620,18 @@ export namespace Prisma {
   export type RequisicoesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_requisicoes?: boolean
     chave_requisicoes?: boolean
-    id_organizacao_requisicoes?: boolean
+    id_organizacao?: boolean
     ip_requisicoes?: boolean
     endpoint_requisicoes?: boolean
+    metodo_requisicoes?: boolean
+    status_code_requisicoes?: boolean
     contagem_requisicoes?: boolean
     limite_maximo_requisicoes?: boolean
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: boolean
+    user_agent_requisicoes?: boolean
+    id_usuario?: boolean
+    tempo_resposta_ms_requisicoes?: boolean
     inicio_janela_requisicoes?: boolean
     data_criacao_requisicoes?: boolean
   }, ExtArgs["result"]["requisicoes"]>
@@ -18583,12 +18639,18 @@ export namespace Prisma {
   export type RequisicoesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_requisicoes?: boolean
     chave_requisicoes?: boolean
-    id_organizacao_requisicoes?: boolean
+    id_organizacao?: boolean
     ip_requisicoes?: boolean
     endpoint_requisicoes?: boolean
+    metodo_requisicoes?: boolean
+    status_code_requisicoes?: boolean
     contagem_requisicoes?: boolean
     limite_maximo_requisicoes?: boolean
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: boolean
+    user_agent_requisicoes?: boolean
+    id_usuario?: boolean
+    tempo_resposta_ms_requisicoes?: boolean
     inicio_janela_requisicoes?: boolean
     data_criacao_requisicoes?: boolean
   }, ExtArgs["result"]["requisicoes"]>
@@ -18596,12 +18658,18 @@ export namespace Prisma {
   export type RequisicoesSelectScalar = {
     id_requisicoes?: boolean
     chave_requisicoes?: boolean
-    id_organizacao_requisicoes?: boolean
+    id_organizacao?: boolean
     ip_requisicoes?: boolean
     endpoint_requisicoes?: boolean
+    metodo_requisicoes?: boolean
+    status_code_requisicoes?: boolean
     contagem_requisicoes?: boolean
     limite_maximo_requisicoes?: boolean
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: boolean
+    user_agent_requisicoes?: boolean
+    id_usuario?: boolean
+    tempo_resposta_ms_requisicoes?: boolean
     inicio_janela_requisicoes?: boolean
     data_criacao_requisicoes?: boolean
   }
@@ -18613,12 +18681,18 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id_requisicoes: string
       chave_requisicoes: string
-      id_organizacao_requisicoes: string | null
+      id_organizacao: string | null
       ip_requisicoes: string | null
       endpoint_requisicoes: string
+      metodo_requisicoes: string
+      status_code_requisicoes: number
       contagem_requisicoes: number
       limite_maximo_requisicoes: number
       bloqueado_requisicoes: boolean
+      razao_bloqueio_requisicoes: string | null
+      user_agent_requisicoes: string | null
+      id_usuario: string | null
+      tempo_resposta_ms_requisicoes: number | null
       inicio_janela_requisicoes: Date
       data_criacao_requisicoes: Date
     }, ExtArgs["result"]["requisicoes"]>
@@ -19016,12 +19090,18 @@ export namespace Prisma {
   interface RequisicoesFieldRefs {
     readonly id_requisicoes: FieldRef<"Requisicoes", 'String'>
     readonly chave_requisicoes: FieldRef<"Requisicoes", 'String'>
-    readonly id_organizacao_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly id_organizacao: FieldRef<"Requisicoes", 'String'>
     readonly ip_requisicoes: FieldRef<"Requisicoes", 'String'>
     readonly endpoint_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly metodo_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly status_code_requisicoes: FieldRef<"Requisicoes", 'Int'>
     readonly contagem_requisicoes: FieldRef<"Requisicoes", 'Int'>
     readonly limite_maximo_requisicoes: FieldRef<"Requisicoes", 'Int'>
     readonly bloqueado_requisicoes: FieldRef<"Requisicoes", 'Boolean'>
+    readonly razao_bloqueio_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly user_agent_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly id_usuario: FieldRef<"Requisicoes", 'String'>
+    readonly tempo_resposta_ms_requisicoes: FieldRef<"Requisicoes", 'Int'>
     readonly inicio_janela_requisicoes: FieldRef<"Requisicoes", 'DateTime'>
     readonly data_criacao_requisicoes: FieldRef<"Requisicoes", 'DateTime'>
   }
@@ -26655,12 +26735,18 @@ export namespace Prisma {
   export const RequisicoesScalarFieldEnum: {
     id_requisicoes: 'id_requisicoes',
     chave_requisicoes: 'chave_requisicoes',
-    id_organizacao_requisicoes: 'id_organizacao_requisicoes',
+    id_organizacao: 'id_organizacao',
     ip_requisicoes: 'ip_requisicoes',
     endpoint_requisicoes: 'endpoint_requisicoes',
+    metodo_requisicoes: 'metodo_requisicoes',
+    status_code_requisicoes: 'status_code_requisicoes',
     contagem_requisicoes: 'contagem_requisicoes',
     limite_maximo_requisicoes: 'limite_maximo_requisicoes',
     bloqueado_requisicoes: 'bloqueado_requisicoes',
+    razao_bloqueio_requisicoes: 'razao_bloqueio_requisicoes',
+    user_agent_requisicoes: 'user_agent_requisicoes',
+    id_usuario: 'id_usuario',
+    tempo_resposta_ms_requisicoes: 'tempo_resposta_ms_requisicoes',
     inicio_janela_requisicoes: 'inicio_janela_requisicoes',
     data_criacao_requisicoes: 'data_criacao_requisicoes'
   };
@@ -28377,12 +28463,18 @@ export namespace Prisma {
     NOT?: RequisicoesWhereInput | RequisicoesWhereInput[]
     id_requisicoes?: StringFilter<"Requisicoes"> | string
     chave_requisicoes?: StringFilter<"Requisicoes"> | string
-    id_organizacao_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    id_organizacao?: StringNullableFilter<"Requisicoes"> | string | null
     ip_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
     endpoint_requisicoes?: StringFilter<"Requisicoes"> | string
+    metodo_requisicoes?: StringFilter<"Requisicoes"> | string
+    status_code_requisicoes?: IntFilter<"Requisicoes"> | number
     contagem_requisicoes?: IntFilter<"Requisicoes"> | number
     limite_maximo_requisicoes?: IntFilter<"Requisicoes"> | number
     bloqueado_requisicoes?: BoolFilter<"Requisicoes"> | boolean
+    razao_bloqueio_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    user_agent_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    id_usuario?: StringNullableFilter<"Requisicoes"> | string | null
+    tempo_resposta_ms_requisicoes?: IntNullableFilter<"Requisicoes"> | number | null
     inicio_janela_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
     data_criacao_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
   }
@@ -28390,12 +28482,18 @@ export namespace Prisma {
   export type RequisicoesOrderByWithRelationInput = {
     id_requisicoes?: SortOrder
     chave_requisicoes?: SortOrder
-    id_organizacao_requisicoes?: SortOrderInput | SortOrder
+    id_organizacao?: SortOrderInput | SortOrder
     ip_requisicoes?: SortOrderInput | SortOrder
     endpoint_requisicoes?: SortOrder
+    metodo_requisicoes?: SortOrder
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
     bloqueado_requisicoes?: SortOrder
+    razao_bloqueio_requisicoes?: SortOrderInput | SortOrder
+    user_agent_requisicoes?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrderInput | SortOrder
     inicio_janela_requisicoes?: SortOrder
     data_criacao_requisicoes?: SortOrder
   }
@@ -28406,12 +28504,18 @@ export namespace Prisma {
     OR?: RequisicoesWhereInput[]
     NOT?: RequisicoesWhereInput | RequisicoesWhereInput[]
     chave_requisicoes?: StringFilter<"Requisicoes"> | string
-    id_organizacao_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    id_organizacao?: StringNullableFilter<"Requisicoes"> | string | null
     ip_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
     endpoint_requisicoes?: StringFilter<"Requisicoes"> | string
+    metodo_requisicoes?: StringFilter<"Requisicoes"> | string
+    status_code_requisicoes?: IntFilter<"Requisicoes"> | number
     contagem_requisicoes?: IntFilter<"Requisicoes"> | number
     limite_maximo_requisicoes?: IntFilter<"Requisicoes"> | number
     bloqueado_requisicoes?: BoolFilter<"Requisicoes"> | boolean
+    razao_bloqueio_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    user_agent_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    id_usuario?: StringNullableFilter<"Requisicoes"> | string | null
+    tempo_resposta_ms_requisicoes?: IntNullableFilter<"Requisicoes"> | number | null
     inicio_janela_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
     data_criacao_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
   }, "id_requisicoes">
@@ -28419,12 +28523,18 @@ export namespace Prisma {
   export type RequisicoesOrderByWithAggregationInput = {
     id_requisicoes?: SortOrder
     chave_requisicoes?: SortOrder
-    id_organizacao_requisicoes?: SortOrderInput | SortOrder
+    id_organizacao?: SortOrderInput | SortOrder
     ip_requisicoes?: SortOrderInput | SortOrder
     endpoint_requisicoes?: SortOrder
+    metodo_requisicoes?: SortOrder
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
     bloqueado_requisicoes?: SortOrder
+    razao_bloqueio_requisicoes?: SortOrderInput | SortOrder
+    user_agent_requisicoes?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrderInput | SortOrder
     inicio_janela_requisicoes?: SortOrder
     data_criacao_requisicoes?: SortOrder
     _count?: RequisicoesCountOrderByAggregateInput
@@ -28440,12 +28550,18 @@ export namespace Prisma {
     NOT?: RequisicoesScalarWhereWithAggregatesInput | RequisicoesScalarWhereWithAggregatesInput[]
     id_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
     chave_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
-    id_organizacao_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    id_organizacao?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
     ip_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
     endpoint_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
+    metodo_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
+    status_code_requisicoes?: IntWithAggregatesFilter<"Requisicoes"> | number
     contagem_requisicoes?: IntWithAggregatesFilter<"Requisicoes"> | number
     limite_maximo_requisicoes?: IntWithAggregatesFilter<"Requisicoes"> | number
     bloqueado_requisicoes?: BoolWithAggregatesFilter<"Requisicoes"> | boolean
+    razao_bloqueio_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    user_agent_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    tempo_resposta_ms_requisicoes?: IntNullableWithAggregatesFilter<"Requisicoes"> | number | null
     inicio_janela_requisicoes?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
     data_criacao_requisicoes?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
   }
@@ -30565,12 +30681,18 @@ export namespace Prisma {
   export type RequisicoesCreateInput = {
     id_requisicoes?: string
     chave_requisicoes: string
-    id_organizacao_requisicoes?: string | null
+    id_organizacao?: string | null
     ip_requisicoes?: string | null
     endpoint_requisicoes: string
+    metodo_requisicoes: string
+    status_code_requisicoes: number
     contagem_requisicoes: number
     limite_maximo_requisicoes: number
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: string | null
+    user_agent_requisicoes?: string | null
+    id_usuario?: string | null
+    tempo_resposta_ms_requisicoes?: number | null
     inicio_janela_requisicoes: Date | string
     data_criacao_requisicoes?: Date | string
   }
@@ -30578,12 +30700,18 @@ export namespace Prisma {
   export type RequisicoesUncheckedCreateInput = {
     id_requisicoes?: string
     chave_requisicoes: string
-    id_organizacao_requisicoes?: string | null
+    id_organizacao?: string | null
     ip_requisicoes?: string | null
     endpoint_requisicoes: string
+    metodo_requisicoes: string
+    status_code_requisicoes: number
     contagem_requisicoes: number
     limite_maximo_requisicoes: number
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: string | null
+    user_agent_requisicoes?: string | null
+    id_usuario?: string | null
+    tempo_resposta_ms_requisicoes?: number | null
     inicio_janela_requisicoes: Date | string
     data_criacao_requisicoes?: Date | string
   }
@@ -30591,12 +30719,18 @@ export namespace Prisma {
   export type RequisicoesUpdateInput = {
     id_requisicoes?: StringFieldUpdateOperationsInput | string
     chave_requisicoes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    metodo_requisicoes?: StringFieldUpdateOperationsInput | string
+    status_code_requisicoes?: IntFieldUpdateOperationsInput | number
     contagem_requisicoes?: IntFieldUpdateOperationsInput | number
     limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
     bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    razao_bloqueio_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tempo_resposta_ms_requisicoes?: NullableIntFieldUpdateOperationsInput | number | null
     inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30604,12 +30738,18 @@ export namespace Prisma {
   export type RequisicoesUncheckedUpdateInput = {
     id_requisicoes?: StringFieldUpdateOperationsInput | string
     chave_requisicoes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    metodo_requisicoes?: StringFieldUpdateOperationsInput | string
+    status_code_requisicoes?: IntFieldUpdateOperationsInput | number
     contagem_requisicoes?: IntFieldUpdateOperationsInput | number
     limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
     bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    razao_bloqueio_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tempo_resposta_ms_requisicoes?: NullableIntFieldUpdateOperationsInput | number | null
     inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30617,12 +30757,18 @@ export namespace Prisma {
   export type RequisicoesCreateManyInput = {
     id_requisicoes?: string
     chave_requisicoes: string
-    id_organizacao_requisicoes?: string | null
+    id_organizacao?: string | null
     ip_requisicoes?: string | null
     endpoint_requisicoes: string
+    metodo_requisicoes: string
+    status_code_requisicoes: number
     contagem_requisicoes: number
     limite_maximo_requisicoes: number
     bloqueado_requisicoes?: boolean
+    razao_bloqueio_requisicoes?: string | null
+    user_agent_requisicoes?: string | null
+    id_usuario?: string | null
+    tempo_resposta_ms_requisicoes?: number | null
     inicio_janela_requisicoes: Date | string
     data_criacao_requisicoes?: Date | string
   }
@@ -30630,12 +30776,18 @@ export namespace Prisma {
   export type RequisicoesUpdateManyMutationInput = {
     id_requisicoes?: StringFieldUpdateOperationsInput | string
     chave_requisicoes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    metodo_requisicoes?: StringFieldUpdateOperationsInput | string
+    status_code_requisicoes?: IntFieldUpdateOperationsInput | number
     contagem_requisicoes?: IntFieldUpdateOperationsInput | number
     limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
     bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    razao_bloqueio_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tempo_resposta_ms_requisicoes?: NullableIntFieldUpdateOperationsInput | number | null
     inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30643,12 +30795,18 @@ export namespace Prisma {
   export type RequisicoesUncheckedUpdateManyInput = {
     id_requisicoes?: StringFieldUpdateOperationsInput | string
     chave_requisicoes?: StringFieldUpdateOperationsInput | string
-    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    metodo_requisicoes?: StringFieldUpdateOperationsInput | string
+    status_code_requisicoes?: IntFieldUpdateOperationsInput | number
     contagem_requisicoes?: IntFieldUpdateOperationsInput | number
     limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
     bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    razao_bloqueio_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    tempo_resposta_ms_requisicoes?: NullableIntFieldUpdateOperationsInput | number | null
     inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
     data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32765,30 +32923,44 @@ export namespace Prisma {
   export type RequisicoesCountOrderByAggregateInput = {
     id_requisicoes?: SortOrder
     chave_requisicoes?: SortOrder
-    id_organizacao_requisicoes?: SortOrder
+    id_organizacao?: SortOrder
     ip_requisicoes?: SortOrder
     endpoint_requisicoes?: SortOrder
+    metodo_requisicoes?: SortOrder
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
     bloqueado_requisicoes?: SortOrder
+    razao_bloqueio_requisicoes?: SortOrder
+    user_agent_requisicoes?: SortOrder
+    id_usuario?: SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrder
     inicio_janela_requisicoes?: SortOrder
     data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesAvgOrderByAggregateInput = {
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrder
   }
 
   export type RequisicoesMaxOrderByAggregateInput = {
     id_requisicoes?: SortOrder
     chave_requisicoes?: SortOrder
-    id_organizacao_requisicoes?: SortOrder
+    id_organizacao?: SortOrder
     ip_requisicoes?: SortOrder
     endpoint_requisicoes?: SortOrder
+    metodo_requisicoes?: SortOrder
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
     bloqueado_requisicoes?: SortOrder
+    razao_bloqueio_requisicoes?: SortOrder
+    user_agent_requisicoes?: SortOrder
+    id_usuario?: SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrder
     inicio_janela_requisicoes?: SortOrder
     data_criacao_requisicoes?: SortOrder
   }
@@ -32796,19 +32968,27 @@ export namespace Prisma {
   export type RequisicoesMinOrderByAggregateInput = {
     id_requisicoes?: SortOrder
     chave_requisicoes?: SortOrder
-    id_organizacao_requisicoes?: SortOrder
+    id_organizacao?: SortOrder
     ip_requisicoes?: SortOrder
     endpoint_requisicoes?: SortOrder
+    metodo_requisicoes?: SortOrder
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
     bloqueado_requisicoes?: SortOrder
+    razao_bloqueio_requisicoes?: SortOrder
+    user_agent_requisicoes?: SortOrder
+    id_usuario?: SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrder
     inicio_janela_requisicoes?: SortOrder
     data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesSumOrderByAggregateInput = {
+    status_code_requisicoes?: SortOrder
     contagem_requisicoes?: SortOrder
     limite_maximo_requisicoes?: SortOrder
+    tempo_resposta_ms_requisicoes?: SortOrder
   }
 
   export type ServicosCountOrderByAggregateInput = {

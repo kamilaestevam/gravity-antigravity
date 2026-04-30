@@ -17354,7 +17354,7 @@ export namespace Prisma {
 
   export type SegurancaMinAggregateOutputType = {
     id_seguranca: string | null
-    id_organizacao_seguranca: string | null
+    id_organizacao: string | null
     id_ator_seguranca: string | null
     tipo_ator_seguranca: string | null
     acao_seguranca: string | null
@@ -17363,15 +17363,21 @@ export namespace Prisma {
     descricao_seguranca: string | null
     ip_seguranca: string | null
     endpoint_seguranca: string | null
-    id_usuario_seguranca: string | null
-    id_produto_seguranca: string | null
+    id_usuario: string | null
+    id_workspace: string | null
+    id_produto_gravity: string | null
     id_correlacao_seguranca: string | null
+    id_clerk_sessao: string | null
+    usuario_agente_seguranca: string | null
+    geo_pais_seguranca: string | null
+    resolvido_por_seguranca: string | null
+    data_resolucao_seguranca: Date | null
     data_criacao_seguranca: Date | null
   }
 
   export type SegurancaMaxAggregateOutputType = {
     id_seguranca: string | null
-    id_organizacao_seguranca: string | null
+    id_organizacao: string | null
     id_ator_seguranca: string | null
     tipo_ator_seguranca: string | null
     acao_seguranca: string | null
@@ -17380,15 +17386,21 @@ export namespace Prisma {
     descricao_seguranca: string | null
     ip_seguranca: string | null
     endpoint_seguranca: string | null
-    id_usuario_seguranca: string | null
-    id_produto_seguranca: string | null
+    id_usuario: string | null
+    id_workspace: string | null
+    id_produto_gravity: string | null
     id_correlacao_seguranca: string | null
+    id_clerk_sessao: string | null
+    usuario_agente_seguranca: string | null
+    geo_pais_seguranca: string | null
+    resolvido_por_seguranca: string | null
+    data_resolucao_seguranca: Date | null
     data_criacao_seguranca: Date | null
   }
 
   export type SegurancaCountAggregateOutputType = {
     id_seguranca: number
-    id_organizacao_seguranca: number
+    id_organizacao: number
     id_ator_seguranca: number
     tipo_ator_seguranca: number
     acao_seguranca: number
@@ -17397,9 +17409,17 @@ export namespace Prisma {
     descricao_seguranca: number
     ip_seguranca: number
     endpoint_seguranca: number
-    id_usuario_seguranca: number
-    id_produto_seguranca: number
+    id_usuario: number
+    id_workspace: number
+    id_produto_gravity: number
     id_correlacao_seguranca: number
+    id_clerk_sessao: number
+    usuario_agente_seguranca: number
+    geo_pais_seguranca: number
+    payload_request_seguranca: number
+    acoes_tomadas_seguranca: number
+    resolvido_por_seguranca: number
+    data_resolucao_seguranca: number
     metadata_seguranca: number
     data_criacao_seguranca: number
     _all: number
@@ -17408,7 +17428,7 @@ export namespace Prisma {
 
   export type SegurancaMinAggregateInputType = {
     id_seguranca?: true
-    id_organizacao_seguranca?: true
+    id_organizacao?: true
     id_ator_seguranca?: true
     tipo_ator_seguranca?: true
     acao_seguranca?: true
@@ -17417,15 +17437,21 @@ export namespace Prisma {
     descricao_seguranca?: true
     ip_seguranca?: true
     endpoint_seguranca?: true
-    id_usuario_seguranca?: true
-    id_produto_seguranca?: true
+    id_usuario?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     id_correlacao_seguranca?: true
+    id_clerk_sessao?: true
+    usuario_agente_seguranca?: true
+    geo_pais_seguranca?: true
+    resolvido_por_seguranca?: true
+    data_resolucao_seguranca?: true
     data_criacao_seguranca?: true
   }
 
   export type SegurancaMaxAggregateInputType = {
     id_seguranca?: true
-    id_organizacao_seguranca?: true
+    id_organizacao?: true
     id_ator_seguranca?: true
     tipo_ator_seguranca?: true
     acao_seguranca?: true
@@ -17434,15 +17460,21 @@ export namespace Prisma {
     descricao_seguranca?: true
     ip_seguranca?: true
     endpoint_seguranca?: true
-    id_usuario_seguranca?: true
-    id_produto_seguranca?: true
+    id_usuario?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     id_correlacao_seguranca?: true
+    id_clerk_sessao?: true
+    usuario_agente_seguranca?: true
+    geo_pais_seguranca?: true
+    resolvido_por_seguranca?: true
+    data_resolucao_seguranca?: true
     data_criacao_seguranca?: true
   }
 
   export type SegurancaCountAggregateInputType = {
     id_seguranca?: true
-    id_organizacao_seguranca?: true
+    id_organizacao?: true
     id_ator_seguranca?: true
     tipo_ator_seguranca?: true
     acao_seguranca?: true
@@ -17451,9 +17483,17 @@ export namespace Prisma {
     descricao_seguranca?: true
     ip_seguranca?: true
     endpoint_seguranca?: true
-    id_usuario_seguranca?: true
-    id_produto_seguranca?: true
+    id_usuario?: true
+    id_workspace?: true
+    id_produto_gravity?: true
     id_correlacao_seguranca?: true
+    id_clerk_sessao?: true
+    usuario_agente_seguranca?: true
+    geo_pais_seguranca?: true
+    payload_request_seguranca?: true
+    acoes_tomadas_seguranca?: true
+    resolvido_por_seguranca?: true
+    data_resolucao_seguranca?: true
     metadata_seguranca?: true
     data_criacao_seguranca?: true
     _all?: true
@@ -17533,7 +17573,7 @@ export namespace Prisma {
 
   export type SegurancaGroupByOutputType = {
     id_seguranca: string
-    id_organizacao_seguranca: string
+    id_organizacao: string
     id_ator_seguranca: string
     tipo_ator_seguranca: string
     acao_seguranca: string
@@ -17542,9 +17582,17 @@ export namespace Prisma {
     descricao_seguranca: string | null
     ip_seguranca: string | null
     endpoint_seguranca: string | null
-    id_usuario_seguranca: string | null
-    id_produto_seguranca: string | null
+    id_usuario: string | null
+    id_workspace: string | null
+    id_produto_gravity: string | null
     id_correlacao_seguranca: string | null
+    id_clerk_sessao: string | null
+    usuario_agente_seguranca: string | null
+    geo_pais_seguranca: string | null
+    payload_request_seguranca: JsonValue | null
+    acoes_tomadas_seguranca: JsonValue | null
+    resolvido_por_seguranca: string | null
+    data_resolucao_seguranca: Date | null
     metadata_seguranca: JsonValue | null
     data_criacao_seguranca: Date
     _count: SegurancaCountAggregateOutputType | null
@@ -17568,7 +17616,7 @@ export namespace Prisma {
 
   export type SegurancaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_seguranca?: boolean
-    id_organizacao_seguranca?: boolean
+    id_organizacao?: boolean
     id_ator_seguranca?: boolean
     tipo_ator_seguranca?: boolean
     acao_seguranca?: boolean
@@ -17577,16 +17625,24 @@ export namespace Prisma {
     descricao_seguranca?: boolean
     ip_seguranca?: boolean
     endpoint_seguranca?: boolean
-    id_usuario_seguranca?: boolean
-    id_produto_seguranca?: boolean
+    id_usuario?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     id_correlacao_seguranca?: boolean
+    id_clerk_sessao?: boolean
+    usuario_agente_seguranca?: boolean
+    geo_pais_seguranca?: boolean
+    payload_request_seguranca?: boolean
+    acoes_tomadas_seguranca?: boolean
+    resolvido_por_seguranca?: boolean
+    data_resolucao_seguranca?: boolean
     metadata_seguranca?: boolean
     data_criacao_seguranca?: boolean
   }, ExtArgs["result"]["seguranca"]>
 
   export type SegurancaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_seguranca?: boolean
-    id_organizacao_seguranca?: boolean
+    id_organizacao?: boolean
     id_ator_seguranca?: boolean
     tipo_ator_seguranca?: boolean
     acao_seguranca?: boolean
@@ -17595,16 +17651,24 @@ export namespace Prisma {
     descricao_seguranca?: boolean
     ip_seguranca?: boolean
     endpoint_seguranca?: boolean
-    id_usuario_seguranca?: boolean
-    id_produto_seguranca?: boolean
+    id_usuario?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     id_correlacao_seguranca?: boolean
+    id_clerk_sessao?: boolean
+    usuario_agente_seguranca?: boolean
+    geo_pais_seguranca?: boolean
+    payload_request_seguranca?: boolean
+    acoes_tomadas_seguranca?: boolean
+    resolvido_por_seguranca?: boolean
+    data_resolucao_seguranca?: boolean
     metadata_seguranca?: boolean
     data_criacao_seguranca?: boolean
   }, ExtArgs["result"]["seguranca"]>
 
   export type SegurancaSelectScalar = {
     id_seguranca?: boolean
-    id_organizacao_seguranca?: boolean
+    id_organizacao?: boolean
     id_ator_seguranca?: boolean
     tipo_ator_seguranca?: boolean
     acao_seguranca?: boolean
@@ -17613,9 +17677,17 @@ export namespace Prisma {
     descricao_seguranca?: boolean
     ip_seguranca?: boolean
     endpoint_seguranca?: boolean
-    id_usuario_seguranca?: boolean
-    id_produto_seguranca?: boolean
+    id_usuario?: boolean
+    id_workspace?: boolean
+    id_produto_gravity?: boolean
     id_correlacao_seguranca?: boolean
+    id_clerk_sessao?: boolean
+    usuario_agente_seguranca?: boolean
+    geo_pais_seguranca?: boolean
+    payload_request_seguranca?: boolean
+    acoes_tomadas_seguranca?: boolean
+    resolvido_por_seguranca?: boolean
+    data_resolucao_seguranca?: boolean
     metadata_seguranca?: boolean
     data_criacao_seguranca?: boolean
   }
@@ -17626,7 +17698,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_seguranca: string
-      id_organizacao_seguranca: string
+      id_organizacao: string
       id_ator_seguranca: string
       tipo_ator_seguranca: string
       acao_seguranca: string
@@ -17635,9 +17707,17 @@ export namespace Prisma {
       descricao_seguranca: string | null
       ip_seguranca: string | null
       endpoint_seguranca: string | null
-      id_usuario_seguranca: string | null
-      id_produto_seguranca: string | null
+      id_usuario: string | null
+      id_workspace: string | null
+      id_produto_gravity: string | null
       id_correlacao_seguranca: string | null
+      id_clerk_sessao: string | null
+      usuario_agente_seguranca: string | null
+      geo_pais_seguranca: string | null
+      payload_request_seguranca: Prisma.JsonValue | null
+      acoes_tomadas_seguranca: Prisma.JsonValue | null
+      resolvido_por_seguranca: string | null
+      data_resolucao_seguranca: Date | null
       metadata_seguranca: Prisma.JsonValue | null
       data_criacao_seguranca: Date
     }, ExtArgs["result"]["seguranca"]>
@@ -18034,7 +18114,7 @@ export namespace Prisma {
    */ 
   interface SegurancaFieldRefs {
     readonly id_seguranca: FieldRef<"Seguranca", 'String'>
-    readonly id_organizacao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_organizacao: FieldRef<"Seguranca", 'String'>
     readonly id_ator_seguranca: FieldRef<"Seguranca", 'String'>
     readonly tipo_ator_seguranca: FieldRef<"Seguranca", 'String'>
     readonly acao_seguranca: FieldRef<"Seguranca", 'String'>
@@ -18043,9 +18123,17 @@ export namespace Prisma {
     readonly descricao_seguranca: FieldRef<"Seguranca", 'String'>
     readonly ip_seguranca: FieldRef<"Seguranca", 'String'>
     readonly endpoint_seguranca: FieldRef<"Seguranca", 'String'>
-    readonly id_usuario_seguranca: FieldRef<"Seguranca", 'String'>
-    readonly id_produto_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_usuario: FieldRef<"Seguranca", 'String'>
+    readonly id_workspace: FieldRef<"Seguranca", 'String'>
+    readonly id_produto_gravity: FieldRef<"Seguranca", 'String'>
     readonly id_correlacao_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly id_clerk_sessao: FieldRef<"Seguranca", 'String'>
+    readonly usuario_agente_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly geo_pais_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly payload_request_seguranca: FieldRef<"Seguranca", 'Json'>
+    readonly acoes_tomadas_seguranca: FieldRef<"Seguranca", 'Json'>
+    readonly resolvido_por_seguranca: FieldRef<"Seguranca", 'String'>
+    readonly data_resolucao_seguranca: FieldRef<"Seguranca", 'DateTime'>
     readonly metadata_seguranca: FieldRef<"Seguranca", 'Json'>
     readonly data_criacao_seguranca: FieldRef<"Seguranca", 'DateTime'>
   }
@@ -26713,7 +26801,7 @@ export namespace Prisma {
 
   export const SegurancaScalarFieldEnum: {
     id_seguranca: 'id_seguranca',
-    id_organizacao_seguranca: 'id_organizacao_seguranca',
+    id_organizacao: 'id_organizacao',
     id_ator_seguranca: 'id_ator_seguranca',
     tipo_ator_seguranca: 'tipo_ator_seguranca',
     acao_seguranca: 'acao_seguranca',
@@ -26722,9 +26810,17 @@ export namespace Prisma {
     descricao_seguranca: 'descricao_seguranca',
     ip_seguranca: 'ip_seguranca',
     endpoint_seguranca: 'endpoint_seguranca',
-    id_usuario_seguranca: 'id_usuario_seguranca',
-    id_produto_seguranca: 'id_produto_seguranca',
+    id_usuario: 'id_usuario',
+    id_workspace: 'id_workspace',
+    id_produto_gravity: 'id_produto_gravity',
     id_correlacao_seguranca: 'id_correlacao_seguranca',
+    id_clerk_sessao: 'id_clerk_sessao',
+    usuario_agente_seguranca: 'usuario_agente_seguranca',
+    geo_pais_seguranca: 'geo_pais_seguranca',
+    payload_request_seguranca: 'payload_request_seguranca',
+    acoes_tomadas_seguranca: 'acoes_tomadas_seguranca',
+    resolvido_por_seguranca: 'resolvido_por_seguranca',
+    data_resolucao_seguranca: 'data_resolucao_seguranca',
     metadata_seguranca: 'metadata_seguranca',
     data_criacao_seguranca: 'data_criacao_seguranca'
   };
@@ -28360,7 +28456,7 @@ export namespace Prisma {
     OR?: SegurancaWhereInput[]
     NOT?: SegurancaWhereInput | SegurancaWhereInput[]
     id_seguranca?: StringFilter<"Seguranca"> | string
-    id_organizacao_seguranca?: StringFilter<"Seguranca"> | string
+    id_organizacao?: StringFilter<"Seguranca"> | string
     id_ator_seguranca?: StringFilter<"Seguranca"> | string
     tipo_ator_seguranca?: StringFilter<"Seguranca"> | string
     acao_seguranca?: StringFilter<"Seguranca"> | string
@@ -28369,16 +28465,24 @@ export namespace Prisma {
     descricao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
     ip_seguranca?: StringNullableFilter<"Seguranca"> | string | null
     endpoint_seguranca?: StringNullableFilter<"Seguranca"> | string | null
-    id_usuario_seguranca?: StringNullableFilter<"Seguranca"> | string | null
-    id_produto_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_usuario?: StringNullableFilter<"Seguranca"> | string | null
+    id_workspace?: StringNullableFilter<"Seguranca"> | string | null
+    id_produto_gravity?: StringNullableFilter<"Seguranca"> | string | null
     id_correlacao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_clerk_sessao?: StringNullableFilter<"Seguranca"> | string | null
+    usuario_agente_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    geo_pais_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    payload_request_seguranca?: JsonNullableFilter<"Seguranca">
+    acoes_tomadas_seguranca?: JsonNullableFilter<"Seguranca">
+    resolvido_por_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    data_resolucao_seguranca?: DateTimeNullableFilter<"Seguranca"> | Date | string | null
     metadata_seguranca?: JsonNullableFilter<"Seguranca">
     data_criacao_seguranca?: DateTimeFilter<"Seguranca"> | Date | string
   }
 
   export type SegurancaOrderByWithRelationInput = {
     id_seguranca?: SortOrder
-    id_organizacao_seguranca?: SortOrder
+    id_organizacao?: SortOrder
     id_ator_seguranca?: SortOrder
     tipo_ator_seguranca?: SortOrder
     acao_seguranca?: SortOrder
@@ -28387,9 +28491,17 @@ export namespace Prisma {
     descricao_seguranca?: SortOrderInput | SortOrder
     ip_seguranca?: SortOrderInput | SortOrder
     endpoint_seguranca?: SortOrderInput | SortOrder
-    id_usuario_seguranca?: SortOrderInput | SortOrder
-    id_produto_seguranca?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_workspace?: SortOrderInput | SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
     id_correlacao_seguranca?: SortOrderInput | SortOrder
+    id_clerk_sessao?: SortOrderInput | SortOrder
+    usuario_agente_seguranca?: SortOrderInput | SortOrder
+    geo_pais_seguranca?: SortOrderInput | SortOrder
+    payload_request_seguranca?: SortOrderInput | SortOrder
+    acoes_tomadas_seguranca?: SortOrderInput | SortOrder
+    resolvido_por_seguranca?: SortOrderInput | SortOrder
+    data_resolucao_seguranca?: SortOrderInput | SortOrder
     metadata_seguranca?: SortOrderInput | SortOrder
     data_criacao_seguranca?: SortOrder
   }
@@ -28399,7 +28511,7 @@ export namespace Prisma {
     AND?: SegurancaWhereInput | SegurancaWhereInput[]
     OR?: SegurancaWhereInput[]
     NOT?: SegurancaWhereInput | SegurancaWhereInput[]
-    id_organizacao_seguranca?: StringFilter<"Seguranca"> | string
+    id_organizacao?: StringFilter<"Seguranca"> | string
     id_ator_seguranca?: StringFilter<"Seguranca"> | string
     tipo_ator_seguranca?: StringFilter<"Seguranca"> | string
     acao_seguranca?: StringFilter<"Seguranca"> | string
@@ -28408,16 +28520,24 @@ export namespace Prisma {
     descricao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
     ip_seguranca?: StringNullableFilter<"Seguranca"> | string | null
     endpoint_seguranca?: StringNullableFilter<"Seguranca"> | string | null
-    id_usuario_seguranca?: StringNullableFilter<"Seguranca"> | string | null
-    id_produto_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_usuario?: StringNullableFilter<"Seguranca"> | string | null
+    id_workspace?: StringNullableFilter<"Seguranca"> | string | null
+    id_produto_gravity?: StringNullableFilter<"Seguranca"> | string | null
     id_correlacao_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    id_clerk_sessao?: StringNullableFilter<"Seguranca"> | string | null
+    usuario_agente_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    geo_pais_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    payload_request_seguranca?: JsonNullableFilter<"Seguranca">
+    acoes_tomadas_seguranca?: JsonNullableFilter<"Seguranca">
+    resolvido_por_seguranca?: StringNullableFilter<"Seguranca"> | string | null
+    data_resolucao_seguranca?: DateTimeNullableFilter<"Seguranca"> | Date | string | null
     metadata_seguranca?: JsonNullableFilter<"Seguranca">
     data_criacao_seguranca?: DateTimeFilter<"Seguranca"> | Date | string
   }, "id_seguranca">
 
   export type SegurancaOrderByWithAggregationInput = {
     id_seguranca?: SortOrder
-    id_organizacao_seguranca?: SortOrder
+    id_organizacao?: SortOrder
     id_ator_seguranca?: SortOrder
     tipo_ator_seguranca?: SortOrder
     acao_seguranca?: SortOrder
@@ -28426,9 +28546,17 @@ export namespace Prisma {
     descricao_seguranca?: SortOrderInput | SortOrder
     ip_seguranca?: SortOrderInput | SortOrder
     endpoint_seguranca?: SortOrderInput | SortOrder
-    id_usuario_seguranca?: SortOrderInput | SortOrder
-    id_produto_seguranca?: SortOrderInput | SortOrder
+    id_usuario?: SortOrderInput | SortOrder
+    id_workspace?: SortOrderInput | SortOrder
+    id_produto_gravity?: SortOrderInput | SortOrder
     id_correlacao_seguranca?: SortOrderInput | SortOrder
+    id_clerk_sessao?: SortOrderInput | SortOrder
+    usuario_agente_seguranca?: SortOrderInput | SortOrder
+    geo_pais_seguranca?: SortOrderInput | SortOrder
+    payload_request_seguranca?: SortOrderInput | SortOrder
+    acoes_tomadas_seguranca?: SortOrderInput | SortOrder
+    resolvido_por_seguranca?: SortOrderInput | SortOrder
+    data_resolucao_seguranca?: SortOrderInput | SortOrder
     metadata_seguranca?: SortOrderInput | SortOrder
     data_criacao_seguranca?: SortOrder
     _count?: SegurancaCountOrderByAggregateInput
@@ -28441,7 +28569,7 @@ export namespace Prisma {
     OR?: SegurancaScalarWhereWithAggregatesInput[]
     NOT?: SegurancaScalarWhereWithAggregatesInput | SegurancaScalarWhereWithAggregatesInput[]
     id_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
-    id_organizacao_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
+    id_organizacao?: StringWithAggregatesFilter<"Seguranca"> | string
     id_ator_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
     tipo_ator_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
     acao_seguranca?: StringWithAggregatesFilter<"Seguranca"> | string
@@ -28450,9 +28578,17 @@ export namespace Prisma {
     descricao_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
     ip_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
     endpoint_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    id_usuario_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
-    id_produto_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_usuario?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_workspace?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_produto_gravity?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
     id_correlacao_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    id_clerk_sessao?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    usuario_agente_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    geo_pais_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    payload_request_seguranca?: JsonNullableWithAggregatesFilter<"Seguranca">
+    acoes_tomadas_seguranca?: JsonNullableWithAggregatesFilter<"Seguranca">
+    resolvido_por_seguranca?: StringNullableWithAggregatesFilter<"Seguranca"> | string | null
+    data_resolucao_seguranca?: DateTimeNullableWithAggregatesFilter<"Seguranca"> | Date | string | null
     metadata_seguranca?: JsonNullableWithAggregatesFilter<"Seguranca">
     data_criacao_seguranca?: DateTimeWithAggregatesFilter<"Seguranca"> | Date | string
   }
@@ -30554,7 +30690,7 @@ export namespace Prisma {
 
   export type SegurancaCreateInput = {
     id_seguranca?: string
-    id_organizacao_seguranca: string
+    id_organizacao: string
     id_ator_seguranca: string
     tipo_ator_seguranca: string
     acao_seguranca: string
@@ -30563,16 +30699,24 @@ export namespace Prisma {
     descricao_seguranca?: string | null
     ip_seguranca?: string | null
     endpoint_seguranca?: string | null
-    id_usuario_seguranca?: string | null
-    id_produto_seguranca?: string | null
+    id_usuario?: string | null
+    id_workspace?: string | null
+    id_produto_gravity?: string | null
     id_correlacao_seguranca?: string | null
+    id_clerk_sessao?: string | null
+    usuario_agente_seguranca?: string | null
+    geo_pais_seguranca?: string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: string | null
+    data_resolucao_seguranca?: Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUncheckedCreateInput = {
     id_seguranca?: string
-    id_organizacao_seguranca: string
+    id_organizacao: string
     id_ator_seguranca: string
     tipo_ator_seguranca: string
     acao_seguranca: string
@@ -30581,16 +30725,24 @@ export namespace Prisma {
     descricao_seguranca?: string | null
     ip_seguranca?: string | null
     endpoint_seguranca?: string | null
-    id_usuario_seguranca?: string | null
-    id_produto_seguranca?: string | null
+    id_usuario?: string | null
+    id_workspace?: string | null
+    id_produto_gravity?: string | null
     id_correlacao_seguranca?: string | null
+    id_clerk_sessao?: string | null
+    usuario_agente_seguranca?: string | null
+    geo_pais_seguranca?: string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: string | null
+    data_resolucao_seguranca?: Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUpdateInput = {
     id_seguranca?: StringFieldUpdateOperationsInput | string
-    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_ator_seguranca?: StringFieldUpdateOperationsInput | string
     tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
     acao_seguranca?: StringFieldUpdateOperationsInput | string
@@ -30599,16 +30751,24 @@ export namespace Prisma {
     descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_clerk_sessao?: NullableStringFieldUpdateOperationsInput | string | null
+    usuario_agente_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    geo_pais_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    data_resolucao_seguranca?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaUncheckedUpdateInput = {
     id_seguranca?: StringFieldUpdateOperationsInput | string
-    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_ator_seguranca?: StringFieldUpdateOperationsInput | string
     tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
     acao_seguranca?: StringFieldUpdateOperationsInput | string
@@ -30617,16 +30777,24 @@ export namespace Prisma {
     descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_clerk_sessao?: NullableStringFieldUpdateOperationsInput | string | null
+    usuario_agente_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    geo_pais_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    data_resolucao_seguranca?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaCreateManyInput = {
     id_seguranca?: string
-    id_organizacao_seguranca: string
+    id_organizacao: string
     id_ator_seguranca: string
     tipo_ator_seguranca: string
     acao_seguranca: string
@@ -30635,16 +30803,24 @@ export namespace Prisma {
     descricao_seguranca?: string | null
     ip_seguranca?: string | null
     endpoint_seguranca?: string | null
-    id_usuario_seguranca?: string | null
-    id_produto_seguranca?: string | null
+    id_usuario?: string | null
+    id_workspace?: string | null
+    id_produto_gravity?: string | null
     id_correlacao_seguranca?: string | null
+    id_clerk_sessao?: string | null
+    usuario_agente_seguranca?: string | null
+    geo_pais_seguranca?: string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: string | null
+    data_resolucao_seguranca?: Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: Date | string
   }
 
   export type SegurancaUpdateManyMutationInput = {
     id_seguranca?: StringFieldUpdateOperationsInput | string
-    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_ator_seguranca?: StringFieldUpdateOperationsInput | string
     tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
     acao_seguranca?: StringFieldUpdateOperationsInput | string
@@ -30653,16 +30829,24 @@ export namespace Prisma {
     descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_clerk_sessao?: NullableStringFieldUpdateOperationsInput | string | null
+    usuario_agente_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    geo_pais_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    data_resolucao_seguranca?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SegurancaUncheckedUpdateManyInput = {
     id_seguranca?: StringFieldUpdateOperationsInput | string
-    id_organizacao_seguranca?: StringFieldUpdateOperationsInput | string
+    id_organizacao?: StringFieldUpdateOperationsInput | string
     id_ator_seguranca?: StringFieldUpdateOperationsInput | string
     tipo_ator_seguranca?: StringFieldUpdateOperationsInput | string
     acao_seguranca?: StringFieldUpdateOperationsInput | string
@@ -30671,9 +30855,17 @@ export namespace Prisma {
     descricao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     ip_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
     endpoint_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_usuario_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
-    id_produto_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario?: NullableStringFieldUpdateOperationsInput | string | null
+    id_workspace?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     id_correlacao_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    id_clerk_sessao?: NullableStringFieldUpdateOperationsInput | string | null
+    usuario_agente_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    geo_pais_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    payload_request_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    acoes_tomadas_seguranca?: NullableJsonNullValueInput | InputJsonValue
+    resolvido_por_seguranca?: NullableStringFieldUpdateOperationsInput | string | null
+    data_resolucao_seguranca?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     metadata_seguranca?: NullableJsonNullValueInput | InputJsonValue
     data_criacao_seguranca?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32845,7 +33037,7 @@ export namespace Prisma {
 
   export type SegurancaCountOrderByAggregateInput = {
     id_seguranca?: SortOrder
-    id_organizacao_seguranca?: SortOrder
+    id_organizacao?: SortOrder
     id_ator_seguranca?: SortOrder
     tipo_ator_seguranca?: SortOrder
     acao_seguranca?: SortOrder
@@ -32854,16 +33046,24 @@ export namespace Prisma {
     descricao_seguranca?: SortOrder
     ip_seguranca?: SortOrder
     endpoint_seguranca?: SortOrder
-    id_usuario_seguranca?: SortOrder
-    id_produto_seguranca?: SortOrder
+    id_usuario?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     id_correlacao_seguranca?: SortOrder
+    id_clerk_sessao?: SortOrder
+    usuario_agente_seguranca?: SortOrder
+    geo_pais_seguranca?: SortOrder
+    payload_request_seguranca?: SortOrder
+    acoes_tomadas_seguranca?: SortOrder
+    resolvido_por_seguranca?: SortOrder
+    data_resolucao_seguranca?: SortOrder
     metadata_seguranca?: SortOrder
     data_criacao_seguranca?: SortOrder
   }
 
   export type SegurancaMaxOrderByAggregateInput = {
     id_seguranca?: SortOrder
-    id_organizacao_seguranca?: SortOrder
+    id_organizacao?: SortOrder
     id_ator_seguranca?: SortOrder
     tipo_ator_seguranca?: SortOrder
     acao_seguranca?: SortOrder
@@ -32872,15 +33072,21 @@ export namespace Prisma {
     descricao_seguranca?: SortOrder
     ip_seguranca?: SortOrder
     endpoint_seguranca?: SortOrder
-    id_usuario_seguranca?: SortOrder
-    id_produto_seguranca?: SortOrder
+    id_usuario?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     id_correlacao_seguranca?: SortOrder
+    id_clerk_sessao?: SortOrder
+    usuario_agente_seguranca?: SortOrder
+    geo_pais_seguranca?: SortOrder
+    resolvido_por_seguranca?: SortOrder
+    data_resolucao_seguranca?: SortOrder
     data_criacao_seguranca?: SortOrder
   }
 
   export type SegurancaMinOrderByAggregateInput = {
     id_seguranca?: SortOrder
-    id_organizacao_seguranca?: SortOrder
+    id_organizacao?: SortOrder
     id_ator_seguranca?: SortOrder
     tipo_ator_seguranca?: SortOrder
     acao_seguranca?: SortOrder
@@ -32889,9 +33095,15 @@ export namespace Prisma {
     descricao_seguranca?: SortOrder
     ip_seguranca?: SortOrder
     endpoint_seguranca?: SortOrder
-    id_usuario_seguranca?: SortOrder
-    id_produto_seguranca?: SortOrder
+    id_usuario?: SortOrder
+    id_workspace?: SortOrder
+    id_produto_gravity?: SortOrder
     id_correlacao_seguranca?: SortOrder
+    id_clerk_sessao?: SortOrder
+    usuario_agente_seguranca?: SortOrder
+    geo_pais_seguranca?: SortOrder
+    resolvido_por_seguranca?: SortOrder
+    data_resolucao_seguranca?: SortOrder
     data_criacao_seguranca?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 

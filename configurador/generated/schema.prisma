@@ -553,27 +553,38 @@ model OrganizacaoFornecedor {
 // ---------------------------------------------------------------------------
 
 model Seguranca {
-  id_seguranca             String   @id @default(cuid())
-  id_organizacao_seguranca String
-  id_ator_seguranca        String
-  tipo_ator_seguranca      String // USER | SYSTEM | GABI_IA | ADMIN
-  acao_seguranca           String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
-  severidade_seguranca     String // CRITICAL | WARNING | INFO
-  status_seguranca         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
-  descricao_seguranca      String?
-  ip_seguranca             String?
-  endpoint_seguranca       String?
-  id_usuario_seguranca     String?
-  id_produto_seguranca     String?
-  id_correlacao_seguranca  String?
-  metadata_seguranca       Json?    @default("{}")
-  data_criacao_seguranca   DateTime @default(now())
+  id_seguranca              String    @id @default(cuid())
+  id_organizacao            String
+  id_ator_seguranca         String
+  tipo_ator_seguranca       String // USER | SYSTEM | GABI_IA | ADMIN
+  acao_seguranca            String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
+  severidade_seguranca      String // CRITICAL | WARNING | INFO
+  status_seguranca          String    @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
+  descricao_seguranca       String?
+  ip_seguranca              String?
+  endpoint_seguranca        String?
+  id_usuario                String?
+  id_workspace              String?
+  id_produto_gravity        String?
+  id_correlacao_seguranca   String?
+  id_clerk_sessao           String?
+  usuario_agente_seguranca  String?
+  geo_pais_seguranca        String? // ISO-2
+  payload_request_seguranca Json?
+  acoes_tomadas_seguranca   Json?
+  resolvido_por_seguranca   String? // clerk_user_id de quem fechou o incidente
+  data_resolucao_seguranca  DateTime?
+  metadata_seguranca        Json?     @default("{}")
+  data_criacao_seguranca    DateTime  @default(now())
 
-  @@index([data_criacao_seguranca])
-  @@index([severidade_seguranca])
-  @@index([acao_seguranca])
-  @@index([id_organizacao_seguranca, data_criacao_seguranca])
-  @@index([severidade_seguranca, data_criacao_seguranca])
+  @@index([data_criacao_seguranca], map: "seguranca_data_criacao_idx")
+  @@index([severidade_seguranca], map: "seguranca_severidade_idx")
+  @@index([acao_seguranca], map: "seguranca_acao_idx")
+  @@index([id_organizacao, data_criacao_seguranca], map: "seguranca_id_organizacao_data_criacao_idx")
+  @@index([severidade_seguranca, data_criacao_seguranca], map: "seguranca_severidade_data_criacao_idx")
+  @@index([id_workspace], map: "seguranca_id_workspace_idx")
+  @@index([id_usuario], map: "seguranca_id_usuario_idx")
+  @@index([data_resolucao_seguranca], map: "seguranca_data_resolucao_idx")
   @@map("seguranca")
 }
 

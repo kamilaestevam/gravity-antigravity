@@ -437,21 +437,21 @@ model ProdutoGravity {
 // ---------------------------------------------------------------------------
 
 model ProdutoGravityFaixaPreco {
-  id_faixa_preco                 String  @id @default(cuid())
-  id_produto_gravity_faixa_preco String
-  faixa_de_faixa_preco           Int
-  faixa_ate_faixa_preco          Int?
-  preco_faixa_preco              Decimal @db.Decimal(15, 2)
-  moeda_faixa_preco              String  @default("BRL")
+  id_faixa_preco_produto_gravity        String  @id @default(cuid())
+  id_produto_gravity_faixa_preco        String
+  faixa_de_faixa_preco_produto_gravity  Int
+  faixa_ate_faixa_preco_produto_gravity Int?
+  preco_faixa_preco_produto_gravity     Decimal @db.Decimal(15, 2)
+  moeda_faixa_preco_produto_gravity     String  @default("BRL")
 
   // Timestamps
-  data_criacao_faixa_preco DateTime @default(now())
+  data_criacao_faixa_preco_produto_gravity DateTime @default(now())
 
   // Relations
-  produto ProdutoGravity @relation(fields: [id_produto_gravity_faixa_preco], references: [id_produto_gravity], onDelete: Cascade)
+  produto ProdutoGravity @relation(fields: [id_produto_gravity_faixa_preco], references: [id_produto_gravity], onDelete: Cascade, map: "faixa_preco_produto_gravity_produto_id_fkey")
 
-  @@index([id_produto_gravity_faixa_preco], map: "fp_produto_idx")
-  @@index([id_produto_gravity_faixa_preco, faixa_de_faixa_preco], map: "fp_produto_faixa_idx")
+  @@index([id_produto_gravity_faixa_preco], map: "faixa_preco_produto_gravity_produto_id_idx")
+  @@index([id_produto_gravity_faixa_preco, faixa_de_faixa_preco_produto_gravity], map: "faixa_preco_produto_gravity_produto_id_faixa_de_idx")
   @@map("faixa_preco_produto_gravity")
 }
 

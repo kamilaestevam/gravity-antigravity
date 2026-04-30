@@ -260,13 +260,13 @@ exports.Prisma.ProdutoGravityScalarFieldEnum = {
 };
 
 exports.Prisma.ProdutoGravityFaixaPrecoScalarFieldEnum = {
-  id_faixa_preco: 'id_faixa_preco',
+  id_faixa_preco_produto_gravity: 'id_faixa_preco_produto_gravity',
   id_produto_gravity_faixa_preco: 'id_produto_gravity_faixa_preco',
-  faixa_de_faixa_preco: 'faixa_de_faixa_preco',
-  faixa_ate_faixa_preco: 'faixa_ate_faixa_preco',
-  preco_faixa_preco: 'preco_faixa_preco',
-  moeda_faixa_preco: 'moeda_faixa_preco',
-  data_criacao_faixa_preco: 'data_criacao_faixa_preco'
+  faixa_de_faixa_preco_produto_gravity: 'faixa_de_faixa_preco_produto_gravity',
+  faixa_ate_faixa_preco_produto_gravity: 'faixa_ate_faixa_preco_produto_gravity',
+  preco_faixa_preco_produto_gravity: 'preco_faixa_preco_produto_gravity',
+  moeda_faixa_preco_produto_gravity: 'moeda_faixa_preco_produto_gravity',
+  data_criacao_faixa_preco_produto_gravity: 'data_criacao_faixa_preco_produto_gravity'
 };
 
 exports.Prisma.ProdutoGravityNegociacaoEspecialScalarFieldEnum = {

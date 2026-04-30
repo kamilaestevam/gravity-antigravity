@@ -13474,89 +13474,89 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoAvgAggregateOutputType = {
-    faixa_de_faixa_preco: number | null
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: Decimal | null
+    faixa_de_faixa_preco_produto_gravity: number | null
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: Decimal | null
   }
 
   export type ProdutoGravityFaixaPrecoSumAggregateOutputType = {
-    faixa_de_faixa_preco: number | null
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: Decimal | null
+    faixa_de_faixa_preco_produto_gravity: number | null
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: Decimal | null
   }
 
   export type ProdutoGravityFaixaPrecoMinAggregateOutputType = {
-    id_faixa_preco: string | null
+    id_faixa_preco_produto_gravity: string | null
     id_produto_gravity_faixa_preco: string | null
-    faixa_de_faixa_preco: number | null
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: Decimal | null
-    moeda_faixa_preco: string | null
-    data_criacao_faixa_preco: Date | null
+    faixa_de_faixa_preco_produto_gravity: number | null
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: Decimal | null
+    moeda_faixa_preco_produto_gravity: string | null
+    data_criacao_faixa_preco_produto_gravity: Date | null
   }
 
   export type ProdutoGravityFaixaPrecoMaxAggregateOutputType = {
-    id_faixa_preco: string | null
+    id_faixa_preco_produto_gravity: string | null
     id_produto_gravity_faixa_preco: string | null
-    faixa_de_faixa_preco: number | null
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: Decimal | null
-    moeda_faixa_preco: string | null
-    data_criacao_faixa_preco: Date | null
+    faixa_de_faixa_preco_produto_gravity: number | null
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: Decimal | null
+    moeda_faixa_preco_produto_gravity: string | null
+    data_criacao_faixa_preco_produto_gravity: Date | null
   }
 
   export type ProdutoGravityFaixaPrecoCountAggregateOutputType = {
-    id_faixa_preco: number
+    id_faixa_preco_produto_gravity: number
     id_produto_gravity_faixa_preco: number
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco: number
-    preco_faixa_preco: number
-    moeda_faixa_preco: number
-    data_criacao_faixa_preco: number
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity: number
+    preco_faixa_preco_produto_gravity: number
+    moeda_faixa_preco_produto_gravity: number
+    data_criacao_faixa_preco_produto_gravity: number
     _all: number
   }
 
 
   export type ProdutoGravityFaixaPrecoAvgAggregateInputType = {
-    faixa_de_faixa_preco?: true
-    faixa_ate_faixa_preco?: true
-    preco_faixa_preco?: true
+    faixa_de_faixa_preco_produto_gravity?: true
+    faixa_ate_faixa_preco_produto_gravity?: true
+    preco_faixa_preco_produto_gravity?: true
   }
 
   export type ProdutoGravityFaixaPrecoSumAggregateInputType = {
-    faixa_de_faixa_preco?: true
-    faixa_ate_faixa_preco?: true
-    preco_faixa_preco?: true
+    faixa_de_faixa_preco_produto_gravity?: true
+    faixa_ate_faixa_preco_produto_gravity?: true
+    preco_faixa_preco_produto_gravity?: true
   }
 
   export type ProdutoGravityFaixaPrecoMinAggregateInputType = {
-    id_faixa_preco?: true
+    id_faixa_preco_produto_gravity?: true
     id_produto_gravity_faixa_preco?: true
-    faixa_de_faixa_preco?: true
-    faixa_ate_faixa_preco?: true
-    preco_faixa_preco?: true
-    moeda_faixa_preco?: true
-    data_criacao_faixa_preco?: true
+    faixa_de_faixa_preco_produto_gravity?: true
+    faixa_ate_faixa_preco_produto_gravity?: true
+    preco_faixa_preco_produto_gravity?: true
+    moeda_faixa_preco_produto_gravity?: true
+    data_criacao_faixa_preco_produto_gravity?: true
   }
 
   export type ProdutoGravityFaixaPrecoMaxAggregateInputType = {
-    id_faixa_preco?: true
+    id_faixa_preco_produto_gravity?: true
     id_produto_gravity_faixa_preco?: true
-    faixa_de_faixa_preco?: true
-    faixa_ate_faixa_preco?: true
-    preco_faixa_preco?: true
-    moeda_faixa_preco?: true
-    data_criacao_faixa_preco?: true
+    faixa_de_faixa_preco_produto_gravity?: true
+    faixa_ate_faixa_preco_produto_gravity?: true
+    preco_faixa_preco_produto_gravity?: true
+    moeda_faixa_preco_produto_gravity?: true
+    data_criacao_faixa_preco_produto_gravity?: true
   }
 
   export type ProdutoGravityFaixaPrecoCountAggregateInputType = {
-    id_faixa_preco?: true
+    id_faixa_preco_produto_gravity?: true
     id_produto_gravity_faixa_preco?: true
-    faixa_de_faixa_preco?: true
-    faixa_ate_faixa_preco?: true
-    preco_faixa_preco?: true
-    moeda_faixa_preco?: true
-    data_criacao_faixa_preco?: true
+    faixa_de_faixa_preco_produto_gravity?: true
+    faixa_ate_faixa_preco_produto_gravity?: true
+    preco_faixa_preco_produto_gravity?: true
+    moeda_faixa_preco_produto_gravity?: true
+    data_criacao_faixa_preco_produto_gravity?: true
     _all?: true
   }
 
@@ -13647,13 +13647,13 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoGroupByOutputType = {
-    id_faixa_preco: string
+    id_faixa_preco_produto_gravity: string
     id_produto_gravity_faixa_preco: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco: number | null
-    preco_faixa_preco: Decimal
-    moeda_faixa_preco: string
-    data_criacao_faixa_preco: Date
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity: number | null
+    preco_faixa_preco_produto_gravity: Decimal
+    moeda_faixa_preco_produto_gravity: string
+    data_criacao_faixa_preco_produto_gravity: Date
     _count: ProdutoGravityFaixaPrecoCountAggregateOutputType | null
     _avg: ProdutoGravityFaixaPrecoAvgAggregateOutputType | null
     _sum: ProdutoGravityFaixaPrecoSumAggregateOutputType | null
@@ -13676,35 +13676,35 @@ export namespace Prisma {
 
 
   export type ProdutoGravityFaixaPrecoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_faixa_preco?: boolean
+    id_faixa_preco_produto_gravity?: boolean
     id_produto_gravity_faixa_preco?: boolean
-    faixa_de_faixa_preco?: boolean
-    faixa_ate_faixa_preco?: boolean
-    preco_faixa_preco?: boolean
-    moeda_faixa_preco?: boolean
-    data_criacao_faixa_preco?: boolean
+    faixa_de_faixa_preco_produto_gravity?: boolean
+    faixa_ate_faixa_preco_produto_gravity?: boolean
+    preco_faixa_preco_produto_gravity?: boolean
+    moeda_faixa_preco_produto_gravity?: boolean
+    data_criacao_faixa_preco_produto_gravity?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
 
   export type ProdutoGravityFaixaPrecoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_faixa_preco?: boolean
+    id_faixa_preco_produto_gravity?: boolean
     id_produto_gravity_faixa_preco?: boolean
-    faixa_de_faixa_preco?: boolean
-    faixa_ate_faixa_preco?: boolean
-    preco_faixa_preco?: boolean
-    moeda_faixa_preco?: boolean
-    data_criacao_faixa_preco?: boolean
+    faixa_de_faixa_preco_produto_gravity?: boolean
+    faixa_ate_faixa_preco_produto_gravity?: boolean
+    preco_faixa_preco_produto_gravity?: boolean
+    moeda_faixa_preco_produto_gravity?: boolean
+    data_criacao_faixa_preco_produto_gravity?: boolean
     produto?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
 
   export type ProdutoGravityFaixaPrecoSelectScalar = {
-    id_faixa_preco?: boolean
+    id_faixa_preco_produto_gravity?: boolean
     id_produto_gravity_faixa_preco?: boolean
-    faixa_de_faixa_preco?: boolean
-    faixa_ate_faixa_preco?: boolean
-    preco_faixa_preco?: boolean
-    moeda_faixa_preco?: boolean
-    data_criacao_faixa_preco?: boolean
+    faixa_de_faixa_preco_produto_gravity?: boolean
+    faixa_ate_faixa_preco_produto_gravity?: boolean
+    preco_faixa_preco_produto_gravity?: boolean
+    moeda_faixa_preco_produto_gravity?: boolean
+    data_criacao_faixa_preco_produto_gravity?: boolean
   }
 
   export type ProdutoGravityFaixaPrecoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13720,13 +13720,13 @@ export namespace Prisma {
       produto: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id_faixa_preco: string
+      id_faixa_preco_produto_gravity: string
       id_produto_gravity_faixa_preco: string
-      faixa_de_faixa_preco: number
-      faixa_ate_faixa_preco: number | null
-      preco_faixa_preco: Prisma.Decimal
-      moeda_faixa_preco: string
-      data_criacao_faixa_preco: Date
+      faixa_de_faixa_preco_produto_gravity: number
+      faixa_ate_faixa_preco_produto_gravity: number | null
+      preco_faixa_preco_produto_gravity: Prisma.Decimal
+      moeda_faixa_preco_produto_gravity: string
+      data_criacao_faixa_preco_produto_gravity: Date
     }, ExtArgs["result"]["produtoGravityFaixaPreco"]>
     composites: {}
   }
@@ -13810,8 +13810,8 @@ export namespace Prisma {
      * // Get first 10 ProdutoGravityFaixaPrecos
      * const produtoGravityFaixaPrecos = await prisma.produtoGravityFaixaPreco.findMany({ take: 10 })
      * 
-     * // Only select the `id_faixa_preco`
-     * const produtoGravityFaixaPrecoWithId_faixa_precoOnly = await prisma.produtoGravityFaixaPreco.findMany({ select: { id_faixa_preco: true } })
+     * // Only select the `id_faixa_preco_produto_gravity`
+     * const produtoGravityFaixaPrecoWithId_faixa_preco_produto_gravityOnly = await prisma.produtoGravityFaixaPreco.findMany({ select: { id_faixa_preco_produto_gravity: true } })
      * 
      */
     findMany<T extends ProdutoGravityFaixaPrecoFindManyArgs>(args?: SelectSubset<T, ProdutoGravityFaixaPrecoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityFaixaPrecoPayload<ExtArgs>, T, "findMany">>
@@ -13855,9 +13855,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ProdutoGravityFaixaPrecos and only return the `id_faixa_preco`
-     * const produtoGravityFaixaPrecoWithId_faixa_precoOnly = await prisma.produtoGravityFaixaPreco.createManyAndReturn({ 
-     *   select: { id_faixa_preco: true },
+     * // Create many ProdutoGravityFaixaPrecos and only return the `id_faixa_preco_produto_gravity`
+     * const produtoGravityFaixaPrecoWithId_faixa_preco_produto_gravityOnly = await prisma.produtoGravityFaixaPreco.createManyAndReturn({ 
+     *   select: { id_faixa_preco_produto_gravity: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -14121,13 +14121,13 @@ export namespace Prisma {
    * Fields of the ProdutoGravityFaixaPreco model
    */ 
   interface ProdutoGravityFaixaPrecoFieldRefs {
-    readonly id_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
+    readonly id_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
     readonly id_produto_gravity_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
-    readonly faixa_de_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
-    readonly faixa_ate_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
-    readonly preco_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'Decimal'>
-    readonly moeda_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
-    readonly data_criacao_faixa_preco: FieldRef<"ProdutoGravityFaixaPreco", 'DateTime'>
+    readonly faixa_de_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
+    readonly faixa_ate_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'Int'>
+    readonly preco_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'Decimal'>
+    readonly moeda_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'String'>
+    readonly data_criacao_faixa_preco_produto_gravity: FieldRef<"ProdutoGravityFaixaPreco", 'DateTime'>
   }
     
 
@@ -26561,13 +26561,13 @@ export namespace Prisma {
 
 
   export const ProdutoGravityFaixaPrecoScalarFieldEnum: {
-    id_faixa_preco: 'id_faixa_preco',
+    id_faixa_preco_produto_gravity: 'id_faixa_preco_produto_gravity',
     id_produto_gravity_faixa_preco: 'id_produto_gravity_faixa_preco',
-    faixa_de_faixa_preco: 'faixa_de_faixa_preco',
-    faixa_ate_faixa_preco: 'faixa_ate_faixa_preco',
-    preco_faixa_preco: 'preco_faixa_preco',
-    moeda_faixa_preco: 'moeda_faixa_preco',
-    data_criacao_faixa_preco: 'data_criacao_faixa_preco'
+    faixa_de_faixa_preco_produto_gravity: 'faixa_de_faixa_preco_produto_gravity',
+    faixa_ate_faixa_preco_produto_gravity: 'faixa_ate_faixa_preco_produto_gravity',
+    preco_faixa_preco_produto_gravity: 'preco_faixa_preco_produto_gravity',
+    moeda_faixa_preco_produto_gravity: 'moeda_faixa_preco_produto_gravity',
+    data_criacao_faixa_preco_produto_gravity: 'data_criacao_faixa_preco_produto_gravity'
   };
 
   export type ProdutoGravityFaixaPrecoScalarFieldEnum = (typeof ProdutoGravityFaixaPrecoScalarFieldEnum)[keyof typeof ProdutoGravityFaixaPrecoScalarFieldEnum]
@@ -27975,49 +27975,49 @@ export namespace Prisma {
     AND?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
     OR?: ProdutoGravityFaixaPrecoWhereInput[]
     NOT?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
-    id_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    id_faixa_preco_produto_gravity?: StringFilter<"ProdutoGravityFaixaPreco"> | string
     id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco_produto_gravity?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
   export type ProdutoGravityFaixaPrecoOrderByWithRelationInput = {
-    id_faixa_preco?: SortOrder
+    id_faixa_preco_produto_gravity?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrderInput | SortOrder
-    preco_faixa_preco?: SortOrder
-    moeda_faixa_preco?: SortOrder
-    data_criacao_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrderInput | SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
+    moeda_faixa_preco_produto_gravity?: SortOrder
+    data_criacao_faixa_preco_produto_gravity?: SortOrder
     produto?: ProdutoGravityOrderByWithRelationInput
   }
 
   export type ProdutoGravityFaixaPrecoWhereUniqueInput = Prisma.AtLeast<{
-    id_faixa_preco?: string
+    id_faixa_preco_produto_gravity?: string
     AND?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
     OR?: ProdutoGravityFaixaPrecoWhereInput[]
     NOT?: ProdutoGravityFaixaPrecoWhereInput | ProdutoGravityFaixaPrecoWhereInput[]
     id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco_produto_gravity?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
     produto?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
-  }, "id_faixa_preco">
+  }, "id_faixa_preco_produto_gravity">
 
   export type ProdutoGravityFaixaPrecoOrderByWithAggregationInput = {
-    id_faixa_preco?: SortOrder
+    id_faixa_preco_produto_gravity?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrderInput | SortOrder
-    preco_faixa_preco?: SortOrder
-    moeda_faixa_preco?: SortOrder
-    data_criacao_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrderInput | SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
+    moeda_faixa_preco_produto_gravity?: SortOrder
+    data_criacao_faixa_preco_produto_gravity?: SortOrder
     _count?: ProdutoGravityFaixaPrecoCountOrderByAggregateInput
     _avg?: ProdutoGravityFaixaPrecoAvgOrderByAggregateInput
     _max?: ProdutoGravityFaixaPrecoMaxOrderByAggregateInput
@@ -28029,13 +28029,13 @@ export namespace Prisma {
     AND?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput | ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
     OR?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
     NOT?: ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput | ProdutoGravityFaixaPrecoScalarWhereWithAggregatesInput[]
-    id_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
+    id_faixa_preco_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
     id_produto_gravity_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
-    faixa_de_faixa_preco?: IntWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco_produto_gravity?: IntNullableWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco_produto_gravity?: DecimalWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeWithAggregatesFilter<"ProdutoGravityFaixaPreco"> | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialWhereInput = {
@@ -30119,72 +30119,72 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoCreateInput = {
-    id_faixa_preco?: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    id_faixa_preco_produto_gravity?: string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
     produto: ProdutoGravityCreateNestedOneWithoutFaixas_preco_produto_gravityInput
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedCreateInput = {
-    id_faixa_preco?: string
+    id_faixa_preco_produto_gravity?: string
     id_produto_gravity_faixa_preco: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUpdateInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     produto?: ProdutoGravityUpdateOneRequiredWithoutFaixas_preco_produto_gravityNestedInput
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedUpdateInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityFaixaPrecoCreateManyInput = {
-    id_faixa_preco?: string
+    id_faixa_preco_produto_gravity?: string
     id_produto_gravity_faixa_preco: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUpdateManyMutationInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedUpdateManyInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
     id_produto_gravity_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateInput = {
@@ -32476,45 +32476,45 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoCountOrderByAggregateInput = {
-    id_faixa_preco?: SortOrder
+    id_faixa_preco_produto_gravity?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrder
-    preco_faixa_preco?: SortOrder
-    moeda_faixa_preco?: SortOrder
-    data_criacao_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
+    moeda_faixa_preco_produto_gravity?: SortOrder
+    data_criacao_faixa_preco_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityFaixaPrecoAvgOrderByAggregateInput = {
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrder
-    preco_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityFaixaPrecoMaxOrderByAggregateInput = {
-    id_faixa_preco?: SortOrder
+    id_faixa_preco_produto_gravity?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrder
-    preco_faixa_preco?: SortOrder
-    moeda_faixa_preco?: SortOrder
-    data_criacao_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
+    moeda_faixa_preco_produto_gravity?: SortOrder
+    data_criacao_faixa_preco_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityFaixaPrecoMinOrderByAggregateInput = {
-    id_faixa_preco?: SortOrder
+    id_faixa_preco_produto_gravity?: SortOrder
     id_produto_gravity_faixa_preco?: SortOrder
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrder
-    preco_faixa_preco?: SortOrder
-    moeda_faixa_preco?: SortOrder
-    data_criacao_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
+    moeda_faixa_preco_produto_gravity?: SortOrder
+    data_criacao_faixa_preco_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityFaixaPrecoSumOrderByAggregateInput = {
-    faixa_de_faixa_preco?: SortOrder
-    faixa_ate_faixa_preco?: SortOrder
-    preco_faixa_preco?: SortOrder
+    faixa_de_faixa_preco_produto_gravity?: SortOrder
+    faixa_ate_faixa_preco_produto_gravity?: SortOrder
+    preco_faixa_preco_produto_gravity?: SortOrder
   }
 
   export type ProdutoGravityNegociacaoEspecialCountOrderByAggregateInput = {
@@ -36180,21 +36180,21 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoCreateWithoutProdutoInput = {
-    id_faixa_preco?: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    id_faixa_preco_produto_gravity?: string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedCreateWithoutProdutoInput = {
-    id_faixa_preco?: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    id_faixa_preco_produto_gravity?: string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityFaixaPrecoCreateOrConnectWithoutProdutoInput = {
@@ -36261,13 +36261,13 @@ export namespace Prisma {
     AND?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
     OR?: ProdutoGravityFaixaPrecoScalarWhereInput[]
     NOT?: ProdutoGravityFaixaPrecoScalarWhereInput | ProdutoGravityFaixaPrecoScalarWhereInput[]
-    id_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    id_faixa_preco_produto_gravity?: StringFilter<"ProdutoGravityFaixaPreco"> | string
     id_produto_gravity_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    faixa_de_faixa_preco?: IntFilter<"ProdutoGravityFaixaPreco"> | number
-    faixa_ate_faixa_preco?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
-    preco_faixa_preco?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFilter<"ProdutoGravityFaixaPreco"> | string
-    data_criacao_faixa_preco?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
+    faixa_de_faixa_preco_produto_gravity?: IntFilter<"ProdutoGravityFaixaPreco"> | number
+    faixa_ate_faixa_preco_produto_gravity?: IntNullableFilter<"ProdutoGravityFaixaPreco"> | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFilter<"ProdutoGravityFaixaPreco"> | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFilter<"ProdutoGravityFaixaPreco"> | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFilter<"ProdutoGravityFaixaPreco"> | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUpsertWithWhereUniqueWithoutProdutoInput = {
@@ -37061,12 +37061,12 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoCreateManyProdutoInput = {
-    id_faixa_preco?: string
-    faixa_de_faixa_preco: number
-    faixa_ate_faixa_preco?: number | null
-    preco_faixa_preco: Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: string
-    data_criacao_faixa_preco?: Date | string
+    id_faixa_preco_produto_gravity?: string
+    faixa_de_faixa_preco_produto_gravity: number
+    faixa_ate_faixa_preco_produto_gravity?: number | null
+    preco_faixa_preco_produto_gravity: Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: string
+    data_criacao_faixa_preco_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialCreateManyProdutoInput = {
@@ -37082,30 +37082,30 @@ export namespace Prisma {
   }
 
   export type ProdutoGravityFaixaPrecoUpdateWithoutProdutoInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedUpdateWithoutProdutoInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityFaixaPrecoUncheckedUpdateManyWithoutProdutoInput = {
-    id_faixa_preco?: StringFieldUpdateOperationsInput | string
-    faixa_de_faixa_preco?: IntFieldUpdateOperationsInput | number
-    faixa_ate_faixa_preco?: NullableIntFieldUpdateOperationsInput | number | null
-    preco_faixa_preco?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_faixa_preco?: StringFieldUpdateOperationsInput | string
-    data_criacao_faixa_preco?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    faixa_de_faixa_preco_produto_gravity?: IntFieldUpdateOperationsInput | number
+    faixa_ate_faixa_preco_produto_gravity?: NullableIntFieldUpdateOperationsInput | number | null
+    preco_faixa_preco_produto_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_faixa_preco_produto_gravity?: StringFieldUpdateOperationsInput | string
+    data_criacao_faixa_preco_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityNegociacaoEspecialUpdateWithoutProdutoInput = {

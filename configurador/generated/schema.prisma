@@ -505,7 +505,7 @@ enum DeployStatus {
 
 model Deploy {
   id_deploy            String         @id @default(cuid())
-  deploy_number        Int            @default(autoincrement())
+  numero_deploy        Int            @default(autoincrement())
   area_deploy          String // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
   versao_deploy        String // semver (v1.2.3) ou git sha (8f3a1c2)
   descricao_deploy     String // resumo das alterações (changelog curto)

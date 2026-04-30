@@ -284,7 +284,7 @@ exports.Prisma.ProdutoGravityNegociacaoEspecialScalarFieldEnum = {
 
 exports.Prisma.DeployScalarFieldEnum = {
   id_deploy: 'id_deploy',
-  deploy_number: 'deploy_number',
+  numero_deploy: 'numero_deploy',
   area_deploy: 'area_deploy',
   versao_deploy: 'versao_deploy',
   descricao_deploy: 'descricao_deploy',

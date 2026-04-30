@@ -15466,16 +15466,16 @@ export namespace Prisma {
   }
 
   export type DeployAvgAggregateOutputType = {
-    deploy_number: number | null
+    numero_deploy: number | null
   }
 
   export type DeploySumAggregateOutputType = {
-    deploy_number: number | null
+    numero_deploy: number | null
   }
 
   export type DeployMinAggregateOutputType = {
     id_deploy: string | null
-    deploy_number: number | null
+    numero_deploy: number | null
     area_deploy: string | null
     versao_deploy: string | null
     descricao_deploy: string | null
@@ -15489,7 +15489,7 @@ export namespace Prisma {
 
   export type DeployMaxAggregateOutputType = {
     id_deploy: string | null
-    deploy_number: number | null
+    numero_deploy: number | null
     area_deploy: string | null
     versao_deploy: string | null
     descricao_deploy: string | null
@@ -15503,7 +15503,7 @@ export namespace Prisma {
 
   export type DeployCountAggregateOutputType = {
     id_deploy: number
-    deploy_number: number
+    numero_deploy: number
     area_deploy: number
     versao_deploy: number
     descricao_deploy: number
@@ -15518,16 +15518,16 @@ export namespace Prisma {
 
 
   export type DeployAvgAggregateInputType = {
-    deploy_number?: true
+    numero_deploy?: true
   }
 
   export type DeploySumAggregateInputType = {
-    deploy_number?: true
+    numero_deploy?: true
   }
 
   export type DeployMinAggregateInputType = {
     id_deploy?: true
-    deploy_number?: true
+    numero_deploy?: true
     area_deploy?: true
     versao_deploy?: true
     descricao_deploy?: true
@@ -15541,7 +15541,7 @@ export namespace Prisma {
 
   export type DeployMaxAggregateInputType = {
     id_deploy?: true
-    deploy_number?: true
+    numero_deploy?: true
     area_deploy?: true
     versao_deploy?: true
     descricao_deploy?: true
@@ -15555,7 +15555,7 @@ export namespace Prisma {
 
   export type DeployCountAggregateInputType = {
     id_deploy?: true
-    deploy_number?: true
+    numero_deploy?: true
     area_deploy?: true
     versao_deploy?: true
     descricao_deploy?: true
@@ -15656,7 +15656,7 @@ export namespace Prisma {
 
   export type DeployGroupByOutputType = {
     id_deploy: string
-    deploy_number: number
+    numero_deploy: number
     area_deploy: string
     versao_deploy: string
     descricao_deploy: string
@@ -15689,7 +15689,7 @@ export namespace Prisma {
 
   export type DeploySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_deploy?: boolean
-    deploy_number?: boolean
+    numero_deploy?: boolean
     area_deploy?: boolean
     versao_deploy?: boolean
     descricao_deploy?: boolean
@@ -15703,7 +15703,7 @@ export namespace Prisma {
 
   export type DeploySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_deploy?: boolean
-    deploy_number?: boolean
+    numero_deploy?: boolean
     area_deploy?: boolean
     versao_deploy?: boolean
     descricao_deploy?: boolean
@@ -15717,7 +15717,7 @@ export namespace Prisma {
 
   export type DeploySelectScalar = {
     id_deploy?: boolean
-    deploy_number?: boolean
+    numero_deploy?: boolean
     area_deploy?: boolean
     versao_deploy?: boolean
     descricao_deploy?: boolean
@@ -15735,7 +15735,7 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id_deploy: string
-      deploy_number: number
+      numero_deploy: number
       area_deploy: string
       versao_deploy: string
       descricao_deploy: string
@@ -16139,7 +16139,7 @@ export namespace Prisma {
    */ 
   interface DeployFieldRefs {
     readonly id_deploy: FieldRef<"Deploy", 'String'>
-    readonly deploy_number: FieldRef<"Deploy", 'Int'>
+    readonly numero_deploy: FieldRef<"Deploy", 'Int'>
     readonly area_deploy: FieldRef<"Deploy", 'String'>
     readonly versao_deploy: FieldRef<"Deploy", 'String'>
     readonly descricao_deploy: FieldRef<"Deploy", 'String'>
@@ -26591,7 +26591,7 @@ export namespace Prisma {
 
   export const DeployScalarFieldEnum: {
     id_deploy: 'id_deploy',
-    deploy_number: 'deploy_number',
+    numero_deploy: 'numero_deploy',
     area_deploy: 'area_deploy',
     versao_deploy: 'versao_deploy',
     descricao_deploy: 'descricao_deploy',
@@ -28123,7 +28123,7 @@ export namespace Prisma {
     OR?: DeployWhereInput[]
     NOT?: DeployWhereInput | DeployWhereInput[]
     id_deploy?: StringFilter<"Deploy"> | string
-    deploy_number?: IntFilter<"Deploy"> | number
+    numero_deploy?: IntFilter<"Deploy"> | number
     area_deploy?: StringFilter<"Deploy"> | string
     versao_deploy?: StringFilter<"Deploy"> | string
     descricao_deploy?: StringFilter<"Deploy"> | string
@@ -28137,7 +28137,7 @@ export namespace Prisma {
 
   export type DeployOrderByWithRelationInput = {
     id_deploy?: SortOrder
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
     area_deploy?: SortOrder
     versao_deploy?: SortOrder
     descricao_deploy?: SortOrder
@@ -28154,7 +28154,7 @@ export namespace Prisma {
     AND?: DeployWhereInput | DeployWhereInput[]
     OR?: DeployWhereInput[]
     NOT?: DeployWhereInput | DeployWhereInput[]
-    deploy_number?: IntFilter<"Deploy"> | number
+    numero_deploy?: IntFilter<"Deploy"> | number
     area_deploy?: StringFilter<"Deploy"> | string
     versao_deploy?: StringFilter<"Deploy"> | string
     descricao_deploy?: StringFilter<"Deploy"> | string
@@ -28168,7 +28168,7 @@ export namespace Prisma {
 
   export type DeployOrderByWithAggregationInput = {
     id_deploy?: SortOrder
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
     area_deploy?: SortOrder
     versao_deploy?: SortOrder
     descricao_deploy?: SortOrder
@@ -28190,7 +28190,7 @@ export namespace Prisma {
     OR?: DeployScalarWhereWithAggregatesInput[]
     NOT?: DeployScalarWhereWithAggregatesInput | DeployScalarWhereWithAggregatesInput[]
     id_deploy?: StringWithAggregatesFilter<"Deploy"> | string
-    deploy_number?: IntWithAggregatesFilter<"Deploy"> | number
+    numero_deploy?: IntWithAggregatesFilter<"Deploy"> | number
     area_deploy?: StringWithAggregatesFilter<"Deploy"> | string
     versao_deploy?: StringWithAggregatesFilter<"Deploy"> | string
     descricao_deploy?: StringWithAggregatesFilter<"Deploy"> | string
@@ -30279,7 +30279,7 @@ export namespace Prisma {
 
   export type DeployCreateInput = {
     id_deploy?: string
-    deploy_number?: number
+    numero_deploy?: number
     area_deploy: string
     versao_deploy: string
     descricao_deploy: string
@@ -30293,7 +30293,7 @@ export namespace Prisma {
 
   export type DeployUncheckedCreateInput = {
     id_deploy?: string
-    deploy_number?: number
+    numero_deploy?: number
     area_deploy: string
     versao_deploy: string
     descricao_deploy: string
@@ -30307,7 +30307,7 @@ export namespace Prisma {
 
   export type DeployUpdateInput = {
     id_deploy?: StringFieldUpdateOperationsInput | string
-    deploy_number?: IntFieldUpdateOperationsInput | number
+    numero_deploy?: IntFieldUpdateOperationsInput | number
     area_deploy?: StringFieldUpdateOperationsInput | string
     versao_deploy?: StringFieldUpdateOperationsInput | string
     descricao_deploy?: StringFieldUpdateOperationsInput | string
@@ -30321,7 +30321,7 @@ export namespace Prisma {
 
   export type DeployUncheckedUpdateInput = {
     id_deploy?: StringFieldUpdateOperationsInput | string
-    deploy_number?: IntFieldUpdateOperationsInput | number
+    numero_deploy?: IntFieldUpdateOperationsInput | number
     area_deploy?: StringFieldUpdateOperationsInput | string
     versao_deploy?: StringFieldUpdateOperationsInput | string
     descricao_deploy?: StringFieldUpdateOperationsInput | string
@@ -30335,7 +30335,7 @@ export namespace Prisma {
 
   export type DeployCreateManyInput = {
     id_deploy?: string
-    deploy_number?: number
+    numero_deploy?: number
     area_deploy: string
     versao_deploy: string
     descricao_deploy: string
@@ -30349,7 +30349,7 @@ export namespace Prisma {
 
   export type DeployUpdateManyMutationInput = {
     id_deploy?: StringFieldUpdateOperationsInput | string
-    deploy_number?: IntFieldUpdateOperationsInput | number
+    numero_deploy?: IntFieldUpdateOperationsInput | number
     area_deploy?: StringFieldUpdateOperationsInput | string
     versao_deploy?: StringFieldUpdateOperationsInput | string
     descricao_deploy?: StringFieldUpdateOperationsInput | string
@@ -30363,7 +30363,7 @@ export namespace Prisma {
 
   export type DeployUncheckedUpdateManyInput = {
     id_deploy?: StringFieldUpdateOperationsInput | string
-    deploy_number?: IntFieldUpdateOperationsInput | number
+    numero_deploy?: IntFieldUpdateOperationsInput | number
     area_deploy?: StringFieldUpdateOperationsInput | string
     versao_deploy?: StringFieldUpdateOperationsInput | string
     descricao_deploy?: StringFieldUpdateOperationsInput | string
@@ -32572,7 +32572,7 @@ export namespace Prisma {
 
   export type DeployCountOrderByAggregateInput = {
     id_deploy?: SortOrder
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
     area_deploy?: SortOrder
     versao_deploy?: SortOrder
     descricao_deploy?: SortOrder
@@ -32585,12 +32585,12 @@ export namespace Prisma {
   }
 
   export type DeployAvgOrderByAggregateInput = {
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
   }
 
   export type DeployMaxOrderByAggregateInput = {
     id_deploy?: SortOrder
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
     area_deploy?: SortOrder
     versao_deploy?: SortOrder
     descricao_deploy?: SortOrder
@@ -32604,7 +32604,7 @@ export namespace Prisma {
 
   export type DeployMinOrderByAggregateInput = {
     id_deploy?: SortOrder
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
     area_deploy?: SortOrder
     versao_deploy?: SortOrder
     descricao_deploy?: SortOrder
@@ -32617,7 +32617,7 @@ export namespace Prisma {
   }
 
   export type DeploySumOrderByAggregateInput = {
-    deploy_number?: SortOrder
+    numero_deploy?: SortOrder
   }
 
   export type EnumDeployAmbienteWithAggregatesFilter<$PrismaModel = never> = {

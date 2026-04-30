@@ -62,11 +62,11 @@ kanbanPreferenciasRouter.get('/preferencias', async (req: Request, res: Response
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       const registro = await db.kanbanPreferenciasGlobal.findFirst({
-        where: { id_organizacao: tenant_id, id_usuario: user_id },
+        where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
       })
 
       res.json({ data: registro ? registro.preferencias_kanban_preferencias_global : null })
@@ -89,12 +89,12 @@ kanbanPreferenciasRouter.put('/preferencias', async (req: Request, res: Response
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       const registro = await db.kanbanPreferenciasGlobal.upsert({
-        where:  { id_organizacao_id_usuario: { id_organizacao: tenant_id, id_usuario: user_id } },
-        create: { id_organizacao: tenant_id, id_usuario: user_id, preferencias_kanban_preferencias_global: parsed.data },
+        where:  { id_organizacao_id_usuario: { id_organizacao: idOrganizacao, id_usuario: idUsuario } },
+        create: { id_organizacao: idOrganizacao, id_usuario: idUsuario, preferencias_kanban_preferencias_global: parsed.data },
         update: { preferencias_kanban_preferencias_global: parsed.data },
       })
 
@@ -113,11 +113,11 @@ kanbanPreferenciasRouter.delete('/preferencias', async (req: Request, res: Respo
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
       const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       await db.kanbanPreferenciasGlobal.deleteMany({
-        where: { id_organizacao: tenant_id, id_usuario: user_id },
+        where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
       })
 
       res.json({ data: { restaurado: true } })

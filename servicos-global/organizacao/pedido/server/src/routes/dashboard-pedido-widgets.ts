@@ -70,12 +70,12 @@ dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const config = await db.dashboardModeloGlobal.findUnique({
         where: {
           id_organizacao_id_produto_gravity: {
-            id_organizacao:     tenantId,
+            id_organizacao:     idOrganizacao,
             id_produto_gravity: ID_PRODUTO_PEDIDO,
           },
         },
@@ -113,17 +113,17 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       await db.dashboardModeloGlobal.upsert({
         where: {
           id_organizacao_id_produto_gravity: {
-            id_organizacao:     tenantId,
+            id_organizacao:     idOrganizacao,
             id_produto_gravity: ID_PRODUTO_PEDIDO,
           },
         },
         create: {
-          id_organizacao:                       tenantId,
+          id_organizacao:                       idOrganizacao,
           id_produto_gravity:                   ID_PRODUTO_PEDIDO,
           widgets_json_dashboard_modelo_global: JSON.stringify(widgets),
         },
@@ -149,12 +149,12 @@ dashboardWidgetsRouter.delete('/:id_widget_dashboard_pedido', async (req: Reques
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const config = await db.dashboardModeloGlobal.findUnique({
         where: {
           id_organizacao_id_produto_gravity: {
-            id_organizacao:     tenantId,
+            id_organizacao:     idOrganizacao,
             id_produto_gravity: ID_PRODUTO_PEDIDO,
           },
         },

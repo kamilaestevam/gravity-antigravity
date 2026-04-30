@@ -75,19 +75,19 @@ dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       let paineis = await db.dashboardPainelUsuarioGlobal.findMany({
-        where:   { id_organizacao: tenant_id, id_usuario: user_id },
+        where:   { id_organizacao: idOrganizacao, id_usuario: idUsuario },
         orderBy: { ordem_dashboard_painel_usuario_global: 'asc' },
       })
 
       if (paineis.length === 0) {
         const padrao = await db.dashboardPainelUsuarioGlobal.create({
           data: {
-            id_organizacao:        tenant_id,
-            id_usuario:            user_id,
+            id_organizacao:        idOrganizacao,
+            id_usuario:            idUsuario,
             nome_dashboard_painel_usuario_global: 'Principal',
             ordem_dashboard_painel_usuario_global: 0,
           },
@@ -115,19 +115,19 @@ dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       const ultimo = await db.dashboardPainelUsuarioGlobal.findFirst({
-        where:   { id_organizacao: tenant_id, id_usuario: user_id },
+        where:   { id_organizacao: idOrganizacao, id_usuario: idUsuario },
         orderBy: { ordem_dashboard_painel_usuario_global: 'desc' },
         select:  { ordem_dashboard_painel_usuario_global: true },
       })
 
       const painel = await db.dashboardPainelUsuarioGlobal.create({
         data: {
-          id_organizacao:         tenant_id,
-          id_usuario:             user_id,
+          id_organizacao:         idOrganizacao,
+          id_usuario:             idUsuario,
           nome_dashboard_painel_usuario_global:  parsed.data.nome,
           ordem_dashboard_painel_usuario_global: (ultimo?.ordem_dashboard_painel_usuario_global ?? -1) + 1,
         },
@@ -153,13 +153,13 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Respo
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
 
       await Promise.all(
         parsed.data.ids.map((id, index) =>
           db.dashboardPainelUsuarioGlobal.updateMany({
-            where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
+            where: { id_dashboard_painel_usuario_global: id, id_organizacao: idOrganizacao, id_usuario: idUsuario },
             data:  { ordem_dashboard_painel_usuario_global: index },
           }),
         ),
@@ -185,12 +185,12 @@ dashboardPaineisRouter.put('/paineis/:id_painel_dashboard_pedido', async (req: R
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
       const { id_painel_dashboard_pedido: id } = req.params
 
       const painel = await db.dashboardPainelUsuarioGlobal.findFirst({
-        where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
+        where: { id_dashboard_painel_usuario_global: id, id_organizacao: idOrganizacao, id_usuario: idUsuario },
       })
       if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
 
@@ -214,19 +214,19 @@ dashboardPaineisRouter.delete('/paineis/:id_painel_dashboard_pedido', async (req
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db        = rawDb as any
       const ctx       = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenant_id = ctx.idOrganizacao
-      const user_id   = ctx.idUsuario
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario
       const { id_painel_dashboard_pedido: id } = req.params
 
       const total = await db.dashboardPainelUsuarioGlobal.count({
-        where: { id_organizacao: tenant_id, id_usuario: user_id },
+        where: { id_organizacao: idOrganizacao, id_usuario: idUsuario },
       })
       if (total <= 1) {
         throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')
       }
 
       const painel = await db.dashboardPainelUsuarioGlobal.findFirst({
-        where: { id_dashboard_painel_usuario_global: id, id_organizacao: tenant_id, id_usuario: user_id },
+        where: { id_dashboard_painel_usuario_global: id, id_organizacao: idOrganizacao, id_usuario: idUsuario },
       })
       if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
 

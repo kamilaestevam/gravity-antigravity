@@ -438,18 +438,18 @@ exports.Prisma.ProdutoGravityFaturaScalarFieldEnum = {
 };
 
 exports.Prisma.LLMMetricasScalarFieldEnum = {
-  id_metricas_gemini: 'id_metricas_gemini',
-  nome_metricas_gemini: 'nome_metricas_gemini',
-  data_analise_metricas_gemini: 'data_analise_metricas_gemini',
-  total_analise_metricas_gemini: 'total_analise_metricas_gemini',
-  total_token_metricas_gemini: 'total_token_metricas_gemini',
-  custo_metricas_gemini: 'custo_metricas_gemini',
-  latencia_metricas_gemini: 'latencia_metricas_gemini',
-  confianca_alta_metricas_gemini: 'confianca_alta_metricas_gemini',
-  confianca_media_metricas_gemini: 'confianca_media_metricas_gemini',
-  confianca_baixa_metricas_gemini: 'confianca_baixa_metricas_gemini',
-  quantidade_codigo_validado_metricas_gemini: 'quantidade_codigo_validado_metricas_gemini',
-  data_criacao_metricas_gemini: 'data_criacao_metricas_gemini'
+  id_metricas_llm: 'id_metricas_llm',
+  nome_metricas_llm: 'nome_metricas_llm',
+  data_analise_metricas_llm: 'data_analise_metricas_llm',
+  total_analise_metricas_llm: 'total_analise_metricas_llm',
+  total_token_metricas_llm: 'total_token_metricas_llm',
+  custo_metricas_llm: 'custo_metricas_llm',
+  latencia_metricas_llm: 'latencia_metricas_llm',
+  confianca_alta_metricas_llm: 'confianca_alta_metricas_llm',
+  confianca_media_metricas_llm: 'confianca_media_metricas_llm',
+  confianca_baixa_metricas_llm: 'confianca_baixa_metricas_llm',
+  quantidade_codigo_validado_metricas_llm: 'quantidade_codigo_validado_metricas_llm',
+  data_criacao_metricas_llm: 'data_criacao_metricas_llm'
 };
 
 exports.Prisma.SortOrder = {

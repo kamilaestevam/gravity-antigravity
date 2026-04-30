@@ -25372,135 +25372,135 @@ export namespace Prisma {
   }
 
   export type LLMMetricasAvgAggregateOutputType = {
-    total_analise_metricas_gemini: number | null
-    total_token_metricas_gemini: number | null
-    custo_metricas_gemini: Decimal | null
-    latencia_metricas_gemini: number | null
-    confianca_alta_metricas_gemini: number | null
-    confianca_media_metricas_gemini: number | null
-    confianca_baixa_metricas_gemini: number | null
-    quantidade_codigo_validado_metricas_gemini: number | null
+    total_analise_metricas_llm: number | null
+    total_token_metricas_llm: number | null
+    custo_metricas_llm: Decimal | null
+    latencia_metricas_llm: number | null
+    confianca_alta_metricas_llm: number | null
+    confianca_media_metricas_llm: number | null
+    confianca_baixa_metricas_llm: number | null
+    quantidade_codigo_validado_metricas_llm: number | null
   }
 
   export type LLMMetricasSumAggregateOutputType = {
-    total_analise_metricas_gemini: number | null
-    total_token_metricas_gemini: number | null
-    custo_metricas_gemini: Decimal | null
-    latencia_metricas_gemini: number | null
-    confianca_alta_metricas_gemini: number | null
-    confianca_media_metricas_gemini: number | null
-    confianca_baixa_metricas_gemini: number | null
-    quantidade_codigo_validado_metricas_gemini: number | null
+    total_analise_metricas_llm: number | null
+    total_token_metricas_llm: number | null
+    custo_metricas_llm: Decimal | null
+    latencia_metricas_llm: number | null
+    confianca_alta_metricas_llm: number | null
+    confianca_media_metricas_llm: number | null
+    confianca_baixa_metricas_llm: number | null
+    quantidade_codigo_validado_metricas_llm: number | null
   }
 
   export type LLMMetricasMinAggregateOutputType = {
-    id_metricas_gemini: string | null
-    data_analise_metricas_gemini: Date | null
-    total_analise_metricas_gemini: number | null
-    total_token_metricas_gemini: number | null
-    custo_metricas_gemini: Decimal | null
-    latencia_metricas_gemini: number | null
-    confianca_alta_metricas_gemini: number | null
-    confianca_media_metricas_gemini: number | null
-    confianca_baixa_metricas_gemini: number | null
-    quantidade_codigo_validado_metricas_gemini: number | null
-    data_criacao_metricas_gemini: Date | null
+    id_metricas_llm: string | null
+    data_analise_metricas_llm: Date | null
+    total_analise_metricas_llm: number | null
+    total_token_metricas_llm: number | null
+    custo_metricas_llm: Decimal | null
+    latencia_metricas_llm: number | null
+    confianca_alta_metricas_llm: number | null
+    confianca_media_metricas_llm: number | null
+    confianca_baixa_metricas_llm: number | null
+    quantidade_codigo_validado_metricas_llm: number | null
+    data_criacao_metricas_llm: Date | null
   }
 
   export type LLMMetricasMaxAggregateOutputType = {
-    id_metricas_gemini: string | null
-    data_analise_metricas_gemini: Date | null
-    total_analise_metricas_gemini: number | null
-    total_token_metricas_gemini: number | null
-    custo_metricas_gemini: Decimal | null
-    latencia_metricas_gemini: number | null
-    confianca_alta_metricas_gemini: number | null
-    confianca_media_metricas_gemini: number | null
-    confianca_baixa_metricas_gemini: number | null
-    quantidade_codigo_validado_metricas_gemini: number | null
-    data_criacao_metricas_gemini: Date | null
+    id_metricas_llm: string | null
+    data_analise_metricas_llm: Date | null
+    total_analise_metricas_llm: number | null
+    total_token_metricas_llm: number | null
+    custo_metricas_llm: Decimal | null
+    latencia_metricas_llm: number | null
+    confianca_alta_metricas_llm: number | null
+    confianca_media_metricas_llm: number | null
+    confianca_baixa_metricas_llm: number | null
+    quantidade_codigo_validado_metricas_llm: number | null
+    data_criacao_metricas_llm: Date | null
   }
 
   export type LLMMetricasCountAggregateOutputType = {
-    id_metricas_gemini: number
-    nome_metricas_gemini: number
-    data_analise_metricas_gemini: number
-    total_analise_metricas_gemini: number
-    total_token_metricas_gemini: number
-    custo_metricas_gemini: number
-    latencia_metricas_gemini: number
-    confianca_alta_metricas_gemini: number
-    confianca_media_metricas_gemini: number
-    confianca_baixa_metricas_gemini: number
-    quantidade_codigo_validado_metricas_gemini: number
-    data_criacao_metricas_gemini: number
+    id_metricas_llm: number
+    nome_metricas_llm: number
+    data_analise_metricas_llm: number
+    total_analise_metricas_llm: number
+    total_token_metricas_llm: number
+    custo_metricas_llm: number
+    latencia_metricas_llm: number
+    confianca_alta_metricas_llm: number
+    confianca_media_metricas_llm: number
+    confianca_baixa_metricas_llm: number
+    quantidade_codigo_validado_metricas_llm: number
+    data_criacao_metricas_llm: number
     _all: number
   }
 
 
   export type LLMMetricasAvgAggregateInputType = {
-    total_analise_metricas_gemini?: true
-    total_token_metricas_gemini?: true
-    custo_metricas_gemini?: true
-    latencia_metricas_gemini?: true
-    confianca_alta_metricas_gemini?: true
-    confianca_media_metricas_gemini?: true
-    confianca_baixa_metricas_gemini?: true
-    quantidade_codigo_validado_metricas_gemini?: true
+    total_analise_metricas_llm?: true
+    total_token_metricas_llm?: true
+    custo_metricas_llm?: true
+    latencia_metricas_llm?: true
+    confianca_alta_metricas_llm?: true
+    confianca_media_metricas_llm?: true
+    confianca_baixa_metricas_llm?: true
+    quantidade_codigo_validado_metricas_llm?: true
   }
 
   export type LLMMetricasSumAggregateInputType = {
-    total_analise_metricas_gemini?: true
-    total_token_metricas_gemini?: true
-    custo_metricas_gemini?: true
-    latencia_metricas_gemini?: true
-    confianca_alta_metricas_gemini?: true
-    confianca_media_metricas_gemini?: true
-    confianca_baixa_metricas_gemini?: true
-    quantidade_codigo_validado_metricas_gemini?: true
+    total_analise_metricas_llm?: true
+    total_token_metricas_llm?: true
+    custo_metricas_llm?: true
+    latencia_metricas_llm?: true
+    confianca_alta_metricas_llm?: true
+    confianca_media_metricas_llm?: true
+    confianca_baixa_metricas_llm?: true
+    quantidade_codigo_validado_metricas_llm?: true
   }
 
   export type LLMMetricasMinAggregateInputType = {
-    id_metricas_gemini?: true
-    data_analise_metricas_gemini?: true
-    total_analise_metricas_gemini?: true
-    total_token_metricas_gemini?: true
-    custo_metricas_gemini?: true
-    latencia_metricas_gemini?: true
-    confianca_alta_metricas_gemini?: true
-    confianca_media_metricas_gemini?: true
-    confianca_baixa_metricas_gemini?: true
-    quantidade_codigo_validado_metricas_gemini?: true
-    data_criacao_metricas_gemini?: true
+    id_metricas_llm?: true
+    data_analise_metricas_llm?: true
+    total_analise_metricas_llm?: true
+    total_token_metricas_llm?: true
+    custo_metricas_llm?: true
+    latencia_metricas_llm?: true
+    confianca_alta_metricas_llm?: true
+    confianca_media_metricas_llm?: true
+    confianca_baixa_metricas_llm?: true
+    quantidade_codigo_validado_metricas_llm?: true
+    data_criacao_metricas_llm?: true
   }
 
   export type LLMMetricasMaxAggregateInputType = {
-    id_metricas_gemini?: true
-    data_analise_metricas_gemini?: true
-    total_analise_metricas_gemini?: true
-    total_token_metricas_gemini?: true
-    custo_metricas_gemini?: true
-    latencia_metricas_gemini?: true
-    confianca_alta_metricas_gemini?: true
-    confianca_media_metricas_gemini?: true
-    confianca_baixa_metricas_gemini?: true
-    quantidade_codigo_validado_metricas_gemini?: true
-    data_criacao_metricas_gemini?: true
+    id_metricas_llm?: true
+    data_analise_metricas_llm?: true
+    total_analise_metricas_llm?: true
+    total_token_metricas_llm?: true
+    custo_metricas_llm?: true
+    latencia_metricas_llm?: true
+    confianca_alta_metricas_llm?: true
+    confianca_media_metricas_llm?: true
+    confianca_baixa_metricas_llm?: true
+    quantidade_codigo_validado_metricas_llm?: true
+    data_criacao_metricas_llm?: true
   }
 
   export type LLMMetricasCountAggregateInputType = {
-    id_metricas_gemini?: true
-    nome_metricas_gemini?: true
-    data_analise_metricas_gemini?: true
-    total_analise_metricas_gemini?: true
-    total_token_metricas_gemini?: true
-    custo_metricas_gemini?: true
-    latencia_metricas_gemini?: true
-    confianca_alta_metricas_gemini?: true
-    confianca_media_metricas_gemini?: true
-    confianca_baixa_metricas_gemini?: true
-    quantidade_codigo_validado_metricas_gemini?: true
-    data_criacao_metricas_gemini?: true
+    id_metricas_llm?: true
+    nome_metricas_llm?: true
+    data_analise_metricas_llm?: true
+    total_analise_metricas_llm?: true
+    total_token_metricas_llm?: true
+    custo_metricas_llm?: true
+    latencia_metricas_llm?: true
+    confianca_alta_metricas_llm?: true
+    confianca_media_metricas_llm?: true
+    confianca_baixa_metricas_llm?: true
+    quantidade_codigo_validado_metricas_llm?: true
+    data_criacao_metricas_llm?: true
     _all?: true
   }
 
@@ -25591,18 +25591,18 @@ export namespace Prisma {
   }
 
   export type LLMMetricasGroupByOutputType = {
-    id_metricas_gemini: string
-    nome_metricas_gemini: string[]
-    data_analise_metricas_gemini: Date
-    total_analise_metricas_gemini: number
-    total_token_metricas_gemini: number
-    custo_metricas_gemini: Decimal
-    latencia_metricas_gemini: number
-    confianca_alta_metricas_gemini: number
-    confianca_media_metricas_gemini: number
-    confianca_baixa_metricas_gemini: number
-    quantidade_codigo_validado_metricas_gemini: number
-    data_criacao_metricas_gemini: Date
+    id_metricas_llm: string
+    nome_metricas_llm: string[]
+    data_analise_metricas_llm: Date
+    total_analise_metricas_llm: number
+    total_token_metricas_llm: number
+    custo_metricas_llm: Decimal
+    latencia_metricas_llm: number
+    confianca_alta_metricas_llm: number
+    confianca_media_metricas_llm: number
+    confianca_baixa_metricas_llm: number
+    quantidade_codigo_validado_metricas_llm: number
+    data_criacao_metricas_llm: Date
     _count: LLMMetricasCountAggregateOutputType | null
     _avg: LLMMetricasAvgAggregateOutputType | null
     _sum: LLMMetricasSumAggregateOutputType | null
@@ -25625,48 +25625,48 @@ export namespace Prisma {
 
 
   export type LLMMetricasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_metricas_gemini?: boolean
-    nome_metricas_gemini?: boolean
-    data_analise_metricas_gemini?: boolean
-    total_analise_metricas_gemini?: boolean
-    total_token_metricas_gemini?: boolean
-    custo_metricas_gemini?: boolean
-    latencia_metricas_gemini?: boolean
-    confianca_alta_metricas_gemini?: boolean
-    confianca_media_metricas_gemini?: boolean
-    confianca_baixa_metricas_gemini?: boolean
-    quantidade_codigo_validado_metricas_gemini?: boolean
-    data_criacao_metricas_gemini?: boolean
+    id_metricas_llm?: boolean
+    nome_metricas_llm?: boolean
+    data_analise_metricas_llm?: boolean
+    total_analise_metricas_llm?: boolean
+    total_token_metricas_llm?: boolean
+    custo_metricas_llm?: boolean
+    latencia_metricas_llm?: boolean
+    confianca_alta_metricas_llm?: boolean
+    confianca_media_metricas_llm?: boolean
+    confianca_baixa_metricas_llm?: boolean
+    quantidade_codigo_validado_metricas_llm?: boolean
+    data_criacao_metricas_llm?: boolean
   }, ExtArgs["result"]["lLMMetricas"]>
 
   export type LLMMetricasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_metricas_gemini?: boolean
-    nome_metricas_gemini?: boolean
-    data_analise_metricas_gemini?: boolean
-    total_analise_metricas_gemini?: boolean
-    total_token_metricas_gemini?: boolean
-    custo_metricas_gemini?: boolean
-    latencia_metricas_gemini?: boolean
-    confianca_alta_metricas_gemini?: boolean
-    confianca_media_metricas_gemini?: boolean
-    confianca_baixa_metricas_gemini?: boolean
-    quantidade_codigo_validado_metricas_gemini?: boolean
-    data_criacao_metricas_gemini?: boolean
+    id_metricas_llm?: boolean
+    nome_metricas_llm?: boolean
+    data_analise_metricas_llm?: boolean
+    total_analise_metricas_llm?: boolean
+    total_token_metricas_llm?: boolean
+    custo_metricas_llm?: boolean
+    latencia_metricas_llm?: boolean
+    confianca_alta_metricas_llm?: boolean
+    confianca_media_metricas_llm?: boolean
+    confianca_baixa_metricas_llm?: boolean
+    quantidade_codigo_validado_metricas_llm?: boolean
+    data_criacao_metricas_llm?: boolean
   }, ExtArgs["result"]["lLMMetricas"]>
 
   export type LLMMetricasSelectScalar = {
-    id_metricas_gemini?: boolean
-    nome_metricas_gemini?: boolean
-    data_analise_metricas_gemini?: boolean
-    total_analise_metricas_gemini?: boolean
-    total_token_metricas_gemini?: boolean
-    custo_metricas_gemini?: boolean
-    latencia_metricas_gemini?: boolean
-    confianca_alta_metricas_gemini?: boolean
-    confianca_media_metricas_gemini?: boolean
-    confianca_baixa_metricas_gemini?: boolean
-    quantidade_codigo_validado_metricas_gemini?: boolean
-    data_criacao_metricas_gemini?: boolean
+    id_metricas_llm?: boolean
+    nome_metricas_llm?: boolean
+    data_analise_metricas_llm?: boolean
+    total_analise_metricas_llm?: boolean
+    total_token_metricas_llm?: boolean
+    custo_metricas_llm?: boolean
+    latencia_metricas_llm?: boolean
+    confianca_alta_metricas_llm?: boolean
+    confianca_media_metricas_llm?: boolean
+    confianca_baixa_metricas_llm?: boolean
+    quantidade_codigo_validado_metricas_llm?: boolean
+    data_criacao_metricas_llm?: boolean
   }
 
 
@@ -25674,18 +25674,18 @@ export namespace Prisma {
     name: "LLMMetricas"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_metricas_gemini: string
-      nome_metricas_gemini: string[]
-      data_analise_metricas_gemini: Date
-      total_analise_metricas_gemini: number
-      total_token_metricas_gemini: number
-      custo_metricas_gemini: Prisma.Decimal
-      latencia_metricas_gemini: number
-      confianca_alta_metricas_gemini: number
-      confianca_media_metricas_gemini: number
-      confianca_baixa_metricas_gemini: number
-      quantidade_codigo_validado_metricas_gemini: number
-      data_criacao_metricas_gemini: Date
+      id_metricas_llm: string
+      nome_metricas_llm: string[]
+      data_analise_metricas_llm: Date
+      total_analise_metricas_llm: number
+      total_token_metricas_llm: number
+      custo_metricas_llm: Prisma.Decimal
+      latencia_metricas_llm: number
+      confianca_alta_metricas_llm: number
+      confianca_media_metricas_llm: number
+      confianca_baixa_metricas_llm: number
+      quantidade_codigo_validado_metricas_llm: number
+      data_criacao_metricas_llm: Date
     }, ExtArgs["result"]["lLMMetricas"]>
     composites: {}
   }
@@ -25769,8 +25769,8 @@ export namespace Prisma {
      * // Get first 10 LLMMetricas
      * const lLMMetricas = await prisma.lLMMetricas.findMany({ take: 10 })
      * 
-     * // Only select the `id_metricas_gemini`
-     * const lLMMetricasWithId_metricas_geminiOnly = await prisma.lLMMetricas.findMany({ select: { id_metricas_gemini: true } })
+     * // Only select the `id_metricas_llm`
+     * const lLMMetricasWithId_metricas_llmOnly = await prisma.lLMMetricas.findMany({ select: { id_metricas_llm: true } })
      * 
      */
     findMany<T extends LLMMetricasFindManyArgs>(args?: SelectSubset<T, LLMMetricasFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LLMMetricasPayload<ExtArgs>, T, "findMany">>
@@ -25814,9 +25814,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many LLMMetricas and only return the `id_metricas_gemini`
-     * const lLMMetricasWithId_metricas_geminiOnly = await prisma.lLMMetricas.createManyAndReturn({ 
-     *   select: { id_metricas_gemini: true },
+     * // Create many LLMMetricas and only return the `id_metricas_llm`
+     * const lLMMetricasWithId_metricas_llmOnly = await prisma.lLMMetricas.createManyAndReturn({ 
+     *   select: { id_metricas_llm: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -26079,18 +26079,18 @@ export namespace Prisma {
    * Fields of the LLMMetricas model
    */ 
   interface LLMMetricasFieldRefs {
-    readonly id_metricas_gemini: FieldRef<"LLMMetricas", 'String'>
-    readonly nome_metricas_gemini: FieldRef<"LLMMetricas", 'String[]'>
-    readonly data_analise_metricas_gemini: FieldRef<"LLMMetricas", 'DateTime'>
-    readonly total_analise_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly total_token_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly custo_metricas_gemini: FieldRef<"LLMMetricas", 'Decimal'>
-    readonly latencia_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly confianca_alta_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly confianca_media_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly confianca_baixa_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly quantidade_codigo_validado_metricas_gemini: FieldRef<"LLMMetricas", 'Int'>
-    readonly data_criacao_metricas_gemini: FieldRef<"LLMMetricas", 'DateTime'>
+    readonly id_metricas_llm: FieldRef<"LLMMetricas", 'String'>
+    readonly nome_metricas_llm: FieldRef<"LLMMetricas", 'String[]'>
+    readonly data_analise_metricas_llm: FieldRef<"LLMMetricas", 'DateTime'>
+    readonly total_analise_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly total_token_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly custo_metricas_llm: FieldRef<"LLMMetricas", 'Decimal'>
+    readonly latencia_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_alta_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_media_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly confianca_baixa_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly quantidade_codigo_validado_metricas_llm: FieldRef<"LLMMetricas", 'Int'>
+    readonly data_criacao_metricas_llm: FieldRef<"LLMMetricas", 'DateTime'>
   }
     
 
@@ -26775,18 +26775,18 @@ export namespace Prisma {
 
 
   export const LLMMetricasScalarFieldEnum: {
-    id_metricas_gemini: 'id_metricas_gemini',
-    nome_metricas_gemini: 'nome_metricas_gemini',
-    data_analise_metricas_gemini: 'data_analise_metricas_gemini',
-    total_analise_metricas_gemini: 'total_analise_metricas_gemini',
-    total_token_metricas_gemini: 'total_token_metricas_gemini',
-    custo_metricas_gemini: 'custo_metricas_gemini',
-    latencia_metricas_gemini: 'latencia_metricas_gemini',
-    confianca_alta_metricas_gemini: 'confianca_alta_metricas_gemini',
-    confianca_media_metricas_gemini: 'confianca_media_metricas_gemini',
-    confianca_baixa_metricas_gemini: 'confianca_baixa_metricas_gemini',
-    quantidade_codigo_validado_metricas_gemini: 'quantidade_codigo_validado_metricas_gemini',
-    data_criacao_metricas_gemini: 'data_criacao_metricas_gemini'
+    id_metricas_llm: 'id_metricas_llm',
+    nome_metricas_llm: 'nome_metricas_llm',
+    data_analise_metricas_llm: 'data_analise_metricas_llm',
+    total_analise_metricas_llm: 'total_analise_metricas_llm',
+    total_token_metricas_llm: 'total_token_metricas_llm',
+    custo_metricas_llm: 'custo_metricas_llm',
+    latencia_metricas_llm: 'latencia_metricas_llm',
+    confianca_alta_metricas_llm: 'confianca_alta_metricas_llm',
+    confianca_media_metricas_llm: 'confianca_media_metricas_llm',
+    confianca_baixa_metricas_llm: 'confianca_baixa_metricas_llm',
+    quantidade_codigo_validado_metricas_llm: 'quantidade_codigo_validado_metricas_llm',
+    data_criacao_metricas_llm: 'data_criacao_metricas_llm'
   };
 
   export type LLMMetricasScalarFieldEnum = (typeof LLMMetricasScalarFieldEnum)[keyof typeof LLMMetricasScalarFieldEnum]
@@ -29033,66 +29033,66 @@ export namespace Prisma {
     AND?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
     OR?: LLMMetricasWhereInput[]
     NOT?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
-    id_metricas_gemini?: StringFilter<"LLMMetricas"> | string
-    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
-    data_analise_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
-    total_analise_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    total_token_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    custo_metricas_gemini?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_alta_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_media_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_baixa_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    data_criacao_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
+    id_metricas_llm?: StringFilter<"LLMMetricas"> | string
+    nome_metricas_llm?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_llm?: DateTimeFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    total_token_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    custo_metricas_llm?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_media_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    data_criacao_metricas_llm?: DateTimeFilter<"LLMMetricas"> | Date | string
   }
 
   export type LLMMetricasOrderByWithRelationInput = {
-    id_metricas_gemini?: SortOrder
-    nome_metricas_gemini?: SortOrder
-    data_analise_metricas_gemini?: SortOrder
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
-    data_criacao_metricas_gemini?: SortOrder
+    id_metricas_llm?: SortOrder
+    nome_metricas_llm?: SortOrder
+    data_analise_metricas_llm?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
+    data_criacao_metricas_llm?: SortOrder
   }
 
   export type LLMMetricasWhereUniqueInput = Prisma.AtLeast<{
-    id_metricas_gemini?: string
+    id_metricas_llm?: string
     AND?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
     OR?: LLMMetricasWhereInput[]
     NOT?: LLMMetricasWhereInput | LLMMetricasWhereInput[]
-    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
-    data_analise_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
-    total_analise_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    total_token_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    custo_metricas_gemini?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_alta_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_media_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    confianca_baixa_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntFilter<"LLMMetricas"> | number
-    data_criacao_metricas_gemini?: DateTimeFilter<"LLMMetricas"> | Date | string
-  }, "id_metricas_gemini">
+    nome_metricas_llm?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_llm?: DateTimeFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    total_token_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    custo_metricas_llm?: DecimalFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_media_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_llm?: IntFilter<"LLMMetricas"> | number
+    data_criacao_metricas_llm?: DateTimeFilter<"LLMMetricas"> | Date | string
+  }, "id_metricas_llm">
 
   export type LLMMetricasOrderByWithAggregationInput = {
-    id_metricas_gemini?: SortOrder
-    nome_metricas_gemini?: SortOrder
-    data_analise_metricas_gemini?: SortOrder
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
-    data_criacao_metricas_gemini?: SortOrder
+    id_metricas_llm?: SortOrder
+    nome_metricas_llm?: SortOrder
+    data_analise_metricas_llm?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
+    data_criacao_metricas_llm?: SortOrder
     _count?: LLMMetricasCountOrderByAggregateInput
     _avg?: LLMMetricasAvgOrderByAggregateInput
     _max?: LLMMetricasMaxOrderByAggregateInput
@@ -29104,18 +29104,18 @@ export namespace Prisma {
     AND?: LLMMetricasScalarWhereWithAggregatesInput | LLMMetricasScalarWhereWithAggregatesInput[]
     OR?: LLMMetricasScalarWhereWithAggregatesInput[]
     NOT?: LLMMetricasScalarWhereWithAggregatesInput | LLMMetricasScalarWhereWithAggregatesInput[]
-    id_metricas_gemini?: StringWithAggregatesFilter<"LLMMetricas"> | string
-    nome_metricas_gemini?: StringNullableListFilter<"LLMMetricas">
-    data_analise_metricas_gemini?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
-    total_analise_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    total_token_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    custo_metricas_gemini?: DecimalWithAggregatesFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    confianca_alta_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    confianca_media_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    confianca_baixa_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    quantidade_codigo_validado_metricas_gemini?: IntWithAggregatesFilter<"LLMMetricas"> | number
-    data_criacao_metricas_gemini?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
+    id_metricas_llm?: StringWithAggregatesFilter<"LLMMetricas"> | string
+    nome_metricas_llm?: StringNullableListFilter<"LLMMetricas">
+    data_analise_metricas_llm?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
+    total_analise_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    total_token_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    custo_metricas_llm?: DecimalWithAggregatesFilter<"LLMMetricas"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_alta_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_media_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    confianca_baixa_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    quantidade_codigo_validado_metricas_llm?: IntWithAggregatesFilter<"LLMMetricas"> | number
+    data_criacao_metricas_llm?: DateTimeWithAggregatesFilter<"LLMMetricas"> | Date | string
   }
 
   export type OrganizacaoCreateInput = {
@@ -31363,108 +31363,108 @@ export namespace Prisma {
   }
 
   export type LLMMetricasCreateInput = {
-    id_metricas_gemini?: string
-    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini: Date | string
-    total_analise_metricas_gemini?: number
-    total_token_metricas_gemini?: number
-    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: number
-    confianca_alta_metricas_gemini?: number
-    confianca_media_metricas_gemini?: number
-    confianca_baixa_metricas_gemini?: number
-    quantidade_codigo_validado_metricas_gemini?: number
-    data_criacao_metricas_gemini?: Date | string
+    id_metricas_llm?: string
+    nome_metricas_llm?: LLMMetricasCreatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm: Date | string
+    total_analise_metricas_llm?: number
+    total_token_metricas_llm?: number
+    custo_metricas_llm: Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: number
+    confianca_alta_metricas_llm?: number
+    confianca_media_metricas_llm?: number
+    confianca_baixa_metricas_llm?: number
+    quantidade_codigo_validado_metricas_llm?: number
+    data_criacao_metricas_llm?: Date | string
   }
 
   export type LLMMetricasUncheckedCreateInput = {
-    id_metricas_gemini?: string
-    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini: Date | string
-    total_analise_metricas_gemini?: number
-    total_token_metricas_gemini?: number
-    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: number
-    confianca_alta_metricas_gemini?: number
-    confianca_media_metricas_gemini?: number
-    confianca_baixa_metricas_gemini?: number
-    quantidade_codigo_validado_metricas_gemini?: number
-    data_criacao_metricas_gemini?: Date | string
+    id_metricas_llm?: string
+    nome_metricas_llm?: LLMMetricasCreatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm: Date | string
+    total_analise_metricas_llm?: number
+    total_token_metricas_llm?: number
+    custo_metricas_llm: Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: number
+    confianca_alta_metricas_llm?: number
+    confianca_media_metricas_llm?: number
+    confianca_baixa_metricas_llm?: number
+    quantidade_codigo_validado_metricas_llm?: number
+    data_criacao_metricas_llm?: Date | string
   }
 
   export type LLMMetricasUpdateInput = {
-    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_llm?: StringFieldUpdateOperationsInput | string
+    nome_metricas_llm?: LLMMetricasUpdatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_llm?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_llm?: IntFieldUpdateOperationsInput | number
+    custo_metricas_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_llm?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_llm?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LLMMetricasUncheckedUpdateInput = {
-    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_llm?: StringFieldUpdateOperationsInput | string
+    nome_metricas_llm?: LLMMetricasUpdatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_llm?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_llm?: IntFieldUpdateOperationsInput | number
+    custo_metricas_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_llm?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_llm?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LLMMetricasCreateManyInput = {
-    id_metricas_gemini?: string
-    nome_metricas_gemini?: LLMMetricasCreatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini: Date | string
-    total_analise_metricas_gemini?: number
-    total_token_metricas_gemini?: number
-    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: number
-    confianca_alta_metricas_gemini?: number
-    confianca_media_metricas_gemini?: number
-    confianca_baixa_metricas_gemini?: number
-    quantidade_codigo_validado_metricas_gemini?: number
-    data_criacao_metricas_gemini?: Date | string
+    id_metricas_llm?: string
+    nome_metricas_llm?: LLMMetricasCreatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm: Date | string
+    total_analise_metricas_llm?: number
+    total_token_metricas_llm?: number
+    custo_metricas_llm: Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: number
+    confianca_alta_metricas_llm?: number
+    confianca_media_metricas_llm?: number
+    confianca_baixa_metricas_llm?: number
+    quantidade_codigo_validado_metricas_llm?: number
+    data_criacao_metricas_llm?: Date | string
   }
 
   export type LLMMetricasUpdateManyMutationInput = {
-    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_llm?: StringFieldUpdateOperationsInput | string
+    nome_metricas_llm?: LLMMetricasUpdatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_llm?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_llm?: IntFieldUpdateOperationsInput | number
+    custo_metricas_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_llm?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_llm?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LLMMetricasUncheckedUpdateManyInput = {
-    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
-    nome_metricas_gemini?: LLMMetricasUpdatenome_metricas_geminiInput | string[]
-    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
-    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_llm?: StringFieldUpdateOperationsInput | string
+    nome_metricas_llm?: LLMMetricasUpdatenome_metricas_llmInput | string[]
+    data_analise_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_llm?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_llm?: IntFieldUpdateOperationsInput | number
+    custo_metricas_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_llm?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_llm?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_llm?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_llm?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -33189,68 +33189,68 @@ export namespace Prisma {
   }
 
   export type LLMMetricasCountOrderByAggregateInput = {
-    id_metricas_gemini?: SortOrder
-    nome_metricas_gemini?: SortOrder
-    data_analise_metricas_gemini?: SortOrder
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
-    data_criacao_metricas_gemini?: SortOrder
+    id_metricas_llm?: SortOrder
+    nome_metricas_llm?: SortOrder
+    data_analise_metricas_llm?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
+    data_criacao_metricas_llm?: SortOrder
   }
 
   export type LLMMetricasAvgOrderByAggregateInput = {
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
   }
 
   export type LLMMetricasMaxOrderByAggregateInput = {
-    id_metricas_gemini?: SortOrder
-    data_analise_metricas_gemini?: SortOrder
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
-    data_criacao_metricas_gemini?: SortOrder
+    id_metricas_llm?: SortOrder
+    data_analise_metricas_llm?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
+    data_criacao_metricas_llm?: SortOrder
   }
 
   export type LLMMetricasMinOrderByAggregateInput = {
-    id_metricas_gemini?: SortOrder
-    data_analise_metricas_gemini?: SortOrder
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
-    data_criacao_metricas_gemini?: SortOrder
+    id_metricas_llm?: SortOrder
+    data_analise_metricas_llm?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
+    data_criacao_metricas_llm?: SortOrder
   }
 
   export type LLMMetricasSumOrderByAggregateInput = {
-    total_analise_metricas_gemini?: SortOrder
-    total_token_metricas_gemini?: SortOrder
-    custo_metricas_gemini?: SortOrder
-    latencia_metricas_gemini?: SortOrder
-    confianca_alta_metricas_gemini?: SortOrder
-    confianca_media_metricas_gemini?: SortOrder
-    confianca_baixa_metricas_gemini?: SortOrder
-    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    total_analise_metricas_llm?: SortOrder
+    total_token_metricas_llm?: SortOrder
+    custo_metricas_llm?: SortOrder
+    latencia_metricas_llm?: SortOrder
+    confianca_alta_metricas_llm?: SortOrder
+    confianca_media_metricas_llm?: SortOrder
+    confianca_baixa_metricas_llm?: SortOrder
+    quantidade_codigo_validado_metricas_llm?: SortOrder
   }
 
   export type UsuarioCreateNestedManyWithoutTenantInput = {
@@ -34097,11 +34097,11 @@ export namespace Prisma {
     set?: $Enums.FaturaStatusGravity
   }
 
-  export type LLMMetricasCreatenome_metricas_geminiInput = {
+  export type LLMMetricasCreatenome_metricas_llmInput = {
     set: string[]
   }
 
-  export type LLMMetricasUpdatenome_metricas_geminiInput = {
+  export type LLMMetricasUpdatenome_metricas_llmInput = {
     set?: string[]
     push?: string | string[]
   }

@@ -773,23 +773,23 @@ model ProdutoGravityFatura {
 }
 
 // ---------------------------------------------------------------------------
-// METRICAS GEMINI (nova — dados de LLM/teste AI)
+// METRICAS LLM (dados agregados de uso de LLM — qualquer provedor)
 // ---------------------------------------------------------------------------
 
 model LLMMetricas {
-  id_metricas_gemini                         String   @id @default(cuid())
-  nome_metricas_gemini                       String[]
-  data_analise_metricas_gemini               DateTime
-  total_analise_metricas_gemini              Int      @default(0)
-  total_token_metricas_gemini                Int      @default(0)
-  custo_metricas_gemini                      Decimal  @db.Decimal(10, 4)
-  latencia_metricas_gemini                   Int      @default(0)
-  confianca_alta_metricas_gemini             Int      @default(0)
-  confianca_media_metricas_gemini            Int      @default(0)
-  confianca_baixa_metricas_gemini            Int      @default(0)
-  quantidade_codigo_validado_metricas_gemini Int      @default(0)
-  data_criacao_metricas_gemini               DateTime @default(now())
+  id_metricas_llm                         String   @id @default(cuid())
+  nome_metricas_llm                       String[]
+  data_analise_metricas_llm               DateTime
+  total_analise_metricas_llm              Int      @default(0)
+  total_token_metricas_llm                Int      @default(0)
+  custo_metricas_llm                      Decimal  @db.Decimal(10, 4)
+  latencia_metricas_llm                   Int      @default(0)
+  confianca_alta_metricas_llm             Int      @default(0)
+  confianca_media_metricas_llm            Int      @default(0)
+  confianca_baixa_metricas_llm            Int      @default(0)
+  quantidade_codigo_validado_metricas_llm Int      @default(0)
+  data_criacao_metricas_llm               DateTime @default(now())
 
-  @@index([data_analise_metricas_gemini], map: "mtg_data_idx")
-  @@map("metricas_gemini")
+  @@index([data_analise_metricas_llm], map: "metricas_llm_data_analise_idx")
+  @@map("metricas_llm")
 }

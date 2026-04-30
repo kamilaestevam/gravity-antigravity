@@ -3118,14 +3118,13 @@ export namespace Prisma {
     nome_organizacao: string | null
     subdominio_organizacao: string | null
     status_organizacao: $Enums.OrganizacaoStatus | null
-    clerk_org_id: string | null
-    stripe_customer_id: string | null
+    clerk_organizacao_id: string | null
     suid_empresa_organizacao: string | null
     cnpj_organizacao: string | null
     estado_organizacao: string | null
     cidade_organizacao: string | null
     segmento_organizacao: string | null
-    tipo_empresa_organizacao: string | null
+    tipo_organizacao: string | null
     data_criacao_organizacao: Date | null
     data_atualizacao_organizacao: Date | null
   }
@@ -3135,14 +3134,13 @@ export namespace Prisma {
     nome_organizacao: string | null
     subdominio_organizacao: string | null
     status_organizacao: $Enums.OrganizacaoStatus | null
-    clerk_org_id: string | null
-    stripe_customer_id: string | null
+    clerk_organizacao_id: string | null
     suid_empresa_organizacao: string | null
     cnpj_organizacao: string | null
     estado_organizacao: string | null
     cidade_organizacao: string | null
     segmento_organizacao: string | null
-    tipo_empresa_organizacao: string | null
+    tipo_organizacao: string | null
     data_criacao_organizacao: Date | null
     data_atualizacao_organizacao: Date | null
   }
@@ -3152,14 +3150,13 @@ export namespace Prisma {
     nome_organizacao: number
     subdominio_organizacao: number
     status_organizacao: number
-    clerk_org_id: number
-    stripe_customer_id: number
+    clerk_organizacao_id: number
     suid_empresa_organizacao: number
     cnpj_organizacao: number
     estado_organizacao: number
     cidade_organizacao: number
     segmento_organizacao: number
-    tipo_empresa_organizacao: number
+    tipo_organizacao: number
     data_criacao_organizacao: number
     data_atualizacao_organizacao: number
     _all: number
@@ -3171,14 +3168,13 @@ export namespace Prisma {
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
-    clerk_org_id?: true
-    stripe_customer_id?: true
+    clerk_organizacao_id?: true
     suid_empresa_organizacao?: true
     cnpj_organizacao?: true
     estado_organizacao?: true
     cidade_organizacao?: true
     segmento_organizacao?: true
-    tipo_empresa_organizacao?: true
+    tipo_organizacao?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
   }
@@ -3188,14 +3184,13 @@ export namespace Prisma {
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
-    clerk_org_id?: true
-    stripe_customer_id?: true
+    clerk_organizacao_id?: true
     suid_empresa_organizacao?: true
     cnpj_organizacao?: true
     estado_organizacao?: true
     cidade_organizacao?: true
     segmento_organizacao?: true
-    tipo_empresa_organizacao?: true
+    tipo_organizacao?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
   }
@@ -3205,14 +3200,13 @@ export namespace Prisma {
     nome_organizacao?: true
     subdominio_organizacao?: true
     status_organizacao?: true
-    clerk_org_id?: true
-    stripe_customer_id?: true
+    clerk_organizacao_id?: true
     suid_empresa_organizacao?: true
     cnpj_organizacao?: true
     estado_organizacao?: true
     cidade_organizacao?: true
     segmento_organizacao?: true
-    tipo_empresa_organizacao?: true
+    tipo_organizacao?: true
     data_criacao_organizacao?: true
     data_atualizacao_organizacao?: true
     _all?: true
@@ -3295,14 +3289,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao: $Enums.OrganizacaoStatus
-    clerk_org_id: string | null
-    stripe_customer_id: string | null
+    clerk_organizacao_id: string | null
     suid_empresa_organizacao: string | null
     cnpj_organizacao: string | null
     estado_organizacao: string | null
     cidade_organizacao: string | null
     segmento_organizacao: string | null
-    tipo_empresa_organizacao: string | null
+    tipo_organizacao: string | null
     data_criacao_organizacao: Date
     data_atualizacao_organizacao: Date
     _count: OrganizacaoCountAggregateOutputType | null
@@ -3329,14 +3322,13 @@ export namespace Prisma {
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
-    clerk_org_id?: boolean
-    stripe_customer_id?: boolean
+    clerk_organizacao_id?: boolean
     suid_empresa_organizacao?: boolean
     cnpj_organizacao?: boolean
     estado_organizacao?: boolean
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
-    tipo_empresa_organizacao?: boolean
+    tipo_organizacao?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
     users_organizacao?: boolean | Organizacao$users_organizacaoArgs<ExtArgs>
@@ -3353,14 +3345,13 @@ export namespace Prisma {
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
-    clerk_org_id?: boolean
-    stripe_customer_id?: boolean
+    clerk_organizacao_id?: boolean
     suid_empresa_organizacao?: boolean
     cnpj_organizacao?: boolean
     estado_organizacao?: boolean
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
-    tipo_empresa_organizacao?: boolean
+    tipo_organizacao?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
   }, ExtArgs["result"]["organizacao"]>
@@ -3370,14 +3361,13 @@ export namespace Prisma {
     nome_organizacao?: boolean
     subdominio_organizacao?: boolean
     status_organizacao?: boolean
-    clerk_org_id?: boolean
-    stripe_customer_id?: boolean
+    clerk_organizacao_id?: boolean
     suid_empresa_organizacao?: boolean
     cnpj_organizacao?: boolean
     estado_organizacao?: boolean
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
-    tipo_empresa_organizacao?: boolean
+    tipo_organizacao?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
   }
@@ -3408,14 +3398,13 @@ export namespace Prisma {
       nome_organizacao: string
       subdominio_organizacao: string
       status_organizacao: $Enums.OrganizacaoStatus
-      clerk_org_id: string | null
-      stripe_customer_id: string | null
+      clerk_organizacao_id: string | null
       suid_empresa_organizacao: string | null
       cnpj_organizacao: string | null
       estado_organizacao: string | null
       cidade_organizacao: string | null
       segmento_organizacao: string | null
-      tipo_empresa_organizacao: string | null
+      tipo_organizacao: string | null
       data_criacao_organizacao: Date
       data_atualizacao_organizacao: Date
     }, ExtArgs["result"]["organizacao"]>
@@ -3821,14 +3810,13 @@ export namespace Prisma {
     readonly nome_organizacao: FieldRef<"Organizacao", 'String'>
     readonly subdominio_organizacao: FieldRef<"Organizacao", 'String'>
     readonly status_organizacao: FieldRef<"Organizacao", 'OrganizacaoStatus'>
-    readonly clerk_org_id: FieldRef<"Organizacao", 'String'>
-    readonly stripe_customer_id: FieldRef<"Organizacao", 'String'>
+    readonly clerk_organizacao_id: FieldRef<"Organizacao", 'String'>
     readonly suid_empresa_organizacao: FieldRef<"Organizacao", 'String'>
     readonly cnpj_organizacao: FieldRef<"Organizacao", 'String'>
     readonly estado_organizacao: FieldRef<"Organizacao", 'String'>
     readonly cidade_organizacao: FieldRef<"Organizacao", 'String'>
     readonly segmento_organizacao: FieldRef<"Organizacao", 'String'>
-    readonly tipo_empresa_organizacao: FieldRef<"Organizacao", 'String'>
+    readonly tipo_organizacao: FieldRef<"Organizacao", 'String'>
     readonly data_criacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
     readonly data_atualizacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
   }
@@ -26398,14 +26386,13 @@ export namespace Prisma {
     nome_organizacao: 'nome_organizacao',
     subdominio_organizacao: 'subdominio_organizacao',
     status_organizacao: 'status_organizacao',
-    clerk_org_id: 'clerk_org_id',
-    stripe_customer_id: 'stripe_customer_id',
+    clerk_organizacao_id: 'clerk_organizacao_id',
     suid_empresa_organizacao: 'suid_empresa_organizacao',
     cnpj_organizacao: 'cnpj_organizacao',
     estado_organizacao: 'estado_organizacao',
     cidade_organizacao: 'cidade_organizacao',
     segmento_organizacao: 'segmento_organizacao',
-    tipo_empresa_organizacao: 'tipo_empresa_organizacao',
+    tipo_organizacao: 'tipo_organizacao',
     data_criacao_organizacao: 'data_criacao_organizacao',
     data_atualizacao_organizacao: 'data_atualizacao_organizacao'
   };
@@ -27094,14 +27081,13 @@ export namespace Prisma {
     nome_organizacao?: StringFilter<"Organizacao"> | string
     subdominio_organizacao?: StringFilter<"Organizacao"> | string
     status_organizacao?: EnumOrganizacaoStatusFilter<"Organizacao"> | $Enums.OrganizacaoStatus
-    clerk_org_id?: StringNullableFilter<"Organizacao"> | string | null
-    stripe_customer_id?: StringNullableFilter<"Organizacao"> | string | null
+    clerk_organizacao_id?: StringNullableFilter<"Organizacao"> | string | null
     suid_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     cnpj_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     estado_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
-    tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    tipo_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
@@ -27117,14 +27103,13 @@ export namespace Prisma {
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
-    clerk_org_id?: SortOrderInput | SortOrder
-    stripe_customer_id?: SortOrderInput | SortOrder
+    clerk_organizacao_id?: SortOrderInput | SortOrder
     suid_empresa_organizacao?: SortOrderInput | SortOrder
     cnpj_organizacao?: SortOrderInput | SortOrder
     estado_organizacao?: SortOrderInput | SortOrder
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
-    tipo_empresa_organizacao?: SortOrderInput | SortOrder
+    tipo_organizacao?: SortOrderInput | SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
     users_organizacao?: UsuarioOrderByRelationAggregateInput
@@ -27138,8 +27123,7 @@ export namespace Prisma {
   export type OrganizacaoWhereUniqueInput = Prisma.AtLeast<{
     id_organizacao?: string
     subdominio_organizacao?: string
-    clerk_org_id?: string
-    stripe_customer_id?: string
+    clerk_organizacao_id?: string
     suid_empresa_organizacao?: string
     AND?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
     OR?: OrganizacaoWhereInput[]
@@ -27150,7 +27134,7 @@ export namespace Prisma {
     estado_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
-    tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    tipo_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users_organizacao?: UsuarioListRelationFilter
@@ -27159,21 +27143,20 @@ export namespace Prisma {
     companies_organizacao?: WorkspaceListRelationFilter
     product_configs_organizacao?: ProdutoGravityConfiguracaoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
-  }, "id_organizacao" | "subdominio_organizacao" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa_organizacao">
+  }, "id_organizacao" | "subdominio_organizacao" | "clerk_organizacao_id" | "suid_empresa_organizacao">
 
   export type OrganizacaoOrderByWithAggregationInput = {
     id_organizacao?: SortOrder
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
-    clerk_org_id?: SortOrderInput | SortOrder
-    stripe_customer_id?: SortOrderInput | SortOrder
+    clerk_organizacao_id?: SortOrderInput | SortOrder
     suid_empresa_organizacao?: SortOrderInput | SortOrder
     cnpj_organizacao?: SortOrderInput | SortOrder
     estado_organizacao?: SortOrderInput | SortOrder
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
-    tipo_empresa_organizacao?: SortOrderInput | SortOrder
+    tipo_organizacao?: SortOrderInput | SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
     _count?: OrganizacaoCountOrderByAggregateInput
@@ -27189,14 +27172,13 @@ export namespace Prisma {
     nome_organizacao?: StringWithAggregatesFilter<"Organizacao"> | string
     subdominio_organizacao?: StringWithAggregatesFilter<"Organizacao"> | string
     status_organizacao?: EnumOrganizacaoStatusWithAggregatesFilter<"Organizacao"> | $Enums.OrganizacaoStatus
-    clerk_org_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    stripe_customer_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    clerk_organizacao_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     suid_empresa_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     cnpj_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     estado_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     cidade_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    tipo_empresa_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    tipo_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     data_criacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
   }
@@ -29123,14 +29105,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -29146,14 +29127,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -29169,14 +29149,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -29192,14 +29171,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -29215,14 +29193,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
   }
@@ -29232,14 +29209,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29249,14 +29225,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -31585,14 +31560,13 @@ export namespace Prisma {
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
-    clerk_org_id?: SortOrder
-    stripe_customer_id?: SortOrder
+    clerk_organizacao_id?: SortOrder
     suid_empresa_organizacao?: SortOrder
     cnpj_organizacao?: SortOrder
     estado_organizacao?: SortOrder
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
-    tipo_empresa_organizacao?: SortOrder
+    tipo_organizacao?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -31602,14 +31576,13 @@ export namespace Prisma {
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
-    clerk_org_id?: SortOrder
-    stripe_customer_id?: SortOrder
+    clerk_organizacao_id?: SortOrder
     suid_empresa_organizacao?: SortOrder
     cnpj_organizacao?: SortOrder
     estado_organizacao?: SortOrder
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
-    tipo_empresa_organizacao?: SortOrder
+    tipo_organizacao?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -31619,14 +31592,13 @@ export namespace Prisma {
     nome_organizacao?: SortOrder
     subdominio_organizacao?: SortOrder
     status_organizacao?: SortOrder
-    clerk_org_id?: SortOrder
-    stripe_customer_id?: SortOrder
+    clerk_organizacao_id?: SortOrder
     suid_empresa_organizacao?: SortOrder
     cnpj_organizacao?: SortOrder
     estado_organizacao?: SortOrder
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
-    tipo_empresa_organizacao?: SortOrder
+    tipo_organizacao?: SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
   }
@@ -34970,14 +34942,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaCreateNestedManyWithoutTenantInput
@@ -34992,14 +34963,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedCreateNestedManyWithoutTenantInput
@@ -35123,14 +35093,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUpdateManyWithoutTenantNestedInput
@@ -35145,14 +35114,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions_organizacao?: ProdutoGravityAssinaturaUncheckedUpdateManyWithoutTenantNestedInput
@@ -35250,14 +35218,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -35272,14 +35239,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -35310,14 +35276,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -35332,14 +35297,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -35354,14 +35318,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -35376,14 +35339,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -35445,14 +35407,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -35467,14 +35428,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -35526,14 +35486,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -35548,14 +35507,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -35680,14 +35638,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -35702,14 +35659,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -35908,14 +35864,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -35930,14 +35885,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -35968,14 +35922,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -35990,14 +35943,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
@@ -36012,14 +35964,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
@@ -36034,14 +35985,13 @@ export namespace Prisma {
     nome_organizacao: string
     subdominio_organizacao: string
     status_organizacao?: $Enums.OrganizacaoStatus
-    clerk_org_id?: string | null
-    stripe_customer_id?: string | null
+    clerk_organizacao_id?: string | null
     suid_empresa_organizacao?: string | null
     cnpj_organizacao?: string | null
     estado_organizacao?: string | null
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
-    tipo_empresa_organizacao?: string | null
+    tipo_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
     users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
@@ -36103,14 +36053,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
@@ -36125,14 +36074,13 @@ export namespace Prisma {
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
     status_organizacao?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
-    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
-    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    clerk_organizacao_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput

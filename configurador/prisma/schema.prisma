@@ -70,16 +70,15 @@ model Organizacao {
   nome_organizacao         String
   subdominio_organizacao   String            @unique
   status_organizacao       OrganizacaoStatus @default(CONFIGURACAO_PENDENTE)
-  clerk_org_id             String?           @unique
-  stripe_customer_id       String?           @unique
-  suid_empresa_organizacao String?           @unique
+  clerk_organizacao_id     String?           @unique(map: "organizacao_clerk_organizacao_id_key")
+  suid_empresa_organizacao String?           @unique(map: "organizacao_suid_empresa_organizacao_key")
 
   // Dados cadastrais da organização
-  cnpj_organizacao         String?
-  estado_organizacao       String?
-  cidade_organizacao       String?
-  segmento_organizacao     String?
-  tipo_empresa_organizacao String?
+  cnpj_organizacao     String?
+  estado_organizacao   String?
+  cidade_organizacao   String?
+  segmento_organizacao String?
+  tipo_organizacao     String?
 
   // Metadata
   data_criacao_organizacao     DateTime @default(now())
@@ -93,8 +92,8 @@ model Organizacao {
   product_configs_organizacao  ProdutoGravityConfiguracao[]
   ProdutoGravityWorkspace      ProdutoGravityWorkspace[]
 
-  @@index([status_organizacao])
-  @@index([subdominio_organizacao])
+  @@index([status_organizacao], map: "status_organizacao_idx")
+  @@index([subdominio_organizacao], map: "subdominio_organizacao_idx")
   @@map("organizacao")
 }
 

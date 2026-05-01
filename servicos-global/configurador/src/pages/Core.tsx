@@ -294,7 +294,7 @@ export function Core() {
             history={locHistory}
             nodes={coreEcosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub')
+              if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'configurador') navigate('/configurador')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')
               else if (node.type === 'produto')      navigate(`/produto/${node.id}`)

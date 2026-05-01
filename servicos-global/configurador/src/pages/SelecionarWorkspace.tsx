@@ -729,7 +729,7 @@ export function SelecionarWorkspace() {
               history={locHistory}
               nodes={hubEcosystemNodes}
               onNavigate={(node) => {
-                if (node.type === 'hub')               navigate('/hub')
+                if (node.type === 'hub')               navigate('/hub?select=1')
                 else if (node.type === 'core')         navigate('/core')
                 else if (node.type === 'configurador') navigate('/configurador')
                 else if (node.type === 'admin')        navigate('/admin/visao-geral')

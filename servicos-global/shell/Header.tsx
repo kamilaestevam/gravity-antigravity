@@ -190,7 +190,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
       <div className="shell-header__right">
         {/* Botão Voltar ao Hub */}
         <button
-          onClick={() => { window.location.href = '/hub' }}
+          onClick={() => { window.location.href = '/hub?select=1' }}
           type="button"
           title={t('shell.voltar_hub', 'Voltar ao Hub')}
           style={{
@@ -256,7 +256,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           nodes={ecosystemNodes}
           visitedNodeIds={visitedNodeIds}
           onNavigate={(node) => {
-            if (node.type === 'hub')               window.location.href = '/hub'
+            if (node.type === 'hub')               window.location.href = '/hub?select=1'
             else if (node.type === 'core')         window.location.href = '/core'
             else if (node.type === 'hub-store')    window.location.href = '/store'
             else if (node.type === 'configurador') window.location.href = '/configurador'

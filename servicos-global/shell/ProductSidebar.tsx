@@ -33,7 +33,7 @@ export function ProductSidebar({
     {
       label: 'Voltar ao Hub',
       icon: <ArrowLeft weight="bold" size={18} color="#94a3b8" />,
-      to: '/hub',
+      to: '/hub?select=1',
     },
     ...navItems,
   ]

@@ -385,7 +385,7 @@ export function Store() {
             className="hb-topbar-navlink"
             type="button"
             title={t('store.voltar_hub')}
-            onClick={() => navigate('/hub')}
+            onClick={() => navigate('/hub?select=1')}
           >
             <LogoHub size={13} color="#818cf8" />
             Hub
@@ -434,7 +434,7 @@ export function Store() {
             history={history}
             nodes={ecosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub')
+              if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'core')         navigate('/core')
               else if (node.type === 'configurador') navigate('/workspace')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')

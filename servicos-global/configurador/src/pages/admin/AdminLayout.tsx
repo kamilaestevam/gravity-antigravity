@@ -159,7 +159,7 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <HubButton onClick={() => navigate('/hub')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
+          <HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
 
           <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {
@@ -213,7 +213,7 @@ export function AdminLayout() {
             history={locHistory}
             nodes={adminEcosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub')
+              if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'configurador') navigate('/workspace/workspaces')
               else if (node.type === 'core')         navigate('/core')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')

@@ -150,7 +150,7 @@ export function WorkspaceLayout() {
       <div className="ws-main">
         {/* ── Global Actions (Floating over content, no bar) ── */}
         <div className="ws-global-actions">
-          <HubButton onClick={() => navigate('/hub')} />
+          <HubButton onClick={() => navigate('/hub?select=1')} />
 
           <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {
@@ -206,7 +206,7 @@ export function WorkspaceLayout() {
             history={locHistory}
             nodes={wsEcosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'hub')               navigate('/hub')
+              if (node.type === 'hub')               navigate('/hub?select=1')
               else if (node.type === 'configurador') navigate('/workspace/workspaces')
               else if (node.type === 'core')         navigate('/core')
               else if (node.type === 'admin')        navigate('/admin/visao-geral')

@@ -37,7 +37,18 @@ import {
 } from '../services/formulaEngine.js'
 import { isPropagavel } from '../../../pedido/shared/columnPropagationConfig.js'
 import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
-import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
+import {
+  montarSnapshotEmpresa,
+  montarSnapshotOpe,
+  montarSnapshotNcm,
+  montarSnapshotMoeda,
+  montarSnapshotUnidade,
+  type PapelEmpresa,
+} from '../services/pedidoSnapshots.js'
+// NOTA: os helpers Ope/Ncm/Moeda/Unidade ficam disponíveis para o fluxo de
+// criação chamar quando os respectivos endpoints `cadastrosClient.buscar*`
+// estiverem implementados. Hoje só Empresa tem cliente HTTP no Cadastros.
+void montarSnapshotOpe; void montarSnapshotNcm; void montarSnapshotMoeda; void montarSnapshotUnidade;
 import { randomUUID } from 'node:crypto'
 
 export const pedidosRouter = Router()

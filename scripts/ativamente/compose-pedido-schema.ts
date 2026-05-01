@@ -21,7 +21,7 @@ const __dirname = path.dirname(__filename)
 
 const ROOT_DIR = path.resolve(__dirname, '../..')
 const PEDIDO_DIR = path.join(ROOT_DIR, 'servicos-global', 'organizacao', 'pedido')
-const PRISMA_DIR = path.join(PEDIDO_DIR, 'server', 'prisma')
+const PRISMA_DIR = path.join(PEDIDO_DIR, 'prisma')
 const OUTPUT_SCHEMA = path.join(PRISMA_DIR, 'schema.prisma')
 const BASE_SCHEMA = path.join(PRISMA_DIR, 'schema.base.prisma')
 const FRAGMENT_PATH = path.join(PRISMA_DIR, 'fragment.prisma')

@@ -126,7 +126,10 @@ model PedidoColunasGerais {
   itens_pedido                                                PedidoItem[]
   transferencias_pedido                                       PedidoListaItensTransfericosRastreio[]
   snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
-  snapshots_ope_pedido                                        PedidoOpeSnapshot[]
+  snapshots_ope_pedido                                        PedidoSnapshotOpe[]
+  snapshots_ncm_pedido                                        PedidoSnapshotNcm[]
+  snapshots_moeda_pedido                                      PedidoSnapshotMoeda[]
+  snapshots_unidade_pedido                                    PedidoSnapshotUnidade[]
 
   @@unique([id_organizacao, numero_pedido])
   @@index([id_organizacao])
@@ -456,9 +459,10 @@ model DashboardPainelUsuarioGlobal {
 
 /// Snapshot congelado de uma Empresa (importador / exportador / fabricante / agente
 /// / despachante / armador) no momento da emissão ou re-snapshot do pedido.
-/// Referência ao banco Cadastros via SUID lógico (sem FK física).
+/// Referência ao banco Cadastros via SUID lógico (sem FK física para o Cadastros).
+/// FK física apenas para `pedido_produto_gravity(id_pedido)` no mesmo banco.
 model PedidoSnapshotEmpresa {
-  id_pedido_snapshot_empresa String   @id @default(cuid())
+  id                    String   @id @default(cuid())
   id_organizacao        String
   id_workspace          String?
   id_pedido             String
@@ -468,9 +472,9 @@ model PedidoSnapshotEmpresa {
   suid_empresa          String   // referência lógica ao Cadastros (sem FK física)
   nome_empresa          String
   nome_fantasia         String?
-  documento_principal_pedido_snapshot_empresa String   // CNPJ / EIN / VAT / TIN
-  tipo_documento_pedido_snapshot_empresa      String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
-  cnpj_raiz_pedido_snapshot_empresa           String?  // primeiros 8 dígitos do CNPJ — para empresas BR
+  documento_principal   String   // CNPJ / EIN / VAT / TIN
+  tipo_documento        String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
+  cnpj_raiz             String?  // primeiros 8 dígitos do CNPJ — para empresas BR
 
   // Endereço
   endereco_logradouro   String?
@@ -508,69 +512,144 @@ model PedidoSnapshotEmpresa {
 
 /// Snapshot congelado da OPE (Operação) vinculada ao pedido,
 /// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
-model PedidoOpeSnapshot {
-  id_pedido_snapshot_ope                String   @id @default(cuid())
-  id_organizacao_pedido_snapshot_ope    String
-  id_workspace_pedido_snapshot_ope      String?
-  id_pedido_pedido_snapshot_ope         String
+/// Referência ao banco Cadastros via SUID lógico (sem FK física para o Cadastros).
+/// FK física apenas para `pedido_produto_gravity(id_pedido)` no mesmo banco.
+model PedidoSnapshotOpe {
+  id                     String   @id @default(cuid())
+  id_organizacao         String
+  id_workspace           String?
+  id_pedido              String
 
   // Identidade da OPE
-  codigo_ope_pedido_snapshot_ope        String
-  versao_ope_pedido_snapshot_ope        String?
-  situacao_ope_pedido_snapshot_ope      String?
-  nome_ope_pedido_snapshot_ope          String?
-  cnpj_raiz_empresa_pedido_snapshot_ope String?
+  suid_ope               String?  // referência lógica ao Cadastros
+  codigo_ope             String
+  versao_ope             String?
+  situacao_ope           String?
+  nome_ope               String?
+  cnpj_raiz_empresa      String?
 
   // Endereço da OPE
-  pais_ope_pedido_snapshot_ope     String?
-  estado_ope_pedido_snapshot_ope   String?
-  cidade_ope_pedido_snapshot_ope   String?
-  endereco_ope_pedido_snapshot_ope String?
-  zip_ope_pedido_snapshot_ope      String?
-  tin_ope_pedido_snapshot_ope      String?
-  email_ope_pedido_snapshot_ope    String?
+  pais_ope               String?
+  estado_ope             String?
+  cidade_ope             String?
+  endereco_ope           String?
+  zip_ope                String?
+  tin_ope                String?
+  email_ope              String?
 
   // Metadados
-  congelado_em_pedido_snapshot_ope        DateTime @default(now())
-  motivo_congelamento_pedido_snapshot_ope String
+  congelado_em           DateTime @default(now())
+  motivo_congelamento    String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
 
-  acesso_pedido_snapshot_ope PedidoColunasGerais @relation(fields: [id_pedido_pedido_snapshot_ope], references: [id_pedido], onDelete: Cascade)
+  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
-  @@index([id_organizacao_pedido_snapshot_ope])
-  @@index([id_organizacao_pedido_snapshot_ope, id_pedido_pedido_snapshot_ope])
-  @@index([id_organizacao_pedido_snapshot_ope, codigo_ope_pedido_snapshot_ope])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_ope])
   @@map("pedido_snapshot_ope")
+}
+
+/// Snapshot congelado de uma NCM (catálogo global) usado em algum item do pedido.
+/// Catálogo global no Cadastros não tem id_organizacao — aqui o snapshot vive
+/// no escopo do pedido, então id_organizacao + id_workspace + id_pedido marcam o contexto.
+model PedidoSnapshotNcm {
+  id                     String   @id @default(cuid())
+  id_organizacao         String
+  id_workspace           String?
+  id_pedido              String
+
+  codigo_ncm             String
+  descricao_ncm          String
+  ipi_ncm                Float?
+  ii_ncm                 Float?
+  pis_ncm                Float?
+  cofins_ncm             Float?
+
+  congelado_em           DateTime @default(now())
+  motivo_congelamento    String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
+
+  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_ncm])
+  @@map("pedido_snapshot_ncm")
+}
+
+/// Snapshot congelado de uma Moeda (catálogo global) usada no pedido.
+model PedidoSnapshotMoeda {
+  id                     String   @id @default(cuid())
+  id_organizacao         String
+  id_workspace           String?
+  id_pedido              String
+
+  codigo_moeda           String
+  nome_moeda             String
+  simbolo_moeda          String
+
+  congelado_em           DateTime @default(now())
+  motivo_congelamento    String
+
+  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_moeda])
+  @@map("pedido_snapshot_moeda")
+}
+
+/// Snapshot congelado de uma Unidade (catálogo global) usada em algum item do pedido.
+model PedidoSnapshotUnidade {
+  id                     String   @id @default(cuid())
+  id_organizacao         String
+  id_workspace           String?
+  id_pedido              String
+
+  codigo_unidade         String
+  nome_unidade           String
+  tipo_unidade           String   // peso | quantidade | comprimento | volume
+
+  congelado_em           DateTime @default(now())
+  motivo_congelamento    String
+
+  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_unidade])
+  @@map("pedido_snapshot_unidade")
 }
 
 /// Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
 /// Usado pelo fluxo "atualização represada" e pelo banner retroativo (FASE 06E).
-model PedidoCadastroSincronizador {
-  id_politica_snapshot_cadastros String   @id @default(cuid())
-  id_organizacao           String
-  id_workspace             String
+/// Nomenclatura DDD ubíqua: todas as colunas com sufixo _pedido_snapshot_atualizacao.
+model PedidoSnapshotAtualizacao {
+  id_pedido_snapshot_atualizacao String   @id @default(cuid())
+  id_organizacao                 String
+  id_workspace                   String
 
-  // Política de atualização por papel (Empresa) — renomeado para "matriz" (json/booleano agregado)
-  matriz_snapshot_politica_snapshot_cadastros  Boolean  @default(false)
-  atualiza_exportador_politica_snapshot_cadastros  Boolean  @default(false)
-  atualiza_fabricante_politica_snapshot_cadastros  Boolean  @default(false)
-  atualiza_agente_politica_snapshot_cadastros      Boolean  @default(false)
-  atualiza_despachante_politica_snapshot_cadastros Boolean  @default(false)
-  atualiza_armador_politica_snapshot_cadastros     Boolean  @default(false)
+  // Política de atualização por papel (Empresa)
+  atualiza_importador_pedido_snapshot_atualizacao  Boolean  @default(false)
+  atualiza_exportador_pedido_snapshot_atualizacao  Boolean  @default(false)
+  atualiza_fabricante_pedido_snapshot_atualizacao  Boolean  @default(false)
+  atualiza_agente_pedido_snapshot_atualizacao      Boolean  @default(false)
+  atualiza_despachante_pedido_snapshot_atualizacao Boolean  @default(false)
+  atualiza_armador_pedido_snapshot_atualizacao     Boolean  @default(false)
 
   // Política de atualização da OPE
-  atualiza_ope_politica_snapshot_cadastros         Boolean  @default(false)
+  atualiza_ope_pedido_snapshot_atualizacao         Boolean  @default(false)
 
   // Em quais transições de status re-snapshotar
-  gatilho_emissao_politica_snapshot_cadastros      Boolean  @default(true)
-  gatilho_embarque_politica_snapshot_cadastros     Boolean  @default(false)
-  gatilho_desembaraco_politica_snapshot_cadastros  Boolean  @default(false)
+  gatilho_emissao_pedido_snapshot_atualizacao      Boolean  @default(true)
+  gatilho_embarque_pedido_snapshot_atualizacao     Boolean  @default(false)
+  gatilho_desembaraco_pedido_snapshot_atualizacao  Boolean  @default(false)
 
-  data_criacao_politica_snapshot_cadastros     DateTime @default(now())
-  data_atualizacao_politica_snapshot_cadastros DateTime @updatedAt
+  data_criacao_pedido_snapshot_atualizacao     DateTime @default(now())
+  data_atualizacao_pedido_snapshot_atualizacao DateTime @updatedAt
 
   @@unique([id_organizacao, id_workspace])
   @@index([id_organizacao])
-  @@map("pedido_config_atualizacao_cadastros")
+  @@map("pedido_snapshot_atualizacao")
 }
 
 // ============================================================================

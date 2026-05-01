@@ -1084,3 +1084,23 @@ export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
   { campo: 'data_meta_inspecao_pedido',            label: 'Meta Inspeção',             categoria: 'datas' },
   { campo: 'data_consolidacao_pedido',             label: 'Data Consolidação',         categoria: 'datas' },
 ]
+
+// ── Snapshot — Política de Atualização (pedido_snapshot_atualizacao) ─────────
+
+/**
+ * Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
+ * Backend: tabela pedido_snapshot_atualizacao (model PedidoSnapshotAtualizacao).
+ * Contrato JSON usa chaves curtas; backend converte para colunas Prisma DDD.
+ */
+export interface SnapshotAtualizacaoPolicy {
+  atualiza_importador:  boolean
+  atualiza_exportador:  boolean
+  atualiza_fabricante:  boolean
+  atualiza_agente:      boolean
+  atualiza_despachante: boolean
+  atualiza_armador:     boolean
+  atualiza_ope:         boolean
+  gatilho_emissao:      boolean
+  gatilho_embarque:     boolean
+  gatilho_desembaraco:  boolean
+}

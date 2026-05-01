@@ -1944,3 +1944,32 @@ export const saldoFormulaApi = {
       method: 'DELETE',
     }),
 }
+
+// ── Snapshot — Política de Atualização (pedido_snapshot_atualizacao) ─────────
+
+import type { SnapshotAtualizacaoPolicy } from './types'
+
+export const SNAPSHOT_ATUALIZACAO_DEFAULT: SnapshotAtualizacaoPolicy = {
+  atualiza_importador:  false,
+  atualiza_exportador:  false,
+  atualiza_fabricante:  false,
+  atualiza_agente:      false,
+  atualiza_despachante: false,
+  atualiza_armador:     false,
+  atualiza_ope:         false,
+  gatilho_emissao:      true,
+  gatilho_embarque:     false,
+  gatilho_desembaraco:  false,
+}
+
+export function obterSnapshotAtualizacaoPolicy(): Promise<{ data: SnapshotAtualizacaoPolicy | null }> {
+  return request<{ data: SnapshotAtualizacaoPolicy | null }>('/api/v1/pedidos/config/snapshot-atualizacao-pedido')
+    .catch(() => ({ data: null }))
+}
+
+export function salvarSnapshotAtualizacaoPolicy(payload: SnapshotAtualizacaoPolicy): Promise<{ data: SnapshotAtualizacaoPolicy }> {
+  return request<{ data: SnapshotAtualizacaoPolicy }>('/api/v1/pedidos/config/snapshot-atualizacao-pedido', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}

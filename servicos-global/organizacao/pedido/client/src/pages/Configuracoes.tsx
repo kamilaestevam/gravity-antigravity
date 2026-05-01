@@ -40,7 +40,8 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type PdfTemplate } from '../shared/api'
+import type { SnapshotAtualizacaoPolicy } from '../shared/types'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
 
 const FMT_REGIAO_KEYS: Record<string, string> = {
@@ -1031,6 +1032,52 @@ export default function Configuracoes() {
 
   // Derivado — true quando fórmula difere do que está salvo no backend
   const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== saldoFormulaSalva
+
+  // ── Snapshot — Política de Atualização ─────────────────────────────────────
+  const [snapPolicy,    setSnapPolicy]    = useState<SnapshotAtualizacaoPolicy>(SNAPSHOT_ATUALIZACAO_DEFAULT)
+  const [snapPolicyBase, setSnapPolicyBase] = useState<SnapshotAtualizacaoPolicy>(SNAPSHOT_ATUALIZACAO_DEFAULT)
+  const [snapPolicySalvando, setSnapPolicySalvando] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+    obterSnapshotAtualizacaoPolicy()
+      .then(resp => {
+        if (cancelado) return
+        const valor = resp.data ?? SNAPSHOT_ATUALIZACAO_DEFAULT
+        setSnapPolicy(valor)
+        setSnapPolicyBase(valor)
+      })
+      .catch(() => { /* mantém default */ })
+    return () => { cancelado = true }
+  }, [])
+
+  const snapPolicyAlterada = useMemo(
+    () => JSON.stringify(snapPolicy) !== JSON.stringify(snapPolicyBase),
+    [snapPolicy, snapPolicyBase],
+  )
+
+  function toggleSnapPolicy(chave: keyof SnapshotAtualizacaoPolicy) {
+    setSnapPolicy(prev => ({ ...prev, [chave]: !prev[chave] }))
+  }
+
+  async function salvarSnapPolicy() {
+    setSnapPolicySalvando(true)
+    try {
+      const resp = await salvarSnapshotAtualizacaoPolicy(snapPolicy)
+      setSnapPolicyBase(resp.data)
+      setSnapPolicy(resp.data)
+      addNotification({ type: 'success', message: 'Política de snapshot salva.' })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao salvar política'
+      addNotification({ type: 'error', message: msg })
+    } finally {
+      setSnapPolicySalvando(false)
+    }
+  }
+
+  function cancelarSnapPolicy() {
+    setSnapPolicy(snapPolicyBase)
+  }
 
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
@@ -4483,6 +4530,70 @@ export default function Configuracoes() {
         {/* ════════════════════════ SNAPSHOT CADASTROS ════════════════════════ */}
         {categoria === 'snapshot-cadastros' && (
           <div className="cfg-cards-wrapper">
+
+            {/* ── Snapshot — Política de Atualização ─────────────────────── */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Snapshot — Política de Atualização</h2>
+                  <p className="cfg-secao__desc">
+                    Define quais papéis e gatilhos disparam re-snapshot automático
+                    quando o cadastro-base muda. Persistido por workspace na tabela
+                    <code> pedido_snapshot_atualizacao</code>.
+                  </p>
+                </div>
+              </div>
+
+              <ConfiguracaoSecaoGlobal label="Papéis (atualização automática)" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
+                {([
+                  ['atualiza_importador',  'Importador'],
+                  ['atualiza_exportador',  'Exportador'],
+                  ['atualiza_fabricante',  'Fabricante'],
+                  ['atualiza_agente',      'Agente'],
+                  ['atualiza_despachante', 'Despachante'],
+                  ['atualiza_armador',     'Armador'],
+                  ['atualiza_ope',         'OPE (Operação Portal Único)'],
+                ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
+                  <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={snapPolicy[chave]}
+                      onChange={() => toggleSnapPolicy(chave)}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+
+              <ConfiguracaoSecaoGlobal label="Gatilhos (transições de status que re-snapshotam)" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
+                {([
+                  ['gatilho_emissao',     'Emissão do Pedido'],
+                  ['gatilho_embarque',    'Embarque'],
+                  ['gatilho_desembaraco', 'Desembaraço'],
+                ] as Array<[keyof SnapshotAtualizacaoPolicy, string]>).map(([chave, label]) => (
+                  <label key={chave} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={snapPolicy[chave]}
+                      onChange={() => toggleSnapPolicy(chave)}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="cfg-secao__footer" style={{ marginTop: '1rem' }}>
+                <BotaoCancelar onClick={cancelarSnapPolicy} dirty={snapPolicyAlterada} />
+                <BotaoSalvar
+                  onClick={salvarSnapPolicy}
+                  dirty={snapPolicyAlterada}
+                  carregando={snapPolicySalvando}
+                />
+              </div>
+            </section>
+
             <PedidoSnapshotCadastros />
           </div>
         )}

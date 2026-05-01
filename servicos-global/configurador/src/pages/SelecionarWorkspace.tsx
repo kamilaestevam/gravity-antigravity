@@ -463,13 +463,13 @@ export function SelecionarWorkspace() {
           //   1. Query param ?select=1 ausente (escape hatch não acionado)
           //   2. preferredId válido vindo do backend
           //   3. Tenant tem pelo menos 1 produto ativo (senão abriria modalSemProdutos)
-          //   4. Role não é SUPPLIER (backend já garantiu, mas double-check no client)
+          //   4. tipo_usuario não é FORNECEDOR (backend já garantiu, mas double-check no client)
           const forceSelect = searchParams.get('select') === '1'
           if (
             !forceSelect &&
             serverPreferredId &&
             totalAtivos > 0 &&
-            userRole !== 'Fornecedor'
+            dbRole !== 'FORNECEDOR'
           ) {
             const targetWs = mapeados.find(w => w.id === serverPreferredId)
             if (targetWs) {
@@ -483,7 +483,7 @@ export function SelecionarWorkspace() {
           // ── Migration suave: localStorage antigo (favoritos múltiplos) → backend ──
           // Se não há preferido no backend mas há favoritos salvos localmente,
           // pega o primeiro que ainda existe como company e promove para preferido.
-          if (!serverPreferredId && userRole !== 'Fornecedor') {
+          if (!serverPreferredId && dbRole !== 'FORNECEDOR') {
             try {
               const legacy = localStorage.getItem('gravity_ws_favorites')
               if (legacy) {

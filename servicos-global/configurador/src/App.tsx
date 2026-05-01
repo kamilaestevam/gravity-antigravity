@@ -148,7 +148,7 @@ function OrganizacaoDetalheWrapper() {
   return <OrganizacaoDetalheAdmin id_organizacao={id_organizacao!} onBack={() => navigate('/admin/organizacoes')} />
 }
 
-/** Rota raiz: se logado → /hub, se não → AutenticacaoPage */
+/** Rota raiz: se logado → /hub, se não → /login (URL canônica) */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
   const [clerkTimeout, setClerkTimeout] = React.useState(false)
@@ -171,7 +171,7 @@ function RootRedirect() {
   return isSignedIn ? (
     <Navigate to="/hub" replace />
   ) : (
-    <AutenticacaoPage />
+    <Navigate to="/login" replace />
   )
 }
 
@@ -208,8 +208,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // Enquanto Clerk não carregou, não renderiza nada (evita flash)
   if (!isLoaded) return null
 
-  // Se não autenticado, redireciona para /sign-in local (sem round-trip ao Clerk hosted)
-  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+  // Se não autenticado, redireciona para /login local (sem round-trip ao Clerk hosted)
+  if (!isSignedIn) return <Navigate to="/login" replace />
 
   return <>{children}</>
 }
@@ -221,7 +221,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isReady, isGravityAdmin } = useLoadSystemRole()
 
   if (!isLoaded) return null
-  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+  if (!isSignedIn) return <Navigate to="/login" replace />
   if (!isReady) return null  // aguarda resultado do banco
 
   if (!isGravityAdmin) return <Navigate to="/hub" replace />

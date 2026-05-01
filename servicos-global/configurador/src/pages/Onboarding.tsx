@@ -150,7 +150,7 @@ export function Onboarding() {
         <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
           <TooltipGlobal descricao={passo === 2 ? 'Voltar ao passo anterior' : 'Voltar para login'}>
             <button
-              onClick={() => passo === 2 ? setPasso(1) : signOut({ redirectUrl: '/sign-in' })}
+              onClick={() => passo === 2 ? setPasso(1) : signOut({ redirectUrl: '/login' })}
               disabled={loading}
               style={{
                 width: '32px',

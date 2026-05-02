@@ -19,6 +19,7 @@ import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
+import { formatarCNPJ, validarCNPJ } from '@nucleo/utils'
 import { adminPlatformApi } from '../../services/apiClient'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
@@ -228,10 +229,17 @@ export function VisaoGeralAdmin() {
             label={t('admin.visao-geral.campo_cnpj')}
             tooltipTitulo={t('admin.visao-geral.campo_cnpj_tooltip')}
             tooltipDescricao={t('admin.visao-geral.campo_cnpj_desc')}
+            erro={dados.cnpj && !validarCNPJ(dados.cnpj) ? 'CNPJ inválido (dígito verificador não confere)' : undefined}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <IdentificationCard size={16} />
-              <input value={dados.cnpj} onChange={e => set('cnpj', e.target.value)} />
+              <input
+                value={dados.cnpj}
+                onChange={e => set('cnpj', formatarCNPJ(e.target.value))}
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
+                inputMode="numeric"
+              />
             </div>
           </CampoGeralGlobal>
         </div>

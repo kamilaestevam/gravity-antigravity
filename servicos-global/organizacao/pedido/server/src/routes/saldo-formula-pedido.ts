@@ -37,7 +37,7 @@ saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, nex
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-      const registro = await db.pedidoSaldoFormulaConfig.findUnique({
+      const registro = await db.pedidoSaldoFormula.findUnique({
         where: { id_organizacao: tenant_id },
       })
       res.json({
@@ -73,7 +73,7 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-      const registro = await db.pedidoSaldoFormulaConfig.upsert({
+      const registro = await db.pedidoSaldoFormula.upsert({
         where:  { id_organizacao: tenant_id },
         create: { id_organizacao: tenant_id, formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
         update: { formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
@@ -98,7 +98,7 @@ saldoFormulaRouter.delete('/saldo-formula', async (req: Request, res: Response, 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-      await db.pedidoSaldoFormulaConfig.deleteMany({ where: { id_organizacao: tenant_id } })
+      await db.pedidoSaldoFormula.deleteMany({ where: { id_organizacao: tenant_id } })
       res.json({
         data: {
           formula_expressao: SALDO_FORMULA_PADRAO,

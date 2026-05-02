@@ -121,8 +121,8 @@ export class SmartImportService {
   // Lê a config de casas decimais do workspace; usa defaults se ainda não configurado
   private async lerCasasDecimais(tenantId: string): Promise<typeof CASAS_DECIMAIS_PADRAO> {
     try {
-      const cfg = await this.db['pedidoCasasDecimaisConfig'].findUnique({
-        where: { tenant_id: tenantId },
+      const cfg = await this.db['pedidoCasasDecimais'].findUnique({
+        where: { id_organizacao: tenantId },
       })
       if (!cfg) return CASAS_DECIMAIS_PADRAO
       return {

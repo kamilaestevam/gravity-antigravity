@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-02T14:40:10.940Z
+// Gerado em: 2026-05-02T14:45:14.531Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -461,7 +461,7 @@ model PedidoCasasDecimais {
 model PedidoSaldoFormula {
   id_pedido_saldo_formula String  @id @default(cuid())
   id_organizacao          String  @unique
-  id_produto              String?
+  id_produto_gravity      String?
 
   formula_expressao_pedido_saldo_formula String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
 
@@ -469,7 +469,7 @@ model PedidoSaldoFormula {
   data_atualizacao_pedido_saldo_formula DateTime @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_produto_gravity])
   @@map("pedido_saldo_formula")
 }
 

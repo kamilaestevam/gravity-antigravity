@@ -220,9 +220,9 @@ O agente notifica o **Coordenador** (não o Líder) quando:
 |:---|:---|
 | Qualquer código | `antigravity-agent-policy` + `antigravity-code-standards` |
 | Componente do núcleo | `+ antigravity-nucleo-global` |
-| Serviço de organizacao | `+ antigravity-servicos-organizacao` + `antigravity-cross-boundary` |
+| Serviço de organizacao | `+ antigravity-servicos-plataforma` + `antigravity-cross-boundary` |
 | Produto | `+ antigravity-marketplace` + `antigravity-configurador` + skill do produto |
-| Schema Prisma | `+ antigravity-coordenador` + `antigravity-servicos-organizacao` + `antigravity-schema-composition` |
+| Schema Prisma | `+ antigravity-coordenador` + `antigravity-servicos-plataforma` + `antigravity-schema-composition` |
 | Auth entre serviços | `+ antigravity-autenticacao-s2s` |
 | Ações cross-boundary | `+ antigravity-cross-boundary` |
 | Deploy | `+ antigravity-deploy` |

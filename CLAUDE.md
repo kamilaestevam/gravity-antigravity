@@ -300,7 +300,7 @@ const meResponseSchema = z.object({
 |-------|---------|-----------------|
 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Componentes em `nucleo-global/` |
 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Composição de Prisma fragments por serviço |
-| Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
+| Serviços de Organização | `skills/arquitetura/servicos-plataforma/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
 | Estado | `skills/arquitetura/estado/SKILL.md` | Zustand, Event Bus, cache cliente |
 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação por evento, prefixo `organizacao:` (REGRA 4 do linter) |
 | Resiliência | `skills/arquitetura/resiliencia/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |

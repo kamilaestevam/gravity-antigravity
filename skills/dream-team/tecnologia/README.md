@@ -160,7 +160,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 |---|:---|:---|:---|
 | 30 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Componentes React puros, sem estado de servidor |
 | 31 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Composição de Prisma fragments por serviço |
-| 32 | Serviços de Organizacao | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organizacao |
+| 32 | Serviços de Organizacao | `skills/arquitetura/servicos-plataforma/SKILL.md` | Serviços tenant — 1 banco compartilhado por organizacao |
 | 33 | Estado | `skills/arquitetura/estado/SKILL.md` | Zustand, Event Bus, cache cliente |
 | 34 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `organizacao:` |
 | 35 | Resiliência | `skills/arquitetura/resiliencia/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |

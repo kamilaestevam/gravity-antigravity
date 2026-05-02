@@ -1,5 +1,5 @@
 ---
-name: antigravity-servicos-organizacao
+name: antigravity-servicos-plataforma
 description: "Use esta skill sempre que uma tarefa envolver criação, modificação ou uso de serviços da organizacao ou serviços de produto do projeto Gravity. Define a diferença entre as duas naturezas de serviço, a estrutura obrigatória de pastas, as regras de autocontido, como expor fragment.prisma (pós-pivô Schema-per-Organizacao) e como o frontend integra os serviços. Todo agente consulta esta skill antes de criar ou modificar qualquer serviço."
 ---
 

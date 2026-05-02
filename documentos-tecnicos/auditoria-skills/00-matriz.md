@@ -40,7 +40,7 @@
 
 68 SKILL.md auditados. Lista completa:
 
-- arquitetura/ (8): cache, estado, nucleo-global, observabilidade, resiliencia, schema-composition, servicos-organizacao, traducao
+- arquitetura/ (8): cache, estado, nucleo-global, observabilidade, resiliencia, schema-composition, servicos-plataforma, traducao
 - dream-team/ (2): ajustes, detetive-tela
 - governanca/convencao-tecnica/ (10 após Fase 3): code-standards, monorepo, lint-tenant-safety, api-design, criptografia, observabilidade-minima, mapa-componentes-locais, mapa-nucleo-global, mapa-paginas, modais
 - governanca/lei/ (11 após Fase 3): 9-mandamentos, agent-policy, backup-policy, cost-budget, ddd-nomenclatura, isolamento-organizacao, sdk-resolvedor-organizacao, sla-metas, terminal, visao-geral, **database-governance** (promovida)

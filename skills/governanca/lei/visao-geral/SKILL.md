@@ -229,7 +229,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Regras gerais de comportamento do agente | `antigravity-agent-policy` |
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
-| Serviços por organizacao vs produto, estrutura de pastas | `antigravity-servicos-organizacao` |
+| Serviços por organizacao vs produto, estrutura de pastas | `antigravity-servicos-plataforma` |
 | Isolamento de Organizacao (Schema-per-Organizacao + SDK) | `antigravity-isolamento-organizacao` |
 | Auth entre serviços (`x-chave-interna`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |

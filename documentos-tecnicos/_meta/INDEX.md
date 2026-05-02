@@ -108,7 +108,7 @@ Master (`707c7c5a`) avançou paralelamente. Itens trazidos:
 |---|---|---|
 | `arquitetura/nucleo-global/` | TabelaGlobal.md, ToastGlobal.md, README.md + `ddd-atlas/08-nucleo-global.md` | ✅ migrado |
 | `arquitetura/schema-composition/` | adr-001/003 (a recriar — agente skills decide) | ❌ pendente |
-| `arquitetura/servicos-organizacao/` | técnico (a produzir nas ondas) | ❌ pendente |
+| `arquitetura/servicos-plataforma/` | técnico (a produzir nas ondas) | ❌ pendente |
 | `arquitetura/state-management/` | n/a (referência) | n/a |
 | `arquitetura/caching-strategy/` | n/a (referência) | n/a |
 | `arquitetura/resilience-patterns/` | n/a (referência) | n/a |

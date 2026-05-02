@@ -3771,6 +3771,16 @@
       "aria_secoes_pedido": "Order sections",
       "ph_sku": "SKU"
     },
+    "banner": {
+      "snapshot_atualizado_titulo": "Records updated",
+      "snapshot_atualizado_descricao": "{{papeis}} data was updated on {{data}} based on changes in Records.",
+      "snapshot_papel_empresa": "Company",
+      "snapshot_papel_ope": "OPE",
+      "snapshot_papel_ncm": "HS Code",
+      "snapshot_papel_moeda": "Currency",
+      "snapshot_papel_unidade": "Unit",
+      "fechar": "Close"
+    },
     "modal_novo": {
       "titulo": "New Order",
       "passo_dados": "Order Data",

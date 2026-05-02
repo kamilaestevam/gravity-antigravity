@@ -1973,3 +1973,37 @@ export function salvarSnapshotAtualizacaoPolicy(payload: SnapshotAtualizacaoPoli
     body: JSON.stringify(payload),
   })
 }
+
+// ── Snapshot Status — banner retroativo (FASE 06E — Frente 3) ────────────────
+
+import { z } from 'zod'
+
+export const PAPEIS_SNAPSHOT = ['empresa', 'ope', 'ncm', 'moeda', 'unidade'] as const
+export type PapelSnapshot = typeof PAPEIS_SNAPSHOT[number]
+
+const PapelStatusSchema = z.object({
+  papel:                z.enum(PAPEIS_SNAPSHOT),
+  congelado_em:         z.string().nullable(),
+  motivos_congelamento: z.array(z.string()),
+  total_registros:      z.number().int().nonnegative(),
+})
+
+const SnapshotStatusResponseSchema = z.object({
+  data: z.object({
+    id_pedido: z.string(),
+    papeis:    z.array(PapelStatusSchema),
+  }),
+})
+
+export type PapelSnapshotStatus  = z.infer<typeof PapelStatusSchema>
+export type SnapshotStatusPedido = z.infer<typeof SnapshotStatusResponseSchema>['data']
+
+export function obterSnapshotStatusPedido(idPedido: string): Promise<SnapshotStatusPedido | null> {
+  return request<unknown>(`/api/v1/pedidos/${pid(idPedido)}/snapshot-status`)
+    .then(raw => SnapshotStatusResponseSchema.parse(raw).data)
+    .catch(err => {
+      // Backend pode estar offline ou pedido sem snapshot — não bloqueia a UI
+      if (import.meta.env.DEV) console.warn('[api] obterSnapshotStatusPedido falhou:', err)
+      return null
+    })
+}

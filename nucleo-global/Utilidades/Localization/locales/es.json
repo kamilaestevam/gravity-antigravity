@@ -3920,6 +3920,16 @@
       "aria_secoes_pedido": "Secciones del pedido",
       "ph_sku": "SKU"
     },
+    "banner": {
+      "snapshot_atualizado_titulo": "Catálogos actualizados",
+      "snapshot_atualizado_descricao": "Los datos de {{papeis}} se actualizaron el {{data}} con base en cambios en Catálogos.",
+      "snapshot_papel_empresa": "Empresa",
+      "snapshot_papel_ope": "OPE",
+      "snapshot_papel_ncm": "NCM",
+      "snapshot_papel_moeda": "Moneda",
+      "snapshot_papel_unidade": "Unidad",
+      "fechar": "Cerrar"
+    },
     "modal_novo": {
       "titulo": "Nuevo Pedido",
       "passo_dados": "Datos del Pedido",

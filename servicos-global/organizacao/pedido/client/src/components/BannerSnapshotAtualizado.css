@@ -1,0 +1,104 @@
+/**
+ * BannerSnapshotAtualizado.css — Banner retroativo do snapshot do Pedido
+ * Design System: Solid Slate — variante âmbar para mensagens informativas
+ *
+ * Cor base: #fbbf24 (mesmo amber-400 usado em msc-feedback--aviso da
+ * configuração de snapshot — coerência cromática entre Configurações e detalhe).
+ */
+
+.banner-snapshot-atualizado {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  margin-bottom: 0.875rem;
+  border-radius: 0.5rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.banner-snapshot-atualizado__icone {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #fbbf24;
+}
+
+.banner-snapshot-atualizado__corpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.banner-snapshot-atualizado__titulo {
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 0.125rem;
+}
+
+.banner-snapshot-atualizado__descricao {
+  color: var(--text-muted, #cbd5e1);
+}
+
+.banner-snapshot-atualizado__descricao strong {
+  color: var(--text-primary, #f1f5f9);
+  font-weight: 600;
+}
+
+.banner-snapshot-atualizado__fechar {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms, color 120ms;
+}
+
+.banner-snapshot-atualizado__fechar:hover {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.banner-snapshot-atualizado__fechar:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 1px;
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+
+body.light-theme .banner-snapshot-atualizado {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #1e293b;
+}
+
+body.light-theme .banner-snapshot-atualizado__icone {
+  color: #d97706;
+}
+
+body.light-theme .banner-snapshot-atualizado__titulo {
+  color: #1e293b;
+}
+
+body.light-theme .banner-snapshot-atualizado__descricao {
+  color: #475569;
+}
+
+body.light-theme .banner-snapshot-atualizado__descricao strong {
+  color: #1e293b;
+}
+
+body.light-theme .banner-snapshot-atualizado__fechar {
+  color: #92400e;
+}
+
+body.light-theme .banner-snapshot-atualizado__fechar:hover {
+  background: #fef3c7;
+  color: #1e293b;
+}

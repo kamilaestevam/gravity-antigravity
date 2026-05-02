@@ -33,8 +33,13 @@ import { ModalOverlay } from '@nucleo/modal-global'
 import { GabiCampoIconeGlobal } from '@nucleo/gabi-field-icon-global'
 import { ModalTabelaMoedaGlobal } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
-import { pedidoApi, pedidoTransferirApi } from '../shared/api'
+import { pedidoApi, pedidoTransferirApi, obterSnapshotStatusPedido, type PapelSnapshot } from '../shared/api'
+import { BannerSnapshotAtualizado } from './BannerSnapshotAtualizado'
 import './DrawerPedido.css'
+
+const DIAS_BANNER_VISIVEL = 7
+const LS_BANNER_FECHADO_PREFIX = 'gravity:pedido:'
+const LS_BANNER_FECHADO_SUFFIX = ':snapshot-banner-fechado'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -133,6 +138,13 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
   const [confirmarFecharSemSalvar, setConfirmarFecharSemSalvar] = useState(false)
   const [modalMoedaAberta, setModalMoedaAberta] = useState(false)
 
+  // ── Banner retroativo de snapshot atualizado (FASE 06E — Frente 3) ────────
+  const [bannerSnapshot, setBannerSnapshot] = useState<{
+    ultimaAtualizacao: string
+    papeisAtualizados: PapelSnapshot[]
+  } | null>(null)
+  const [bannerSnapshotFechado, setBannerSnapshotFechado] = useState(false)
+
   const formRef = useRef({ form, itens })
   formRef.current = { form, itens }
 
@@ -225,6 +237,70 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
 
     return () => { cancelado = true }
   }, [aberto, modoEdicao, pedidoId])
+
+  // Carregar status do snapshot — banner retroativo (FASE 06E — Frente 3)
+  useEffect(() => {
+    if (!aberto || !modoEdicao || !pedidoId) {
+      setBannerSnapshot(null)
+      setBannerSnapshotFechado(false)
+      return
+    }
+
+    // Verifica se o usuario ja fechou esse banner para este pedido
+    let fechado = false
+    try {
+      fechado = localStorage.getItem(`${LS_BANNER_FECHADO_PREFIX}${pedidoId}${LS_BANNER_FECHADO_SUFFIX}`) === '1'
+    } catch { /* localStorage indisponivel — ignora */ }
+    setBannerSnapshotFechado(fechado)
+    if (fechado) {
+      setBannerSnapshot(null)
+      return
+    }
+
+    let cancelado = false
+    obterSnapshotStatusPedido(pedidoId)
+      .then(status => {
+        if (cancelado || !status) return
+
+        // Filtra papéis cujo motivo mais recente foi 'atualizacao_manual'
+        // E congelamento dentro da janela de DIAS_BANNER_VISIVEL.
+        const limite = Date.now() - DIAS_BANNER_VISIVEL * 24 * 60 * 60 * 1000
+        const candidatos = status.papeis.filter(p => {
+          if (!p.congelado_em) return false
+          if (!p.motivos_congelamento.includes('atualizacao_manual')) return false
+          const ts = new Date(p.congelado_em).getTime()
+          if (Number.isNaN(ts)) return false
+          return ts >= limite
+        })
+
+        if (candidatos.length === 0) {
+          setBannerSnapshot(null)
+          return
+        }
+
+        // Pega a data mais recente entre os candidatos
+        const ultima = candidatos.reduce<string>((acc, p) => {
+          if (!acc) return p.congelado_em ?? ''
+          return new Date(p.congelado_em!).getTime() > new Date(acc).getTime() ? p.congelado_em! : acc
+        }, '')
+
+        setBannerSnapshot({
+          ultimaAtualizacao: ultima,
+          papeisAtualizados: candidatos.map(p => p.papel),
+        })
+      })
+
+    return () => { cancelado = true }
+  }, [aberto, modoEdicao, pedidoId])
+
+  const fecharBannerSnapshot = useCallback(() => {
+    if (!pedidoId) return
+    try {
+      localStorage.setItem(`${LS_BANNER_FECHADO_PREFIX}${pedidoId}${LS_BANNER_FECHADO_SUFFIX}`, '1')
+    } catch { /* localStorage indisponivel — ignora */ }
+    setBannerSnapshotFechado(true)
+    setBannerSnapshot(null)
+  }, [pedidoId])
 
   // Scroll + focus no campo solicitado (via focusField prop)
   useEffect(() => {
@@ -377,6 +453,14 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
 
         {/* Corpo */}
         <div className="drawer-pedido__corpo">
+          {/* Banner retroativo: snapshot atualizado pelo Cadastros (FASE 06E) */}
+          {modoEdicao && bannerSnapshot && !bannerSnapshotFechado && (
+            <BannerSnapshotAtualizado
+              ultimaAtualizacao={bannerSnapshot.ultimaAtualizacao}
+              papeisAtualizados={bannerSnapshot.papeisAtualizados}
+              onFechar={fecharBannerSnapshot}
+            />
+          )}
           {carregando ? (
             <div className="drawer-pedido__loading" aria-live="polite">
               <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />

@@ -50,8 +50,10 @@ import { kanbanPreferenciasRouter } from './routes/kanban-pedido-preferencias.js
 import { casasDecimaisRouter } from './routes/casas-decimais-pedido.js'
 import { preferenciaUsuarioColunaPedidoRouter } from './routes/preferencia-usuario-coluna-pedido.js'
 import { snapshotAtualizacaoPedidoRouter } from './routes/snapshot-atualizacao-pedido.js'
+import { snapshotStatusPedidoRouter } from './routes/snapshot-status-pedido.js'
 import { saldoFormulaRouter } from './routes/saldo-formula-pedido.js'
 import { initRouter } from './routes/inicializacao-pedido.js'
+import { internalCadastrosChangedRouter } from './routes/internal-cadastros-changed.js'
 import { pedidosRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../../../servicos-global/organizacao/processos-core/src/routes/importacao.js'
@@ -104,6 +106,10 @@ app.use(requireInternalKey)
 // ── 5. Analytics — Power BI integration (auth própria dentro do router) ──────
 app.use('/api/v1/pedidos/analytics', analyticsRouter)
 
+// ── 5.0. Webhook interno Cadastros → Pedido (resolve org via idOrganizacao
+//        no header, NÃO passa por resolverOrganizacao). FASE 06E frente 2.
+app.use('/api/v1/internal', internalCadastrosChangedRouter)
+
 // ── 5.1. Taxa de câmbio — extraído para servicos-global/organizacao/taxas-cambio/
 // (Gamma-3 leva 3). Consumers passaram a chamar o tenant service standalone.
 
@@ -151,6 +157,7 @@ app.use('/api/v1/pedidos/kanban',                      kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)
 app.use('/api/v1/pedidos/config',                      preferenciaUsuarioColunaPedidoRouter)
 app.use('/api/v1/pedidos/config',                      snapshotAtualizacaoPedidoRouter)
+app.use('/api/v1/pedidos',                             snapshotStatusPedidoRouter)  // GET /:idPedido/snapshot-status (FASE 06E — banner retroativo)
 app.use('/api/v1/pedidos/configuracoes',               saldoFormulaRouter)
 app.use('/api/v1/pedidos/config',                      pedidosConfigRouter)
 app.use('/api/v1/pedidos',                             importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar

@@ -66,7 +66,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           orderBy: [{ [sortField]: sortDir }, { id: sortDir }],
           take: limitNum + 1,
         }),
-        db.pedidoStatus.findMany({
+        db.statusPedido.findMany({
           where: { id_organizacao: idOrganizacao },
           orderBy: { ordem_pedido_status: 'asc' },
         }),

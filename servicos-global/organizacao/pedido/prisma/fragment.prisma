@@ -202,7 +202,7 @@ model PedidoItem {
   @@map("pedido_itens")
 }
 
-model PedidoStatusConfig {
+model StatusPedido {
   id_pedido_status                  String   @id @default(cuid())
   id_organizacao                    String
   id_workspace                      String?

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-02T14:28:14.467Z
+// Gerado em: 2026-05-02T14:40:10.940Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -231,7 +231,7 @@ model PedidoItem {
   @@map("pedido_itens")
 }
 
-model PedidoStatusConfig {
+model StatusPedido {
   id_pedido_status                  String   @id @default(cuid())
   id_organizacao                    String
   id_workspace                      String?

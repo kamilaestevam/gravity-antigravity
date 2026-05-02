@@ -40,6 +40,7 @@ import {
   buscarEmpresasPorSuids,
   buscarMoedaPorCodigo,
   buscarNcmPorCodigo,
+  buscarOpePorSuid,
   buscarUnidadePorCodigo,
   type CadastrosRequestContext,
 } from '../services/cadastrosClient.js'
@@ -55,11 +56,10 @@ import {
   type SnapshotOpeData,
   type SnapshotUnidadeData,
 } from '../services/pedidoSnapshots.js'
-// FASE 06E (Frente 1, Agente 4): OPE não vem no payload de criação do Pedido
-// (não há `suid_ope` em criarPedidoSchema), então `montarSnapshotOpe` fica
-// referenciado para futuras frentes que injetarem OPE no fluxo. NCM/Moeda/
-// Unidade são plugados abaixo a partir dos campos do pedido e dos itens.
-void montarSnapshotOpe; void SnapshotOpeData;
+// FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
+// montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
+// SnapshotOpeData usado no array de snapshots tipados.
+void SnapshotOpeData;
 import { randomUUID } from 'node:crypto'
 
 export const pedidosRouter = Router()
@@ -89,6 +89,7 @@ const criarPedidoObjectSchema = z.object({
   suid_importador:          z.string().min(1).optional().nullable(),
   suid_exportador:          z.string().min(1).optional().nullable(),
   suid_fabricante:          z.string().min(1).optional().nullable(),
+  suid_ope:                 z.string().min(1).optional().nullable(),
   numero_proforma:          z.string().optional().nullable(),
   numero_invoice:           z.string().optional().nullable(),
   referencia_importador:    z.string().optional().nullable(),
@@ -710,6 +711,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     suid_importador,
     suid_exportador,
     suid_fabricante,
+    suid_ope,
     ...pedidoData
   } = result.data
 
@@ -787,7 +789,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       }
     }
 
-    const [ncmsBuscados, moedasBuscadas, unidadesBuscadas] = await Promise.all([
+    const [ncmsBuscados, moedasBuscadas, unidadesBuscadas, opeBuscado] = await Promise.all([
       Promise.all(
         ncmsDistintos.map(async (codigo) => ({
           codigo,
@@ -808,6 +810,10 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           ),
         })),
       ),
+      // FASE 06E (Frente 1): OPE — agora `suid_ope` vem do payload
+      suid_ope
+        ? buscarSeguro('OPE', suid_ope, () => buscarOpePorSuid(suid_ope, ctxCadastros))
+        : Promise.resolve(null),
     ])
 
     await withOrganizacao(req, async (rawDb) => {
@@ -883,6 +889,21 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
         })
         .filter((s): s is SnapshotUnidadeData => s !== null)
 
+      // FASE 06E — snapshot inicial de OPE (best-effort)
+      const snapshotOpeData: SnapshotOpeData | null = opeBuscado
+        ? (() => {
+            try {
+              return montarSnapshotOpe(opeBuscado, tenant_id, company_id)
+            } catch (err) {
+              console.warn(
+                `[POST /pedidos] snapshot OPE: contrato invalido (suid=${suid_ope}); seguindo sem snapshot inicial`,
+                err instanceof Error ? err.message : err,
+              )
+              return null
+            }
+          })()
+        : null
+
       const novoPedido = await db.pedido.create({
         data: {
           id: pedidoId,
@@ -923,6 +944,9 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           snapshots_unidade_pedido: snapshotsUnidadeData.length
             ? { create: snapshotsUnidadeData }
             : undefined,
+          snapshots_ope_pedido: snapshotOpeData
+            ? { create: [snapshotOpeData] }
+            : undefined,
         },
         include: {
           itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
@@ -930,6 +954,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           snapshots_ncm_pedido: true,
           snapshots_moeda_pedido: true,
           snapshots_unidade_pedido: true,
+          snapshots_ope_pedido: true,
         },
       })
 

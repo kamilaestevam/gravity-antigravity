@@ -18234,11 +18234,11 @@ cast `as unknown as { ... }` é o contorno correto e necessário.
 gravity-pedido-producao (PostgreSQL)
   ├── public                         ← 100% VAZIO (nenhuma tabela aqui)
   ├── tenant_cmo4vtp3i0000m86ft8vt5vnu   ← empresa A
-  │    ├── pedido_produto_gravity    ← @@map do model Pedido (DDD 2026-04-19)
+  │    ├── pedido    ← @@map do model Pedido (DDD 2026-04-19)
   │    ├── pedido_item
   │    └── _prisma_migrations
   └── tenant_cm...xyz                    ← empresa B
-       ├── pedido_produto_gravity
+       ├── pedido
        ├── pedido_item
        └── _prisma_migrations
 ```
@@ -18275,7 +18275,7 @@ model Pedido {
   id  String  @id @default(cuid())   // CUID: 25 chars, ex: cmo4vtp3i0000m86ft8vt5vnu
   ...
 
-  @@map("pedido_produto_gravity")    // nome da tabela PostgreSQL (DDD 2026-04-19)
+  @@map("pedido")    // nome da tabela PostgreSQL (DDD 2026-04-19)
 }
 ```
 
@@ -38763,8 +38763,8 @@ ARQUIVO: documentos-tecnicos\ddd\AUDITORIA_EXECUCAO_Pedido_BACKEND.md
 | `PedidoTemplatePdf` | `TemplatePedidoPdf` | `prisma.templatePedidoPdf` |
 | `TransferHistorico` | `TrackingItemsTransferidos` | `prisma.trackingItemsTransferidos` |
 | `DashboardConfig` | `DashboardPreferencias` | `prisma.dashboardPreferencias` |
-| `PedidoCasasDecimaisConfig` | `PedidoCasasDecimais` | `prisma.pedidoCasasDecimais` |
-| `PedidoSaldoFormulaConfig` | `PedidoSaldoFormula` | `prisma.pedidoSaldoFormula` |
+| `PedidoCasasDecimais` | `PedidoCasasDecimais` | `prisma.pedidoCasasDecimais` |
+| `PedidoSaldoFormula` | `PedidoSaldoFormula` | `prisma.pedidoSaldoFormula` |
 
 ---
 
@@ -38854,7 +38854,7 @@ $ grep -rn "prisma.mapeamentoImport|prisma.pedidoAnexo|prisma.pedidoTemplatePdf|
 
 # Zero ocorrências de nomes antigos de models em server/src/
 $ grep -rn "MapeamentoImport|PedidoAnexo|PedidoTemplatePdf|TransferHistorico|
-  DashboardConfig|PedidoCasasDecimaisConfig|PedidoSaldoFormulaConfig" \
+  DashboardConfig|PedidoCasasDecimais|PedidoSaldoFormula" \
   produto/pedido/server/src/ --include="*.ts" | wc -l
 → 0 ✅
 
@@ -38928,7 +38928,7 @@ ARQUIVO: documentos-tecnicos\ddd\AUDITORIA_EXECUCAO_Pedido_BANCO.md
 
 | Model Prisma | @@map Antigo | @@map Novo |
 |---|---|---|
-| `Pedido` | (nenhum — default `pedido`) | `pedido_produto_gravity` |
+| `Pedido` | (nenhum — default `pedido`) | `pedido` |
 | `PedidoItem` | (nenhum) | `pedido_itens` |
 | `Processo` | (nenhum) | `tabela_processos` |
 | `ProcessoFatura` | (nenhum) | `fatura_processo` |
@@ -38936,18 +38936,18 @@ ARQUIVO: documentos-tecnicos\ddd\AUDITORIA_EXECUCAO_Pedido_BANCO.md
 | `ProcessoContainer` | (nenhum) | `container_processo` |
 | `PedidoStatus` | (nenhum) | `status_pedido` |
 | `PedidoColuna` | (nenhum) | `pedido_colunas` |
-| `PedidoPreferenciaUsuario` | (nenhum) | `preferencia_coluna_pedido` |
+| `PedidoPreferenciaUsuario` | (nenhum) | `preferencia_usuario_coluna_pedido` |
 | `PedidoPreferenciaPadrao` | (nenhum) | `preferencia_padrao_pedido` |
 | `MapeamentoImport` | `mapeamento_import` | `aprendizado_importacao_dados` |
 | `PedidoAnexo` | `pedido_anexos` | `anexo_pedido` |
-| `PedidoTemplatePdf` | `pedido_templates_pdf` | `template_pedido_pdf` |
-| `TransferHistorico` | `transfer_historico` | `tracking_items_transferidos` |
+| `PedidoTemplatePdf` | `pedido_templates_pdf` | `template_pedido` |
+| `TransferHistorico` | `transfer_historico` | `pedido_transferencia` |
 | `ColunaUsuarioPedido` | `colunas_usuario_pedido` | `coluna_usuario_pedido` |
 | `ValorColunaUsuarioPedido` | `valores_colunas_usuario_pedido` | `valor_coluna_usuario_pedido` |
 | `KanbanPreferencias` | (nenhum) | `kanban_preferencias` |
 | `DashboardConfig` | (nenhum) | `dashboard_preferencias` |
-| `PedidoCasasDecimaisConfig` | `pedido_casas_decimais_config` | `pedido_casas_decimais` |
-| `PedidoSaldoFormulaConfig` | (nenhum) | `pedido_saldo_formula` |
+| `PedidoCasasDecimais` | `pedido_casas_decimais_config` | `pedido_casas_decimais` |
+| `PedidoSaldoFormula` | (nenhum) | `pedido_saldo_formula` |
 | `DashboardPainel` | `dashboard_paineis` | `dashboard_painel` |
 
 ---
@@ -39041,7 +39041,7 @@ $ grep -rn '"valores_colunas_usuario_pedido"' produto/pedido/ --include="*.prism
 ```
 $ grep -n "@@map" produto/pedido/server/node_modules/.prisma/client/schema.prisma
 
-64:  @@map("pedido_produto_gravity")
+64:  @@map("pedido")
 111: @@map("pedido_itens")
 234: @@map("tabela_processos")
 253: @@map("fatura_processo")
@@ -39049,12 +39049,12 @@ $ grep -n "@@map" produto/pedido/server/node_modules/.prisma/client/schema.prism
 302: @@map("container_processo")
 322: @@map("status_pedido")
 344: @@map("pedido_colunas")
-359: @@map("preferencia_coluna_pedido")
+359: @@map("preferencia_usuario_coluna_pedido")
 371: @@map("preferencia_padrao_pedido")
 389: @@map("aprendizado_importacao_dados")
 410: @@map("anexo_pedido")
-425: @@map("template_pedido_pdf")
-447: @@map("tracking_items_transferidos")
+425: @@map("template_pedido")
+447: @@map("pedido_transferencia")
 475: @@map("coluna_usuario_pedido")
 492: @@map("valor_coluna_usuario_pedido")
 506: @@map("kanban_preferencias")

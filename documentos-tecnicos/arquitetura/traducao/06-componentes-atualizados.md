@@ -109,7 +109,7 @@ function Botao({ rotulo }: Props) {
 | `configurador/src/pages/workspace/WorkspaceLayout.tsx` | `workspace.layout.*` — 6 nav items, LanguageSwitcher |
 | `configurador/src/pages/workspace/Organizacao.tsx` | `workspace.organization.*` — labels, placeholders, toasts |
 | `configurador/src/pages/workspace/Assinaturas.tsx` | `workspace.subscriptions.*` — colunas, tooltips, upsell |
-| `configurador/src/pages/workspace/Financeiro.tsx` | `workspace.financial.*` — título, abas, stats, status |
+| `configurador/src/pages/workspace/Financeiro.tsx` | `workspace.financeiro-configurador.*` — título, abas, stats, status |
 | `configurador/src/pages/workspace/Workspaces.tsx` | `workspace.workspaces.*` — título, colunas, tooltips |
 | `configurador/src/pages/workspace/Usuarios.tsx` | `workspace.users.*` — título, colunas |
 | `configurador/src/pages/workspace/ApiCockpit.tsx` | `admin.cockpit.*` (compartilha namespace com admin) |

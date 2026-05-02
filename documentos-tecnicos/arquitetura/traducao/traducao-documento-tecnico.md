@@ -172,7 +172,7 @@ As ~950 chaves estão organizadas em namespaces semânticos dentro do pt.json:
 | `workspace.users` | ~6 | Usuários do workspace |
 | `workspace.workspaces` | ~8 | Workspaces |
 | `workspace.subscriptions` | ~15 | Assinaturas |
-| `workspace.financial` | ~12 | Financeiro workspace |
+| `workspace.financeiro-configurador` | ~12 | Financeiro workspace |
 | `simulacusto` | ~80 | Produto SimulaCusto |
 | `bidfrete` | ~60 | Produto BID Frete |
 | `bidcambio` | ~20 | Produto BID Câmbio |
@@ -403,7 +403,7 @@ gravity:language = "pt" | "en" | "es"
 | WorkspaceLayout | `workspace.layout.*` |
 | Organizacao | `workspace.organization.*` |
 | Assinaturas | `workspace.subscriptions.*` |
-| Financeiro | `workspace.financial.*` |
+| Financeiro | `workspace.financeiro-configurador.*` |
 | Workspaces | `workspace.workspaces.*` |
 | Usuarios | `workspace.users.*` |
 | ApiCockpit | `admin.cockpit.*` |

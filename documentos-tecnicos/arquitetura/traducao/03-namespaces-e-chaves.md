@@ -62,7 +62,7 @@ Os 950 textos estão organizados em namespaces semânticos dentro do `pt.json`. 
 | `workspace.users` | 6 | Gestão de usuários | `workspace.users.tabela.usuario` → "Usuário" |
 | `workspace.workspaces` | 7 | Gestão de workspaces | `workspace.workspaces.titulo` → "Workspaces" |
 | `workspace.subscriptions` | 16 | Assinaturas e upsell | `workspace.subscriptions.upsell.nfe` |
-| `workspace.financial` | 9 | Financeiro do tenant | `workspace.financial.aba_faturas` |
+| `workspace.financeiro-configurador` | 9 | Financeiro do tenant | `workspace.financeiro-configurador.aba_faturas` |
 
 ### Produtos
 

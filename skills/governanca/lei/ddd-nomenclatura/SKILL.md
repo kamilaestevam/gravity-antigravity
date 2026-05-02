@@ -77,13 +77,14 @@ Em código, **só os nomes da coluna direita aparecem**. Os da esquerda não exi
 
 ---
 
-## As 11 Regras
+## As 12 Regras
 
 ### REGRA 1 — Nomes de campos físicos (colunas)
 
 1. **Campo novo** → nome PT-BR seguindo o glossário canônico.
 2. **Nome genérico** (`status`, `tipo`, `nome`, `descricao`, `titulo`, `categoria`, `prioridade`, `codigo`) que aparece em **>1 model** → adiciona sufixo de entidade: `<nome>_<entidade>` (ex: `status_pedido`, `tipo_organizacao`).
 3. **Caso contrário** → nome único e descritivo em PT-BR, sem sufixo.
+4. **Sufixo `_global`** apenas quando a entidade é **poliforme/cross-produto** (mesmo registro consumido por múltiplos produtos com semânticas potencialmente distintas). Exemplos válidos: `dashboard_modelo_global`, `dashboard_painel_usuario_global`. **Não use** `_global` em entidades que pertencem a um único produto, mesmo que pareçam genéricas.
 
 ---
 
@@ -271,6 +272,20 @@ Campo `valor_total_pedido = quantidade × valor_unitario` (calculado em runtime,
 - **Coluna "Descrição":** explica a fórmula (`A × B`, `A − (B + C)`).
 - **Tela DDD:** label canonical em PT-BR.
 - **Banco DDD:** `—` se não persiste; nome normal se persiste como cache.
+
+---
+
+### REGRA 12 — Templates sem extensão/mídia no nome
+
+Tabelas/models de template referem-se ao **conceito**, não ao formato de saída. O formato (PDF, XLSX, HTML) é detalhe de renderização, não de modelagem.
+
+| ❌ Proibido | ✅ Correto |
+|---|---|
+| `template_pedido_pdf` | `template_pedido` |
+| `relatorio_financeiro_xlsx` | `relatorio_financeiro` |
+| `email_boas_vindas_html` | `email_boas_vindas` |
+
+O formato fica em coluna `formato_<entidade>` (enum) ou em metadados do registro, **nunca no nome da tabela**. Justificativa: um mesmo template pode ser renderizado em múltiplos formatos; o nome da tabela representa o domínio (o que é um "template de pedido"), não a saída técnica.
 
 ---
 

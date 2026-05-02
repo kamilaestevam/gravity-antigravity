@@ -275,6 +275,68 @@ Configurar Alert Rules no Sentry Dashboard, alinhados aos thresholds da `sla-met
 
 ---
 
+## Audit Trail Centralizado — `auditLog()`
+
+Toda ação de domínio (criar/atualizar/excluir pedido, transferência, edição em massa, mudança de status) **deve** emitir audit via `auditLog()` do pacote `@gravity/historico/audit-client`.
+
+### Arquitetura
+
+- **Transporte:** HTTP POST fire-and-forget (não aguarda resposta, não bloqueia transação).
+- **Endpoint:** serviço `historico-global` (`/api/v1/historico/logs`).
+- **Idempotência:** retry automático até 3 tentativas com backoff exponencial em erros 5xx/rede; descarte em 4xx (payload inválido).
+- **Headers obrigatórios:** `x-id-organizacao` (do payload) e `x-internal-key` (chave inter-serviço).
+
+### Payload (todos os campos em DDD PT-BR)
+
+```ts
+import { auditLog } from '@gravity/historico/audit-client'
+
+auditLog({
+  id_organizacao,                                 // FK glossário (sem sufixo)
+
+  tipo_ator_historico_log: 'USUARIO',             // USUARIO | API | IA | JOB | INTEGRACAO
+  id_ator_historico_log: idUsuario,
+  nome_ator_historico_log: nomeUsuario,
+  ip_ator_historico_log: req.ip,
+  metadata_ator_historico_log: { user_agent, correlation_id, method },
+
+  modulo_historico_log: 'pedido',                 // pedido | cadastros | configurador | …
+  tipo_recurso_historico_log: 'Pedido',           // tipo do recurso afetado
+  id_recurso_historico_log: idPedido,
+
+  acao_historico_log: 'TRANSFERIR',               // CRIAR | ATUALIZAR | EXCLUIR | TRANSFERIR | …
+  detalhe_acao_historico_log: `Transferiu pedido #${idPedido}`,
+
+  estado_anterior_historico_log: pedidoAntes,     // snapshot antes da mutação
+  estado_posterior_historico_log: pedidoDepois,   // snapshot depois
+
+  status_historico_log: 'SUCESSO',                // SUCESSO | FALHA | PARCIAL
+  mensagem_erro_historico_log: undefined,
+
+  id_produto_historico_log: 'pedido',             // discriminador do produto
+  id_usuario: idUsuario,                          // FK glossário (sem sufixo)
+})
+```
+
+### Regras
+
+- **Proibido** criar tabela `<produto>_historico` local. Em 2026-04-30 a tabela órfã `pedido_historico` foi removida — todos os eventos vão pro `historico-global`.
+- **Proibido** aguardar `auditLog()` com `await` em path crítico — perderia o benefício fire-and-forget.
+- **Proibido** usar nomes em inglês na chamada (`tenant_id`, `actor_type`). Refactor 2026-05-02 padronizou tudo em DDD.
+
+### Implementações de referência
+
+- `servicos-global/organizacao/pedido/server/src/services/transferirService.ts`
+- `servicos-global/organizacao/pedido/server/src/services/duplicarExcluirService.ts`
+- `servicos-global/organizacao/pedido/server/src/services/edicaoEmMassaService.ts`
+- `servicos-global/organizacao/pedido/server/src/routes/consolidacoes-pedido.ts`
+
+### Auto-instrumentação opcional
+
+Para registrar automaticamente todas as mutações HTTP (POST/PUT/PATCH/DELETE) sem mexer em cada rota, use o `createProductAuditPlugin` do `@gravity/historico/product-audit-plugin`. Aplica antes do `app.use(routes)` e captura o `res.json()` para emitir audit.
+
+---
+
 ## Checklist — Ao Criar um Novo Servidor
 
 - [ ] `correlationMiddleware` registrado antes das rotas de negócio?

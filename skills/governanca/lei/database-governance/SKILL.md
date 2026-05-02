@@ -367,6 +367,59 @@ npx prisma migrate dev
 **Ambiente de teste DEVE ser validado antes de executar em produção.**
 O Passo 1 e 2 em produção exigem autorização explícita do responsável técnico.
 
+**Workaround para migration órfã (Prisma >=5):** quando `prisma migrate resolve --applied` trava por timeout em bancos com muitos schemas, registrar manualmente via:
+
+```ts
+// scripts/ativamente/register-migration.ts
+await client.query(`
+  INSERT INTO "_prisma_migrations"
+    (id, checksum, finished_at, migration_name, started_at, applied_steps_count)
+  VALUES ($1, $2, NOW(), $3, NOW(), 1)
+  ON CONFLICT (id) DO NOTHING
+`, [randomUUID(), checksum, migrationName])
+```
+
+**Pré-requisito:** o SQL da migration já foi aplicado manualmente (ou via script node). O INSERT só registra que a Prisma deve considerar a migration concluída.
+
+---
+
+### Regra 4 — Migration history é imutável
+
+Migration aplicada em qualquer ambiente **nunca** é editada, renomeada ou removida. Correção é sempre via **nova migration** que ajusta o estado.
+
+❌ **Proibido:**
+- Editar SQL de migration aplicada
+- Renomear pasta `<timestamp>_<nome>/` de migration aplicada
+- Deletar entrada de `_prisma_migrations`
+
+✅ **Correto:** criar `<novo_timestamp>_fix_<descricao>/migration.sql` que aplica o ajuste, e validar idempotência (Regra 2).
+
+**Por quê:** o checksum da migration aplicada está no `_prisma_migrations`. Editar o arquivo gera mismatch e Prisma detecta drift na próxima execução, bloqueando deploys.
+
+---
+
+### Regra 5 — Validar drift schema↔DB antes de toda alteração
+
+Antes de adicionar migration, alterar `fragment.prisma` ou propor RENAME COLUMN, **sempre** verificar se o estado físico do banco bate com o schema Prisma:
+
+```bash
+# Em ambiente isolado (sem afetar dev local):
+DATABASE_URL=<url_do_banco_alvo> npx prisma db pull --schema=/tmp/pulled.prisma
+diff /tmp/pulled.prisma <fragment.prisma esperado>
+```
+
+Ou query direta para campos específicos:
+
+```sql
+SELECT column_name, data_type FROM information_schema.columns
+WHERE table_schema = '<schema>' AND table_name = '<tabela>'
+ORDER BY ordinal_position;
+```
+
+Se houver diff inesperado: **parar**. Drift indica migration órfã, edição manual no banco ou bug em script. Resolver antes de prosseguir, nunca por cima.
+
+**Caso real (2026-05-02):** durante refactor do `historico-global` para DDD, descoberta tardia de que o banco `organizacao-teste` estava **47 de 51 tabelas** ainda em legado inglês (`tenant_id`, `actor_type`, etc.) e enums com valores `USER`/`SUCCESS`. A migration proposta assumia estado intermediário que nunca existiu — só foi descoberto porque rodamos query de drift antes de aplicar. Sem essa validação, migration teria falhado em produção ou corrompido dados.
+
 ---
 
 ## Estrutura de `fragment.prisma` por Produto

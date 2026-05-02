@@ -118,6 +118,13 @@ const role = data.usuario.tipo_usuario    // campo garantido pelo Zod
 
 **Por quê:** sem validação na borda, qualquer mudança no backend quebra o frontend silenciosamente — sem erro, sem log, com fallback enganoso.
 
+**Padrão de ACL nas rotas backend:** quando o schema Prisma muda mas o frontend mantém contrato legado (transição DDD em andamento), a rota implementa duas funções de tradução no topo do arquivo:
+
+- `mapPrismaParaZod(row)` — converte campos Prisma reais (`id_pedido`, `data_exclusao_pedido`) para o formato esperado pelo frontend (`id`, `deleted_at`).
+- `mapZodParaPrisma(payload)` — caminho inverso na entrada.
+
+Implementação de referência: `servicos-global/organizacao/pedido/server/src/routes/anexos-pedido.ts`. **Nunca** vaze nome Prisma novo direto na resposta sem ACL — quebra o contrato com o frontend. Quando frontend e backend já estiverem 100% DDD, ACL pode ser removida.
+
 ---
 
 ## REGRA 07 — SINCRONIA DE CONTRATOS (FRONT E BACK JUNTOS)

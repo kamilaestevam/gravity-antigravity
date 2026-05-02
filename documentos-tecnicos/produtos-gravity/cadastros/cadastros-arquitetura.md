@@ -29,8 +29,12 @@ Cada Empresa em Cadastros pertence a **um tenant** (`id_organizacao`). Se a CAOA
 ### 2.4 Configurador espelha SUID
 Quando uma Empresa vira cliente Gravity, o Configurador cria `Organizacao.suid_empresa` referenciando o SUID já existente em Cadastros. **Cópia, não FK** — mantém Database-per-Service.
 
-### 2.5 Snapshot obrigatório
-Todo Pedido (e equivalentes em outros produtos) grava uma **cópia congelada** dos campos críticos da Empresa no momento da emissão. Pedidos emitidos não dependem de Cadastros estar online ou inalterado.
+### 2.5 Snapshot obrigatório (Opção δ — completo)
+Todo Pedido (e equivalentes em outros produtos) grava uma **cópia congelada (snapshot completo — Opção δ)** de **todos** os campos da entidade Cadastros (Empresa, OPE, NCM, Moeda, Unidade) no momento da emissão. Não é snapshot de campos selecionados — é a entidade inteira.
+
+Pedidos emitidos não dependem de Cadastros estar online ou inalterado. Implementação de referência: `Pedido.snapshots_empresa_pedido` e `Pedido.snapshots_ope_pedido` (relação 1:N) populadas em `db.pedido.create({ data: { snapshots_*: { create: [...] } } })`.
+
+**Por que δ puro e não snapshot parcial:** simplifica raciocínio (sempre tem tudo do que foi gravado), elimina decisão "qual campo é crítico" por produto/contexto, garante reconstrução fiel do pedido na época da emissão para fins legais COMEX.
 
 ### 2.6 Atualização opcional e auditável
 Mudanças em Cadastros podem opcionalmente propagar pra pedidos via flag por **entidade × status**, com histórico imutável e UI de preview obrigatória.

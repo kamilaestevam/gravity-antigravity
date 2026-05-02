@@ -56,6 +56,10 @@ export interface StatusSalvarGlobalProps {
    * Útil para manter a interface mais limpa.
    */
   hideOnIdle?: boolean
+  /**
+   * Classes CSS adicionais aplicadas ao container.
+   */
+  className?: string
 }
 
 const ICON_MAP = {

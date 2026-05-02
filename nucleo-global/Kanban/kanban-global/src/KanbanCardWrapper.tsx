@@ -89,11 +89,11 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
       ref={setNodeRef}
       className={classes}
       style={style}
-      role="listitem"
       data-testid={`${testIdPrefix}-card`}
       data-card-id={item.id}
       {...attributes}
       {...(isReadOnlyEfetivo ? {} : listeners)}
+      role="listitem"
       onClick={onCardClick && !isDragging ? () => onCardClick(item) : undefined}
     >
       {renderCard(item, isDragging)}

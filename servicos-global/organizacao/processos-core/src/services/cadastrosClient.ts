@@ -17,7 +17,15 @@
 
 import {
   empresaSchema,
+  moedaSchema,
+  ncmSchema,
+  opeSchema,
+  unidadeSchema,
   type Empresa,
+  type Moeda,
+  type NCM,
+  type OPE,
+  type Unidade,
 } from '../../../cadastros/shared/schemas/index.js'
 import { AppError } from './saldoEngine.js'
 
@@ -108,4 +116,167 @@ export async function buscarEmpresasPorSuids(
     unicos.map(async (suid) => [suid, await buscarEmpresaPorSuid(suid, ctx)] as const),
   )
   return new Map(resultados)
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// FASE 06E — Frente 1 (Agente 4): Snapshot inicial das demais 4 entidades
+// (OPE/NCM/Moeda/Unidade) durante a criação do Pedido.
+//
+// Diferença de contrato em relação a `buscarEmpresaPorSuid`:
+//   - 404 retorna `null` (best-effort: snapshot inicial não bloqueia o POST
+//     /pedidos; o re-snapshot via webhook corrige depois).
+//   - 5xx / rede / timeout continuam lançando AppError(503) para o caller
+//     decidir tratamento (no fluxo do Pedido isso vai virar warning + segue).
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Busca uma OPE no Cadastros pelo SUID.
+ *
+ * Endpoint: GET {CADASTROS_URL}/operacoes-comex/:suid
+ * (router montado em `/api/v1/operacoes-comex` no serviço Cadastros)
+ */
+export async function buscarOpePorSuid(
+  suidOpe: string,
+  ctx: CadastrosRequestContext,
+): Promise<OPE | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${CADASTROS_URL}/operacoes-comex/${encodeURIComponent(suidOpe)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de OPE: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return opeSchema.parse(raw)
+}
+
+/**
+ * Busca um NCM no Cadastros pelo código.
+ *
+ * Endpoint: GET {CADASTROS_URL}/ncm/:codigo
+ * (router montado em `/api/v1/ncm` no serviço Cadastros)
+ */
+export async function buscarNcmPorCodigo(
+  codigoNcm: string,
+  ctx: CadastrosRequestContext,
+): Promise<NCM | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${CADASTROS_URL}/ncm/${encodeURIComponent(codigoNcm)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de NCM: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return ncmSchema.parse(raw)
+}
+
+/**
+ * Busca uma Moeda no Cadastros pelo código.
+ *
+ * Endpoint: GET {CADASTROS_URL}/moedas/:codigo
+ * (router montado em `/api/v1/moedas` no serviço Cadastros)
+ */
+export async function buscarMoedaPorCodigo(
+  codigoMoeda: string,
+  ctx: CadastrosRequestContext,
+): Promise<Moeda | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${CADASTROS_URL}/moedas/${encodeURIComponent(codigoMoeda)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de Moeda: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return moedaSchema.parse(raw)
+}
+
+/**
+ * Busca uma Unidade no Cadastros pelo código.
+ *
+ * Endpoint: GET {CADASTROS_URL}/unidades/:codigo
+ * (router montado em `/api/v1/unidades` no serviço Cadastros)
+ */
+export async function buscarUnidadePorCodigo(
+  codigoUnidade: string,
+  ctx: CadastrosRequestContext,
+): Promise<Unidade | null> {
+  let response: Response
+  try {
+    response = await fetch(
+      `${CADASTROS_URL}/unidades/${encodeURIComponent(codigoUnidade)}`,
+      {
+        method: 'GET',
+        headers: headersPadrao(ctx),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      },
+    )
+  } catch {
+    throw new AppError(503, 'Serviço Cadastros indisponível (rede/timeout)')
+  }
+
+  if (response.status === 404) return null
+
+  if (!response.ok) {
+    const corpo = await lerCorpoErro(response)
+    if (response.status >= 400 && response.status < 500) {
+      throw new AppError(response.status, `Cadastros rejeitou busca de Unidade: ${corpo}`)
+    }
+    throw new AppError(503, `Cadastros falhou com status ${response.status}`)
+  }
+
+  const raw = await response.json()
+  return unidadeSchema.parse(raw)
 }

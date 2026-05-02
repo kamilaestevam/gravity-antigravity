@@ -54,22 +54,22 @@ function criarItemPrisma(overrides: Record<string, unknown> = {}) {
 
 function criarPedidoPrisma(overrides: Record<string, unknown> = {}) {
   return {
-    id: 'pedi_id_0000001-26',
-    tenant_id: TENANT,
-    company_id: TENANT,
-    tipo_operacao: 'importacao',
+    id_pedido: 'pedi_id_0000001-26',
+    id_organizacao: TENANT,
+    id_workspace: TENANT,
+    tipo_operacao_pedido: 'importacao',
     numero_pedido: 'PO-2026-001',
-    status: 'aberto',
-    incoterm: 'FOB',
+    status_pedido: 'aberto',
+    incoterm_pedido: 'FOB',
     moeda_pedido: 'USD',
     casas_decimais_valor_pedido: 2,
     casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    condicao_pagamento: null,
+    condicao_pagamento_pedido: null,
     data_emissao_pedido: new Date(),
-    importacao_exportador_id: null,
-    exportacao_importador_id: null,
-    fabricante_id: null,
+    id_importacao_exportador_pedido: null,
+    id_exportacao_importador_pedido: null,
+    id_fabricante_pedido: null,
     quantidade_total_pedido: 111,
     valor_total_pedido: 1110,
     itens_pedido: [criarItemPrisma()],
@@ -101,27 +101,27 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
   const itemDelete = vi.fn().mockResolvedValue(undefined)
   const itemFindFirst = vi.fn().mockResolvedValue(criarItemPrisma())
 
-  const transferHistoricoCreate = vi.fn().mockResolvedValue({ id: 'hist-001' })
-  const transferHistoricoFindFirst = vi.fn().mockResolvedValue(null)
-  const transferHistoricoUpdate = vi.fn().mockResolvedValue({})
+  const pedidoTransferenciaCreate = vi.fn().mockResolvedValue({ id: 'hist-001' })
+  const pedidoTransferenciaFindFirst = vi.fn().mockResolvedValue(null)
+  const pedidoTransferenciaUpdate = vi.fn().mockResolvedValue({})
 
   const pedidoHistoricoCreate = vi.fn().mockResolvedValue({ id: 'audit-001' })
 
   const txBase = {
     pedido: { create: pedidoCreate, findFirst: pedidoFindFirst, update: pedidoUpdate },
     pedidoItem: { create: itemCreate, update: itemUpdate, findMany: itemFindMany, delete: itemDelete, findFirst: itemFindFirst },
-    transferHistorico: { create: transferHistoricoCreate, findFirst: transferHistoricoFindFirst, update: transferHistoricoUpdate },
+    pedidoTransferencia: { create: pedidoTransferenciaCreate, findFirst: pedidoTransferenciaFindFirst, update: pedidoTransferenciaUpdate },
     pedidoHistorico: { create: pedidoHistoricoCreate },
   }
 
   const db = {
     pedido: { findFirst: pedidoFindFirst },
     pedidoItem: { findFirst: itemFindFirst },
-    transferHistorico: { findFirst: transferHistoricoFindFirst, findMany: vi.fn().mockResolvedValue([]) },
+    pedidoTransferencia: { findFirst: pedidoTransferenciaFindFirst, findMany: vi.fn().mockResolvedValue([]) },
     $transaction: vi.fn().mockImplementation(async (fn: (tx: typeof txBase) => Promise<unknown>) => fn(txBase)),
   }
 
-  return { db: db as unknown as PrismaClient, txBase, mocks: { pedidoCreate, pedidoFindFirst, pedidoUpdate, itemCreate, itemUpdate, itemFindMany, itemDelete, transferHistoricoCreate } }
+  return { db: db as unknown as PrismaClient, txBase, mocks: { pedidoCreate, pedidoFindFirst, pedidoUpdate, itemCreate, itemUpdate, itemFindMany, itemDelete, pedidoTransferenciaCreate } }
 }
 
 // ── Testes: preview ──────────────────────────────────────────────────────────
@@ -306,9 +306,9 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
 
     expect(mocks.pedidoCreate).toHaveBeenCalledOnce()
     const chamada = mocks.pedidoCreate.mock.calls[0][0].data
-    expect(chamada.id).toMatch(/^pedi_id_/)
+    expect(chamada.id_pedido).toMatch(/^pedi_id_/)
     expect(chamada.numero_pedido).toBe('PO-NOVO-001')
-    expect(chamada.tenant_id).toBe(TENANT)
+    expect(chamada.id_organizacao).toBe(TENANT)
     expect(result.pedidos_criados).toHaveLength(1)
   })
 
@@ -638,10 +638,10 @@ describe('TransferirService — prepararItemDestino', () => {
 describe('TransferirService.historico', () => {
   it('retorna lista de histórico do pedido', async () => {
     const { db } = criarMockDb()
-    // ORPHAN MODEL: transferHistorico não está no fragment.prisma; mock dinâmico via cast
+    // Tabela pedido_transferencia (renomeada de tracking_items_transferidos).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(db as any).transferHistorico.findMany = vi.fn().mockResolvedValue([
-      { id: 'hist-001', pedido_origem_id: 'pedi_id_0000001-26', cenario: 'reducao_simples' },
+    ;(db as any).pedidoTransferencia.findMany = vi.fn().mockResolvedValue([
+      { id_pedido_transferencia: 'hist-001', id_pedido_origem: 'pedi_id_0000001-26', cenario_pedido_transferencia: 'reducao_simples' },
     ])
     const service = new TransferirService()
 

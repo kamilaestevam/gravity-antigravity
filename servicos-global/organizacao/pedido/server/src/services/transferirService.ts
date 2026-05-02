@@ -277,22 +277,21 @@ export class TransferirService {
 
   // ── Reversão ──────────────────────────────────────────────────────────────────
 
-  async reverter(tenantId: string, userId: string, transferId: string, db: PrismaClient): Promise<TransferResultado> {
-    // ORPHAN MODEL: transferHistorico não existe no fragment.prisma atual.
-    // Invocação preservada para retrocompat runtime (try/catch envolvente cobre tabela ausente).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const historico = await (db as any).transferHistorico.findFirst({
-      where: { id: transferId, tenant_id: tenantId },
+  async reverter(idOrganizacao: string, idUsuario: string, transferId: string, db: PrismaClient): Promise<TransferResultado> {
+    // Tabela: pedido_transferencia (renomeada de tracking_items_transferidos).
+    // Model: PedidoTransferencia.
+    const historico = await db.pedidoTransferencia.findFirst({
+      where: { id_pedido_transferencia: transferId, id_organizacao: idOrganizacao },
     })
     if (!historico) throw new AppError('Registro de transferência não encontrado', 404, 'NOT_FOUND')
-    if (historico.revertido) throw new AppError('Esta transferência já foi revertida', 409, 'CONFLICT')
+    if (historico.revertido_pedido_transferencia) throw new AppError('Esta transferência já foi revertida', 409, 'CONFLICT')
 
-    const cenario = historico.cenario as CenarioTransfer
+    const cenario = historico.cenario_pedido_transferencia as CenarioTransfer
     if (CENARIOS_IRREVERSIVEIS.has(cenario)) {
       throw new AppError(`Cenário "${cenario}" não é reversível`, 422, 'NOT_REVERSIBLE')
     }
 
-    const destinos: TransferDestino[] = JSON.parse(historico.destinos_json)
+    const destinos: TransferDestino[] = JSON.parse(historico.destinos_pedido_transferencia)
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
 
@@ -300,14 +299,14 @@ export class TransferirService {
       const tx: Tx = tx0 as Tx
       // Devolver quantidade ao item de origem
       const itemOrigem = await tx.pedidoItem.findFirst({
-        where: { id_item: historico.item_origem_id, id_organizacao: tenantId },
+        where: { id_item: historico.id_item_origem, id_organizacao: idOrganizacao },
       })
       if (itemOrigem) {
         await tx.pedidoItem.update({
           where: { id_item: itemOrigem.id_item },
           data: {
-            quantidade_atual_item: Number(itemOrigem.quantidade_atual_item) + Number(historico.quantidade_item_transferida),
-            quantidade_transferida_item: Math.max(0, Number(itemOrigem.quantidade_transferida_item) - Number(historico.quantidade_item_transferida)),
+            quantidade_atual_item: Number(itemOrigem.quantidade_atual_item) + Number(historico.quantidade_pedido_transferencia),
+            quantidade_transferida_item: Math.max(0, Number(itemOrigem.quantidade_transferida_item) - Number(historico.quantidade_pedido_transferencia)),
           },
         })
       }
@@ -316,7 +315,7 @@ export class TransferirService {
       for (const destino of destinos) {
         if (destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
-            where: { id_pedido: destino.pedido_id, id_organizacao: tenantId },
+            where: { id_pedido: destino.pedido_id, id_organizacao: idOrganizacao },
             include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
           })
           if (pedidoDestino) {
@@ -335,39 +334,42 @@ export class TransferirService {
                 })
               }
             }
-            await this.recalcularAgregados(tenantId, pedidoDestino.id_pedido, tx)
+            await this.recalcularAgregados(idOrganizacao, pedidoDestino.id_pedido, tx)
           }
         }
       }
 
-      await this.recalcularAgregados(tenantId, historico.pedido_origem_id, tx)
+      await this.recalcularAgregados(idOrganizacao, historico.id_pedido_origem, tx)
 
-      // Marcar histórico como revertido — ORPHAN MODEL (transferHistorico não está no fragment.prisma)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).transferHistorico.update({
-        where: { id: transferId },
-        data: { revertido: true, revertido_em: new Date(), revertido_por: userId },
+      // Marcar histórico como revertido
+      await tx.pedidoTransferencia.update({
+        where: { id_pedido_transferencia: transferId },
+        data: {
+          revertido_pedido_transferencia: true,
+          data_reversao_pedido_transferencia: new Date(),
+          revertido_por_pedido_transferencia: idUsuario,
+        },
       })
 
-      // Registrar no audit trail (não bloquear se tabela não existir) — ORPHAN MODEL
+      // Audit trail historico-global ainda usa orphan model — NAO BLOQUEAR se nao existir.
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (tx as any).pedidoHistorico.create({
           data: {
-            tenant_id: tenantId,
-            pedido_id: historico.pedido_origem_id,
+            id_organizacao: idOrganizacao,
+            id_pedido: historico.id_pedido_origem,
             acao: 'TRANSFERENCIA_REVERTIDA',
             descricao: `Transferência ${transferId} revertida`,
             metadata: JSON.stringify({ transfer_id: transferId }),
           },
         })
       } catch {
-        console.warn('[TransferirService] Tabela pedidoHistorico não disponível, pulando audit trail')
+        console.warn('[TransferirService] Tabela pedidoHistorico nao disponivel, pulando audit trail')
       }
     })
 
     return {
-      pedido_origem_id: historico.pedido_origem_id,
+      pedido_origem_id: historico.id_pedido_origem,
       pedidos_destino_ids: destinos.filter(d => d.pedido_id).map(d => d.pedido_id as string),
       pedidos_criados: [],
       itens_excluidos: itensExcluidos,
@@ -377,12 +379,10 @@ export class TransferirService {
 
   // ── Histórico ─────────────────────────────────────────────────────────────────
 
-  async historico(tenantId: string, pedidoId: string, db: PrismaClient) {
-    // ORPHAN MODEL: transferHistorico não existe no fragment.prisma atual.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (db as any).transferHistorico.findMany({
-      where: { pedido_origem_id: pedidoId, tenant_id: tenantId },
-      orderBy: { created_at: 'desc' },
+  async historico(idOrganizacao: string, pedidoId: string, db: PrismaClient) {
+    return db.pedidoTransferencia.findMany({
+      where:   { id_pedido_origem: pedidoId, id_organizacao: idOrganizacao },
+      orderBy: { data_criacao_pedido_transferencia: 'desc' },
     })
   }
 
@@ -506,44 +506,39 @@ export class TransferirService {
     pedidosDestinoIds: string[],
     tx: Tx,
   ): Promise<void> {
-    try {
-      // ORPHAN MODEL: transferHistorico não existe no fragment.prisma atual.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).transferHistorico.create({
-        data: {
-          tenant_id: tenantId,
-          pedido_origem_id: payload.pedido_id,
-          item_origem_id: payload.item_id,
-          cenario: payload.cenario,
-          quantidade_item_transferida: payload.quantidade_origem,
-          destinos_json: JSON.stringify(
-            payload.destinos.map((d, idx) => ({
-              ...d,
-              pedido_id: d.pedido_id ?? pedidosDestinoIds[idx],
-            }))
-          ),
-          revertido: false,
-          created_by: userId,
-        },
-      })
-    } catch {
-      console.warn('[TransferirService] Tabela transferHistorico não disponível, pulando gravação de histórico')
-    }
+    // Tabela: pedido_transferencia (renomeada de tracking_items_transferidos).
+    await tx.pedidoTransferencia.create({
+      data: {
+        id_organizacao:                   tenantId,
+        id_pedido_origem:                 payload.pedido_id,
+        id_item_origem:                   payload.item_id,
+        cenario_pedido_transferencia:     payload.cenario,
+        quantidade_pedido_transferencia:  payload.quantidade_origem,
+        destinos_pedido_transferencia:    JSON.stringify(
+          payload.destinos.map((d, idx) => ({
+            ...d,
+            pedido_id: d.pedido_id ?? pedidosDestinoIds[idx],
+          }))
+        ),
+        revertido_pedido_transferencia:   false,
+        criado_por_pedido_transferencia:  userId,
+      },
+    })
 
     // Audit trail no histórico geral do pedido — ORPHAN MODEL (pedidoHistorico não está no fragment.prisma)
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (tx as any).pedidoHistorico.create({
         data: {
-          tenant_id: tenantId,
-          pedido_id: payload.pedido_id,
-          acao: 'TRANSFERENCIA',
-          descricao: `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
-          metadata: JSON.stringify({ cenario: payload.cenario, destinos: pedidosDestinoIds }),
+          id_organizacao: tenantId,
+          id_pedido:      payload.pedido_id,
+          acao:           'TRANSFERENCIA',
+          descricao:      `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
+          metadata:       JSON.stringify({ cenario: payload.cenario, destinos: pedidosDestinoIds }),
         },
       })
     } catch {
-      console.warn('[TransferirService] Tabela pedidoHistorico não disponível, pulando audit trail')
+      console.warn('[TransferirService] Tabela pedidoHistorico nao disponivel, pulando audit trail')
     }
   }
 }

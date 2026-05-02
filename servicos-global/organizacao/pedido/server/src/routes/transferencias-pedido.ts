@@ -86,8 +86,8 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
 
       // Detectar divergência de tipo_operacao entre pedido origem e pedidos destino existentes
       const pedidoOrigem = await db.pedido.findFirst({
-        where: { id: parse.data.pedido_id, tenant_id: tenantId },
-        select: { tipo_operacao: true },
+        where:  { id_pedido: parse.data.pedido_id, id_organizacao: tenantId },
+        select: { tipo_operacao_pedido: true },
       })
 
       const idsDestinoExistente = parse.data.destinos
@@ -97,12 +97,12 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
       let aviso_tipo_operacao = false
       if (pedidoOrigem && idsDestinoExistente.length > 0) {
         const pedidosDestino = await db.pedido.findMany({
-          where: { id: { in: idsDestinoExistente }, tenant_id: tenantId },
-          select: { tipo_operacao: true },
+          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: tenantId },
+          select: { tipo_operacao_pedido: true },
         })
         const todosOsTipos = [
-          pedidoOrigem.tipo_operacao as string,
-          ...pedidosDestino.map((p: { tipo_operacao: string | null }) => p.tipo_operacao ?? ''),
+          pedidoOrigem.tipo_operacao_pedido as string,
+          ...pedidosDestino.map((p: { tipo_operacao_pedido: string | null }) => p.tipo_operacao_pedido ?? ''),
         ]
         aviso_tipo_operacao = detectarTiposMistos(todosOsTipos)
       }
@@ -136,8 +136,8 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // Validar divergência de tipo_operacao antes de executar a transação
       const pedidoOrigem = await db.pedido.findFirst({
-        where: { id: parse.data.pedido_id, tenant_id: tenantId },
-        select: { tipo_operacao: true },
+        where:  { id_pedido: parse.data.pedido_id, id_organizacao: tenantId },
+        select: { tipo_operacao_pedido: true },
       })
 
       const idsDestinoExistente = parse.data.destinos
@@ -146,12 +146,12 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       if (pedidoOrigem && idsDestinoExistente.length > 0) {
         const pedidosDestino = await db.pedido.findMany({
-          where: { id: { in: idsDestinoExistente }, tenant_id: tenantId },
-          select: { tipo_operacao: true },
+          where:  { id_pedido: { in: idsDestinoExistente }, id_organizacao: tenantId },
+          select: { tipo_operacao_pedido: true },
         })
         const todosOsTipos = [
-          pedidoOrigem.tipo_operacao as string,
-          ...pedidosDestino.map((p: { tipo_operacao: string | null }) => p.tipo_operacao ?? ''),
+          pedidoOrigem.tipo_operacao_pedido as string,
+          ...pedidosDestino.map((p: { tipo_operacao_pedido: string | null }) => p.tipo_operacao_pedido ?? ''),
         ]
         const tiposDivergentes = detectarTiposMistos(todosOsTipos)
         if (tiposDivergentes && confirmar_tipos_divergentes !== true) {

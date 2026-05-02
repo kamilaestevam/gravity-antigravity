@@ -124,7 +124,7 @@ model Pedido {
   data_meta_recebimento_original_invoice_pedido               DateTime?
 
   itens_pedido                                                PedidoItem[]
-  transferencias_pedido                                       PedidoListaItensTransfericosRastreio[]
+  transferencias_pedido                                       PedidoTransferencia[]
   snapshots_empresa_pedido                                    PedidoSnapshotEmpresa[]
   snapshots_ope_pedido                                        PedidoSnapshotOpe[]
   snapshots_ncm_pedido                                        PedidoSnapshotNcm[]
@@ -295,29 +295,31 @@ model PedidoTemplate {
   @@map("template_pedido")
 }
 
-model PedidoListaItensTransfericosRastreio {
-  id_tracking_items_transferidos       String    @id @default(cuid())
-  id_organizacao                       String
-  id_produto_gravity                   String?
-  id_pedido_origem                     String
-  id_item_origem                       String
-  cenario_tracking_items_transferidos  String
-  quantidade_item_transferido_tracking Float
-  destinos_items_transferidos          String
-  revertido_tracking_items_transferidos    Boolean   @default(false)
-  revertido_em_tracking_items_transferidos DateTime?
-  revertido_por_tracking_items_transferidos String?
-  data_criacao_tracking_items_transferidos  DateTime  @default(now())
-  criado_por_tracking_items_transferidos    String
-  pedido_origem               Pedido @relation(fields: [id_pedido_origem], references: [id_pedido])
+/// Histórico de transferências de quantidade entre itens de pedidos.
+/// Renomeado de "tracking_items_transferidos" → "pedido_transferencia" pra
+/// remover mistura PT/EN e simplificar nomes de colunas.
+model PedidoTransferencia {
+  id_pedido_transferencia                  String    @id @default(cuid())
+  id_organizacao                           String
+  id_produto_gravity                       String?
+  id_pedido_origem                         String
+  id_item_origem                           String
+  cenario_pedido_transferencia             String
+  quantidade_pedido_transferencia          Float
+  destinos_pedido_transferencia            String
+  revertido_pedido_transferencia           Boolean   @default(false)
+  data_reversao_pedido_transferencia       DateTime?
+  revertido_por_pedido_transferencia       String?
+  data_criacao_pedido_transferencia        DateTime  @default(now())
+  criado_por_pedido_transferencia          String
+  data_transferencia_pedido_transferencia  DateTime?
 
-  // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
-  data_transferencia_quantidade_tracking_items_transferidos DateTime?
+  pedido_origem Pedido @relation(fields: [id_pedido_origem], references: [id_pedido])
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
   @@index([id_organizacao, id_pedido_origem])
-  @@map("tracking_items_transferidos")
+  @@map("pedido_transferencia")
 }
 
 model PedidoListaColunaUsuario {

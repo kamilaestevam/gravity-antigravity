@@ -12,9 +12,16 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../lib/errors'
 
+// req.auth é injetado pelo requireAuth do configurador (declare global em requireAuth.ts).
+// Redeclarado aqui para garantir tipagem neste pacote isolado.
 interface AuthRequest extends Request {
-  user_id: string
-  tenant_id: string
+  auth: {
+    id_usuario:    string
+    id_organizacao: string
+    clerkUserId:   string
+    tipo_usuario:  string
+    nome_usuario:  string
+  }
 }
 
 export const apiRoutes = Router()
@@ -45,23 +52,8 @@ function toPreferenciasDto(p: {
 }
 
 // ---------------------------------------------------------------------------
-// Middleware de auth simples — user_id e tenant_id via headers
-// ---------------------------------------------------------------------------
-const checkAuth = (req: Request, res: Response, next: NextFunction) => {
-  const userId = req.headers['x-id-usuario']
-  const tenantId = req.headers['x-id-organizacao']
-
-  if (!userId || !tenantId) {
-    return res.status(401).json({ status: 'error', message: 'x-id-usuario e x-id-organizacao são obrigatórios' })
-  }
-
-  req.user_id = userId as string
-  req.tenant_id = tenantId as string
-  next()
-}
-
-apiRoutes.use(checkAuth)
-
+// Auth: req.auth é injetado pelo requireAuth do configurador antes deste router.
+// Não há middleware adicional aqui — identidade vem do JWT Clerk validado (REGRA 01).
 // ---------------------------------------------------------------------------
 // Esquema de validação do PUT — mantém contrato público
 // ---------------------------------------------------------------------------
@@ -77,14 +69,14 @@ const PreferenciasSchema = z.object({
 // ---------------------------------------------------------------------------
 apiRoutes.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { user_id, tenant_id } = req
+    const { id_usuario, id_organizacao } = req.auth
 
     const prefs = await prisma.workspacePreferenciaUsuario.upsert({
-      where: { id_usuario_preferencia_workspace: user_id },
+      where: { id_usuario_preferencia_workspace: id_usuario },
       update: {},
       create: {
-        id_usuario_preferencia_workspace: user_id,
-        id_organizacao_preferencia_workspace: tenant_id,
+        id_usuario_preferencia_workspace: id_usuario,
+        id_organizacao_preferencia_workspace: id_organizacao,
         tooltips_desabilitado_preferencia_workspace: false,
         tema_preferencia_workspace: 'dark',
         sidebar_aberta_preferencia_workspace: true,
@@ -107,7 +99,7 @@ apiRoutes.get('/', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 apiRoutes.put('/', async (req: AuthRequest, res: Response, _next: NextFunction) => {
   try {
-    const { user_id, tenant_id } = req
+    const { id_usuario, id_organizacao } = req.auth
 
     const payload = PreferenciasSchema.parse(req.body)
 
@@ -132,10 +124,10 @@ apiRoutes.put('/', async (req: AuthRequest, res: Response, _next: NextFunction) 
     }
 
     const updated = await prisma.workspacePreferenciaUsuario.upsert({
-      where: { id_usuario_preferencia_workspace: user_id },
+      where: { id_usuario_preferencia_workspace: id_usuario },
       create: {
-        id_usuario_preferencia_workspace: user_id,
-        id_organizacao_preferencia_workspace: tenant_id,
+        id_usuario_preferencia_workspace: id_usuario,
+        id_organizacao_preferencia_workspace: id_organizacao,
         tooltips_desabilitado_preferencia_workspace: payload.tooltips_disabled ?? false,
         tema_preferencia_workspace: payload.theme ?? 'dark',
         sidebar_aberta_preferencia_workspace: payload.sidebar_open ?? true,

@@ -10,11 +10,17 @@
 //    → Store é atualizado imediatamente (ótimista)
 //    → PUT /api/tenant/preferencias é chamado com debounce de 500ms
 //
+// ── Autenticação ─────────────────────────────────────────────────────────────
+// Usa Bearer JWT do Clerk (via getToken). O backend lê id_usuario e id_organizacao
+// a partir de req.auth populado pelo requireAuth — nunca de headers forjáveis.
+// Os parâmetros id_usuario e id_organizacao servem apenas como guards de montagem.
+//
 // ── Como usar ────────────────────────────────────────────────────────────────
-// Adicione <SyncUserPreferences userId={user?.id} tenantId={tenantId} />
-// no topo do WorkspaceLayout e AdminLayout, logo após o store ser acessado.
+// Adicione useUserPreferences({ id_usuario, id_organizacao }) no WorkspaceLayout
+// e AdminLayout, logo após o store ser acessado.
 
 import { useEffect, useRef } from 'react'
+import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '../store'
 import type { Theme } from '../store/types'
 
@@ -36,19 +42,21 @@ const BASE_URL = '/api/tenant/preferencias'
 
 /**
  * Faz GET nas preferências do usuário e aplica no store.
+ * Autenticação via Bearer JWT — id_usuario/id_organizacao lidos do req.auth no backend.
  * Retorna as preferências remotas ou null em caso de falha.
  */
-async function fetchPreferencias(id_usuario: string, id_organizacao: string): Promise<PreferenciasPayload | null> {
+async function fetchPreferencias(
+  getToken: () => Promise<string | null>,
+): Promise<PreferenciasPayload | null> {
   try {
+    const token = await getToken()
+    if (!token) return null
     const res = await fetch(BASE_URL, {
-      headers: {
-        'x-id-usuario':   id_usuario,
-        'x-id-organizacao': id_organizacao,
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
     })
     if (!res.ok) return null
     const json = await res.json()
-    if (json.status === 'success') return json.data
+    if (json.status === 'success') return json.data as PreferenciasPayload
     return null
   } catch {
     return null
@@ -57,20 +65,21 @@ async function fetchPreferencias(id_usuario: string, id_organizacao: string): Pr
 
 /**
  * Persiste preferências no servidor.
+ * Autenticação via Bearer JWT — id_usuario/id_organizacao lidos do req.auth no backend.
  * Falha silenciosa — o estado local (localStorage) já foi atualizado.
  */
 async function savePreferencias(
-  id_usuario: string,
-  id_organizacao: string,
   payload: PreferenciasPayload,
+  getToken: () => Promise<string | null>,
 ): Promise<void> {
   try {
+    const token = await getToken()
+    if (!token) return
     await fetch(BASE_URL, {
       method:  'PUT',
       headers: {
-        'Content-Type': 'application/json',
-        'x-id-usuario':    id_usuario,
-        'x-id-organizacao':  id_organizacao,
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     })
@@ -81,13 +90,15 @@ async function savePreferencias(
 
 /**
  * Hook que sincroniza preferências de UI do usuário com o backend.
+ * Autenticação via Bearer JWT do Clerk — identity vem do req.auth no backend (REGRA 01).
+ * Os parâmetros id_usuario e id_organizacao servem apenas como guards de montagem.
  *
  * @example
  * // Em WorkspaceLayout ou AdminLayout
- * const { user } = useUser()
- * useUserPreferences({ userId: user?.id, tenantId: 'importes-sa' })
+ * useUserPreferences({ id_usuario: currentUser.id, id_organizacao: currentUser.tenantId })
  */
 export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPreferencesOptions) {
+  const { getToken } = useAuth()
   const store = useShellStore()
   const isInitializedRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -99,7 +110,7 @@ export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPrefer
 
     isInitializedRef.current = true
 
-    fetchPreferencias(id_usuario, id_organizacao).then((prefs) => {
+    fetchPreferencias(getToken).then((prefs) => {
       if (!prefs) return // Falhou — mantém estado do localStorage
 
       // Aplica tema se diferente
@@ -137,11 +148,14 @@ export function useUserPreferences({ id_usuario, id_organizacao }: UseUserPrefer
     if (debounceRef.current) clearTimeout(debounceRef.current)
 
     debounceRef.current = setTimeout(() => {
-      savePreferencias(id_usuario, id_organizacao, {
-        tooltips_disabled: store.tooltipsDisabled,
-        theme:             store.currentTheme,
-        sidebar_open:      store.sidebarOpen,
-      })
+      savePreferencias(
+        {
+          tooltips_disabled: store.tooltipsDisabled,
+          theme:             store.currentTheme,
+          sidebar_open:      store.sidebarOpen,
+        },
+        getToken,
+      )
     }, 500)
 
     return () => {

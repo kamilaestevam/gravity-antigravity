@@ -9,7 +9,7 @@ import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@g
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
-import { HubButton } from '../../components/HubButton'
+import { HubBotao } from '../../components/HubBotao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
@@ -159,7 +159,7 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
+          <HubBotao onClick={() => navigate('/hub?select=1')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
 
           <CampoLocalizarExpandidoGlobal
               onBuscarNavigate={(term) => {

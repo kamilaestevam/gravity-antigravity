@@ -9,7 +9,7 @@
     "servicos-global/organizacao",
     "servicos-global/configurador",
     "servicos-global/marketplace",
-    "servicos-global/produto/helpdesk",
+    "servicos-global/organizacao/helpdesk",
     "servicos-global/organizacao/agendamento",
     "servicos-global/organizacao/api-cockpit",
     "servicos-global/organizacao/atividades",

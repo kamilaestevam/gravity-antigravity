@@ -37,7 +37,7 @@ import {
 import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
-import { HubButton } from '../../components/HubButton'
+import { HubBotao } from '../../components/HubBotao'
 import GabiChat from '@organizacao/gabi/src/Gabi'
 import './workspace.css'
 import './gabi.css'
@@ -150,7 +150,7 @@ export function WorkspaceLayout() {
       <div className="ws-main">
         {/* ── Global Actions (Floating over content, no bar) ── */}
         <div className="ws-global-actions">
-          <HubButton onClick={() => navigate('/hub?select=1')} />
+          <HubBotao onClick={() => navigate('/hub?select=1')} />
 
           <CampoLocalizarExpandidoGlobal
             onBuscarNavigate={(term) => {

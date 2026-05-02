@@ -7,7 +7,7 @@
 //   - prisma migrate deploy (cadastros)
 //
 // Combina schema.base.prisma + fragment.prisma do serviço cadastros no arquivo final
-// servicos-global/tenant/cadastros/prisma/schema.prisma
+// servicos-global/cadastros/prisma/schema.prisma
 //
 // Banco-alvo: gravity-cadastros-* (Railway), conectado via env CADASTROS_DATABASE_URL
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -30,7 +30,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const ROOT_DIR = path.resolve(__dirname, '../..')
-const CADASTROS_DIR = path.join(ROOT_DIR, 'servicos-global', 'tenant', 'cadastros')
+const CADASTROS_DIR = path.join(ROOT_DIR, 'servicos-global', 'cadastros')
 const OUTPUT_SCHEMA = path.join(CADASTROS_DIR, 'prisma', 'schema.prisma')
 const BASE_SCHEMA = path.join(CADASTROS_DIR, 'prisma', 'schema.base.prisma')
 const FRAGMENT_PATH = path.join(CADASTROS_DIR, 'prisma', 'fragment.prisma')
@@ -72,7 +72,7 @@ function composeCadastrosSchema(options: { strict?: boolean } = {}): void {
     '// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.',
     `// Gerado em: ${new Date().toISOString()}`,
     '// Banco: gravity-cadastros-* (Railway)',
-    '// Serviço: @tenant/cadastros',
+    '// Serviço: @gravity/cadastros',
     '// Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md',
     '// ============================================================================',
   ].join('\n')

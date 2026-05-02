@@ -49,7 +49,7 @@ export function loadEnv(relPath: string): Record<string, string> {
 export function resolveEnvs(): { configuradorUrl: string; sharedUrl: string } {
   const env = {
     ...loadEnv('configurador/.env'),
-    ...loadEnv('servicos-global/organizacao/pedido/server/.env'),
+    ...loadEnv('servicos-global/produto/pedido/server/.env'),
     ...loadEnv('.env.local'),
   }
   const configuradorUrl = env['CONFIGURADOR_DATABASE_URL'] ?? ''

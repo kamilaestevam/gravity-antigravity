@@ -172,7 +172,7 @@ testes/
       "@nucleo/*": ["../../../nucleo-global/*"],
       "@shell": ["../../../servicos-global/shell/index.ts"],
       "@shell/*": ["../../../servicos-global/shell/*"],
-      "@tenant/*": ["../../../servicos-global/organizacao/*"],
+      "@tenant/*": ["../../../servicos-global/servicos-plataforma/*"],
       "@produto/*": ["../../../servicos-global/produto/*"]
     }
   },
@@ -210,7 +210,7 @@ export default defineConfig({
       // ... adicionar cada componente usado
       '@shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell'),
-      '@tenant': path.resolve(monorepoRoot, 'servicos-global/organizacao'),
+      '@tenant': path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma'),
     },
     dedupe: ['react', 'react-dom', '@clerk/clerk-react', 'react-router-dom', 'zustand'],
   },

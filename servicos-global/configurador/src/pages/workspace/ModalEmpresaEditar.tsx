@@ -33,7 +33,7 @@ import {
   atualizarEmpresaSchema,
   empresaSchema,
   type Empresa,
-} from '@organizacao/cadastros/shared/schemas'
+} from '@cadastros/shared/schemas'
 
 // ── Auth helper ──────────────────────────────────────────────────────────────
 

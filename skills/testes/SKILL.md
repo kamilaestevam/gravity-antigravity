@@ -23,7 +23,7 @@ description: "Skill de coordenação do ecossistema de testes do Gravity. Visão
 |:---|:---|
 | `nucleo-global/` | ≥ 80% |
 | `servicos-global/configurador/` | ≥ 70% |
-| `servicos-global/organizacao/*/` | ≥ 70% |
+| `servicos-global/servicos-plataforma/*/` | ≥ 70% |
 | `produtos/*/` | ≥ 70% |
 | `packages/resolver-organizacao/` | ≥ 90% (SDK crítico de isolamento) |
 

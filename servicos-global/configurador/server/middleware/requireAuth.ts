@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
-import { auditLog } from '../../../organizacao/historico-global/src/audit-client.js'
+import { auditLog } from '../../../servicos-plataforma/historico-global/src/audit-client.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak

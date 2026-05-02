@@ -139,7 +139,7 @@ Ver skill `antigravity-isolamento-organizacao` (reescrita 2026-04-17) e [ADR-002
 | Tentativas de acesso negado | who, what_attempted, when |
 
 ```typescript
-// servicos-global/organizacao/historico intercepta automaticamente
+// servicos-global/servicos-plataforma/historico intercepta automaticamente
 // Middleware registrado no servidor de organizacao
 app.use(auditMiddleware({
   ignore: ['GET'], // Só audita mutações

@@ -22,14 +22,14 @@ const services = [
   { name: 'relatorios', routeRoot: 'servicos-global/tenant/relatorios/server/routes', prismaFile: 'servicos-global/tenant/relatorios/prisma/fragment.prisma' },
   { name: 'whatsapp', routeRoot: 'servicos-global/tenant/whatsapp/server/routes', prismaFile: 'servicos-global/tenant/whatsapp/prisma/fragment.prisma' },
   { name: 'historico-global', routeRoot: 'servicos-global/tenant/historico-global/server/routes', prismaFile: 'servicos-global/tenant/historico-global/prisma/fragment.prisma' },
-  { name: 'bid-cambio', routeRoot: 'servicos-global/organizacao/bid-cambio/server/src/routes', prismaFile: 'servicos-global/organizacao/bid-cambio/server/prisma/fragment.prisma' },
-  { name: 'bid-frete', routeRoot: 'servicos-global/organizacao/bid-frete/server/src/routes', prismaFile: 'servicos-global/organizacao/bid-frete/server/prisma/fragment.prisma' },
-  { name: 'financeiro-comex', routeRoot: 'servicos-global/organizacao/financeiro-comex/server/src/routes', prismaFile: 'servicos-global/organizacao/financeiro-comex/server/prisma/fragment.prisma' },
-  { name: 'lpco', routeRoot: 'servicos-global/organizacao/lpco/server/src/routes', prismaFile: 'servicos-global/organizacao/lpco/server/prisma/fragment.prisma' },
-  { name: 'nf-importacao', routeRoot: 'servicos-global/organizacao/nf-importacao/server/src/routes', prismaFile: 'servicos-global/organizacao/nf-importacao/server/prisma/fragment.prisma' },
-  { name: 'pedido', routeRoot: 'servicos-global/organizacao/pedido/server/src/routes', prismaFile: 'servicos-global/organizacao/pedido/server/prisma/fragment.prisma' },
-  { name: 'processo', routeRoot: 'servicos-global/organizacao/processo/server/src/routes', prismaFile: 'servicos-global/organizacao/processo/server/prisma/fragment.prisma' },
-  { name: 'simula-custo', routeRoot: 'servicos-global/organizacao/simula-custo/server/src/routes', prismaFile: 'servicos-global/organizacao/simula-custo/server/prisma/fragment.prisma' },
+  { name: 'bid-cambio', routeRoot: 'servicos-global/produto/bid-cambio/server/src/routes', prismaFile: 'servicos-global/produto/bid-cambio/server/prisma/fragment.prisma' },
+  { name: 'bid-frete', routeRoot: 'servicos-global/produto/bid-frete/server/src/routes', prismaFile: 'servicos-global/produto/bid-frete/server/prisma/fragment.prisma' },
+  { name: 'financeiro-comex', routeRoot: 'servicos-global/produto/financeiro-comex/server/src/routes', prismaFile: 'servicos-global/produto/financeiro-comex/server/prisma/fragment.prisma' },
+  { name: 'lpco', routeRoot: 'servicos-global/produto/lpco/server/src/routes', prismaFile: 'servicos-global/produto/lpco/server/prisma/fragment.prisma' },
+  { name: 'nf-importacao', routeRoot: 'servicos-global/produto/nf-importacao/server/src/routes', prismaFile: 'servicos-global/produto/nf-importacao/server/prisma/fragment.prisma' },
+  { name: 'pedido', routeRoot: 'servicos-global/produto/pedido/server/src/routes', prismaFile: 'servicos-global/produto/pedido/server/prisma/fragment.prisma' },
+  { name: 'processo', routeRoot: 'servicos-global/produto/processo/server/src/routes', prismaFile: 'servicos-global/produto/processo/server/prisma/fragment.prisma' },
+  { name: 'simula-custo', routeRoot: 'servicos-global/produto/simula-custo/server/src/routes', prismaFile: 'servicos-global/produto/simula-custo/server/prisma/fragment.prisma' },
 ]
 
 function extractModelNames(prismaText) {

@@ -22,14 +22,14 @@ const serviceRoots = [
   { local: 'Tenant', produto: 'processos-core', root: 'servicos-global/tenant/processos-core' },
   { local: 'Tenant', produto: 'relatorios', root: 'servicos-global/tenant/relatorios/server' },
   { local: 'Tenant', produto: 'whatsapp', root: 'servicos-global/tenant/whatsapp/server' },
-  { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/organizacao/bid-cambio/server' },
-  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/organizacao/bid-frete/server' },
-  { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/organizacao/financeiro-comex/server' },
-  { local: 'Produto', produto: 'lpco', root: 'servicos-global/organizacao/lpco/server' },
-  { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/organizacao/nf-importacao/server' },
-  { local: 'Produto', produto: 'pedido', root: 'servicos-global/organizacao/pedido/server' },
-  { local: 'Produto', produto: 'processo', root: 'servicos-global/organizacao/processo/server' },
-  { local: 'Produto', produto: 'simula-custo', root: 'servicos-global/organizacao/simula-custo/server' },
+  { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/produto/bid-cambio/server' },
+  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/produto/bid-frete/server' },
+  { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/produto/financeiro-comex/server' },
+  { local: 'Produto', produto: 'lpco', root: 'servicos-global/produto/lpco/server' },
+  { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/produto/nf-importacao/server' },
+  { local: 'Produto', produto: 'pedido', root: 'servicos-global/produto/pedido/server' },
+  { local: 'Produto', produto: 'processo', root: 'servicos-global/produto/processo/server' },
+  { local: 'Produto', produto: 'simula-custo', root: 'servicos-global/produto/simula-custo/server' },
 ]
 
 const columns = [

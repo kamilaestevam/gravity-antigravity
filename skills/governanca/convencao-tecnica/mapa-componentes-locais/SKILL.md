@@ -57,7 +57,7 @@ Local + Produto Gravity  →  Arquivo (.tsx)  →  Componente (PascalCase)
    - Esta aba registra **células de tabela, painéis, barras de ação, etapas de wizard, layouts de produto, widgets** locais a um produto/serviço.
 
 2. **`Local` é um enum fechado de 5 valores** (extraídos da realidade da planilha):
-   - `Organizacao` — `servicos-global/organizacao/<servico>/**`
+   - `Organizacao` — `servicos-global/servicos-plataforma/<servico>/**`
    - `Produto` — `produto/<produto>/**`
    - `Configurador` — `servicos-global/configurador/**`
    - `Marketplace` — `servicos-global/marketplace/**`

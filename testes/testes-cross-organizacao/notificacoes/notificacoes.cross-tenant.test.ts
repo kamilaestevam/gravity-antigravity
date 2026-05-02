@@ -39,13 +39,13 @@ vi.mock(
 )
 
 vi.mock(
-  '../../../servicos-global/organizacao/notificacoes/server/queue/pg-boss.js',
+  '../../../servicos-global/servicos-plataforma/notificacoes/server/queue/pg-boss.js',
   () => ({ getBoss: () => ({ send: vi.fn().mockResolvedValue('job-id') }) })
 )
 
-import { apiRoutes }      from '../../../servicos-global/organizacao/notificacoes/server/routes/api.js'
-import { internalRoutes } from '../../../servicos-global/organizacao/notificacoes/server/routes/internal.js'
-import { errorHandler }   from '../../../servicos-global/organizacao/notificacoes/server/middleware/error-handler.js'
+import { apiRoutes }      from '../../../servicos-global/servicos-plataforma/notificacoes/server/routes/api.js'
+import { internalRoutes } from '../../../servicos-global/servicos-plataforma/notificacoes/server/routes/internal.js'
+import { errorHandler }   from '../../../servicos-global/servicos-plataforma/notificacoes/server/middleware/error-handler.js'
 
 // ── Tenants de teste ──────────────────────────────────────────────────────────
 const TENANT_A = 'tenant-alpha-001'

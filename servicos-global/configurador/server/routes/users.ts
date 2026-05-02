@@ -12,7 +12,7 @@ import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
-import { securityAudit } from '../../../organizacao/historico-global/server/lib/securityAuditLogger.js'
+import { securityAudit } from '../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 
 export const usersRouter = Router()
 

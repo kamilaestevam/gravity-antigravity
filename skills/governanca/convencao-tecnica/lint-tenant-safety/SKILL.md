@@ -28,7 +28,7 @@ O linter:
 | Localização | Comportamento |
 |:---|:---|
 | `produtos/*/server/**` | **Estrito** — todas as regras ativas, override proibido |
-| `servicos-global/organizacao/**/server/**` | **Estrito** — idem (serviços por organizacao) |
+| `servicos-global/servicos-plataforma/**/server/**` | **Estrito** — idem (serviços por organizacao) |
 | `servicos-global/configurador/**` | **Relaxado** — Configurador pode usar PrismaClient direto (single-schema) |
 | `packages/resolver-organizacao/**` | **Desligado** — é o SDK que precisa usar PrismaClient |
 | `scripts/**` | **Avisos** — scripts de operação podem precisar acesso direto, mas alertam |
@@ -222,7 +222,7 @@ module.exports = {
   plugins: ['@gravity/tenant-safety'],
   overrides: [
     {
-      files: ['produtos/*/server/**/*.ts', 'servicos-global/organizacao/**/server/**/*.ts'],
+      files: ['produtos/*/server/**/*.ts', 'servicos-global/servicos-plataforma/**/server/**/*.ts'],
       extends: ['plugin:@gravity/tenant-safety/strict'],
     },
     {
@@ -266,7 +266,7 @@ npx lint-staged
 
 ```yaml
 - name: Lint Organizacao Safety
-  run: npx eslint --max-warnings 0 'produtos/**/server/**/*.ts' 'servicos-global/organizacao/**/server/**/*.ts'
+  run: npx eslint --max-warnings 0 'produtos/**/server/**/*.ts' 'servicos-global/servicos-plataforma/**/server/**/*.ts'
 ```
 
 > `--max-warnings 0` garante que **warning vira erro no CI**. Localmente, devs veem warning; CI bloqueia.

@@ -141,7 +141,7 @@ it('crash do handler não polui search_path da próxima request', async () => {
 
 > O linter `Organizacao Safety` referencia o pacote real `@gravity/resolver-organizacao` e o prefixo físico `tenant_<cuid>`.
 
-Falha o build se detectar em `produto/*/server/` ou `servicos-global/organizacao/*/server/`:
+Falha o build se detectar em `produto/*/server/` ou `servicos-global/servicos-plataforma/*/server/`:
 
 - `import { PrismaClient } from '@prisma/client'`
 - `new PrismaClient(`

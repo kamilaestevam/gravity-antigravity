@@ -24,14 +24,14 @@ const scanRoots = [
   { local: 'Tenant', produto: 'preferencias-usuario', root: 'servicos-global/tenant/preferencias-usuario/src' },
   { local: 'Tenant', produto: 'relatorios', root: 'servicos-global/tenant/relatorios/src' },
   { local: 'Tenant', produto: 'whatsapp', root: 'servicos-global/tenant/whatsapp/src' },
-  { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/organizacao/bid-cambio/client/src' },
-  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/organizacao/bid-frete/client/src' },
-  { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/organizacao/financeiro-comex/client/src' },
-  { local: 'Produto', produto: 'lpco', root: 'servicos-global/organizacao/lpco/client/src' },
-  { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/organizacao/nf-importacao/client/src' },
-  { local: 'Produto', produto: 'pedido', root: 'servicos-global/organizacao/pedido/client/src' },
-  { local: 'Produto', produto: 'processo', root: 'servicos-global/organizacao/processo/client/src' },
-  { local: 'Produto', produto: 'simula-custo', root: 'servicos-global/organizacao/simula-custo/client/src' },
+  { local: 'Produto', produto: 'bid-cambio', root: 'servicos-global/produto/bid-cambio/client/src' },
+  { local: 'Produto', produto: 'bid-frete', root: 'servicos-global/produto/bid-frete/client/src' },
+  { local: 'Produto', produto: 'financeiro-comex', root: 'servicos-global/produto/financeiro-comex/client/src' },
+  { local: 'Produto', produto: 'lpco', root: 'servicos-global/produto/lpco/client/src' },
+  { local: 'Produto', produto: 'nf-importacao', root: 'servicos-global/produto/nf-importacao/client/src' },
+  { local: 'Produto', produto: 'pedido', root: 'servicos-global/produto/pedido/client/src' },
+  { local: 'Produto', produto: 'processo', root: 'servicos-global/produto/processo/client/src' },
+  { local: 'Produto', produto: 'simula-custo', root: 'servicos-global/produto/simula-custo/client/src' },
 ]
 
 // ═════════════════════════════════════════════════════════════════

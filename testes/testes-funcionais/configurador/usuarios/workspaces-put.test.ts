@@ -61,7 +61,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () =>
   syncRoleToClerk: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('../../../../servicos-global/organizacao/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: {
     roleChanged:       vi.fn().mockResolvedValue(undefined),
     permissionChanged: mockPermissionChanged,

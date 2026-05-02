@@ -5,7 +5,7 @@
 import type { Request, Response, NextFunction } from 'express'
 
 // ─── Mock do AppError (gabi usa sua própria implementação) ────────────────────
-vi.mock('../../../servicos-global/organizacao/gabi/server/lib/errors.js', () => ({
+vi.mock('../../../servicos-global/servicos-plataforma/gabi/server/lib/errors.js', () => ({
   AppError: class AppError extends Error {
     statusCode: number
     code: string
@@ -18,7 +18,7 @@ vi.mock('../../../servicos-global/organizacao/gabi/server/lib/errors.js', () => 
   },
 }))
 
-import { authMiddleware } from '../../../servicos-global/organizacao/gabi/server/middleware/auth.js'
+import { authMiddleware } from '../../../servicos-global/servicos-plataforma/gabi/server/middleware/auth.js'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 type AuthRequest = Request & {

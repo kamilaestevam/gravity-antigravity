@@ -27,7 +27,7 @@ Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é 
 |---|---|
 | `configurador` | single-schema `public` (fonte de verdade global de identidade) |
 | `pedido`, `processo`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`, `financeiro-comex`, `conector-erp` | **schema-per-organizacao**: 1 schema por organizacao, nomeado `tenant_<cuid>` (prefixo real de Postgres) |
-| `servicos-global/organizacao` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organizacao** |
+| `servicos-global/servicos-plataforma` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-organizacao** |
 
 ---
 

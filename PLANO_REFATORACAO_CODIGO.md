@@ -57,7 +57,7 @@ Refatoração da Linguagem Ubíqua DDD em **8 dimensões simultâneas** afetando
 | Pedido | 2 | `produto/pedido/server/prisma/{fragment,schema}.prisma` |
 | Processo | 2 | `produto/processo/server/prisma/{fragment,schema}.prisma` |
 | SimulaCusto | 2 | `produto/simula-custo/server/prisma/{fragment,schema}.prisma` |
-| Helpdesk (template) | 1 | `servicos-global/produto/helpdesk/prisma/fragment.prisma` |
+| Helpdesk (template) | 1 | `servicos-global/servicos-plataforma/helpdesk/prisma/fragment.prisma` |
 | API Cockpit | 1 | `servicos-global/tenant/api-cockpit/prisma/fragment.prisma` |
 | Conector ERP | 1 | `servicos-global/tenant/conector-erp/prisma/fragment.prisma` |
 | Tenant base | 1 | `servicos-global/tenant/prisma/base.prisma` |

@@ -8,7 +8,7 @@ const { mockAuditLog } = vi.hoisted(() => ({
   mockAuditLog: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('../../../servicos-global/organizacao/historico-global/server/services/audit.service.js', () => ({
+vi.mock('../../../servicos-global/servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
   AuditService: { log: mockAuditLog },
 }))
 
@@ -17,7 +17,7 @@ vi.mock('../../../servicos-global/tenant/generated/index.js', () => ({
   EventoStatus: { SUCESSO: 'SUCESSO', FALHA: 'FALHA', PARCIAL: 'PARCIAL' },
 }))
 
-import { securityAudit } from '../../../servicos-global/organizacao/historico-global/server/lib/securityAuditLogger.js'
+import { securityAudit } from '../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js'
 import { AcaoExecutadaPor, EventoStatus } from '../../../servicos-global/tenant/generated/index.js'
 
 describe('securityAudit', () => {

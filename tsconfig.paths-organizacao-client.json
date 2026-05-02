@@ -1,5 +1,5 @@
 {
-  "$comment": "Paths para servicos-global/organizacao/*/client. Profundidade: ../../../../ até raiz do monorepo.",
+  "$comment": "Paths para servicos-global/servicos-plataforma/*/client. Profundidade: ../../../../ até raiz do monorepo.",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

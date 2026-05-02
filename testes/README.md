@@ -70,16 +70,16 @@ testes/
 | `HUB` | hub/ | servicos-global/shell/ |
 | `CORE` | core/ | nucleo-global/ |
 | `MARKET` | marketplace/ | servicos-global/marketplace/ |
-| `ORG` | organizacao/ | servicos-global/organizacao/ |
+| `ORG` | organizacao/ | servicos-global/servicos-plataforma/ |
 | `DBASE` | dbase/ | configurador/prisma/ |
-| `PEDIDO` | pedido/ | servicos-global/organizacao/pedido/ |
-| `NFIMP` | nf-importacao/ | servicos-global/organizacao/nf-importacao/ |
-| `LPCO` | lpco/ | servicos-global/organizacao/lpco/ |
-| `BIDFRT` | bid-frete/ | servicos-global/organizacao/bid-frete/ |
-| `BIDCAM` | bid-cambio/ | servicos-global/organizacao/bid-cambio/ |
-| `SIMCUS` | simula-custo/ | servicos-global/organizacao/simula-custo/ |
-| `FINCOM` | financeiro-comex/ | servicos-global/organizacao/financeiro-comex/ |
-| `PROCSO` | processo/ | servicos-global/organizacao/processo/ |
+| `PEDIDO` | pedido/ | servicos-global/produto/pedido/ |
+| `NFIMP` | nf-importacao/ | servicos-global/produto/nf-importacao/ |
+| `LPCO` | lpco/ | servicos-global/produto/lpco/ |
+| `BIDFRT` | bid-frete/ | servicos-global/produto/bid-frete/ |
+| `BIDCAM` | bid-cambio/ | servicos-global/produto/bid-cambio/ |
+| `SIMCUS` | simula-custo/ | servicos-global/produto/simula-custo/ |
+| `FINCOM` | financeiro-comex/ | servicos-global/produto/financeiro-comex/ |
+| `PROCSO` | processo/ | servicos-global/produto/processo/ |
 
 ---
 

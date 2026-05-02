@@ -14,7 +14,7 @@ export interface StatCardGlobalProps extends StatCardProps {
  * Card flexível para exibição de métricas rápidas.
  * Suporta título, ícone, grande valor numérico, indicador de tendência e subtexto.
  */
-import { TooltipCardEstatisticaGlobal } from '../sub-componentes/tooltip-stat-card-global/src/tooltip-stat-card'
+import { TooltipCardEstatisticaGlobal } from '../sub-componentes/tooltip-stat-card-global/src/TooltipCardEstatisticaGlobal'
 
 export function CardEstatisticaGlobal({
   titulo,

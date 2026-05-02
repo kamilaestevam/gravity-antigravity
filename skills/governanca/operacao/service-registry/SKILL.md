@@ -77,7 +77,7 @@ export const PRODUCT_CONFIG = {
 ## A Diferença entre source: organizacao e source: product
 
 ### `source: 'organizacao'`
-- O componente React vem de `servicos-global/organizacao/[servico]/src/`
+- O componente React vem de `servicos-global/servicos-plataforma/[servico]/src/`
 - O backend roda no servidor de organizacao — não no servidor do produto
 - O produto acessa via proxy: `/api/organizacao/[servico]`
 - Os dados pertencem à empresa (organizacao), não ao produto

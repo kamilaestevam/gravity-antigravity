@@ -342,7 +342,7 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
   syncRoleToClerk: vi.fn(),
 }))
-vi.mock('../../../../servicos-global/organizacao/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
 }))
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({

@@ -1,5 +1,5 @@
 {
-  "$comment": "Paths compartilhados para servicos-global/organizacao/*. Extends via tsconfig.json de cada organização service com baseUrl='.'",
+  "$comment": "Paths compartilhados para servicos-global/servicos-plataforma/*. Extends via tsconfig.json de cada organização service com baseUrl='.'",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

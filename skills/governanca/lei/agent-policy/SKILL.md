@@ -46,8 +46,8 @@ Cada agente só escreve dentro da sua pasta autorizada. Nenhum agente modifica c
 | Camada | Quem pode modificar | Quem nunca modifica |
 |:---|:---|:---|
 | `nucleo-global/` | Agente 1A (Onda 2) | Qualquer agente das Ondas 3 e 4 |
-| `servicos-global/organizacao/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
-| `servicos-global/organizacao/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
+| `servicos-global/servicos-plataforma/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
+| `servicos-global/servicos-plataforma/prisma/schema.prisma` | Coordenador apenas | Todos os outros agentes |
 | `servicos-global/produto/[servico]/` | Agente do serviço (Onda 3) | Qualquer outro agente |
 | `servicos-global/marketplace/` | Agente Marketplace (Onda 1) | Qualquer outro agente |
 | `servicos-global/configurador/` | Agente Configurador (Onda 2) | Qualquer outro agente |

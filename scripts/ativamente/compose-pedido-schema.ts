@@ -2,7 +2,7 @@
 // COORDENADOR — Script de composição do schema do produto Pedido
 //
 // Combina schema.base.prisma + fragment.prisma do produto pedido em
-// servicos-global/organizacao/pedido/server/prisma/schema.prisma
+// servicos-global/produto/pedido/server/prisma/schema.prisma
 //
 // Banco-alvo: gravity-pedido-* (Railway), conectado via env DATABASE_URL
 //
@@ -56,7 +56,7 @@ function composePedidoSchema(options: { strict?: boolean } = {}): void {
     '// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.',
     `// Gerado em: ${new Date().toISOString()}`,
     '// Banco: gravity-pedido-* (Railway)',
-    '// Produto: servicos-global/organizacao/pedido',
+    '// Produto: servicos-global/produto/pedido',
     '// ============================================================================',
   ].join('\n')
 

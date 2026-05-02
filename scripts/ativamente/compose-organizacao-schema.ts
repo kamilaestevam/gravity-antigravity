@@ -8,7 +8,7 @@
 //   - prisma migrate deploy
 //
 // Combina schema.base.prisma + todos os fragment.prisma dos serviços
-// de organização no arquivo final servicos-global/organizacao/prisma/schema.prisma
+// de organização no arquivo final servicos-global/servicos-plataforma/prisma/schema.prisma
 //
 // NUNCA editar schema.prisma manualmente — ele é sempre sobrescrito por este script.
 //

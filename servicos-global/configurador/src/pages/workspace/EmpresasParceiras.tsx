@@ -40,7 +40,7 @@ import {
   listaEmpresasSchema,
   empresaSchema,
   type Empresa,
-} from '@organizacao/cadastros/shared/schemas'
+} from '@cadastros/shared/schemas'
 import { useShellStore } from '@gravity/shell'
 import {
   exportarExcel,

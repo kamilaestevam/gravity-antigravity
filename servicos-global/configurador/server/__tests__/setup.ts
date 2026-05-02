@@ -31,11 +31,11 @@ vi.mock('../lib/clerk.js', () => ({
 }))
 
 // Mock do AuditService — fire-and-forget
-vi.mock('../../../organizacao/historico-global/server/services/audit.service.js', () => ({
+vi.mock('../../../servicos-plataforma/historico-global/server/services/audit.service.js', () => ({
   AuditService: { log: vi.fn().mockResolvedValue(undefined) },
 }))
 
-vi.mock('../../../organizacao/historico-global/server/lib/securityAuditLogger.js', () => ({
+vi.mock('../../../servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
   securityAudit: { roleChanged: vi.fn().mockResolvedValue(undefined) },
 }))
 

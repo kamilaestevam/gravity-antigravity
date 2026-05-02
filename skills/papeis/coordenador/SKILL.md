@@ -35,7 +35,7 @@ A composição de schema único e global foi eliminada. Cada banco tem composiç
 Continua tendo composição via fragments (paralelismo dos agentes da Onda 3):
 
 ```text
-servicos-global/organizacao/
+servicos-global/servicos-plataforma/
 ├── prisma/schema.base.prisma                ← datasource + generator
 ├── atividades/prisma/fragment.prisma
 ├── cronometro/prisma/fragment.prisma
@@ -58,7 +58,7 @@ produto/pedido/server/prisma/
 ├── schema.base.prisma                       ← models do produto + datasource
 └── schema.prisma                            ← composto (base + fragments dos serviços de produto)
 
-servicos-global/produto/helpdesk/prisma/
+servicos-global/servicos-plataforma/helpdesk/prisma/
 └── fragment.prisma                          ← composto no schema dos produtos que usam helpdesk
 ```
 
@@ -71,7 +71,7 @@ npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
 # Para organizacao-shared
 npx tsx scripts/ativamente/compose-organizacao-schema.ts
-npx prisma validate --schema=servicos-global/organizacao/prisma/schema.prisma
+npx prisma validate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 ```
 
 Ver `antigravity-schema-composition` para detalhes.

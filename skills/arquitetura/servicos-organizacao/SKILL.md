@@ -14,7 +14,7 @@ Dentro de `servicos-global` existem duas categorias fundamentalmente diferentes.
 Existem uma vez por organizacao, independente de quantos produtos ela use. O email é da organizacao, não do produto. As atividades precisam aparecer unificadas em todos os produtos. O dashboard consolida KPIs de tudo.
 
 - **Todos os 11 serviços rodam em processo único — o super-servidor de organizacao (porta 3001)**
-- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/organizacao/server/index.ts`) é o único `app.listen()`
+- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/servicos-plataforma/server/index.ts`) é o único `app.listen()`
 - Acessados por todos os produtos via API REST
 - Após o pivô Schema-per-Organizacao (2026-04-17), o **isolamento é feito pelo schema PostgreSQL** via SDK `@gravity/resolver-organizacao` (`withOrganizacao`/`withOrganizacaoContext`); models não carregam mais `id_organizacao` como coluna
 
@@ -30,7 +30,7 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 
 ## Tabela Comparativa
 
-| Característica | nucleo-global | servicos-global/organizacao | servicos-global/produto |
+| Característica | nucleo-global | servicos-global/servicos-plataforma | servicos-global/produto |
 |:---|:---|:---|:---|
 | Tem estado próprio? | ❌ Não | ✅ Sim | ✅ Sim |
 | Tem backend? | ❌ Nunca | ✅ Sempre | ✅ Sempre |
@@ -75,7 +75,7 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 Todos os 11 serviços compartilham um único processo Node.js. Isso elimina a sobrecarga de 11 portas, 11 processos e 11 conexões de banco separadas em dev e em produção.
 
 ```
-servicos-global/organizacao/
+servicos-global/servicos-plataforma/
 ├── server/
 │   ├── index.ts       ← ÚNICO app.listen() — monta todos os serviceRouters
 │   └── lib/
@@ -108,7 +108,7 @@ servicos-global/organizacao/
 ## Estrutura Obrigatória — Serviço da Organizacao
 
 ```text
-servicos-global/organizacao/[nome-do-servico]/
+servicos-global/servicos-plataforma/[nome-do-servico]/
 ├── src/
 │   ├── [NomeServico].tsx   ← componente principal
 │   └── index.ts            ← barrel export
@@ -161,7 +161,7 @@ Cada serviço escreve apenas seu próprio fragment. Nunca edita o `schema.prisma
 - Acesso só via SDK `@gravity/resolver-organizacao` (`withOrganizacao`/`withOrganizacaoContext`)
 
 ```prisma
-// servicos-global/organizacao/atividades/prisma/fragment.prisma
+// servicos-global/servicos-plataforma/atividades/prisma/fragment.prisma
 
 model Activity {
   id         String   @id @default(cuid())
@@ -313,6 +313,6 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - [ ] Rotas com prefixo `/api/v1/`?
 - [ ] `server/routes.ts` exporta `[nome]ServiceRouter` (sem `app.listen()`)?
 - [ ] Se tem pg-boss/workers/cron: extraiu para `server/init.ts`?
-- [ ] Registrou o `serviceRouter` em `servicos-global/organizacao/server/index.ts`?
+- [ ] Registrou o `serviceRouter` em `servicos-global/servicos-plataforma/server/index.ts`?
 - [ ] Validação Zod em todas as rotas?
 - [ ] Testes unitários e funcionais criados?

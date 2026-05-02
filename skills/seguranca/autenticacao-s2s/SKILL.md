@@ -112,7 +112,7 @@ O `x-chave-interna` é uma camada adicional de defesa (defense-in-depth). **Todo
 **OBRIGATÓRIO: usar `timingSafeEqual` — nunca comparação direta (`!==`).** Comparação direta vaza informação sobre o tamanho correto da chave via timing attack.
 
 ```typescript
-// servicos-global/organizacao/middleware/withInternalKeyValidation.ts
+// servicos-global/servicos-plataforma/middleware/withInternalKeyValidation.ts
 import { timingSafeEqual } from 'node:crypto'
 import type { Request, Response, NextFunction } from 'express'
 import { AppError } from './appError.js'
@@ -156,7 +156,7 @@ export function withInternalKeyValidation(
 ## Ordem dos Middlewares no Super-Servidor Organização
 
 ```typescript
-// Ordem obrigatória em servicos-global/organizacao/server/index.ts
+// Ordem obrigatória em servicos-global/servicos-plataforma/server/index.ts
 app.use(correlationMiddleware)          // 1. Correlation ID (gera SUID se ausente)
 app.get('/health', healthHandler)       // 2. Health check — sem auth, antes dos guards
 app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))  // 3. Raw body para webhooks
@@ -235,7 +235,7 @@ Isso significa que mesmo se um produto for comprometido, ele não pode se passar
 Todo produto que consome serviços de organização usa um proxy que encapsula autenticação e retry:
 
 ```typescript
-// servicos-global/organizacao/proxy/index.ts
+// servicos-global/servicos-plataforma/proxy/index.ts
 import { PRODUCT_CONFIG } from './config'
 
 export function createTenantProxy(config: {

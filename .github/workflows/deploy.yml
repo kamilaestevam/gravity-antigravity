@@ -52,7 +52,7 @@ jobs:
         run: npx prisma validate --schema=configurador/prisma/schema.prisma
 
       - name: Validar schema do Tenant DB
-        run: npx prisma validate --schema=servicos-global/organizacao/prisma/schema.prisma
+        run: npx prisma validate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 
   # ─────────────────────────────────────────────
   # JOB 3 — Deploy em Staging (T26000001) + Migrations
@@ -93,7 +93,7 @@ jobs:
         run: |
           npx ts-node scripts/ativamente/compose-organizacao-schema.ts
           npx prisma migrate deploy \
-            --schema=servicos-global/organizacao/prisma/schema.prisma
+            --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.STAGING_ORGANIZACAO_DATABASE_URL }}
 
@@ -102,7 +102,7 @@ jobs:
           STAGING_CONF=$(npx prisma migrate status \
             --schema=configurador/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
           STAGING_ORGANIZACAO=$(npx prisma migrate status \
-            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
+            --schema=servicos-global/servicos-plataforma/prisma/schema.prisma 2>&1 | grep "Database schema is up to date" | wc -l)
           echo "STAGING_CONF_OK=$STAGING_CONF" >> $GITHUB_ENV
           echo "STAGING_TENANT_OK=$STAGING_ORGANIZACAO" >> $GITHUB_ENV
 
@@ -160,9 +160,9 @@ jobs:
         run: |
           echo "Verificando paridade de migrations no Tenant DB..."
           STAGING_STATUS=$(DATABASE_URL=$STAGING_TENANT_URL npx prisma migrate status \
-            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1)
+            --schema=servicos-global/servicos-plataforma/prisma/schema.prisma 2>&1)
           PROD_STATUS=$(DATABASE_URL=$PROD_TENANT_URL npx prisma migrate status \
-            --schema=servicos-global/organizacao/prisma/schema.prisma 2>&1)
+            --schema=servicos-global/servicos-plataforma/prisma/schema.prisma 2>&1)
 
           STAGING_MIGS=$(echo "$STAGING_STATUS" | grep -c "migration name" || echo "0")
           PROD_MIGS=$(echo "$PROD_STATUS" | grep -c "migration name" || echo "0")
@@ -213,7 +213,7 @@ jobs:
       - name: Aplicar migrations — Tenant DB (Produção)
         run: |
           npx prisma migrate deploy \
-            --schema=servicos-global/organizacao/prisma/schema.prisma
+            --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.PROD_TENANT_DATABASE_URL }}
 

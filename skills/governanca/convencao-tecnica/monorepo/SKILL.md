@@ -35,8 +35,8 @@ O monorepo Gravity tem uma infraestrutura padronizada que **nunca pode ser alter
 | `tsconfig.json` (raiz) | Líder ou Coordenador | Paths base de todo o monorepo |
 | `tsconfig.paths-produto.json` | Líder ou Coordenador | Paths para `produto/*/client` e `server` |
 | `tsconfig.paths-servico.json` | Líder ou Coordenador | Paths para `servicos-global/*` |
-| `tsconfig.paths-organizacao.json` | Líder ou Coordenador | Paths para `servicos-global/organizacao/*` |
-| `tsconfig.paths-organizacao-client.json` | Líder ou Coordenador | Paths para `servicos-global/organizacao/*/client` |
+| `tsconfig.paths-organizacao.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*` |
+| `tsconfig.paths-organizacao-client.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*/client` |
 | `nucleo-global/vite-aliases.ts` | Líder ou Coordenador | Aliases automáticos do Vite |
 
 ---
@@ -107,7 +107,7 @@ alias: {
 ```typescript
 // ❌ NUNCA cruzar fronteiras de pacote com caminhos relativos
 import { TabelaGlobal } from '../../../../nucleo-global/Tabelas/tabela-global/src'
-import { something } from '../../../servicos-global/organizacao/gabi/src'
+import { something } from '../../../servicos-global/servicos-plataforma/gabi/src'
 
 // ✅ SEMPRE usar aliases configurados
 import { TabelaGlobal } from '@nucleo/tabela-global'

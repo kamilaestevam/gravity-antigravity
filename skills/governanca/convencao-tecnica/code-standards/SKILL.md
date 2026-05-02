@@ -32,7 +32,7 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
     "baseUrl": ".",
     "paths": {
       "@nucleo/*": ["../../nucleo-global/*"],
-      "@tenant/*": ["../../servicos-global/organizacao/*"],
+      "@tenant/*": ["../../servicos-global/servicos-plataforma/*"],
       "@produto/*": ["../../servicos-global/produto/*"]
     }
   }

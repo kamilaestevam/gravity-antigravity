@@ -63,7 +63,7 @@ const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrgan
 const Core = lazy(() => import('./pages/Core'), 'Core')
 const CoreDashboard = React.lazy(() => import('./pages/core/CoreDashboard'))
 const HistoricoTenant = React.lazy(() =>
-  import('../../../servicos-global/organizacao/historico-global/src/Historico').then(m => ({ default: m.Historico }))
+  import('../../../servicos-global/servicos-plataforma/historico-global/src/Historico').then(m => ({ default: m.Historico }))
 )
 
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)

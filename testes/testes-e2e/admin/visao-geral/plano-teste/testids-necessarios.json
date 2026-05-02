@@ -1,0 +1,99 @@
+{
+  "tela": "Visão Geral (Admin)",
+  "componente": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx",
+  "layout": "servicos-global/configurador/src/pages/admin/AdminLayout.tsx",
+  "rota": "/admin/visao-geral",
+  "extraidoEm": "2026-05-02",
+  "observacao": "Componente atual NÃO possui nenhum data-testid. Todos os testids abaixo precisam ser adicionados ao componente antes de o spec rodar. O plano TST-E2E-ADMIN-000001 referencia estes ids como contrato.",
+
+  "elementos": {
+    "tela-visao-geral-admin-root": { "tipo": "outro", "descricao": "Container raiz da página Visão Geral Admin (PaginaGlobal)", "componente": "VisaoGeralAdmin.tsx" },
+
+    "admin-layout-root": { "tipo": "outro", "descricao": "Container raiz do AdminLayout", "componente": "AdminLayout.tsx" },
+    "admin-header-logo": { "tipo": "outro", "descricao": "Logo Admin Panel by Gravity no topo", "texto": "Admin Panel" },
+    "admin-org-selector": { "tipo": "select", "descricao": "Seletor Gravity HQ / Núcleo Central no topo da sidebar" },
+    "admin-btn-hub": { "tipo": "botao", "descricao": "Botão Hub no header", "texto": "Hub" },
+    "admin-btn-busca-global": { "tipo": "botao", "descricao": "Ícone de busca global (command palette)" },
+    "admin-btn-info": { "tipo": "botao", "descricao": "Ícone de informações" },
+    "admin-btn-notificacoes": { "tipo": "botao", "descricao": "Ícone de notificações com badge de contagem" },
+    "admin-indicador-online": { "tipo": "feedback", "descricao": "Bolinha indicando status do backend" },
+    "admin-seletor-idioma": { "tipo": "select", "descricao": "Seletor de idioma (BR PT / EN / ES)" },
+    "admin-avatar-usuario": { "tipo": "outro", "descricao": "Avatar do usuário logado (DM)" },
+
+    "admin-menu-lateral": { "tipo": "navegacao", "descricao": "Menu lateral do AdminLayout" },
+    "admin-menu-item-visao-geral":      { "tipo": "link", "descricao": "Item Visão Geral (ativo nesta tela)",      "rota": "/admin/visao-geral" },
+    "admin-menu-item-organizacoes":     { "tipo": "link", "descricao": "Item Organizações",                       "rota": "/admin/tenants" },
+    "admin-menu-item-produtos":         { "tipo": "link", "descricao": "Item Produtos Gravity",                   "rota": "/admin/produtos-gravity" },
+    "admin-menu-item-usuarios-globais": { "tipo": "link", "descricao": "Item Usuários Globais",                   "rota": "/admin/usuarios-globais" },
+    "admin-menu-item-financeiro":       { "tipo": "link", "descricao": "Item Financeiro",                         "rota": "/admin/financeiro-admin" },
+    "admin-menu-item-historico":        { "tipo": "link", "descricao": "Item Histórico Global",                   "rota": "/admin/historico-global" },
+    "admin-menu-item-deploy":           { "tipo": "link", "descricao": "Item Deploy Railway",                     "rota": "/admin/deploy" },
+    "admin-menu-item-api-cockpit":      { "tipo": "link", "descricao": "Item API Cockpit",                        "rota": "/admin/api-cockpit" },
+    "admin-menu-item-seguranca":        { "tipo": "link", "descricao": "Item Segurança",                          "rota": "/admin/seguranca-admin" },
+    "admin-menu-item-ncm":              { "tipo": "link", "descricao": "Item NCM Siscomex",                       "rota": "/admin/ncm-integracao" },
+    "admin-menu-item-cadastros":        { "tipo": "link", "descricao": "Item Cadastros Globais",                  "rota": "/admin/cadastros-globais" },
+    "admin-menu-item-testes":           { "tipo": "link", "descricao": "Item Testes",                             "rota": "/admin/testes-gerais" },
+
+    "admin-cabecalho-titulo": { "tipo": "outro", "descricao": "Título da página (CabecalhoGlobal) com ícone Crown" },
+    "admin-cabecalho-subtitulo": { "tipo": "outro", "descricao": "Subtítulo da página" },
+
+    "card-identidade": { "tipo": "outro", "descricao": "Card de identidade com avatar, badge HQ Owner, nome e plano" },
+    "identidade-avatar": { "tipo": "outro", "descricao": "Avatar verde com ícone RocketLaunch" },
+    "identidade-badge-hq-owner": { "tipo": "feedback", "descricao": "Badge 'HQ Owner' (nível super)" },
+    "identidade-nome-organizacao": { "tipo": "outro", "descricao": "Nome da organização exibido em destaque" },
+    "identidade-tag-plano": { "tipo": "feedback", "descricao": "Tag verde com nome do plano (ex: Free)" },
+    "identidade-subdominio": { "tipo": "outro", "descricao": "Subdomínio.gravity.com.br" },
+
+    "secao-institucional": { "tipo": "outro", "descricao": "Seção 'Dados Registrados' (institucional)" },
+    "input-nome-empresa": { "tipo": "input", "descricao": "Campo Nome da Empresa", "label": "Empresa", "required": true },
+    "erro-nome-empresa": { "tipo": "feedback", "descricao": "Mensagem de erro do campo Nome (precisa adicionar)" },
+    "input-cnpj": { "tipo": "input", "descricao": "Campo CNPJ com máscara 00.000.000/0000-00", "label": "CNPJ", "required": false, "mascara": "00.000.000/0000-00", "maxLength": 18 },
+    "erro-cnpj": { "tipo": "feedback", "descricao": "Mensagem de erro 'CNPJ inválido (dígito verificador não confere)'" },
+    "select-estado": { "tipo": "select", "descricao": "Seletor de Estado (UFs BR)", "label": "Estado", "buscavel": true },
+    "select-cidade": { "tipo": "select", "descricao": "Seletor de Cidade (IBGE, depende de Estado)", "label": "Cidade", "buscavel": true, "dependeDe": "select-estado" },
+    "select-cidade-loading": { "tipo": "feedback", "descricao": "Loading do select cidade (useCidadesIBGE)" },
+    "select-segmento": { "tipo": "select", "descricao": "Seletor de Segmento", "label": "Segmento", "opcoes": ["Tecnologia", "SaaS", "Plataforma B2B", "Cloud Infrastructure"] },
+    "select-tipo-empresa": { "tipo": "select", "descricao": "Seletor de Tipo de Empresa", "label": "Tipo de Empresa", "opcoes": ["Importador", "Exportador", "Importador e Exportador", "Despachante Aduaneiro", "Agente de Carga", "Trading", "Transportadora Rodoviária", "Seguradora Internacional", "Corretora de Câmbio"] },
+
+    "secao-infra": { "tipo": "outro", "descricao": "Seção 'Infra' (dados do plano e infraestrutura)" },
+    "infra-plano-nome": { "tipo": "outro", "descricao": "Nome da instância/plano atual" },
+    "infra-subdominio": { "tipo": "outro", "descricao": "URL completa: subdominio.gravity.com.br" },
+    "infra-data-criacao": { "tipo": "outro", "descricao": "Data 'Operando desde dd/mm/aaaa'" },
+    "infra-localizacao": { "tipo": "outro", "descricao": "Cidade, Estado da operação" },
+
+    "indicador-dirty": { "tipo": "feedback", "descricao": "Indicador 'Alterações pendentes' do BotoesSalvarGlobal" },
+    "btn-cancelar": { "tipo": "botao", "descricao": "Botão Cancelar do BotoesSalvarGlobal", "texto": "Cancelar" },
+    "btn-salvar": { "tipo": "botao", "descricao": "Botão Salvar do BotoesSalvarGlobal", "texto": "Salvar" },
+
+    "skeleton-visao-geral": { "tipo": "feedback", "descricao": "Skeleton/loading enquanto carrega config inicial" },
+    "toast-sucesso": { "tipo": "feedback", "descricao": "Notificação de sucesso ao salvar (Shell addNotification)", "posicao": "bottom-right" },
+    "toast-erro": { "tipo": "feedback", "descricao": "Notificação de erro (carregar ou salvar)", "posicao": "bottom-right" },
+
+    "tooltip-badge-nivel-super": { "tipo": "feedback", "descricao": "TooltipGlobal do badge HQ Owner (nível super)" },
+    "tooltip-tag-plano": { "tipo": "feedback", "descricao": "TooltipGlobal da tag de plano" },
+    "tooltip-secao-institucional": { "tipo": "feedback", "descricao": "TooltipGlobal título da seção institucional" },
+    "tooltip-campo-empresa": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal Empresa" },
+    "tooltip-campo-cnpj": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal CNPJ" },
+    "tooltip-campo-estado": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal Estado" },
+    "tooltip-campo-cidade": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal Cidade" },
+    "tooltip-campo-segmento": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal Segmento" },
+    "tooltip-campo-tipo-empresa": { "tipo": "feedback", "descricao": "TooltipGlobal do CampoGeralGlobal Tipo de Empresa" },
+    "tooltip-infra-nucleo": { "tipo": "feedback", "descricao": "TooltipGlobal do bloco infra (núcleo)" },
+    "tooltip-infra-url": { "tipo": "feedback", "descricao": "TooltipGlobal da URL da instância" },
+    "tooltip-infra-data": { "tipo": "feedback", "descricao": "TooltipGlobal da data de criação" },
+    "tooltip-infra-regiao": { "tipo": "feedback", "descricao": "TooltipGlobal da região (cidade/estado)" }
+  },
+
+  "testidsFaltando": [
+    "TODOS os testids acima precisam ser adicionados ao componente VisaoGeralAdmin.tsx e AdminLayout.tsx — atualmente o componente não tem nenhum data-testid.",
+    "Antes de rodar o spec é obrigatório fazer um PR de instrumentação adicionando data-testid em cada elemento listado.",
+    "Recomendado: adicionar testid no elemento mais externo de cada bloco (CampoGeralGlobal, BotoesSalvarGlobal, TooltipGlobal) usando prop específica ou wrapper <div data-testid=\"...\">."
+  ],
+
+  "apisDependentes": [
+    { "metodo": "GET",  "rota": "/api/v1/admin/visao-geral", "uso": "Carregar configuração da plataforma (HQ)", "implementacao": "adminPlatformApi.getConfig() em servicos-global/configurador/src/services/apiClient.ts" },
+    { "metodo": "PUT",  "rota": "/api/v1/admin/visao-geral", "uso": "Salvar alterações de nome/cnpj/estado/cidade/segmento/tipo_empresa", "implementacao": "adminPlatformApi.updateConfig()" },
+    { "metodo": "GET",  "rota": "/api/v1/me", "uso": "Validar role do usuário (defesa em profundidade no AdminLayout)" },
+    { "metodo": "GET",  "rota": "external IBGE", "uso": "Carregar lista de cidades por UF (useCidadesIBGE)" }
+  ]
+}

@@ -5,7 +5,7 @@ Este documento define o padrão técnico absoluto para a criação de qualquer n
 ## 1. Localização e Isolamento (Monorepo)
 
 Todo produto deve residir em:
-`servicos-global/organizacao/[nome-do-produto]/` (Era Nova — pós-Onda Gamma-3)
+`servicos-global/servicos-plataforma/[nome-do-produto]/` (Era Nova — pós-Onda Gamma-3)
 
 Cada produto é um serviço independente, com seu próprio **Frontend (Client)**, **Backend (Server)** e **Banco de Dados (Schema Prisma)**.
 

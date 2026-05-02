@@ -86,7 +86,7 @@ it('meResponseSchema rejeita payload com estrutura legada', () => {
 Para serviços com múltiplos endpoints, usar arquivo `contracts.ts` dedicado:
 
 ```typescript
-// servicos-global/organizacao/atividades/server/contracts.ts
+// servicos-global/servicos-plataforma/atividades/server/contracts.ts
 import { z } from 'zod'
 
 // Contrato de Request

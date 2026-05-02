@@ -26,9 +26,9 @@ import { resolve } from 'path'
 
 const ROOT = resolve(import.meta.dirname, '../..')
 const CONFIGURADOR_PRISMA = resolve(ROOT, 'configurador/prisma')
-const SIMULACUSTO_PRISMA = resolve(ROOT, 'servicos-global/organizacao/simula-custo/server/prisma')
+const SIMULACUSTO_PRISMA = resolve(ROOT, 'servicos-global/produto/simula-custo/server/prisma')
 const CONFIGURADOR_SERVER = resolve(ROOT, 'servicos-global/configurador')
-const SIMULACUSTO_SERVER = resolve(ROOT, 'servicos-global/organizacao/simula-custo')
+const SIMULACUSTO_SERVER = resolve(ROOT, 'servicos-global/produto/simula-custo')
 
 // ─── Cores para output ──────────────────────────────────────────────────────
 
@@ -125,9 +125,9 @@ SISCOMEX_HCAPTCHA_SITE_KEY=51829642-2c97-4db0-881c-d40b4ef3b259
 CAPSOLVER_API_KEY=
 BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
 `)
-    ok('Criado: servicos-global/organizacao/simula-custo/server/.env')
+    ok('Criado: servicos-global/produto/simula-custo/server/.env')
   } else {
-    warn('Já existe: servicos-global/organizacao/simula-custo/server/.env (não sobrescrito)')
+    warn('Já existe: servicos-global/produto/simula-custo/server/.env (não sobrescrito)')
   }
 
   // SimulaCusto client .env (Vite)
@@ -136,7 +136,7 @@ BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
     writeFileSync(scClientEnvPath, `# Gerado por setup-dev.ts
 VITE_INTERNAL_SERVICE_KEY=${DEV_INTERNAL_KEY}
 `)
-    ok('Criado: servicos-global/organizacao/simula-custo/client/.env')
+    ok('Criado: servicos-global/produto/simula-custo/client/.env')
   }
 }
 
@@ -190,7 +190,7 @@ function runMigrations() {
     ok('simulacusto_dev migrado')
   } catch {
     fail('Erro na migration do simula-custo. Verifique se o PostgreSQL está rodando.')
-    warn('Tente manualmente: cd servicos-global/organizacao/simula-custo/server/prisma && npx prisma migrate dev')
+    warn('Tente manualmente: cd servicos-global/produto/simula-custo/server/prisma && npx prisma migrate dev')
   }
 }
 
@@ -391,7 +391,7 @@ ${C.bold}Próximos passos:${C.reset}
      cd servicos-global/configurador && npm run dev
 
      ${C.green}# Terminal 2 — SimulaCusto backend${C.reset}
-     cd servicos-global/organizacao/simula-custo && npm run dev:server
+     cd servicos-global/produto/simula-custo && npm run dev:server
 
      ${C.green}# Terminal 3 — Frontend (Vite)${C.reset}
      cd servicos-global/configurador && npm run dev:client

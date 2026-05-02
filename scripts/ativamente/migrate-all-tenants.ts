@@ -112,14 +112,14 @@ function toSchemaName(tenantId: string): string {
 const MONOREPO_ROOT = resolve(import.meta.dirname, '../..')
 
 const PRODUCT_MIGRATIONS: Record<string, string> = {
-  pedido:           'servicos-global/organizacao/pedido/server/prisma/migrations',
-  processo:         'servicos-global/organizacao/processo/server/prisma/migrations',
-  'simula-custo':   'servicos-global/organizacao/simula-custo/server/prisma/migrations',
-  'bid-frete':      'servicos-global/organizacao/bid-frete/server/prisma/migrations',
-  'bid-cambio':     'servicos-global/organizacao/bid-cambio/server/prisma/migrations',
-  'nf-importacao':  'servicos-global/organizacao/nf-importacao/server/prisma/migrations',
-  'taxas-cambio':   'servicos-global/organizacao/taxas-cambio/server/prisma/migrations',
-  tenant:           'servicos-global/organizacao/prisma/migrations',
+  pedido:           'servicos-global/produto/pedido/server/prisma/migrations',
+  processo:         'servicos-global/produto/processo/server/prisma/migrations',
+  'simula-custo':   'servicos-global/produto/simula-custo/server/prisma/migrations',
+  'bid-frete':      'servicos-global/produto/bid-frete/server/prisma/migrations',
+  'bid-cambio':     'servicos-global/produto/bid-cambio/server/prisma/migrations',
+  'nf-importacao':  'servicos-global/produto/nf-importacao/server/prisma/migrations',
+  'taxas-cambio':   'servicos-global/servicos-plataforma/taxas-cambio/server/prisma/migrations',
+  tenant:           'servicos-global/servicos-plataforma/prisma/migrations',
 }
 
 function resolveMigrationsDir(product: string): string {

@@ -16,7 +16,7 @@
 
 | Aspecto | Conteúdo |
 |---|---|
-| **Onde aparece no código** | `servicos-global/configurador/server/routes/auth.ts` (Clerk webhooks), `servicos-global/organizacao/server/index.ts:3` (raw body parser), `produtos-gravity/api-cockpit/SKILL.md` (webhooks outbound) |
+| **Onde aparece no código** | `servicos-global/configurador/server/routes/auth.ts` (Clerk webhooks), `servicos-global/servicos-plataforma/server/index.ts:3` (raw body parser), `produtos-gravity/api-cockpit/SKILL.md` (webhooks outbound) |
 | **O que falta cobrir** | Validação HMAC-SHA256, raw body parser obrigatório (não JSON parser), idempotência via `x-chave-idempotencia` ou hash do payload, retry exponencial, secret rotation, header `X-Gravity-Signature` |
 | **Skill sugerida** | `seguranca/webhooks-recebidos/SKILL.md` (criar) **OU** seção dedicada em `seguranca/cross-boundary` |
 | **Risco de Regressão** | 🔴 **ALTO** — webhooks têm falha silenciosa (200 OK retornado mesmo em assinatura inválida) e payload pode ser malicioso. Sem skill, agente vai inventar padrão diferente em cada webhook novo |

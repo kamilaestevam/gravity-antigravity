@@ -121,7 +121,7 @@ gravity/
 
 ```typescript
 @nucleo/*   → nucleo-global/*
-@tenant/*   → servicos-global/organizacao/*       (alias técnico real — preservado por vite-aliases.ts)
+@tenant/*   → servicos-global/servicos-plataforma/*       (alias técnico real — preservado por vite-aliases.ts)
 @produto/*  → servicos-global/produto/*
 ```
 

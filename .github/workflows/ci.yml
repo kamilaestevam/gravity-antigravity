@@ -163,25 +163,25 @@ jobs:
         service:
           - path: servicos-global/configurador
             name: configurador
-          - path: servicos-global/organizacao/dashboard
+          - path: servicos-global/servicos-plataforma/dashboard
             name: dashboard
-          - path: servicos-global/organizacao/relatorios
+          - path: servicos-global/servicos-plataforma/relatorios
             name: relatorios
-          - path: servicos-global/organizacao/cronometro
+          - path: servicos-global/servicos-plataforma/cronometro
             name: cronometro
-          - path: servicos-global/organizacao/notificacoes
+          - path: servicos-global/servicos-plataforma/notificacoes
             name: notificacoes
-          - path: servicos-global/organizacao/historico-global
+          - path: servicos-global/servicos-plataforma/historico-global
             name: historico
-          - path: servicos-global/organizacao/gabi
+          - path: servicos-global/servicos-plataforma/gabi
             name: gabi
-          - path: servicos-global/organizacao/api-cockpit
+          - path: servicos-global/servicos-plataforma/api-cockpit
             name: api-cockpit
-          - path: servicos-global/organizacao/conector-erp
+          - path: servicos-global/servicos-plataforma/conector-erp
             name: conector-erp
-          - path: servicos-global/organizacao/agendamento
+          - path: servicos-global/servicos-plataforma/agendamento
             name: agendamento
-          - path: servicos-global/organizacao/whatsapp
+          - path: servicos-global/servicos-plataforma/whatsapp
             name: whatsapp
           - path: produto/simula-custo
             name: simula-custo

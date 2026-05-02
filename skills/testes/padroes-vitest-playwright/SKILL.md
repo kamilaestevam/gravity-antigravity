@@ -574,7 +574,7 @@ Se um endpoint mudar o payload sem versionar, o contract test falha e bloqueia o
 | Módulo | Unitário | Funcional | E2E |
 |:---|:---|:---|:---|
 | nucleo-global | 80% | N/A | Smoke tests |
-| servicos-global/organizacao (cada) | 70% | 100% rotas críticas | Por produto |
+| servicos-global/servicos-plataforma (cada) | 70% | 100% rotas críticas | Por produto |
 | produtos | 70% | 100% rotas críticas | 11 categorias obrigatórias |
 | configurador | 70% | 100% auth + billing | Fluxo completo de onboarding |
 

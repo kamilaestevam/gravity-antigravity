@@ -127,7 +127,7 @@ export function createServiceAliases(monorepoRoot: string): Record<string, strin
   return {
     '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
     '@shell': path.resolve(monorepoRoot, 'servicos-global/shell'),
-    '@organizacao': path.resolve(monorepoRoot, 'servicos-global/organizacao'),
+    '@organizacao': path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma'),
     '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
   }
 }
@@ -145,7 +145,7 @@ export function createTenantAliases(
 ): Record<string, string> {
   const aliases: Record<string, string> = {}
   for (const svc of services) {
-    aliases[`@organizacao/${svc}`] = path.resolve(monorepoRoot, `servicos-global/organizacao/${svc}`)
+    aliases[`@organizacao/${svc}`] = path.resolve(monorepoRoot, `servicos-global/servicos-plataforma/${svc}`)
   }
   return aliases
 }

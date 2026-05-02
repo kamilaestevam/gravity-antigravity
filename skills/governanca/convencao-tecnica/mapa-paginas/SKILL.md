@@ -93,7 +93,7 @@ Local + Produto Gravity  →  Arquivo (path .tsx)  →  Componente (PascalCase)
 
    | Local | Area | Quando |
    |---|---|---|
-   | `Organizacao` | `Organizacao` | tela em `servicos-global/organizacao/<servico>/client/` |
+   | `Organizacao` | `Organizacao` | tela em `servicos-global/servicos-plataforma/<servico>/client/` |
    | `Produto` | (vazio) ou nome do agrupamento | tela em `produto/<produto>/client/` |
    | `Configurador` | `Configurador` ou `Admin` | tela em `servicos-global/configurador/src/pages/{configurador,admin}/` |
    | `Marketplace` | `Marketing` | tela pública em `servicos-global/marketplace/` |

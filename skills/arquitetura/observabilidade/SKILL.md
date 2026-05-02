@@ -326,10 +326,10 @@ auditLog({
 
 ### Implementações de referência
 
-- `servicos-global/organizacao/pedido/server/src/services/transferirService.ts`
-- `servicos-global/organizacao/pedido/server/src/services/duplicarExcluirService.ts`
-- `servicos-global/organizacao/pedido/server/src/services/edicaoEmMassaService.ts`
-- `servicos-global/organizacao/pedido/server/src/routes/consolidacoes-pedido.ts`
+- `servicos-global/produto/pedido/server/src/services/transferirService.ts`
+- `servicos-global/produto/pedido/server/src/services/duplicarExcluirService.ts`
+- `servicos-global/produto/pedido/server/src/services/edicaoEmMassaService.ts`
+- `servicos-global/produto/pedido/server/src/routes/consolidacoes-pedido.ts`
 
 ### Auto-instrumentação opcional
 

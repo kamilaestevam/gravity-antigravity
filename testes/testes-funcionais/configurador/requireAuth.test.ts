@@ -38,7 +38,7 @@ vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   },
 }))
 
-vi.mock('../../../servicos-global/organizacao/historico-global/src/audit-client.js', () => ({
+vi.mock('../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js', () => ({
   auditLog: mockAuditLog,
 }))
 

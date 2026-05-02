@@ -15,7 +15,7 @@ import {
   setApiContext,
   getApiContext,
   injectUserNameGetter,
-} from '../../../servicos-global/organizacao/pedido/client/src/shared/api.js'
+} from '../../../servicos-global/produto/pedido/client/src/shared/api.js'
 
 // ─── setApiContext ────────────────────────────────────────────────────────────
 describe('setApiContext', () => {
@@ -66,7 +66,7 @@ describe('injectUserNameGetter', () => {
     })
 
     // Qualquer chamada de API aciona getDynamicUserName
-    const { pedidoApi } = await import('../../../servicos-global/organizacao/pedido/client/src/shared/api.js')
+    const { pedidoApi } = await import('../../../servicos-global/produto/pedido/client/src/shared/api.js')
     await pedidoApi.listar().catch(() => { /* ignora erros de parse */ })
 
     // O getter foi chamado durante a request — context.userName deve ter sido atualizado

@@ -117,14 +117,14 @@ produto/pedido/server/prisma/
 ├── schema.base.prisma      ← models do próprio produto + datasource + generator
 └── schema.prisma           ← composto (base + fragments)
 
-servicos-global/produto/helpdesk/prisma/
+servicos-global/servicos-plataforma/helpdesk/prisma/
 └── fragment.prisma         ← composto no schema do produto que usar helpdesk
 ```
 
 ### Para o banco da organizacao (compartilhado entre serviços da organizacao)
 
 ```text
-servicos-global/organizacao/prisma/
+servicos-global/servicos-plataforma/prisma/
 ├── schema.base.prisma                   ← datasource + generator
 ├── atividades/prisma/fragment.prisma
 ├── email/prisma/fragment.prisma
@@ -145,7 +145,7 @@ import path from 'node:path'
 
 interface ComposeArgs {
   productDir: string                       // ex: 'produto/pedido/server'
-  serviceFragments: string[]               // ex: ['servicos-global/produto/helpdesk/prisma/fragment.prisma']
+  serviceFragments: string[]               // ex: ['servicos-global/servicos-plataforma/helpdesk/prisma/fragment.prisma']
 }
 
 export function composeProductSchema({ productDir, serviceFragments }: ComposeArgs) {
@@ -222,7 +222,7 @@ async function migrateAllTenants({ databaseUrl, migrationName }: MigrateArgs) {
 Não é responsabilidade do agente que escreve a feature. Quando o Configurador emite `TenantProvisioned`:
 
 ```typescript
-// servicos-global/organizacao/provisioner/worker.ts (consome o evento)
+// servicos-global/servicos-plataforma/provisioner/worker.ts (consome o evento)
 async function onTenantProvisioned({ idOrganizacao, products }: TenantProvisionedEvent) {
   for (const product of products) {
     const dbUrl = getProductDbUrl(product)

@@ -18,7 +18,7 @@ import { prisma as tenantPrisma } from '../../../organizacao/server/lib/prisma.j
 import { AppError } from '../lib/appError.js'
 import { executarSync } from '../../../organizacao/ncm-sync/server/services/ncmSyncEngine.js'
 import { reagendarJob } from '../../../organizacao/ncm-sync/server/init.js'
-import { AuditService } from '../../../organizacao/historico-global/server/services/audit.service.js'
+import { AuditService } from '../../../servicos-plataforma/historico-global/server/services/audit.service.js'
 
 export const adminNcmIntegracaoRouter = Router()
 

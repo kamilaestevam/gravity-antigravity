@@ -37,7 +37,7 @@
       "@shell": ["servicos-global/shell/index.ts"],
       "@shell/*": ["servicos-global/shell/*"],
       "@gravity/shell": ["servicos-global/shell/index.ts"],
-      "@organizacao/*": ["servicos-global/organizacao/*"],
+      "@organizacao/*": ["servicos-global/servicos-plataforma/*"],
       "@produto/*": ["servicos-global/produto/*"]
     }
   },

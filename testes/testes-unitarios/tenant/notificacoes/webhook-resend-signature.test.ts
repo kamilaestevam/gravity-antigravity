@@ -32,7 +32,7 @@ vi.mock(
 )
 
 // Imports após os mocks (vitest garante a ordem)
-import { webhookResendRoutes } from '../../../../servicos-global/organizacao/notificacoes/server/routes/webhook-resend.js'
+import { webhookResendRoutes } from '../../../../servicos-global/servicos-plataforma/notificacoes/server/routes/webhook-resend.js'
 
 // ── Constantes de teste ────────────────────────────────────────────────────────
 // Secret no formato whsec_<base64> — mesmo valor configurado no vitest.config.ts

@@ -46,14 +46,14 @@ loteRouter.post('/preview', async (req: Request, res: Response, next: NextFuncti
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const pedidos = await db.pedido.findMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
-        select: { id: true, numero_pedido: true, status: true },
+        where:  { id_pedido: { in: ids }, id_organizacao: tenantId },
+        select: { id_pedido: true, numero_pedido: true, status_pedido: true },
       })
 
-      const afetados = pedidos.map((p: { id: string; numero_pedido: string; status: string }) => ({
-        id:            p.id,
+      const afetados = pedidos.map((p: { id_pedido: string; numero_pedido: string; status_pedido: string }) => ({
+        id:            p.id_pedido,
         numero_pedido: p.numero_pedido,
-        status_atual:  p.status,
+        status_atual:  p.status_pedido,
         status_novo,
       }))
 
@@ -83,8 +83,8 @@ loteRouter.post('/confirmar', async (req: Request, res: Response, next: NextFunc
       const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const resultado = await db.pedido.updateMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
-        data:  { status: status_novo },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+        data:  { status_pedido: status_novo },
       })
 
       res.json({ sucesso: resultado.count, erros: [] })

@@ -49,10 +49,10 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       const sortDir    = dir === 'asc' ? 'asc' : 'desc'
       const limitNum   = Math.min(Math.max(Number(limit ?? 100), 1), 200)
 
-      const where: Record<string, unknown> = { tenant_id: idOrganizacao, company_id: idWorkspace, deleted_at: null }
+      const where: Record<string, unknown> = { id_organizacao: idOrganizacao, id_workspace: idWorkspace, data_exclusao_pedido: null }
       if (status) {
         const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
-        where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
+        where.status_pedido = statusList.length > 1 ? { in: statusList } : statusList[0]
       }
       if (busca) {
         where.numero_pedido = { contains: busca as string, mode: 'insensitive' }

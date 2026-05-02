@@ -116,7 +116,7 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
             criado_em: true,
           },
         }),
-        db.itemPedido.findMany({
+        db.pedidoItem.findMany({
           where: { pedido: { criado_em: { gte: from, lte: to } } },
           select: {
             qtd_inicial: true,
@@ -315,7 +315,7 @@ analyticsRouter.get('/itens', async (req: Request, res: Response) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
-      const itens = await db.itemPedido.findMany({
+      const itens = await db.pedidoItem.findMany({
         where: { pedido: { criado_em: { gte: from, lte: to } } },
         select: {
           id: true,

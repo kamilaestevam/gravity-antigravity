@@ -94,7 +94,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       // Buscar pedidos com itens — filtrado por tenant_id
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pedidos = await db.pedido.findMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       }) as any[]
 
@@ -163,7 +163,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       }
 
       const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (p.valor_total_pedido ?? 0), 0)
-      const total = await db.pedido.count({ where: { tenant_id: tenantId } })
+      const total = await db.pedido.count({ where: { id_organizacao: tenantId } })
 
       // Detectar mistura de tipos de operação (importação vs exportação)
       const tipos = pedidos.map((p: { tipo_operacao?: string | null }) => p.tipo_operacao as string)
@@ -205,7 +205,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // Buscar pedidos originais — filtrado por tenant_id
       const pedidos = await db.pedido.findMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
@@ -219,7 +219,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // Validar homogeneidade de tipo_operacao antes de iniciar a transação
       const pedidosParaConsolidar = await db.pedido.findMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
         select: { id: true, tipo_operacao: true },
       })
       const tiposConsolidar = pedidosParaConsolidar.map((p: { id: string; tipo_operacao: string | null }) => p.tipo_operacao ?? '')
@@ -229,7 +229,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // Verificar se número do pedido já existe
       const numeroExistente = await db.pedido.findFirst({
-        where: { numero_pedido, tenant_id: tenantId },
+        where: { numero_pedido, id_organizacao: tenantId },
       })
       if (numeroExistente) {
         throw new AppError(`Número de pedido "${numero_pedido}" já está em uso`, 409, 'CONFLICT')
@@ -315,7 +315,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // 2. Soft delete dos pedidos originais — marcados como deleted_at
       await db.pedido.updateMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
         data: {
           deleted_at: new Date(),
           status: 'consolidado',

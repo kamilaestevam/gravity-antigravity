@@ -36,9 +36,9 @@ saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, nex
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const registro = await db.pedidoSaldoFormula.findUnique({
-        where: { id_organizacao: tenant_id },
+        where: { id_organizacao: idOrganizacao },
       })
       res.json({
         data: {
@@ -72,10 +72,10 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
       const registro = await db.pedidoSaldoFormula.upsert({
-        where:  { id_organizacao: tenant_id },
-        create: { id_organizacao: tenant_id, formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
+        where:  { id_organizacao: idOrganizacao },
+        create: { id_organizacao: idOrganizacao, formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
         update: { formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
       })
       res.json({
@@ -97,8 +97,8 @@ saldoFormulaRouter.delete('/saldo-formula', async (req: Request, res: Response, 
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
-      const tenant_id = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
-      await db.pedidoSaldoFormula.deleteMany({ where: { id_organizacao: tenant_id } })
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      await db.pedidoSaldoFormula.deleteMany({ where: { id_organizacao: idOrganizacao } })
       res.json({
         data: {
           formula_expressao: SALDO_FORMULA_PADRAO,

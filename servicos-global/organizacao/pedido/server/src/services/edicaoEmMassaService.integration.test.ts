@@ -26,9 +26,9 @@ const ITEM_ID    = 'pite_test_edicao_massa_01'
 beforeAll(async () => {
   // Limpar qualquer resíduo de run anterior
   await prisma.pedidoItem.deleteMany({ where: { id_organizacao: TENANT } } as any)
-  await prisma.pedidoColunasGerais.deleteMany({ where: { id_organizacao: TENANT } } as any)
+  await prisma.pedido.deleteMany({ where: { id_organizacao: TENANT } } as any)
 
-  await prisma.pedidoColunasGerais.create({
+  await prisma.pedido.create({
     data: {
       id_pedido:               PEDIDO_ID,
       id_organizacao:          TENANT,
@@ -69,7 +69,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await prisma.pedidoItem.deleteMany({ where: { id_organizacao: TENANT } } as any)
-  await prisma.pedidoColunasGerais.deleteMany({ where: { id_organizacao: TENANT } } as any)
+  await prisma.pedido.deleteMany({ where: { id_organizacao: TENANT } } as any)
   await prisma.$disconnect()
 })
 
@@ -80,7 +80,7 @@ async function lerItem() {
 }
 
 async function lerPedido() {
-  return prisma.pedidoColunasGerais.findFirst({ where: { id_pedido: PEDIDO_ID } as any })
+  return prisma.pedido.findFirst({ where: { id_pedido: PEDIDO_ID } as any })
 }
 
 // ── Testes ────────────────────────────────────────────────────────────────────

@@ -37,7 +37,7 @@ import type {
   ExcluirResultado,
   Anexo,
   AnexoUploadResultado,
-  TemplatePdf,
+  TemplatePedido,
   GerarPdfPayload,
   GerarPdfResultado,
   TipoDocumentoGerar,
@@ -1316,25 +1316,25 @@ export const anexosApi = {
     }),
 }
 
-// ── PDF ───────────────────────────────────────────────────────────────────────
+// ── Template do Pedido (geração de PDF/documentos) ──────────────────────────
 
-/** Tipo local para o gerenciador de templates da aba Configurações */
-export interface PdfTemplate {
+/** Tipo local simplificado para o gerenciador de templates da aba Configurações */
+export interface TemplateLocal {
   id: string
   nome: string
   conteudo: string
   criadoEm: string
 }
 
-export const pdfApi = {
+export const templatePedidoApi = {
   listarTemplates: () =>
-    request<{ data: PdfTemplate[] }>('/api/v1/pedidos/relatorios-pdf/templates').catch(err => {
+    request<{ data: TemplateLocal[] }>('/api/v1/pedidos/template-pedido').catch(err => {
       if (import.meta.env.DEV) return { data: mockPdfTemplatesLocal() }
       throw err
     }),
 
   gerar: (payload: GerarPdfPayload) =>
-    request<GerarPdfResultado>('/api/v1/pedidos/relatorios-pdf/gerar', {
+    request<GerarPdfResultado>('/api/v1/pedidos/template-pedido/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1343,12 +1343,12 @@ export const pdfApi = {
     }),
 
   criarTemplate: (data: { nome: string; conteudo: string }) =>
-    request<PdfTemplate>('/api/v1/pedidos/relatorios-pdf/templates', {
+    request<TemplateLocal>('/api/v1/pedidos/template-pedido', {
       method: 'POST',
       body: JSON.stringify(data),
     }).catch(err => {
       if (import.meta.env.DEV) {
-        const novo: PdfTemplate = {
+        const novo: TemplateLocal = {
           id: `tpl_${Date.now()}`,
           nome: data.nome,
           conteudo: data.conteudo,
@@ -1360,18 +1360,18 @@ export const pdfApi = {
     }),
 
   atualizarTemplate: (id: string, data: { nome: string; conteudo: string }) =>
-    request<PdfTemplate>(`/api/v1/pedidos/relatorios-pdf/templates/${id}`, {
+    request<TemplateLocal>(`/api/v1/pedidos/template-pedido/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }).catch(err => {
       if (import.meta.env.DEV) {
-        return { id, nome: data.nome, conteudo: data.conteudo, criadoEm: new Date().toISOString().slice(0, 10) } as PdfTemplate
+        return { id, nome: data.nome, conteudo: data.conteudo, criadoEm: new Date().toISOString().slice(0, 10) } as TemplateLocal
       }
       throw err
     }),
 
   deletarTemplate: (id: string) =>
-    request<void>(`/api/v1/pedidos/relatorios-pdf/templates/${id}`, { method: 'DELETE' }).catch(err => {
+    request<void>(`/api/v1/pedidos/template-pedido/${id}`, { method: 'DELETE' }).catch(err => {
       if (import.meta.env.DEV) return
       throw err
     }),
@@ -1381,7 +1381,7 @@ export const pdfApi = {
 
 export const gerarDocumentoApi = {
   gerar: (payload: GerarDocumentoPayload) =>
-    request<GerarPdfResultado>('/api/v1/pedidos/relatorios-pdf/documentos/gerar', {
+    request<GerarPdfResultado>('/api/v1/pedidos/template-pedido/documentos/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
@@ -1457,7 +1457,7 @@ function mockAnexosExcluir(id: string): void {
 
 // ── Mocks PDF ─────────────────────────────────────────────────────────────────
 
-function mockPdfTemplatesLocal(): PdfTemplate[] {
+function mockPdfTemplatesLocal(): TemplateLocal[] {
   return [
     { id: 'tpl_mock_001', nome: 'Template PO Padrão',       conteudo: '<h1>{{numero_pedido}}</h1>',  criadoEm: '2026-04-01' },
     { id: 'tpl_mock_002', nome: 'Template Proforma Invoice', conteudo: '<h1>{{exportador}}</h1>',    criadoEm: '2026-04-02' },

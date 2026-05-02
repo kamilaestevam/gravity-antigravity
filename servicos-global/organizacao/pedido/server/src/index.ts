@@ -44,7 +44,7 @@ import { colunasUsuarioRouter } from './routes/colunas-usuario-pedido.js'
 import { gabiProxyRouter } from './routes/gabi-pedido.js'
 import { behaviorTrackingRouter } from './routes/eventos-comportamento-pedido.js'
 import { anexosRouter } from './routes/anexos-pedido.js'
-import { pdfRouter } from './routes/relatorios-pdf-pedido.js'
+import { templatePedidoRota } from './routes/template-pedido.js'
 import { loteRouter } from './routes/alteracoes-status-lote-pedido.js'
 import { kanbanPreferenciasRouter } from './routes/kanban-pedido-preferencias.js'
 import { casasDecimaisRouter } from './routes/casas-decimais-pedido.js'
@@ -151,7 +151,7 @@ app.use('/api/v1/pedidos/colunas-usuario',             colunasUsuarioRouter)
 app.use(gabiProxyRouter)
 app.use(behaviorTrackingRouter)
 app.use('/api/v1/pedidos/anexos',                      anexosRouter)
-app.use('/api/v1/pedidos/relatorios-pdf',              pdfRouter)
+app.use('/api/v1/pedidos/template-pedido',             templatePedidoRota)
 app.use('/api/v1/pedidos/alteracoes-status-lote',      loteRouter)
 app.use('/api/v1/pedidos/kanban',                      kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/configuracoes',               casasDecimaisRouter)

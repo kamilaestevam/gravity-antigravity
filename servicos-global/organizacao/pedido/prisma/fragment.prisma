@@ -280,7 +280,7 @@ model PedidoAnexo {
   @@map("anexo_pedido")
 }
 
-model PedidoTemplatePDF {
+model PedidoTemplate {
   id_template_pedido               String   @id @default(cuid())
   id_organizacao                   String
   id_produto_gravity               String?
@@ -292,7 +292,7 @@ model PedidoTemplatePDF {
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
-  @@map("template_pedido_pdf")
+  @@map("template_pedido")
 }
 
 model PedidoListaItensTransfericosRastreio {

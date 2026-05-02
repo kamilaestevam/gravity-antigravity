@@ -834,16 +834,16 @@ export interface AnexoUploadResultado {
   url_download: string
 }
 
-// ── PDF ───────────────────────────────────────────────────────────────────────
+// ── Template do Pedido (geração de PDF/documentos) ──────────────────────────
 
-export interface TemplatePdf {
-  id_template_pedido_pdf: string
+export interface TemplatePedido {
+  id_template_pedido: string
   id_organizacao: string
-  nome_template_pedido_pdf: string
-  descricao_template_pedido_pdf?: string
-  conteudo_html_template_pedido_pdf: string   // HTML com variáveis Handlebars
-  data_criacao_template_pedido_pdf: string
-  data_atualizacao_template_pedido_pdf: string
+  nome_template_pedido: string
+  descricao_template_pedido?: string
+  conteudo_html_template_pedido: string   // HTML com variáveis Handlebars
+  data_criacao_template_pedido: string
+  data_atualizacao_template_pedido: string
 }
 
 export interface GerarPdfPayload {

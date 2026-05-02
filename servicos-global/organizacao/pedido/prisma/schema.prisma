@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-05-02T14:45:14.531Z
+// Gerado em: 2026-05-02T15:03:53.296Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: servicos-global/organizacao/pedido
 // ============================================================================
@@ -309,7 +309,7 @@ model PedidoAnexo {
   @@map("anexo_pedido")
 }
 
-model PedidoTemplatePDF {
+model PedidoTemplate {
   id_template_pedido               String   @id @default(cuid())
   id_organizacao                   String
   id_produto_gravity               String?
@@ -321,7 +321,7 @@ model PedidoTemplatePDF {
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_produto_gravity])
-  @@map("template_pedido_pdf")
+  @@map("template_pedido")
 }
 
 model PedidoListaItensTransfericosRastreio {

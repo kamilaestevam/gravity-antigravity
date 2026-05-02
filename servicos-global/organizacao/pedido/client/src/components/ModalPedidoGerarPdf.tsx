@@ -13,8 +13,8 @@ import { useTranslation } from 'react-i18next'
 import { FilePdf, Spinner, X, CheckCircle, FileText, Warning } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TipoDocumentoGerar, IdiomaDocumento, GerarDocumentoPayload, GerarPdfPayload } from '../shared/types'
-import { gerarDocumentoApi, pdfApi } from '../shared/api'
-import type { PdfTemplate } from '../shared/api'
+import { gerarDocumentoApi, templatePedidoApi } from '../shared/api'
+import type { TemplateLocal } from '../shared/api'
 import './ModalPedidoGerarPdf.css'
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
   const [idioma, setIdioma] = useState<IdiomaDocumento>('en')
 
   // Modo template
-  const [templates, setTemplates] = useState<PdfTemplate[]>([])
+  const [templates, setTemplates] = useState<TemplateLocal[]>([])
   const [templateId, setTemplateId] = useState<string | null>(null)
   const [carregandoTemplates, setCarregandoTemplates] = useState(false)
 
@@ -83,7 +83,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
   useEffect(() => {
     if (modo !== 'template') return
     setCarregandoTemplates(true)
-    pdfApi.listarTemplates()
+    templatePedidoApi.listarTemplates()
       .then(res => {
         setTemplates(res.data)
         if (res.data.length > 0 && !templateId) setTemplateId(res.data[0].id)
@@ -121,7 +121,7 @@ export function ModalGerarPdfPedido({ pedidos, onFechar, onConcluido }: ModalGer
             template_id: templateId,
             salvar_como_anexo: salvarComoAnexo,
           }
-          const resultado = await pdfApi.gerar(payload)
+          const resultado = await templatePedidoApi.gerar(payload)
           urlDownload = resultado.url_download
           isPdf = resultado.is_pdf !== false
         }

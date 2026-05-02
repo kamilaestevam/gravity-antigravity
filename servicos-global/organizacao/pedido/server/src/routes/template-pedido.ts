@@ -1,21 +1,21 @@
 /**
- * pdf.ts — Rotas de Geração de PDF do Pedido
+ * template-pedido.ts — Rotas de Template do Pedido (geração de PDF/documentos)
  *
- * Rota base: /api/v1/pedidos/relatorios-pdf
+ * Rota base: /api/v1/pedidos/template-pedido
  *
  * Endpoints:
- *   GET  /api/v1/pedidos/relatorios-pdf/templates           — Lista templates disponíveis do tenant
- *   POST /api/v1/pedidos/relatorios-pdf/gerar               — Gera PDF e salva como anexo
- *   POST /api/v1/pedidos/relatorios-pdf/documentos/gerar    — Gera documento por idioma/tipo
+ *   GET  /api/v1/pedidos/template-pedido                       — Lista templates disponíveis do tenant
+ *   POST /api/v1/pedidos/template-pedido/gerar                 — Gera PDF a partir de template e salva como anexo
+ *   POST /api/v1/pedidos/template-pedido/documentos/gerar      — Gera documento por idioma/tipo
  *
  * Fluxo do POST /gerar:
- *   1. Buscar pedido + itens com tenant_id
- *   2. Buscar template com tenant_id
+ *   1. Buscar pedido + itens com id_organizacao
+ *   2. Buscar template com id_organizacao
  *   3. Compilar variáveis (pedido, itens, colunas do usuário)
  *   4. Renderizar Handlebars
  *   5. Gerar PDF (Puppeteer ou fallback HTML)
- *   6. Salvar no storage + criar registro Anexo
- *   7. Retornar url_download + anexo_id
+ *   6. Salvar no storage + criar registro PedidoAnexo
+ *   7. Retornar url_download + id_anexo_pedido
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -33,7 +33,7 @@ import {
   salvarArquivoLocal,
 } from '../services/anexosService.js'
 
-export const pdfRouter = Router()
+export const templatePedidoRota = Router()
 
 // ── ACL: PedidoItem DDD → shape legado consumido por pdfService ──────────────
 // pdfService consome chaves antigas (part_number, descricao_item, ncm, etc.).
@@ -117,17 +117,17 @@ const GerarDocumentoSchema = z.object({
   salvar_como_anexo: z.boolean().default(true),
 })
 
-// ── GET /pdf/templates ────────────────────────────────────────────────────────
+// ── GET / — Lista templates do tenant ────────────────────────────────────────
 
-pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const tenantId = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
+      const db            = rawDb as any
+      const idOrganizacao = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao.idOrganizacao
 
       const templates = await db.pedidoTemplate.findMany({
-        where: { id_organizacao: tenantId },
+        where:   { id_organizacao: idOrganizacao },
         orderBy: { nome_template_pedido: 'asc' },
       })
 
@@ -138,9 +138,9 @@ pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFuncti
   }
 })
 
-// ── POST /pdf/gerar ───────────────────────────────────────────────────────────
+// ── POST /gerar — Gera PDF a partir de template ──────────────────────────────
 
-pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.post('/gerar', async (req: Request, res: Response, next: NextFunction) => {
   const bodyParse = GerarPdfSchema.safeParse(req.body)
   if (!bodyParse.success) {
     return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
@@ -151,14 +151,14 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? 'system'
+      const db            = rawDb as any
+      const ctx           = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario ?? 'system'
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: pedido_id, id_organizacao: tenantId },
+        where:   { id_pedido: pedido_id, id_organizacao: idOrganizacao },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
@@ -168,7 +168,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
 
       // 2. Buscar template
       const template = await db.pedidoTemplate.findFirst({
-        where: { id_template_pedido: template_id, id_organizacao: tenantId },
+        where: { id_template_pedido: template_id, id_organizacao: idOrganizacao },
       })
 
       if (!template) {
@@ -185,7 +185,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       const pedidoTyped = mapearPedidoParaPdfService(pedido as any)
 
       // Tenant nome — usar variável de ambiente ou padrão
-      const tenantNome = process.env.TENANT_NOME ?? tenantId
+      const tenantNome = process.env.TENANT_NOME ?? idOrganizacao
 
       const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
 
@@ -198,28 +198,28 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       // 6. Salvar no storage e criar anexo (conforme spec: salvar_como_anexo sempre true)
       const nomeArquivo = gerarNomeArquivoPdf(typedTemplate.nome_template_pedido, pedidoTyped.numero_pedido)
       const uuid: string = randomUUID()
-      const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
+      const storageKey = resolverStorageKey(idOrganizacao, pedido_id, uuid, nomeArquivo)
       salvarArquivoLocal(buffer, storageKey)
 
       let anexoId: string = uuid
       if (salvar_como_anexo) {
         const anexo = await db.pedidoAnexo.create({
           data: {
-            id: uuid,
-            tenant_id: tenantId,
-            vinculo: 'pedido',
-            vinculo_id: pedido_id,
-            nome_arquivo: nomeArquivo,
-            tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
-            tamanho_bytes: buffer.length,
-            categoria: 'PDF Gerado',
-            descricao: `Gerado a partir do template: ${typedTemplate.nome_template_pedido}`,
-            storage_key: storageKey,
-            uploaded_by: userId,
+            id_anexo_pedido:             uuid,
+            id_organizacao:              idOrganizacao,
+            vinculo_anexo_pedido:        'pedido',
+            id_vinculo_anexo_pedido:     pedido_id,
+            nome_arquivo_anexo_pedido:   nomeArquivo,
+            tipo_arquivo_anexo_pedido:   isPdf ? 'application/pdf' : 'text/html',
+            tamanho_bytes_anexo_pedido:  buffer.length,
+            categoria_anexo_pedido:      'PDF Gerado',
+            descricao_anexo_pedido:      `Gerado a partir do template: ${typedTemplate.nome_template_pedido}`,
+            chave_storage_anexo_pedido:  storageKey,
+            enviado_por_anexo_pedido:    idUsuario,
           },
         })
 
-        anexoId = (anexo as { id: string }).id
+        anexoId = (anexo as { id_anexo_pedido: string }).id_anexo_pedido
       }
 
       // 7. Retornar resultado
@@ -234,10 +234,9 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
   }
 })
 
-// ── POST /documentos/gerar ────────────────────────────────────────────────────
-// Rota base registrada em /api/v1/pedidos — acesso via /api/v1/pedidos/documentos/gerar
+// ── POST /documentos/gerar — Gera documento por idioma/tipo ──────────────────
 
-pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: NextFunction) => {
+templatePedidoRota.post('/documentos/gerar', async (req: Request, res: Response, next: NextFunction) => {
   const bodyParse = GerarDocumentoSchema.safeParse(req.body)
   if (!bodyParse.success) {
     return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
@@ -248,14 +247,14 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
   try {
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db       = rawDb as any
-      const ctx      = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
-      const tenantId = ctx.idOrganizacao
-      const userId   = ctx.idUsuario ?? 'system'
+      const db            = rawDb as any
+      const ctx           = (req as unknown as { organizacao: ContextoOrganizacao }).organizacao
+      const idOrganizacao = ctx.idOrganizacao
+      const idUsuario     = ctx.idUsuario ?? 'system'
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
-        where: { id_pedido: pedido_id, id_organizacao: tenantId },
+        where:   { id_pedido: pedido_id, id_organizacao: idOrganizacao },
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
@@ -276,7 +275,7 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       const templateNome = templateMap[tipo_documento]
 
       // 3. Compilar variáveis passando o idioma ao contexto
-      const tenantNome = process.env.TENANT_NOME ?? tenantId
+      const tenantNome = process.env.TENANT_NOME ?? idOrganizacao
       const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
       const variaveisComIdioma = { ...variaveis, idioma, tipo_documento }
 
@@ -290,28 +289,28 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       // 6. Salvar no storage e criar anexo
       const nomeArquivo = gerarNomeArquivoPdf(templateNome, pedidoTyped.numero_pedido)
       const uuid: string = randomUUID()
-      const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
+      const storageKey = resolverStorageKey(idOrganizacao, pedido_id, uuid, nomeArquivo)
       salvarArquivoLocal(buffer, storageKey)
 
       let anexoId: string = uuid
       if (salvar_como_anexo) {
         const anexo = await db.pedidoAnexo.create({
           data: {
-            id: uuid,
-            tenant_id: tenantId,
-            vinculo: 'pedido',
-            vinculo_id: pedido_id,
-            nome_arquivo: nomeArquivo,
-            tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
-            tamanho_bytes: buffer.length,
-            categoria: 'Documento Gerado',
-            descricao: `${templateNome} — idioma: ${idioma}`,
-            storage_key: storageKey,
-            uploaded_by: userId,
+            id_anexo_pedido:             uuid,
+            id_organizacao:              idOrganizacao,
+            vinculo_anexo_pedido:        'pedido',
+            id_vinculo_anexo_pedido:     pedido_id,
+            nome_arquivo_anexo_pedido:   nomeArquivo,
+            tipo_arquivo_anexo_pedido:   isPdf ? 'application/pdf' : 'text/html',
+            tamanho_bytes_anexo_pedido:  buffer.length,
+            categoria_anexo_pedido:      'Documento Gerado',
+            descricao_anexo_pedido:      `${templateNome} — idioma: ${idioma}`,
+            chave_storage_anexo_pedido:  storageKey,
+            enviado_por_anexo_pedido:    idUsuario,
           },
         })
 
-        anexoId = (anexo as { id: string }).id
+        anexoId = (anexo as { id_anexo_pedido: string }).id_anexo_pedido
       }
 
       res.json({

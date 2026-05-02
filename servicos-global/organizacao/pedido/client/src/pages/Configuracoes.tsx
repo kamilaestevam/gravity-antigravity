@@ -40,7 +40,7 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type PdfTemplate } from '../shared/api'
+import { templatePedidoApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, obterSnapshotAtualizacaoPolicy, salvarSnapshotAtualizacaoPolicy, SNAPSHOT_ATUALIZACAO_DEFAULT, type TemplateLocal } from '../shared/api'
 import type { SnapshotAtualizacaoPolicy } from '../shared/types'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
 
@@ -1525,7 +1525,7 @@ export default function Configuracoes() {
   })
 
   // ── Templates PDF state ──
-  const [templates, setTemplates] = useState<PdfTemplate[]>([])
+  const [templates, setTemplates] = useState<TemplateLocal[]>([])
   const [templateEditando, setTemplateEditando] = useState<string | null>(null)
   const [templateNome, setTemplateNome] = useState('')
   const [templateConteudo, setTemplateConteudo] = useState('')
@@ -1554,7 +1554,7 @@ export default function Configuracoes() {
   useEffect(() => {
     if (categoria === 'templates-pdf') {
       setTemplateLoading(true)
-      pdfApi.listarTemplates()
+      templatePedidoApi.listarTemplates()
         .then(res => setTemplates(res.data))
         .catch(() => {
           // Em dev sem backend, usar dados demo
@@ -1567,7 +1567,7 @@ export default function Configuracoes() {
     }
   }, [categoria])
 
-  function iniciarEdicaoTemplate(tpl: PdfTemplate) {
+  function iniciarEdicaoTemplate(tpl: TemplateLocal) {
     setTemplateEditando(tpl.id)
     setTemplateNome(tpl.nome)
     setTemplateConteudo(tpl.conteudo)
@@ -1592,10 +1592,10 @@ export default function Configuracoes() {
     if (!templateNome.trim()) return
     try {
       if (templateCriandoNovo) {
-        const novo = await pdfApi.criarTemplate({ nome: templateNome, conteudo: templateConteudo })
+        const novo = await templatePedidoApi.criarTemplate({ nome: templateNome, conteudo: templateConteudo })
         setTemplates(prev => [...prev, novo])
       } else if (templateEditando) {
-        const atualizado = await pdfApi.atualizarTemplate(templateEditando, { nome: templateNome, conteudo: templateConteudo })
+        const atualizado = await templatePedidoApi.atualizarTemplate(templateEditando, { nome: templateNome, conteudo: templateConteudo })
         setTemplates(prev => prev.map(t => t.id === templateEditando ? atualizado : t))
       }
     } catch {
@@ -1613,7 +1613,7 @@ export default function Configuracoes() {
     if (!id) return
     setConfirmarExcluirTemplateId(null)
     try {
-      await pdfApi.deletarTemplate(id)
+      await templatePedidoApi.deletarTemplate(id)
     } catch {
       // silencia em dev
     }

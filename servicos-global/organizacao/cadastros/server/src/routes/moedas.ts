@@ -8,6 +8,7 @@ import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
 import { criarMoedaSchema, atualizarMoedaSchema } from '../../../shared/schemas/index.js'
+import { notificarMudancaEntidade } from '../services/notifyPedido.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -16,6 +17,7 @@ router.post('/', async (req, res, next) => {
   try {
     const dados = criarMoedaSchema.parse(req.body)
     const criada = await prisma.moeda.create({ data: dados })
+    void notificarMudancaEntidade('moeda', criada.codigo_moeda, '')
     res.status(201).json(criada)
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
@@ -57,6 +59,7 @@ router.put('/:id_moeda', async (req, res, next) => {
       where: { codigo_moeda: existente.codigo_moeda },
       data: dados,
     })
+    void notificarMudancaEntidade('moeda', atualizada.codigo_moeda, '')
     res.status(200).json(atualizada)
   } catch (err) {
     next(err)
@@ -71,6 +74,7 @@ router.delete('/:id_moeda', async (req, res, next) => {
       where: { codigo_moeda: existente.codigo_moeda },
       data: { ativo_moeda: false },
     })
+    void notificarMudancaEntidade('moeda', desativada.codigo_moeda, '')
     res.status(200).json(desativada)
   } catch (err) {
     next(err)

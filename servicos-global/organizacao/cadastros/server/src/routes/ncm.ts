@@ -8,6 +8,7 @@ import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
 import { criarNCMSchema, atualizarNCMSchema } from '../../../shared/schemas/index.js'
+import { notificarMudancaEntidade } from '../services/notifyPedido.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -24,6 +25,8 @@ router.post('/', async (req, res, next) => {
         ativo_ncm: dados.ativo_ncm,
       },
     })
+    // Catálogo global: idOrganizacao vazio → receiver faz fan-out por org.
+    void notificarMudancaEntidade('ncm', criada.codigo_ncm, '')
     res.status(201).json(criada)
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
@@ -80,6 +83,7 @@ router.put('/:id_ncm', async (req, res, next) => {
         ...(dados.ativo_ncm !== undefined ? { ativo_ncm: dados.ativo_ncm } : {}),
       },
     })
+    void notificarMudancaEntidade('ncm', atualizado.codigo_ncm, '')
     res.status(200).json(atualizado)
   } catch (err) {
     next(err)
@@ -94,6 +98,7 @@ router.delete('/:id_ncm', async (req, res, next) => {
       where: { codigo_ncm: existente.codigo_ncm },
       data: { ativo_ncm: false },
     })
+    void notificarMudancaEntidade('ncm', desativado.codigo_ncm, '')
     res.status(200).json(desativado)
   } catch (err) {
     next(err)

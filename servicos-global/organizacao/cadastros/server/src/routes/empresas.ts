@@ -25,6 +25,7 @@ import {
 } from '../../../shared/schemas/index.js'
 import { gerarSuid } from '../utils/gerar-suid.js'
 import { consultarImpacto } from '../services/preview-impacto.js'
+import { notificarMudancaEntidade } from '../services/notifyPedido.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -123,6 +124,8 @@ router.post('/', async (req, res, next) => {
         ativo_empresa: dados.ativo_empresa,
       },
     })
+    // Webhook fire-and-forget: notifica Pedido para reavaliar snapshots.
+    void notificarMudancaEntidade('empresa', criada.suid_empresa, criada.id_organizacao_empresa)
     res.status(201).json(toEmpresaDto(criada))
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
@@ -238,6 +241,8 @@ router.put('/:id_empresa', async (req, res, next) => {
         ...(dados.ativo_empresa !== undefined ? { ativo_empresa: dados.ativo_empresa } : {}),
       },
     })
+    // Webhook fire-and-forget: notifica Pedido para reavaliar snapshots.
+    void notificarMudancaEntidade('empresa', atualizada.suid_empresa, atualizada.id_organizacao_empresa)
     res.status(200).json(toEmpresaDto(atualizada))
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
@@ -288,6 +293,8 @@ router.delete('/:id_empresa', async (req, res, next) => {
       where: { suid_empresa: existente.suid_empresa },
       data: { ativo_empresa: false },
     })
+    // Webhook fire-and-forget: notifica Pedido para reavaliar snapshots.
+    void notificarMudancaEntidade('empresa', desativada.suid_empresa, desativada.id_organizacao_empresa)
     res.status(200).json(toEmpresaDto(desativada))
   } catch (err) {
     next(err)

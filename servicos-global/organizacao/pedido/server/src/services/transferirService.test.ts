@@ -105,13 +105,12 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
   const pedidoTransferenciaFindFirst = vi.fn().mockResolvedValue(null)
   const pedidoTransferenciaUpdate = vi.fn().mockResolvedValue({})
 
-  const pedidoHistoricoCreate = vi.fn().mockResolvedValue({ id: 'audit-001' })
+  // Audit trail migrado para auditLog() do historico-global (fire-and-forget HTTP, não precisa mock aqui)
 
   const txBase = {
     pedido: { create: pedidoCreate, findFirst: pedidoFindFirst, update: pedidoUpdate },
     pedidoItem: { create: itemCreate, update: itemUpdate, findMany: itemFindMany, delete: itemDelete, findFirst: itemFindFirst },
     pedidoTransferencia: { create: pedidoTransferenciaCreate, findFirst: pedidoTransferenciaFindFirst, update: pedidoTransferenciaUpdate },
-    pedidoHistorico: { create: pedidoHistoricoCreate },
   }
 
   const db = {

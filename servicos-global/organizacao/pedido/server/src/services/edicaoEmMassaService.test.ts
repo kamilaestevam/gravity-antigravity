@@ -42,21 +42,18 @@ function criarPedido(overrides: Record<string, unknown> = {}) {
 }
 
 interface TxMock {
-  pedidoItem:      { update: ReturnType<typeof vi.fn>; findMany: ReturnType<typeof vi.fn> }
-  pedido:          { update: ReturnType<typeof vi.fn> }
-  pedidoHistorico: { createMany: ReturnType<typeof vi.fn> }
+  pedidoItem: { update: ReturnType<typeof vi.fn>; findMany: ReturnType<typeof vi.fn> }
+  pedido:     { update: ReturnType<typeof vi.fn> }
 }
 
 function criarDbMock(pedido = criarPedido()) {
   const itemUpdateMock = vi.fn().mockResolvedValue({ id: 'item-001' })
   const pedidoUpdateMock = vi.fn().mockResolvedValue({ id: 'pedido-001' })
-  const pedidoHistoricoCreateManyMock = vi.fn().mockResolvedValue({})
   const itemFindManyMock = vi.fn().mockResolvedValue(pedido.itens_pedido)
 
   const tx: TxMock = {
     pedidoItem: { update: itemUpdateMock, findMany: itemFindManyMock },
-    pedido: { update: pedidoUpdateMock },
-    pedidoHistorico: { createMany: pedidoHistoricoCreateManyMock },
+    pedido:     { update: pedidoUpdateMock },
   }
 
   const dbBase = {

@@ -19,6 +19,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
+import { auditLog } from '../../../../../servicos-global/organizacao/historico-global/src/audit-client.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -313,30 +314,29 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         include: { itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
-      // 2. Soft delete dos pedidos originais — marcados como deleted_at
+      // 2. Soft delete dos pedidos originais — marcados como data_exclusao_pedido
       await db.pedido.updateMany({
         where: { id_pedido: { in: ids }, id_organizacao: tenantId },
         data: {
-          deleted_at: new Date(),
-          status: 'consolidado',
+          data_exclusao_pedido: new Date(),
+          status_pedido: 'consolidado',
         },
       })
 
-      // 3. Registrar no histórico (audit trail) se disponível
-      try {
-        await db.pedidoHistorico.createMany({
-          data: ids.map((id: string) => ({
-            tenant_id: tenantId,
-            pedido_id: id,
-            acao: 'CONSOLIDADO',
-            descricao: `Pedido consolidado em ${numero_pedido}`,
-            pedido_consolidado_id: novo.id,
-            metadata: JSON.stringify({ ids_origem: ids, numero_pedido_destino: numero_pedido }),
-          })),
+      // 3. Audit trail via historico-global (fire-and-forget)
+      for (const id of ids) {
+        auditLog({
+          tenant_id:     tenantId,
+          actor_type:    'USER',
+          actor_id:      'system',
+          actor_name:    'system',
+          module:        'pedido',
+          resource_type: 'Pedido',
+          resource_id:   id,
+          action:        'CONSOLIDADO',
+          action_detail: `Pedido consolidado em ${numero_pedido}`,
+          after:         { ids_origem: ids, numero_pedido_destino: numero_pedido, pedido_consolidado_id: novo.id_pedido },
         })
-      } catch {
-        // Tabela de histórico pode não existir ainda — não bloquear a operação
-        console.warn('[Consolidar] Tabela pedidoHistorico não disponível, pulando audit trail')
       }
 
       res.status(201).json(novo)

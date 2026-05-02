@@ -16,6 +16,7 @@
 // ── Campos calculados — nunca editáveis em massa ──────────────────────────────
 
 import { PrismaClient, Prisma } from '@prisma/client'
+import { auditLog } from '../../../../../servicos-global/organizacao/historico-global/src/audit-client.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -389,27 +390,21 @@ export class EdicaoEmMassaService {
         }
       }
 
-      // Registrar audit trail (não bloqueia se tabela não existir)
-      try {
-        const camposAlterados = payload.campos.map(c => c.campo)
-        // pedidoHistorico best-effort — tabela pode não existir
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (tx as any).pedidoHistorico.createMany({
-          data: pedidos.map((p: Record<string, unknown>) => ({
-            tenant_id: tenantId,
-            pedido_id: p.id_pedido as string,
-            acao: 'EDICAO_EM_MASSA',
-            descricao: `Edição em massa: ${camposAlterados.join(', ')}`,
-            usuario_id: userId,
-            metadata: JSON.stringify({
-              campos: payload.campos,
-              nivel: payload.nivel,
-            }),
-          })),
+      // Audit trail via historico-global (fire-and-forget)
+      const camposAlterados = payload.campos.map(c => c.campo)
+      for (const p of pedidos as Array<Record<string, unknown>>) {
+        auditLog({
+          tenant_id:     tenantId,
+          actor_type:    'USER',
+          actor_id:      userId,
+          actor_name:    userId,
+          module:        'pedido',
+          resource_type: 'Pedido',
+          resource_id:   p.id_pedido as string,
+          action:        'EDICAO_EM_MASSA',
+          action_detail: `Edicao em massa: ${camposAlterados.join(', ')}`,
+          after:         { campos: payload.campos, nivel: payload.nivel },
         })
-      } catch {
-        // Tabela de histórico pode não existir ainda — não bloquear a operação
-        console.warn('[EdicaoEmMassa] Tabela pedidoHistorico não disponível, pulando audit trail')
       }
     }, { timeout: 60000, maxWait: 10000 })
 

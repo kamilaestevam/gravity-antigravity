@@ -6,6 +6,7 @@
  */
 
 import { PrismaClient, Prisma } from '@prisma/client'
+import { auditLog } from '../../../../../servicos-global/organizacao/historico-global/src/audit-client.js'
 
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -351,21 +352,19 @@ export class TransferirService {
         },
       })
 
-      // Audit trail historico-global ainda usa orphan model — NAO BLOQUEAR se nao existir.
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (tx as any).pedidoHistorico.create({
-          data: {
-            id_organizacao: idOrganizacao,
-            id_pedido: historico.id_pedido_origem,
-            acao: 'TRANSFERENCIA_REVERTIDA',
-            descricao: `Transferência ${transferId} revertida`,
-            metadata: JSON.stringify({ transfer_id: transferId }),
-          },
-        })
-      } catch {
-        console.warn('[TransferirService] Tabela pedidoHistorico nao disponivel, pulando audit trail')
-      }
+      // Audit trail via historico-global (fire-and-forget)
+      auditLog({
+        tenant_id:     idOrganizacao,
+        actor_type:    'USER',
+        actor_id:      idUsuario,
+        actor_name:    idUsuario,
+        module:        'pedido',
+        resource_type: 'PedidoTransferencia',
+        resource_id:   transferId,
+        action:        'TRANSFERENCIA_REVERTIDA',
+        action_detail: `Transferência ${transferId} revertida`,
+        after:         { transfer_id: transferId, id_pedido: historico.id_pedido_origem },
+      })
     })
 
     return {
@@ -525,20 +524,18 @@ export class TransferirService {
       },
     })
 
-    // Audit trail no histórico geral do pedido — ORPHAN MODEL (pedidoHistorico não está no fragment.prisma)
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).pedidoHistorico.create({
-        data: {
-          id_organizacao: tenantId,
-          id_pedido:      payload.pedido_id,
-          acao:           'TRANSFERENCIA',
-          descricao:      `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
-          metadata:       JSON.stringify({ cenario: payload.cenario, destinos: pedidosDestinoIds }),
-        },
-      })
-    } catch {
-      console.warn('[TransferirService] Tabela pedidoHistorico nao disponivel, pulando audit trail')
-    }
+    // Audit trail via historico-global (fire-and-forget)
+    auditLog({
+      tenant_id:     tenantId,
+      actor_type:    'USER',
+      actor_id:      userId,
+      actor_name:    userId,
+      module:        'pedido',
+      resource_type: 'PedidoTransferencia',
+      resource_id:   payload.pedido_id,
+      action:        'TRANSFERENCIA',
+      action_detail: `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
+      after:         { cenario: payload.cenario, destinos: pedidosDestinoIds, quantidade: payload.quantidade_origem },
+    })
   }
 }

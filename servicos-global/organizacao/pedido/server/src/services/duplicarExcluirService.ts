@@ -9,6 +9,7 @@
  */
 
 import { Prisma, PrismaClient } from '@prisma/client'
+import { auditLog } from '../../../../../servicos-global/organizacao/historico-global/src/audit-client.js'
 
 // Workaround: Prisma.TransactionClient (Omit em classe genérica) perde os model delegates
 // no Prisma 5.22 — usamos Omit literal para preservar tx.pedido, tx.pedidoItem, etc.
@@ -277,19 +278,18 @@ export class DuplicarService {
             } as unknown as Prisma.PedidoUncheckedCreateInput,
           })
 
-          // Audit trail de duplicação — pedidoHistorico é best-effort (tabela pode não existir)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (tx as any).pedidoHistorico?.create?.({
-            data: {
-              tenant_id: tenantId,
-              pedido_id: novoPedido.id_pedido,
-              user_id: userId,
-              canal: 'duplicacao',
-              dados: JSON.stringify({ original_id: pedido.id_pedido, numero_original: pedido.numero_pedido }),
-            },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          }).catch(() => {
-            // Audit trail é best-effort se tabela não existir ainda
+          // Audit trail via historico-global (fire-and-forget)
+          auditLog({
+            tenant_id:     tenantId,
+            actor_type:    'USER',
+            actor_id:      userId,
+            actor_name:    userId,
+            module:        'pedido',
+            resource_type: 'Pedido',
+            resource_id:   novoPedido.id_pedido,
+            action:        'DUPLICACAO',
+            action_detail: `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
+            after:         { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
           })
 
           criados.push({
@@ -482,28 +482,26 @@ export class ExcluirService {
       // AUDIT TRAIL ANTES de excluir (obrigatório — dados serão perdidos)
       for (const pedidoRaw of pedidos) {
         const pedido = pedidoRaw as Record<string, unknown>
-        // pedidoHistorico best-effort — tabela pode não existir
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (tx as any).pedidoHistorico?.create?.({
-          data: {
-            tenant_id: tenantId,
-            pedido_id: pedido.id_pedido,
-            user_id: userId,
-            canal: 'exclusao',
-            dados: JSON.stringify({
-              numero_pedido: pedido.numero_pedido,
-              status: pedido.status_pedido,
-              total_itens: (pedido.itens_pedido as unknown[]).length,
-              itens: (pedido.itens_pedido as Array<Record<string, unknown>>).map((i) => ({
-                id: i.id_item,
-                part_number: i.part_number_item,
-                quantidade_inicial_pedido: i.quantidade_inicial_item,
-              })),
-            }),
+        auditLog({
+          tenant_id:     tenantId,
+          actor_type:    'USER',
+          actor_id:      userId,
+          actor_name:    userId,
+          module:        'pedido',
+          resource_type: 'Pedido',
+          resource_id:   pedido.id_pedido as string,
+          action:        'EXCLUSAO',
+          action_detail: `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
+          before: {
+            numero_pedido: pedido.numero_pedido,
+            status:        pedido.status_pedido,
+            total_itens:   (pedido.itens_pedido as unknown[]).length,
+            itens: (pedido.itens_pedido as Array<Record<string, unknown>>).map((i) => ({
+              id:                        i.id_item,
+              part_number:               i.part_number_item,
+              quantidade_inicial_pedido: i.quantidade_inicial_item,
+            })),
           },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        }).catch(() => {
-          // Best-effort se tabela não existir
         })
       }
 
@@ -564,26 +562,25 @@ export class ExcluirService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (db as any).$transaction(async (tx0: unknown) => {
       const tx = tx0 as Tx
-      // Audit trail ANTES da exclusão (best-effort — pedidoHistorico pode não existir)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).pedidoHistorico?.create?.({
-        data: {
-          tenant_id: tenantId,
-          pedido_id: pedidoId,
-          user_id: userId,
-          canal: 'exclusao_itens',
-          dados: JSON.stringify({
-            item_ids: itemIds,
-            itens: itens.map((i: Record<string, unknown>) => ({
-              id: i.id_item,
-              part_number: i.part_number_item,
-              quantidade_inicial_pedido: i.quantidade_inicial_item,
-            })),
-          }),
+      // Audit trail ANTES da exclusão (via historico-global, fire-and-forget)
+      auditLog({
+        tenant_id:     tenantId,
+        actor_type:    'USER',
+        actor_id:      userId,
+        actor_name:    userId,
+        module:        'pedido',
+        resource_type: 'PedidoItem',
+        resource_id:   pedidoId,
+        action:        'EXCLUSAO_ITENS',
+        action_detail: `${itemIds.length} item(ns) excluido(s) do pedido`,
+        before: {
+          item_ids: itemIds,
+          itens: itens.map((i: Record<string, unknown>) => ({
+            id:                        i.id_item,
+            part_number:               i.part_number_item,
+            quantidade_inicial_pedido: i.quantidade_inicial_item,
+          })),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      }).catch(() => {
-        // Best-effort se tabela não existir
       })
 
       // Hard delete dos itens
@@ -597,22 +594,18 @@ export class ExcluirService {
       })
 
       if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
-        // Audit trail do pedido pai antes de excluir
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (tx as any).pedidoHistorico?.create?.({
-          data: {
-            tenant_id: tenantId,
-            pedido_id: pedidoId,
-            user_id: userId,
-            canal: 'exclusao_pedido_sem_item',
-            dados: JSON.stringify({
-              numero_pedido: pedido.numero_pedido,
-              motivo: 'Pedido excluído automaticamente por ficar sem itens',
-            }),
-          },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        }).catch(() => {
-          // Best-effort se tabela não existir
+        // Audit trail do pedido pai antes de excluir (via historico-global)
+        auditLog({
+          tenant_id:     tenantId,
+          actor_type:    'USER',
+          actor_id:      userId,
+          actor_name:    userId,
+          module:        'pedido',
+          resource_type: 'Pedido',
+          resource_id:   pedidoId,
+          action:        'EXCLUSAO_AUTOMATICA',
+          action_detail: 'Pedido excluido automaticamente por ficar sem itens',
+          before:        { numero_pedido: pedido.numero_pedido },
         })
 
         await tx.pedido.delete({

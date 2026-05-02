@@ -12,7 +12,7 @@
 // PedidoSnapshotOpe, PedidoConfigAtualizacaoCadastros) já adotam DDD.
 // ============================================================================
 
-model PedidoColunasGerais {
+model Pedido {
   id_pedido                                                   String                      @id
   id_organizacao                                              String
   id_workspace                                                String
@@ -139,7 +139,7 @@ model PedidoColunasGerais {
   @@index([id_organizacao, tipo_operacao_pedido])
   @@index([id_organizacao, data_emissao_pedido])
   @@index([id_organizacao, data_exclusao_pedido])
-  @@map("pedido_produto_gravity")
+  @@map("pedido")
 }
 
 model PedidoItem {
@@ -194,7 +194,7 @@ model PedidoItem {
   data_confirmada_coleta_item      DateTime?
   data_meta_coleta_item            DateTime?
 
-  pedido_item                      PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido_item                      Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
@@ -309,7 +309,7 @@ model PedidoListaItensTransfericosRastreio {
   revertido_por_tracking_items_transferidos String?
   data_criacao_tracking_items_transferidos  DateTime  @default(now())
   criado_por_tracking_items_transferidos    String
-  pedido_origem               PedidoColunasGerais @relation(fields: [id_pedido_origem], references: [id_pedido])
+  pedido_origem               Pedido @relation(fields: [id_pedido_origem], references: [id_pedido])
 
   // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
   data_transferencia_quantidade_tracking_items_transferidos DateTime?
@@ -474,7 +474,7 @@ model DashboardPainelUsuarioGlobal {
 /// Snapshot congelado de uma Empresa (importador / exportador / fabricante / agente
 /// / despachante / armador) no momento da emissão ou re-snapshot do pedido.
 /// Referência ao banco Cadastros via SUID lógico (sem FK física para o Cadastros).
-/// FK física apenas para `pedido_produto_gravity(id_pedido)` no mesmo banco.
+/// FK física apenas para `pedido(id_pedido)` no mesmo banco.
 model PedidoSnapshotEmpresa {
   id                    String   @id @default(cuid())
   id_organizacao        String
@@ -515,7 +515,7 @@ model PedidoSnapshotEmpresa {
   congelado_em          DateTime @default(now())
   motivo_congelamento   String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
 
-  pedido                PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])
@@ -527,7 +527,7 @@ model PedidoSnapshotEmpresa {
 /// Snapshot congelado da OPE (Operação) vinculada ao pedido,
 /// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
 /// Referência ao banco Cadastros via SUID lógico (sem FK física para o Cadastros).
-/// FK física apenas para `pedido_produto_gravity(id_pedido)` no mesmo banco.
+/// FK física apenas para `pedido(id_pedido)` no mesmo banco.
 model PedidoSnapshotOpe {
   id                     String   @id @default(cuid())
   id_organizacao         String
@@ -555,7 +555,7 @@ model PedidoSnapshotOpe {
   congelado_em           DateTime @default(now())
   motivo_congelamento    String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
 
-  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                 Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])
@@ -582,7 +582,7 @@ model PedidoSnapshotNcm {
   congelado_em           DateTime @default(now())
   motivo_congelamento    String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
 
-  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                 Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])
@@ -604,7 +604,7 @@ model PedidoSnapshotMoeda {
   congelado_em           DateTime @default(now())
   motivo_congelamento    String
 
-  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                 Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])
@@ -626,7 +626,7 @@ model PedidoSnapshotUnidade {
   congelado_em           DateTime @default(now())
   motivo_congelamento    String
 
-  pedido                 PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
+  pedido                 Pedido @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_pedido])

@@ -91,7 +91,7 @@ export const TABLES_WITH_TENANT_ID: readonly string[] = [
   'container_processo',
   'fatura_processo',
   'tabela_processos',
-  'pedido_produto_gravity',
+  'pedido',
   'logistica_processo',
   'atividades_dados',
   'atividades_timer',

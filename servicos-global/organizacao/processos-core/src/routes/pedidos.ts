@@ -36,7 +36,13 @@ import {
   SALDO_FORMULA_PADRAO,
 } from '../services/formulaEngine.js'
 import { isPropagavel } from '../../../pedido/shared/columnPropagationConfig.js'
-import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
+import {
+  buscarEmpresasPorSuids,
+  buscarMoedaPorCodigo,
+  buscarNcmPorCodigo,
+  buscarUnidadePorCodigo,
+  type CadastrosRequestContext,
+} from '../services/cadastrosClient.js'
 import {
   montarSnapshotEmpresa,
   montarSnapshotOpe,
@@ -44,11 +50,16 @@ import {
   montarSnapshotMoeda,
   montarSnapshotUnidade,
   type PapelEmpresa,
+  type SnapshotMoedaData,
+  type SnapshotNcmData,
+  type SnapshotOpeData,
+  type SnapshotUnidadeData,
 } from '../services/pedidoSnapshots.js'
-// NOTA: os helpers Ope/Ncm/Moeda/Unidade ficam disponíveis para o fluxo de
-// criação chamar quando os respectivos endpoints `cadastrosClient.buscar*`
-// estiverem implementados. Hoje só Empresa tem cliente HTTP no Cadastros.
-void montarSnapshotOpe; void montarSnapshotNcm; void montarSnapshotMoeda; void montarSnapshotUnidade;
+// FASE 06E (Frente 1, Agente 4): OPE não vem no payload de criação do Pedido
+// (não há `suid_ope` em criarPedidoSchema), então `montarSnapshotOpe` fica
+// referenciado para futuras frentes que injetarem OPE no fluxo. NCM/Moeda/
+// Unidade são plugados abaixo a partir dos campos do pedido e dos itens.
+void montarSnapshotOpe; void SnapshotOpeData;
 import { randomUUID } from 'node:crypto'
 
 export const pedidosRouter = Router()
@@ -720,6 +731,85 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       { id_organizacao: ctxTenant.idOrganizacao, correlation_id },
     )
 
+    // ── FASE 06E (Frente 1, Agente 4): snapshots iniciais de NCM/Moeda/Unidade ─
+    // Best-effort: falhas no Cadastros NÃO bloqueiam a criação do Pedido. O
+    // re-snapshot via webhook (Frente 2 — Agente 5) corrige depois.
+    //
+    // OPE: o payload de criação do Pedido hoje não carrega `suid_ope`, então
+    // não há snapshot de OPE neste fluxo. Quando o campo for adicionado em
+    // criarPedidoSchema, plugar `montarSnapshotOpe` aqui usando o mesmo
+    // padrão best-effort.
+    const ctxCadastros: CadastrosRequestContext = {
+      id_organizacao: ctxTenant.idOrganizacao,
+      correlation_id,
+    }
+
+    // Coleta códigos distintos a partir do pedido + itens
+    const ncmsDistintos = Array.from(
+      new Set(itens.map((i) => i.ncm).filter((c): c is string => !!c && c.length > 0)),
+    )
+    const moedasDistintas = Array.from(
+      new Set(
+        [
+          pedidoData.moeda_pedido,
+          ...itens.map((i) => i.moeda_item),
+        ].filter((c): c is string => !!c && c.length > 0),
+      ),
+    )
+    const unidadesDistintas = Array.from(
+      new Set(
+        [
+          pedidoData.unidade_comercializada_pedido,
+          ...itens.map((i) => i.unidade_comercializada_item),
+        ].filter((c): c is string => !!c && c.length > 0),
+      ),
+    )
+
+    async function buscarSeguro<T>(
+      label: string,
+      codigo: string,
+      fn: () => Promise<T | null>,
+    ): Promise<T | null> {
+      try {
+        const r = await fn()
+        if (r === null) {
+          console.warn(
+            `[POST /pedidos] snapshot ${label}: registro nao encontrado no Cadastros (codigo=${codigo}); seguindo sem snapshot inicial`,
+          )
+        }
+        return r
+      } catch (err) {
+        console.warn(
+          `[POST /pedidos] snapshot ${label}: falha ao buscar no Cadastros (codigo=${codigo}); seguindo sem snapshot inicial`,
+          err instanceof Error ? err.message : err,
+        )
+        return null
+      }
+    }
+
+    const [ncmsBuscados, moedasBuscadas, unidadesBuscadas] = await Promise.all([
+      Promise.all(
+        ncmsDistintos.map(async (codigo) => ({
+          codigo,
+          ncm: await buscarSeguro('NCM', codigo, () => buscarNcmPorCodigo(codigo, ctxCadastros)),
+        })),
+      ),
+      Promise.all(
+        moedasDistintas.map(async (codigo) => ({
+          codigo,
+          moeda: await buscarSeguro('Moeda', codigo, () => buscarMoedaPorCodigo(codigo, ctxCadastros)),
+        })),
+      ),
+      Promise.all(
+        unidadesDistintas.map(async (codigo) => ({
+          codigo,
+          unidade: await buscarSeguro('Unidade', codigo, () =>
+            buscarUnidadePorCodigo(codigo, ctxCadastros),
+          ),
+        })),
+      ),
+    ])
+
     await withOrganizacao(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
@@ -745,6 +835,53 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
         })
         .filter((s): s is NonNullable<typeof s> => s !== null)
+
+      // FASE 06E — monta snapshots iniciais de NCM/Moeda/Unidade a partir das
+      // entidades que vieram do Cadastros (ou pula se a busca falhou).
+      const snapshotsNcmData: SnapshotNcmData[] = ncmsBuscados
+        .map(({ ncm }) => {
+          if (!ncm) return null
+          try {
+            return montarSnapshotNcm(ncm, tenant_id, company_id)
+          } catch (err) {
+            console.warn(
+              `[POST /pedidos] snapshot NCM: contrato invalido (codigo=${ncm.codigo_ncm}); seguindo sem snapshot inicial`,
+              err instanceof Error ? err.message : err,
+            )
+            return null
+          }
+        })
+        .filter((s): s is SnapshotNcmData => s !== null)
+
+      const snapshotsMoedaData: SnapshotMoedaData[] = moedasBuscadas
+        .map(({ moeda }) => {
+          if (!moeda) return null
+          try {
+            return montarSnapshotMoeda(moeda, tenant_id, company_id)
+          } catch (err) {
+            console.warn(
+              `[POST /pedidos] snapshot Moeda: contrato invalido (codigo=${moeda.codigo_moeda}); seguindo sem snapshot inicial`,
+              err instanceof Error ? err.message : err,
+            )
+            return null
+          }
+        })
+        .filter((s): s is SnapshotMoedaData => s !== null)
+
+      const snapshotsUnidadeData: SnapshotUnidadeData[] = unidadesBuscadas
+        .map(({ unidade }) => {
+          if (!unidade) return null
+          try {
+            return montarSnapshotUnidade(unidade, tenant_id, company_id)
+          } catch (err) {
+            console.warn(
+              `[POST /pedidos] snapshot Unidade: contrato invalido (codigo=${unidade.codigo_unidade}); seguindo sem snapshot inicial`,
+              err instanceof Error ? err.message : err,
+            )
+            return null
+          }
+        })
+        .filter((s): s is SnapshotUnidadeData => s !== null)
 
       const novoPedido = await db.pedido.create({
         data: {
@@ -777,10 +914,22 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           snapshots_empresa: snapshotsData.length
             ? { create: snapshotsData }
             : undefined,
+          snapshots_ncm_pedido: snapshotsNcmData.length
+            ? { create: snapshotsNcmData }
+            : undefined,
+          snapshots_moeda_pedido: snapshotsMoedaData.length
+            ? { create: snapshotsMoedaData }
+            : undefined,
+          snapshots_unidade_pedido: snapshotsUnidadeData.length
+            ? { create: snapshotsUnidadeData }
+            : undefined,
         },
         include: {
           itens_pedido: { orderBy: { sequencia_item_pedido: 'asc' } },
           snapshots_empresa: true,
+          snapshots_ncm_pedido: true,
+          snapshots_moeda_pedido: true,
+          snapshots_unidade_pedido: true,
         },
       })
 

@@ -394,16 +394,16 @@ export class EdicaoEmMassaService {
       const camposAlterados = payload.campos.map(c => c.campo)
       for (const p of pedidos as Array<Record<string, unknown>>) {
         auditLog({
-          tenant_id:     tenantId,
-          actor_type:    'USER',
-          actor_id:      userId,
-          actor_name:    userId,
-          module:        'pedido',
-          resource_type: 'Pedido',
-          resource_id:   p.id_pedido as string,
-          action:        'EDICAO_EM_MASSA',
-          action_detail: `Edicao em massa: ${camposAlterados.join(', ')}`,
-          after:         { campos: payload.campos, nivel: payload.nivel },
+          id_organizacao:               tenantId,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        userId,
+          nome_ator_historico_log:      userId,
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     p.id_pedido as string,
+          acao_historico_log:           'EDICAO_EM_MASSA',
+          detalhe_acao_historico_log:   `Edicao em massa: ${camposAlterados.join(', ')}`,
+          estado_posterior_historico_log: { campos: payload.campos, nivel: payload.nivel },
         })
       }
     }, { timeout: 60000, maxWait: 10000 })

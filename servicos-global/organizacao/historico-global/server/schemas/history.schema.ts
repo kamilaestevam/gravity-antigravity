@@ -1,46 +1,46 @@
 import { z } from 'zod'
 
-export const ActorTypeEnum = z.enum(['USER', 'API', 'AI', 'JOB', 'INTEGRATION'])
-export const EventStatusEnum = z.enum(['SUCCESS', 'FAILURE', 'PARTIAL'])
+export const TipoAtorHistoricoLogEnum = z.enum(['USUARIO', 'API', 'IA', 'JOB', 'INTEGRACAO'])
+export const StatusHistoricoLogEnum = z.enum(['SUCESSO', 'FALHA', 'PARCIAL'])
 
 export const IngestHistorySchema = z.object({
-  actor_type: ActorTypeEnum,
-  actor_id: z.string().min(1),
-  actor_name: z.string().min(1),
-  actor_ip: z.string().optional(),
-  actor_metadata: z.record(z.unknown()).optional(),
+  tipo_ator_historico_log: TipoAtorHistoricoLogEnum,
+  id_ator_historico_log: z.string().min(1),
+  nome_ator_historico_log: z.string().min(1),
+  ip_ator_historico_log: z.string().optional(),
+  metadata_ator_historico_log: z.record(z.unknown()).optional(),
 
-  module: z.string().min(1),
-  resource_type: z.string().min(1),
-  resource_id: z.string().optional(),
+  modulo_historico_log: z.string().min(1),
+  tipo_recurso_historico_log: z.string().min(1),
+  id_recurso_historico_log: z.string().optional(),
 
-  action: z.string().min(1),
-  action_detail: z.string().min(1),
+  acao_historico_log: z.string().min(1),
+  detalhe_acao_historico_log: z.string().min(1),
 
-  before: z.unknown().optional(),
-  after: z.unknown().optional(),
+  estado_anterior_historico_log: z.unknown().optional(),
+  estado_posterior_historico_log: z.unknown().optional(),
 
-  status: EventStatusEnum.optional(),
-  error_message: z.string().optional(),
+  status_historico_log: StatusHistoricoLogEnum.optional(),
+  mensagem_erro_historico_log: z.string().optional(),
 
-  product_id: z.string().optional(),
-  user_id: z.string().optional(),
+  id_produto_historico_log: z.string().optional(),
+  id_usuario: z.string().optional(),
 })
 
 export const ListHistoryQuerySchema = z.object({
   // Visibilidade — preenchido pelo middleware, nunca pelo cliente
-  tenant_id: z.string().optional(),
-  user_id_filter: z.string().optional(),
+  id_organizacao: z.string().optional(),
+  id_usuario_filter: z.string().optional(),
 
   // Filtros
-  actor_type: ActorTypeEnum.optional(),
-  actor_id: z.string().optional(),
-  module: z.string().optional(),
-  resource_type: z.string().optional(),
-  resource_id: z.string().optional(),
-  action: z.string().optional(),
-  status: EventStatusEnum.optional(),
-  product_id: z.string().optional(),
+  tipo_ator_historico_log: TipoAtorHistoricoLogEnum.optional(),
+  id_ator_historico_log: z.string().optional(),
+  modulo_historico_log: z.string().optional(),
+  tipo_recurso_historico_log: z.string().optional(),
+  id_recurso_historico_log: z.string().optional(),
+  acao_historico_log: z.string().optional(),
+  status_historico_log: StatusHistoricoLogEnum.optional(),
+  id_produto_historico_log: z.string().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   search: z.string().optional(),
@@ -51,39 +51,39 @@ export const ListHistoryQuerySchema = z.object({
 })
 
 export const ExportHistoryQuerySchema = z.object({
-  tenant_id: z.string().optional(),
-  user_id_filter: z.string().optional(),
-  actor_type: ActorTypeEnum.optional(),
-  module: z.string().optional(),
-  action: z.string().optional(),
-  status: EventStatusEnum.optional(),
+  id_organizacao: z.string().optional(),
+  id_usuario_filter: z.string().optional(),
+  tipo_ator_historico_log: TipoAtorHistoricoLogEnum.optional(),
+  modulo_historico_log: z.string().optional(),
+  acao_historico_log: z.string().optional(),
+  status_historico_log: StatusHistoricoLogEnum.optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  format: z.enum(['csv', 'json']).default('csv'),
+  formato_exportar_resultado: z.enum(['csv', 'json']).default('csv'),
 })
 
 export const AlertRuleSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  enabled: z.boolean().default(true),
+  nome_regra_alerta: z.string().min(1),
+  descricao_regra_alerta: z.string().optional(),
+  habilitada_regra_alerta: z.boolean().default(true),
 
-  actor_type: ActorTypeEnum.optional(),
-  action: z.string().optional(),
-  module: z.string().optional(),
+  tipo_ator_regra_alerta: TipoAtorHistoricoLogEnum.optional(),
+  acao_regra_alerta: z.string().optional(),
+  modulo_regra_alerta: z.string().optional(),
 
-  threshold_count: z.number().int().positive().optional(),
-  threshold_window_seconds: z.number().int().positive().optional(),
+  limiar_contagem_regra_alerta: z.number().int().positive().optional(),
+  limiar_janela_segundos_regra_alerta: z.number().int().positive().optional(),
 
-  channel_inapp: z.boolean().default(true),
-  channel_email: z.boolean().default(false),
-  channel_whatsapp: z.boolean().default(false),
+  canal_inapp_regra_alerta: z.boolean().default(true),
+  canal_email_regra_alerta: z.boolean().default(false),
+  canal_whatsapp_regra_alerta: z.boolean().default(false),
 
-  recipients_email: z.array(z.string().email()).default([]),
-  recipients_whatsapp: z.array(z.string()).default([]),
-  recipients_user_ids: z.array(z.string()).default([]),
+  destinatarios_email_regra_alerta: z.array(z.string().email()).default([]),
+  destinatarios_whatsapp_regra_alerta: z.array(z.string()).default([]),
+  destinatarios_usuarios_regra_alerta: z.array(z.string()).default([]),
 })
 
 export const AlertEventUpdateSchema = z.object({
-  status: z.enum(['REVIEWED', 'ESCALATED']),
-  notes: z.string().optional(),
+  status_evento_alerta: z.enum(['REVISADO', 'ESCALADO']),
+  notas_evento_alerta: z.string().optional(),
 })

@@ -58,14 +58,14 @@ describe('computeDiff', () => {
 // ── computeIntegrityHash ──────────────────────────────────────────────────────
 
 const BASE_INPUT: AuditLogInput = {
-  tenant_id: 'tenant-123',
-  actor_type: 'USER',
-  actor_id: 'user-456',
-  actor_name: 'Daniel',
-  module: 'pedido',
-  resource_type: 'Pedido',
-  action: 'CREATE',
-  action_detail: 'Criou pedido #001',
+  id_organizacao: 'org-123',
+  tipo_ator_historico_log: 'USUARIO',
+  id_ator_historico_log: 'user-456',
+  nome_ator_historico_log: 'Daniel',
+  modulo_historico_log: 'pedido',
+  tipo_recurso_historico_log: 'Pedido',
+  acao_historico_log: 'CREATE',
+  detalhe_acao_historico_log: 'Criou pedido #001',
 }
 
 describe('computeIntegrityHash', () => {
@@ -81,52 +81,52 @@ describe('computeIntegrityHash', () => {
     expect(h1).toBe(h2)
   })
 
-  it('muda ao alterar tenant_id', () => {
+  it('muda ao alterar id_organizacao', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, tenant_id: 'outro-tenant' }, date)
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, id_organizacao: 'outra-org' }, date)
     expect(h1).not.toBe(h2)
   })
 
-  it('muda ao alterar actor_id', () => {
+  it('muda ao alterar id_ator_historico_log', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, actor_id: 'outro-user' }, date)
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, id_ator_historico_log: 'outro-user' }, date)
     expect(h1).not.toBe(h2)
   })
 
-  it('muda ao alterar action', () => {
+  it('muda ao alterar acao_historico_log', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, action: 'DELETE' }, date)
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, acao_historico_log: 'DELETE' }, date)
     expect(h1).not.toBe(h2)
   })
 
-  it('muda ao alterar created_at', () => {
+  it('muda ao alterar data_criacao_historico_log', () => {
     const h1 = computeIntegrityHash(BASE_INPUT, new Date('2026-01-01T00:00:00Z'))
     const h2 = computeIntegrityHash(BASE_INPUT, new Date('2026-01-02T00:00:00Z'))
     expect(h1).not.toBe(h2)
   })
 
-  it('NÃO inclui actor_name no hash (campo de PII — pode ser anonimizado sem invalidar)', () => {
+  it('NÃO inclui nome_ator_historico_log no hash (campo de PII — pode ser anonimizado sem invalidar)', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, actor_name: '[Anonimizado LGPD]' }, date)
-    // actor_name não faz parte do hash — anonimização LGPD não quebra integridade
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, nome_ator_historico_log: '[Anonimizado LGPD]' }, date)
+    // nome_ator_historico_log não faz parte do hash — anonimização LGPD não quebra integridade
     expect(h1).toBe(h2)
   })
 
-  it('before/after null é equivalente a omitido', () => {
+  it('estado_anterior_historico_log/estado_posterior_historico_log null é equivalente a omitido', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, before: null as unknown, after: null as unknown }, date)
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, estado_anterior_historico_log: null as unknown, estado_posterior_historico_log: null as unknown }, date)
     expect(h1).toBe(h2)
   })
 
-  it('status padrão SUCCESS é equivalente a omitido', () => {
+  it('status_historico_log padrão SUCESSO é equivalente a omitido', () => {
     const date = new Date('2026-01-01T00:00:00Z')
     const h1 = computeIntegrityHash(BASE_INPUT, date)
-    const h2 = computeIntegrityHash({ ...BASE_INPUT, status: 'SUCCESS' }, date)
+    const h2 = computeIntegrityHash({ ...BASE_INPUT, status_historico_log: 'SUCESSO' }, date)
     expect(h1).toBe(h2)
   })
 })

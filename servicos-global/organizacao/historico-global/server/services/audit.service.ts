@@ -16,56 +16,56 @@ function getPrisma(): PrismaClient {
 export const AUDIT_QUEUE = 'audit:log:ingestion'
 
 export interface AuditLogInput {
-  tenant_id: string
+  id_organizacao: string
 
-  actor_type: AcaoExecutadaPor
-  actor_id: string
-  actor_name: string
-  actor_ip?: string
-  actor_metadata?: Record<string, unknown>
+  tipo_ator_historico_log: AcaoExecutadaPor
+  id_ator_historico_log: string
+  nome_ator_historico_log: string
+  ip_ator_historico_log?: string
+  metadata_ator_historico_log?: Record<string, unknown>
 
-  module: string
-  resource_type: string
-  resource_id?: string
+  modulo_historico_log: string
+  tipo_recurso_historico_log: string
+  id_recurso_historico_log?: string
 
-  action: string
-  action_detail: string
+  acao_historico_log: string
+  detalhe_acao_historico_log: string
 
-  before?: unknown
-  after?: unknown
+  estado_anterior_historico_log?: unknown
+  estado_posterior_historico_log?: unknown
 
-  status?: EventoStatus
-  error_message?: string
+  status_historico_log?: EventoStatus
+  mensagem_erro_historico_log?: string
 
-  product_id?: string
-  user_id?: string
+  id_produto_historico_log?: string
+  id_usuario?: string
 }
 
 export function computeIntegrityHash(input: AuditLogInput, createdAt: Date): string {
   const payload = JSON.stringify({
-    tenant_id: input.tenant_id,
-    actor_type: input.actor_type,
-    actor_id: input.actor_id,
-    module: input.module,
-    resource_type: input.resource_type,
-    resource_id: input.resource_id ?? null,
-    action: input.action,
-    action_detail: input.action_detail,
-    before: input.before ?? null,
-    after: input.after ?? null,
-    status: input.status ?? 'SUCCESS',
-    created_at: createdAt.toISOString(),
+    id_organizacao: input.id_organizacao,
+    tipo_ator_historico_log: input.tipo_ator_historico_log,
+    id_ator_historico_log: input.id_ator_historico_log,
+    modulo_historico_log: input.modulo_historico_log,
+    tipo_recurso_historico_log: input.tipo_recurso_historico_log,
+    id_recurso_historico_log: input.id_recurso_historico_log ?? null,
+    acao_historico_log: input.acao_historico_log,
+    detalhe_acao_historico_log: input.detalhe_acao_historico_log,
+    estado_anterior_historico_log: input.estado_anterior_historico_log ?? null,
+    estado_posterior_historico_log: input.estado_posterior_historico_log ?? null,
+    status_historico_log: input.status_historico_log ?? 'SUCESSO',
+    data_criacao_historico_log: createdAt.toISOString(),
   })
   return createHash('sha256').update(payload).digest('hex')
 }
 
 /**
  * Computa diff campo a campo entre dois snapshots de objeto.
- * Útil para serviços que precisam de diffs precisos no before/after.
+ * Útil para serviços que precisam de diffs precisos no estado anterior/posterior.
  *
  * Exemplo:
  *   const { before, after } = AuditService.computeDiff(entityBefore, entityAfter)
- *   await AuditService.log({ ..., before, after })
+ *   await AuditService.log({ ..., estado_anterior_historico_log: before, estado_posterior_historico_log: after })
  */
 export function computeDiff<T extends Record<string, unknown>>(
   before: T,
@@ -115,10 +115,10 @@ export const AuditService = {
         console.error('[AuditService] persist direto falhou:', (persistError as Error).message)
         captureException(persistError, {
           tag: 'audit_queue_failure',
-          tenant_id: input.tenant_id,
-          actor_id: input.actor_id,
-          action: input.action,
-          module: input.module,
+          id_organizacao: input.id_organizacao,
+          id_ator_historico_log: input.id_ator_historico_log,
+          acao_historico_log: input.acao_historico_log,
+          modulo_historico_log: input.modulo_historico_log,
         })
       }
     }
@@ -129,32 +129,32 @@ export const AuditService = {
    */
   async persist(input: AuditLogInput): Promise<string> {
     const createdAt = new Date()
-    const integrity_hash = computeIntegrityHash(input, createdAt)
+    const hash_integridade_historico_log = computeIntegrityHash(input, createdAt)
 
     const log = await getPrisma().historicoLog.create({
       data: {
-        tenant_id: input.tenant_id,
-        actor_type: input.actor_type,
-        actor_id: input.actor_id,
-        actor_name: input.actor_name,
-        actor_ip: input.actor_ip ?? null,
-        actor_metadata: (input.actor_metadata as object) ?? null,
-        module: input.module,
-        resource_type: input.resource_type,
-        resource_id: input.resource_id ?? null,
-        action: input.action,
-        action_detail: input.action_detail,
-        before: (input.before as object) ?? null,
-        after: (input.after as object) ?? null,
-        status: input.status ?? EventoStatus.SUCESSO,
-        error_message: input.error_message ?? null,
-        integrity_hash,
-        product_id: input.product_id ?? null,
-        user_id: input.user_id ?? null,
-        created_at: createdAt,
+        id_organizacao: input.id_organizacao,
+        tipo_ator_historico_log: input.tipo_ator_historico_log,
+        id_ator_historico_log: input.id_ator_historico_log,
+        nome_ator_historico_log: input.nome_ator_historico_log,
+        ip_ator_historico_log: input.ip_ator_historico_log ?? null,
+        metadata_ator_historico_log: (input.metadata_ator_historico_log as object) ?? null,
+        modulo_historico_log: input.modulo_historico_log,
+        tipo_recurso_historico_log: input.tipo_recurso_historico_log,
+        id_recurso_historico_log: input.id_recurso_historico_log ?? null,
+        acao_historico_log: input.acao_historico_log,
+        detalhe_acao_historico_log: input.detalhe_acao_historico_log,
+        estado_anterior_historico_log: (input.estado_anterior_historico_log as object) ?? null,
+        estado_posterior_historico_log: (input.estado_posterior_historico_log as object) ?? null,
+        status_historico_log: input.status_historico_log ?? EventoStatus.SUCESSO,
+        mensagem_erro_historico_log: input.mensagem_erro_historico_log ?? null,
+        hash_integridade_historico_log,
+        id_produto_historico_log: input.id_produto_historico_log ?? null,
+        id_usuario: input.id_usuario ?? null,
+        data_criacao_historico_log: createdAt,
       },
     })
 
-    return log.id
+    return log.id_historico_log
   },
 }

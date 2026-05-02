@@ -6,15 +6,15 @@ export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLI
 export interface AuthUser {
   id: string
   role: UserRole
-  tenant_id: string
+  id_organizacao: string
 }
 
 /**
  * Constrói o filtro de visibilidade baseado no role do usuário.
  *
- * SUPER_ADMIN / ADMIN → veem tudo (sem filtro de tenant)
- * MASTER              → veem toda a organização (filtro por tenant_id)
- * STANDARD / SUPPLIER → veem apenas os próprios registros (tenant_id + user_id)
+ * SUPER_ADMIN / ADMIN → veem tudo (sem filtro de organização)
+ * MASTER              → veem toda a organização (filtro por id_organizacao)
+ * STANDARD / SUPPLIER → veem apenas os próprios registros (id_organizacao + id_usuario)
  */
 export function buildVisibilityFilter(user: AuthUser): Prisma.HistoricoLogWhereInput {
   if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
@@ -22,10 +22,10 @@ export function buildVisibilityFilter(user: AuthUser): Prisma.HistoricoLogWhereI
   }
 
   if (user.role === 'MASTER') {
-    return { tenant_id: user.tenant_id }
+    return { id_organizacao: user.id_organizacao }
   }
 
-  return { tenant_id: user.tenant_id, user_id: user.id }
+  return { id_organizacao: user.id_organizacao, id_usuario: user.id }
 }
 
 export function extractAuthUser(req: Request): AuthUser | null {
@@ -34,7 +34,7 @@ export function extractAuthUser(req: Request): AuthUser | null {
 
   return {
     id: auth.id_usuario,
-    role: auth.tipo_usuario ?? 'STANDARD',
-    tenant_id: auth.id_organizacao,
+    role: (auth.tipo_usuario ?? 'STANDARD') as UserRole,
+    id_organizacao: auth.id_organizacao,
   }
 }

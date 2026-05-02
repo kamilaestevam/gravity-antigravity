@@ -54,10 +54,10 @@ function startDlqMonitor(): void {
       if (failedJobs?.rows?.length > 0) {
         captureMessage('DLQ_ALERT: audit logs falharam definitivamente', 'error', {
           count: failedJobs.rows.length,
-          jobs: failedJobs.rows.map((r: any) => ({
+          jobs: failedJobs.rows.map((r: { id: string; data?: { id_organizacao?: string; acao_historico_log?: string } }) => ({
             id: r.id,
-            tenant_id: r.data?.tenant_id,
-            action: r.data?.action,
+            id_organizacao: r.data?.id_organizacao,
+            acao_historico_log: r.data?.acao_historico_log,
           })),
         })
       }

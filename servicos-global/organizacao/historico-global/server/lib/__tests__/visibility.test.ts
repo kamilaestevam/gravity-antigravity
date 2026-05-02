@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { buildVisibilityFilter } from '../visibility.js'
 import type { AuthUser } from '../visibility.js'
 
-const makeUser = (role: AuthUser['role'], tenant_id = 'tenant-abc'): AuthUser => ({
+const makeUser = (role: AuthUser['role'], id_organizacao = 'org-abc'): AuthUser => ({
   id: 'user-1',
   role,
-  tenant_id,
+  id_organizacao,
 })
 
 describe('buildVisibilityFilter', () => {
@@ -19,34 +19,34 @@ describe('buildVisibilityFilter', () => {
     expect(filter).toEqual({})
   })
 
-  it('MASTER — filtra apenas pelo tenant_id', () => {
-    const filter = buildVisibilityFilter(makeUser('MASTER', 'tenant-xyz'))
-    expect(filter).toEqual({ tenant_id: 'tenant-xyz' })
-    expect(filter).not.toHaveProperty('user_id')
+  it('MASTER — filtra apenas pelo id_organizacao', () => {
+    const filter = buildVisibilityFilter(makeUser('MASTER', 'org-xyz'))
+    expect(filter).toEqual({ id_organizacao: 'org-xyz' })
+    expect(filter).not.toHaveProperty('id_usuario')
   })
 
-  it('STANDARD — filtra por tenant_id E user_id', () => {
-    const user = makeUser('STANDARD', 'tenant-xyz')
+  it('STANDARD — filtra por id_organizacao E id_usuario', () => {
+    const user = makeUser('STANDARD', 'org-xyz')
     const filter = buildVisibilityFilter(user)
-    expect(filter).toEqual({ tenant_id: 'tenant-xyz', user_id: 'user-1' })
+    expect(filter).toEqual({ id_organizacao: 'org-xyz', id_usuario: 'user-1' })
   })
 
-  it('SUPPLIER — filtra por tenant_id E user_id (mesmo que STANDARD)', () => {
-    const user = makeUser('SUPPLIER', 'tenant-xyz')
+  it('SUPPLIER — filtra por id_organizacao E id_usuario (mesmo que STANDARD)', () => {
+    const user = makeUser('SUPPLIER', 'org-xyz')
     const filter = buildVisibilityFilter(user)
-    expect(filter).toEqual({ tenant_id: 'tenant-xyz', user_id: 'user-1' })
+    expect(filter).toEqual({ id_organizacao: 'org-xyz', id_usuario: 'user-1' })
   })
 
-  it('MASTER de tenant A não vê dados do tenant B', () => {
-    const filter = buildVisibilityFilter(makeUser('MASTER', 'tenant-A'))
-    expect(filter).toHaveProperty('tenant_id', 'tenant-A')
-    // não deve existir lógica que permita outro tenant
-    expect(JSON.stringify(filter)).not.toContain('tenant-B')
+  it('MASTER da organização A não vê dados da organização B', () => {
+    const filter = buildVisibilityFilter(makeUser('MASTER', 'org-A'))
+    expect(filter).toHaveProperty('id_organizacao', 'org-A')
+    // não deve existir lógica que permita outra organização
+    expect(JSON.stringify(filter)).not.toContain('org-B')
   })
 
-  it('STANDARD — isolamento garante que user_id é o do próprio usuário', () => {
-    const user: AuthUser = { id: 'user-999', role: 'STANDARD', tenant_id: 'tenant-abc' }
+  it('STANDARD — isolamento garante que id_usuario é o do próprio usuário', () => {
+    const user: AuthUser = { id: 'user-999', role: 'STANDARD', id_organizacao: 'org-abc' }
     const filter = buildVisibilityFilter(user)
-    expect(filter).toHaveProperty('user_id', 'user-999')
+    expect(filter).toHaveProperty('id_usuario', 'user-999')
   })
 })

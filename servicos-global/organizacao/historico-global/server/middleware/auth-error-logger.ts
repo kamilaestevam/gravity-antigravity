@@ -21,9 +21,9 @@ export function authErrorLogger(
   const statusCode = err.statusCode ?? 500
 
   if (statusCode === 401 || statusCode === 403) {
-    const tenantId =
+    const id_organizacao =
       (req.headers['x-id-organizacao'] as string) ||
-      (req as any).auth?.tenantId ||
+      (req as any).auth?.id_organizacao ||
       'unknown'
 
     const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown'
@@ -31,15 +31,15 @@ export function authErrorLogger(
 
     setImmediate(() => {
       if (statusCode === 401) {
-        securityAudit.authFailure(tenantId, {
+        securityAudit.authFailure(id_organizacao, {
           ip,
           reason: err.message,
           endpoint,
         })
       } else {
-        // 403 = autenticado mas sem permissão — pode ser tentativa de cross-tenant
-        securityAudit.crossTenantAttempt(tenantId, (req as any).auth?.userId ?? 'anonymous', {
-          targetTenantId: (req.query.tenant_id as string) ?? tenantId,
+        // 403 = autenticado mas sem permissão — pode ser tentativa de cross-organizacao
+        securityAudit.crossTenantAttempt(id_organizacao, (req as any).auth?.id_usuario ?? 'anonymous', {
+          targetTenantId: (req.query.id_organizacao as string) ?? id_organizacao,
           resource: endpoint,
           blocked: true,
         })

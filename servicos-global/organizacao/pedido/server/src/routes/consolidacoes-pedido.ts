@@ -326,16 +326,16 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       // 3. Audit trail via historico-global (fire-and-forget)
       for (const id of ids) {
         auditLog({
-          tenant_id:     tenantId,
-          actor_type:    'USER',
-          actor_id:      'system',
-          actor_name:    'system',
-          module:        'pedido',
-          resource_type: 'Pedido',
-          resource_id:   id,
-          action:        'CONSOLIDADO',
-          action_detail: `Pedido consolidado em ${numero_pedido}`,
-          after:         { ids_origem: ids, numero_pedido_destino: numero_pedido, pedido_consolidado_id: novo.id_pedido },
+          id_organizacao:               tenantId,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        'system',
+          nome_ator_historico_log:      'system',
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     id,
+          acao_historico_log:           'CONSOLIDADO',
+          detalhe_acao_historico_log:   `Pedido consolidado em ${numero_pedido}`,
+          estado_posterior_historico_log: { ids_origem: ids, numero_pedido_destino: numero_pedido, pedido_consolidado_id: novo.id_pedido },
         })
       }
 

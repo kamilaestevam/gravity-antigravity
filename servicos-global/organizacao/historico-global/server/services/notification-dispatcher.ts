@@ -22,19 +22,19 @@ export const NotificationDispatcher = {
 
     const tasks: Promise<void>[] = []
 
-    if (rule.channel_inapp) {
+    if (rule.canal_inapp_regra_alerta) {
       tasks.push(
         NotificationDispatcher.sendInapp(rule, alertEvent)
       )
     }
 
-    if (rule.channel_email && rule.recipients_email.length > 0) {
+    if (rule.canal_email_regra_alerta && rule.destinatarios_email_regra_alerta.length > 0) {
       tasks.push(
         NotificationDispatcher.sendEmail(rule, alertEvent)
       )
     }
 
-    if (rule.channel_whatsapp && rule.recipients_whatsapp.length > 0) {
+    if (rule.canal_whatsapp_regra_alerta && rule.destinatarios_whatsapp_regra_alerta.length > 0) {
       tasks.push(
         NotificationDispatcher.sendWhatsapp(rule, alertEvent)
       )
@@ -46,12 +46,13 @@ export const NotificationDispatcher = {
   async sendInapp(rule: AlertRule, alertEvent: AlertEvent): Promise<void> {
     if (!rule || !alertEvent) return
 
-    const logId = await prisma.registroNotificacaoAlerta.create({
+    const logId = await prisma.alertaRegistro.create({
       data: {
-        alert_event_id: alertEvent.id,
-        channel: 'inapp',
-        recipient: rule.recipients_user_ids.join(',') || 'admin',
-        status: 'pending',
+        id_organizacao: alertEvent.id_organizacao,
+        id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
+        canal_notificacao_alerta: 'inapp',
+        destinatario_notificacao_alerta: rule.destinatarios_usuarios_regra_alerta.join(',') || 'admin',
+        status_notificacao_alerta: 'pending',
       },
     })
 
@@ -66,30 +67,31 @@ export const NotificationDispatcher = {
             'x-internal-key': INTERNAL_KEY,
           },
           body: JSON.stringify({
-            tenant_id: alertEvent.tenant_id,
-            user_ids: rule.recipients_user_ids,
+            id_organizacao: alertEvent.id_organizacao,
+            destinatarios_usuarios_regra_alerta: rule.destinatarios_usuarios_regra_alerta,
             type: 'sistema',
-            title: `Alerta: ${rule.name}`,
-            message: `${alertEvent.event_count} ação(ões) de "${alertEvent.action}" detectada(s) em "${alertEvent.module}" por ${alertEvent.actor_name}`,
-            alert_event_id: alertEvent.id,
+            title: `Alerta: ${rule.nome_regra_alerta}`,
+            message: `${alertEvent.contagem_eventos_evento_alerta} ação(ões) de "${alertEvent.acao_evento_alerta}" detectada(s) em "${alertEvent.modulo_evento_alerta}" por ${alertEvent.nome_ator_evento_alerta}`,
+            id_evento_alerta: alertEvent.id_evento_alerta,
           }),
         })
       },
-      logId.id,
-      rule.recipients_user_ids.join(',') || 'admin'
+      logId.id_notificacao_alerta,
+      rule.destinatarios_usuarios_regra_alerta.join(',') || 'admin'
     )
   },
 
   async sendEmail(rule: AlertRule, alertEvent: AlertEvent): Promise<void> {
     if (!rule || !alertEvent) return
 
-    for (const recipient of rule.recipients_email) {
-      const logId = await prisma.registroNotificacaoAlerta.create({
+    for (const recipient of rule.destinatarios_email_regra_alerta) {
+      const logId = await prisma.alertaRegistro.create({
         data: {
-          alert_event_id: alertEvent.id,
-          channel: 'email',
-          recipient,
-          status: 'pending',
+          id_organizacao: alertEvent.id_organizacao,
+          id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
+          canal_notificacao_alerta: 'email',
+          destinatario_notificacao_alerta: recipient,
+          status_notificacao_alerta: 'pending',
         },
       })
 
@@ -102,16 +104,16 @@ export const NotificationDispatcher = {
             headers: {
               'Content-Type': 'application/json',
               'x-internal-key': INTERNAL_KEY,
-              'x-id-organizacao': alertEvent.tenant_id,
+              'x-id-organizacao': alertEvent.id_organizacao,
             },
             body: JSON.stringify({
               to: recipient,
-              subject: `⚠️ Alerta Gravity: ${rule.name}`,
+              subject: `⚠️ Alerta Gravity: ${rule.nome_regra_alerta}`,
               html: buildEmailHtml(rule, alertEvent),
             }),
           })
         },
-        logId.id,
+        logId.id_notificacao_alerta,
         recipient
       )
     }
@@ -120,13 +122,14 @@ export const NotificationDispatcher = {
   async sendWhatsapp(rule: AlertRule, alertEvent: AlertEvent): Promise<void> {
     if (!rule || !alertEvent) return
 
-    for (const phone of rule.recipients_whatsapp) {
-      const logId = await prisma.registroNotificacaoAlerta.create({
+    for (const phone of rule.destinatarios_whatsapp_regra_alerta) {
+      const logId = await prisma.alertaRegistro.create({
         data: {
-          alert_event_id: alertEvent.id,
-          channel: 'whatsapp',
-          recipient: phone,
-          status: 'pending',
+          id_organizacao: alertEvent.id_organizacao,
+          id_evento_notificacao_alerta: alertEvent.id_evento_alerta,
+          canal_notificacao_alerta: 'whatsapp',
+          destinatario_notificacao_alerta: phone,
+          status_notificacao_alerta: 'pending',
         },
       })
 
@@ -139,7 +142,7 @@ export const NotificationDispatcher = {
             headers: {
               'Content-Type': 'application/json',
               'x-internal-key': INTERNAL_KEY,
-              'x-id-organizacao': alertEvent.tenant_id,
+              'x-id-organizacao': alertEvent.id_organizacao,
             },
             body: JSON.stringify({
               to: phone,
@@ -147,7 +150,7 @@ export const NotificationDispatcher = {
             }),
           })
         },
-        logId.id,
+        logId.id_notificacao_alerta,
         phone
       )
     }
@@ -161,9 +164,9 @@ export const NotificationDispatcher = {
   ): Promise<void> {
     try {
       await fn()
-      await prisma.registroNotificacaoAlerta.update({
-        where: { id: notificationLogId },
-        data: { status: 'sent', sent_at: new Date(), attempts: attempt + 1 },
+      await prisma.alertaRegistro.update({
+        where: { id_notificacao_alerta: notificationLogId },
+        data: { status_notificacao_alerta: 'sent', enviado_em_notificacao_alerta: new Date(), tentativas_notificacao_alerta: attempt + 1 },
       })
     } catch (error) {
       if (attempt < RETRY_DELAYS_MS.length) {
@@ -171,12 +174,12 @@ export const NotificationDispatcher = {
         return NotificationDispatcher.withRetry(fn, notificationLogId, recipient, attempt + 1)
       }
 
-      await prisma.registroNotificacaoAlerta.update({
-        where: { id: notificationLogId },
+      await prisma.alertaRegistro.update({
+        where: { id_notificacao_alerta: notificationLogId },
         data: {
-          status: 'failed',
-          attempts: attempt + 1,
-          error_message: error instanceof Error ? error.message : String(error),
+          status_notificacao_alerta: 'failed',
+          tentativas_notificacao_alerta: attempt + 1,
+          mensagem_erro_notificacao_alerta: error instanceof Error ? error.message : String(error),
         },
       })
 
@@ -191,25 +194,25 @@ function buildEmailHtml(rule: AlertRule, alertEvent: AlertEvent): string {
   if (!rule || !alertEvent) return ''
   const adminUrl = process.env.ADMIN_URL || ''
   return `
-    <h2>⚠️ Alerta de Segurança — ${rule.name}</h2>
+    <h2>⚠️ Alerta de Segurança — ${rule.nome_regra_alerta}</h2>
     <table>
-      <tr><td><b>Ator</b></td><td>${alertEvent.actor_name} (${alertEvent.actor_type})</td></tr>
-      <tr><td><b>Ação</b></td><td>${alertEvent.action}</td></tr>
-      <tr><td><b>Módulo</b></td><td>${alertEvent.module}</td></tr>
-      <tr><td><b>Eventos detectados</b></td><td>${alertEvent.event_count} em ${alertEvent.window_seconds}s</td></tr>
-      <tr><td><b>Horário</b></td><td>${alertEvent.created_at.toISOString()}</td></tr>
+      <tr><td><b>Ator</b></td><td>${alertEvent.nome_ator_evento_alerta} (${alertEvent.tipo_ator_evento_alerta})</td></tr>
+      <tr><td><b>Ação</b></td><td>${alertEvent.acao_evento_alerta}</td></tr>
+      <tr><td><b>Módulo</b></td><td>${alertEvent.modulo_evento_alerta}</td></tr>
+      <tr><td><b>Eventos detectados</b></td><td>${alertEvent.contagem_eventos_evento_alerta} em ${alertEvent.janela_segundos_evento_alerta}s</td></tr>
+      <tr><td><b>Horário</b></td><td>${alertEvent.data_criacao_evento_alerta.toISOString()}</td></tr>
     </table>
-    ${adminUrl ? `<p><a href="${adminUrl}/admin/historico-global?alert=${alertEvent.id}">Revisar no painel</a></p>` : ''}
+    ${adminUrl ? `<p><a href="${adminUrl}/admin/historico-global?alert=${alertEvent.id_evento_alerta}">Revisar no painel</a></p>` : ''}
   `
 }
 
 function buildWhatsappText(rule: AlertRule, alertEvent: AlertEvent): string {
   if (!rule || !alertEvent) return ''
   return (
-    `⚠️ Alerta Gravity: ${rule.name}\n` +
-    `Ação: ${alertEvent.action} em ${alertEvent.module}\n` +
-    `Ator: ${alertEvent.actor_name}\n` +
-    `${alertEvent.event_count} evento(s) em ${alertEvent.window_seconds}s\n` +
-    `Horário: ${alertEvent.created_at.toLocaleString('pt-BR')}`
+    `⚠️ Alerta Gravity: ${rule.nome_regra_alerta}\n` +
+    `Ação: ${alertEvent.acao_evento_alerta} em ${alertEvent.modulo_evento_alerta}\n` +
+    `Ator: ${alertEvent.nome_ator_evento_alerta}\n` +
+    `${alertEvent.contagem_eventos_evento_alerta} evento(s) em ${alertEvent.janela_segundos_evento_alerta}s\n` +
+    `Horário: ${alertEvent.data_criacao_evento_alerta.toLocaleString('pt-BR')}`
   )
 }

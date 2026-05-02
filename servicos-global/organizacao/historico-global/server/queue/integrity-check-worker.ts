@@ -23,8 +23,8 @@ export const INTEGRITY_QUEUE = 'audit:integrity:check'
 const BATCH_SIZE = 500
 
 interface IntegrityCheckJobInput {
-  /** Se presente, verifica apenas os logs deste tenant. Senão, verifica todos. */
-  tenant_id?: string
+  /** Se presente, verifica apenas os logs desta organização. Senão, verifica todos. */
+  id_organizacao?: string
   /** Offset para jobs em batches */
   offset?: number
 }
@@ -40,32 +40,32 @@ interface IntegrityResult {
  * Deve ser idêntico a AuditService.computeIntegrityHash().
  */
 function recomputeHash(log: {
-  tenant_id: string
-  actor_type: string
-  actor_id: string
-  module: string
-  resource_type: string
-  resource_id: string | null
-  action: string
-  action_detail: string
-  before: unknown
-  after: unknown
-  status: string
-  created_at: Date
+  id_organizacao: string
+  tipo_ator_historico_log: string
+  id_ator_historico_log: string
+  modulo_historico_log: string
+  tipo_recurso_historico_log: string
+  id_recurso_historico_log: string | null
+  acao_historico_log: string
+  detalhe_acao_historico_log: string
+  estado_anterior_historico_log: unknown
+  estado_posterior_historico_log: unknown
+  status_historico_log: string
+  data_criacao_historico_log: Date
 }): string {
   const payload = JSON.stringify({
-    tenant_id: log.tenant_id,
-    actor_type: log.actor_type,
-    actor_id: log.actor_id,
-    module: log.module,
-    resource_type: log.resource_type,
-    resource_id: log.resource_id ?? null,
-    action: log.action,
-    action_detail: log.action_detail,
-    before: log.before ?? null,
-    after: log.after ?? null,
-    status: log.status ?? 'SUCCESS',
-    created_at: log.created_at.toISOString(),
+    id_organizacao: log.id_organizacao,
+    tipo_ator_historico_log: log.tipo_ator_historico_log,
+    id_ator_historico_log: log.id_ator_historico_log,
+    modulo_historico_log: log.modulo_historico_log,
+    tipo_recurso_historico_log: log.tipo_recurso_historico_log,
+    id_recurso_historico_log: log.id_recurso_historico_log ?? null,
+    acao_historico_log: log.acao_historico_log,
+    detalhe_acao_historico_log: log.detalhe_acao_historico_log,
+    estado_anterior_historico_log: log.estado_anterior_historico_log ?? null,
+    estado_posterior_historico_log: log.estado_posterior_historico_log ?? null,
+    status_historico_log: log.status_historico_log ?? 'SUCESSO',
+    data_criacao_historico_log: log.data_criacao_historico_log.toISOString(),
   })
   return createHash('sha256').update(payload).digest('hex')
 }
@@ -77,15 +77,15 @@ export async function startIntegrityCheckWorker(): Promise<void> {
     INTEGRITY_QUEUE,
     { teamSize: 1, teamConcurrency: 1 }, // single worker — não sobrecarregar o banco
     async (job) => {
-      const { tenant_id, offset = 0 } = job.data
+      const { id_organizacao, offset = 0 } = job.data
 
-      const result = await checkBatch({ tenant_id, offset })
+      const result = await checkBatch({ id_organizacao, offset })
 
       if (result.tampered > 0) {
         captureMessage('INTEGRITY_VIOLATION: logs adulterados detectados', 'fatal', {
           tampered: result.tampered,
           tamperedIds: result.tamperedIds,
-          tenant_id: tenant_id ?? 'todos',
+          id_organizacao: id_organizacao ?? 'todos',
           offset,
         })
       }
@@ -93,7 +93,7 @@ export async function startIntegrityCheckWorker(): Promise<void> {
       // Se havia mais registros neste offset, enfileira o próximo batch
       if (result.checked === BATCH_SIZE) {
         await boss.send(INTEGRITY_QUEUE, {
-          tenant_id,
+          id_organizacao,
           offset: offset + BATCH_SIZE,
         })
       } else {
@@ -115,27 +115,27 @@ export async function startIntegrityCheckWorker(): Promise<void> {
   console.log('[historico] integrity-check-worker iniciado (cron: domingo 03h BRT)')
 }
 
-async function checkBatch(opts: { tenant_id?: string; offset: number }): Promise<IntegrityResult> {
+async function checkBatch(opts: { id_organizacao?: string; offset: number }): Promise<IntegrityResult> {
   const logs = await prisma.historicoLog.findMany({
-    where: opts.tenant_id ? { tenant_id: opts.tenant_id } : undefined,
-    orderBy: { created_at: 'asc' },
+    where: opts.id_organizacao ? { id_organizacao: opts.id_organizacao } : undefined,
+    orderBy: { data_criacao_historico_log: 'asc' },
     skip: opts.offset,
     take: BATCH_SIZE,
     select: {
-      id: true,
-      tenant_id: true,
-      actor_type: true,
-      actor_id: true,
-      module: true,
-      resource_type: true,
-      resource_id: true,
-      action: true,
-      action_detail: true,
-      before: true,
-      after: true,
-      status: true,
-      integrity_hash: true,
-      created_at: true,
+      id_historico_log: true,
+      id_organizacao: true,
+      tipo_ator_historico_log: true,
+      id_ator_historico_log: true,
+      modulo_historico_log: true,
+      tipo_recurso_historico_log: true,
+      id_recurso_historico_log: true,
+      acao_historico_log: true,
+      detalhe_acao_historico_log: true,
+      estado_anterior_historico_log: true,
+      estado_posterior_historico_log: true,
+      status_historico_log: true,
+      hash_integridade_historico_log: true,
+      data_criacao_historico_log: true,
     },
   })
 
@@ -143,8 +143,8 @@ async function checkBatch(opts: { tenant_id?: string; offset: number }): Promise
 
   for (const log of logs) {
     const expected = recomputeHash(log)
-    if (expected !== log.integrity_hash) {
-      tamperedIds.push(log.id)
+    if (expected !== log.hash_integridade_historico_log) {
+      tamperedIds.push(log.id_historico_log)
     }
   }
 
@@ -156,11 +156,11 @@ async function checkBatch(opts: { tenant_id?: string; offset: number }): Promise
 }
 
 /**
- * Dispara uma verificação de integridade imediata para um tenant específico.
+ * Dispara uma verificação de integridade imediata para uma organização específica.
  * Útil para investigações manuais ou testes.
  */
-export async function triggerIntegrityCheck(tenant_id?: string): Promise<void> {
+export async function triggerIntegrityCheck(id_organizacao?: string): Promise<void> {
   const boss = getBoss()
-  await boss.send(INTEGRITY_QUEUE, { tenant_id, offset: 0 })
-  console.log(`[integrity-check] Verificação manual disparada para tenant: ${tenant_id ?? 'todos'}`)
+  await boss.send(INTEGRITY_QUEUE, { id_organizacao, offset: 0 })
+  console.log(`[integrity-check] Verificação manual disparada para id_organizacao: ${id_organizacao ?? 'todos'}`)
 }

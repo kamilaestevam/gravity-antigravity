@@ -12,10 +12,10 @@ export const AlertEngine = {
   async check(log: AuditLogInput, logId: string): Promise<void> {
     const rules = await prisma.alertaRegra.findMany({
       where: {
-        enabled: true,
+        habilitada_regra_alerta: true,
         OR: [
-          { tenant_id: log.tenant_id },
-          { tenant_id: null }, // regras globais Gravity
+          { id_organizacao: log.id_organizacao },
+          { id_organizacao: null }, // regras globais Gravity
         ],
       },
     })
@@ -33,72 +33,72 @@ export const AlertEngine = {
     if (!rule) return
 
     // Verificar se o log bate com os filtros da regra
-    if (rule.actor_type && rule.actor_type !== log.actor_type) return
-    if (rule.action && rule.action !== log.action) return
-    if (rule.module && rule.module !== log.module) return
+    if (rule.tipo_ator_regra_alerta && rule.tipo_ator_regra_alerta !== log.tipo_ator_historico_log) return
+    if (rule.acao_regra_alerta && rule.acao_regra_alerta !== log.acao_historico_log) return
+    if (rule.modulo_regra_alerta && rule.modulo_regra_alerta !== log.modulo_historico_log) return
 
     // Se tem threshold, contar eventos recentes
-    if (rule.threshold_count && rule.threshold_window_seconds) {
+    if (rule.limiar_contagem_regra_alerta && rule.limiar_janela_segundos_regra_alerta) {
       const windowStart = new Date(
-        Date.now() - rule.threshold_window_seconds * 1000
+        Date.now() - rule.limiar_janela_segundos_regra_alerta * 1000
       )
 
       const recentCount = await prisma.historicoLog.count({
         where: {
-          tenant_id: log.tenant_id,
-          actor_id: log.actor_id,
-          ...(rule.actor_type ? { actor_type: rule.actor_type } : {}),
-          ...(rule.action ? { action: rule.action } : {}),
-          ...(rule.module ? { module: rule.module } : {}),
-          created_at: { gte: windowStart },
+          id_organizacao: log.id_organizacao,
+          id_ator_historico_log: log.id_ator_historico_log,
+          ...(rule.tipo_ator_regra_alerta ? { tipo_ator_historico_log: rule.tipo_ator_regra_alerta } : {}),
+          ...(rule.acao_regra_alerta ? { acao_historico_log: rule.acao_regra_alerta } : {}),
+          ...(rule.modulo_regra_alerta ? { modulo_historico_log: rule.modulo_regra_alerta } : {}),
+          data_criacao_historico_log: { gte: windowStart },
         },
       })
 
-      if (recentCount < rule.threshold_count) return
+      if (recentCount < rule.limiar_contagem_regra_alerta) return
 
       // Buscar IDs dos logs recentes para referenciar no alerta
       const recentLogs = await prisma.historicoLog.findMany({
         where: {
-          tenant_id: log.tenant_id,
-          actor_id: log.actor_id,
-          created_at: { gte: windowStart },
+          id_organizacao: log.id_organizacao,
+          id_ator_historico_log: log.id_ator_historico_log,
+          data_criacao_historico_log: { gte: windowStart },
         },
-        select: { id: true },
+        select: { id_historico_log: true },
         take: 50,
       })
 
       const alertEvent = await prisma.alertaData.create({
         data: {
-          tenant_id: log.tenant_id,
-          rule_id: rule.id,
-          actor_type: log.actor_type as AcaoExecutadaPor,
-          actor_id: log.actor_id,
-          actor_name: log.actor_name,
-          module: log.module,
-          action: log.action,
-          event_count: recentCount,
-          window_seconds: rule.threshold_window_seconds,
-          audit_log_ids: recentLogs.map((l) => l.id),
-          status: AlertaStatus.PENDENTE,
+          id_organizacao: log.id_organizacao,
+          id_regra_evento_alerta: rule.id_regra_alerta,
+          tipo_ator_evento_alerta: log.tipo_ator_historico_log as AcaoExecutadaPor,
+          id_ator_evento_alerta: log.id_ator_historico_log,
+          nome_ator_evento_alerta: log.nome_ator_historico_log,
+          modulo_evento_alerta: log.modulo_historico_log,
+          acao_evento_alerta: log.acao_historico_log,
+          contagem_eventos_evento_alerta: recentCount,
+          janela_segundos_evento_alerta: rule.limiar_janela_segundos_regra_alerta,
+          ids_logs_auditoria_evento_alerta: recentLogs.map((l) => l.id_historico_log),
+          status_evento_alerta: AlertaStatus.PENDENTE,
         },
       })
 
       await NotificationDispatcher.dispatch(rule, alertEvent)
     } else {
-      // Regra sem threshold — dispara sempre que o filtro bate (ex: cross-tenant)
+      // Regra sem threshold — dispara sempre que o filtro bate (ex: cross-organizacao)
       const alertEvent = await prisma.alertaData.create({
         data: {
-          tenant_id: log.tenant_id,
-          rule_id: rule.id,
-          actor_type: log.actor_type as AcaoExecutadaPor,
-          actor_id: log.actor_id,
-          actor_name: log.actor_name,
-          module: log.module,
-          action: log.action,
-          event_count: 1,
-          window_seconds: 0,
-          audit_log_ids: [logId],
-          status: AlertaStatus.PENDENTE,
+          id_organizacao: log.id_organizacao,
+          id_regra_evento_alerta: rule.id_regra_alerta,
+          tipo_ator_evento_alerta: log.tipo_ator_historico_log as AcaoExecutadaPor,
+          id_ator_evento_alerta: log.id_ator_historico_log,
+          nome_ator_evento_alerta: log.nome_ator_historico_log,
+          modulo_evento_alerta: log.modulo_historico_log,
+          acao_evento_alerta: log.acao_historico_log,
+          contagem_eventos_evento_alerta: 1,
+          janela_segundos_evento_alerta: 0,
+          ids_logs_auditoria_evento_alerta: [logId],
+          status_evento_alerta: AlertaStatus.PENDENTE,
         },
       })
 

@@ -11,22 +11,23 @@ export const EXPORT_DIR = join(tmpdir(), 'gravity-exports')
 
 export interface ExportJobInput {
   jobId: string
-  tenant_id: string
-  format: 'csv' | 'json'
+  id_organizacao: string
+  formato_exportar_resultado: 'csv' | 'json'
   filters: {
-    actor_type?: string
-    module?: string
-    action?: string
-    status?: string
+    tipo_ator_historico_log?: string
+    modulo_historico_log?: string
+    acao_historico_log?: string
+    status_historico_log?: string
     startDate?: string
     endDate?: string
   }
 }
 
 const CSV_HEADERS = [
-  'id', 'created_at', 'tenant_id', 'actor_type', 'actor_id', 'actor_name',
-  'actor_ip', 'module', 'resource_type', 'resource_id',
-  'action', 'action_detail', 'status',
+  'id_historico_log', 'data_criacao_historico_log', 'id_organizacao',
+  'tipo_ator_historico_log', 'id_ator_historico_log', 'nome_ator_historico_log',
+  'ip_ator_historico_log', 'modulo_historico_log', 'tipo_recurso_historico_log', 'id_recurso_historico_log',
+  'acao_historico_log', 'detalhe_acao_historico_log', 'status_historico_log',
 ]
 
 export async function startExportWorker(): Promise<void> {
@@ -38,17 +39,17 @@ export async function startExportWorker(): Promise<void> {
     EXPORT_QUEUE,
     { teamSize: 2, teamConcurrency: 2 },
     async (job) => {
-      const { jobId, tenant_id, format, filters } = job.data
+      const { jobId, id_organizacao, formato_exportar_resultado, filters } = job.data
 
       const where: Prisma.HistoricoLogWhereInput = {
-        tenant_id,
-        ...(filters.actor_type ? { actor_type: filters.actor_type as any } : {}),
-        ...(filters.module ? { module: filters.module } : {}),
-        ...(filters.action ? { action: filters.action } : {}),
-        ...(filters.status ? { status: filters.status as any } : {}),
+        id_organizacao,
+        ...(filters.tipo_ator_historico_log ? { tipo_ator_historico_log: filters.tipo_ator_historico_log as any } : {}),
+        ...(filters.modulo_historico_log ? { modulo_historico_log: filters.modulo_historico_log } : {}),
+        ...(filters.acao_historico_log ? { acao_historico_log: filters.acao_historico_log } : {}),
+        ...(filters.status_historico_log ? { status_historico_log: filters.status_historico_log as any } : {}),
         ...(filters.startDate || filters.endDate
           ? {
-              created_at: {
+              data_criacao_historico_log: {
                 ...(filters.startDate ? { gte: new Date(filters.startDate) } : {}),
                 ...(filters.endDate ? { lte: new Date(filters.endDate) } : {}),
               },
@@ -58,18 +59,20 @@ export async function startExportWorker(): Promise<void> {
 
       const logs = await prisma.historicoLog.findMany({
         where,
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_historico_log: 'desc' },
       })
 
         let content: string
-      if (format === 'json') {
+      if (formato_exportar_resultado === 'json') {
         content = JSON.stringify(logs, null, 2)
       } else {
         const rows = logs.map((l) =>
           [
-            l.id, l.created_at.toISOString(), l.tenant_id, l.actor_type, l.actor_id,
-            l.actor_name, l.actor_ip ?? '', l.module, l.resource_type, l.resource_id ?? '',
-            l.action, `"${l.action_detail.replace(/"/g, '""')}"`, l.status,
+            l.id_historico_log, l.data_criacao_historico_log.toISOString(), l.id_organizacao,
+            l.tipo_ator_historico_log, l.id_ator_historico_log,
+            l.nome_ator_historico_log, l.ip_ator_historico_log ?? '', l.modulo_historico_log,
+            l.tipo_recurso_historico_log, l.id_recurso_historico_log ?? '',
+            l.acao_historico_log, `"${l.detalhe_acao_historico_log.replace(/"/g, '""')}"`, l.status_historico_log,
           ].join(',')
         )
         content = [CSV_HEADERS.join(','), ...rows].join('\n')
@@ -80,28 +83,28 @@ export async function startExportWorker(): Promise<void> {
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h
       try {
         await (prisma as any).exportarResultado.upsert({
-          where: { id: jobId },
+          where: { id_exportar_resultado: jobId },
           create: {
-            id: jobId,
-            tenant_id,
-            format,
-            content,
-            status: 'ready',
-            record_count: logs.length,
-            filters: job.data.filters as object,
-            expires_at: expiresAt,
+            id_exportar_resultado: jobId,
+            id_organizacao,
+            formato_exportar_resultado,
+            conteudo_exportar_resultado: content,
+            status_exportar_resultado: 'ready',
+            contagem_registros_exportar_resultado: logs.length,
+            filtros_exportar_resultado: job.data.filters as object,
+            expira_em_exportar_resultado: expiresAt,
           },
           update: {
-            content,
-            status: 'ready',
-            record_count: logs.length,
-            expires_at: expiresAt,
+            conteudo_exportar_resultado: content,
+            status_exportar_resultado: 'ready',
+            contagem_registros_exportar_resultado: logs.length,
+            expira_em_exportar_resultado: expiresAt,
           },
         })
       } catch {
         // Fallback: filesystem (desenvolvimento / antes da migração)
         mkdirSync(EXPORT_DIR, { recursive: true })
-        writeFileSync(join(EXPORT_DIR, `${jobId}.${format}`), content, 'utf-8')
+        writeFileSync(join(EXPORT_DIR, `${jobId}.${formato_exportar_resultado}`), content, 'utf-8')
       }
 
       console.log(`[export-worker] Exportação ${jobId} concluída — ${logs.length} registros`)
@@ -118,14 +121,14 @@ export async function startExportWorker(): Promise<void> {
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 
 /**
- * Deleta ExportResult cujo expires_at já passou.
+ * Deleta ExportResult cujo expira_em_exportar_resultado já passou.
  * Roda uma vez na inicialização e depois a cada hora.
  */
 function startExportCleanupJob(): void {
   const run = async () => {
     try {
       const deleted = await (prisma as any).exportarResultado.deleteMany({
-        where: { expires_at: { lt: new Date() } },
+        where: { expira_em_exportar_resultado: { lt: new Date() } },
       })
       if (deleted.count > 0) {
         console.log(`[export-worker] Cleanup: ${deleted.count} exportação(ões) expirada(s) removida(s)`)

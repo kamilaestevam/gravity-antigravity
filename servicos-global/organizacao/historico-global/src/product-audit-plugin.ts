@@ -11,13 +11,13 @@
  *   import { auditLog } from '@gravity/historico/audit-client'
  *
  *   const auditPlugin = createProductAuditPlugin({
- *     product_id: 'pedido',
- *     module: 'pedido',
+ *     id_produto_historico_log: 'pedido',
+ *     modulo_historico_log: 'pedido',
  *     getActorFromReq: (req) => ({
- *       actor_id:   req.auth.id_usuario,
- *       actor_name: req.auth.nome_usuario ?? req.auth.id_usuario,
- *       actor_type: 'USER',
- *       tenant_id:  req.auth.id_organizacao,
+ *       id_ator_historico_log:   req.auth.id_usuario,
+ *       nome_ator_historico_log: req.auth.nome_usuario ?? req.auth.id_usuario,
+ *       tipo_ator_historico_log: 'USUARIO',
+ *       id_organizacao:          req.auth.id_organizacao,
  *     }),
  *   })
  *
@@ -25,22 +25,20 @@
  */
 
 import type { Request, Response, NextFunction } from 'express'
-import { auditLog } from './audit-client.js'
-
-export type ActorType = 'USER' | 'API' | 'AI' | 'JOB' | 'INTEGRATION'
+import { auditLog, type TipoAtorHistoricoLog } from './audit-client.js'
 
 export interface AuditActorContext {
-  actor_id: string
-  actor_name: string
-  actor_type: ActorType
-  tenant_id: string
+  id_ator_historico_log: string
+  nome_ator_historico_log: string
+  tipo_ator_historico_log: TipoAtorHistoricoLog
+  id_organizacao: string
 }
 
 export interface ProductAuditPluginOptions {
   /** ID do produto que está sendo instrumentado (ex: 'pedido', 'nf-importacao') */
-  product_id: string
+  id_produto_historico_log: string
   /** Módulo padrão para todos os logs deste produto */
-  module: string
+  modulo_historico_log: string
   /** Extrai dados do ator da requisição autenticada */
   getActorFromReq: (req: Request) => AuditActorContext | null
   /**
@@ -49,9 +47,9 @@ export interface ProductAuditPluginOptions {
    */
   ignoreRoutes?: (string | RegExp)[]
   /**
-   * Mapeia o resource_type a partir da URL (opcional).
+   * Mapeia o tipo_recurso_historico_log a partir da URL (opcional).
    * Padrão: usa o primeiro segmento do path após o prefixo.
-   * Ex: /pedidos/123 → resource_type = 'pedido', resource_id = '123'
+   * Ex: /pedidos/123 → tipo_recurso_historico_log = 'pedido', id_recurso_historico_log = '123'
    */
   resourceTypeFromPath?: (req: Request) => string
 }
@@ -59,23 +57,23 @@ export interface ProductAuditPluginOptions {
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
 /**
- * Infere resource_type e resource_id a partir da URL.
- * Ex: /api/v1/pedidos/123/itens/456 → resource_type='pedidos', resource_id='123'
+ * Infere tipo_recurso_historico_log e id_recurso_historico_log a partir da URL.
+ * Ex: /api/v1/pedidos/123/itens/456 → tipo_recurso_historico_log='pedidos', id_recurso_historico_log='123'
  */
-function inferResourceFromPath(req: Request): { resource_type: string; resource_id?: string } {
+function inferResourceFromPath(req: Request): { tipo_recurso_historico_log: string; id_recurso_historico_log?: string } {
   const segments = req.path.replace(/^\/+/, '').split('/').filter(Boolean)
   // Remove prefixos comuns de API
   const apiPrefixPatterns = /^(api|v\d+|internal)$/i
   const meaningful = segments.filter((s) => !apiPrefixPatterns.test(s))
-  const resource_type = meaningful[0] ?? req.path
-  // Se o próximo segmento parece um ID (UUID ou número), usa como resource_id
+  const tipo_recurso_historico_log = meaningful[0] ?? req.path
+  // Se o próximo segmento parece um ID (UUID ou número), usa como id_recurso_historico_log
   const maybeId = meaningful[1]
-  const resource_id =
+  const id_recurso_historico_log =
     maybeId && /^[0-9a-f-]{8,}$/i.test(maybeId) ? maybeId : req.params?.id
-  return { resource_type, resource_id }
+  return { tipo_recurso_historico_log, id_recurso_historico_log }
 }
 
-function buildActionDetail(method: string, resource_type: string, id?: string): string {
+function buildActionDetail(method: string, tipo_recurso_historico_log: string, id?: string): string {
   const map: Record<string, string> = {
     POST: 'Criou',
     PUT: 'Atualizou',
@@ -83,11 +81,11 @@ function buildActionDetail(method: string, resource_type: string, id?: string): 
     DELETE: 'Removeu',
   }
   const verb = map[method] ?? method
-  return id ? `${verb} ${resource_type} #${id}` : `${verb} ${resource_type}`
+  return id ? `${verb} ${tipo_recurso_historico_log} #${id}` : `${verb} ${tipo_recurso_historico_log}`
 }
 
 export function createProductAuditPlugin(opts: ProductAuditPluginOptions) {
-  const { product_id, module, getActorFromReq, ignoreRoutes = [], resourceTypeFromPath } = opts
+  const { id_produto_historico_log, modulo_historico_log, getActorFromReq, ignoreRoutes = [], resourceTypeFromPath } = opts
 
   return function auditPluginMiddleware(req: Request, res: Response, next: NextFunction): void {
     // Só instrumenta métodos mutáveis
@@ -120,34 +118,34 @@ export function createProductAuditPlugin(opts: ProductAuditPluginOptions) {
         const isSuccess = statusCode >= 200 && statusCode < 300
         const isFailure = statusCode >= 400
 
-        const { resource_type, resource_id } =
+        const { tipo_recurso_historico_log, id_recurso_historico_log } =
           resourceTypeFromPath
-            ? { resource_type: resourceTypeFromPath(req), resource_id: req.params?.id }
+            ? { tipo_recurso_historico_log: resourceTypeFromPath(req), id_recurso_historico_log: req.params?.id }
             : inferResourceFromPath(req)
 
-        const resolvedId = (body as any)?.id ?? resource_id ?? req.params?.id
+        const resolvedId = (body as any)?.id ?? id_recurso_historico_log ?? req.params?.id
 
         auditLog({
-          tenant_id: actor.tenant_id,
-          actor_type: actor.actor_type,
-          actor_id: actor.actor_id,
-          actor_name: actor.actor_name,
-          actor_ip: req.ip,
-          actor_metadata: {
+          id_organizacao: actor.id_organizacao,
+          tipo_ator_historico_log: actor.tipo_ator_historico_log,
+          id_ator_historico_log: actor.id_ator_historico_log,
+          nome_ator_historico_log: actor.nome_ator_historico_log,
+          ip_ator_historico_log: req.ip,
+          metadata_ator_historico_log: {
             user_agent: req.headers['user-agent'],
             correlation_id: req.headers['x-correlation-id'],
             method: req.method,
           },
-          module,
-          resource_type,
-          resource_id: resolvedId,
-          action: req.method,
-          action_detail: buildActionDetail(req.method, resource_type, resolvedId),
-          after: isSuccess ? (body as Record<string, unknown>) : undefined,
-          status: isFailure ? 'FAILURE' : isSuccess ? 'SUCCESS' : 'PARTIAL',
-          error_message: isFailure ? (body as any)?.message : undefined,
-          product_id,
-          user_id: actor.actor_type === 'USER' ? actor.actor_id : undefined,
+          modulo_historico_log,
+          tipo_recurso_historico_log,
+          id_recurso_historico_log: resolvedId,
+          acao_historico_log: req.method,
+          detalhe_acao_historico_log: buildActionDetail(req.method, tipo_recurso_historico_log, resolvedId),
+          estado_posterior_historico_log: isSuccess ? (body as Record<string, unknown>) : undefined,
+          status_historico_log: isFailure ? 'FALHA' : isSuccess ? 'SUCESSO' : 'PARCIAL',
+          mensagem_erro_historico_log: isFailure ? (body as any)?.message : undefined,
+          id_produto_historico_log,
+          id_usuario: actor.tipo_ator_historico_log === 'USUARIO' ? actor.id_ator_historico_log : undefined,
         })
         } catch (auditErr) {
           // Auditoria é fire-and-forget — nunca deve quebrar a resposta ao cliente

@@ -1,40 +1,40 @@
 import { describe, it, expect } from 'vitest'
-import { IngestHistorySchema, ListHistoryQuerySchema, ActorTypeEnum } from '../history.schema.js'
+import { IngestHistorySchema, ListHistoryQuerySchema, TipoAtorHistoricoLogEnum } from '../history.schema.js'
 
-// ── ActorTypeEnum ──────────────────────────────────────────────────────────────
+// ── TipoAtorHistoricoLogEnum ──────────────────────────────────────────────────
 
-describe('ActorTypeEnum', () => {
-  const VALID = ['USER', 'API', 'AI', 'JOB', 'INTEGRATION'] as const
+describe('TipoAtorHistoricoLogEnum', () => {
+  const VALID = ['USUARIO', 'API', 'IA', 'JOB', 'INTEGRACAO'] as const
 
   VALID.forEach((tipo) => {
     it(`aceita tipo válido: ${tipo}`, () => {
-      expect(ActorTypeEnum.safeParse(tipo).success).toBe(true)
+      expect(TipoAtorHistoricoLogEnum.safeParse(tipo).success).toBe(true)
     })
   })
 
   it('rejeita tipo inválido: GABI_IA', () => {
-    expect(ActorTypeEnum.safeParse('GABI_IA').success).toBe(false)
+    expect(TipoAtorHistoricoLogEnum.safeParse('GABI_IA').success).toBe(false)
   })
 
-  it('rejeita tipo inválido: user (minúsculo)', () => {
-    expect(ActorTypeEnum.safeParse('user').success).toBe(false)
+  it('rejeita tipo inválido: usuario (minúsculo)', () => {
+    expect(TipoAtorHistoricoLogEnum.safeParse('usuario').success).toBe(false)
   })
 
   it('rejeita tipo inválido: string vazia', () => {
-    expect(ActorTypeEnum.safeParse('').success).toBe(false)
+    expect(TipoAtorHistoricoLogEnum.safeParse('').success).toBe(false)
   })
 })
 
 // ── IngestHistorySchema ────────────────────────────────────────────────────────
 
 const VALID_PAYLOAD = {
-  actor_type: 'USER',
-  actor_id: 'user-123',
-  actor_name: 'Daniel',
-  module: 'pedido',
-  resource_type: 'Pedido',
-  action: 'CREATE',
-  action_detail: 'Criou o pedido #001',
+  tipo_ator_historico_log: 'USUARIO',
+  id_ator_historico_log: 'user-123',
+  nome_ator_historico_log: 'Daniel',
+  modulo_historico_log: 'pedido',
+  tipo_recurso_historico_log: 'Pedido',
+  acao_historico_log: 'CREATE',
+  detalhe_acao_historico_log: 'Criou o pedido #001',
 }
 
 describe('IngestHistorySchema', () => {
@@ -46,46 +46,46 @@ describe('IngestHistorySchema', () => {
   it('aceita payload completo com campos opcionais', () => {
     const full = {
       ...VALID_PAYLOAD,
-      actor_ip: '192.168.1.1',
-      actor_metadata: { browser: 'Chrome' },
-      resource_id: 'pedido-456',
-      before: { status: 'RASCUNHO' },
-      after: { status: 'CONFIRMADO' },
-      status: 'SUCCESS',
-      error_message: undefined,
-      product_id: 'prod-001',
-      user_id: 'user-123',
+      ip_ator_historico_log: '192.168.1.1',
+      metadata_ator_historico_log: { browser: 'Chrome' },
+      id_recurso_historico_log: 'pedido-456',
+      estado_anterior_historico_log: { status: 'RASCUNHO' },
+      estado_posterior_historico_log: { status: 'CONFIRMADO' },
+      status_historico_log: 'SUCESSO',
+      mensagem_erro_historico_log: undefined,
+      id_produto_historico_log: 'prod-001',
+      id_usuario: 'user-123',
     }
     expect(IngestHistorySchema.safeParse(full).success).toBe(true)
   })
 
-  it('rejeita actor_type inválido', () => {
-    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, actor_type: 'GABI_IA' })
+  it('rejeita tipo_ator_historico_log inválido', () => {
+    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, tipo_ator_historico_log: 'GABI_IA' })
     expect(result.success).toBe(false)
   })
 
-  it('rejeita actor_id vazio', () => {
-    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, actor_id: '' })
+  it('rejeita id_ator_historico_log vazio', () => {
+    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, id_ator_historico_log: '' })
     expect(result.success).toBe(false)
   })
 
-  it('rejeita actor_name vazio', () => {
-    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, actor_name: '' })
+  it('rejeita nome_ator_historico_log vazio', () => {
+    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, nome_ator_historico_log: '' })
     expect(result.success).toBe(false)
   })
 
-  it('rejeita module ausente', () => {
-    const { module: _m, ...sem } = VALID_PAYLOAD
+  it('rejeita modulo_historico_log ausente', () => {
+    const { modulo_historico_log: _m, ...sem } = VALID_PAYLOAD
     expect(IngestHistorySchema.safeParse(sem).success).toBe(false)
   })
 
-  it('rejeita action_detail ausente', () => {
-    const { action_detail: _a, ...sem } = VALID_PAYLOAD
+  it('rejeita detalhe_acao_historico_log ausente', () => {
+    const { detalhe_acao_historico_log: _a, ...sem } = VALID_PAYLOAD
     expect(IngestHistorySchema.safeParse(sem).success).toBe(false)
   })
 
-  it('status inválido é rejeitado', () => {
-    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, status: 'OK' })
+  it('status_historico_log inválido é rejeitado', () => {
+    const result = IngestHistorySchema.safeParse({ ...VALID_PAYLOAD, status_historico_log: 'OK' })
     expect(result.success).toBe(false)
   })
 })

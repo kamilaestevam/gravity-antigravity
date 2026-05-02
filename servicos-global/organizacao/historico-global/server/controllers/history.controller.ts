@@ -34,8 +34,8 @@ declare global {
   }
 }
 
-/** Actor types permitidos por chamadas com x-internal-key (serviços internos). */
-const INTERNAL_ALLOWED_ACTOR_TYPES = new Set(['AI', 'API', 'JOB', 'INTEGRATION'])
+/** Tipos de ator permitidos por chamadas com x-internal-key (serviços internos). */
+const INTERNAL_ALLOWED_ACTOR_TYPES = new Set(['IA', 'API', 'JOB', 'INTEGRACAO'])
 
 /** Metadados de job do PG Boss (tipagem local — a lib não exporta este shape). */
 interface PgBossJobMeta {
@@ -53,13 +53,13 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 /** Limite superior do tamanho de página para queries de listagem. */
 const MAX_PAGE_SIZE = 200
 
-/** Extrai tenant_id do request (header x-id-organizacao ou req.auth do middleware). */
-function getTenantId(req: Request): string {
+/** Extrai id_organizacao do request (header x-id-organizacao ou req.auth do middleware). */
+function getIdOrganizacao(req: Request): string {
   // req.auth pode estar ausente em rotas com x-internal-key (chamadas inter-serviço)
-  const authTenantId = (req as { auth?: { id_organizacao?: string } }).auth?.id_organizacao
-  const tenantId = (req.headers['x-id-organizacao'] as string) || authTenantId
-  if (!tenantId) throw AppError.unauthorized('tenant_id obrigatório')
-  return tenantId
+  const authIdOrganizacao = (req as { auth?: { id_organizacao?: string } }).auth?.id_organizacao
+  const idOrganizacao = (req.headers['x-id-organizacao'] as string) || authIdOrganizacao
+  if (!idOrganizacao) throw AppError.unauthorized('id_organizacao obrigatório')
+  return idOrganizacao
 }
 
 /** Extrai userId do req.auth se presente (null em chamadas internas). */
@@ -70,46 +70,46 @@ function getAuthUserId(req: Request): string | null {
 // POST /logs
 export async function ingestLog(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const parsed = IngestHistorySchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
-    // Ponto C — validar que actor_id corresponde ao usuário autenticado.
-    // Chamadas internas (x-internal-key) só podem gravar actor_type ∈ {AI, API, JOB, INTEGRATION}
-    // — nunca USER (um serviço interno não deve fingir ser um humano específico).
+    // Ponto C — validar que id_ator_historico_log corresponde ao usuário autenticado.
+    // Chamadas internas (x-internal-key) só podem gravar tipo_ator_historico_log ∈ {IA, API, JOB, INTEGRACAO}
+    // — nunca USUARIO (um serviço interno não deve fingir ser um humano específico).
     const isInternalCall = req.headers['x-internal-key'] === INTERNAL_KEY && !!INTERNAL_KEY
     const authUserId = getAuthUserId(req)
 
     if (isInternalCall) {
-      if (!INTERNAL_ALLOWED_ACTOR_TYPES.has(parsed.data.actor_type)) {
+      if (!INTERNAL_ALLOWED_ACTOR_TYPES.has(parsed.data.tipo_ator_historico_log)) {
         setImmediate(() => {
-          securityAudit.crossTenantAttempt(tenant_id, 'internal-service', {
-            targetTenantId: tenant_id,
-            resource: `audit_log:invalid_internal_actor_type:${parsed.data.actor_type}`,
+          securityAudit.crossTenantAttempt(id_organizacao, 'internal-service', {
+            targetTenantId: id_organizacao,
+            resource: `audit_log:invalid_internal_actor_type:${parsed.data.tipo_ator_historico_log}`,
             blocked: true,
           })
         })
         throw AppError.forbidden(
-          `Chamadas internas só podem gravar actor_type ∈ {AI, API, JOB, INTEGRATION} — recebido: ${parsed.data.actor_type}`
+          `Chamadas internas só podem gravar tipo_ator_historico_log ∈ {IA, API, JOB, INTEGRACAO} — recebido: ${parsed.data.tipo_ator_historico_log}`
         )
       }
     } else if (
       authUserId &&
-      parsed.data.actor_type === 'USER' &&
-      parsed.data.actor_id !== authUserId
+      parsed.data.tipo_ator_historico_log === 'USUARIO' &&
+      parsed.data.id_ator_historico_log !== authUserId
     ) {
       setImmediate(() => {
-        securityAudit.crossTenantAttempt(tenant_id, authUserId, {
-          targetTenantId: tenant_id,
+        securityAudit.crossTenantAttempt(id_organizacao, authUserId, {
+          targetTenantId: id_organizacao,
           resource: 'audit_log:actor_id_spoof',
           blocked: true,
         })
       })
-      throw AppError.forbidden('actor_id não corresponde ao usuário autenticado')
+      throw AppError.forbidden('id_ator_historico_log não corresponde ao usuário autenticado')
     }
 
-    await AuditService.log({ tenant_id, ...parsed.data })
+    await AuditService.log({ id_organizacao, ...parsed.data })
 
     return res.status(202).json({ accepted: true })
   } catch (error) {
@@ -120,7 +120,7 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
 // GET /logs
 export async function listLogs(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const parsed = ListHistoryQuerySchema.safeParse(req.query)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
@@ -131,28 +131,28 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 
     const user = extractAuthUser(req)
 
-    // Ponto Cego 3 — detectar tentativa de ler dados de outro tenant explicitamente
-    const requestedTenantId = req.query.tenant_id as string | undefined
+    // Ponto Cego 3 — detectar tentativa de ler dados de outra organização explicitamente
+    const requestedIdOrganizacao = req.query.id_organizacao as string | undefined
     if (
-      requestedTenantId &&
+      requestedIdOrganizacao &&
       user &&
-      requestedTenantId !== user.tenant_id &&
+      requestedIdOrganizacao !== user.id_organizacao &&
       user.role !== 'SUPER_ADMIN' &&
       user.role !== 'ADMIN'
     ) {
       setImmediate(() => {
-        securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
-          targetTenantId: requestedTenantId,
+        securityAudit.crossTenantAttempt(user.id_organizacao, user.id, {
+          targetTenantId: requestedIdOrganizacao,
           resource: 'history_log:list',
           blocked: true,
         })
       })
-      throw AppError.forbidden('Acesso negado a dados de outro tenant')
+      throw AppError.forbidden('Acesso negado a dados de outra organização')
     }
 
     const visibilityFilter = user
       ? buildVisibilityFilter(user)
-      : { tenant_id }
+      : { id_organizacao }
 
     // Construir filtro de data unificado (evita conflito de chave entre cursor e range)
     const createdAtFilter: Prisma.DateTimeFilter<'HistoricoLog'> = {}
@@ -162,21 +162,21 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 
     const where: Prisma.HistoricoLogWhereInput = {
       ...visibilityFilter,
-      ...(q.actor_type ? { actor_type: q.actor_type } : {}),
-      ...(q.actor_id ? { actor_id: q.actor_id } : {}),
-      ...(q.module ? { module: q.module } : {}),
-      ...(q.resource_type ? { resource_type: q.resource_type } : {}),
-      ...(q.resource_id ? { resource_id: q.resource_id } : {}),
-      ...(q.action ? { action: q.action } : {}),
-      ...(q.status ? { status: q.status } : {}),
-      ...(q.product_id ? { product_id: q.product_id } : {}),
-      ...(Object.keys(createdAtFilter).length > 0 ? { created_at: createdAtFilter } : {}),
+      ...(q.tipo_ator_historico_log ? { tipo_ator_historico_log: q.tipo_ator_historico_log } : {}),
+      ...(q.id_ator_historico_log ? { id_ator_historico_log: q.id_ator_historico_log } : {}),
+      ...(q.modulo_historico_log ? { modulo_historico_log: q.modulo_historico_log } : {}),
+      ...(q.tipo_recurso_historico_log ? { tipo_recurso_historico_log: q.tipo_recurso_historico_log } : {}),
+      ...(q.id_recurso_historico_log ? { id_recurso_historico_log: q.id_recurso_historico_log } : {}),
+      ...(q.acao_historico_log ? { acao_historico_log: q.acao_historico_log } : {}),
+      ...(q.status_historico_log ? { status_historico_log: q.status_historico_log } : {}),
+      ...(q.id_produto_historico_log ? { id_produto_historico_log: q.id_produto_historico_log } : {}),
+      ...(Object.keys(createdAtFilter).length > 0 ? { data_criacao_historico_log: createdAtFilter } : {}),
       ...(q.search
         ? {
             OR: [
-              { action_detail: { contains: q.search, mode: 'insensitive' } },
-              { actor_name: { contains: q.search, mode: 'insensitive' } },
-              { resource_type: { contains: q.search, mode: 'insensitive' } },
+              { detalhe_acao_historico_log: { contains: q.search, mode: 'insensitive' } },
+              { nome_ator_historico_log: { contains: q.search, mode: 'insensitive' } },
+              { tipo_recurso_historico_log: { contains: q.search, mode: 'insensitive' } },
             ],
           }
         : {}),
@@ -184,13 +184,13 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 
     const logs = await getPrisma().historicoLog.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_historico_log: 'desc' },
       take: safeLimit + 1, // +1 para saber se há próxima página
     })
 
     const hasMore = logs.length > safeLimit
     const data = hasMore ? logs.slice(0, safeLimit) : logs
-    const nextCursor = hasMore ? data[data.length - 1].created_at.toISOString() : null
+    const nextCursor = hasMore ? data[data.length - 1].data_criacao_historico_log.toISOString() : null
 
     res.json({ data, meta: { hasMore, nextCursor, limit: safeLimit } })
   } catch (error) {
@@ -201,22 +201,22 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 // GET /logs/:id
 export async function getLogById(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const user = extractAuthUser(req)
-    const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
+    const visibilityFilter = user ? buildVisibilityFilter(user) : { id_organizacao }
 
     const log = await getPrisma().historicoLog.findFirst({
-      where: { id: req.params.id, ...visibilityFilter },
+      where: { id_historico_log: req.params.id, ...visibilityFilter },
     })
 
     if (!log) {
-      // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-tenant)
+      // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-organizacao)
       if (user && (user.role === 'STANDARD' || user.role === 'SUPPLIER')) {
-        const exists = await getPrisma().historicoLog.count({ where: { id: req.params.id } })
+        const exists = await getPrisma().historicoLog.count({ where: { id_historico_log: req.params.id } })
         if (exists > 0) {
           setImmediate(() => {
-            securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
+            securityAudit.crossTenantAttempt(user.id_organizacao, user.id, {
               targetTenantId: 'unknown',
               resource: `history_log:${req.params.id}`,
               blocked: true,
@@ -231,18 +231,18 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
     if (user) {
       setImmediate(() => {
         AuditService.log({
-          tenant_id,
-          actor_type: 'USER',
-          actor_id: user.id,
-          actor_name: user.id,
-          actor_ip: req.ip,
-          module: 'historico',
-          resource_type: 'HistoryLog',
-          resource_id: log.id,
-          action: 'VISUALIZAÇÃO',
-          action_detail: `Visualizou log de auditoria #${log.id} (${log.action} em ${log.module})`,
-          status: 'SUCCESS',
-          user_id: user.id,
+          id_organizacao,
+          tipo_ator_historico_log: 'USUARIO',
+          id_ator_historico_log: user.id,
+          nome_ator_historico_log: user.id,
+          ip_ator_historico_log: req.ip,
+          modulo_historico_log: 'historico',
+          tipo_recurso_historico_log: 'HistoryLog',
+          id_recurso_historico_log: log.id_historico_log,
+          acao_historico_log: 'VISUALIZACAO',
+          detalhe_acao_historico_log: `Visualizou log de auditoria #${log.id_historico_log} (${log.acao_historico_log} em ${log.modulo_historico_log})`,
+          status_historico_log: 'SUCESSO',
+          id_usuario: user.id,
         }).catch(() => {})
       })
     }
@@ -256,24 +256,24 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
 // GET /logs/export
 export async function exportLogs(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const parsed = ExportHistoryQuerySchema.safeParse(req.query)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
     const q = parsed.data
     const user = extractAuthUser(req)
-    const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
+    const visibilityFilter = user ? buildVisibilityFilter(user) : { id_organizacao }
 
     const where: Prisma.HistoricoLogWhereInput = {
       ...visibilityFilter,
-      ...(q.actor_type ? { actor_type: q.actor_type } : {}),
-      ...(q.module ? { module: q.module } : {}),
-      ...(q.action ? { action: q.action } : {}),
-      ...(q.status ? { status: q.status } : {}),
+      ...(q.tipo_ator_historico_log ? { tipo_ator_historico_log: q.tipo_ator_historico_log } : {}),
+      ...(q.modulo_historico_log ? { modulo_historico_log: q.modulo_historico_log } : {}),
+      ...(q.acao_historico_log ? { acao_historico_log: q.acao_historico_log } : {}),
+      ...(q.status_historico_log ? { status_historico_log: q.status_historico_log } : {}),
       ...(q.startDate || q.endDate
         ? {
-            created_at: {
+            data_criacao_historico_log: {
               ...(q.startDate ? { gte: new Date(q.startDate) } : {}),
               ...(q.endDate ? { lte: new Date(q.endDate) } : {}),
             },
@@ -289,13 +289,13 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
       const boss = getBoss()
       await boss.send(EXPORT_QUEUE, {
         jobId,
-        tenant_id,
-        format: q.format,
+        id_organizacao,
+        formato_exportar_resultado: q.formato_exportar_resultado,
         filters: {
-          actor_type: q.actor_type,
-          module: q.module,
-          action: q.action,
-          status: q.status,
+          tipo_ator_historico_log: q.tipo_ator_historico_log,
+          modulo_historico_log: q.modulo_historico_log,
+          acao_historico_log: q.acao_historico_log,
+          status_historico_log: q.status_historico_log,
           startDate: q.startDate,
           endDate: q.endDate,
         },
@@ -312,10 +312,10 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
 
     const logs = await getPrisma().historicoLog.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { data_criacao_historico_log: 'desc' },
     })
 
-    if (q.format === 'json') {
+    if (q.formato_exportar_resultado === 'json') {
       res.setHeader('Content-Type', 'application/json')
       res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.json"')
       return res.json(logs)
@@ -323,15 +323,18 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
 
     // CSV síncrono (≤10k registros)
     const headers = [
-      'id', 'created_at', 'tenant_id', 'actor_type', 'actor_id', 'actor_name',
-      'actor_ip', 'module', 'resource_type', 'resource_id',
-      'action', 'action_detail', 'status',
+      'id_historico_log', 'data_criacao_historico_log', 'id_organizacao',
+      'tipo_ator_historico_log', 'id_ator_historico_log', 'nome_ator_historico_log',
+      'ip_ator_historico_log', 'modulo_historico_log', 'tipo_recurso_historico_log', 'id_recurso_historico_log',
+      'acao_historico_log', 'detalhe_acao_historico_log', 'status_historico_log',
     ]
     const rows = logs.map((l) =>
       [
-        l.id, l.created_at.toISOString(), l.tenant_id, l.actor_type, l.actor_id,
-        l.actor_name, l.actor_ip ?? '', l.module, l.resource_type, l.resource_id ?? '',
-        l.action, `"${l.action_detail.replace(/"/g, '""')}"`, l.status,
+        l.id_historico_log, l.data_criacao_historico_log.toISOString(), l.id_organizacao,
+        l.tipo_ator_historico_log, l.id_ator_historico_log,
+        l.nome_ator_historico_log, l.ip_ator_historico_log ?? '', l.modulo_historico_log,
+        l.tipo_recurso_historico_log, l.id_recurso_historico_log ?? '',
+        l.acao_historico_log, `"${l.detalhe_acao_historico_log.replace(/"/g, '""')}"`, l.status_historico_log,
       ].join(',')
     )
 
@@ -346,7 +349,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
 // GET /logs/export/:jobId/status
 export async function exportJobStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const { jobId } = req.params
 
@@ -358,13 +361,13 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
       // o catch serve de fallback pra filesystem. O cast via PrismaClient genérico
       // permite build mesmo quando o modelo não está gerado.
       const prismaAny = getPrisma() as unknown as {
-        exportarResultado: { findUnique: (args: { where: { id: string } }) => Promise<{ tenant_id: string; status: string } | null> }
+        exportarResultado: { findUnique: (args: { where: { id_exportar_resultado: string } }) => Promise<{ id_organizacao: string; status_exportar_resultado: string } | null> }
       }
-      const result = await prismaAny.exportarResultado.findUnique({ where: { id: jobId } })
+      const result = await prismaAny.exportarResultado.findUnique({ where: { id_exportar_resultado: jobId } })
       if (result) {
-        if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
-        ready = result.status === 'ready'
-        status = result.status
+        if (result.id_organizacao !== id_organizacao) throw AppError.forbidden('Acesso negado')
+        ready = result.status_exportar_resultado === 'ready'
+        status = result.status_exportar_resultado
       }
     } catch (err) {
       if (err instanceof AppError) throw err
@@ -394,7 +397,7 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
 // GET /logs/export/:jobId/download
 export async function exportJobDownload(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = getTenantId(req)
+    const id_organizacao = getIdOrganizacao(req)
 
     const { jobId } = req.params
 
@@ -402,21 +405,21 @@ export async function exportJobDownload(req: Request, res: Response, next: NextF
     try {
       const prismaAny = getPrisma() as unknown as {
         exportarResultado: {
-          findUnique: (args: { where: { id: string } }) => Promise<
-            { tenant_id: string; status: string; format: 'csv' | 'json'; content: string } | null
+          findUnique: (args: { where: { id_exportar_resultado: string } }) => Promise<
+            { id_organizacao: string; status_exportar_resultado: string; formato_exportar_resultado: 'csv' | 'json'; conteudo_exportar_resultado: string } | null
           >
         }
       }
-      const result = await prismaAny.exportarResultado.findUnique({ where: { id: jobId } })
+      const result = await prismaAny.exportarResultado.findUnique({ where: { id_exportar_resultado: jobId } })
       if (result) {
-        if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
-        if (result.status !== 'ready') {
+        if (result.id_organizacao !== id_organizacao) throw AppError.forbidden('Acesso negado')
+        if (result.status_exportar_resultado !== 'ready') {
           throw AppError.notFound('Exportação ainda em processamento')
         }
-        const mime = result.format === 'json' ? 'application/json' : 'text/csv'
+        const mime = result.formato_exportar_resultado === 'json' ? 'application/json' : 'text/csv'
         res.setHeader('Content-Type', mime)
-        res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${jobId}.${result.format}"`)
-        return res.send(result.content)
+        res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${jobId}.${result.formato_exportar_resultado}"`)
+        return res.send(result.conteudo_exportar_resultado)
       }
     } catch (err) {
       if (err instanceof AppError) throw err

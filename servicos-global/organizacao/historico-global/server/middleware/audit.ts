@@ -3,22 +3,22 @@ import { AcaoExecutadaPor } from '../../../generated/index.js'
 import { AuditService } from '../services/audit.service.js'
 
 export interface AuditMiddlewareOptions {
-  module: string
-  resource_type: string
-  action: string
-  action_detail?: string
+  modulo_historico_log: string
+  tipo_recurso_historico_log: string
+  acao_historico_log: string
+  detalhe_acao_historico_log?: string
   /**
    * Barreira 1 — ator OBRIGATÓRIO e explícito.
-   * Nunca inferir do contexto HTTP. Declare sempre: 'USER', 'AI', 'JOB', 'API' ou 'INTEGRATION'.
+   * Nunca inferir do contexto HTTP. Declare sempre: 'USUARIO', 'IA', 'JOB', 'API' ou 'INTEGRACAO'.
    */
-  actor_type: AcaoExecutadaPor
-  actor_id?: string
-  actor_name?: string
+  tipo_ator_historico_log: AcaoExecutadaPor
+  id_ator_historico_log?: string
+  nome_ator_historico_log?: string
   /**
-   * Ponto B — captura precisa do estado "antes".
+   * Ponto B — captura precisa do estado "anterior".
    * Quando fornecida, esta função é chamada ANTES da execução do handler
    * para capturar o estado atual da entidade no banco.
-   * Sem ela, `before` fica `undefined` no log.
+   * Sem ela, `estado_anterior_historico_log` fica `undefined` no log.
    *
    * Exemplo:
    *   fetchBefore: (req) => prisma.order.findUnique({ where: { id: req.params.id } })
@@ -30,27 +30,28 @@ export interface AuditMiddlewareOptions {
  * Middleware de auditoria automático.
  * Envolve rotas mutáveis e captura: ator, IP, estado após a operação.
  *
- * Para capturar o estado "before" com precisão, os serviços devem
- * chamar AuditService.log() diretamente passando before/after explícitos.
+ * Para capturar o estado "anterior" com precisão, os serviços devem
+ * chamar AuditService.log() diretamente passando estado_anterior_historico_log /
+ * estado_posterior_historico_log explícitos.
  *
- * BARREIRA 1: actor_type é obrigatório — nunca inferido do contexto HTTP.
- * actor_id e actor_name podem vir do req.auth quando não fornecidos.
+ * BARREIRA 1: tipo_ator_historico_log é obrigatório — nunca inferido do contexto HTTP.
+ * id_ator_historico_log e nome_ator_historico_log podem vir do req.auth quando não fornecidos.
  */
 export function auditMiddleware(opts: AuditMiddlewareOptions) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const auth = req.auth ?? {}
+    const auth = (req.auth ?? {}) as { id_usuario?: string; nome_usuario?: string; id_organizacao?: string }
 
-    const actor_type: AcaoExecutadaPor = opts.actor_type
-    const actor_id: string = opts.actor_id ?? auth.id_usuario ?? 'anonymous'
-    const actor_name: string = opts.actor_name ?? auth.nome_usuario ?? auth.id_usuario ?? 'Unknown'
+    const tipo_ator_historico_log: AcaoExecutadaPor = opts.tipo_ator_historico_log
+    const id_ator_historico_log: string = opts.id_ator_historico_log ?? auth.id_usuario ?? 'anonymous'
+    const nome_ator_historico_log: string = opts.nome_ator_historico_log ?? auth.nome_usuario ?? auth.id_usuario ?? 'Unknown'
 
-    // Ponto B: captura estado "antes" se fetchBefore fornecido
+    // Ponto B: captura estado "anterior" se fetchBefore fornecido
     let beforeState: unknown = undefined
     if (opts.fetchBefore) {
       try {
         beforeState = await opts.fetchBefore(req)
       } catch (err) {
-        console.error('[auditMiddleware] Falha no fetchBefore (log continuará sem before):', err)
+        console.error('[auditMiddleware] Falha no fetchBefore (log continuará sem estado_anterior_historico_log):', err)
       }
     }
 
@@ -63,26 +64,26 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
         const isFailure = statusCode >= 400
 
         AuditService.log({
-          tenant_id: auth.tenantId ?? (req.headers['x-id-organizacao'] as string) ?? 'unknown',
-          actor_type,
-          actor_id,
-          actor_name,
-          actor_ip: req.ip,
-          actor_metadata: {
+          id_organizacao: auth.id_organizacao ?? (req.headers['x-id-organizacao'] as string) ?? 'unknown',
+          tipo_ator_historico_log,
+          id_ator_historico_log,
+          nome_ator_historico_log,
+          ip_ator_historico_log: req.ip,
+          metadata_ator_historico_log: {
             user_agent: req.headers['user-agent'],
             correlation_id: req.headers['x-correlation-id'],
           },
-          module: opts.module,
-          resource_type: opts.resource_type,
-          resource_id: (body as any)?.id ?? req.params?.id,
-          action: opts.action,
-          action_detail: opts.action_detail ?? `${opts.action} em ${opts.resource_type}`,
-          before: beforeState,
-          after: isSuccess ? body : undefined,
-          status: isFailure ? 'FAILURE' : isSuccess ? 'SUCCESS' : 'PARTIAL',
-          error_message: isFailure ? (body as any)?.message : undefined,
-          product_id: auth.productId,
-          user_id: actor_type === AcaoExecutadaPor.USUARIO ? actor_id : undefined,
+          modulo_historico_log: opts.modulo_historico_log,
+          tipo_recurso_historico_log: opts.tipo_recurso_historico_log,
+          id_recurso_historico_log: (body as any)?.id ?? req.params?.id,
+          acao_historico_log: opts.acao_historico_log,
+          detalhe_acao_historico_log: opts.detalhe_acao_historico_log ?? `${opts.acao_historico_log} em ${opts.tipo_recurso_historico_log}`,
+          estado_anterior_historico_log: beforeState,
+          estado_posterior_historico_log: isSuccess ? body : undefined,
+          status_historico_log: isFailure ? 'FALHA' : isSuccess ? 'SUCESSO' : 'PARCIAL',
+          mensagem_erro_historico_log: isFailure ? (body as any)?.message : undefined,
+          id_produto_historico_log: (auth as any).id_produto_historico_log,
+          id_usuario: tipo_ator_historico_log === AcaoExecutadaPor.USUARIO ? id_ator_historico_log : undefined,
         }).catch((err) => console.error('[auditMiddleware]', err))
       })
 
@@ -99,7 +100,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
  */
 export async function auditedJob<T>(
   jobName: string,
-  tenantId: string,
+  id_organizacao: string,
   fn: () => Promise<T>
 ): Promise<T> {
   const startedAt = Date.now()
@@ -108,30 +109,30 @@ export async function auditedJob<T>(
     const result = await fn()
 
     await AuditService.log({
-      tenant_id: tenantId,
-      actor_type: AcaoExecutadaPor.JOB,
-      actor_id: jobName,
-      actor_name: jobName,
-      module: 'jobs',
-      resource_type: 'job',
-      action: 'JOB_SUCCESS',
-      action_detail: `Job "${jobName}" concluído em ${Date.now() - startedAt}ms`,
-      status: 'SUCCESS',
+      id_organizacao,
+      tipo_ator_historico_log: AcaoExecutadaPor.JOB,
+      id_ator_historico_log: jobName,
+      nome_ator_historico_log: jobName,
+      modulo_historico_log: 'jobs',
+      tipo_recurso_historico_log: 'job',
+      acao_historico_log: 'JOB_SUCCESS',
+      detalhe_acao_historico_log: `Job "${jobName}" concluído em ${Date.now() - startedAt}ms`,
+      status_historico_log: 'SUCESSO',
     })
 
     return result
   } catch (error) {
     await AuditService.log({
-      tenant_id: tenantId,
-      actor_type: AcaoExecutadaPor.JOB,
-      actor_id: jobName,
-      actor_name: jobName,
-      module: 'jobs',
-      resource_type: 'job',
-      action: 'JOB_FAILURE',
-      action_detail: `Job "${jobName}" falhou após ${Date.now() - startedAt}ms`,
-      status: 'FAILURE',
-      error_message: error instanceof Error ? error.message : String(error),
+      id_organizacao,
+      tipo_ator_historico_log: AcaoExecutadaPor.JOB,
+      id_ator_historico_log: jobName,
+      nome_ator_historico_log: jobName,
+      modulo_historico_log: 'jobs',
+      tipo_recurso_historico_log: 'job',
+      acao_historico_log: 'JOB_FAILURE',
+      detalhe_acao_historico_log: `Job "${jobName}" falhou após ${Date.now() - startedAt}ms`,
+      status_historico_log: 'FALHA',
+      mensagem_erro_historico_log: error instanceof Error ? error.message : String(error),
     })
 
     throw error

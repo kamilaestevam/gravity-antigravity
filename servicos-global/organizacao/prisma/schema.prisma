@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-27T21:15:37.358Z
+// Gerado em: 2026-05-02T19:32:03.783Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -870,9 +870,9 @@ enum AlertaStatus {
 
 model HistoricoLog {
   id_historico_log             String  @id @default(cuid())
-  id_organizacao_historico_log String
+  id_organizacao               String
   id_produto_historico_log     String?
-  id_usuario_historico_log     String?
+  id_usuario                   String?
 
   tipo_ator_historico_log      AcaoExecutadaPor
   id_ator_historico_log        String
@@ -897,11 +897,11 @@ model HistoricoLog {
 
   data_criacao_historico_log   DateTime @default(now()) @db.Timestamptz
 
-  @@index([id_organizacao_historico_log], map: "hl_org_idx")
-  @@index([id_organizacao_historico_log, id_produto_historico_log], map: "hl_org_prd_idx")
-  @@index([id_organizacao_historico_log, id_usuario_historico_log], map: "hl_org_usr_idx")
-  @@index([id_organizacao_historico_log, data_criacao_historico_log], map: "hl_org_dt_idx")
-  @@index([id_organizacao_historico_log, modulo_historico_log, data_criacao_historico_log], map: "hl_org_mod_dt_idx")
+  @@index([id_organizacao], map: "hl_org_idx")
+  @@index([id_organizacao, id_produto_historico_log], map: "hl_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "hl_org_usr_idx")
+  @@index([id_organizacao, data_criacao_historico_log], map: "hl_org_dt_idx")
+  @@index([id_organizacao, modulo_historico_log, data_criacao_historico_log], map: "hl_org_mod_dt_idx")
   @@index([id_ator_historico_log, data_criacao_historico_log], map: "hl_ator_dt_idx")
   @@map("historico_log")
 }
@@ -912,9 +912,9 @@ model HistoricoLog {
 
 model AlertaRegra {
   id_regra_alerta             String   @id @default(cuid())
-  id_organizacao_regra_alerta String?
+  id_organizacao              String?
   id_produto_regra_alerta     String?
-  id_usuario_regra_alerta     String?
+  id_usuario                  String?
 
   nome_regra_alerta           String
   descricao_regra_alerta      String?
@@ -941,10 +941,10 @@ model AlertaRegra {
 
   eventos_regra_alerta          AlertaData[]
 
-  @@index([id_organizacao_regra_alerta], map: "ra_org_idx")
-  @@index([id_organizacao_regra_alerta, id_produto_regra_alerta], map: "ra_org_prd_idx")
-  @@index([id_organizacao_regra_alerta, id_usuario_regra_alerta], map: "ra_org_usr_idx")
-  @@index([id_organizacao_regra_alerta, habilitada_regra_alerta], map: "ra_org_hab_idx")
+  @@index([id_organizacao], map: "ra_org_idx")
+  @@index([id_organizacao, id_produto_regra_alerta], map: "ra_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "ra_org_usr_idx")
+  @@index([id_organizacao, habilitada_regra_alerta], map: "ra_org_hab_idx")
   @@map("regra_alerta")
 }
 
@@ -954,9 +954,9 @@ model AlertaRegra {
 
 model AlertaData {
   id_evento_alerta             String  @id @default(cuid())
-  id_organizacao_evento_alerta String
+  id_organizacao               String
   id_produto_evento_alerta     String?
-  id_usuario_evento_alerta     String?
+  id_usuario                   String?
 
   id_regra_evento_alerta       String
   regra_evento_alerta          AlertaRegra @relation(fields: [id_regra_evento_alerta], references: [id_regra_alerta])
@@ -979,11 +979,11 @@ model AlertaData {
 
   notificacoes_evento_alerta   AlertaRegistro[]
 
-  @@index([id_organizacao_evento_alerta], map: "ea_org_idx")
-  @@index([id_organizacao_evento_alerta, id_produto_evento_alerta], map: "ea_org_prd_idx")
-  @@index([id_organizacao_evento_alerta, id_usuario_evento_alerta], map: "ea_org_usr_idx")
-  @@index([id_organizacao_evento_alerta, status_evento_alerta], map: "ea_org_st_idx")
-  @@index([id_organizacao_evento_alerta, data_criacao_evento_alerta], map: "ea_org_dt_idx")
+  @@index([id_organizacao], map: "ea_org_idx")
+  @@index([id_organizacao, id_produto_evento_alerta], map: "ea_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "ea_org_usr_idx")
+  @@index([id_organizacao, status_evento_alerta], map: "ea_org_st_idx")
+  @@index([id_organizacao, data_criacao_evento_alerta], map: "ea_org_dt_idx")
   @@map("evento_alerta")
 }
 
@@ -993,9 +993,9 @@ model AlertaData {
 
 model AlertaRegistro {
   id_notificacao_alerta             String   @id @default(cuid())
-  id_organizacao_notificacao_alerta String
+  id_organizacao                    String
   id_produto_notificacao_alerta     String?
-  id_usuario_notificacao_alerta     String?
+  id_usuario                        String?
 
   id_evento_notificacao_alerta      String
   evento_notificacao_alerta         AlertaData @relation(fields: [id_evento_notificacao_alerta], references: [id_evento_alerta])
@@ -1009,9 +1009,9 @@ model AlertaRegistro {
 
   data_criacao_notificacao_alerta   DateTime @default(now())
 
-  @@index([id_organizacao_notificacao_alerta], map: "na_org_idx")
-  @@index([id_organizacao_notificacao_alerta, id_produto_notificacao_alerta], map: "na_org_prd_idx")
-  @@index([id_organizacao_notificacao_alerta, id_usuario_notificacao_alerta], map: "na_org_usr_idx")
+  @@index([id_organizacao], map: "na_org_idx")
+  @@index([id_organizacao, id_produto_notificacao_alerta], map: "na_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "na_org_usr_idx")
   @@index([id_evento_notificacao_alerta], map: "na_evt_idx")
   @@map("notificacao_alerta")
 }
@@ -1022,9 +1022,9 @@ model AlertaRegistro {
 
 model ExportarResultado {
   id_exportar_resultado             String   @id @default(cuid())
-  id_organizacao_exportar_resultado String
+  id_organizacao                    String
   id_produto_exportar_resultado     String?
-  id_usuario_exportar_resultado     String?
+  id_usuario                        String?
 
   formato_exportar_resultado    String   // 'csv' | 'json'
   conteudo_exportar_resultado   String   @db.Text
@@ -1035,10 +1035,10 @@ model ExportarResultado {
   data_criacao_exportar_resultado DateTime @default(now())
   expira_em_exportar_resultado    DateTime // cleanup job remove após 24h
 
-  @@index([id_organizacao_exportar_resultado], map: "er_org_idx")
-  @@index([id_organizacao_exportar_resultado, id_produto_exportar_resultado], map: "er_org_prd_idx")
-  @@index([id_organizacao_exportar_resultado, id_usuario_exportar_resultado], map: "er_org_usr_idx")
-  @@index([id_organizacao_exportar_resultado, status_exportar_resultado], map: "er_org_st_idx")
+  @@index([id_organizacao], map: "er_org_idx")
+  @@index([id_organizacao, id_produto_exportar_resultado], map: "er_org_prd_idx")
+  @@index([id_organizacao, id_usuario], map: "er_org_usr_idx")
+  @@index([id_organizacao, status_exportar_resultado], map: "er_org_st_idx")
   @@index([expira_em_exportar_resultado], map: "er_exp_idx")
   @@map("exportar_resultado")
 }

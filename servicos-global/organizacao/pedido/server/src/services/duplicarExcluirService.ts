@@ -280,16 +280,16 @@ export class DuplicarService {
 
           // Audit trail via historico-global (fire-and-forget)
           auditLog({
-            tenant_id:     tenantId,
-            actor_type:    'USER',
-            actor_id:      userId,
-            actor_name:    userId,
-            module:        'pedido',
-            resource_type: 'Pedido',
-            resource_id:   novoPedido.id_pedido,
-            action:        'DUPLICACAO',
-            action_detail: `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
-            after:         { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
+            id_organizacao:               tenantId,
+            tipo_ator_historico_log:      'USUARIO',
+            id_ator_historico_log:        userId,
+            nome_ator_historico_log:      userId,
+            modulo_historico_log:         'pedido',
+            tipo_recurso_historico_log:   'Pedido',
+            id_recurso_historico_log:     novoPedido.id_pedido,
+            acao_historico_log:           'DUPLICACAO',
+            detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} duplicado para ${numeroPedido}`,
+            estado_posterior_historico_log: { original_id: pedido.id_pedido, numero_original: pedido.numero_pedido },
           })
 
           criados.push({
@@ -483,16 +483,16 @@ export class ExcluirService {
       for (const pedidoRaw of pedidos) {
         const pedido = pedidoRaw as Record<string, unknown>
         auditLog({
-          tenant_id:     tenantId,
-          actor_type:    'USER',
-          actor_id:      userId,
-          actor_name:    userId,
-          module:        'pedido',
-          resource_type: 'Pedido',
-          resource_id:   pedido.id_pedido as string,
-          action:        'EXCLUSAO',
-          action_detail: `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
-          before: {
+          id_organizacao:               tenantId,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        userId,
+          nome_ator_historico_log:      userId,
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     pedido.id_pedido as string,
+          acao_historico_log:           'EXCLUSAO',
+          detalhe_acao_historico_log:   `Pedido ${pedido.numero_pedido} excluido (hard delete)`,
+          estado_anterior_historico_log: {
             numero_pedido: pedido.numero_pedido,
             status:        pedido.status_pedido,
             total_itens:   (pedido.itens_pedido as unknown[]).length,
@@ -564,16 +564,16 @@ export class ExcluirService {
       const tx = tx0 as Tx
       // Audit trail ANTES da exclusão (via historico-global, fire-and-forget)
       auditLog({
-        tenant_id:     tenantId,
-        actor_type:    'USER',
-        actor_id:      userId,
-        actor_name:    userId,
-        module:        'pedido',
-        resource_type: 'PedidoItem',
-        resource_id:   pedidoId,
-        action:        'EXCLUSAO_ITENS',
-        action_detail: `${itemIds.length} item(ns) excluido(s) do pedido`,
-        before: {
+        id_organizacao:               tenantId,
+        tipo_ator_historico_log:      'USUARIO',
+        id_ator_historico_log:        userId,
+        nome_ator_historico_log:      userId,
+        modulo_historico_log:         'pedido',
+        tipo_recurso_historico_log:   'PedidoItem',
+        id_recurso_historico_log:     pedidoId,
+        acao_historico_log:           'EXCLUSAO_ITENS',
+        detalhe_acao_historico_log:   `${itemIds.length} item(ns) excluido(s) do pedido`,
+        estado_anterior_historico_log: {
           item_ids: itemIds,
           itens: itens.map((i: Record<string, unknown>) => ({
             id:                        i.id_item,
@@ -596,16 +596,16 @@ export class ExcluirService {
       if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
         // Audit trail do pedido pai antes de excluir (via historico-global)
         auditLog({
-          tenant_id:     tenantId,
-          actor_type:    'USER',
-          actor_id:      userId,
-          actor_name:    userId,
-          module:        'pedido',
-          resource_type: 'Pedido',
-          resource_id:   pedidoId,
-          action:        'EXCLUSAO_AUTOMATICA',
-          action_detail: 'Pedido excluido automaticamente por ficar sem itens',
-          before:        { numero_pedido: pedido.numero_pedido },
+          id_organizacao:               tenantId,
+          tipo_ator_historico_log:      'USUARIO',
+          id_ator_historico_log:        userId,
+          nome_ator_historico_log:      userId,
+          modulo_historico_log:         'pedido',
+          tipo_recurso_historico_log:   'Pedido',
+          id_recurso_historico_log:     pedidoId,
+          acao_historico_log:           'EXCLUSAO_AUTOMATICA',
+          detalhe_acao_historico_log:   'Pedido excluido automaticamente por ficar sem itens',
+          estado_anterior_historico_log: { numero_pedido: pedido.numero_pedido },
         })
 
         await tx.pedido.delete({

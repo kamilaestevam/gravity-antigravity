@@ -5,35 +5,39 @@
  *
  * Uso:
  *   import { auditLog } from '@gravity/historico/audit-client'
- *   auditLog({ tenant_id, actor_type: 'USER', actor_id, actor_name,
- *               module: 'pedido', resource_type: 'Pedido',
- *               action: 'CREATE', action_detail: 'Criou pedido #42' })
+ *   auditLog({ id_organizacao, tipo_ator_historico_log: 'USUARIO',
+ *               id_ator_historico_log, nome_ator_historico_log,
+ *               modulo_historico_log: 'pedido', tipo_recurso_historico_log: 'Pedido',
+ *               acao_historico_log: 'CRIAR', detalhe_acao_historico_log: 'Criou pedido #42' })
  */
 
+export type TipoAtorHistoricoLog = 'USUARIO' | 'API' | 'IA' | 'JOB' | 'INTEGRACAO'
+export type StatusHistoricoLog = 'SUCESSO' | 'FALHA' | 'PARCIAL'
+
 export interface AuditLogPayload {
-  tenant_id: string
+  id_organizacao: string
 
-  actor_type: 'USER' | 'API' | 'AI' | 'JOB' | 'INTEGRATION'
-  actor_id: string
-  actor_name: string
-  actor_ip?: string
-  actor_metadata?: Record<string, unknown>
+  tipo_ator_historico_log: TipoAtorHistoricoLog
+  id_ator_historico_log: string
+  nome_ator_historico_log: string
+  ip_ator_historico_log?: string
+  metadata_ator_historico_log?: Record<string, unknown>
 
-  module: string
-  resource_type: string
-  resource_id?: string
+  modulo_historico_log: string
+  tipo_recurso_historico_log: string
+  id_recurso_historico_log?: string
 
-  action: string
-  action_detail: string
+  acao_historico_log: string
+  detalhe_acao_historico_log: string
 
-  before?: unknown
-  after?: unknown
+  estado_anterior_historico_log?: unknown
+  estado_posterior_historico_log?: unknown
 
-  status?: 'SUCCESS' | 'FAILURE' | 'PARTIAL'
-  error_message?: string
+  status_historico_log?: StatusHistoricoLog
+  mensagem_erro_historico_log?: string
 
-  product_id?: string
-  user_id?: string
+  id_produto_historico_log?: string
+  id_usuario?: string
 }
 
 const HISTORICO_URL =
@@ -84,7 +88,7 @@ export function auditLog(payload: AuditLogPayload): void {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-id-organizacao': payload.tenant_id,
+      'x-id-organizacao': payload.id_organizacao,
       'x-internal-key': INTERNAL_KEY,
     },
     body: JSON.stringify(payload),

@@ -1,5 +1,5 @@
 /**
- * Seed das regras de alerta padrão (globais — tenant_id = null).
+ * Seed das regras de alerta padrão (globais — id_organizacao = null).
  * Executar após a migração: npx tsx prisma/seed-alert-rules.ts
  */
 import { PrismaClient } from '../../generated/index.js'
@@ -8,68 +8,68 @@ const prisma = new PrismaClient()
 
 const DEFAULT_RULES = [
   {
-    name: 'Ação em massa por usuário',
-    description: 'Mesmo usuário executando muitas ações em curto período',
-    actor_type: 'USER' as const,
-    threshold_count: 50,
-    threshold_window_seconds: 60,
-    channel_inapp: true,
-    channel_email: false,
-    channel_whatsapp: false,
+    nome_regra_alerta: 'Ação em massa por usuário',
+    descricao_regra_alerta: 'Mesmo usuário executando muitas ações em curto período',
+    tipo_ator_regra_alerta: 'USUARIO' as const,
+    limiar_contagem_regra_alerta: 50,
+    limiar_janela_segundos_regra_alerta: 60,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: false,
+    canal_whatsapp_regra_alerta: false,
   },
   {
-    name: 'IA executando ações destrutivas',
-    description: 'GABI/IA executando DELETE ou UPDATE em massa',
-    actor_type: 'AI' as const,
-    action: 'DELETE',
-    threshold_count: 10,
-    threshold_window_seconds: 60,
-    channel_inapp: true,
-    channel_email: true,
-    channel_whatsapp: false,
+    nome_regra_alerta: 'IA executando ações destrutivas',
+    descricao_regra_alerta: 'GABI/IA executando DELETE ou UPDATE em massa',
+    tipo_ator_regra_alerta: 'IA' as const,
+    acao_regra_alerta: 'DELETE',
+    limiar_contagem_regra_alerta: 10,
+    limiar_janela_segundos_regra_alerta: 60,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: true,
+    canal_whatsapp_regra_alerta: false,
   },
   {
-    name: 'Job interno falhando repetidamente',
-    description: 'Worker com falhas consecutivas no mesmo recurso',
-    actor_type: 'JOB' as const,
-    action: 'JOB_FAILURE',
-    threshold_count: 5,
-    threshold_window_seconds: 300,
-    channel_inapp: true,
-    channel_email: false,
-    channel_whatsapp: false,
+    nome_regra_alerta: 'Job interno falhando repetidamente',
+    descricao_regra_alerta: 'Worker com falhas consecutivas no mesmo recurso',
+    tipo_ator_regra_alerta: 'JOB' as const,
+    acao_regra_alerta: 'JOB_FAILURE',
+    limiar_contagem_regra_alerta: 5,
+    limiar_janela_segundos_regra_alerta: 300,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: false,
+    canal_whatsapp_regra_alerta: false,
   },
   {
-    name: 'Integração com alto volume de acesso',
-    description: 'ERP ou transportadora acessando dados em volume anormal',
-    actor_type: 'INTEGRATION' as const,
-    threshold_count: 100,
-    threshold_window_seconds: 60,
-    channel_inapp: true,
-    channel_email: true,
-    channel_whatsapp: false,
+    nome_regra_alerta: 'Integração com alto volume de acesso',
+    descricao_regra_alerta: 'ERP ou transportadora acessando dados em volume anormal',
+    tipo_ator_regra_alerta: 'INTEGRACAO' as const,
+    limiar_contagem_regra_alerta: 100,
+    limiar_janela_segundos_regra_alerta: 60,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: true,
+    canal_whatsapp_regra_alerta: false,
   },
   {
-    name: 'Múltiplas falhas de autenticação',
-    description: 'Possível ataque de força bruta',
-    actor_type: 'USER' as const,
-    action: 'AUTH_FAILURE',
-    threshold_count: 10,
-    threshold_window_seconds: 300,
-    channel_inapp: true,
-    channel_email: true,
-    channel_whatsapp: true,
+    nome_regra_alerta: 'Múltiplas falhas de autenticação',
+    descricao_regra_alerta: 'Possível ataque de força bruta',
+    tipo_ator_regra_alerta: 'USUARIO' as const,
+    acao_regra_alerta: 'AUTH_FAILURE',
+    limiar_contagem_regra_alerta: 10,
+    limiar_janela_segundos_regra_alerta: 300,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: true,
+    canal_whatsapp_regra_alerta: true,
   },
   {
-    name: 'API externa fora do escopo',
-    description: 'Token de API acessando módulo não autorizado',
-    actor_type: 'API' as const,
-    action: 'CROSS_TENANT_ATTEMPT',
-    threshold_count: undefined,
-    threshold_window_seconds: undefined,
-    channel_inapp: true,
-    channel_email: true,
-    channel_whatsapp: true,
+    nome_regra_alerta: 'API externa fora do escopo',
+    descricao_regra_alerta: 'Token de API acessando módulo não autorizado',
+    tipo_ator_regra_alerta: 'API' as const,
+    acao_regra_alerta: 'CROSS_TENANT_ATTEMPT',
+    limiar_contagem_regra_alerta: undefined,
+    limiar_janela_segundos_regra_alerta: undefined,
+    canal_inapp_regra_alerta: true,
+    canal_email_regra_alerta: true,
+    canal_whatsapp_regra_alerta: true,
   },
 ]
 
@@ -78,33 +78,33 @@ async function main() {
 
   for (const rule of DEFAULT_RULES) {
     const exists = await prisma.alertaRegra.findFirst({
-      where: { name: rule.name, tenant_id: null },
+      where: { nome_regra_alerta: rule.nome_regra_alerta, id_organizacao: null },
     })
 
     if (exists) {
-      console.log(`  ~ ${rule.name} (já existe, pulando)`)
+      console.log(`  ~ ${rule.nome_regra_alerta} (já existe, pulando)`)
       continue
     }
 
     await prisma.alertaRegra.create({
       data: {
-        tenant_id: null,
-        name: rule.name,
-        description: rule.description,
-        enabled: true,
-        actor_type: rule.actor_type,
-        action: rule.action ?? null,
-        threshold_count: rule.threshold_count ?? null,
-        threshold_window_seconds: rule.threshold_window_seconds ?? null,
-        channel_inapp: rule.channel_inapp,
-        channel_email: rule.channel_email,
-        channel_whatsapp: rule.channel_whatsapp,
-        recipients_email: [],
-        recipients_whatsapp: [],
-        recipients_user_ids: [],
+        id_organizacao: null,
+        nome_regra_alerta: rule.nome_regra_alerta,
+        descricao_regra_alerta: rule.descricao_regra_alerta,
+        habilitada_regra_alerta: true,
+        tipo_ator_regra_alerta: rule.tipo_ator_regra_alerta,
+        acao_regra_alerta: rule.acao_regra_alerta ?? null,
+        limiar_contagem_regra_alerta: rule.limiar_contagem_regra_alerta ?? null,
+        limiar_janela_segundos_regra_alerta: rule.limiar_janela_segundos_regra_alerta ?? null,
+        canal_inapp_regra_alerta: rule.canal_inapp_regra_alerta,
+        canal_email_regra_alerta: rule.canal_email_regra_alerta,
+        canal_whatsapp_regra_alerta: rule.canal_whatsapp_regra_alerta,
+        destinatarios_email_regra_alerta: [],
+        destinatarios_whatsapp_regra_alerta: [],
+        destinatarios_usuarios_regra_alerta: [],
       },
     })
-    console.log(`  ✓ ${rule.name}`)
+    console.log(`  ✓ ${rule.nome_regra_alerta}`)
   }
 
   console.log('Concluído.')

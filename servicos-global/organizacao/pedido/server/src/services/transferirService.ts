@@ -354,16 +354,16 @@ export class TransferirService {
 
       // Audit trail via historico-global (fire-and-forget)
       auditLog({
-        tenant_id:     idOrganizacao,
-        actor_type:    'USER',
-        actor_id:      idUsuario,
-        actor_name:    idUsuario,
-        module:        'pedido',
-        resource_type: 'PedidoTransferencia',
-        resource_id:   transferId,
-        action:        'TRANSFERENCIA_REVERTIDA',
-        action_detail: `Transferência ${transferId} revertida`,
-        after:         { transfer_id: transferId, id_pedido: historico.id_pedido_origem },
+        id_organizacao:               idOrganizacao,
+        tipo_ator_historico_log:      'USUARIO',
+        id_ator_historico_log:        idUsuario,
+        nome_ator_historico_log:      idUsuario,
+        modulo_historico_log:         'pedido',
+        tipo_recurso_historico_log:   'PedidoTransferencia',
+        id_recurso_historico_log:     transferId,
+        acao_historico_log:           'TRANSFERENCIA_REVERTIDA',
+        detalhe_acao_historico_log:   `Transferência ${transferId} revertida`,
+        estado_posterior_historico_log: { transfer_id: transferId, id_pedido: historico.id_pedido_origem },
       })
     })
 
@@ -526,16 +526,16 @@ export class TransferirService {
 
     // Audit trail via historico-global (fire-and-forget)
     auditLog({
-      tenant_id:     tenantId,
-      actor_type:    'USER',
-      actor_id:      userId,
-      actor_name:    userId,
-      module:        'pedido',
-      resource_type: 'PedidoTransferencia',
-      resource_id:   payload.pedido_id,
-      action:        'TRANSFERENCIA',
-      action_detail: `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
-      after:         { cenario: payload.cenario, destinos: pedidosDestinoIds, quantidade: payload.quantidade_origem },
+      id_organizacao:               tenantId,
+      tipo_ator_historico_log:      'USUARIO',
+      id_ator_historico_log:        userId,
+      nome_ator_historico_log:      userId,
+      modulo_historico_log:         'pedido',
+      tipo_recurso_historico_log:   'PedidoTransferencia',
+      id_recurso_historico_log:     payload.pedido_id,
+      acao_historico_log:           'TRANSFERENCIA',
+      detalhe_acao_historico_log:   `Transferência ${payload.cenario}: ${payload.quantidade_origem} unidades`,
+      estado_posterior_historico_log: { cenario: payload.cenario, destinos: pedidosDestinoIds, quantidade: payload.quantidade_origem },
     })
   }
 }

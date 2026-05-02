@@ -8,7 +8,7 @@ import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
-import { Notificacoes } from '../../../../organizacao/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import {
   Crown,
   Buildings,
@@ -38,7 +38,7 @@ import { CampoLocalizarExpandidoGlobal } from '@nucleo/campo-localizar-expandido
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { HubBotao } from '../../components/HubBotao'
-import GabiChat from '@organizacao/gabi/src/Gabi'
+import GabiChat from '@plataforma/gabi/src/Gabi'
 import './workspace.css'
 import './gabi.css'
 

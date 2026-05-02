@@ -18,7 +18,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'react-grid-layout', 'react-resizable'],
     alias: [
       // Aliases específicos ANTES dos prefixos genéricos (@tenant, etc.)
-      { find: '@organizacao/historico', replacement: path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts') },
+      { find: '@plataforma/historico', replacement: path.resolve(monorepoRoot, 'servicos-global/servicos-plataforma/historico-global/src/index.ts') },
       ...Object.entries({ ...createNucleoAliases(monorepoRoot), ...createServiceAliases(monorepoRoot), ...createTenantAliases(monorepoRoot, ['gabi']) })
         .map(([find, replacement]) => ({ find, replacement })),
     ],

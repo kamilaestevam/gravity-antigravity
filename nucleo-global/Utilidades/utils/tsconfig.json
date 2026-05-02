@@ -5,7 +5,7 @@
     "outDir": "dist",
     "paths": {
       "@nucleo/*": ["../../../nucleo-global/*"],
-      "@organizacao/*": ["../../../servicos-global/servicos-plataforma/*"],
+      "@plataforma/*": ["../../../servicos-global/servicos-plataforma/*"],
       "@produto/*": ["../../../servicos-global/produto/*"]
     }
   },

@@ -52,23 +52,23 @@ function ModulePlaceholder({ name }: { name: string }) {
 }
 
 // Onda 3 — Serviços de tenant (stubs lazy)
-const DashboardModule    = lazy(() => import('@organizacao/dashboard/src/Dashboard'))
+const DashboardModule    = lazy(() => import('@plataforma/dashboard/src/Dashboard'))
 const RelatoriosModule   = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Relatórios" />   }))
 const EmailModule        = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Email" />        }))
 const WhatsAppModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="WhatsApp" />     }))
 const NotificacoesModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Notificações" />  }))
-const AtividadesModule   = lazy(() => import('@organizacao/atividades/src/Atividades'))
+const AtividadesModule   = lazy(() => import('@plataforma/atividades/src/Atividades'))
 const CronometroModule   = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Cronômetro" />   }))
 const HistoricoModule    = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Histórico" />    }))
 
 // Onda 3 — Serviços de produto (stubs lazy)
-const GabiModule         = lazy(() => import('@organizacao/gabi/src/Gabi'))
+const GabiModule         = lazy(() => import('@plataforma/gabi/src/Gabi'))
 const HelpdeskModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Helpdesk" />     }))
 const ConectorErpModule  = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Conector ERP" />  }))
-const BidFreteModule     = lazy(() => import('../organizacao/bid-frete/client/src/App'))
+const BidFreteModule     = lazy(() => import('../servicos-plataforma/bid-frete/client/src/App'))
 
 // Onda 3 — Produtos
-const SimulaCustoModule  = lazy(() => import('../organizacao/simula-custo/client/src/App'))
+const SimulaCustoModule  = lazy(() => import('../servicos-plataforma/simula-custo/client/src/App'))
 
 // Configurador — Onda 2
 const ConfiguradorModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Configurações" />}))

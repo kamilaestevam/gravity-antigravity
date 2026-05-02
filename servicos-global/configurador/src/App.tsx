@@ -67,11 +67,11 @@ const HistoricoTenant = React.lazy(() =>
 )
 
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
-const SimulaCustoApp = React.lazy(() => import('../../organizacao/simula-custo/client/src/App'))
-const ProcessoApp = React.lazy(() => import('../../organizacao/processo/client/src/App'))
-const BidFreteApp = React.lazy(() => import('../../organizacao/bid-frete/client/src/App'))
-const BidCambioApp = React.lazy(() => import('../../organizacao/bid-cambio/client/src/App'))
-const PedidoApp = React.lazy(() => import('../../organizacao/pedido/client/src/App'))
+const SimulaCustoApp = React.lazy(() => import('../../servicos-plataforma/simula-custo/client/src/App'))
+const ProcessoApp = React.lazy(() => import('../../servicos-plataforma/processo/client/src/App'))
+const BidFreteApp = React.lazy(() => import('../../servicos-plataforma/bid-frete/client/src/App'))
+const BidCambioApp = React.lazy(() => import('../../servicos-plataforma/bid-cambio/client/src/App'))
+const PedidoApp = React.lazy(() => import('../../servicos-plataforma/pedido/client/src/App'))
 
 /**
  * Guard contra routing loop do catch-all do Pedido.

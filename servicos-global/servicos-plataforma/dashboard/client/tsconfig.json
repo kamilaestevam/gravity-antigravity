@@ -1,5 +1,5 @@
 {
-  "extends": ["../../../../tsconfig.json", "../../../../tsconfig.paths-organizacao-client.json"],
+  "extends": ["../../../../tsconfig.json", "../../../../tsconfig.paths-plataforma-client.json"],
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true

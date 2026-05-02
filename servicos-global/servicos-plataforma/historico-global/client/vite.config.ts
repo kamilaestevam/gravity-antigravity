@@ -17,7 +17,7 @@ export default defineConfig({
     alias: {
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
-      '@organizacao/historico': path.resolve(__dirname, '../src/index.ts'),
+      '@plataforma/historico': path.resolve(__dirname, '../src/index.ts'),
       // dnd-kit (resolvido a partir do node_modules local)
       '@dnd-kit/core': path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
       '@dnd-kit/sortable': path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),

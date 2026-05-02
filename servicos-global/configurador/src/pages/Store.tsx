@@ -39,7 +39,7 @@ import {
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
-import { Notificacoes } from '../../../organizacao/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../../../servicos-plataforma/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
 

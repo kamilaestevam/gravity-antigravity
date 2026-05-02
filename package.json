@@ -51,7 +51,7 @@
   ],
   "scripts": {
     "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,ORG,SC-BACK,PROC-BACK -c blue,green,cyan,yellow,magenta \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/servicos-plataforma && npm run dev\" \"cd servicos-global/produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd servicos-global/produto/processo/server && npx tsx watch src/index.ts\"",
-    "db:compose": "npx ts-node scripts/ativamente/compose-organizacao-schema.ts",
+    "db:compose": "npx ts-node scripts/ativamente/compose-plataforma-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/servicos-plataforma/prisma/schema.prisma",
     "db:seed:staging": "npx ts-node scripts/ativamente/seed-staging.ts",

@@ -11,7 +11,7 @@ import {
   Hexagon,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
-import { Notificacoes } from '../organizacao/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../servicos-plataforma/notificacoes/src/Notificacoes'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import {

@@ -145,7 +145,7 @@ export function createTenantAliases(
 ): Record<string, string> {
   const aliases: Record<string, string> = {}
   for (const svc of services) {
-    aliases[`@organizacao/${svc}`] = path.resolve(monorepoRoot, `servicos-global/servicos-plataforma/${svc}`)
+    aliases[`@plataforma/${svc}`] = path.resolve(monorepoRoot, `servicos-global/servicos-plataforma/${svc}`)
   }
   return aliases
 }

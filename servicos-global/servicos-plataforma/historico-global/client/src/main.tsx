@@ -2,7 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import i18n from 'i18next'
-import { Historico } from '@organizacao/historico'
+import { Historico } from '@plataforma/historico'
 
 i18n.use(initReactI18next).init({
   lng: 'pt',

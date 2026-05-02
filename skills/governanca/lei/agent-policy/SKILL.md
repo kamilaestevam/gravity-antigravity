@@ -66,7 +66,7 @@ import { TabelaGlobal } from '@nucleo/tabela-global'
 const response = await fetch('/api/organizacao/activities')
 
 // ❌ proibido — serviço de organizacao importando outro serviço de organizacao
-import { something } from '@organizacao/email' // dentro de @organizacao/atividades — proibido mesmo via alias real
+import { something } from '@plataforma/email' // dentro de @plataforma/atividades — proibido mesmo via alias real
 
 // ❌ proibido — produto acessando banco de outro produto
 import { prisma } from '../../bid-frete/server/prisma'

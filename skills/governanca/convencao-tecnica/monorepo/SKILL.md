@@ -35,8 +35,8 @@ O monorepo Gravity tem uma infraestrutura padronizada que **nunca pode ser alter
 | `tsconfig.json` (raiz) | Líder ou Coordenador | Paths base de todo o monorepo |
 | `tsconfig.paths-produto.json` | Líder ou Coordenador | Paths para `produto/*/client` e `server` |
 | `tsconfig.paths-servico.json` | Líder ou Coordenador | Paths para `servicos-global/*` |
-| `tsconfig.paths-organizacao.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*` |
-| `tsconfig.paths-organizacao-client.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*/client` |
+| `tsconfig.paths-plataforma.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*` |
+| `tsconfig.paths-plataforma-client.json` | Líder ou Coordenador | Paths para `servicos-global/servicos-plataforma/*/client` |
 | `nucleo-global/vite-aliases.ts` | Líder ou Coordenador | Aliases automáticos do Vite |
 
 ---
@@ -153,7 +153,7 @@ Todo `tsconfig.json` de produto ou serviço **deve usar `extends`** dos arquivos
 
 ```json
 {
-  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-organizacao.json"],
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-plataforma.json"],
   "compilerOptions": { "baseUrl": ".", "rootDir": ".", "outDir": "dist" },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]

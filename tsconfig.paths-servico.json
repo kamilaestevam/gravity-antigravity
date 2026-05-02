@@ -28,7 +28,7 @@
       "@shell": ["../shell/index.ts"],
       "@shell/*": ["../shell/*"],
       "@gravity/shell": ["../shell/index.ts"],
-      "@organizacao/*": ["../organizacao/*"],
+      "@plataforma/*": ["../organizacao/*"],
       "@produto/*": ["../produto/*"]
     }
   }

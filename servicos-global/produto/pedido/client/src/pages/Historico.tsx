@@ -1,5 +1,5 @@
 import React from 'react'
-import { Historico as HistoricoGlobal } from '@organizacao/historico'
+import { Historico as HistoricoGlobal } from '@plataforma/historico'
 import { useShellStore } from '@gravity/shell'
 import { getApiContext } from '../shared/api'
 

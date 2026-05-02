@@ -70,7 +70,7 @@ npx tsx scripts/compose-product-schema.ts --product=pedido
 npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
 # Para organizacao-shared
-npx tsx scripts/ativamente/compose-organizacao-schema.ts
+npx tsx scripts/ativamente/compose-plataforma-schema.ts
 npx prisma validate --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
 ```
 

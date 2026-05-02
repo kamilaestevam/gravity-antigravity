@@ -1,4 +1,4 @@
-// scripts/ativamente/compose-organizacao-schema.ts
+// scripts/ativamente/compose-plataforma-schema.ts
 // COORDENADOR — Script de composição do schema organizacao-db
 // Agente 0B — Banco de Dados (base inicial)
 //
@@ -13,7 +13,7 @@
 // NUNCA editar schema.prisma manualmente — ele é sempre sobrescrito por este script.
 //
 // Uso:
-//   npx ts-node scripts/ativamente/compose-organizacao-schema.ts
+//   npx ts-node scripts/ativamente/compose-plataforma-schema.ts
 //   # ou via package.json:
 //   npm run compose:organizacao
 
@@ -66,7 +66,7 @@ function readFragment(serviceName: string): string | null {
 
   if (!fs.existsSync(fragmentPath)) {
     console.warn(
-      `[compose-organizacao-schema] AVISO: fragment.prisma não encontrado para ${serviceName} em: ${fragmentPath}`
+      `[compose-plataforma-schema] AVISO: fragment.prisma não encontrado para ${serviceName} em: ${fragmentPath}`
     )
     return null
   }
@@ -82,12 +82,12 @@ function readFragment(serviceName: string): string | null {
 function composeTenantSchema(options: { skipMissing?: boolean } = {}): void {
   const { skipMissing = true } = options
 
-  console.log('[compose-organizacao-schema] Iniciando composição do schema organizacao-db...')
+  console.log('[compose-plataforma-schema] Iniciando composição do schema organizacao-db...')
 
   // 1. Ler o arquivo base
   if (!fs.existsSync(BASE_SCHEMA)) {
     throw new Error(
-      `[compose-organizacao-schema] ERRO: schema.base.prisma não encontrado em: ${BASE_SCHEMA}`
+      `[compose-plataforma-schema] ERRO: schema.base.prisma não encontrado em: ${BASE_SCHEMA}`
     )
   }
 
@@ -104,7 +104,7 @@ function composeTenantSchema(options: { skipMissing?: boolean } = {}): void {
       missing.push(service)
       if (!skipMissing) {
         throw new Error(
-          `[compose-organizacao-schema] ERRO: fragment obrigatório ausente para ${service}. Abortando.`
+          `[compose-plataforma-schema] ERRO: fragment obrigatório ausente para ${service}. Abortando.`
         )
       }
     } else {
@@ -130,15 +130,15 @@ function composeTenantSchema(options: { skipMissing?: boolean } = {}): void {
   // 4. Escrever o arquivo final
   fs.writeFileSync(OUTPUT_SCHEMA, composed, 'utf8')
 
-  console.log('[compose-organizacao-schema] ✅ Schema composto com sucesso em:', OUTPUT_SCHEMA)
+  console.log('[compose-plataforma-schema] ✅ Schema composto com sucesso em:', OUTPUT_SCHEMA)
 
   if (missing.length > 0) {
     console.warn(
-      '[compose-organizacao-schema] ⚠️  Fragments ausentes (' + missing.length + '):',
+      '[compose-plataforma-schema] ⚠️  Fragments ausentes (' + missing.length + '):',
       missing.join(', ')
     )
     console.warn(
-      '[compose-organizacao-schema]    Os serviços listados ainda não entregaram seus fragments.'
+      '[compose-plataforma-schema]    Os serviços listados ainda não entregaram seus fragments.'
     )
   }
 }

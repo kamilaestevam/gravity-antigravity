@@ -35,7 +35,7 @@ const Configuracoes        = lazy(() => import('./pages/Configuracoes'))
 import Dashboard from './pages/dashboard/Dashboard'
 import EstimativaFormulario from './pages/estimativas/EstimativaFormulario'
 import RelatoriosPage from './pages/relatorios/Relatorios'
-import { Dashboard as GlobalDashboard } from '@organizacao/dashboard/src/Dashboard'
+import { Dashboard as GlobalDashboard } from '@plataforma/dashboard/src/Dashboard'
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('simula-custo')

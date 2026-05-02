@@ -46,7 +46,7 @@ jobs:
       - run: npm install
 
       - name: Compor schema do Tenant DB
-        run: npx ts-node scripts/ativamente/compose-organizacao-schema.ts --strict
+        run: npx ts-node scripts/ativamente/compose-plataforma-schema.ts --strict
 
       - name: Validar schema do Configurador
         run: npx prisma validate --schema=configurador/prisma/schema.prisma
@@ -91,7 +91,7 @@ jobs:
 
       - name: Aplicar migrations — Tenant DB (Staging)
         run: |
-          npx ts-node scripts/ativamente/compose-organizacao-schema.ts
+          npx ts-node scripts/ativamente/compose-plataforma-schema.ts
           npx prisma migrate deploy \
             --schema=servicos-global/servicos-plataforma/prisma/schema.prisma
         env:

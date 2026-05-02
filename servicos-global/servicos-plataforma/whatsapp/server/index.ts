@@ -7,9 +7,9 @@ import helmet from 'helmet'
 // Mas pela spec, assumiremos que `@tenant/middleware/correlation` etc existem.
 // Para evitar falha no ts-node agora sem todos os modulos perfeitamente, podemos mockar caso não exista, 
 // mas usaremos import direto do projeto.  Se o import falhar, ajustamos.
-import { correlationMiddleware } from '@organizacao/middleware/correlation'
-import { requireInternalKey } from '@organizacao/middleware/withInternalKeyValidation'
-import { withTenantIsolation } from '@organizacao/middleware/withTenantIsolation'
+import { correlationMiddleware } from '@plataforma/middleware/correlation'
+import { requireInternalKey } from '@plataforma/middleware/withInternalKeyValidation'
+import { withTenantIsolation } from '@plataforma/middleware/withTenantIsolation'
 import { errorHandler } from './errorHandler'
 import { whatsappRoutes } from './routes'
 import { prisma } from './prisma'

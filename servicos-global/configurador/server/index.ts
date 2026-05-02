@@ -128,14 +128,14 @@ import { historicoRouter } from '../../servicos-plataforma/historico-global/serv
 // do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
 app.use('/api/v1/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
-import { apiRoutes as notificacoesRouter } from '../../organizacao/notificacoes/server/routes/api.js'
+import { apiRoutes as notificacoesRouter } from '../../servicos-plataforma/notificacoes/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
 // próprio `checkAuth` que valida x-id-organizacao/x-id-usuario (passados pelo Shell),
 // mas sem requireAuth as rotas ficam públicas — qualquer caller anônimo
 // podia spammar o endpoint e receber 401 ruidoso que aparecia como 500 na UI.
 app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
-import { apiRoutes as preferenciasRouter } from '../../organizacao/preferencias-usuario/server/routes/api.js'
+import { apiRoutes as preferenciasRouter } from '../../servicos-plataforma/preferencias-usuario/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
 // próprio `checkAuth` que valida x-id-organizacao/x-id-usuario headers, mas sem
 // requireAuth externo as rotas ficavam públicas — mesmo padrão do histórico
@@ -216,7 +216,7 @@ if (process.env.NODE_ENV !== 'test') {
         startTaxaCambioSyncWorker()
 
         // NCM Siscomex — cron job diário (configura agendamento salvo no banco)
-        const { initNcmSync } = await import('../../organizacao/ncm-sync/server/init.js')
+        const { initNcmSync } = await import('../../servicos-plataforma/ncm-sync/server/init.js')
         await initNcmSync()
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)

@@ -13,7 +13,7 @@ import { HubBotao } from '../../components/HubBotao'
 import { SeletorIdiomaGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
-import { Notificacoes } from '../../../../organizacao/notificacoes/src/Notificacoes'
+import { Notificacoes } from '../../../../servicos-plataforma/notificacoes/src/Notificacoes'
 import { setAuthTokenProvider } from '../../services/apiClient'
 import {
   Buildings,

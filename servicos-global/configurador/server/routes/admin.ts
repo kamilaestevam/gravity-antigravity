@@ -6,7 +6,7 @@
 // PATCH /api/v1/admin/organizacoes/:id_organizacao     — atualizar status
 // GET   /api/v1/admin/estatisticas-plataforma          — estatísticas globais da plataforma
 // GET   /api/v1/admin/usuarios-globais                 — listar todos os usuários
-// GET   /api/v1/admin/faturas                          — listar faturas globais
+// GET   /api/v1/admin/financeiro-admin                 — listar faturas globais
 // GET   /api/v1/admin/deploys                          — listar histórico de deploys
 // GET   /api/v1/admin/analises-erro                    — listar análises de erro de testes
 // POST  /api/v1/admin/analises-erro                    — registrar resultados de um run de testes
@@ -41,9 +41,9 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 
 // Rate limit extra-restritivo nas rotas de billing — operações financeiras
 // (create/void/send) disparam calls ao provider externo que tem rate limit próprio,
-// e o /faturas pode ser usado para enumerar organizações via customer_id.
+// e o /financeiro-admin pode ser usado para enumerar organizações via customer_id.
 // O preset admin (60 req/min por tenant:IP) evita flood.
-adminRouter.use('/faturas', rateLimitPresets.admin())
+adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
   status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
@@ -55,7 +55,6 @@ const UpdateTenantSchema = z.object({
 const CreateTenantSchema = z.object({
   nome_organizacao: z.string().min(2).max(200),
   subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
-  plano: z.string().max(100).optional(),
   cnpj_organizacao: z.string().max(20).optional(),
 })
 
@@ -238,7 +237,7 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
 
 /**
  * PATCH /api/v1/admin/organizacoes/:id_organizacao
- * Atualiza status ou plano de uma organização (operação administrativa)
+ * Atualiza status de uma organização (operação administrativa)
  */
 adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
   try {
@@ -575,10 +574,10 @@ const VoidInvoiceBodySchema = z.object({
 })
 
 /**
- * GET /api/v1/admin/faturas
+ * GET /api/v1/admin/financeiro-admin
  * Lista faturas via BillingProvider configurado.
  */
-adminRouter.get('/faturas', async (req, res, next) => {
+adminRouter.get('/financeiro-admin', async (req, res, next) => {
   try {
     const parsed = ListInvoicesQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -602,9 +601,9 @@ adminRouter.get('/faturas', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/admin/faturas/:id_fatura
+ * GET /api/v1/admin/financeiro-admin/:id_fatura
  */
-adminRouter.get('/faturas/:id_fatura', async (req, res, next) => {
+adminRouter.get('/financeiro-admin/:id_fatura', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
     const invoice = await provider.getInvoice(req.params.id_fatura)
@@ -618,10 +617,10 @@ adminRouter.get('/faturas/:id_fatura', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/admin/faturas
+ * POST /api/v1/admin/financeiro-admin
  * Cria uma fatura manual via BillingProvider configurado.
  */
-adminRouter.post('/faturas', async (req, res, next) => {
+adminRouter.post('/financeiro-admin', async (req, res, next) => {
   try {
     const parsed = CreateInvoiceBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -655,10 +654,10 @@ adminRouter.post('/faturas', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/admin/faturas/:id_fatura/anular
+ * POST /api/v1/admin/financeiro-admin/:id_fatura/anular
  * Anula uma fatura. Conta Azul: cancelamento. Manual: soft-delete.
  */
-adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
+adminRouter.post('/financeiro-admin/:id_fatura/anular', async (req, res, next) => {
   try {
     const parsed = VoidInvoiceBodySchema.safeParse(req.body ?? {})
     if (!parsed.success) {
@@ -691,10 +690,10 @@ adminRouter.post('/faturas/:id_fatura/anular', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/admin/faturas/:id_fatura/enviar
+ * POST /api/v1/admin/financeiro-admin/:id_fatura/enviar
  * Envia a fatura ao cliente (email).
  */
-adminRouter.post('/faturas/:id_fatura/enviar', async (req, res, next) => {
+adminRouter.post('/financeiro-admin/:id_fatura/enviar', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
     const invoice = await provider.sendInvoice(req.params.id_fatura)
@@ -1219,25 +1218,14 @@ adminRouter.post('/testes-gerais/logs', async (req, res, next) => {
  */
 adminRouter.get('/visao-geral', async (req, res, next) => {
   try {
-    if (!req.auth?.clerkUserId) {
-      res.json({ config: null })
-      return
+    // req.auth.id_organizacao é garantido pelo requireAuth — query redundante removida (REGRA 04)
+    if (!req.auth?.id_organizacao) {
+      throw new AppError('Sessão inválida', 401, 'UNAUTHORIZED')
     }
 
-    // Busca o tenant do usuário admin logado
-    const user = await prisma.usuario.findFirst({
-      where: { id_clerk_usuario: req.auth.clerkUserId },
-      select: { id_organizacao: true },
-    })
-
-    if (!user) {
-      res.json({ config: null })
-      return
-    }
-
-    // Campos core — sempre existem na migration init
+    // Query única — campos core + opcionais + assinatura mais recente
     const tenant = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.id_organizacao },
+      where: { id_organizacao: req.auth.id_organizacao },
       select: {
         id_organizacao: true,
         nome_organizacao: true,
@@ -1245,30 +1233,47 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
         cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,
+        segmento_organizacao: true,
+        tipo_organizacao: true,
         data_criacao_organizacao: true,
+        subscriptions_organizacao: {
+          take: 1,
+          orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
+          select: { status_assinatura_produto_gravity: true },
+        },
       },
     })
 
     if (!tenant) {
-      res.json({ config: null })
-      return
+      throw new AppError('Configuração de plataforma não encontrada', 404, 'NOT_FOUND')
     }
 
-    // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
-    let extras: { segmento_organizacao?: string | null; tipo_organizacao?: string | null } = {}
-    try {
-      const row = await prisma.organizacao.findUnique({
-        where: { id_organizacao: tenant.id_organizacao },
-        select: { segmento_organizacao: true, tipo_organizacao: true },
-      })
-      if (row) extras = row
-    } catch {
-      // Colunas segmento_organizacao/tipo_organizacao ainda não migradas — retorna sem elas
-    }
+    // Auditoria fire-and-forget — leitura de config de plataforma (REGRA 08 — sem silêncio)
+    AuditService.log({
+      tenant_id: req.auth.id_organizacao,
+      actor_type: 'USUARIO',
+      actor_id: req.auth.id_usuario,
+      actor_name: req.auth.id_usuario,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'PlatformConfig',
+      resource_id: tenant.id_organizacao,
+      action: 'PLATFORM_CONFIG_VIEWED',
+      action_detail: 'Visão Geral Admin consultada',
+      status: 'SUCESSO',
+    }).catch(() => { /* fire-and-forget */ })
 
-    // DTO: id_organizacao → id legado do contrato
-    const { id_organizacao, ...tenantRest } = tenant
-    res.json({ config: { id: id_organizacao, ...tenantRest, ...extras } })
+    // DTO: id_organizacao → id, subscriptions_organizacao → subscriptions
+    const { id_organizacao, subscriptions_organizacao, ...tenantRest } = tenant
+    res.json({
+      config: {
+        id: id_organizacao,
+        ...tenantRest,
+        subscriptions: subscriptions_organizacao.map((s) => ({
+          status: s.status_assinatura_produto_gravity,
+        })),
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -1419,6 +1424,11 @@ adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
 
 adminRouter.put('/visao-geral', async (req, res, next) => {
   try {
+    // Apenas SUPER_ADMIN pode alterar config de plataforma — ADMIN só visualiza
+    if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode alterar a configuração da plataforma', 403, 'FORBIDDEN')
+    }
+
     const parsed = PlatformConfigSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
@@ -1428,22 +1438,14 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       )
     }
 
-    const user = await prisma.usuario.findFirst({
-      where: { id_clerk_usuario: req.auth.clerkUserId },
-      select: { id_organizacao: true },
-    })
-
-    if (!user) {
-      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
-    }
-
+    // req.auth.id_organizacao é garantido pelo requireAuth — query redundante removida (REGRA 04)
     const before = await prisma.organizacao.findUnique({
-      where: { id_organizacao: user.id_organizacao },
+      where: { id_organizacao: req.auth.id_organizacao },
       select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
-      where: { id_organizacao: user.id_organizacao },
+      where: { id_organizacao: req.auth.id_organizacao },
       data: parsed.data,
       select: {
         id_organizacao: true,

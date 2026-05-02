@@ -180,20 +180,6 @@ model PedidoItem {
   dados_extras_importacao_item     Json?
   data_criacao_item                DateTime       @default(now())
   data_atualizacao_item            DateTime       @updatedAt
-
-  // Datas propagadas do Pedido (granularidade por item)
-  data_consolidacao_item           DateTime?
-  data_exclusao_item               DateTime?
-  data_prevista_item_pronto        DateTime?
-  data_confirmada_item_pronto      DateTime?
-  data_meta_item_pronto            DateTime?
-  data_prevista_inspecao_item      DateTime?
-  data_confirmada_inspecao_item    DateTime?
-  data_meta_inspecao_item          DateTime?
-  data_prevista_coleta_item        DateTime?
-  data_confirmada_coleta_item      DateTime?
-  data_meta_coleta_item            DateTime?
-
   pedido_item                      PedidoColunasGerais @relation(fields: [id_pedido], references: [id_pedido], onDelete: Cascade)
 
   @@index([id_organizacao])

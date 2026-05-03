@@ -52,22 +52,22 @@ interface GlobalUser {
 
 function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
   const espacos: GlobalUserSpace[] = u.memberships.map(m => ({
-    id: m.id,
-    nome: m.company?.name ?? 'N/A',
-    subdominio: m.company?.subdomain ?? '',
-    perfil: mapRole(m.tipo_usuario),
+    id:         m.id_usuario_workspace,
+    nome:       m.workspace?.nome_workspace ?? 'N/A',
+    subdominio: m.workspace?.subdominio_workspace ?? '',
+    perfil:     mapRole(m.tipo_usuario_workspace),
   }))
   // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem memberships mas sempre ativos.
   // Demais: considerados ativos se tiverem ao menos um workspace ativo.
   const ehGravity = u.tipo_usuario === 'SUPER_ADMIN' || u.tipo_usuario === 'ADMIN'
   const status: UserStatus = ehGravity || espacos.length > 0 ? 'Ativo' : 'Inativo'
   return {
-    id: u.id,
-    nome: u.name,
-    email: u.email,
-    tipo: mapRole(u.tipo_usuario),
+    id:         u.id_usuario,
+    nome:       u.nome_usuario,
+    email:      u.email_usuario,
+    tipo:       mapRole(u.tipo_usuario),
     status,
-    organizacao: u.tenant?.nome_organizacao ?? 'N/A',
+    organizacao: u.organizacao?.nome_organizacao ?? 'N/A',
     espacos,
   }
 }
@@ -125,7 +125,7 @@ export function UsuariosAdmin() {
       setCarregando(true)
       setErroCarregar(null)
       const res = await adminUsersApi.list()
-      setUsers(res.users.map(mapApiUserToGlobal))
+      setUsers(res.usuarios.map(mapApiUserToGlobal))
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('admin.usuarios-globais.msg_erro_carregar')
       setErroCarregar(msg)
@@ -175,12 +175,12 @@ export function UsuariosAdmin() {
     }
     try {
       const result = await adminUsersApi.inviteUser({
-        email,
-        name:  nome,
-        role:  nivelToRole(fTipo),
+        email_usuario: email,
+        nome_usuario:  nome,
+        tipo_usuario:  nivelToRole(fTipo),
       })
       setUsers(prev => [...prev, {
-        id:          result.user.id,
+        id:          result.usuario.id_usuario,
         nome:        fNome.trim(),
         email:       fEmail.trim(),
         tipo:        fTipo,
@@ -442,18 +442,16 @@ export function UsuariosAdmin() {
           />
         </>
       }
-      toolbar={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
-          <TooltipGlobal titulo={t('admin.usuarios-globais.btn_convidar')} descricao={t('admin.usuarios-globais.btn_convidar_desc')}>
-            <BotaoGlobal
-              variante="primario"
-              onClick={() => setShowForm(true)}
-              icone={<User size={18} />}
-            >
-              {t('admin.usuarios-globais.btn_convidar')}
-            </BotaoGlobal>
-          </TooltipGlobal>
-        </div>
+      acoes={
+        <TooltipGlobal titulo={t('admin.usuarios-globais.btn_convidar')} descricao={t('admin.usuarios-globais.btn_convidar_desc')}>
+          <BotaoGlobal
+            variante="primario"
+            onClick={() => setShowForm(true)}
+            icone={<User size={18} />}
+          >
+            {t('admin.usuarios-globais.btn_convidar')}
+          </BotaoGlobal>
+        </TooltipGlobal>
       }
     >
 

@@ -235,7 +235,7 @@ export function Store() {
     async function load() {
       try {
         const [catRes, subRes] = await Promise.all([
-          fetch(`${API_URL}/products`),
+          fetch(`${API_URL}/produtos`),
           fetch(`${API_URL}/assinaturas`, {
             headers: { Authorization: `Bearer ${await getToken()}` },
           }).catch(() => null),
@@ -243,6 +243,9 @@ export function Store() {
         if (catRes.ok) {
           const catData = await catRes.json()
           setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
+        } else {
+          console.warn('[Store] GET /produtos falhou', catRes.status, catRes.statusText)
+          addNotification({ type: 'error', message: t('store.notif_erro_catalogo') })
         }
         if (subRes?.ok) {
           const subData = await subRes.json()
@@ -282,11 +285,11 @@ export function Store() {
       if (res.ok) {
         const id_workspace = sessionStorage.getItem('gravity_company_id')
         if (id_workspace) {
-          await fetch(`${API_URL}/companies/${id_workspace}/products`, {
+          await fetch(`${API_URL}/workspaces/${id_workspace}/produtos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ product_key: slug }),
-          }).catch(() => {})
+          }).catch(err => console.warn('[Store] vínculo workspace falhou', err))
         }
         setSubscribed(prev => {
           const next = new Map(prev)

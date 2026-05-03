@@ -41,7 +41,7 @@ const HistoricoGlobalAdmin = lazy(() => import('./pages/admin/HistoricoGlobalAdm
 const FinanceiroAdmin = lazy(() => import('./pages/admin/FinanceiroAdmin'), 'FinanceiroAdmin')
 const TestesGeraisAdmin = lazy(() => import('./pages/admin/TestesGeraisAdmin'), 'TestesGeraisAdmin')
 const ApiCockpitAdmin = lazy(() => import('./pages/admin/ApiCockpitAdmin'), 'ApiCockpitAdmin')
-const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdmin'), 'UsuariosGlobaisAdmin')
+const UsuariosAdmin = lazy(() => import('./pages/admin/UsuariosAdmin'), 'UsuariosAdmin')
 const OrganizacaoDetalheAdmin = lazy(() => import('./pages/OrganizacaoDetalheAdmin'), 'OrganizacaoDetalheAdmin')
 const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
@@ -299,7 +299,7 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
           <Route index element={<Navigate to="/admin/visao-geral" replace />} />
           <Route path="visao-geral" element={<React.Suspense fallback={<ProductLoading />}><VisaoGeralAdmin /></React.Suspense>} />
-          <Route path="usuarios-globais" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />
+          <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><UsuariosAdmin /></React.Suspense>} />
           <Route path="produtos-gravity" element={<React.Suspense fallback={<ProductLoading />}><ProdutosGravityAdmin /></React.Suspense>} />
           <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroAdmin /></React.Suspense>} />
           <Route path="historico-global" element={<React.Suspense fallback={<ProductLoading />}><HistoricoGlobalAdmin /></React.Suspense>} />

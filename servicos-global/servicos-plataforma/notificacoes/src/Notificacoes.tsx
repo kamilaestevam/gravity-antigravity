@@ -192,7 +192,7 @@ export function Notificacoes() {
     let cancelled = false
     async function fetchChannelConfig() {
       try {
-        const res = await authedFetch(`${BASE_URL}/config`)
+        const res = await authedFetch(`${BASE_URL}/configuracao`)
         if (!res.ok || cancelled) return
         const payload = await res.json() as { status: string; data?: { email_enabled: boolean; whatsapp_enabled: boolean } }
         if (payload.status === 'success' && payload.data && !cancelled) {
@@ -207,7 +207,7 @@ export function Notificacoes() {
   }, [])
 
   // Callback do painel "Enviar Para" — cria notificações para os destinatários
-  // usando a rota autenticada POST /send (browser-facing, JWT).
+  // usando a rota autenticada POST /enviar (browser-facing, JWT).
   const handleEnviarPara = useCallback(
     async (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => {
       const viaEmail = canais?.includes('email') ?? false
@@ -222,7 +222,7 @@ export function Notificacoes() {
           .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
           .filter(Boolean) as string[]
 
-        const res = await authedFetch(`${BASE_URL}/send`, {
+        const res = await authedFetch(`${BASE_URL}/enviar`, {
           method: 'POST',
           body: JSON.stringify({
             user_ids: destinatarios,
@@ -270,7 +270,7 @@ export function Notificacoes() {
     // Otimista
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
     try {
-      const res = await authedFetch(`${BASE_URL}/${encodeURIComponent(id)}/read`, {
+      const res = await authedFetch(`${BASE_URL}/${encodeURIComponent(id)}/marcar-lida`, {
         method: 'PUT',
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -285,7 +285,7 @@ export function Notificacoes() {
     const previous = notifications
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
     try {
-      const res = await authedFetch(`${BASE_URL}/read-all`, { method: 'PUT' })
+      const res = await authedFetch(`${BASE_URL}/marcar-todas-lidas`, { method: 'PUT' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
     } catch {
       setNotifications(previous)

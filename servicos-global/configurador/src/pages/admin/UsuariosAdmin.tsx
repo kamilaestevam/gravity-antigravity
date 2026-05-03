@@ -97,7 +97,7 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
   { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (todas as orgs)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
 ]
 
-export function UsuariosGlobaisAdmin() {
+export function UsuariosAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const { role: dbRole } = useLoadSystemRole()
@@ -341,7 +341,7 @@ export function UsuariosGlobaisAdmin() {
   // ─── Exportação ─────────────────────────────────────────────────────────────
   const ACOES_EXPORT = getAcoesExportacaoPadrao<GlobalUser>(
     COLUNAS,
-    'usuarios-globais',
+    'usuarios',
     'Usuários Globais da Plataforma',
   )
 
@@ -516,6 +516,8 @@ export function UsuariosGlobaisAdmin() {
       <ModalEditarUsuario
         usuario={usuarioEditando}
         abaInicial={abaEditando}
+        espacos={usuarioEditando ? usuarioEditando.espacos.map(e => ({ id: e.id, nome: e.nome, usuarios: [] })) : []}
+        workspacesSalvos={usuarioEditando?.espacos.map(e => e.id) ?? []}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={(uEditado) => {
           setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado } : u))

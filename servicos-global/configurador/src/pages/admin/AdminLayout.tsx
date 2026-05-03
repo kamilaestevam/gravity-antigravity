@@ -54,7 +54,7 @@ export function AdminLayout() {
     { to: '/admin/visao-geral',  label: t('admin.layout.visao_geral'),      icon: <Crown           weight="duotone" size={18} /> },
     { to: '/admin/organizacoes', label: t('admin.layout.organizacoes'),     icon: <Buildings       weight="duotone" size={18} /> },
     { to: '/admin/produtos-gravity', label: t('admin.layout.produtos'),         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
-    { to: '/admin/usuarios-globais', label: t('admin.layout.usuarios_globais'), icon: <Users        weight="duotone" size={18} /> },
+    { to: '/admin/usuarios', label: t('admin.layout.usuarios_globais'), icon: <Users        weight="duotone" size={18} /> },
     { to: '/admin/financeiro',       label: t('admin.layout.financeiro'),       icon: <Receipt      weight="duotone" size={18} /> },
     { to: '/admin/historico-global', label: t('admin.layout.historico_global'), icon: <Desktop       weight="duotone" size={18} /> },
     { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },

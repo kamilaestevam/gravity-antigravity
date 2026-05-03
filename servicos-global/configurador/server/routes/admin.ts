@@ -5,7 +5,7 @@
 // GET   /api/v1/admin/organizacoes/:id_organizacao     — detalhes de uma organização
 // PATCH /api/v1/admin/organizacoes/:id_organizacao     — atualizar status
 // GET   /api/v1/admin/estatisticas-plataforma          — estatísticas globais da plataforma
-// GET   /api/v1/admin/usuarios-globais                 — listar todos os usuários
+// GET   /api/v1/admin/usuarios                         — listar todos os usuários
 // GET   /api/v1/admin/financeiro-admin                 — listar faturas globais
 // GET   /api/v1/admin/deploys                          — listar histórico de deploys
 // GET   /api/v1/admin/analises-erro                    — listar análises de erro de testes
@@ -439,7 +439,7 @@ adminRouter.get('/estatisticas-plataforma', async (_req, res, next) => {
 })
 
 /**
- * GET /api/v1/admin/usuarios-globais
+ * GET /api/v1/admin/usuarios
  * Lista todos os usuários de todos os tenants da plataforma (gravity_admin)
  */
 const ListUsersQuerySchema = z.object({
@@ -448,7 +448,7 @@ const ListUsersQuerySchema = z.object({
   search: z.string().max(255).optional(),
 })
 
-adminRouter.get('/usuarios-globais', async (req, res, next) => {
+adminRouter.get('/usuarios', async (req, res, next) => {
   try {
     const parsed = ListUsersQuerySchema.safeParse(req.query)
     if (!parsed.success) {
@@ -955,7 +955,7 @@ adminRouter.post('/testes-gerais/executar', async (req, res, next) => {
     // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
     // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
     // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
-    // POST /admin/usuarios-globais/:id_usuario/promote.
+    // POST /admin/usuarios/:id_usuario/promover.
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
       throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
     }
@@ -1293,7 +1293,7 @@ const PlatformConfigSchema = z.object({
 })
 
 /**
- * POST /api/v1/admin/usuarios-globais/:id_usuario/promover
+ * POST /api/v1/admin/usuarios/:id_usuario/promover
  * Promove um usuário para SUPER_ADMIN ou ADMIN.
  * Apenas SUPER_ADMIN pode chamar este endpoint.
  */
@@ -1301,7 +1301,7 @@ const PromoteSchema = z.object({
   role: z.enum(['SUPER_ADMIN', 'ADMIN']),
 })
 
-adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next) => {
+adminRouter.post('/usuarios/:id_usuario/promover', async (req, res, next) => {
   try {
     // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
     if (req.auth.tipo_usuario !== 'SUPER_ADMIN') {
@@ -1351,7 +1351,7 @@ adminRouter.post('/usuarios-globais/:id_usuario/promover', async (req, res, next
 })
 
 /**
- * POST /api/v1/admin/usuarios-globais/convidar
+ * POST /api/v1/admin/usuarios/convidar
  * Convida um usuário com role de plataforma (SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER).
  * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
  * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
@@ -1362,7 +1362,7 @@ const AdminInviteSchema = z.object({
   role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
-adminRouter.post('/usuarios-globais/convidar', async (req, res, next) => {
+adminRouter.post('/usuarios/convidar', async (req, res, next) => {
   try {
     const parsed = AdminInviteSchema.safeParse(req.body)
     if (!parsed.success) {

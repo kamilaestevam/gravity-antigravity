@@ -308,20 +308,20 @@ export const adminUsersApi = {
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
     return request<{ users: GlobalUserApi[]; pagination: PaginationApi }>(
-      `/admin/usuarios-globais${qs ? `?${qs}` : ''}`
+      `/v1/admin/usuarios${qs ? `?${qs}` : ''}`
     )
   },
 
   async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
     return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
-      `/admin/usuarios-globais/${userId}/promote`,
+      `/v1/admin/usuarios/${userId}/promover`,
       { method: 'POST', body: JSON.stringify({ role }) }
     )
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
     return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
-      '/admin/usuarios-globais/invite',
+      '/v1/admin/usuarios/convidar',
       { method: 'POST', body: JSON.stringify(data) }
     )
   },

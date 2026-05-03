@@ -3,7 +3,7 @@
  *
  * Define o role SUPER_ADMIN para um usuário no banco do Configurador.
  * Usado para bootstrap inicial — após isso, promoções são feitas pelo endpoint
- * POST /api/v1/admin/usuarios-globais/:id_usuario/promover (que exige SUPER_ADMIN autenticado).
+ * POST /api/v1/admin/usuarios/:id_usuario/promover (que exige SUPER_ADMIN autenticado).
  *
  * Uso:
  *   cd servicos-global/configurador

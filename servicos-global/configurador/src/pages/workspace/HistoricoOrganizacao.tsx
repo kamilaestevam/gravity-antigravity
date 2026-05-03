@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { z } from 'zod'
 import { ClockCounterClockwise } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@clerk/clerk-react'
@@ -7,20 +8,31 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 
 // ---------------------------------------------------------------------------
-// Tipos
+// Contrato — mantido em sincronia com a ACL do backend
+// servicos-global/configurador/server/routes/historicoOrganizacao.ts
 // ---------------------------------------------------------------------------
 
-interface LogItem {
-  id: string
-  created_at: string
-  action: string
-  action_detail: string | null
-  resource_type: string
-  resource_id: string | null
-  actor_name: string | null
-  actor_type: string | null
-  status: string | null
-}
+const historicoLogSchema = z.object({
+  id:           z.string(),
+  data_criacao: z.string(),
+  acao:         z.string(),
+  detalhe_acao: z.string().nullable(),
+  tipo_recurso: z.string(),
+  id_recurso:   z.string().nullable(),
+  nome_ator:    z.string().nullable(),
+  tipo_ator:    z.string().nullable(),
+  status:       z.string().nullable(),
+})
+
+const historicoResponseSchema = z.object({
+  page:    z.number(),
+  limit:   z.number(),
+  logs:    z.array(historicoLogSchema),
+  total:   z.number(),
+  hasMore: z.boolean(),
+})
+
+type HistoricoLog = z.infer<typeof historicoLogSchema>
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,33 +56,33 @@ function formatarData(iso: string): string {
 // Colunas
 // ---------------------------------------------------------------------------
 
-const colunas: TabelaGlobalColuna<LogItem>[] = [
+const colunas: TabelaGlobalColuna<HistoricoLog>[] = [
   {
-    chave: 'created_at',
+    chave: 'data_criacao',
     rotulo: 'Data/Hora',
     largura: '160px',
-    renderizar: (row) => formatarData(row.created_at),
+    renderizar: (row) => formatarData(row.data_criacao),
   },
   {
-    chave: 'action',
-    rotulo: 'Acao',
+    chave: 'acao',
+    rotulo: 'Ação',
     largura: '140px',
   },
   {
-    chave: 'resource_type',
+    chave: 'tipo_recurso',
     rotulo: 'Recurso',
     largura: '140px',
   },
   {
-    chave: 'actor_name',
-    rotulo: 'Usuario',
+    chave: 'nome_ator',
+    rotulo: 'Usuário',
     largura: '180px',
-    renderizar: (row) => row.actor_name ?? row.actor_type ?? '—',
+    renderizar: (row) => row.nome_ator ?? row.tipo_ator ?? '—',
   },
   {
-    chave: 'action_detail',
+    chave: 'detalhe_acao',
     rotulo: 'Detalhes',
-    renderizar: (row) => row.action_detail ?? '—',
+    renderizar: (row) => row.detalhe_acao ?? '—',
   },
 ]
 
@@ -82,7 +94,7 @@ export function HistoricoOrganizacao() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
 
-  const [logs, setLogs] = useState<LogItem[]>([])
+  const [logs, setLogs] = useState<HistoricoLog[]>([])
   const [carregando, setCarregando] = useState(true)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -106,14 +118,19 @@ export function HistoricoOrganizacao() {
       })
 
       if (!res.ok) {
-        console.error('[HistoricoOrganizacao] Erro:', res.status)
+        console.warn('[HistoricoOrganizacao] resposta não-ok', res.status)
         return
       }
 
-      const data = await res.json()
-      setLogs(data.logs ?? [])
-      setTotal(data.total ?? 0)
-      setHasMore(data.hasMore ?? false)
+      const raw = await res.json()
+      const parsed = historicoResponseSchema.safeParse(raw)
+      if (!parsed.success) {
+        console.warn('[HistoricoOrganizacao] payload fora do contrato', parsed.error.issues, raw)
+        return
+      }
+      setLogs(parsed.data.logs)
+      setTotal(parsed.data.total)
+      setHasMore(parsed.data.hasMore)
     } catch (err) {
       console.error('[HistoricoOrganizacao] Erro ao buscar logs:', err)
     } finally {
@@ -133,16 +150,16 @@ export function HistoricoOrganizacao() {
         <CabecalhoGlobal
           icone={<ClockCounterClockwise weight="duotone" size={22} />}
           titulo={t('workspace.layout.historico-organizacao')}
-          subtitulo="Registro de alteracoes na organizacao e workspaces"
+          subtitulo="Registro de alterações na organização e workspaces"
         />
       }
     >
-      <TabelaGlobal<LogItem>
+      <TabelaGlobal<HistoricoLog>
         colunas={colunas}
         dados={logs}
         carregando={carregando}
         chaveId="id"
-        semDados="Nenhum registro de historico encontrado"
+        mensagemSemFiltro="Nenhum registro de histórico encontrado"
       />
 
       {/* Paginacao simples */}

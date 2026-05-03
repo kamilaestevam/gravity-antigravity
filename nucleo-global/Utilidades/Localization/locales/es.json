@@ -1127,6 +1127,7 @@
         "editar_titulo": "Editar Organización",
         "editar_subtitulo": "Datos de la empresa que contrató la plataforma Gravity",
         "editar_btn_salvar": "Guardar Organización",
+        "botao_nova_organizacao": "Nueva Organización",
         "novo_titulo": "Nueva Organización",
         "novo_subtitulo": "Proporcione una nueva instancia aislada en el clúster con las configuraciones completas.",
         "novo_btn_criar": "Crear Instancia",

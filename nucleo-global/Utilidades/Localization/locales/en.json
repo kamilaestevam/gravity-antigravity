@@ -1145,6 +1145,7 @@
         "editar_titulo": "Edit Organization",
         "editar_subtitulo": "Data of the company that contracted the Gravity platform",
         "editar_btn_salvar": "Save Organization",
+        "botao_nova_organizacao": "New Organization",
         "novo_titulo": "New Organization",
         "novo_subtitulo": "Provision a new isolated instance in the cluster with complete settings.",
         "novo_btn_criar": "Create Instance",

@@ -569,7 +569,7 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
       acoes={
         <div style={{ display: 'flex', gap: '8px' }}>
           <BotaoNovoAdminGlobal
-            rotulo="Nova Instância"
+            rotulo={t('admin.testes-gerais.org.botao_nova_organizacao')}
             onClick={() => setShowNovaOrg(true)}
             ativo={showNovaOrg}
           />

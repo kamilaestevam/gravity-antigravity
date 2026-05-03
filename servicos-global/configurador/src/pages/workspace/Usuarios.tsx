@@ -524,6 +524,7 @@ export function Usuarios() {
         ) : (
         <TabelaGlobal<UsuarioOrg>
           id="workspace-usuarios"
+          idKey="id_usuario"
           dados={usuarios}
           colunas={COLUNAS}
           acoes={ACOES}
@@ -546,6 +547,7 @@ export function Usuarios() {
                   <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
                     <TabelaGlobal<WorkspaceItem>
                       id={`usuario-workspaces-drilldown-${usuario.id_usuario}`}
+                      idKey="id_workspace"
                       dados={vinculados}
                       tooltipBusca="Filtrar workspaces por nome ou ID comercial"
                       colunas={[

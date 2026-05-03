@@ -9,12 +9,12 @@
  *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por tenant)
  *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por tenant)
  *
- * Rotas admin (gravity_admin — montadas em /api/v1/admin):
- *   GET /api/v1/admin/servicos-api          — Health check (todos)
- *   GET /api/v1/admin/logs-api              — Logs (todas as organizações)
- *   GET /api/v1/admin/estatisticas-api      — KPIs (globais)
- *   GET /api/v1/admin/uso-gabi              — Custos GABI IA agregados
- *   GET /api/v1/admin/uso-gabi/historico    — Histórico de uso GABI (6 meses)
+ * Rotas admin (gravity_admin — montadas em /api/v1/api-cockpit/admin):
+ *   GET /api/v1/api-cockpit/admin/servicos          — Health check (todos)
+ *   GET /api/v1/api-cockpit/admin/logs              — Logs (todas as organizações)
+ *   GET /api/v1/api-cockpit/admin/estatisticas      — KPIs (globais)
+ *   GET /api/v1/api-cockpit/admin/uso-gabi          — Custos GABI IA agregados
+ *   GET /api/v1/api-cockpit/admin/uso-gabi/historico — Histórico de uso GABI (6 meses)
  */
 
 import { Router } from 'express'
@@ -107,7 +107,7 @@ apiCockpitRouter.get('/stats', async (_req, res) => {
 
 apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
-apiCockpitAdminRouter.get('/servicos-api', async (_req, res) => {
+apiCockpitAdminRouter.get('/servicos', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/services')
     res.json(data)
@@ -116,7 +116,7 @@ apiCockpitAdminRouter.get('/servicos-api', async (_req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/logs-api', async (req, res) => {
+apiCockpitAdminRouter.get('/logs', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
       tenant_id: (req.query.tenant_id as string) || '',
@@ -130,7 +130,7 @@ apiCockpitAdminRouter.get('/logs-api', async (req, res) => {
   }
 })
 
-apiCockpitAdminRouter.get('/estatisticas-api', async (_req, res) => {
+apiCockpitAdminRouter.get('/estatisticas', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/stats')
     res.json(data)
@@ -142,7 +142,7 @@ apiCockpitAdminRouter.get('/estatisticas-api', async (_req, res) => {
 // ─── GABI Usage — custos de IA agregados (admin global) ─────────────────
 
 /**
- * GET /api/v1/admin/uso-gabi
+ * GET /api/v1/api-cockpit/admin/uso-gabi
  * Proxy para GET /api/v1/gabi/uso do serviço Gabi (tenant super-server).
  * Quando id_organizacao não é informado, retorna uso global (sem filtro).
  */
@@ -181,7 +181,7 @@ apiCockpitAdminRouter.get('/uso-gabi', async (req, res) => {
 })
 
 /**
- * GET /api/v1/admin/uso-gabi/historico
+ * GET /api/v1/api-cockpit/admin/uso-gabi/historico
  * Proxy para GET /api/v1/gabi/uso/historico — últimos 6 meses.
  */
 apiCockpitAdminRouter.get('/uso-gabi/historico', async (req, res) => {

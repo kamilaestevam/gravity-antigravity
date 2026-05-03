@@ -19,7 +19,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { withOrganizacao, type ContextoOrganizacao } from '@gravity/resolver-organizacao'
 import { detectarTiposMistos } from '../shared/bulkSchemas.js'
-import { auditLog } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')

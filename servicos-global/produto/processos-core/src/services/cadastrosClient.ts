@@ -26,10 +26,10 @@ import {
   type NCM,
   type OPE,
   type Unidade,
-} from '../../../cadastros/shared/schemas/index.js'
+} from '../../../../cadastros/shared/schemas/index.js'
 import { AppError } from './saldoEngine.js'
 
-const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8030'
+const CADASTROS_URL = process.env.CADASTROS_SERVICE_URL ?? 'http://localhost:8031'
 const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 const FETCH_TIMEOUT_MS = 5_000
 
@@ -70,7 +70,7 @@ export async function buscarEmpresaPorSuid(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/empresas/${encodeURIComponent(suid)}`,
+      `${CADASTROS_URL}/api/v1/empresas/${encodeURIComponent(suid)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -132,8 +132,8 @@ export async function buscarEmpresasPorSuids(
 /**
  * Busca uma OPE no Cadastros pelo SUID.
  *
- * Endpoint: GET {CADASTROS_URL}/operacoes-comex/:suid
- * (router montado em `/api/v1/operacoes-comex` no serviço Cadastros)
+ * Endpoint: GET {CADASTROS_URL}/api/v1/cadastros/operacoes-comex/:suid
+ * (router montado em `/api/v1/cadastros/operacoes-comex` no serviço Cadastros)
  */
 export async function buscarOpePorSuid(
   suidOpe: string,
@@ -142,7 +142,7 @@ export async function buscarOpePorSuid(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/operacoes-comex/${encodeURIComponent(suidOpe)}`,
+      `${CADASTROS_URL}/api/v1/cadastros/operacoes-comex/${encodeURIComponent(suidOpe)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -170,8 +170,8 @@ export async function buscarOpePorSuid(
 /**
  * Busca um NCM no Cadastros pelo código.
  *
- * Endpoint: GET {CADASTROS_URL}/ncm/:codigo
- * (router montado em `/api/v1/ncm` no serviço Cadastros)
+ * Endpoint: GET {CADASTROS_URL}/api/v1/cadastros/ncm/:codigo
+ * (router montado em `/api/v1/cadastros/ncm` no serviço Cadastros)
  */
 export async function buscarNcmPorCodigo(
   codigoNcm: string,
@@ -180,7 +180,7 @@ export async function buscarNcmPorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/ncm/${encodeURIComponent(codigoNcm)}`,
+      `${CADASTROS_URL}/api/v1/cadastros/ncm/${encodeURIComponent(codigoNcm)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -208,8 +208,8 @@ export async function buscarNcmPorCodigo(
 /**
  * Busca uma Moeda no Cadastros pelo código.
  *
- * Endpoint: GET {CADASTROS_URL}/moedas/:codigo
- * (router montado em `/api/v1/moedas` no serviço Cadastros)
+ * Endpoint: GET {CADASTROS_URL}/api/v1/cadastros/moedas/:codigo
+ * (router montado em `/api/v1/cadastros/moedas` no serviço Cadastros)
  */
 export async function buscarMoedaPorCodigo(
   codigoMoeda: string,
@@ -218,7 +218,7 @@ export async function buscarMoedaPorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/moedas/${encodeURIComponent(codigoMoeda)}`,
+      `${CADASTROS_URL}/api/v1/cadastros/moedas/${encodeURIComponent(codigoMoeda)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),
@@ -246,8 +246,8 @@ export async function buscarMoedaPorCodigo(
 /**
  * Busca uma Unidade no Cadastros pelo código.
  *
- * Endpoint: GET {CADASTROS_URL}/unidades/:codigo
- * (router montado em `/api/v1/unidades` no serviço Cadastros)
+ * Endpoint: GET {CADASTROS_URL}/api/v1/cadastros/unidades/:codigo
+ * (router montado em `/api/v1/cadastros/unidades` no serviço Cadastros)
  */
 export async function buscarUnidadePorCodigo(
   codigoUnidade: string,
@@ -256,7 +256,7 @@ export async function buscarUnidadePorCodigo(
   let response: Response
   try {
     response = await fetch(
-      `${CADASTROS_URL}/unidades/${encodeURIComponent(codigoUnidade)}`,
+      `${CADASTROS_URL}/api/v1/cadastros/unidades/${encodeURIComponent(codigoUnidade)}`,
       {
         method: 'GET',
         headers: headersPadrao(ctx),

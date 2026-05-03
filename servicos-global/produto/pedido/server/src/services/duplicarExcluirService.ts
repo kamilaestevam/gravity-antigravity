@@ -9,7 +9,7 @@
  */
 
 import { Prisma, PrismaClient } from '@prisma/client'
-import { auditLog } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
 // Workaround: Prisma.TransactionClient (Omit em classe genérica) perde os model delegates
 // no Prisma 5.22 — usamos Omit literal para preservar tx.pedido, tx.pedidoItem, etc.

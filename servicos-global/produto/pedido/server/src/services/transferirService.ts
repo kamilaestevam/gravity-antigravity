@@ -6,7 +6,7 @@
  */
 
 import { PrismaClient, Prisma } from '@prisma/client'
-import { auditLog } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 

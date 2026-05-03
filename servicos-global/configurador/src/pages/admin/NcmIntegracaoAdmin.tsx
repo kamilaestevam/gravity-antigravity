@@ -30,21 +30,21 @@ function formatDate(iso: string | null): string {
 }
 
 function formatDuracao(log: NcmSyncLogApi): string {
-  if (!log.iniciado_em || !log.concluido_em) return '—'
-  const ms = new Date(log.concluido_em).getTime() - new Date(log.iniciado_em).getTime()
+  if (!log.data_inicio_ncm_log || !log.data_conclusao_ncm_log) return '—'
+  const ms = new Date(log.data_conclusao_ncm_log).getTime() - new Date(log.data_inicio_ncm_log).getTime()
   if (ms < 1000) return `${ms}ms`
   if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
   return `${Math.round(ms / 60_000)}min`
 }
 
-function StatusBadge({ status }: { status: NcmSyncLogApi['status'] }) {
+function StatusBadge({ status }: { status: NcmSyncLogApi['status_ncm_log'] }) {
   const { t } = useTranslation()
-  if (status === 'SUCCESS') return (
+  if (status === 'SUCESSO') return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', color: '#34d399', fontWeight: 600, fontSize: '0.8rem' }}>
       <CheckCircle size={14} weight="fill" /> {t('admin.ncm.status_sucesso')}
     </span>
   )
-  if (status === 'ERROR') return (
+  if (status === 'ERRO') return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', color: '#f87171', fontWeight: 600, fontSize: '0.8rem' }}>
       <XCircle size={14} weight="fill" /> {t('admin.ncm.status_erro')}
     </span>
@@ -56,7 +56,7 @@ function StatusBadge({ status }: { status: NcmSyncLogApi['status'] }) {
   )
 }
 
-function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem'] }) {
+function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem_ncm_log'] }) {
   const { t } = useTranslation()
   return (
     <span style={{
@@ -124,8 +124,8 @@ export function NcmIntegracaoAdmin() {
     await carregarHistorico(pag)
   }
 
-  // Sync é disparado para o tenant padrão do sistema (gravity-hq)
-  // Em produção, o admin seleciona o tenant; por ora usa o interno
+  // Sync é disparado para a organização padrão do sistema (gravity-hq)
+  // Em produção, o admin seleciona a organização; por ora usa o interno
   const handleSync = async () => {
     setSincronizando(true)
     try {
@@ -146,7 +146,7 @@ export function NcmIntegracaoAdmin() {
 
   const COLUNAS: TabelaGlobalColuna<NcmSyncLogApi>[] = [
     {
-      key: 'iniciado_em',
+      key: 'data_inicio_ncm_log',
       label: t('admin.ncm.col_data'),
       tipo: 'periodo',
       tooltipTitulo: 'Início da sincronização',
@@ -154,10 +154,10 @@ export function NcmIntegracaoAdmin() {
       render: (v) => <span style={{ color: '#cbd5e1', fontVariantNumeric: 'tabular-nums' }}>{formatDate(v)}</span>,
     },
     {
-      key: 'tenant_id',
+      key: 'id_organizacao',
       label: t('admin.ncm.col_tenant'),
       tipo: 'texto',
-      tooltipTitulo: 'Identificador do tenant',
+      tooltipTitulo: 'Identificador da organização',
       tooltipDescricao: 'Organização para a qual a sincronização foi executada.',
       render: (v) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem' }}>
@@ -167,15 +167,15 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'origem',
+      key: 'origem_ncm_log',
       label: t('admin.ncm.col_origem'),
       tipo: 'texto',
       tooltipTitulo: 'Origem da sincronização',
       tooltipDescricao: 'Indica se foi disparada pelo job automático diário ou manualmente por um administrador.',
-      render: (_v, row) => <OrigemBadge origem={row.origem} />,
+      render: (_v, row) => <OrigemBadge origem={row.origem_ncm_log} />,
     },
     {
-      key: 'total',
+      key: 'total_ncm_log',
       label: t('admin.ncm.col_total'),
       tipo: 'numero',
       tooltipTitulo: 'Total processado',
@@ -183,7 +183,7 @@ export function NcmIntegracaoAdmin() {
       render: (v) => <span style={{ color: '#e2e8f0', fontVariantNumeric: 'tabular-nums' }}>{(v as number).toLocaleString('pt-BR')}</span>,
     },
     {
-      key: 'adicionados',
+      key: 'adicionados_ncm_log',
       label: t('admin.ncm.col_adicionados'),
       tipo: 'numero',
       tooltipTitulo: 'Novos NCMs',
@@ -195,7 +195,7 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'alterados',
+      key: 'alterados_ncm_log',
       label: t('admin.ncm.col_alterados'),
       tipo: 'numero',
       tooltipTitulo: 'NCMs modificados',
@@ -207,7 +207,7 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'removidos',
+      key: 'removidos_ncm_log',
       label: t('admin.ncm.col_removidos'),
       tipo: 'numero',
       tooltipTitulo: 'NCMs removidos',
@@ -219,15 +219,15 @@ export function NcmIntegracaoAdmin() {
       ),
     },
     {
-      key: 'status',
+      key: 'status_ncm_log',
       label: t('admin.ncm.col_status'),
       tipo: 'texto',
       tooltipTitulo: 'Status da sincronização',
       tooltipDescricao: 'Resultado final da sincronização: Concluído, Erro ou Em andamento.',
-      render: (_v, row) => <StatusBadge status={row.status} />,
+      render: (_v, row) => <StatusBadge status={row.status_ncm_log} />,
     },
     {
-      key: 'concluido_em',
+      key: 'data_conclusao_ncm_log',
       label: t('admin.ncm.col_duracao'),
       tipo: 'texto',
       tooltipTitulo: 'Tempo de execução',
@@ -242,7 +242,7 @@ export function NcmIntegracaoAdmin() {
 
   // ── Alerta de desatualização ────────────────────────────────────────────────
 
-  const alertaDesatualizado = status?.desatualizado && !sincronizando && status?.status !== 'RUNNING' && (
+  const alertaDesatualizado = status?.desatualizado && !sincronizando && status?.status !== 'EXECUTANDO' && (
     <div style={{
       display: 'flex', alignItems: 'center', gap: '0.75rem',
       padding: '0.875rem 1.25rem',
@@ -260,12 +260,12 @@ export function NcmIntegracaoAdmin() {
   )
 
   const ultimaSyncLabel = status?.ultima_sync
-    ? `${formatDate(status.ultima_sync)}${status.status === 'SUCCESS' ? ' ✓' : status.status === 'ERROR' ? ' ✗' : ''}`
+    ? `${formatDate(status.ultima_sync)}${status.status === 'SUCESSO' ? ' ✓' : status.status === 'ERRO' ? ' ✗' : ''}`
     : t('admin.ncm.nunca_sincronizado')
 
   const statusCorIcone = !status ? '#64748b'
-    : status.status === 'SUCCESS' ? '#34d399'
-    : status.status === 'ERROR' ? '#f87171'
+    : status.status === 'SUCESSO' ? '#34d399'
+    : status.status === 'ERRO' ? '#f87171'
     : '#fbbf24'
 
   return (
@@ -294,7 +294,7 @@ export function NcmIntegracaoAdmin() {
           />
           <CardEstatisticaGlobal
             titulo={t('admin.ncm.card_tenants')}
-            valor={carregando ? '—' : String(status?.total_tenants ?? 0)}
+            valor={carregando ? '—' : String(status?.total_organizacoes ?? 0)}
             icone={<Buildings size={20} weight="duotone" />}
             cor="#6366f1"
           />

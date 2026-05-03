@@ -15,7 +15,7 @@ export async function listAlerts(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const isGravityAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 
-    const status_evento_alerta = req.query.status_evento_alerta as string | undefined
+    const status_evento_alerta = req.query.status as string | undefined
     const limit = Math.min(Number(req.query.limit ?? 50), 100)
 
     const alerts = await prisma.alertaData.findMany({

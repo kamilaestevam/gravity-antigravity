@@ -77,14 +77,14 @@ let overflowWarningEmitted = false
 
 // Servicos conhecidos para health check
 const KNOWN_SERVICES: Array<{ name: string; port: number; type: 'core' | 'product' | 'gateway' }> = [
-  { name: 'configurador', port: 8003, type: 'core' },
+  { name: 'configurador', port: 8005, type: 'core' },
   { name: 'api-cockpit', port: 8016, type: 'core' },
   { name: 'dashboard', port: 8010, type: 'core' },
   { name: 'simula-custo', port: 8020, type: 'product' },
   { name: 'bid-frete', port: 8023, type: 'product' },
   { name: 'bid-cambio', port: 8025, type: 'product' },
   { name: 'processo', port: 8026, type: 'product' },
-  { name: 'pedido', port: 8026, type: 'product' },
+  { name: 'pedido', port: 8030, type: 'product' },
   { name: 'lpco', port: 8027, type: 'product' },
   { name: 'nf-importacao', port: 8028, type: 'product' },
   { name: 'email', port: 8022, type: 'core' },

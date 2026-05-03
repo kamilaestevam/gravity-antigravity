@@ -14,7 +14,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma as configuradorPrisma } from '../lib/prisma.js'
-import { prisma as tenantPrisma } from '../../../servicos-plataforma/server/lib/prisma.js'
+import { prisma as plataformaPrisma } from '../../../servicos-plataforma/server/lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 import { executarSync } from '../../../servicos-plataforma/ncm-sync/server/services/ncmSyncEngine.js'
 import { reagendarJob } from '../../../servicos-plataforma/ncm-sync/server/init.js'
@@ -30,30 +30,30 @@ adminNcmIntegracaoRouter.get('/', async (_req, res, next) => {
   try {
     const limite48h = new Date(Date.now() - 48 * 60 * 60 * 1000)
 
-    const [ultimaSyncCompleta, emAndamento, totalAtivos, tenantsComNcm, erros48h, totalTenants] = await Promise.all([
-      tenantPrisma.ncmSyncLog.findFirst({
-        where:   { status: { in: ['SUCCESS', 'ERROR'] } },
-        orderBy: { iniciado_em: 'desc' },
+    const [ultimaSyncCompleta, emAndamento, totalAtivos, organizacoesComNcm, erros48h, totalOrganizacoes] = await Promise.all([
+      plataformaPrisma.ncmLog.findFirst({
+        where:   { status_ncm_log: { in: ['SUCESSO', 'ERRO'] } },
+        orderBy: { data_inicio_ncm_log: 'desc' },
       }),
-      tenantPrisma.ncmSyncLog.findFirst({ where: { status: 'RUNNING' }, orderBy: { iniciado_em: 'desc' } }),
-      tenantPrisma.ncmItem.count({ where: { ativo: true } }),
-      tenantPrisma.ncmItem.findMany({ select: { tenant_id: true }, distinct: ['tenant_id'] }),
-      tenantPrisma.ncmSyncLog.count({ where: { status: 'ERROR', iniciado_em: { gte: limite48h } } }),
+      plataformaPrisma.ncmLog.findFirst({ where: { status_ncm_log: 'EXECUTANDO' }, orderBy: { data_inicio_ncm_log: 'desc' } }),
+      plataformaPrisma.ncmItem.count({ where: { ativo_ncm_item: true } }),
+      plataformaPrisma.ncmItem.findMany({ select: { id_organizacao: true }, distinct: ['id_organizacao'] }),
+      plataformaPrisma.ncmLog.count({ where: { status_ncm_log: 'ERRO', data_inicio_ncm_log: { gte: limite48h } } }),
       configuradorPrisma.organizacao.count().catch(() => 0),
     ])
 
-    const statusAtual = emAndamento ? 'RUNNING' : (ultimaSyncCompleta?.status ?? null)
-    const desatualizado = emAndamento ? false : (ultimaSyncCompleta?.concluido_em
-      ? (Date.now() - ultimaSyncCompleta.concluido_em.getTime()) > 26 * 60 * 60 * 1000
+    const statusAtual = emAndamento ? 'EXECUTANDO' : (ultimaSyncCompleta?.status_ncm_log ?? null)
+    const desatualizado = emAndamento ? false : (ultimaSyncCompleta?.data_conclusao_ncm_log
+      ? (Date.now() - ultimaSyncCompleta.data_conclusao_ncm_log.getTime()) > 26 * 60 * 60 * 1000
       : true)
 
     res.json({
-      ultima_sync:     ultimaSyncCompleta?.concluido_em ?? null,
-      status:          statusAtual,
-      total_ativos:    totalAtivos,
-      total_tenants:   totalTenants,
-      tenants_com_ncm: tenantsComNcm.length,
-      erros_48h:       erros48h,
+      ultima_sync:           ultimaSyncCompleta?.data_conclusao_ncm_log ?? null,
+      status:                statusAtual,
+      total_ativos:          totalAtivos,
+      total_organizacoes:    totalOrganizacoes,
+      organizacoes_com_ncm:  organizacoesComNcm.length,
+      erros_48h:             erros48h,
       desatualizado,
     })
   } catch (err) {
@@ -79,8 +79,8 @@ adminNcmIntegracaoRouter.get('/historico', async (req, res, next) => {
     const skip = (pagina - 1) * por_page
 
     const [logs, total] = await Promise.all([
-      tenantPrisma.ncmSyncLog.findMany({ orderBy: { iniciado_em: 'desc' }, skip, take: por_page }),
-      tenantPrisma.ncmSyncLog.count(),
+      plataformaPrisma.ncmLog.findMany({ orderBy: { data_inicio_ncm_log: 'desc' }, skip, take: por_page }),
+      plataformaPrisma.ncmLog.count(),
     ])
 
     res.json({
@@ -104,19 +104,19 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
     const startMs = Date.now()
 
     const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
-    await tenantPrisma.ncmSyncLog.updateMany({
-      where: { tenant_id: id_organizacao, status: 'RUNNING', iniciado_em: { lt: DOIS_HORAS_ATRAS } },
-      data: { status: 'ERROR', concluido_em: new Date(), erro_msg: 'Tempo limite excedido (2h) — processo presumido morto.' },
+    await plataformaPrisma.ncmLog.updateMany({
+      where: { id_organizacao, status_ncm_log: 'EXECUTANDO', data_inicio_ncm_log: { lt: DOIS_HORAS_ATRAS } },
+      data: { status_ncm_log: 'ERRO', data_conclusao_ncm_log: new Date(), mensagem_erro_ncm_log: 'Tempo limite excedido (2h) — processo presumido morto.' },
     })
 
-    const emAndamento = await tenantPrisma.ncmSyncLog.findFirst({
-      where: { tenant_id: id_organizacao, status: 'RUNNING' },
+    const emAndamento = await plataformaPrisma.ncmLog.findFirst({
+      where: { id_organizacao, status_ncm_log: 'EXECUTANDO' },
     })
     if (emAndamento) {
-      throw new AppError('Já existe uma sincronização em andamento para este tenant.', 409, 'SYNC_ALREADY_RUNNING')
+      throw new AppError('Já existe uma sincronização em andamento para esta organização.', 409, 'SYNC_ALREADY_RUNNING')
     }
 
-    const result = await executarSync(tenantPrisma, id_organizacao, {
+    const result = await executarSync(plataformaPrisma, id_organizacao, {
       origem:       'MANUAL',
       disparadoPor: req.auth.id_usuario,
     })
@@ -130,7 +130,7 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
       modulo_historico_log:        'admin',
       tipo_recurso_historico_log: 'NcmSync',
       acao_historico_log:        'NCM_SYNC_MANUAL',
-      detalhe_acao_historico_log: `Sync OK para tenant ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
+      detalhe_acao_historico_log: `Sync OK para organização ${id_organizacao} — ${result.total} NCMs (${Date.now() - startMs}ms)`,
       estado_posterior_historico_log:         { id_organizacao, ...result },
       status_historico_log:        'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
@@ -145,14 +145,14 @@ adminNcmIntegracaoRouter.post('/sincronizar/:id_organizacao', async (req, res, n
 
 adminNcmIntegracaoRouter.get('/agendamento', async (_req, res, next) => {
   try {
-    const config = await tenantPrisma.ncmScheduleConfig.findUnique({ where: { id: 'default' } })
+    const config = await plataformaPrisma.nCMAgendamento.findUnique({ where: { id_ncm_agendamento: 'default' } })
 
     res.json({
-      ativo:           config?.ativo          ?? false,
-      cron_expressao:  config?.cron_expressao ?? '0 2 * * *',
-      notificadores:   config?.notificadores  ?? [],
-      proxima_execucao: config?.ativo ? config.cron_expressao : null,
-      atualizado_em:   config?.atualizado_em  ?? null,
+      ativo:           config?.ativo_ncm_agendamento          ?? false,
+      cron_expressao:  config?.cron_expressao_ncm_agendamento ?? '0 2 * * *',
+      notificadores:   config?.notificadores_ncm_agendamento  ?? [],
+      proxima_execucao: config?.ativo_ncm_agendamento ? config.cron_expressao_ncm_agendamento : null,
+      atualizado_em:   config?.data_atualizacao_ncm_agendamento ?? null,
     })
   } catch (err) {
     next(err)
@@ -188,10 +188,10 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
 
     const { ativo, cron_expressao, notificadores } = parsed.data
 
-    const config = await tenantPrisma.ncmScheduleConfig.upsert({
-      where:  { id: 'default' },
-      create: { id: 'default', ativo, cron_expressao, notificadores: notificadores as object[] },
-      update: { ativo, cron_expressao, notificadores: notificadores as object[] },
+    const config = await plataformaPrisma.nCMAgendamento.upsert({
+      where:  { id_ncm_agendamento: 'default' },
+      create: { id_ncm_agendamento: 'default', ativo_ncm_agendamento: ativo, cron_expressao_ncm_agendamento: cron_expressao, notificadores_ncm_agendamento: notificadores as object[] },
+      update: { ativo_ncm_agendamento: ativo, cron_expressao_ncm_agendamento: cron_expressao, notificadores_ncm_agendamento: notificadores as object[] },
     })
 
     reagendarJob(cron_expressao, ativo)
@@ -212,10 +212,10 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
 
     res.json({
       sucesso:        true,
-      ativo:          config.ativo,
-      cron_expressao: config.cron_expressao,
-      notificadores:  config.notificadores,
-      atualizado_em:  config.atualizado_em,
+      ativo:          config.ativo_ncm_agendamento,
+      cron_expressao: config.cron_expressao_ncm_agendamento,
+      notificadores:  config.notificadores_ncm_agendamento,
+      atualizado_em:  config.data_atualizacao_ncm_agendamento,
     })
   } catch (err) {
     next(err)
@@ -225,7 +225,7 @@ adminNcmIntegracaoRouter.put('/agendamento', async (req, res, next) => {
 // ─── POST /agendamento/executar — Executar para todas as organizações ──────
 
 const ExecuteSchema = z.object({
-  tenant_id: z.string().optional(),
+  id_organizacao: z.string().optional(),
 })
 
 adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) => {
@@ -239,42 +239,42 @@ adminNcmIntegracaoRouter.post('/agendamento/executar', async (req, res, next) =>
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const { tenant_id } = parsed.data
+    const { id_organizacao } = parsed.data
 
-    if (tenant_id) {
-      const emAndamento = await tenantPrisma.ncmSyncLog.findFirst({
-        where: { tenant_id, status: 'RUNNING' },
+    if (id_organizacao) {
+      const emAndamento = await plataformaPrisma.ncmLog.findFirst({
+        where: { id_organizacao, status_ncm_log: 'EXECUTANDO' },
       })
       if (emAndamento) {
-        throw new AppError('Já existe uma sincronização em andamento para este tenant.', 409, 'SYNC_ALREADY_RUNNING')
+        throw new AppError('Já existe uma sincronização em andamento para esta organização.', 409, 'SYNC_ALREADY_RUNNING')
       }
-      const result = await executarSync(tenantPrisma, tenant_id, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
-      return res.json({ sucesso: true, tenants_executados: 1, resultados: [{ tenant_id, sucesso: true, ...result }] })
+      const result = await executarSync(plataformaPrisma, id_organizacao, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
+      return res.json({ sucesso: true, organizacoes_executadas: 1, resultados: [{ id_organizacao, sucesso: true, ...result }] })
     }
 
-    // Todos os tenants ativos
-    const tenants = await configuradorPrisma.organizacao.findMany({
+    // Todas as organizações ativas
+    const organizacoes = await configuradorPrisma.organizacao.findMany({
       select: { id_organizacao: true },
       where:  { status_organizacao: 'ATIVO' },
     })
 
-    if (tenants.length === 0) {
-      return res.json({ sucesso: true, tenants_executados: 0, resultados: [], aviso: 'Nenhum tenant ativo.' })
+    if (organizacoes.length === 0) {
+      return res.json({ sucesso: true, organizacoes_executadas: 0, resultados: [], aviso: 'Nenhuma organização ativa.' })
     }
 
     const resultados: Array<Record<string, unknown>> = []
-    for (const { id_organizacao: tid } of tenants) {
+    for (const { id_organizacao: idOrg } of organizacoes) {
       try {
-        const r = await executarSync(tenantPrisma, tid, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
-        resultados.push({ tenant_id: tid, sucesso: true, ...r })
+        const r = await executarSync(plataformaPrisma, idOrg, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
+        resultados.push({ id_organizacao: idOrg, sucesso: true, ...r })
       } catch (err) {
-        resultados.push({ tenant_id: tid, sucesso: false, erro: err instanceof Error ? err.message : String(err) })
+        resultados.push({ id_organizacao: idOrg, sucesso: false, erro: err instanceof Error ? err.message : String(err) })
       }
     }
 
     res.json({
-      sucesso:            true,
-      tenants_executados: resultados.length,
+      sucesso:                 true,
+      organizacoes_executadas: resultados.length,
       resultados,
     })
   } catch (err) {

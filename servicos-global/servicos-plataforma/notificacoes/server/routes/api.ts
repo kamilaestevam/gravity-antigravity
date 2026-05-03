@@ -1,8 +1,10 @@
 /**
  * notificacoes/server/routes/api.ts
  *
- * Onda 37 — DDD Servicos: campos físicos com sufixo _notificacoes_titulo_corpo /
- * _contato_externo / _configuracao_canal_tenant. DTO/ACL preserva o contrato
+ * DDD: FKs canônicas (id_organizacao, id_usuario, id_produto_gravity) sem sufixo
+ * de entidade (REGRA 3/4). Demais campos (tipo, lida, mensagem, etc.) carregam
+ * sufixo da entidade pela REGRA 1.2. Tabela ConfiguracaoCanalOrganizacao
+ * (anteriormente configuracao_canal_tenant). DTO/ACL preserva o contrato
  * público consumido pelo sininho do shell e por integrações externas.
  */
 
@@ -18,9 +20,9 @@ export const apiRoutes = Router()
 
 interface NotificacaoRow {
   id_notificacoes_titulo_corpo:               string
-  id_organizacao_notificacoes_titulo_corpo:   string
-  id_produto_notificacoes_titulo_corpo:       string | null
-  id_usuario_notificacoes_titulo_corpo:       string
+  id_organizacao:   string
+  id_produto_gravity:       string | null
+  id_usuario:       string
   tipo_notificacoes_titulo_corpo:             string
   titulo_notificacoes_titulo_corpo:           string | null
   mensagem_notificacoes_titulo_corpo:         string
@@ -36,9 +38,9 @@ interface NotificacaoRow {
 function toNotificacaoDto(n: NotificacaoRow) {
   return {
     id:              n.id_notificacoes_titulo_corpo,
-    tenant_id:       n.id_organizacao_notificacoes_titulo_corpo,
-    product_id:      n.id_produto_notificacoes_titulo_corpo,
-    user_id:         n.id_usuario_notificacoes_titulo_corpo,
+    tenant_id:       n.id_organizacao,
+    product_id:      n.id_produto_gravity,
+    user_id:         n.id_usuario,
     type:            n.tipo_notificacoes_titulo_corpo,
     title:           n.titulo_notificacoes_titulo_corpo,
     message:         n.mensagem_notificacoes_titulo_corpo,
@@ -177,9 +179,9 @@ apiRoutes.post('/', async (req, res, next) => {
 
     const created = await prisma.notificacoesTituloCorpo.create({
       data: {
-        id_organizacao_notificacoes_titulo_corpo: tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     user_id,
-        id_produto_notificacoes_titulo_corpo:     body.product_id ?? null,
+        id_organizacao: tenant_id,
+        id_usuario:     user_id,
+        id_produto_gravity:     body.product_id ?? null,
         tipo_notificacoes_titulo_corpo:           body.type,
         titulo_notificacoes_titulo_corpo:         body.title ?? null,
         mensagem_notificacoes_titulo_corpo:       body.message,
@@ -208,16 +210,16 @@ apiRoutes.get('/', async (req, res, next) => {
     const [notifications, unread_count] = await Promise.all([
       prisma.notificacoesTituloCorpo.findMany({
         where: {
-          id_organizacao_notificacoes_titulo_corpo: tenant_id,
-          id_usuario_notificacoes_titulo_corpo:     user_id,
+          id_organizacao: tenant_id,
+          id_usuario:     user_id,
         },
         orderBy: { data_criacao_notificacoes_titulo_corpo: 'desc' },
         take,
       }),
       prisma.notificacoesTituloCorpo.count({
         where: {
-          id_organizacao_notificacoes_titulo_corpo: tenant_id,
-          id_usuario_notificacoes_titulo_corpo:     user_id,
+          id_organizacao: tenant_id,
+          id_usuario:     user_id,
           lida_notificacoes_titulo_corpo:           false,
         },
       }),
@@ -273,8 +275,8 @@ apiRoutes.put('/:id_notificacao/marcar-lida', async (req, res, next) => {
     const result = await prisma.notificacoesTituloCorpo.updateMany({
       where: {
         id_notificacoes_titulo_corpo:             id_notificacao,
-        id_organizacao_notificacoes_titulo_corpo: tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     user_id,
+        id_organizacao: tenant_id,
+        id_usuario:     user_id,
       },
       data: { lida_notificacoes_titulo_corpo: true },
     })
@@ -293,8 +295,8 @@ apiRoutes.put('/marcar-todas-lidas', async (req, res, next) => {
     const { tenant_id, user_id } = req
     await prisma.notificacoesTituloCorpo.updateMany({
       where: {
-        id_organizacao_notificacoes_titulo_corpo: tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     user_id,
+        id_organizacao: tenant_id,
+        id_usuario:     user_id,
         lida_notificacoes_titulo_corpo:           false,
       },
       data: { lida_notificacoes_titulo_corpo: true },
@@ -335,9 +337,9 @@ apiRoutes.post('/enviar', async (req, res, next) => {
     if (targets.length > 0) {
       created = await prisma.notificacoesTituloCorpo.createMany({
         data: targets.map((uid) => ({
-          id_organizacao_notificacoes_titulo_corpo: tenant_id,
-          id_usuario_notificacoes_titulo_corpo:     uid,
-          id_produto_notificacoes_titulo_corpo:     null,
+          id_organizacao: tenant_id,
+          id_usuario:     uid,
+          id_produto_gravity:     null,
           tipo_notificacoes_titulo_corpo:           'compartilhamento',
           titulo_notificacoes_titulo_corpo:         senderLabel,
           mensagem_notificacoes_titulo_corpo:       body.message,
@@ -353,9 +355,9 @@ apiRoutes.post('/enviar', async (req, res, next) => {
       : targets.length > 0 ? `${targets.length} usuário(s)` : 'via e-mail'
     await prisma.notificacoesTituloCorpo.create({
       data: {
-        id_organizacao_notificacoes_titulo_corpo: tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     user_id,
-        id_produto_notificacoes_titulo_corpo:     null,
+        id_organizacao: tenant_id,
+        id_usuario:     user_id,
+        id_produto_gravity:     null,
         tipo_notificacoes_titulo_corpo:           'enviado',
         titulo_notificacoes_titulo_corpo:         `Enviado para ${recipientLabel}`,
         mensagem_notificacoes_titulo_corpo:       body.message,
@@ -408,8 +410,8 @@ apiRoutes.delete('/:id_notificacao', async (req, res, next) => {
     const result = await prisma.notificacoesTituloCorpo.deleteMany({
       where: {
         id_notificacoes_titulo_corpo:             id_notificacao,
-        id_organizacao_notificacoes_titulo_corpo: tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     user_id,
+        id_organizacao: tenant_id,
+        id_usuario:     user_id,
       },
     })
 
@@ -431,13 +433,13 @@ apiRoutes.get('/configuracao', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const config = await prisma.configuracaoCanalOrganizacao.findUnique({
-      where: { id_organizacao_configuracao_canal_tenant: tenant_id },
+      where: { id_organizacao: tenant_id },
     })
     res.json({
       status: 'success',
       data: {
-        email_enabled:    config?.email_habilitado_configuracao_canal_tenant    ?? true,
-        whatsapp_enabled: config?.whatsapp_habilitado_configuracao_canal_tenant ?? false,
+        email_enabled:    config?.email_habilitado_configuracao_canal_organizacao    ?? true,
+        whatsapp_enabled: config?.whatsapp_habilitado_configuracao_canal_organizacao ?? false,
       },
     })
   } catch (err) {
@@ -453,34 +455,34 @@ const channelConfigBodySchema = z.object({
 apiRoutes.patch('/configuracao', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
-    if ((req as Request & { auth?: { role?: string } }).auth?.role !== 'MASTER') {
+    if (req.auth?.tipo_usuario !== 'MASTER') {
       throw new AppError('Apenas usuários MASTER podem alterar a configuração de canais', 403)
     }
     const body = channelConfigBodySchema.parse(req.body)
     const updated = await prisma.configuracaoCanalOrganizacao.upsert({
-      where: { id_organizacao_configuracao_canal_tenant: tenant_id },
+      where: { id_organizacao: tenant_id },
       create: {
-        id_organizacao_configuracao_canal_tenant:      tenant_id,
-        email_habilitado_configuracao_canal_tenant:    body.email_enabled    ?? true,
-        whatsapp_habilitado_configuracao_canal_tenant: body.whatsapp_enabled ?? false,
-        id_usuario_configuracao_canal_tenant:          user_id,
+        id_organizacao:      tenant_id,
+        email_habilitado_configuracao_canal_organizacao:    body.email_enabled    ?? true,
+        whatsapp_habilitado_configuracao_canal_organizacao: body.whatsapp_enabled ?? false,
+        id_usuario:          user_id,
       },
       update: {
-        ...(body.email_enabled    !== undefined && { email_habilitado_configuracao_canal_tenant:    body.email_enabled }),
-        ...(body.whatsapp_enabled !== undefined && { whatsapp_habilitado_configuracao_canal_tenant: body.whatsapp_enabled }),
-        id_usuario_configuracao_canal_tenant: user_id,
+        ...(body.email_enabled    !== undefined && { email_habilitado_configuracao_canal_organizacao:    body.email_enabled }),
+        ...(body.whatsapp_enabled !== undefined && { whatsapp_habilitado_configuracao_canal_organizacao: body.whatsapp_enabled }),
+        id_usuario: user_id,
       },
     })
     res.json({
       status: 'success',
       data: {
-        id:               updated.id_configuracao_canal_tenant,
-        tenant_id:        updated.id_organizacao_configuracao_canal_tenant,
-        email_enabled:    updated.email_habilitado_configuracao_canal_tenant,
-        whatsapp_enabled: updated.whatsapp_habilitado_configuracao_canal_tenant,
-        updated_by:       updated.id_usuario_configuracao_canal_tenant,
-        created_at:       updated.data_criacao_configuracao_canal_tenant,
-        updated_at:       updated.data_atualizacao_configuracao_canal_tenant,
+        id:               updated.id_configuracao_canal_organizacao,
+        tenant_id:        updated.id_organizacao,
+        email_enabled:    updated.email_habilitado_configuracao_canal_organizacao,
+        whatsapp_enabled: updated.whatsapp_habilitado_configuracao_canal_organizacao,
+        updated_by:       updated.id_usuario,
+        created_at:       updated.data_criacao_configuracao_canal_organizacao,
+        updated_at:       updated.data_atualizacao_configuracao_canal_organizacao,
       },
     })
   } catch (err) {
@@ -507,7 +509,7 @@ apiRoutes.get('/contatos', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const contacts = await prisma.contatoExterno.findMany({
-      where: { id_organizacao_contato_externo: tenant_id },
+      where: { id_organizacao: tenant_id },
       orderBy: { nome_contato_externo: 'asc' },
       select: {
         id_contato_externo:                 true,
@@ -531,8 +533,8 @@ apiRoutes.post('/contatos', async (req, res, next) => {
     const body = contactBodySchema.parse(req.body)
     const created = await prisma.contatoExterno.create({
       data: {
-        id_organizacao_contato_externo:     tenant_id,
-        id_usuario_contato_externo:         user_id,
+        id_organizacao:     tenant_id,
+        id_usuario:         user_id,
         nome_contato_externo:               body.name,
         email_contato_externo:              body.email          || null,
         whatsapp_telefone_contato_externo:  body.whatsapp_phone || null,
@@ -555,7 +557,7 @@ apiRoutes.patch('/contatos/:id_contato_notificacao', async (req, res, next) => {
     const { id_contato_notificacao } = idContatoParamSchema.parse(req.params)
     const body = contactBodySchema.partial().parse(req.body)
     const existing = await prisma.contatoExterno.findFirst({
-      where: { id_contato_externo: id_contato_notificacao, id_organizacao_contato_externo: tenant_id },
+      where: { id_contato_externo: id_contato_notificacao, id_organizacao: tenant_id },
     })
     if (!existing) throw new AppError('Contato não encontrado', 404)
     const updated = await prisma.contatoExterno.update({
@@ -583,7 +585,7 @@ apiRoutes.delete('/contatos/:id_contato_notificacao', async (req, res, next) => 
     const { tenant_id } = req
     const { id_contato_notificacao } = idContatoParamSchema.parse(req.params)
     const result = await prisma.contatoExterno.deleteMany({
-      where: { id_contato_externo: id_contato_notificacao, id_organizacao_contato_externo: tenant_id },
+      where: { id_contato_externo: id_contato_notificacao, id_organizacao: tenant_id },
     })
     if (result.count === 0) throw new AppError('Contato não encontrado', 404)
     res.json({ status: 'success' })

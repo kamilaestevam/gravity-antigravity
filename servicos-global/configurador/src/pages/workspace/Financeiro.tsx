@@ -113,17 +113,17 @@ export function Financeiro() {
 
   useEffect(() => {
     catalogService.getProdutos().then(lista => {
-      setProdutos(lista.filter(p => p.status === 'Ativo'))
+      setProdutos(lista.filter(p => p.status_produto_gravity === 'ATIVO'))
     })
     setNegociacoes(catalogService.getNegociacoes())
   }, [])
 
   // Negociações para a organização atual
-  const negociacoesOrg = negociacoes.filter(n => n.nome_organizacao === ORG_ATUAL)
+  const negociacoesOrg = negociacoes.filter(n => n.nome_organizacao_negociacao_especial_preco_produto_gravity === ORG_ATUAL)
 
   // Busca se um produto tem negociação para esta org
-  const getNegociacao = (produtoId: string): NegociacaoEspecial | undefined => {
-    return negociacoesOrg.find(n => n.produtoId === produtoId)
+  const getNegociacao = (id_produto_gravity: string): NegociacaoEspecial | undefined => {
+    return negociacoesOrg.find(n => n.id_produto_gravity === id_produto_gravity)
   }
 
   // === Tooltip de Valor (hover)
@@ -230,12 +230,12 @@ export function Financeiro() {
 
   const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
     {
-      key: 'nome', label: t('workspace.financial.col_produto'), tipo: 'texto',
+      key: 'nome_produto_gravity', label: t('workspace.financial.col_produto'), tipo: 'texto',
       tooltipTitulo: 'Produto Contratado', tooltipDescricao: 'Identificação do serviço cadastrado no catálogo Gravity.',
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>
     },
     {
-      key: 'tipoCobranca', label: t('workspace.financial.col_cobranca'), tipo: 'texto',
+      key: 'tipo_cobranca_produto_gravity', label: t('workspace.financial.col_cobranca'), tipo: 'texto',
       tooltipTitulo: 'Tipo de Cobrança', tooltipDescricao: 'Métrica usada para cobrança deste produto.',
       render: (v) => (
         <span style={{
@@ -247,41 +247,42 @@ export function Financeiro() {
       )
     },
     {
-      key: 'precoUnitario', label: t('workspace.financial.col_valor_unitario'), tipo: 'texto',
+      key: 'preco_unitario_produto_gravity', label: t('workspace.financial.col_valor_unitario'), tipo: 'texto',
       tooltipTitulo: 'Preço Base', tooltipDescricao: 'Valor cobrado por unidade ou uso adicional além da franquia.',
-      render: (v, item) => {
-        if (item.faixasPreco && item.faixasPreco.length > 0) {
+      render: (_v, item) => {
+        const faixas = item.faixas_preco_produto_gravity
+        if (faixas && faixas.length > 0) {
+          const ultima = faixas[faixas.length - 1]
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontWeight: 700, color: '#818cf8', fontSize: '0.8125rem' }}>Ver Camadas ({item.faixasPreco.length})</span>
-              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>A partir de {getSimboloMoeda(item.faixasPreco[0].moeda)} {item.faixasPreco[item.faixasPreco.length - 1].valor}</span>
+              <span style={{ fontWeight: 700, color: '#818cf8', fontSize: '0.8125rem' }}>Ver Camadas ({faixas.length})</span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>A partir de {getSimboloMoeda(faixas[0].moeda_faixa_preco_produto_gravity)} {ultima.preco_faixa_preco_produto_gravity}</span>
             </div>
           )
         }
-        const p = v as any
-        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(p.moeda)} {p.valor}</span>
+        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}</span>
       }
     },
     {
-      key: 'qtdUsuariosBase', label: t('workspace.financial.col_franquia'), tipo: 'texto',
+      key: 'qtd_usuarios_base_produto_gravity', label: t('workspace.financial.col_franquia'), tipo: 'texto',
       tooltipTitulo: 'Franquia Inclusa', tooltipDescricao: 'Quantidade de uso incluída sem cobrança adicional.',
-      render: (v, item) => (
-        <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
-          {item.qtdUsuariosBase ? `${item.qtdUsuariosBase} ${item.tipoCobranca.replace('Por ', '')}s` : 'Zero'}
+      render: (_v, item) => (
+        <span style={{ color: item.qtd_usuarios_base_produto_gravity ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtd_usuarios_base_produto_gravity ? 600 : 400 }}>
+          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${item.tipo_cobranca_produto_gravity.replace('POR_', '')}s` : 'Zero'}
         </span>
       )
     },
     {
-      key: 'limiteUsuarios', label: t('workspace.financial.col_usuarios'), tipo: 'texto',
+      key: 'tipo_limite_usuario_produto_gravity', label: t('workspace.financial.col_usuarios'), tipo: 'texto',
       tooltipTitulo: 'Configuração de Usuários', tooltipDescricao: 'Verificação do limite de usuários do produto.',
       render: (v, item) => (
         <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>
-          {v === 'ilimitada' ? '∞ Ilimitados' : `${item.qtdUsuariosBase ?? 0} usuários`}
+          {v === 'ILIMITADO' ? '∞ Ilimitados' : `${item.qtd_usuarios_base_produto_gravity ?? 0} usuários`}
         </span>
       )
     },
     {
-      key: 'horasHelpDesk', label: t('workspace.financial.col_helpdesk'), tipo: 'texto',
+      key: 'horas_helpdesk_produto_gravity', label: t('workspace.financial.col_helpdesk'), tipo: 'texto',
       tooltipTitulo: 'Suporte Técnico', tooltipDescricao: 'Horas mensais de help desk incluídas.',
       render: (v) => (
         <span style={{ color: Number(v) > 0 ? '#fbbf24' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: Number(v) > 0 ? 600 : 400 }}>
@@ -290,10 +291,10 @@ export function Financeiro() {
       )
     },
     {
-      key: 'id', label: t('workspace.financial.col_negociacao'), tipo: 'texto',
+      key: 'id_produto_gravity', label: t('workspace.financial.col_negociacao'), tipo: 'texto',
       tooltipTitulo: 'Acordo Especial', tooltipDescricao: 'Verifica se esta organização possui condições exclusivas.',
       render: (_v, item) => {
-        const neg = getNegociacao(item.id)
+        const neg = getNegociacao(item.id_produto_gravity)
         if (neg) {
           return (
             <span style={{
@@ -353,7 +354,7 @@ export function Financeiro() {
 
   // ─── Negociação para o produto em visualização ─────────────────────────────
 
-  const negProdutoAtual = produtoVisualizando ? getNegociacao(produtoVisualizando.id) : undefined
+  const negProdutoAtual = produtoVisualizando ? getNegociacao(produtoVisualizando.id_produto_gravity) : undefined
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -591,7 +592,7 @@ export function Financeiro() {
       aoFechar={() => setProdutoVisualizando(null)}
       aoSalvar={() => setProdutoVisualizando(null)}
       icone={<ShoppingBagOpen weight="duotone" size={24} />}
-      titulo={produtoVisualizando ? `${produtoVisualizando.nome}` : ''}
+      titulo={produtoVisualizando ? `${produtoVisualizando.nome_produto_gravity}` : ''}
       subtitulo="Detalhes do produto conforme configurado no catálogo Gravity."
       tamanho="lg"
       dirty={false}
@@ -605,27 +606,27 @@ export function Financeiro() {
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <SecaoFormulario icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação do produto no catálogo Gravity" />
 
-              <ReadOnlyField label="Nome do Produto" value={produtoVisualizando.nome} icon={<ShoppingBagOpen size={16} />} />
-              <ReadOnlyField label="Descrição Curta" value={produtoVisualizando.descricao} icon={<Tag size={16} />} />
+              <ReadOnlyField label="Nome do Produto" value={produtoVisualizando.nome_produto_gravity} icon={<ShoppingBagOpen size={16} />} />
+              <ReadOnlyField label="Descrição Curta" value={produtoVisualizando.descricao_produto_gravity} icon={<Tag size={16} />} />
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <ReadOnlyField label="Data de Lançamento" value={produtoVisualizando.dataLancamento || '—'} icon={<CalendarBlank size={16} />} />
+                <ReadOnlyField label="Data de Lançamento" value={produtoVisualizando.data_lancamento_produto_gravity || '—'} icon={<CalendarBlank size={16} />} />
                 <ReadOnlyField label="Status" value={
                   <span style={{
                     display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
                     fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
-                    background: produtoVisualizando.status === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                    color: produtoVisualizando.status === 'Ativo' ? '#34d399' : '#f87171',
-                    border: `1px solid ${produtoVisualizando.status === 'Ativo' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                    background: produtoVisualizando.status_produto_gravity === 'ATIVO' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                    color: produtoVisualizando.status_produto_gravity === 'ATIVO' ? '#34d399' : '#f87171',
+                    border: `1px solid ${produtoVisualizando.status_produto_gravity === 'ATIVO' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
                   }}>
-                    {produtoVisualizando.status.toUpperCase()}
+                    {produtoVisualizando.status_produto_gravity}
                   </span>
                 } />
               </div>
 
-              {produtoVisualizando.moduloBackend && (
+              {produtoVisualizando.modulo_backend_produto_gravity && (
                 <ReadOnlyField label="Módulo Backend (Slug)" value={
-                  <code style={{ color: '#8b5cf6', fontSize: '0.8125rem' }}>{produtoVisualizando.moduloBackend}</code>
+                  <code style={{ color: '#8b5cf6', fontSize: '0.8125rem' }}>{produtoVisualizando.modulo_backend_produto_gravity}</code>
                 } />
               )}
             </div>
@@ -642,22 +643,22 @@ export function Financeiro() {
               <ReadOnlyField label="Tem Setup?" value={
                 <span style={{
                   padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600,
-                  background: produtoVisualizando.temSetup ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.05)',
-                  color: produtoVisualizando.temSetup ? '#10b981' : 'var(--ws-muted)',
-                  border: `1px solid ${produtoVisualizando.temSetup ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                  background: produtoVisualizando.possui_setup_produto_gravity ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.05)',
+                  color: produtoVisualizando.possui_setup_produto_gravity ? '#10b981' : 'var(--ws-muted)',
+                  border: `1px solid ${produtoVisualizando.possui_setup_produto_gravity ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`,
                 }}>
-                  {produtoVisualizando.temSetup ? 'Sim' : 'Não'}
+                  {produtoVisualizando.possui_setup_produto_gravity ? 'Sim' : 'Não'}
                 </span>
               } />
 
-              {produtoVisualizando.temSetup && produtoVisualizando.precoSetup && (
+              {produtoVisualizando.possui_setup_produto_gravity && produtoVisualizando.preco_setup_produto_gravity && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <ReadOnlyField label="Moeda do Setup" value={produtoVisualizando.precoSetup.moeda} icon={<CurrencyCircleDollar size={16} />} />
-                  <ReadOnlyField label="Valor do Setup" value={`${getSimboloMoeda(produtoVisualizando.precoSetup.moeda)} ${produtoVisualizando.precoSetup.valor}`} />
+                  <ReadOnlyField label="Moeda do Setup" value={produtoVisualizando.moeda_setup_produto_gravity} icon={<CurrencyCircleDollar size={16} />} />
+                  <ReadOnlyField label="Valor do Setup" value={`${getSimboloMoeda(produtoVisualizando.moeda_setup_produto_gravity)} ${produtoVisualizando.preco_setup_produto_gravity}`} />
                 </div>
               )}
 
-              {!produtoVisualizando.temSetup && (
+              {!produtoVisualizando.possui_setup_produto_gravity && (
                 <div style={{
                   padding: '2rem', borderRadius: '10px', textAlign: 'center',
                   background: 'rgba(255,255,255,0.01)', border: '2px dashed rgba(255,255,255,0.04)',
@@ -677,51 +678,51 @@ export function Financeiro() {
             <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <SecaoFormulario icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
 
-              <ReadOnlyField label="Tipo de Cobrança" value={produtoVisualizando.tipoCobranca} icon={<Sliders size={16} />} />
+              <ReadOnlyField label="Tipo de Cobrança" value={produtoVisualizando.tipo_cobranca_produto_gravity} icon={<Sliders size={16} />} />
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <ReadOnlyField label="Moeda" value={produtoVisualizando.precoUnitario.moeda} icon={<CurrencyCircleDollar size={16} />} />
+                <ReadOnlyField label="Moeda" value={produtoVisualizando.moeda_unitario_produto_gravity} icon={<CurrencyCircleDollar size={16} />} />
                 <ReadOnlyField label="Franquia Free (Qtd)" value={
-                  produtoVisualizando.qtdUsuariosBase
-                    ? <span style={{ color: '#34d399', fontWeight: 600 }}>{produtoVisualizando.qtdUsuariosBase}</span>
+                  produtoVisualizando.qtd_usuarios_base_produto_gravity
+                    ? <span style={{ color: '#34d399', fontWeight: 600 }}>{produtoVisualizando.qtd_usuarios_base_produto_gravity}</span>
                     : <span style={{ color: 'var(--ws-muted)' }}>Zero</span>
                 } icon={<Tag size={16} />} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                <ReadOnlyField label="Valor Unitário" value={`${getSimboloMoeda(produtoVisualizando.precoUnitario.moeda)} ${produtoVisualizando.precoUnitario.valor}`} />
-                <ReadOnlyField label="Valor Mínimo" value={`${getSimboloMoeda(produtoVisualizando.precoMinimo.moeda)} ${produtoVisualizando.precoMinimo.valor}`} />
+                <ReadOnlyField label="Valor Unitário" value={`${getSimboloMoeda(produtoVisualizando.moeda_unitario_produto_gravity)} ${produtoVisualizando.preco_unitario_produto_gravity}`} />
+                <ReadOnlyField label="Valor Mínimo" value={`${getSimboloMoeda(produtoVisualizando.moeda_minimo_produto_gravity)} ${produtoVisualizando.preco_minimo_produto_gravity}`} />
                 <ReadOnlyField label="Valor Total" value={
-                  produtoVisualizando.precoTotal
-                    ? `${getSimboloMoeda(produtoVisualizando.precoTotal.moeda)} ${produtoVisualizando.precoTotal.valor}`
+                  produtoVisualizando.preco_total_produto_gravity
+                    ? `${getSimboloMoeda(produtoVisualizando.moeda_total_produto_gravity)} ${produtoVisualizando.preco_total_produto_gravity}`
                     : '—'
                 } />
               </div>
 
               {/* Faixas de Preço (Tiers) */}
-              {produtoVisualizando.faixasPreco && produtoVisualizando.faixasPreco.length > 0 && (
+              {produtoVisualizando.faixas_preco_produto_gravity && produtoVisualizando.faixas_preco_produto_gravity.length > 0 && (
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.25rem' }}>
                   <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                     <Sliders size={18} weight="duotone" color="var(--color-primary)" /> Configuração de Camadas (Tiers)
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {produtoVisualizando.faixasPreco.map((fx, idx) => (
-                      <div key={fx.id} style={{
+                    {produtoVisualizando.faixas_preco_produto_gravity.map((fx) => (
+                      <div key={fx.id_faixa_preco_produto_gravity} style={{
                         display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '12px', alignItems: 'center',
                         background: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '10px',
                         border: '1px solid rgba(255,255,255,0.05)',
                       }}>
                         <div>
                           <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>De</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{fx.de}</p>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{fx.faixa_de_faixa_preco_produto_gravity}</p>
                         </div>
                         <div>
                           <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Até</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{fx.ate ?? '∞'}</p>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{fx.faixa_ate_faixa_preco_produto_gravity ?? '∞'}</p>
                         </div>
                         <div>
                           <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Valor</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: '#818cf8' }}>{getSimboloMoeda(fx.moeda)} {fx.valor}</p>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: '#818cf8' }}>{getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}</p>
                         </div>
                       </div>
                     ))}
@@ -742,23 +743,23 @@ export function Financeiro() {
               <ReadOnlyField label="Quantidade de Usuários" value={
                 <span style={{
                   padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600,
-                  background: produtoVisualizando.limiteUsuarios === 'ilimitada' ? 'rgba(129,140,248,0.12)' : 'rgba(16,185,129,0.12)',
-                  color: produtoVisualizando.limiteUsuarios === 'ilimitada' ? '#818cf8' : '#10b981',
-                  border: `1px solid ${produtoVisualizando.limiteUsuarios === 'ilimitada' ? 'rgba(129,140,248,0.25)' : 'rgba(16,185,129,0.25)'}`,
+                  background: produtoVisualizando.tipo_limite_usuario_produto_gravity === 'ILIMITADO' ? 'rgba(129,140,248,0.12)' : 'rgba(16,185,129,0.12)',
+                  color: produtoVisualizando.tipo_limite_usuario_produto_gravity === 'ILIMITADO' ? '#818cf8' : '#10b981',
+                  border: `1px solid ${produtoVisualizando.tipo_limite_usuario_produto_gravity === 'ILIMITADO' ? 'rgba(129,140,248,0.25)' : 'rgba(16,185,129,0.25)'}`,
                 }}>
-                  {produtoVisualizando.limiteUsuarios === 'ilimitada' ? '∞ Ilimitada' : 'Limitada'}
+                  {produtoVisualizando.tipo_limite_usuario_produto_gravity === 'ILIMITADO' ? '∞ Ilimitada' : 'Limitada'}
                 </span>
               } />
 
-              {produtoVisualizando.limiteUsuarios === 'limitada' && (
+              {produtoVisualizando.tipo_limite_usuario_produto_gravity === 'LIMITADO' && (
                 <>
-                  <ReadOnlyField label="Quantidade" value={produtoVisualizando.qtdUsuariosBase ?? '—'} icon={<Users size={16} />} />
+                  <ReadOnlyField label="Quantidade" value={produtoVisualizando.qtd_usuarios_base_produto_gravity ?? '—'} icon={<Users size={16} />} />
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <ReadOnlyField label="Moeda" value={produtoVisualizando.precoUsuarioAdicional?.moeda ?? 'BRL'} icon={<CurrencyCircleDollar size={16} />} />
+                    <ReadOnlyField label="Moeda" value={produtoVisualizando.preco_usuario_extra_produto_gravity?.moeda ?? 'BRL'} icon={<CurrencyCircleDollar size={16} />} />
                     <ReadOnlyField label="Valor por Usuário Adicional" value={
-                      produtoVisualizando.precoUsuarioAdicional
-                        ? `${getSimboloMoeda(produtoVisualizando.precoUsuarioAdicional.moeda)} ${produtoVisualizando.precoUsuarioAdicional.valor}`
+                      produtoVisualizando.preco_usuario_extra_produto_gravity
+                        ? `${getSimboloMoeda(produtoVisualizando.moeda_usuario_extra_produto_gravity)} ${produtoVisualizando.preco_usuario_extra_produto_gravity}`
                         : `${getSimboloMoeda('BRL')} 0,00`
                     } />
                   </div>
@@ -777,14 +778,14 @@ export function Financeiro() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <ReadOnlyField label="Total de Horas Mensais" value={
-                  produtoVisualizando.horasHelpDesk > 0
-                    ? <span style={{ color: '#fbbf24', fontWeight: 600 }}>{produtoVisualizando.horasHelpDesk}h/mês</span>
+                  produtoVisualizando.horas_helpdesk_produto_gravity > 0
+                    ? <span style={{ color: '#fbbf24', fontWeight: 600 }}>{produtoVisualizando.horas_helpdesk_produto_gravity}h/mês</span>
                     : <span style={{ color: 'var(--ws-muted)' }}>Não incluso</span>
                 } icon={<Clock size={16} />} />
-                <ReadOnlyField label="Moeda do Adicional por Hora" value={produtoVisualizando.precoHoraAdicional?.moeda ?? 'BRL'} icon={<CurrencyCircleDollar size={16} />} />
+                <ReadOnlyField label="Moeda do Adicional por Hora" value={produtoVisualizando.preco_hora_extra_produto_gravity?.moeda ?? 'BRL'} icon={<CurrencyCircleDollar size={16} />} />
               </div>
 
-              {produtoVisualizando.horasHelpDesk === 0 && (
+              {produtoVisualizando.horas_helpdesk_produto_gravity === 0 && (
                 <div style={{
                   padding: '2rem', borderRadius: '10px', textAlign: 'center',
                   background: 'rgba(255,255,255,0.01)', border: '2px dashed rgba(255,255,255,0.04)',
@@ -816,15 +817,15 @@ export function Financeiro() {
                     <div>
                       <p style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, color: '#10b981' }}>Acordo Especial Ativo</p>
                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.nome_organizacao}</strong>
+                        Condição exclusiva para <strong style={{ color: 'var(--ws-text)' }}>{negProdutoAtual.nome_organizacao_negociacao_especial_preco_produto_gravity}</strong>
                       </p>
                     </div>
                   </div>
 
-                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao} icon={<Buildings size={16} />} />
-                  <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo} icon={<Handshake size={16} />} />
+                  <ReadOnlyField label="Organização Vinculada" value={negProdutoAtual.nome_organizacao_negociacao_especial_preco_produto_gravity} icon={<Buildings size={16} />} />
+                  <ReadOnlyField label="Condição Especial" value={negProdutoAtual.acordo_negociacao_especial_preco_produto_gravity} icon={<Handshake size={16} />} />
                   <ReadOnlyField label="Vigência" value={
-                    negProdutoAtual.ilimitada ? (
+                    negProdutoAtual.ilimitado_negociacao_especial_preco_produto_gravity ? (
                       <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
                         padding: '0.2rem 0.625rem', borderRadius: '9999px',
@@ -835,7 +836,7 @@ export function Financeiro() {
                       </span>
                     ) : (
                       <span style={{ color: 'var(--ws-text)' }}>
-                        {negProdutoAtual.inicio || '—'} até {negProdutoAtual.fim || '—'}
+                        {negProdutoAtual.data_inicio_negociacao_especial_preco_produto_gravity || '—'} até {negProdutoAtual.data_fim_negociacao_especial_preco_produto_gravity || '—'}
                       </span>
                     )
                   } />

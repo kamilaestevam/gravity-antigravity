@@ -23,8 +23,8 @@ async function executarJobDiario() {
   console.log('[ncm-sync] Iniciando sincronização diária...')
   try {
     const tenants = await prisma.ncmItem.findMany({
-      select:   { id_organizacao_ncm_item: true },
-      distinct: ['id_organizacao_ncm_item'],
+      select:   { id_organizacao: true },
+      distinct: ['id_organizacao'],
     })
 
     if (tenants.length === 0) {
@@ -33,7 +33,7 @@ async function executarJobDiario() {
     }
 
     for (const t of tenants) {
-      const tid = t.id_organizacao_ncm_item
+      const tid = t.id_organizacao
       try {
         const result = await executarSync(prisma, tid, { origem: 'JOB' })
         console.log(

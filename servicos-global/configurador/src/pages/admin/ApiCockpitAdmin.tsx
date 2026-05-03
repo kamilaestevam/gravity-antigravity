@@ -16,7 +16,7 @@ import { useShellStore } from '@gravity/shell'
 
 // ─── Tipos do backend api-cockpit ────────────────────────────────────────
 
-/** Resposta do GET /api/v1/admin/servicos-api */
+/** Resposta do GET /api/v1/api-cockpit/admin/servicos */
 interface CockpitServiceResponse {
   name: string
   status: 'online' | 'degraded' | 'offline'
@@ -31,7 +31,7 @@ interface ServicesPayload {
   error?: string
 }
 
-/** Resposta do GET /api/v1/admin/logs-api */
+/** Resposta do GET /api/v1/api-cockpit/admin/logs */
 interface CockpitLogResponse {
   id: string
   timestamp: string
@@ -54,7 +54,7 @@ interface LogsPayload {
   error?: string
 }
 
-/** Resposta do GET /api/v1/admin/uso-gabi */
+/** Resposta do GET /api/v1/api-cockpit/admin/uso-gabi */
 interface GabiUsagePayload {
   month?: string
   total_calls?: number
@@ -125,6 +125,23 @@ const fmtTokens = (n: number) => {
   return String(n)
 }
 
+// Bearer token Clerk — sem ele as rotas admin retornam 401 (requireAuth valida JWT).
+async function getClerkBearerToken(): Promise<string | null> {
+  try {
+    const w = window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }
+    return (await w.Clerk?.session?.getToken()) ?? null
+  } catch {
+    return null
+  }
+}
+
+async function authedFetch(input: string, init: RequestInit = {}): Promise<Response> {
+  const token = await getClerkBearerToken()
+  const headers: Record<string, string> = { ...((init.headers as Record<string, string>) ?? {}) }
+  if (token) headers.Authorization = `Bearer ${token}`
+  return fetch(input, { ...init, credentials: 'include', headers })
+}
+
 export function ApiCockpitAdmin() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
@@ -142,8 +159,8 @@ export function ApiCockpitAdmin() {
       setLoading(true)
       setErroCarregar(null)
       const [svcRes, logsRes] = await Promise.all([
-        fetch('/api/v1/admin/servicos-api', { credentials: 'include', signal }),
-        fetch('/api/v1/admin/logs-api?limit=50', { credentials: 'include', signal }),
+        authedFetch('/api/v1/api-cockpit/admin/servicos', { signal }),
+        authedFetch('/api/v1/api-cockpit/admin/logs?limit=50', { signal }),
       ])
 
       if (!svcRes.ok) throw new Error(`services ${svcRes.status} ${svcRes.statusText}`)
@@ -176,10 +193,7 @@ export function ApiCockpitAdmin() {
   const carregarGabiUsage = useCallback(async (signal?: AbortSignal) => {
     try {
       setGabiLoading(true)
-      const res = await fetch('/api/v1/admin/uso-gabi', {
-        credentials: 'include',
-        signal,
-      })
+      const res = await authedFetch('/api/v1/api-cockpit/admin/uso-gabi', { signal })
       if (!res.ok) throw new Error(`gabi-usage ${res.status}`)
       const data: GabiUsagePayload = await res.json()
       if (data.error) throw new Error(data.error)
@@ -221,46 +235,60 @@ export function ApiCockpitAdmin() {
 
   const colunasInventario: TabelaGlobalColuna<ApiService>[] = [
     {
-      key: 'produto', label: t('admin.monitor.tabela.servico'), tipo: 'texto',
+      key: 'produto', label: t('admin.api-cockpit.tabela.servico'), tipo: 'texto',
       tooltipTitulo: 'Serviço', tooltipDescricao: 'Produto ou integração monitorada pela plataforma',
     },
     {
-      key: 'organizacao', label: t('admin.monitor.tabela.organizacao'), tipo: 'texto',
+      key: 'organizacao', label: t('admin.api-cockpit.tabela.organizacao'), tipo: 'texto',
       tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa associada a este serviço',
     },
     {
-      key: 'status', label: t('admin.monitor.tabela.status'), tipo: 'texto',
+      key: 'status', label: t('admin.api-cockpit.tabela.status'), tipo: 'texto', align: 'center',
+      render: (val) => {
+        const v = String(val).toLowerCase()
+        const isOnline = v === 'online'
+        const isOffline = v === 'offline'
+        const cor = isOnline ? '#34d399' : isOffline ? '#f87171' : '#fbbf24'
+        const bg  = isOnline ? 'rgba(52,211,153,0.12)' : isOffline ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)'
+        return (
+          <span style={{
+            display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
+            fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+            background: bg, color: cor, border: `1px solid ${bg}`,
+          }}>{String(val)}</span>
+        )
+      },
       tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o serviço está operando normalmente',
     },
     {
-      key: 'consumoAtual', label: t('admin.monitor.tabela.consumo'), tipo: 'texto',
+      key: 'consumoAtual', label: t('admin.api-cockpit.tabela.consumo'), tipo: 'texto',
       tooltipTitulo: 'Consumo', tooltipDescricao: 'Volume de requisições processadas no período atual',
     },
   ]
 
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
     {
-      key: 'data', label: t('admin.monitor.tabela.data'), tipo: 'texto',
+      key: 'data', label: t('admin.api-cockpit.tabela.data'), tipo: 'texto',
       tooltipTitulo: 'Data', tooltipDescricao: 'Data em que a requisição foi registrada',
     },
     {
-      key: 'hora', label: t('admin.monitor.tabela.hora'), tipo: 'texto',
+      key: 'hora', label: t('admin.api-cockpit.tabela.hora'), tipo: 'texto',
       tooltipTitulo: 'Hora', tooltipDescricao: 'Hora exata em que a requisição ocorreu',
     },
     {
-      key: 'organizacao', label: t('admin.monitor.tabela.org'), tipo: 'texto',
+      key: 'organizacao', label: t('admin.api-cockpit.tabela.org'), tipo: 'texto',
       tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa que originou esta chamada à API',
     },
     {
-      key: 'metodo', label: t('admin.monitor.tabela.metodo'), tipo: 'texto',
+      key: 'metodo', label: t('admin.api-cockpit.tabela.metodo'), tipo: 'texto',
       tooltipTitulo: 'Método', tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE',
     },
     {
-      key: 'endpoint', label: t('admin.monitor.tabela.endpoint'), tipo: 'texto',
+      key: 'endpoint', label: t('admin.api-cockpit.tabela.endpoint'), tipo: 'texto',
       tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota da API que recebeu a chamada',
     },
     {
-      key: 'statusCode', label: t('admin.monitor.tabela.status'), tipo: 'texto',
+      key: 'statusCode', label: t('admin.api-cockpit.tabela.status'), tipo: 'texto',
       tooltipTitulo: 'Status', tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso',
     },
   ]
@@ -270,19 +298,19 @@ export function ApiCockpitAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<PlugsConnected weight="duotone" size={24} />}
-          titulo={t('admin.monitor.titulo')}
-          subtitulo={t('admin.monitor.subtitulo')}
+          titulo={t('admin.api-cockpit.titulo')}
+          subtitulo={t('admin.api-cockpit.subtitulo')}
         />
       }
       stats={
         <>
           <CardEstatisticaGlobal
-            titulo={t('admin.monitor.apis_online')}
+            titulo={t('admin.api-cockpit.apis_online')}
             valor={String(apisOnline)}
             variante="sucesso"
           />
           <CardEstatisticaGlobal
-            titulo={t('admin.monitor.requisicoes_24h')}
+            titulo={t('admin.api-cockpit.requisicoes_24h')}
             valor={String(totalRequisicoes)}
             variante="primario"
           />
@@ -414,13 +442,13 @@ export function ApiCockpitAdmin() {
             id="admin-inventory"
             colunas={colunasInventario}
             dados={servicos}
-            mensagemVazio={loading ? 'Carregando serviços...' : t('admin.monitor.vazio.sem_servicos')}
+            mensagemVazio={loading ? 'Carregando serviços...' : t('admin.api-cockpit.vazio.sem_servicos')}
           />
           <TabelaGlobal
             id="admin-telemetry"
             colunas={colunasLogs}
             dados={logs}
-            mensagemVazio={loading ? 'Carregando logs...' : t('admin.monitor.vazio.sem_trafego')}
+            mensagemVazio={loading ? 'Carregando logs...' : t('admin.api-cockpit.vazio.sem_trafego')}
           />
         </div>
       )}

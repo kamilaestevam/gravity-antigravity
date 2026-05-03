@@ -19,8 +19,9 @@ import { opeRouter } from './routes/ope.js'
 import { errorHandler } from './lib/app-error.js'
 
 const app = express()
-// Porta placeholder — confirmar com governança/portas (skill ambiente)
-const PORT = Number(process.env.PORT ?? 8030)
+// Porta 8031 — alinhada ao Vite proxy '/api/v1/cadastros' do configurador
+// (8030 é do produto Pedido). Variável PORT pode sobrescrever.
+const PORT = Number(process.env.PORT ?? 8031)
 
 app.use(helmet())
 app.use(cors())
@@ -35,10 +36,10 @@ app.use((req, _res, next) => {
 })
 
 app.use('/api/v1/empresas', empresasRouter)
-app.use('/api/v1/moedas', moedasRouter)
-app.use('/api/v1/unidades', unidadesRouter)
-app.use('/api/v1/ncm', ncmRouter)
-app.use('/api/v1/operacoes-comex', opeRouter)
+app.use('/api/v1/cadastros/moedas', moedasRouter)
+app.use('/api/v1/cadastros/unidades', unidadesRouter)
+app.use('/api/v1/cadastros/ncm', ncmRouter)
+app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
 
 app.get('/health', (_req, res) => {
   res.status(200).json({

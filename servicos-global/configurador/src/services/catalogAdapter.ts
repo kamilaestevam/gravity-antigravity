@@ -1,157 +1,126 @@
 // services/catalogAdapter.ts
-// Adapter que converte entre o formato da API (ProductApi) e o formato
-// frontend (ProdutoCatalogo) usado pelos componentes existentes.
+//
+// Adapter entre o formato da API (ProductApi com nomes legados em inglês) e o
+// formato frontend (ProdutoCatalogo com nomes DDD Prisma). Existe enquanto o
+// backend não retornar Paridade Absoluta — quando isso acontecer, este arquivo
+// pode ser deletado e os componentes consomem ProductApi (=Prisma) direto.
 
-import { adminProductsApi, type ProductApi } from './apiClient'
-import type { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../types/entidades'
+import { adminProductsApi, type ProductApi, type FaixaPrecoApi } from './apiClient'
+import type {
+  ProdutoCatalogo,
+  NegociacaoEspecial,
+  StatusGlobal,
+  FaixaPreco,
+  TipoCobrancaGravity,
+  ProdutoGravityLimiteUsuario,
+} from '../types/entidades'
 
-// ─── Mapas de conversão ─────────────────────────────────────────────────────
+// ─── Conversão API → UI ─────────────────────────────────────────────────────
 
-const STATUS_API_TO_UI: Record<string, StatusGlobal> = {
-  ATIVO: 'Ativo',
-  SUSPENSO: 'Suspenso',
-  EM_BREVE: 'Em Breve',
-  LEGADO: 'Legado',
-  INATIVO: 'Inativo',
-}
-
-const STATUS_UI_TO_API: Record<string, string> = {
-  Ativo: 'ATIVO',
-  Suspenso: 'SUSPENSO',
-  'Em Breve': 'EM_BREVE',
-  Legado: 'LEGADO',
-  Inativo: 'INATIVO',
-}
-
-const BILLING_API_TO_UI: Record<string, string> = {
-  MENSAL: 'Mensalidade',
-  POR_PROCESSO: 'Por Processo',
-  POR_DOCUMENTO: 'Por Documento',
-  POR_ESTIMATIVA: 'Por Estimativa',
-  POR_DI_DUIMP: 'Por DI/DUIMP',
-  POR_DUE: 'Por DUE',
-  POR_PRODUTO: 'Por Produto',
-  POR_FLUXO: 'Por Fluxo',
-  POR_LPCO: 'Por LPCO',
-}
-
-const BILLING_UI_TO_API: Record<string, string> = Object.fromEntries(
-  Object.entries(BILLING_API_TO_UI).map(([k, v]) => [v, k]),
-)
-
-/** Converte Decimal string "10.99" → display "10,99" */
-function decimalToDisplay(val: string | null | undefined): string {
-  if (!val) return '0,00'
-  const num = parseFloat(val)
-  if (isNaN(num)) return '0,00'
-  return num.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
-
-/** Converte display "1.234,56" → number 1234.56 */
-function displayToNumber(val: string): number {
-  if (!val) return 0
-  return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
-}
-
-// ─── Conversões ─────────────────────────────────────────────────────────────
-
-function apiToUi(p: ProductApi): ProdutoCatalogo {
+function apiToFaixaPreco(t: FaixaPrecoApi): FaixaPreco {
   return {
-    id: p.id,
-    nome: p.name,
-    descricao: p.description,
-    slug: p.slug,
-    status: STATUS_API_TO_UI[p.status] ?? 'Inativo',
-    dataLancamento: p.launch_date?.split('T')[0],
-    temSetup: p.has_setup,
-    precoSetup: p.has_setup && p.setup_price
-      ? { valor: decimalToDisplay(p.setup_price), moeda: p.setup_currency }
-      : undefined,
-    tipoCobranca: BILLING_API_TO_UI[p.billing_type] ?? p.billing_type,
-    precoUnitario: { valor: decimalToDisplay(p.unit_price), moeda: p.unit_currency },
-    precoMinimo: { valor: decimalToDisplay(p.minimum_price), moeda: p.minimum_currency },
-    precoTotal: p.total_price
-      ? { valor: decimalToDisplay(p.total_price), moeda: p.total_currency }
-      : undefined,
-    limiteUsuarios: p.user_limit_type === 'LIMITADO' ? 'limitada' : 'ilimitada',
-    qtdUsuariosBase: p.base_users_qty ?? undefined,
-    precoUsuarioAdicional: p.extra_user_price
-      ? { valor: decimalToDisplay(p.extra_user_price), moeda: p.extra_user_currency }
-      : undefined,
-    horasHelpDesk: p.helpdesk_hours,
-    precoHoraAdicional: p.extra_hour_price
-      ? { valor: decimalToDisplay(p.extra_hour_price), moeda: p.extra_hour_currency }
-      : undefined,
-    moduloBackend: p.backend_module ?? undefined,
-    publicoAlvo: p.target_audience ?? undefined,
-    faixasPreco: p.price_tiers?.length
-      ? p.price_tiers.map(t => ({
-          id: t.id,
-          de: t.range_from,
-          ate: t.range_to ?? undefined,
-          valor: decimalToDisplay(t.price),
-          moeda: t.currency,
-        }))
-      : undefined,
-    gabiQuotaMensal: p.gabi_quota_mensal ?? 0,
+    id_faixa_preco_produto_gravity:        t.id,
+    id_produto_gravity_faixa_preco:        t.product_id,
+    faixa_de_faixa_preco_produto_gravity:  t.range_from,
+    faixa_ate_faixa_preco_produto_gravity: t.range_to,
+    preco_faixa_preco_produto_gravity:     t.price,
+    moeda_faixa_preco_produto_gravity:     t.currency,
   }
 }
 
-export interface ProdutoInput {
-  nome: string
-  descricao: string
-  slug: string
-  status: string
-  dataLancamento?: string
-  temSetup: boolean
-  precoSetup?: { valor: string; moeda: string }
-  tipoCobranca: string
-  precoUnitario: { valor: string; moeda: string }
-  precoMinimo: { valor: string; moeda: string }
-  precoTotal?: { valor: string; moeda: string }
-  limiteUsuarios: 'ilimitada' | 'limitada'
-  qtdUsuariosBase?: number
-  precoUsuarioAdicional?: { valor: string; moeda: string }
-  horasHelpDesk: number
-  precoHoraAdicional?: { valor: string; moeda: string }
-  moduloBackend?: string
-  publicoAlvo?: string
-  faixasPreco?: FaixaPreco[]
-  gabiQuotaMensal?: number
+function apiToUi(p: ProductApi): ProdutoCatalogo {
+  return {
+    id_produto_gravity:               p.id,
+    nome_produto_gravity:             p.name,
+    slug_produto_gravity:             p.slug,
+    descricao_produto_gravity:        p.description,
+    status_produto_gravity:           p.status as StatusGlobal,
+    data_lancamento_produto_gravity:  p.launch_date,
+
+    possui_setup_produto_gravity: p.has_setup,
+    preco_setup_produto_gravity:  p.setup_price,
+    moeda_setup_produto_gravity:  p.setup_currency,
+
+    tipo_cobranca_produto_gravity:  p.billing_type as TipoCobrancaGravity,
+    preco_unitario_produto_gravity: p.unit_price,
+    moeda_unitario_produto_gravity: p.unit_currency,
+    preco_minimo_produto_gravity:   p.minimum_price,
+    moeda_minimo_produto_gravity:   p.minimum_currency,
+    preco_total_produto_gravity:    p.total_price,
+    moeda_total_produto_gravity:    p.total_currency,
+
+    tipo_limite_usuario_produto_gravity: p.user_limit_type as ProdutoGravityLimiteUsuario,
+    qtd_usuarios_base_produto_gravity:   p.base_users_qty,
+    preco_usuario_extra_produto_gravity: p.extra_user_price,
+    moeda_usuario_extra_produto_gravity: p.extra_user_currency,
+
+    horas_helpdesk_produto_gravity:   p.helpdesk_hours,
+    preco_hora_extra_produto_gravity: p.extra_hour_price,
+    moeda_hora_extra_produto_gravity: p.extra_hour_currency,
+
+    quota_gabi_mensal_produto_gravity: p.gabi_quota_mensal ?? 0,
+
+    modulo_backend_produto_gravity: p.backend_module,
+    publico_alvo_produto_gravity:   p.target_audience,
+
+    faixas_preco_produto_gravity: p.price_tiers?.map(apiToFaixaPreco),
+  }
+}
+
+// ─── Input para criação/edição (UI → API) ──────────────────────────────────
+// Espera os mesmos nomes Prisma do ProdutoCatalogo (subset editável).
+export type ProdutoInput = Omit<ProdutoCatalogo, 'id_produto_gravity'> & { id_produto_gravity?: string }
+
+/** Converte string Decimal "1.234,56" ou "1234.56" → number 1234.56. */
+function decimalToNumber(val: string | null | undefined): number {
+  if (!val) return 0
+  const normalized = val.includes(',')
+    ? val.replace(/\./g, '').replace(',', '.')
+    : val
+  const n = parseFloat(normalized)
+  return isNaN(n) ? 0 : n
 }
 
 function uiToApi(p: ProdutoInput): Record<string, unknown> {
   return {
-    name: p.nome,
-    slug: p.slug,
-    description: p.descricao,
-    status: STATUS_UI_TO_API[p.status] ?? 'ATIVO',
-    launch_date: p.dataLancamento ? new Date(p.dataLancamento).toISOString() : undefined,
-    has_setup: p.temSetup,
-    setup_price: p.temSetup ? displayToNumber(p.precoSetup?.valor ?? '0') : undefined,
-    setup_currency: p.precoSetup?.moeda ?? 'BRL',
-    billing_type: BILLING_UI_TO_API[p.tipoCobranca] ?? 'MENSAL',
-    unit_price: displayToNumber(p.precoUnitario.valor),
-    unit_currency: p.precoUnitario.moeda,
-    minimum_price: displayToNumber(p.precoMinimo.valor),
-    minimum_currency: p.precoMinimo.moeda,
-    total_price: p.precoTotal ? displayToNumber(p.precoTotal.valor) : undefined,
-    total_currency: p.precoTotal?.moeda ?? 'BRL',
-    user_limit_type: p.limiteUsuarios === 'limitada' ? 'LIMITADO' : 'ILIMITADO',
-    base_users_qty: p.qtdUsuariosBase ?? undefined,
-    extra_user_price: p.precoUsuarioAdicional ? displayToNumber(p.precoUsuarioAdicional.valor) : undefined,
-    extra_user_currency: p.precoUsuarioAdicional?.moeda ?? 'BRL',
-    helpdesk_hours: p.horasHelpDesk,
-    extra_hour_price: p.precoHoraAdicional ? displayToNumber(p.precoHoraAdicional.valor) : undefined,
-    extra_hour_currency: p.precoHoraAdicional?.moeda ?? 'BRL',
-    backend_module: p.moduloBackend ?? undefined,
-    target_audience: p.publicoAlvo ?? undefined,
-    gabi_quota_mensal: p.gabiQuotaMensal ?? 0,
-    price_tiers: p.faixasPreco?.map(f => ({
-      range_from: f.de,
-      range_to: f.ate ?? undefined,
-      price: displayToNumber(f.valor),
-      currency: f.moeda,
+    name:            p.nome_produto_gravity,
+    slug:            p.slug_produto_gravity,
+    description:     p.descricao_produto_gravity,
+    status:          p.status_produto_gravity,
+    launch_date:     p.data_lancamento_produto_gravity
+                       ? new Date(p.data_lancamento_produto_gravity).toISOString()
+                       : undefined,
+
+    has_setup:       p.possui_setup_produto_gravity,
+    setup_price:     p.possui_setup_produto_gravity ? decimalToNumber(p.preco_setup_produto_gravity) : undefined,
+    setup_currency:  p.moeda_setup_produto_gravity,
+
+    billing_type:    p.tipo_cobranca_produto_gravity,
+    unit_price:      decimalToNumber(p.preco_unitario_produto_gravity),
+    unit_currency:   p.moeda_unitario_produto_gravity,
+    minimum_price:   decimalToNumber(p.preco_minimo_produto_gravity),
+    minimum_currency: p.moeda_minimo_produto_gravity,
+    total_price:     p.preco_total_produto_gravity ? decimalToNumber(p.preco_total_produto_gravity) : undefined,
+    total_currency:  p.moeda_total_produto_gravity,
+
+    user_limit_type:    p.tipo_limite_usuario_produto_gravity,
+    base_users_qty:     p.qtd_usuarios_base_produto_gravity ?? undefined,
+    extra_user_price:   p.preco_usuario_extra_produto_gravity ? decimalToNumber(p.preco_usuario_extra_produto_gravity) : undefined,
+    extra_user_currency: p.moeda_usuario_extra_produto_gravity,
+
+    helpdesk_hours:     p.horas_helpdesk_produto_gravity,
+    extra_hour_price:   p.preco_hora_extra_produto_gravity ? decimalToNumber(p.preco_hora_extra_produto_gravity) : undefined,
+    extra_hour_currency: p.moeda_hora_extra_produto_gravity,
+
+    backend_module:    p.modulo_backend_produto_gravity ?? undefined,
+    target_audience:   p.publico_alvo_produto_gravity ?? undefined,
+    gabi_quota_mensal: p.quota_gabi_mensal_produto_gravity,
+
+    price_tiers: p.faixas_preco_produto_gravity?.map(f => ({
+      range_from: f.faixa_de_faixa_preco_produto_gravity,
+      range_to:   f.faixa_ate_faixa_preco_produto_gravity ?? undefined,
+      price:      decimalToNumber(f.preco_faixa_preco_produto_gravity),
+      currency:   f.moeda_faixa_preco_produto_gravity,
     })),
   }
 }
@@ -177,9 +146,9 @@ export const catalogApiService = {
     const { products, pagination } = await adminProductsApi.list(params)
     return {
       produtos: products.map(apiToUi),
-      total: pagination.total,
-      page: pagination.page,
-      pages: pagination.pages,
+      total:    pagination.total,
+      page:     pagination.page,
+      pages:    pagination.pages,
     }
   },
 
@@ -193,29 +162,29 @@ export const catalogApiService = {
    * A detecção "novo vs edição" agora é explícita — não há heurística frágil.
    */
   async saveProduto(
-    produto: ProdutoInput & { id?: string },
+    produto: ProdutoInput,
     opts: { isNew: boolean },
   ): Promise<void> {
     const data = uiToApi(produto)
     if (opts.isNew) {
       await adminProductsApi.create(data)
     } else {
-      if (!produto.id) {
-        throw new Error('ID do produto é obrigatório para atualização')
+      if (!produto.id_produto_gravity) {
+        throw new Error('id_produto_gravity é obrigatório para atualização')
       }
-      await adminProductsApi.update(produto.id, data)
+      await adminProductsApi.update(produto.id_produto_gravity, data)
     }
   },
 
-  async toggleProdutoStatus(id: string): Promise<void> {
-    await adminProductsApi.toggleStatus(id)
+  async toggleProdutoStatus(id_produto_gravity: string): Promise<void> {
+    await adminProductsApi.toggleStatus(id_produto_gravity)
   },
 
   async deleteProduto(
-    id: string,
+    id_produto_gravity: string,
     opts?: { force?: boolean; ackNegotiations?: boolean },
   ): Promise<void> {
-    await adminProductsApi.delete(id, opts)
+    await adminProductsApi.delete(id_produto_gravity, opts)
   },
 
   async getNegociacoes(): Promise<NegociacaoEspecial[]> {
@@ -223,18 +192,8 @@ export const catalogApiService = {
     const negs: NegociacaoEspecial[] = []
     for (const p of products) {
       if (p.negotiations) {
-        for (const n of p.negotiations) {
-          negs.push({
-            id: n.id,
-            produtoId: n.product_id,
-            id_organizacao: n.tenant_id,
-            nome_organizacao: n.tenant_name,
-            acordo: n.agreement,
-            inicio: n.starts_at?.split('T')[0],
-            fim: n.ends_at?.split('T')[0],
-            ilimitada: n.is_unlimited,
-          })
-        }
+        // NegotiationApi já vem com nomes Prisma (ver apiClient.ts) — pass-through direto.
+        for (const n of p.negotiations) negs.push(n)
       }
     }
     return negs

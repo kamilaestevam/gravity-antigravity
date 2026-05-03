@@ -22,10 +22,10 @@ export function montarAppDeTeste(): Express {
   app.use(cors())
   app.use(express.json())
   app.use('/api/v1/empresas', empresasRouter)
-  app.use('/api/v1/moedas', moedasRouter)
-  app.use('/api/v1/unidades', unidadesRouter)
-  app.use('/api/v1/ncm', ncmRouter)
-  app.use('/api/v1/operacoes-comex', opeRouter)
+  app.use('/api/v1/cadastros/moedas', moedasRouter)
+  app.use('/api/v1/cadastros/unidades', unidadesRouter)
+  app.use('/api/v1/cadastros/ncm', ncmRouter)
+  app.use('/api/v1/cadastros/operacoes-comex', opeRouter)
   app.use(errorHandler)
   return app
 }

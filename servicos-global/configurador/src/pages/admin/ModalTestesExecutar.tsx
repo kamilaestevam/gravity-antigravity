@@ -24,6 +24,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { Play, CheckSquare, Square, Flask, Funnel } from '@phosphor-icons/react'
 import { adminPlanosTesteApi, adminTestesApi, type PlanoTesteApi } from '../../services/apiClient'
+import { useShellStore } from '@gravity/shell'
 
 export interface ModalExecutarTestesProps {
   aberto: boolean
@@ -123,8 +124,12 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     })
   }
 
+  const addNotification = useShellStore((s) => s.addNotification)
+  const [erroExecucao, setErroExecucao] = useState<string | null>(null)
+
   async function handleExecutar() {
     if (planosSelecionados.size === 0) return
+    setErroExecucao(null)
     setRodando(true)
     try {
       // Só dispara os planos que estão selecionados E que passam no filtro de tipo
@@ -132,10 +137,16 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
         planosFiltrados.some(p => p.id === id)
       )
       await adminTestesApi.disparar({ planos: idsAExecutar })
+      addNotification({ type: 'success', message: `Execução iniciada — ${idsAExecutar.length} plano(s) disparados` })
       if (aoIniciarRun) aoIniciarRun(idsAExecutar)
       aoFechar()
-    } catch {
-      // erro silencioso — o run já iniciou
+    } catch (err) {
+      // Erro alto (Mandamento 08): exibe a mensagem do backend tanto no
+      // próprio modal quanto numa notification persistente.
+      const mensagem = err instanceof Error ? err.message : 'Erro desconhecido ao disparar testes'
+      setErroExecucao(mensagem)
+      addNotification({ type: 'error', message: `Falha ao disparar: ${mensagem.slice(0, 200)}` })
+      // Modal NÃO fecha — usuário precisa ver o erro e decidir o que fazer.
     } finally {
       setRodando(false)
     }
@@ -306,8 +317,29 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
             )}
           </div>
 
+          {/* Banner de erro — exibido quando o backend recusa o disparo */}
+          {erroExecucao && (
+            <div style={{
+              marginTop: 'auto',
+              padding: '0.875rem 1rem',
+              borderRadius: '10px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#fca5a5',
+              fontSize: '0.8rem',
+              lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
+              flexShrink: 0,
+            }}>
+              <div style={{ fontWeight: 800, color: '#ef4444', marginBottom: '0.4rem', fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Falha ao disparar testes
+              </div>
+              {erroExecucao}
+            </div>
+          )}
+
           {/* Botão Executar — ancorado no rodapé do container */}
-          <div style={{ marginTop: 'auto', paddingTop: '0.5rem', flexShrink: 0 }}>
+          <div style={{ marginTop: erroExecucao ? '0' : 'auto', paddingTop: '0.5rem', flexShrink: 0 }}>
             <button
               type="button"
               disabled={planosSelecionados.size === 0 || rodando}

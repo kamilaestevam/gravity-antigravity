@@ -41,14 +41,14 @@ internalRoutes.post('/', async (req: Request, res: Response, next: NextFunction)
 
     const created = await prisma.notificacoesTituloCorpo.createMany({
       data: body.user_ids.map((uid) => ({
-        id_organizacao_notificacoes_titulo_corpo: body.tenant_id,
-        id_usuario_notificacoes_titulo_corpo:     uid,
-        id_produto_notificacoes_titulo_corpo:     body.product_id ?? null,
-        tipo_notificacoes_titulo_corpo:           body.type,
-        titulo_notificacoes_titulo_corpo:         body.title,
-        mensagem_notificacoes_titulo_corpo:       body.message,
-        entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
-        id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
+        id_organizacao:                          body.tenant_id,
+        id_usuario:                              uid,
+        id_produto_gravity:                      body.product_id ?? null,
+        tipo_notificacoes_titulo_corpo:          body.type,
+        titulo_notificacoes_titulo_corpo:        body.title,
+        mensagem_notificacoes_titulo_corpo:      body.message,
+        entidade_alvo_notificacoes_titulo_corpo: body.target_entity ?? null,
+        id_alvo_notificacoes_titulo_corpo:       body.target_id ?? null,
       })),
     })
 

@@ -19,7 +19,7 @@ import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalOrganizaca
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalOrganizacaoEditar'
 import { ModalEditarWorkspace } from './workspace/ModalWorkspaceEditar'
 import type { Empresa } from './workspace/Workspaces'
-import { Tenant as GlobalTenant } from '../types/entidades'
+import { Organizacao as GlobalOrganizacao } from '../types/entidades'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
 
 
@@ -42,12 +42,24 @@ export interface Workspace {
   site?: string
 }
 
-export interface Tenant extends Omit<GlobalTenant, 'status'> {
+// NOTA: este Tenant é um tipo INTERNO de UI (legacy) que mapeia da API DDD
+// (TenantApi/Organizacao) para o formato consumido pelo painel admin.
+// Não confundir com a entidade Organizacao (entidades.ts), que segue Paridade
+// Absoluta com o Prisma. Migração completa pendente — ver ProdutosGravityAdmin
+// e Financeiro para outros consumidores legados de ProdutoCatalogo.
+export interface Tenant {
+  id: string
+  name: string
+  slug: string
   status: EmpresaStatus
-  subscriptions: Array<{ status: string }>
+  created_at: string
+  _count?: { users: number; companies: number }
   product_configs: Array<{ product_key: string; is_active: boolean; updated_at: string }>
   workspaces: Workspace[]
 }
+
+// Re-exporta Organizacao para consumidores que precisem do tipo DDD
+export type { GlobalOrganizacao }
 
 interface Stats {
   totalOrganizacoes: number
@@ -119,7 +131,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         status: mapTenantStatus(t.status_organizacao),
         created_at: t.data_criacao_organizacao,
         _count: t._count ?? { users: 0, companies: 0 },
-        subscriptions: (t.subscriptions ?? []).map((s: { status: string }) => ({ status: s.status })),
         product_configs: t.product_configs ?? [],
         workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }) => ({
           id: c.id,
@@ -207,7 +218,6 @@ export function OrganizacoesAdmin({ navigate }: { navigate: (p: Page) => void })
         status: mapTenantStatus(tenant.status_organizacao),
         created_at: tenant.data_criacao_organizacao,
         _count: tenant._count ?? { users: 0, companies: 0 },
-        subscriptions: [],
         product_configs: [],
         workspaces: [],
       }

@@ -51,7 +51,7 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
   return fetch(input, { ...init, headers })
 }
 
-const BASE_URL = '/api/tenant/notificacoes'
+const BASE_URL = '/api/v1/notificacoes'
 
 // ─── Mocks de desenvolvimento — visíveis apenas quando DEV=true ──────────────
 const DEV_MOCKS: AvisoInterno[] = import.meta.env.DEV ? [

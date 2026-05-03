@@ -82,7 +82,8 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
         }
       : {}
 
-    const [tenants, total] = await Promise.all([
+    // PARIDADE ABSOLUTA: retorna nomes Prisma como vêm do banco — sem tradução.
+    const [organizacoes, total] = await Promise.all([
       prisma.organizacao.findMany({
         where,
         skip,
@@ -94,11 +95,6 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
           status_organizacao: true,
           data_criacao_organizacao: true,
           _count: { select: { users_organizacao: true, companies_organizacao: true } },
-          subscriptions_organizacao: {
-            orderBy: { data_criacao_assinatura_produto_gravity: 'desc' },
-            take: 1,
-            select: { status_assinatura_produto_gravity: true },
-          },
           companies_organizacao: {
             select: {
               id_workspace: true, nome_workspace: true, subdominio_workspace: true, status_workspace: true,
@@ -113,33 +109,19 @@ adminRouter.get('/organizacoes', async (req, res, next) => {
       prisma.organizacao.count({ where }),
     ])
 
-    // DTO: mapeia Prisma `*_organizacao` (back-relations renomeados) → chaves legadas do contrato
-    const tenantsDto = tenants.map((t) => {
-      const {
-        id_organizacao,
-        _count,
-        subscriptions_organizacao,
-        companies_organizacao,
-        ...rest
-      } = t
-      return {
-        id: id_organizacao,
-        ...rest,
-        _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
-        // DTO: status_assinatura_produto_gravity → status (preserva contrato)
-        subscriptions: subscriptions_organizacao.map((s) => ({ status: s.status_assinatura_produto_gravity })),
-        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
-          ...c,
-          id: id_workspace,
-          name: nome_workspace,
-          subdomain: subdominio_workspace,
-          status: status_workspace,
-        })),
-      }
-    })
+    // DTO normalizado: renomeia `companies_organizacao` → `workspaces`
+    // e o `_count` para chaves DDD limpas. Sem tradução de campos.
+    const organizacoesDto = organizacoes.map(({ companies_organizacao, _count, ...rest }) => ({
+      ...rest,
+      _count: {
+        users_organizacao: _count.users_organizacao,
+        workspaces_organizacao: _count.companies_organizacao,
+      },
+      workspaces: companies_organizacao,
+    }))
 
     res.json({
-      tenants: tenantsDto,
+      organizacoes: organizacoesDto,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -188,46 +170,21 @@ adminRouter.get('/organizacoes/:id_organizacao', async (req, res, next) => {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    // DTO DDD: Prisma `users_organizacao[].role` → JSON `users[].tipo_usuario`
-    // DTO: back-relations Prisma `*_organizacao` → chaves legadas do contrato
+    // PARIDADE ABSOLUTA: nomes Prisma direto. Renomeia apenas back-relations
+    // `*_organizacao` para chaves DDD limpas (workspaces, usuarios, configuracoes_produto).
     const {
-      id_organizacao,
       users_organizacao,
       companies_organizacao,
-      subscriptions_organizacao,
+      subscriptions_organizacao: _ignored,
       product_configs_organizacao,
-      ...tenantRest
+      ...rest
     } = tenant
     res.json({
-      tenant: {
-        id: id_organizacao,
-        ...tenantRest,
-        users: users_organizacao.map(({ data_criacao_usuario, email_usuario, nome_usuario, id_usuario, ...u }) => ({ ...u, id: id_usuario, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
-        companies: companies_organizacao.map(({ id_workspace, nome_workspace, subdominio_workspace, status_workspace, ...c }) => ({
-          ...c,
-          id: id_workspace,
-          name: nome_workspace,
-          subdomain: subdominio_workspace,
-          status: status_workspace,
-        })),
-        // DTO: AssinaturaProdutoGravity rename → contrato externo legado
-        subscriptions: subscriptions_organizacao.map((s) => ({
-          id: s.id_assinatura_produto_gravity,
-          tenant_id: s.id_organizacao,
-          status: s.status_assinatura_produto_gravity,
-          trial_ends_at: s.data_fim_teste_assinatura_produto_gravity,
-          current_period_start: s.data_inicio_periodo_assinatura_produto_gravity,
-          current_period_end: s.data_fim_periodo_assinatura_produto_gravity,
-          cancelled_at: s.data_cancelamento_assinatura_produto_gravity,
-          created_at: s.data_criacao_assinatura_produto_gravity,
-          updated_at: s.data_atualizacao_assinatura_produto_gravity,
-        })),
-        // DTO: ConfiguracaoProduto rename → contrato legado
-        product_configs: product_configs_organizacao.map((pc) => ({
-          product_key: pc.chave_produto_configuracao_produto_gravity,
-          is_active: pc.ativo_configuracao_produto_gravity,
-          updated_at: pc.data_atualizacao_configuracao_produto_gravity,
-        })),
+      organizacao: {
+        ...rest,
+        usuarios: users_organizacao,
+        workspaces: companies_organizacao,
+        configuracoes_produto: product_configs_organizacao,
       },
     })
   } catch (err) {
@@ -288,9 +245,8 @@ adminRouter.patch('/organizacoes/:id_organizacao', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO: id_organizacao Prisma → id legado do contrato
-    const { id_organizacao, ...tenantRest } = tenant
-    res.json({ tenant: { id: id_organizacao, ...tenantRest } })
+    // PARIDADE ABSOLUTA
+    res.json({ organizacao: tenant })
   } catch (err) {
     next(err)
   }
@@ -358,51 +314,64 @@ adminRouter.post('/organizacoes', async (req, res, next) => {
  */
 adminRouter.patch('/workspaces/:id_workspace', async (req, res, next) => {
   try {
+    console.log('[PATCH /workspaces/:id_workspace] params=', req.params, 'body=', req.body, 'auth=', { id_organizacao: req.auth?.id_organizacao, id_usuario: req.auth?.id_usuario, tipo_usuario: req.auth?.tipo_usuario })
+
     const idParsed = z.string().min(1).safeParse(req.params.id_workspace)
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
     const parsed = UpdateWorkspaceSchema.safeParse(req.body)
     if (!parsed.success) {
+      console.error('[PATCH /workspaces] Zod falhou:', parsed.error.errors)
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
+    let existing
+    try {
+      existing = await prisma.workspace.findUnique({ where: { id_workspace: idParsed.data } })
+    } catch (dbErr) {
+      console.error('[PATCH /workspaces] findUnique falhou:', dbErr)
+      throw dbErr
+    }
     if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
 
-    const company = await prisma.workspace.update({
-      where: { id_workspace: idParsed.data },
-      data: { status_workspace: parsed.data.status },
-      select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao: true },
-    })
+    let company
+    try {
+      company = await prisma.workspace.update({
+        where: { id_workspace: idParsed.data },
+        data: { status_workspace: parsed.data.status },
+        select: { id_workspace: true, nome_workspace: true, status_workspace: true, id_organizacao: true },
+      })
+    } catch (dbErr) {
+      console.error('[PATCH /workspaces] update falhou:', dbErr)
+      throw dbErr
+    }
 
-    AuditService.log({
-      id_organizacao: req.auth.id_organizacao,
-      tipo_ator_historico_log: 'USUARIO',
-      id_ator_historico_log: req.auth.id_usuario,
-      nome_ator_historico_log: req.auth.id_usuario,
-      ip_ator_historico_log: req.ip,
-      modulo_historico_log: 'admin',
-      tipo_recurso_historico_log: 'Workspace',
-      id_recurso_historico_log: company.id_workspace,
-      acao_historico_log: 'WORKSPACE_STATUS_CHANGED',
-      detalhe_acao_historico_log: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
-      estado_anterior_historico_log: { status: existing.status_workspace },
-      estado_posterior_historico_log: { status: company.status_workspace },
-      status_historico_log: 'SUCESSO',
-    }).catch(() => { /* fire-and-forget */ })
+    // AuditService isolado em try síncrono — protege contra throw na construção do input
+    try {
+      AuditService.log({
+        id_organizacao: req.auth.id_organizacao,
+        tipo_ator_historico_log: 'USUARIO',
+        id_ator_historico_log: req.auth.id_usuario,
+        nome_ator_historico_log: req.auth.id_usuario,
+        ip_ator_historico_log: req.ip,
+        modulo_historico_log: 'admin',
+        tipo_recurso_historico_log: 'Workspace',
+        id_recurso_historico_log: company.id_workspace,
+        acao_historico_log: 'WORKSPACE_STATUS_CHANGED',
+        detalhe_acao_historico_log: `Workspace "${company.nome_workspace}" — status alterado de ${existing.status_workspace} para ${company.status_workspace}`,
+        estado_anterior_historico_log: { status: existing.status_workspace },
+        estado_posterior_historico_log: { status: company.status_workspace },
+        status_historico_log: 'SUCESSO',
+      }).catch((err) => { console.error('[PATCH /workspaces] AuditService.log async falhou:', err) })
+    } catch (auditErr) {
+      console.error('[PATCH /workspaces] AuditService.log sync falhou:', auditErr)
+      // Não propaga — auditoria não pode bloquear o update
+    }
 
-    // DTO: id_workspace → id, nome_workspace → name, etc.
-    const { id_workspace, nome_workspace, status_workspace, id_organizacao, ...cRest } = company
-    res.json({
-      workspace: {
-        ...cRest,
-        id: id_workspace,
-        name: nome_workspace,
-        status: status_workspace,
-        tenant_id: id_organizacao,
-      },
-    })
+    // PARIDADE ABSOLUTA: retorna nomes Prisma direto.
+    res.json({ workspace: company })
   } catch (err) {
+    console.error('[PATCH /workspaces/:id_workspace] erro final:', err)
     next(err)
   }
 })
@@ -514,28 +483,18 @@ adminRouter.get('/usuarios', async (req, res, next) => {
       status_historico_log: 'SUCESSO',
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_organizacao, id_usuario, ...rest }) => ({
+    // PARIDADE ABSOLUTA: nomes Prisma direto. Renomeia apenas relações back:
+    // `tenant` (relação) → `organizacao`, `company` (relação) → `workspace`.
+    const usuarios = users.map(({ memberships, tenant, ...rest }) => ({
       ...rest,
-      id: id_usuario,
-      created_at: data_criacao_usuario,
-      email: email_usuario,
-      name: nome_usuario,
-      tenant_id: id_organizacao,
-      // DTO: UsuarioWorkspace rename → contrato externo legado
-      memberships: memberships.map((m) => ({
-        id: m.id_usuario_workspace,
-        company_id: m.id_workspace,
-        tipo_usuario: m.tipo_usuario_workspace,
-        is_active: m.ativo_usuario_workspace,
-        company: {
-          name: m.company.nome_workspace,
-          subdomain: m.company.subdominio_workspace,
-        },
+      organizacao: tenant,
+      memberships: memberships.map(({ company, ...m }) => ({
+        ...m,
+        workspace: company,
       })),
     }))
     res.json({
-      users: usuarios,
+      usuarios,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -984,6 +943,8 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
     let specArgs: string[] = []
     let projectArgs: string[] = []
     const planosSemSpec: string[] = []
+    /** Projects do Playwright derivados do path dos specs selecionados. */
+    const projectsDerivados = new Set<string>()
 
     if (Array.isArray(planos) && planos.length > 0) {
       // Modo por plano: resolve spec files do registry.
@@ -1020,6 +981,21 @@ adminRouter.post('/testes/disparar', async (req, res, next) => {
           continue
         }
         specArgs.push(entry.specFile)
+
+        // Deriva o --project do Playwright a partir do path:
+        //   testes/testes-e2e/{projeto}/...  ->  --project={projeto}
+        // Sem --project, Playwright tenta rodar o spec contra TODOS os 16
+        // projects da config, marca todos como `skipped` silenciosamente, e a
+        // tabela de Histórico não recebe entradas. Causa raiz do bug 03/05/2026.
+        const matchProjeto = entry.specFile.match(/^testes\/testes-e2e\/([^/]+)\//)
+        if (matchProjeto) {
+          projectsDerivados.add(matchProjeto[1])
+        }
+      }
+
+      // Adiciona --project para cada projeto distinto detectado nos specs.
+      if (projectsDerivados.size > 0) {
+        projectArgs = Array.from(projectsDerivados).flatMap(p => ['--project', p])
       }
 
       if (planosSemSpec.length > 0 && specArgs.length === 0) {

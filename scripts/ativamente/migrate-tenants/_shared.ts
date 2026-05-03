@@ -140,7 +140,7 @@ export const TABLES_WITH_TENANT_ID: readonly string[] = [
   'ncm_item',        // tem tenant_id (dados por tenant)
   'notificacoes_titulo_corpo',
   'contato_externo',
-  'configuracao_canal_tenant',
+  'configuracao_canal_organizacao',
 ] as const
 
 /** Tabelas SEM tenant_id — backfill via FK a partir de tabelas pai. */

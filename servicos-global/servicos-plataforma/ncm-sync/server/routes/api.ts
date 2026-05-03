@@ -40,7 +40,7 @@ export const apiRoutes = Router()
 
 function toLogDto(l: {
   id_ncm_log: string
-  id_organizacao_ncm_log: string
+  id_organizacao: string
   data_inicio_ncm_log: Date
   data_conclusao_ncm_log: Date | null
   status_ncm_log: 'EXECUTANDO' | 'SUCESSO' | 'ERRO'
@@ -54,7 +54,7 @@ function toLogDto(l: {
 }) {
   return {
     id: l.id_ncm_log,
-    tenant_id: l.id_organizacao_ncm_log,
+    tenant_id: l.id_organizacao,
     iniciado_em: l.data_inicio_ncm_log,
     concluido_em: l.data_conclusao_ncm_log,
     status: l.status_ncm_log,
@@ -121,8 +121,8 @@ apiRoutes.get('/ncm/:id_ncm/validar', async (req: Request, res: Response, next: 
     // 1. Verificar no cache local primeiro (mais rápido)
     const local = await prisma.ncmItem.findUnique({
       where: {
-        id_organizacao_ncm_item_codigo_ncm_item: {
-          id_organizacao_ncm_item: tenantId,
+        id_organizacao_codigo_ncm_item: {
+          id_organizacao: tenantId,
           codigo_ncm_item: codigo,
         },
       },
@@ -196,12 +196,12 @@ apiRoutes.get('/sincronizacoes-ncm/historico', async (req: Request, res: Respons
 
     const [logs, total] = await Promise.all([
       prisma.ncmLog.findMany({
-        where:   { id_organizacao_ncm_log: tenantId },
+        where:   { id_organizacao: tenantId },
         orderBy: { data_inicio_ncm_log: 'desc' },
         skip,
         take:    por_page,
       }),
-      prisma.ncmLog.count({ where: { id_organizacao_ncm_log: tenantId } }),
+      prisma.ncmLog.count({ where: { id_organizacao: tenantId } }),
     ])
 
     res.json({
@@ -226,7 +226,7 @@ apiRoutes.post('/sincronizacoes-ncm/disparar', async (req: Request, res: Respons
     const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
     await prisma.ncmLog.updateMany({
       where: {
-        id_organizacao_ncm_log: tenantId,
+        id_organizacao: tenantId,
         status_ncm_log: 'EXECUTANDO',
         data_inicio_ncm_log: { lt: DOIS_HORAS_ATRAS },
       },
@@ -240,7 +240,7 @@ apiRoutes.post('/sincronizacoes-ncm/disparar', async (req: Request, res: Respons
     // Verificar se ainda há um sync recente em andamento para este tenant
     const emAndamento = await prisma.ncmLog.findFirst({
       where:   {
-        id_organizacao_ncm_log: tenantId,
+        id_organizacao: tenantId,
         status_ncm_log: 'EXECUTANDO',
       },
       orderBy: { data_inicio_ncm_log: 'desc' },
@@ -284,8 +284,8 @@ apiRoutes.get('/admin/sincronizacoes-ncm/status', async (req: Request, res: Resp
 
     // Total de tenants com NCMs sincronizados
     const tenantsResult = await prisma.ncmItem.findMany({
-      select: { id_organizacao_ncm_item: true },
-      distinct: ['id_organizacao_ncm_item'],
+      select: { id_organizacao: true },
+      distinct: ['id_organizacao'],
     })
 
     // Total de syncs com erro nas últimas 48h
@@ -359,7 +359,7 @@ apiRoutes.post('/admin/sincronizacoes-ncm/sincronizar/:id_organizacao', async (r
 
     const emAndamento = await prisma.ncmLog.findFirst({
       where:   {
-        id_organizacao_ncm_log: tenantId,
+        id_organizacao: tenantId,
         status_ncm_log: 'EXECUTANDO',
       },
       orderBy: { data_inicio_ncm_log: 'desc' },
@@ -494,7 +494,7 @@ apiRoutes.post('/admin/sincronizacoes-ncm/agendamento/executar', async (req: Req
       // Executar para tenant específico
       const emAndamento = await prisma.ncmLog.findFirst({
         where: {
-          id_organizacao_ncm_log: tenant_id,
+          id_organizacao: tenant_id,
           status_ncm_log: 'EXECUTANDO',
         },
         orderBy: { data_inicio_ncm_log: 'desc' },
@@ -509,8 +509,8 @@ apiRoutes.post('/admin/sincronizacoes-ncm/agendamento/executar', async (req: Req
 
     // Executar para TODOS os tenants com NCMs (mesmo comportamento do job diário)
     const tenants = await prisma.ncmItem.findMany({
-      select: { id_organizacao_ncm_item: true },
-      distinct: ['id_organizacao_ncm_item'],
+      select: { id_organizacao: true },
+      distinct: ['id_organizacao'],
     })
 
     if (tenants.length === 0) {
@@ -520,7 +520,7 @@ apiRoutes.post('/admin/sincronizacoes-ncm/agendamento/executar', async (req: Req
     const resultados: Array<{ tenant_id: string; sucesso: boolean; total?: number; adicionados?: number; alterados?: number; removidos?: number; duracaoMs?: number; erro?: string }> = []
 
     for (const t of tenants) {
-      const tid = t.id_organizacao_ncm_item
+      const tid = t.id_organizacao
       try {
         const r = await executarSync(prisma, tid, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
         resultados.push({ tenant_id: tid, sucesso: true, ...r })
@@ -559,7 +559,7 @@ apiRoutes.get('/ncm/invalidos', async (req: Request, res: Response, next: NextFu
     // Buscar NCMs únicos usados no Pedido que NÃO estão na tabela NCM ativa
     const ncmsAtivos = await prisma.ncmItem.findMany({
       where:  {
-        id_organizacao_ncm_item: tenantId,
+        id_organizacao: tenantId,
         ativo_ncm_item: true,
       },
       select: { codigo_ncm_item: true },

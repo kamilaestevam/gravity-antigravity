@@ -27,20 +27,20 @@ import { extractCatchError } from '../../utils/extractApiError'
 
 const getStatusBadge = (status: StatusGlobal) => {
   switch (status) {
-    case 'Ativo': return 'ws-badge-success'
-    case 'Em Breve': return 'ws-badge-warning'
-    case 'Legado': return 'ws-badge-danger'
-    case 'Suspenso': return 'ws-badge-warning'
+    case 'ATIVO': return 'ws-badge-success'
+    case 'EM_BREVE': return 'ws-badge-warning'
+    case 'LEGADO': return 'ws-badge-danger'
+    case 'SUSPENSO': return 'ws-badge-warning'
     default: return 'ws-badge-neutral'
   }
 }
 
 const getStatusColor = (status: StatusGlobal) => {
   switch (status) {
-    case 'Ativo': return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
-    case 'Em Breve': return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
-    case 'Legado': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
-    case 'Suspenso': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
+    case 'ATIVO': return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
+    case 'EM_BREVE': return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
+    case 'LEGADO': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
+    case 'SUSPENSO': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
     default: return { cor: '#64748b', bg: 'rgba(100,116,139,0.12)' }
   }
 }
@@ -77,10 +77,18 @@ function getSimboloMoeda(moeda: string): string {
   }
 }
 
+// Valores são enum Prisma (TipoCobrancaGravity) — rótulo é UI em pt-BR.
 const TIPOS_COBRANCA_OPCOES = [
-  'Mensalidade', 'Por Processo', 'Por Documento', 'Por Estimativa',
-  'Por DI/DUIMP', 'Por DUE', 'Por Produto', 'Por Fluxo', 'Por LPCO',
-].map(t => ({ valor: t, rotulo: t }))
+  { valor: 'MENSAL',         rotulo: 'Mensalidade'    },
+  { valor: 'POR_PROCESSO',   rotulo: 'Por Processo'   },
+  { valor: 'POR_DOCUMENTO',  rotulo: 'Por Documento'  },
+  { valor: 'POR_ESTIMATIVA', rotulo: 'Por Estimativa' },
+  { valor: 'POR_DI_DUIMP',   rotulo: 'Por DI/DUIMP'   },
+  { valor: 'POR_DUE',        rotulo: 'Por DUE'        },
+  { valor: 'POR_PRODUTO',    rotulo: 'Por Produto'    },
+  { valor: 'POR_FLUXO',      rotulo: 'Por Fluxo'      },
+  { valor: 'POR_LPCO',       rotulo: 'Por LPCO'       },
+]
 
 /** Formata valor monetário durante a digitação → ex: "1.234,56" */
 function mascaraMoeda(valor: string): string {
@@ -103,10 +111,11 @@ export function ProdutosGravityAdmin() {
 
   const getStatusLabel = (status: StatusGlobal): string => {
     switch (status) {
-      case 'Ativo': return t('admin.produtos-gravity.status.ativo').toUpperCase()
-      case 'Em Breve': return t('admin.produtos-gravity.status.em_breve').toUpperCase()
-      case 'Legado': return t('admin.produtos-gravity.status.legado').toUpperCase()
-      case 'Suspenso': return t('admin.produtos-gravity.status.suspenso').toUpperCase()
+      case 'ATIVO':    return t('admin.produtos-gravity.status.ativo').toUpperCase()
+      case 'EM_BREVE': return t('admin.produtos-gravity.status.em_breve').toUpperCase()
+      case 'LEGADO':   return t('admin.produtos-gravity.status.legado').toUpperCase()
+      case 'SUSPENSO': return t('admin.produtos-gravity.status.suspenso').toUpperCase()
+      case 'INATIVO':  return 'INATIVO'
       default: return status
     }
   }
@@ -149,28 +158,28 @@ export function ProdutosGravityAdmin() {
     carregarDados()
   }, [carregarDados])
 
-  const toggleProdutoStatus = async (id: string) => {
-    const produto = produtos.find(p => p.id === id)
+  const toggleProdutoStatus = async (id_produto_gravity: string) => {
+    const produto = produtos.find(p => p.id_produto_gravity === id_produto_gravity)
     if (!produto) return
 
-    const novoStatus: StatusGlobal = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
+    const novoStatus: StatusGlobal = produto.status_produto_gravity === 'ATIVO' ? 'SUSPENSO' : 'ATIVO'
 
     try {
-      await catalogApiService.toggleProdutoStatus(id)
+      await catalogApiService.toggleProdutoStatus(id_produto_gravity)
       await carregarDados()
 
       addNotification({
         type: 'success',
-        message: t('admin.produtos-gravity.msg_status_alterado', { nome: produto.nome, status: novoStatus }),
+        message: t('admin.produtos-gravity.msg_status_alterado', { nome: produto.nome_produto_gravity, status: novoStatus }),
       })
 
       logEvent({
         action: 'ALTERAÇÃO',
         module: 'produto',
         resource_type: 'Product',
-        resource_id: produto.id,
-        action_detail: `Alteração do status do produto ${produto.nome}`,
-        diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }],
+        resource_id: produto.id_produto_gravity,
+        action_detail: `Alteração do status do produto ${produto.nome_produto_gravity}`,
+        diff: [{ campo: 'Status', antes: produto.status_produto_gravity, depois: novoStatus }],
       })
     } catch (err) {
       addNotification({
@@ -186,26 +195,21 @@ export function ProdutosGravityAdmin() {
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<ProdutoCatalogo | null>(null)
   const [formDirty, setFormDirty] = useState(false)
 
-  // 01. Dados Básicos
-  type FormStatus = 'ativo' | 'em-breve' | 'suspenso' | 'legado' | 'inativo'
+  // 01. Dados Básicos — formStatus usa o valor Prisma (UPPER_SNAKE) direto.
+  // Mapas de tradução foram eliminados (Paridade Absoluta).
+  type FormStatus = StatusGlobal
   const FORM_STATUS_TO_UI: Record<FormStatus, StatusGlobal> = {
-    ativo: 'Ativo',
-    'em-breve': 'Em Breve',
-    suspenso: 'Suspenso',
-    legado: 'Legado',
-    inativo: 'Inativo',
+    ATIVO: 'ATIVO',
+    EM_BREVE: 'EM_BREVE',
+    SUSPENSO: 'SUSPENSO',
+    LEGADO: 'LEGADO',
+    INATIVO: 'INATIVO',
   }
-  const UI_STATUS_TO_FORM: Record<StatusGlobal, FormStatus> = {
-    Ativo: 'ativo',
-    'Em Breve': 'em-breve',
-    Suspenso: 'suspenso',
-    Legado: 'legado',
-    Inativo: 'inativo',
-  }
+  const UI_STATUS_TO_FORM: Record<StatusGlobal, FormStatus> = FORM_STATUS_TO_UI
   const [formNome, setFormNome] = React.useState('')
   const [formDescricao, setFormDescricao] = React.useState('')
   const [formDataLancamento, setFormDataLancamento] = React.useState('')
-  const [formStatus, setFormStatus] = React.useState<FormStatus>('ativo')
+  const [formStatus, setFormStatus] = React.useState<FormStatus>('ATIVO')
   const [formSlugSelecionado, setFormSlugSelecionado] = React.useState<string | null>(null)
 
   // 02. Setup
@@ -253,7 +257,7 @@ export function ProdutosGravityAdmin() {
     setProdutoEditando(null)
     setFormDirty(false)
     setFormNome(''); setFormDescricao(''); setFormDataLancamento('');
-    setFormStatus('ativo'); setFormSlugSelecionado(null)
+    setFormStatus('ATIVO'); setFormSlugSelecionado(null)
     setTemSetup('nao'); setMoedaSetup('BRL'); setValorSetup('')
     setTipoCobranca(''); setMoedaProduto('BRL'); setValorUnitario(''); setValorMinimo(''); setValorTotal('')
     setLimiteUsuarios('limitada'); setQtdUsuarios(''); setMoedaUsuario('BRL'); setValorUsuarioAdicional('')
@@ -267,27 +271,27 @@ export function ProdutosGravityAdmin() {
 
   const handleEditarProduto = (item: ProdutoCatalogo) => {
     setProdutoEditando(item)
-    setFormNome(item.nome)
-    setFormDescricao(item.descricao)
-    setFormDataLancamento(item.dataLancamento || '')
-    setFormStatus(UI_STATUS_TO_FORM[item.status] ?? 'em-breve')
-    setFormSlugSelecionado(item.moduloBackend ?? item.slug ?? null)
-    setTemSetup(item.temSetup ? 'sim' : 'nao')
-    setMoedaSetup(item.precoSetup?.moeda || 'BRL')
-    setValorSetup(item.precoSetup?.valor || '')
-    setTipoCobranca(item.tipoCobranca)
-    setMoedaProduto(item.precoUnitario.moeda)
-    setValorUnitario(item.precoUnitario.valor)
-    setValorMinimo(item.precoMinimo.valor)
-    setValorTotal(item.precoTotal?.valor || '')
-    setLimiteUsuarios(item.limiteUsuarios)
-    setQtdUsuarios(String(item.qtdUsuariosBase || ''))
-    setMoedaUsuario(item.precoUsuarioAdicional?.moeda || 'BRL')
-    setValorUsuarioAdicional(item.precoUsuarioAdicional?.valor || '')
-    setTotalHoras(String(item.horasHelpDesk))
-    setMoedaHelpDesk(item.precoHoraAdicional?.moeda || 'BRL')
-    setFaixas(item.faixasPreco || [])
-    setGabiQuotaMensal(String(item.gabiQuotaMensal ?? 0))
+    setFormNome(item.nome_produto_gravity)
+    setFormDescricao(item.descricao_produto_gravity)
+    setFormDataLancamento(item.data_lancamento_produto_gravity || '')
+    setFormStatus(UI_STATUS_TO_FORM[item.status_produto_gravity] ?? 'EM_BREVE')
+    setFormSlugSelecionado(item.modulo_backend_produto_gravity ?? item.slug_produto_gravity ?? null)
+    setTemSetup(item.possui_setup_produto_gravity ? 'sim' : 'nao')
+    setMoedaSetup(item.moeda_setup_produto_gravity || 'BRL')
+    setValorSetup(item.preco_setup_produto_gravity || '')
+    setTipoCobranca(item.tipo_cobranca_produto_gravity)
+    setMoedaProduto(item.moeda_unitario_produto_gravity)
+    setValorUnitario(item.preco_unitario_produto_gravity)
+    setValorMinimo(item.preco_minimo_produto_gravity)
+    setValorTotal(item.preco_total_produto_gravity || '')
+    setLimiteUsuarios(item.tipo_limite_usuario_produto_gravity === 'LIMITADO' ? 'limitada' : 'ilimitada')
+    setQtdUsuarios(String(item.qtd_usuarios_base_produto_gravity || ''))
+    setMoedaUsuario(item.moeda_usuario_extra_produto_gravity || 'BRL')
+    setValorUsuarioAdicional(item.preco_usuario_extra_produto_gravity || '')
+    setTotalHoras(String(item.horas_helpdesk_produto_gravity))
+    setMoedaHelpDesk(item.moeda_hora_extra_produto_gravity || 'BRL')
+    setFaixas(item.faixas_preco_produto_gravity || [])
+    setGabiQuotaMensal(String(item.quota_gabi_mensal_produto_gravity ?? 0))
     setGabiTokenStats(null)
     setModalAberto(true)
   }
@@ -305,58 +309,59 @@ export function ProdutosGravityAdmin() {
 
   const COLUNAS_PRODUTOS = useMemo<TabelaGlobalColuna<ProdutoCatalogo>[]>(() => [
     {
-      key: 'nome', label: t('admin.produtos-gravity.tabela.nome_produto'), tipo: 'texto',
+      key: 'nome_produto_gravity', label: t('admin.produtos-gravity.tabela.nome_produto'), tipo: 'texto',
       tooltipTitulo: 'NOME COMERCIAL',
       tooltipDescricao: 'Identificação do serviço no catálogo e no marketplace',
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>,
     },
     {
-      key: 'descricao', label: t('admin.produtos-gravity.tabela.o_que_e'), tipo: 'texto',
+      key: 'descricao_produto_gravity', label: t('admin.produtos-gravity.tabela.o_que_e'), tipo: 'texto',
       tooltipTitulo: 'DESCRIÇÃO',
       tooltipDescricao: 'Resumo das funcionalidades principais exibido para o cliente',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>,
     },
     {
-      key: 'moduloBackend', label: t('admin.produtos-gravity.tabela.slug_modulo'), tipo: 'texto',
+      key: 'modulo_backend_produto_gravity', label: t('admin.produtos-gravity.tabela.slug_modulo'), tipo: 'texto',
       tooltipTitulo: 'VÍNCULO TÉCNICO',
       tooltipDescricao: 'Identificador do sistema para ativação automática das funções',
       render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>,
     },
     {
-      key: 'precoUnitario', label: t('admin.produtos-gravity.tabela.valor_adicional'), tipo: 'texto',
+      key: 'preco_unitario_produto_gravity', label: t('admin.produtos-gravity.tabela.valor_adicional'), tipo: 'texto',
       tooltipTitulo: 'CUSTO EXCEDENTE',
       tooltipDescricao: 'Custo aplicado ao consumo que ultrapassa o limite da franquia',
       render: (_v, item) => {
-        if (item.faixasPreco && item.faixasPreco.length > 0) {
+        const faixas = item.faixas_preco_produto_gravity
+        if (faixas && faixas.length > 0) {
+          const ultima = faixas[faixas.length - 1]
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>{t('admin.produtos-gravity.tabela.ver_camadas')} ({item.faixasPreco.length})</span>
-              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('admin.produtos-gravity.tabela.a_partir_de')} {getSimboloMoeda(item.faixasPreco[0].moeda)} {item.faixasPreco[item.faixasPreco.length - 1].valor}</span>
+              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>{t('admin.produtos-gravity.tabela.ver_camadas')} ({faixas.length})</span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('admin.produtos-gravity.tabela.a_partir_de')} {getSimboloMoeda(faixas[0].moeda_faixa_preco_produto_gravity)} {ultima.preco_faixa_preco_produto_gravity}</span>
             </div>
           )
         }
-        const preco = item.precoUnitario
-        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(preco.moeda)} {preco.valor}</span>
+        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(item.moeda_unitario_produto_gravity)} {item.preco_unitario_produto_gravity}</span>
       },
     },
     {
-      key: 'qtdUsuariosBase', label: t('admin.produtos-gravity.tabela.franquia_free'), tipo: 'texto',
+      key: 'qtd_usuarios_base_produto_gravity', label: t('admin.produtos-gravity.tabela.franquia_free'), tipo: 'texto',
       tooltipTitulo: 'COTA INCLUÍDA',
       tooltipDescricao: 'Volume de uso liberado sem custo adicional em cada ciclo',
       render: (_v, item) => (
-        <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
-          {item.qtdUsuariosBase ? `${item.qtdUsuariosBase} ${item.tipoCobranca.replace('Por ', '')}s` : 'Zero'}
+        <span style={{ color: item.qtd_usuarios_base_produto_gravity ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtd_usuarios_base_produto_gravity ? 600 : 400 }}>
+          {item.qtd_usuarios_base_produto_gravity ? `${item.qtd_usuarios_base_produto_gravity} ${item.tipo_cobranca_produto_gravity.replace('POR_', '')}s` : 'Zero'}
         </span>
       ),
     },
     {
-      key: 'tipoCobranca', label: 'Unidade', tipo: 'texto',
+      key: 'tipo_cobranca_produto_gravity', label: 'Unidade', tipo: 'texto',
       tooltipTitulo: 'MÉTRICA',
       tooltipDescricao: 'Unidade de medida usada para o cálculo do faturamento',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>,
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status_produto_gravity', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'DISPONIBILIDADE',
       tooltipDescricao: 'Indica se o serviço está ativo para novas contratações',
       render: (v) => {
@@ -375,17 +380,17 @@ export function ProdutosGravityAdmin() {
     {
       id: 'toggle-status',
       icone: <PauseCircle size={15} weight="bold" />,
-      tooltip: (item) => item.status === 'Ativo' ? 'Suspender produto' : 'Ativar produto',
-      onClick: (item) => toggleProdutoStatus(item.id),
+      tooltip: (item) => item.status_produto_gravity === 'ATIVO' ? 'Suspender produto' : 'Ativar produto',
+      onClick: (item) => toggleProdutoStatus(item.id_produto_gravity),
       renderCustom: (item) => (
         <button
           type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleProdutoStatus(item.id) }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleProdutoStatus(item.id_produto_gravity) }}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = item.status_produto_gravity === 'ATIVO' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status_produto_gravity === 'ATIVO' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status_produto_gravity === 'ATIVO' ? '#fbbf24' : '#34d399' }}
           onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
         >
-          {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+          {item.status_produto_gravity === 'ATIVO' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
         </button>
       ),
     },
@@ -427,29 +432,29 @@ export function ProdutosGravityAdmin() {
 
   const COLUNAS_NEGOCIACOES: TabelaGlobalColuna<NegociacaoEspecial>[] = [
     {
-      key: 'nome_organizacao', label: 'Cliente', tipo: 'texto',
-      tooltipTitulo: 'Referência ao Tenant ID', tooltipDescricao: 'Vinculação FK com a tabela de Organizations (Clerk).',
+      key: 'nome_organizacao_negociacao_especial_preco_produto_gravity', label: 'Cliente', tipo: 'texto',
+      tooltipTitulo: 'Referência ao id_organizacao', tooltipDescricao: 'Vinculação FK com a tabela de Organizacao.',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
     {
-      key: 'produtoId', label: 'Produto Relacionado', tipo: 'texto',
-      tooltipTitulo: 'Referência ao Product ID', tooltipDescricao: 'FK para a tabela de produtos globais no banco master.',
+      key: 'id_produto_gravity', label: 'Produto Relacionado', tipo: 'texto',
+      tooltipTitulo: 'Referência ao id_produto_gravity', tooltipDescricao: 'FK para a tabela de produtos globais no banco master.',
       render: (v) => {
-        const prod = produtos.find(p => p.id === v)
-        return <span style={{ color: 'var(--ws-text)' }}>{prod ? prod.nome : '—'}</span>
+        const prod = produtos.find(p => p.id_produto_gravity === v)
+        return <span style={{ color: 'var(--ws-text)' }}>{prod ? prod.nome_produto_gravity : '—'}</span>
       }
     },
     {
-      key: 'acordo', label: 'Condição Especial', tipo: 'texto',
+      key: 'acordo_negociacao_especial_preco_produto_gravity', label: 'Condição Especial', tipo: 'texto',
       tooltipTitulo: 'Override de Preço', tooltipDescricao: 'Regra de exceção aplicada no motor de billing no final do mês.',
       render: (v) => <span style={{ color: '#818cf8', fontWeight: 500 }}>{v}</span>
     },
     {
-      key: 'ilimitada', label: 'Vigência', tipo: 'texto',
+      key: 'ilimitado_negociacao_especial_preco_produto_gravity', label: 'Vigência', tipo: 'texto',
       tooltipTitulo: 'TTL / Data de Expiração', tooltipDescricao: 'Determina reversão automática para o pricing base após a data limite.',
       render: (v, item) => (
         <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>
-          {v ? 'Indeterminado' : (item.fim || 'Expirado')}
+          {v ? 'Indeterminado' : (item.data_fim_negociacao_especial_preco_produto_gravity || 'Expirado')}
         </span>
       )
     }
@@ -485,13 +490,13 @@ export function ProdutosGravityAdmin() {
           <CardBasicoGlobal
             titulo={t('admin.produtos-gravity.card_ativos')}
             icone={<Tag weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={produtos.filter(p => p.status === 'Ativo').length}
+            valor={produtos.filter(p => p.status_produto_gravity === 'ATIVO').length}
             subtexto={t('admin.produtos-gravity.card_ativos_subtexto')}
             variante="sucesso"
             tooltip={
               <>
                 <p className="cg-tooltip__title">{t('admin.produtos-gravity.card_ativos_tooltip_titulo')}</p>
-                <div className="cg-tooltip__row"><span>{t('admin.produtos-gravity.card_ativos_tooltip_label')}</span> <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.produtos-gravity.card_ativos_tooltip_label')}</span> <strong>{produtos.filter(p => p.status_produto_gravity === 'ATIVO').length}</strong></div>
                 <div className="cg-tooltip__row"><span>{t('admin.produtos-gravity.card_ativos_tooltip_checkout')}</span> <strong>{t('admin.produtos-gravity.opcao_sim')}</strong></div>
               </>
             }
@@ -606,32 +611,45 @@ export function ProdutosGravityAdmin() {
         aoFechar={handleFecharModal}
         aoSalvar={async () => {
           const isNew = !produtoEditando
-          const slugResolve = formStatus === 'ativo' && formSlugSelecionado
+          const slugResolve = formStatus === 'ATIVO' && formSlugSelecionado
             ? formSlugSelecionado
-            : (produtoEditando?.slug ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+            : (produtoEditando?.slug_produto_gravity ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
 
-          const produtoInput: ProdutoInput & { id?: string } = {
-            id: produtoEditando?.id,
-            nome: formNome,
-            descricao: formDescricao,
-            slug: slugResolve,
-            status: FORM_STATUS_TO_UI[formStatus],
-            moduloBackend: formStatus === 'ativo' ? formSlugSelecionado ?? undefined : undefined,
-            dataLancamento: formDataLancamento,
-            temSetup: temSetup === 'sim',
-            precoSetup: temSetup === 'sim' ? { valor: valorSetup, moeda: moedaSetup } : undefined,
-            tipoCobranca,
-            precoUnitario: { valor: valorUnitario, moeda: moedaProduto },
-            precoMinimo: { valor: valorMinimo, moeda: moedaProduto },
-            precoTotal: valorTotal ? { valor: valorTotal, moeda: moedaProduto } : undefined,
-            limiteUsuarios: limiteUsuarios,
-            qtdUsuariosBase: Number(qtdUsuarios) || undefined,
-            precoUsuarioAdicional: valorUsuarioAdicional ? { valor: valorUsuarioAdicional, moeda: moedaUsuario } : undefined,
-            horasHelpDesk: Number(totalHoras) || 0,
-            // Só envia precoHoraAdicional se tiver custo real — undefined ≠ zero
-            precoHoraAdicional: undefined,
-            faixasPreco: faixas.length > 0 ? faixas : undefined,
-            gabiQuotaMensal: Number(gabiQuotaMensal.replace(/\./g, '').replace(',', '.')) || 0,
+          const produtoInput: ProdutoInput = {
+            id_produto_gravity: produtoEditando?.id_produto_gravity,
+            nome_produto_gravity:            formNome,
+            descricao_produto_gravity:       formDescricao,
+            slug_produto_gravity:            slugResolve,
+            status_produto_gravity:          FORM_STATUS_TO_UI[formStatus],
+            modulo_backend_produto_gravity:  formStatus === 'ATIVO' ? formSlugSelecionado ?? undefined : undefined,
+            data_lancamento_produto_gravity: formDataLancamento,
+
+            possui_setup_produto_gravity: temSetup === 'sim',
+            preco_setup_produto_gravity:  temSetup === 'sim' ? valorSetup : undefined,
+            moeda_setup_produto_gravity:  moedaSetup,
+
+            tipo_cobranca_produto_gravity:  tipoCobranca as ProdutoInput['tipo_cobranca_produto_gravity'],
+            preco_unitario_produto_gravity: valorUnitario,
+            moeda_unitario_produto_gravity: moedaProduto,
+            preco_minimo_produto_gravity:   valorMinimo,
+            moeda_minimo_produto_gravity:   moedaProduto,
+            preco_total_produto_gravity:    valorTotal || undefined,
+            moeda_total_produto_gravity:    moedaProduto,
+
+            tipo_limite_usuario_produto_gravity: limiteUsuarios === 'limitada' ? 'LIMITADO' : 'ILIMITADO',
+            qtd_usuarios_base_produto_gravity:   Number(qtdUsuarios) || undefined,
+            preco_usuario_extra_produto_gravity: valorUsuarioAdicional || undefined,
+            moeda_usuario_extra_produto_gravity: moedaUsuario,
+
+            horas_helpdesk_produto_gravity:   Number(totalHoras) || 0,
+            preco_hora_extra_produto_gravity: undefined,
+            moeda_hora_extra_produto_gravity: moedaHelpDesk,
+
+            faixas_preco_produto_gravity: faixas.length > 0 ? faixas : undefined,
+
+            quota_gabi_mensal_produto_gravity: Number(gabiQuotaMensal.replace(/\./g, '').replace(',', '.')) || 0,
+
+            publico_alvo_produto_gravity: undefined,
           }
 
           try {
@@ -654,7 +672,7 @@ export function ProdutosGravityAdmin() {
               action: isNew ? 'CRIAÇÃO' : 'ALTERAÇÃO',
               module: 'produto',
               resource_type: 'Product',
-              resource_id: produtoEditando?.id ?? slugResolve,
+              resource_id: produtoEditando?.id_produto_gravity ?? slugResolve,
               action_detail: isNew
                 ? `Criação do produto ${formNome}`
                 : `Edição do produto ${formNome}`,
@@ -670,7 +688,7 @@ export function ProdutosGravityAdmin() {
           }
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
-        titulo={produtoEditando ? `${t('admin.produtos-gravity.modal_editar_prefixo')}${produtoEditando.nome}` : t('admin.produtos-gravity.modal_novo_titulo')}
+        titulo={produtoEditando ? `${t('admin.produtos-gravity.modal_editar_prefixo')}${produtoEditando.nome_produto_gravity}` : t('admin.produtos-gravity.modal_novo_titulo')}
         subtitulo={produtoEditando ? t('admin.produtos-gravity.modal_editar_subtitulo') : t('admin.produtos-gravity.modal_novo_subtitulo')}
         tamanho="lg"
         dirty={formDirty}
@@ -944,7 +962,14 @@ export function ProdutosGravityAdmin() {
                     </TooltipGlobal>
                     <button 
                       type="button" 
-                      onClick={() => dirty(() => setFaixas([...faixas, { id: `f${Date.now()}`, de: 0, ate: undefined, valor: '0,00', moeda: moedaProduto }]))}
+                      onClick={() => dirty(() => setFaixas([...faixas, {
+                        id_faixa_preco_produto_gravity:        `f${Date.now()}`,
+                        id_produto_gravity_faixa_preco:        produtoEditando?.id_produto_gravity ?? '',
+                        faixa_de_faixa_preco_produto_gravity:  0,
+                        faixa_ate_faixa_preco_produto_gravity: undefined,
+                        preco_faixa_preco_produto_gravity:     '0,00',
+                        moeda_faixa_preco_produto_gravity:     moedaProduto,
+                      }]))}
                       style={{ fontSize: '0.8125rem', fontWeight: 600, background: 'rgba(52,211,153,0.08)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)', padding: '0.375rem 0.875rem', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.15s' }}
                       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)' }}
@@ -957,57 +982,59 @@ export function ProdutosGravityAdmin() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {faixas.map((f, idx) => {
                         const updateFaixa = (changes: Partial<FaixaPreco>) => {
-                          dirty(() => setFaixas(faixas.map(fx => fx.id === f.id ? { ...fx, ...changes } : fx)))
+                          dirty(() => setFaixas(faixas.map(fx => fx.id_faixa_preco_produto_gravity === f.id_faixa_preco_produto_gravity ? { ...fx, ...changes } : fx)))
                         }
+                        const de = f.faixa_de_faixa_preco_produto_gravity
+                        const ate = f.faixa_ate_faixa_preco_produto_gravity ?? undefined
 
                         return (
-                          <div key={f.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) minmax(120px, 1fr) 1.5fr 44px', gap: '12px', alignItems: 'end', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div key={f.id_faixa_preco_produto_gravity} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) minmax(120px, 1fr) 1.5fr 44px', gap: '12px', alignItems: 'end', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
                             <CampoGeralGlobal label={t('admin.produtos-gravity.tier_de')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
-                                <button type="button" onClick={() => updateFaixa({ de: Math.max(0, f.de - 1) })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
-                                <input 
-                                  type="text" 
+                                <button type="button" onClick={() => updateFaixa({ faixa_de_faixa_preco_produto_gravity: Math.max(0, de - 1) })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
+                                <input
+                                  type="text"
                                   inputMode="numeric"
-                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} 
-                                  value={f.de === 0 ? '' : f.de} 
+                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }}
+                                  value={de === 0 ? '' : de}
                                   placeholder="0"
                                   onChange={e => {
                                     const val = e.target.value.replace(/\D/g, '')
-                                    updateFaixa({ de: val === '' ? 0 : Number(val) })
-                                  }} 
+                                    updateFaixa({ faixa_de_faixa_preco_produto_gravity: val === '' ? 0 : Number(val) })
+                                  }}
                                 />
-                                <button type="button" onClick={() => updateFaixa({ de: f.de + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
+                                <button type="button" onClick={() => updateFaixa({ faixa_de_faixa_preco_produto_gravity: de + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
                               </div>
                             </CampoGeralGlobal>
 
                             <CampoGeralGlobal label={t('admin.produtos-gravity.tier_ate')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
-                                <button type="button" onClick={() => updateFaixa({ ate: f.ate ? Math.max(0, f.ate - 1) : undefined })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
-                                <input 
-                                  type="text" 
+                                <button type="button" onClick={() => updateFaixa({ faixa_ate_faixa_preco_produto_gravity: ate ? Math.max(0, ate - 1) : undefined })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
+                                <input
+                                  type="text"
                                   inputMode="numeric"
-                                  placeholder="∞" 
-                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} 
-                                  value={f.ate === undefined ? '' : f.ate} 
+                                  placeholder="∞"
+                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }}
+                                  value={ate === undefined ? '' : ate}
                                   onChange={e => {
                                     const val = e.target.value.replace(/\D/g, '')
-                                    updateFaixa({ ate: val === '' ? undefined : Number(val) })
-                                  }} 
+                                    updateFaixa({ faixa_ate_faixa_preco_produto_gravity: val === '' ? undefined : Number(val) })
+                                  }}
                                 />
-                                <button type="button" onClick={() => updateFaixa({ ate: (f.ate || 0) + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
+                                <button type="button" onClick={() => updateFaixa({ faixa_ate_faixa_preco_produto_gravity: (ate || 0) + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
                               </div>
                             </CampoGeralGlobal>
 
                             <CampoGeralGlobal label={t('admin.produtos-gravity.tier_valor')}>
                               <div className="ws-input-icon-wrap">
                                 <span style={{ fontSize: '0.875rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
-                                <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.valor} onChange={e => updateFaixa({ valor: mascaraMoeda(e.target.value) })} />
+                                <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.preco_faixa_preco_produto_gravity} onChange={e => updateFaixa({ preco_faixa_preco_produto_gravity: mascaraMoeda(e.target.value) })} />
                               </div>
                             </CampoGeralGlobal>
 
-                            <button 
-                              type="button" 
-                              onClick={() => dirty(() => setFaixas(faixas.filter(fx => fx.id !== f.id)))}
+                            <button
+                              type="button"
+                              onClick={() => dirty(() => setFaixas(faixas.filter(fx => fx.id_faixa_preco_produto_gravity !== f.id_faixa_preco_produto_gravity)))}
                               style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
                               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)' }}
                               onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)' }}
@@ -1338,8 +1365,8 @@ export function ProdutosGravityAdmin() {
       aoConfirmar={async () => {
         if (!produtoParaExcluir) return
         try {
-          const nome = produtoParaExcluir.nome
-          const id = produtoParaExcluir.id
+          const nome = produtoParaExcluir.nome_produto_gravity
+          const id = produtoParaExcluir.id_produto_gravity
           // Soft-delete por padrão — preserva negociações especiais
           await catalogApiService.deleteProduto(id)
           setProdutoParaExcluir(null)
@@ -1363,7 +1390,7 @@ export function ProdutosGravityAdmin() {
         }
       }}
       titulo={t('admin.produtos-gravity.excluir_titulo')}
-      descricao={<>{t('admin.produtos-gravity.excluir_descricao_pre')} <strong>{produtoParaExcluir?.nome}</strong> {t('admin.produtos-gravity.excluir_descricao_pos')}</>}
+      descricao={<>{t('admin.produtos-gravity.excluir_descricao_pre')} <strong>{produtoParaExcluir?.nome_produto_gravity}</strong> {t('admin.produtos-gravity.excluir_descricao_pos')}</>}
       nomeItem={t('admin.produtos-gravity.excluir_aviso')}
     />
     </>

@@ -12,6 +12,7 @@ import { ModalExclusao } from './ModalConfirmarExclusao'
 import { ModalEditarAssinatura } from './ModalEditarAssinaturaProdutoGravity'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
+import type { FaixaPreco } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { useShellStore } from '@gravity/shell'
@@ -111,7 +112,7 @@ export function Assinaturas() {
         }
 
         // Show only catalog products that are NOT subscribed
-        setCatalogProdutos(allProducts.filter((p: Record<string, unknown>) => !subscribedSlugs.has(p.slug)))
+        setCatalogProdutos(allProducts.filter((p: Record<string, unknown>) => !subscribedSlugs.has(p.slug_produto_gravity as string)))
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar assinaturas.' })
         // fallback: show all catalog products
@@ -643,7 +644,7 @@ export function Assinaturas() {
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }} className="ws-fade-up ws-fade-up-d2">
         {catalogProdutos.map(p => (
-          <div key={p.id} className="ux-pulse-card" style={{
+          <div key={p.id_produto_gravity} className="ux-pulse-card" style={{
             borderRadius: '12px',
             padding: '1.5rem',
             display: 'flex', flexDirection: 'column', gap: '0.75rem',
@@ -652,7 +653,7 @@ export function Assinaturas() {
             transition: 'all 0.2s',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: 0 }}>{p.nome}</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: 0 }}>{p.nome_produto_gravity}</p>
               <span style={{
                 padding: '0.175rem 0.5rem', borderRadius: '4px',
                 fontSize: '0.625rem', fontWeight: 800, lineHeight: 1,
@@ -660,43 +661,43 @@ export function Assinaturas() {
                 color: '#34d399',
                 border: '1px solid rgba(52,211,153,0.2)',
                 textTransform: 'uppercase',
-              }}>{p.tipoCobranca.replace('Por ', '')}</span>
+              }}>{p.tipo_cobranca_produto_gravity?.replace('POR_', '')}</span>
             </div>
-            
-            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>{p.descricao}</p>
-            
-            {p.faixasPreco ? (
+
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>{p.descricao_produto_gravity}</p>
+
+            {p.faixas_preco_produto_gravity ? (
               <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.1)' }}>
                 <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', marginBottom: '0.375rem', textTransform: 'uppercase' }}>Tabela de Preços</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  {p.faixasPreco.slice(0, 2).map((fx, i) => (
+                  {p.faixas_preco_produto_gravity.slice(0, 2).map((fx: FaixaPreco, i: number) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                      <span style={{ color: 'var(--ws-muted)' }}>{fx.ate ? `${fx.de}-${fx.ate}` : `Acima de ${fx.de}`} {p.tipoCobranca.replace('Por ', '')}s</span>
-                      <strong style={{ color: 'var(--ws-text)' }}>{getSimboloMoeda(fx.moeda)} {fx.valor}</strong>
+                      <span style={{ color: 'var(--ws-muted)' }}>{fx.faixa_ate_faixa_preco_produto_gravity ? `${fx.faixa_de_faixa_preco_produto_gravity}-${fx.faixa_ate_faixa_preco_produto_gravity}` : `Acima de ${fx.faixa_de_faixa_preco_produto_gravity}`} {p.tipo_cobranca_produto_gravity?.replace('POR_', '')}s</span>
+                      <strong style={{ color: 'var(--ws-text)' }}>{getSimboloMoeda(fx.moeda_faixa_preco_produto_gravity)} {fx.preco_faixa_preco_produto_gravity}</strong>
                     </div>
                   ))}
-                  {p.faixasPreco.length > 2 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', textAlign: 'center', marginTop: '4px' }}>+ {p.faixasPreco.length - 2} faixas disponíveis</span>}
+                  {p.faixas_preco_produto_gravity.length > 2 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', textAlign: 'center', marginTop: '4px' }}>+ {p.faixas_preco_produto_gravity.length - 2} faixas disponíveis</span>}
                 </div>
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                  <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }}>
                    <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', display: 'block' }}>VALOR UNITÁRIO</span>
-                   <strong style={{ fontSize: '1rem', color: 'var(--ws-text)' }}>{getSimboloMoeda(p.precoUnitario.moeda)} {p.precoUnitario.valor}</strong>
+                   <strong style={{ fontSize: '1rem', color: 'var(--ws-text)' }}>{getSimboloMoeda(p.moeda_unitario_produto_gravity)} {p.preco_unitario_produto_gravity}</strong>
                  </div>
-                 {p.qtdUsuariosBase && (
+                 {p.qtd_usuarios_base_produto_gravity && (
                    <div style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.05)', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.1)' }}>
                      <span style={{ fontSize: '0.6875rem', color: '#34d399', display: 'block' }}>FRANQUIA</span>
-                     <strong style={{ fontSize: '1rem', color: '#34d399' }}>{p.qtdUsuariosBase} Free</strong>
+                     <strong style={{ fontSize: '1rem', color: '#34d399' }}>{p.qtd_usuarios_base_produto_gravity} Free</strong>
                    </div>
                  )}
               </div>
             )}
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.temSetup ? 'Requer Setup' : 'Ativação Instantânea'}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.possui_setup_produto_gravity ? 'Requer Setup' : 'Ativação Instantânea'}</span>
               <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
-                <BotaoGlobal variante="primario" tamanho="pequeno" onClick={() => handleAssinar(p.slug, p.nome)}>Assinar</BotaoGlobal>
+                <BotaoGlobal variante="primario" tamanho="pequeno" onClick={() => handleAssinar(p.slug_produto_gravity, p.nome_produto_gravity)}>Assinar</BotaoGlobal>
               </TooltipGlobal>
             </div>
           </div>

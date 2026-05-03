@@ -40,7 +40,7 @@ export async function executarSync(
   // 1. Criar registro de log com status EXECUTANDO
   const syncLog = await prisma.ncmLog.create({
     data: {
-      id_organizacao_ncm_log: tenantId,
+      id_organizacao: tenantId,
       status_ncm_log:         'EXECUTANDO',
       origem_ncm_log:         origem,
       disparado_por_ncm_log:  disparadoPor ?? null,
@@ -53,7 +53,7 @@ export async function executarSync(
 
     // 3. Carregar codigos existentes no banco para calcular diff
     const existentes = await prisma.ncmItem.findMany({
-      where:  { id_organizacao_ncm_item: tenantId },
+      where:  { id_organizacao: tenantId },
       select: {
         codigo_ncm_item: true,
         descricao_ncm_item: true,
@@ -84,26 +84,26 @@ export async function executarSync(
 
         await prisma.ncmItem.upsert({
           where: {
-            id_organizacao_ncm_item_codigo_ncm_item: {
-              id_organizacao_ncm_item: tenantId,
+            id_organizacao_codigo_ncm_item: {
+              id_organizacao: tenantId,
               codigo_ncm_item: item.codigo,
             },
           },
           create: {
-            id_organizacao_ncm_item:   tenantId,
+            id_organizacao:   tenantId,
             codigo_ncm_item:           item.codigo,
             descricao_ncm_item:        item.descricao,
             ativo_ncm_item:            true,
             data_inicio_ncm_item:      item.dataInicio ? new Date(item.dataInicio) : null,
             data_fim_ncm_item:         item.dataFim    ? new Date(item.dataFim)    : null,
-            id_sincronizacao_ncm_item: syncLog.id_ncm_log,
+            id_ncm_log: syncLog.id_ncm_log,
           },
           update: {
             descricao_ncm_item:        item.descricao,
             ativo_ncm_item:            true,
             data_inicio_ncm_item:      item.dataInicio ? new Date(item.dataInicio) : null,
             data_fim_ncm_item:         item.dataFim    ? new Date(item.dataFim)    : null,
-            id_sincronizacao_ncm_item: syncLog.id_ncm_log,
+            id_ncm_log: syncLog.id_ncm_log,
           },
         })
       }))
@@ -117,12 +117,12 @@ export async function executarSync(
     if (codigosRemovidos.length > 0) {
       await prisma.ncmItem.updateMany({
         where: {
-          id_organizacao_ncm_item: tenantId,
+          id_organizacao: tenantId,
           codigo_ncm_item: { in: codigosRemovidos },
         },
         data: {
           ativo_ncm_item:            false,
-          id_sincronizacao_ncm_item: syncLog.id_ncm_log,
+          id_ncm_log: syncLog.id_ncm_log,
         },
       })
       removidos = codigosRemovidos.length
@@ -186,7 +186,7 @@ export async function buscarNcm(
 
   const itens = await prisma.ncmItem.findMany({
     where: {
-      id_organizacao_ncm_item: tenantId,
+      id_organizacao: tenantId,
       ativo_ncm_item:          true,
       ...(isCodigoParcial
         ? { codigo_ncm_item:    { startsWith: q } }
@@ -213,14 +213,14 @@ export async function obterStatusSync(
   const [ultimo, total] = await Promise.all([
     prisma.ncmLog.findFirst({
       where: {
-        id_organizacao_ncm_log: tenantId,
+        id_organizacao: tenantId,
         status_ncm_log: { in: ['SUCESSO', 'ERRO'] },
       },
       orderBy: { data_inicio_ncm_log: 'desc' },
     }),
     prisma.ncmItem.count({
       where: {
-        id_organizacao_ncm_item: tenantId,
+        id_organizacao: tenantId,
         ativo_ncm_item: true,
       },
     }),

@@ -133,7 +133,7 @@ import { apiRoutes as notificacoesRouter } from '../../servicos-plataforma/notif
 // próprio `checkAuth` que valida x-id-organizacao/x-id-usuario (passados pelo Shell),
 // mas sem requireAuth as rotas ficam públicas — qualquer caller anônimo
 // podia spammar o endpoint e receber 401 ruidoso que aparecia como 500 na UI.
-app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
+app.use('/api/v1/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
 import { apiRoutes as preferenciasRouter } from '../../servicos-plataforma/preferencias-usuario/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
@@ -160,7 +160,7 @@ app.use(authErrorLogger)
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
 import { adminNcmIntegracaoRouter } from './routes/adminNcmIntegracao.js'
 app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por organização
-app.use('/api/v1/admin', apiCockpitAdminRouter)       // admin: observabilidade global (rotas com nomes per-route)
+app.use('/api/v1/api-cockpit/admin', apiCockpitAdminRouter)       // admin: observabilidade global (gravity_admin only)
 app.use('/api/v1/admin/integracao-ncm', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 
 // ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────

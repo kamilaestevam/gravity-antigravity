@@ -37,7 +37,8 @@ interface TenantMock {
   status: string
   created_at: string
   _count: { users: number; companies: number }
-  subscriptions: Array<{ plan: string; status: string }>
+  // NOTA: campo `subscriptions` removido — não existe mais em TenantApi.
+  // A noção de "produtos contratados" agora vem de `product_configs`.
   workspaces: Workspace[]
 }
 
@@ -140,17 +141,13 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
           status: mapStatus(t.status_organizacao),
           created_at: t.data_criacao_organizacao,
           _count: t._count ?? { users: 0, companies: 0 },
-          subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
-            plan: s.plan,
-            status: s.status,
-          })),
           workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
             id: c.id,
             nome: c.name,
             subdominio: c.subdomain ?? t.subdominio_organizacao,
             status: mapStatus(c.status),
             usuarios: 0,
-            plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
+            plano: 'N/A',
             criadaEm: new Date(t.data_criacao_organizacao).toLocaleDateString('pt-BR'),
           })),
         }
@@ -206,7 +203,11 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
     )
   }
 
-  const sub = tenant.subscriptions[0]
+  // NOTA: dados de assinatura não estão mais disponíveis em TenantApi.
+  // Placeholders até a fonte da verdade (product_configs ou billing) ser ligada.
+  const totalProdutosContratados = 0
+  const planoPrincipal = 'N/A'
+  const statusAssinatura = 'N/A'
   const totalWs = tenant.workspaces.length
   const wsAtivos = tenant.workspaces.filter(ws => ws.status === 'Ativa').length
 
@@ -401,13 +402,13 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
           <CardBasicoGlobal
             titulo="Plano"
             icone={<Package weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-            valor={sub?.plan || 'N/A'}
+            valor={planoPrincipal}
             tooltip={
               <>
                 <p className="cg-tooltip__title">Assinatura</p>
-                <div className="cg-tooltip__row"><span>Plano</span> <strong>{sub?.plan}</strong></div>
-                <div className="cg-tooltip__row"><span>Status</span> <strong>{sub?.status}</strong></div>
-                <div className="cg-tooltip__row"><span>Produtos</span> <strong>{tenant.subscriptions.length}</strong></div>
+                <div className="cg-tooltip__row"><span>Plano</span> <strong>{planoPrincipal}</strong></div>
+                <div className="cg-tooltip__row"><span>Status</span> <strong>{statusAssinatura}</strong></div>
+                <div className="cg-tooltip__row"><span>Produtos</span> <strong>{totalProdutosContratados}</strong></div>
               </>
             }
           />
@@ -485,7 +486,7 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
             {[
               { label: t('admin.tenant_detail.stats.total_usuarios'), value: tenant._count.users },
               { label: t('admin.tenant_detail.stats.empresas_vinculadas'), value: tenant._count.companies },
-              { label: t('admin.tenant_detail.stats.produtos_contratados'), value: tenant.subscriptions.length },
+              { label: t('admin.tenant_detail.stats.produtos_contratados'), value: totalProdutosContratados },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>{label}</div>
@@ -501,9 +502,9 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
         <div className="ws-fade-up" style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
             {[
-              { label: 'Plano Principal', value: sub?.plan || 'N/A', cor: '#818cf8' },
-              { label: 'Status da Assinatura', value: sub?.status || 'N/A', cor: sub?.status === 'ATIVA' ? '#34d399' : '#fbbf24' },
-              { label: 'Produtos Ativos', value: tenant.subscriptions.filter(s => s.status === 'ATIVA').length, cor: '#f1f5f9' },
+              { label: 'Plano Principal', value: planoPrincipal, cor: '#818cf8' },
+              { label: 'Status da Assinatura', value: statusAssinatura, cor: '#fbbf24' },
+              { label: 'Produtos Ativos', value: 0, cor: '#f1f5f9' },
             ].map(({ label, value, cor }) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>{label}</div>
@@ -511,11 +512,11 @@ export function OrganizacaoDetalheAdmin({ id_organizacao, onBack }: { id_organiz
               </div>
             ))}
           </div>
-          {tenant.subscriptions.length > 1 && (
+          {false && (
             <>
               <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Produtos contratados</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {tenant.subscriptions.map((s, i) => (
+                {([] as Array<{ plan: string; status: string }>).map((s, i) => (
                   <span key={i} style={{
                     fontSize: '0.75rem', fontWeight: 700, padding: '6px 14px', borderRadius: '8px',
                     background: s.status === 'ATIVA' ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)',

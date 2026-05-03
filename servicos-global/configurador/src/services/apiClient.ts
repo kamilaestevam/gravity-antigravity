@@ -221,7 +221,7 @@ export const adminProductsApi = {
   },
 
   async getAvailableSlugs() {
-    return request<{ available: string[]; all: string[] }>('/v1/admin/produtos-gravity/available-slugs')
+    return request<{ available: string[]; all: string[] }>('/v1/admin/produtos-gravity/slugs-disponiveis')
   },
 }
 
@@ -722,7 +722,9 @@ export interface NcmSyncStatusApi {
 
 export interface NcmSyncLogApi {
   id_ncm_log:               string
-  id_organizacao_ncm_log:   string
+  id_organizacao:           string
+  id_produto_gravity:       string | null
+  id_usuario:               string | null
   data_inicio_ncm_log:      string
   data_conclusao_ncm_log:   string | null
   status_ncm_log:           'EXECUTANDO' | 'SUCESSO' | 'ERRO'
@@ -828,17 +830,17 @@ export const publicCatalogApi = {
 
 export const workspaceApi = {
   async getMyTenant() {
-    return request<{ tenant: TenantApi }>('/v1/organizacao/me')
+    return request<{ tenant: TenantApi }>('/v1/organizacoes/me')
   },
 
   async getCompanies() {
     return request<{ companies: Array<{ id: string; name: string; subdomain: string | null; cnpj: string | null; status: string }> }>(
-      '/v1/organizacao/companies'
+      '/v1/organizacoes/me/workspaces'
     )
   },
 
   async createCompany(data: { name: string; subdomain?: string; cnpj?: string }) {
-    return request<{ company: { id: string; name: string } }>('/v1/organizacao/companies', {
+    return request<{ company: { id: string; name: string } }>('/v1/organizacoes/me/workspaces', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -851,21 +853,21 @@ export const workspaceApi = {
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string } }>('/v1/usuarios/invite', {
+    return request<{ user: { id: string; email: string } }>('/v1/usuarios/convidar', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async setUserMembership(userId: string, data: { company_id: string; role: string }) {
-    return request<{ membership: { id: string } }>(`/v1/usuarios/${userId}/memberships`, {
+    return request<{ membership: { id: string } }>(`/v1/usuarios/${userId}/vinculos`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async updateUserRole(userId: string, role: string) {
-    return request<{ user: { id: string; tipo_usuario: string } }>(`/v1/usuarios/${userId}/role`, {
+    return request<{ user: { id: string; tipo_usuario: string } }>(`/v1/usuarios/${userId}/patente`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     })

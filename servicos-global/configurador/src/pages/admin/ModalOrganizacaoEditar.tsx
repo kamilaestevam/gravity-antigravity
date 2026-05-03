@@ -13,7 +13,7 @@ import { ModalFormularioGlobal, SecaoFormulario } from '@nucleo/modal-formulario
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
-import { Tenant } from '../OrganizacoesAdmin'
+import { Organizacao } from '../../types/entidades'
 import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 export interface DadosEditarOrg {
@@ -45,7 +45,7 @@ const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
 
 interface ModalEditarOrganizacaoProps {
   aberto: boolean
-  organizacao: Tenant | null
+  organizacao: Organizacao | null
   aoFechar: () => void
   aoSalvar: (dados: Partial<DadosEditarOrg>) => void
 }
@@ -109,8 +109,8 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   // Preenche dados quando a modal abre
   useEffect(() => {
     if (aberto && organizacao) {
-      setNome(organizacao.name || '')
-      setSubdominio(organizacao.slug || '')
+      setNome(organizacao.nome_organizacao || '')
+      setSubdominio(organizacao.subdominio_organizacao || '')
       setErroSub('')
       setCnpj('')
       setEstado('')
@@ -131,8 +131,8 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   }
 
   const dirty = !!(
-    nome !== (organizacao?.name || '') ||
-    subdominio !== (organizacao?.slug || '') ||
+    nome !== (organizacao?.nome_organizacao || '') ||
+    subdominio !== (organizacao?.subdominio_organizacao || '') ||
     cnpj !== '' ||
     estado !== '' ||
     cidade !== '' ||
@@ -182,15 +182,15 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                background: organizacao?.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                color: organizacao?.status === 'Ativa' ? '#34d399' : '#f87171',
-                border: `1px solid ${organizacao?.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                background: organizacao?.status_organizacao === 'ATIVO' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                color: organizacao?.status_organizacao === 'ATIVO' ? '#34d399' : '#f87171',
+                border: `1px solid ${organizacao?.status_organizacao === 'ATIVO' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
               }}>
-                {organizacao?.status}
+                {organizacao?.status_organizacao}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <CalendarBlank size={14} />
-                <span>{t('admin.testes-gerais.org.criado_em')} {organizacao?.created_at}</span>
+                <span>{t('admin.testes-gerais.org.criado_em')} {organizacao?.data_criacao_organizacao}</span>
               </div>
             </div>
           </div>

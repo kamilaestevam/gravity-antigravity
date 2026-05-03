@@ -59,7 +59,6 @@ import {
 // FASE 06E (Frente 1, completa): OPE agora vem via `suid_ope` no payload.
 // montarSnapshotOpe é plugado no fluxo POST quando suid_ope está presente.
 // SnapshotOpeData usado no array de snapshots tipados.
-void SnapshotOpeData;
 import { randomUUID } from 'node:crypto'
 
 export const pedidosRouter = Router()

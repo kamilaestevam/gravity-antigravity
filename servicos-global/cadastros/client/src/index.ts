@@ -162,33 +162,33 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
       listar: async () => {
         const cacheado = cacheCatalogos.get('moedas') as { itens: Moeda[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/moedas', listaMoedasSchema)
+        const lista = await chamar('GET', '/api/v1/cadastros/moedas', listaMoedasSchema)
         cacheCatalogos.set('moedas', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/moedas/${encodeURIComponent(codigo)}`, moedaSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/moedas/${encodeURIComponent(codigo)}`, moedaSchema),
     },
 
     unidades: {
       listar: async () => {
         const cacheado = cacheCatalogos.get('unidades') as { itens: Unidade[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/unidades', listaUnidadesSchema)
+        const lista = await chamar('GET', '/api/v1/cadastros/unidades', listaUnidadesSchema)
         cacheCatalogos.set('unidades', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/unidades/${encodeURIComponent(codigo)}`, unidadeSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/unidades/${encodeURIComponent(codigo)}`, unidadeSchema),
     },
 
     ncm: {
       listar: async () => {
         const cacheado = cacheCatalogos.get('ncm') as { itens: NCM[] } | null
         if (cacheado) return cacheado.itens
-        const lista = await chamar('GET', '/api/v1/ncm', listaNcmSchema)
+        const lista = await chamar('GET', '/api/v1/cadastros/ncm', listaNcmSchema)
         cacheCatalogos.set('ncm', lista)
         return lista.itens
       },
-      buscar: async (codigo) => chamar('GET', `/api/v1/ncm/${encodeURIComponent(codigo)}`, ncmSchema),
+      buscar: async (codigo) => chamar('GET', `/api/v1/cadastros/ncm/${encodeURIComponent(codigo)}`, ncmSchema),
     },
 
     ope: {
@@ -196,7 +196,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
         const chave = `${idOrganizacao}:${suid}`
         const cacheado = cacheOpe.get(chave)
         if (cacheado) return cacheado
-        const ope = await chamar('GET', `/api/v1/operacoes-comex/${encodeURIComponent(suid)}`, opeSchema, { idOrganizacao })
+        const ope = await chamar('GET', `/api/v1/cadastros/operacoes-comex/${encodeURIComponent(suid)}`, opeSchema, { idOrganizacao })
         cacheOpe.set(chave, ope)
         return ope
       },

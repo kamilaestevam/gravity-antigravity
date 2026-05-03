@@ -145,11 +145,11 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
     setResultadoExecucao(null)
     setErroExecucao(null)
     try {
-      const res = await adminNcmApi.executeManual()  // executa todos os tenants
+      const res = await adminNcmApi.executeManual()  // executa todas as organizações
       setResultadoExecucao(res.resultados)
       addNotification({
         type: res.resultados.every(r => r.sucesso) ? 'success' : 'warning',
-        message: t('admin.ncm_modal.notif_exec_ok', { count: res.tenants_executados }),
+        message: t('admin.ncm_modal.notif_exec_ok', { count: res.organizacoes_executadas }),
       })
     } catch (err) {
       setErroExecucao(err instanceof Error ? err.message : t('admin.ncm_modal.notif_exec_erro'))
@@ -383,7 +383,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxHeight: '240px', overflowY: 'auto' }}>
                   {resultadoExecucao.map((r) => (
                     <div
-                      key={r.tenant_id}
+                      key={r.id_organizacao}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
                         borderRadius: '8px', fontSize: '0.82rem',
@@ -395,7 +395,7 @@ export function ModalAgendamentoSincronizacaoNcm({ aberto, aoFechar, aoMudarStat
                         ? <CheckCircle size={14} weight="fill" color="#34d399" />
                         : <XCircle    size={14} weight="fill" color="#f87171" />
                       }
-                      <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem', flex: 1 }}>{r.tenant_id}</span>
+                      <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.78rem', flex: 1 }}>{r.id_organizacao}</span>
                       {r.sucesso ? (
                         <span style={{ color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
                           {(r.total ?? 0).toLocaleString('pt-BR')} NCMs

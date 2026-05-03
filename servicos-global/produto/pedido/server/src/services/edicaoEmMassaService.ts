@@ -16,7 +16,7 @@
 // ── Campos calculados — nunca editáveis em massa ──────────────────────────────
 
 import { PrismaClient, Prisma } from '@prisma/client'
-import { auditLog } from '../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
+import { auditLog } from '../../../../../../servicos-global/servicos-plataforma/historico-global/src/audit-client.js'
 
 // Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
 type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>

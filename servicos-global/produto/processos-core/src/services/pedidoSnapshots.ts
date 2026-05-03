@@ -23,7 +23,7 @@ import type {
   NCM,
   OPE,
   Unidade,
-} from '../../../cadastros/shared/schemas/index.js'
+} from '../../../../cadastros/shared/schemas/index.js'
 
 // ────────────────────────────────────────────────────────────────────────────
 // Empresa

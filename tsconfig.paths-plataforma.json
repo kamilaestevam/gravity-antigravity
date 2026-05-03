@@ -22,6 +22,8 @@
         "../../../nucleo-global/Utilidades/*/src/index.ts",
         "../../../nucleo-global/*/src/index.ts"
       ],
+      "@nucleo/logo-produtos": ["../../../nucleo-global/Logo/produtos/src/index.ts"],
+
       "@shell": ["../../shell/index.ts"],
       "@shell/*": ["../../shell/*"],
       "@gravity/shell": ["../../shell/index.ts"],

@@ -71,11 +71,17 @@ export async function requireAuth(
     // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
     // Seguro: aceita apenas se houver exatamente um usuário com esse email no sistema
     // (sem ambiguidade → impossível cruzar tenant boundaries).
+    // Requer email primário verificado — nunca usa fallback de índice 0 (defense-in-depth).
     if (!user) {
       try {
         const clerkUser = await clerkClient.users.getUser(verified.sub)
-        const primaryEmail = clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
-          ?? clerkUser.emailAddresses[0]?.emailAddress
+        const primaryEmail = clerkUser.emailAddresses.find(
+          e => e.id === clerkUser.primaryEmailAddressId && e.verification?.status === 'verified'
+        )?.emailAddress
+
+        if (!primaryEmail) {
+          logAuthFailure(req, `EMAIL_FALLBACK_BLOCKED: email primário não verificado para clerk_user_id ${verified.sub}`)
+        }
 
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({

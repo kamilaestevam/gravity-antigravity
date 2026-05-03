@@ -1,0 +1,99 @@
+{
+  "id": "TST-CRO-ADMIN-VG-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-02T00:00:00Z",
+  "geradoPor": "agente-criador-de-testes",
+  "$status": "COMPLETO — Pronto para revisão humana antes de virar .test.ts",
+
+  "escopo": "ADMIN",
+  "modulo": "visao-geral / isolamento entre tenants HQ",
+  "tipoModulo": "isolamento_organizacao",
+  "criticidade": "critica",
+  "temDinheiro": false,
+
+  "componenteFilePath": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx",
+  "rotaBackend": "servicos-global/configurador/server/routes/admin.ts (linhas 1220, 1420)",
+  "specFilePath": "testes/testes-cross-organizacao/admin/visao-geral/TST-CRO-ADMIN-VG-000001.test.ts",
+
+  "resumoExecutivo": "Testes de isolamento entre tenants para a tela /admin/visao-geral. Embora conceitualmente a rota seja do tenant HQ Gravity, o backend resolve id_organizacao a partir do clerkUserId do usuário logado (linha 1228). Cada usuário com clerkUserId válido recebe e edita a SUA PRÓPRIA organização. 38 casos verificam: (1) usuário do tenant A não vê dados do B; (2) PUT do A não altera B; (3) WHERE filtra por id_organizacao do JWT, nunca do body; (4) audit logs registram com id_organizacao correto.",
+
+  "preRequisitos": {
+    "tenants": [
+      { "id_organizacao": "tenant-a", "nome": "Empresa A", "subdominio": "empresa-a" },
+      { "id_organizacao": "tenant-b", "nome": "Empresa B", "subdominio": "empresa-b" },
+      { "id_organizacao": "gravity-hq", "nome": "Gravity", "subdominio": "gravity" }
+    ],
+    "usuarios": [
+      { "id_usuario": "usr-a-master", "id_organizacao": "tenant-a", "tipo_usuario": "MASTER", "clerkUserId": "clerk_a" },
+      { "id_usuario": "usr-b-master", "id_organizacao": "tenant-b", "tipo_usuario": "MASTER", "clerkUserId": "clerk_b" },
+      { "id_usuario": "usr-gravity-super", "id_organizacao": "gravity-hq", "tipo_usuario": "SUPER_ADMIN", "gravity_admin": true, "clerkUserId": "clerk_gravity" }
+    ]
+  },
+
+  "categorias": {
+    "1_get_isolamento":           { "passos": 8 },
+    "2_put_isolamento":           { "passos": 10 },
+    "3_where_clause_validation":  { "passos": 6 },
+    "4_audit_log_isolation":      { "passos": 4 },
+    "5_token_manipulation":       { "passos": 6 },
+    "6_concurrent_tenants":       { "passos": 4 }
+  },
+
+  "totalCasos": 38,
+
+  "casos": [
+    { "id": "TST-CRO-ADMIN-VG-000001-1.1", "categoria": "1_get_isolamento", "descricao": "Usuário do tenant-a faz GET /admin/visao-geral → recebe APENAS dados do tenant-a", "request": { "auth": { "clerkUserId": "clerk_a" } }, "assercao": { "status": 200, "bodyContains": { "config.id": "tenant-a", "config.nome_organizacao": "Empresa A" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.2", "categoria": "1_get_isolamento", "descricao": "Usuário do tenant-b faz GET → recebe dados do tenant-b (nunca tenant-a)", "request": { "auth": { "clerkUserId": "clerk_b" } }, "assercao": { "status": 200, "bodyContains": { "config.id": "tenant-b" }, "bodyNotContains": ["Empresa A"] } },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.3", "categoria": "1_get_isolamento", "descricao": "Usuário Gravity faz GET → recebe gravity-hq (não tenant-a nem tenant-b)", "request": { "auth": { "clerkUserId": "clerk_gravity" } }, "assercao": { "status": 200, "bodyContains": { "config.id": "gravity-hq" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.4", "categoria": "1_get_isolamento", "descricao": "WHERE da query usuario.findFirst usa req.auth.clerkUserId (linha 1229)", "assercao": { "prismaCalledWith": { "where.id_clerk_usuario": "clerk_a" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.5", "categoria": "1_get_isolamento", "descricao": "WHERE de organizacao.findUnique usa user.id_organizacao (linha 1240) — NUNCA do body ou header", "assercao": { "prismaCalledWith": { "where.id_organizacao": "tenant-a" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.6", "categoria": "1_get_isolamento", "descricao": "Manipular header x-tenant-id=tenant-b como usuário do tenant-a → backend ignora header, usa do JWT", "request": { "auth": { "clerkUserId": "clerk_a" }, "headers": { "x-tenant-id": "tenant-b" } }, "assercao": { "status": 200, "bodyContains": { "config.id": "tenant-a" } }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.7", "categoria": "1_get_isolamento", "descricao": "Adicionar query string ?id_organizacao=tenant-b → ignorado", "assercao": { "status": 200, "bodyContains": { "config.id": "tenant-a" } }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-1.8", "categoria": "1_get_isolamento", "descricao": "Tentar POST malformed → 405 ou 404", "assercao": { "status": 405 }, "adversarial": true },
+
+    { "id": "TST-CRO-ADMIN-VG-000001-2.1", "categoria": "2_put_isolamento", "descricao": "Tenant-a salva nome=Hacked → APENAS tenant-a é atualizado; tenant-b intacto", "request": { "auth": { "clerkUserId": "clerk_a" }, "body": { "nome_organizacao": "Hacked" } }, "assercao": { "status": 200, "dbStateAfter": { "tenant-a.nome": "Hacked", "tenant-b.nome": "intacto" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.2", "categoria": "2_put_isolamento", "descricao": "Tentar enviar body com id_organizacao=tenant-b → backend ignora, usa user.id_organizacao do JWT (linha 1431-1434, 1446)", "request": { "auth": { "clerkUserId": "clerk_a" }, "body": { "id_organizacao": "tenant-b", "nome_organizacao": "Hacked" } }, "assercao": { "dbStateAfter": { "tenant-a.nome": "Hacked", "tenant-b.nome": "intacto" } }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.3", "categoria": "2_put_isolamento", "descricao": "Prisma.update WHERE clause usa user.id_organizacao (linha 1446)", "assercao": { "prismaUpdateCalledWith": { "where.id_organizacao": "tenant-a" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.4", "categoria": "2_put_isolamento", "descricao": "Tenant-a salvar não dispara update em tenant-b nem em gravity-hq", "assercao": { "prismaUpdateCalledOnce": true, "withTenantA": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.5", "categoria": "2_put_isolamento", "descricao": "10 PUTs paralelos, 5 do tenant-a + 5 do tenant-b → cada tenant recebe seus próprios updates", "assercao": { "noCrossContamination": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.6", "categoria": "2_put_isolamento", "descricao": "Snapshot do banco antes/depois: PUT do tenant-a só altera linha de tenant-a", "assercao": { "dbDiff": "apenas tenant-a row" } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.7", "categoria": "2_put_isolamento", "descricao": "Manipular JWT trocando claim para tenant-b → backend re-busca id_organizacao via clerkUserId (não confia no claim)", "assercao": { "claimIgnored": true }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.8", "categoria": "2_put_isolamento", "descricao": "Header x-internal-key inválido em rota interna → 401", "assercao": { "status": 401 } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.9", "categoria": "2_put_isolamento", "descricao": "Backend retorna 404 quando user existe mas tenant não existe (deletado entre auth e save)", "mockSetup": "organizacao.update throws P2025", "assercao": { "status": 404 } },
+    { "id": "TST-CRO-ADMIN-VG-000001-2.10", "categoria": "2_put_isolamento", "descricao": "Resposta do PUT contém apenas dados do próprio tenant", "assercao": { "bodyContains": { "config.id": "tenant-a" }, "bodyNotContains": ["tenant-b", "gravity-hq"] } },
+
+    { "id": "TST-CRO-ADMIN-VG-000001-3.1", "categoria": "3_where_clause_validation", "descricao": "Toda query Prisma na rota inclui WHERE id_organizacao", "assercao": { "allQueriesHaveTenantFilter": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-3.2", "categoria": "3_where_clause_validation", "descricao": "Linter custom (lint-tenant-safety) bloqueia query sem WHERE id_organizacao", "assercao": { "lintPasses": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-3.3", "categoria": "3_where_clause_validation", "descricao": "Não há prisma.organizacao.findMany() sem WHERE que retornaria todos tenants", "assercao": { "noUnscopedFindMany": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-3.4", "categoria": "3_where_clause_validation", "descricao": "GAP: Verificar se rota usa SDK @gravity/tenant-resolver ou Prisma direto", "assercao": { "usesTenantSDK": true }, "gap": "Confirmar uso do SDK" },
+    { "id": "TST-CRO-ADMIN-VG-000001-3.5", "categoria": "3_where_clause_validation", "descricao": "withTenant() wrapper (se usado) injeta WHERE em todas as queries do bloco", "assercao": { "withTenantWraps": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-3.6", "categoria": "3_where_clause_validation", "descricao": "SQL final gerado (Prisma logging) contém id_organizacao no WHERE", "assercao": { "sqlContainsTenantFilter": true } },
+
+    { "id": "TST-CRO-ADMIN-VG-000001-4.1", "categoria": "4_audit_log_isolation", "descricao": "Audit log do PUT do tenant-a tem tenant_id=tenant-a (linha 1462)", "assercao": { "auditCalledWith": { "tenant_id": "tenant-a" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-4.2", "categoria": "4_audit_log_isolation", "descricao": "Audit logs do tenant-a não aparecem na consulta de tenant-b", "assercao": { "auditQueryByTenant": "isolated" } },
+    { "id": "TST-CRO-ADMIN-VG-000001-4.3", "categoria": "4_audit_log_isolation", "descricao": "actor_id no audit é o id_usuario do JWT, não do body", "assercao": { "auditCalledWith": { "actor_id": "usr-a-master" } } },
+    { "id": "TST-CRO-ADMIN-VG-000001-4.4", "categoria": "4_audit_log_isolation", "descricao": "before/after no audit referem-se apenas ao tenant-a", "assercao": { "auditFieldsScoped": true } },
+
+    { "id": "TST-CRO-ADMIN-VG-000001-5.1", "categoria": "5_token_manipulation", "descricao": "Trocar Authorization Bearer por token de outro tenant → recebe dados do tenant correspondente (esperado)", "assercao": { "behaviorCorrect": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-5.2", "categoria": "5_token_manipulation", "descricao": "Token expirado → 401, não falha aberta para outro tenant", "assercao": { "status": 401, "noFailOpen": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-5.3", "categoria": "5_token_manipulation", "descricao": "Token de usuário deletado → 401", "assercao": { "status": 401 } },
+    { "id": "TST-CRO-ADMIN-VG-000001-5.4", "categoria": "5_token_manipulation", "descricao": "Token forjado com clerkUserId=clerk_a mas assinatura inválida → Clerk verifyToken falha → 401", "assercao": { "status": 401, "verifyTokenFails": true }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-5.5", "categoria": "5_token_manipulation", "descricao": "JWT com claim publicMetadata.role=SUPER_ADMIN mas usuário é STANDARD no banco → backend ignora claim, usa role do banco (REGRA 01)", "assercao": { "claimIgnored": true, "dbRoleUsed": true }, "adversarial": true },
+    { "id": "TST-CRO-ADMIN-VG-000001-5.6", "categoria": "5_token_manipulation", "descricao": "Replay attack: capturar token de tenant-a e reusar após logout → 401", "assercao": { "status": 401 } },
+
+    { "id": "TST-CRO-ADMIN-VG-000001-6.1", "categoria": "6_concurrent_tenants", "descricao": "100 GETs simultâneos de 10 tenants diferentes → cada um recebe seus dados", "assercao": { "isolationUnderLoad": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-6.2", "categoria": "6_concurrent_tenants", "descricao": "PUT em tenant-a + PUT em tenant-b ao mesmo tempo → ambos sucesso, sem deadlock", "assercao": { "noDeadlock": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-6.3", "categoria": "6_concurrent_tenants", "descricao": "Pool de conexões Prisma não vaza tenant-a context para query de tenant-b", "assercao": { "noPoolLeak": true } },
+    { "id": "TST-CRO-ADMIN-VG-000001-6.4", "categoria": "6_concurrent_tenants", "descricao": "Cache (se houver) usa prefixo organizacao:{id} (REGRA 4 do linter)", "assercao": { "cachePrefixed": true } }
+  ],
+
+  "$meta": {
+    "fluxoAprovacao": "1) Dono revisa; 2) Outro agente gera .test.ts; 3) Roda em ambiente com banco real; 4) CI bloqueia merge se algum teste falhar — isolamento é P0 (REGRA isolamento-organizacao).",
+    "complementaPlanoE2E": "TST-E2E-ADMIN-000001 (passos com tipoAplicavel=CRO)",
+    "gapsIdentificados": [
+      "Verificar se rota usa SDK @gravity/tenant-resolver ou Prisma direto",
+      "Confirmar lint-tenant-safety está rodando no CI para esta rota",
+      "Backend não checa role/gravity_admin — isolamento depende do frontend AdminLayout (defesa fraca)"
+    ]
+  }
+}

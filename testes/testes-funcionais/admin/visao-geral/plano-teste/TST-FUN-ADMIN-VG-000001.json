@@ -1,0 +1,125 @@
+{
+  "id": "TST-FUN-ADMIN-VG-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-02T00:00:00Z",
+  "geradoPor": "agente-criador-de-testes",
+  "$status": "COMPLETO — Pronto para revisão humana antes de virar .test.ts",
+
+  "escopo": "ADMIN",
+  "modulo": "visao-geral",
+  "tipoModulo": "rota_crud",
+  "arquivoFilePath": "servicos-global/configurador/server/routes/admin.ts",
+  "arquivoFileLinhas": "1216-1483",
+  "schemaZod": "PlatformConfigSchema (linha 1281)",
+  "specFilePath": "testes/testes-funcionais/admin/visao-geral/TST-FUN-ADMIN-VG-000001.test.ts",
+  "criticidade": "alta",
+  "temDinheiro": false,
+
+  "resumoExecutivo": "Testes funcionais de GET e PUT /api/v1/admin/visao-geral. Camada HTTP completa com Supertest — Zod real, error handler real, AuditService real, Prisma e Clerk mockados. 54 casos cobrindo happy path, validação Zod por campo, auth, tenant resolution, audit trail, erros DB, contrato de resposta. Risco principal: divergência front-back tipo_empresa_organizacao vs tipo_organizacao (REGRA 09 violada — backend ignora silenciosamente).",
+
+  "endpoints": [
+    { "metodo": "GET", "rota": "/api/v1/admin/visao-geral", "linha": 1220, "responseShape": "{ config: PlatformConfigApi | null }" },
+    { "metodo": "PUT", "rota": "/api/v1/admin/visao-geral", "linha": 1420, "schemaRequest": "PlatformConfigSchema", "responseShape": "{ config: PlatformConfigApi }" }
+  ],
+
+  "mocksNecessarios": [
+    { "modulo": "prisma", "como": "vi.hoisted() + vi.mock('../../lib/prisma.js')", "metodos": ["usuario.findFirst", "organizacao.findUnique", "organizacao.update"] },
+    { "modulo": "requireAuth", "como": "vi.mock injetando req.auth com clerkUserId, idUsuario, idOrganizacao, tipoUsuario" },
+    { "modulo": "AuditService.log", "como": "vi.mock — verificar chamadas, não bloquear" },
+    { "modulo": "@clerk/backend verifyToken", "como": "vi.mock retornando session válida" }
+  ],
+
+  "buildTestApp": "function buildTestApp() { const app = express(); app.use(express.json()); app.use(mockRequireAuth); app.use('/api/v1/admin', adminRouter); app.use(errorHandler); return app; }",
+
+  "categorias": {
+    "1_get_happy":              { "passos": 6 },
+    "2_get_auth_falhas":        { "passos": 4 },
+    "3_get_edge_cases":         { "passos": 4 },
+    "4_put_happy":              { "passos": 8 },
+    "5_put_zod_validation":     { "passos": 14 },
+    "6_put_auth_falhas":        { "passos": 4 },
+    "7_put_audit_trail":        { "passos": 6 },
+    "8_put_db_errors":          { "passos": 4 },
+    "9_contract_zod_response":  { "passos": 4 }
+  },
+
+  "totalCasos": 54,
+
+  "casos": [
+    { "id": "TST-FUN-ADMIN-VG-000001-1.1", "categoria": "1_get_happy", "descricao": "Retorna 200 com { config: {...} } quando usuário existe e tenant existe", "request": { "method": "GET", "path": "/api/v1/admin/visao-geral" }, "mockSetup": "mockUsuarioFindFirst.mockResolvedValue({ id_organizacao: 'gravity-hq' }); mockOrganizacaoFindUnique.mockResolvedValue({ id_organizacao: 'gravity-hq', nome_organizacao: 'Gravity', subdominio_organizacao: 'gravity', cnpj_organizacao: '32964709000101', estado_organizacao: 'SC', cidade_organizacao: 'Florianópolis', data_criacao_organizacao: 'ISO date' })", "assercao": { "status": 200, "bodyShape": "{ config: { id, nome_organizacao, subdominio_organizacao, cnpj_organizacao, estado_organizacao, cidade_organizacao, data_criacao_organizacao } }" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-1.2", "categoria": "1_get_happy", "descricao": "DTO mapeia id_organizacao → id (linha 1270)", "assercao": { "status": 200, "bodyContains": { "config.id": "gravity-hq" }, "bodyNotContains": ["config.id_organizacao"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-1.3", "categoria": "1_get_happy", "descricao": "Inclui campos opcionais segmento_organizacao e tipo_organizacao quando colunas existem", "mockSetup": "Segundo findUnique retorna { segmento_organizacao: 'Tecnologia', tipo_organizacao: 'Importador' }", "assercao": { "status": 200, "bodyContains": { "config.segmento_organizacao": "Tecnologia", "config.tipo_organizacao": "Importador" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-1.4", "categoria": "1_get_happy", "descricao": "Quando 2º findUnique falha (colunas não migradas), endpoint não quebra", "mockSetup": "Segundo findUnique throws", "assercao": { "status": 200, "bodyNotContains": ["config.segmento_organizacao", "config.tipo_organizacao"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-1.5", "categoria": "1_get_happy", "descricao": "data_criacao_organizacao retorna como string ISO no JSON", "assercao": { "status": 200, "bodyContains": { "config.data_criacao_organizacao": "string ISO 8601" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-1.6", "categoria": "1_get_happy", "descricao": "Response NÃO contém clerkUserId, password ou outros campos sensíveis", "assercao": { "status": 200, "bodyNotContains": ["clerk", "password", "secret", "token"] } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-2.1", "categoria": "2_get_auth_falhas", "descricao": "Sem clerkUserId no req.auth → retorna { config: null } (linha 1222)", "mockSetup": "req.auth.clerkUserId = undefined", "assercao": { "status": 200, "body": { "config": null } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-2.2", "categoria": "2_get_auth_falhas", "descricao": "Sem header Authorization → 401", "request": { "headers": {} }, "assercao": { "status": 401, "errorCode": "UNAUTHORIZED" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-2.3", "categoria": "2_get_auth_falhas", "descricao": "Token inválido → 401", "request": { "headers": { "Authorization": "Bearer invalid" } }, "assercao": { "status": 401 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-2.4", "categoria": "2_get_auth_falhas", "descricao": "GAP: STANDARD logado tentando GET — backend não restringe role aqui (rota não checa tipo_usuario, só clerkUserId)", "assercao": { "tipo": "behavior_to_define" }, "gap": "Falta checagem de role na rota visao-geral", "definirComDono": true },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-3.1", "categoria": "3_get_edge_cases", "descricao": "Usuário não encontrado → { config: null }", "mockSetup": "mockUsuarioFindFirst.mockResolvedValue(null)", "assercao": { "status": 200, "body": { "config": null } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-3.2", "categoria": "3_get_edge_cases", "descricao": "Tenant não encontrado → { config: null }", "mockSetup": "mockOrganizacaoFindUnique.mockResolvedValue(null)", "assercao": { "status": 200, "body": { "config": null } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-3.3", "categoria": "3_get_edge_cases", "descricao": "Prisma findFirst lança → 500 sem stack trace exposto", "mockSetup": "mockUsuarioFindFirst.mockRejectedValue(new Error('DB connection failed'))", "assercao": { "status": 500, "bodyNotContains": ["stack", "DB connection"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-3.4", "categoria": "3_get_edge_cases", "descricao": "subscriptions ausente no Prisma → response não inclui subscriptions array", "assercao": { "status": 200, "bodyNotContains": ["subscriptions"] } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-4.1", "categoria": "4_put_happy", "descricao": "Body válido com nome_organizacao → 200, config atualizado, audit logado", "request": { "method": "PUT", "path": "/api/v1/admin/visao-geral", "body": { "nome_organizacao": "Gravity Atualizado" } }, "assercao": { "status": 200, "bodyContains": { "config.nome_organizacao": "Gravity Atualizado" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.2", "categoria": "4_put_happy", "descricao": "Body com todos os 5 campos válidos do Zod → 200", "request": { "body": { "nome_organizacao": "Gravity", "cnpj_organizacao": "32964709000101", "estado_organizacao": "SC", "cidade_organizacao": "Florianópolis", "segmento_organizacao": "Tecnologia", "tipo_organizacao": "Importador" } }, "assercao": { "status": 200 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.3", "categoria": "4_put_happy", "descricao": "Body parcial (só 2 campos) → PATCH-like, só esses são atualizados (linha 1447)", "request": { "body": { "nome_organizacao": "Gravity X", "estado_organizacao": "SP" } }, "assercao": { "status": 200, "prismaUpdateData": { "nome_organizacao": "Gravity X", "estado_organizacao": "SP" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.4", "categoria": "4_put_happy", "descricao": "Body vazio {} → 200 sem update (Zod aceita objeto vazio porque tudo é optional)", "request": { "body": {} }, "assercao": { "status": 200, "prismaUpdateData": {} } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.5", "categoria": "4_put_happy", "descricao": "DTO de resposta mapeia id_organizacao → id (linha 1478)", "assercao": { "bodyContains": { "config.id": "gravity-hq" }, "bodyNotContains": ["config.id_organizacao"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.6", "categoria": "4_put_happy", "descricao": "GAP CRÍTICO: campo tipo_empresa_organizacao do front NÃO está no PlatformConfigSchema (Zod usa tipo_organizacao). Backend silenciosamente ignora — REGRA 09 violada", "request": { "body": { "tipo_empresa_organizacao": "Importador" } }, "assercao": { "status": 200, "bodyNotContains": ["config.tipo_empresa_organizacao"], "prismaUpdateDataNotContains": ["tipo_empresa_organizacao"] }, "gap": "CRÍTICO — divergência front-back" },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.7", "categoria": "4_put_happy", "descricao": "Campos extras no body são silenciosamente removidos por safeParse", "request": { "body": { "nome_organizacao": "X", "campo_inexistente": "Y" } }, "assercao": { "status": 200, "prismaUpdateDataNotContains": ["campo_inexistente"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-4.8", "categoria": "4_put_happy", "descricao": "Resposta inclui data_criacao_organizacao (não atualizada, vinda do select)", "assercao": { "bodyContains": ["config.data_criacao_organizacao"] } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-5.1", "categoria": "5_put_zod_validation", "descricao": "nome_organizacao vazio → 400 VALIDATION_ERROR (Zod min(1))", "request": { "body": { "nome_organizacao": "" } }, "assercao": { "status": 400, "errorCode": "VALIDATION_ERROR" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.2", "categoria": "5_put_zod_validation", "descricao": "nome_organizacao com 201 chars → 400 (Zod max(200))", "request": { "body": { "nome_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } } }, "assercao": { "status": 400, "errorCode": "VALIDATION_ERROR" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.3", "categoria": "5_put_zod_validation", "descricao": "nome_organizacao tipo number → 400", "request": { "body": { "nome_organizacao": 123 } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.4", "categoria": "5_put_zod_validation", "descricao": "cnpj_organizacao com 21 chars → 400 (Zod max(20))", "request": { "body": { "cnpj_organizacao": { "$gerarString": { "char": "1", "tamanho": 21 } } } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.5", "categoria": "5_put_zod_validation", "descricao": "estado_organizacao com 3 chars → 400 (Zod max(2))", "request": { "body": { "estado_organizacao": "SCC" } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.6", "categoria": "5_put_zod_validation", "descricao": "cidade_organizacao com 201 chars → 400", "request": { "body": { "cidade_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.7", "categoria": "5_put_zod_validation", "descricao": "segmento_organizacao com 201 chars → 400", "request": { "body": { "segmento_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.8", "categoria": "5_put_zod_validation", "descricao": "tipo_organizacao com 501 chars → 400 (Zod max(500))", "request": { "body": { "tipo_organizacao": { "$gerarString": { "char": "A", "tamanho": 501 } } } }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.9", "categoria": "5_put_zod_validation", "descricao": "Adversarial XSS: nome = <script>alert(1)</script> → 200 (Zod aceita strings); banco salva literal", "request": { "body": { "nome_organizacao": "<script>alert(1)</script>" } }, "assercao": { "status": 200, "noStackTrace": true }, "adversarial": true },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.10", "categoria": "5_put_zod_validation", "descricao": "Adversarial SQLi: nome = ' OR 1=1-- → 200 (Prisma parameterized)", "request": { "body": { "nome_organizacao": "' OR 1=1--" } }, "assercao": { "status": 200 }, "adversarial": true },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.11", "categoria": "5_put_zod_validation", "descricao": "Adversarial: 10000 chars em nome → 400 (max 200)", "request": { "body": { "nome_organizacao": { "$gerarString": { "char": "A", "tamanho": 10000 } } } }, "assercao": { "status": 400, "noStackTrace": true }, "adversarial": true },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.12", "categoria": "5_put_zod_validation", "descricao": "Body é null → erro tratado", "request": { "body": null }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.13", "categoria": "5_put_zod_validation", "descricao": "Content-Type não JSON → erro do express", "request": { "headers": { "Content-Type": "text/plain" }, "body": "not json" }, "assercao": { "status": 400 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-5.14", "categoria": "5_put_zod_validation", "descricao": "Erro do Zod tem error.code = VALIDATION_ERROR e mensagem do primeiro erro", "assercao": { "status": 400, "bodyContains": { "error.code": "VALIDATION_ERROR" }, "errorMessageNotEmpty": true } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-6.1", "categoria": "6_put_auth_falhas", "descricao": "Sem Authorization → 401", "request": { "headers": {} }, "assercao": { "status": 401 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-6.2", "categoria": "6_put_auth_falhas", "descricao": "Token inválido → 401", "assercao": { "status": 401 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-6.3", "categoria": "6_put_auth_falhas", "descricao": "Usuário não encontrado no DB → 404 NOT_FOUND (linha 1437)", "mockSetup": "mockUsuarioFindFirst.mockResolvedValue(null)", "assercao": { "status": 404, "errorCode": "NOT_FOUND" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-6.4", "categoria": "6_put_auth_falhas", "descricao": "GAP CRÍTICO: rota PUT não checa tipo_usuario nem gravity_admin — qualquer usuário logado pode editar HQ. Backend confia no AdminLayout do front (defesa fraca)", "assercao": { "tipo": "behavior_to_define" }, "gap": "CRÍTICO — falta checagem de role no PUT", "definirComDono": true },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-7.1", "categoria": "7_put_audit_trail", "descricao": "Após PUT 200, AuditService.log foi chamado com action='PLATFORM_CONFIG_UPDATED'", "assercao": { "auditCalledWith": { "action": "PLATFORM_CONFIG_UPDATED", "module": "admin", "resource_type": "PlatformConfig" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-7.2", "categoria": "7_put_audit_trail", "descricao": "action_detail lista os campos atualizados", "assercao": { "auditCalledWith": { "action_detail": "Campos alterados: nome_organizacao" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-7.3", "categoria": "7_put_audit_trail", "descricao": "before contém valores antigos (do select da linha 1440)", "assercao": { "auditCalledWith": { "before": "object com campos anteriores" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-7.4", "categoria": "7_put_audit_trail", "descricao": "after contém apenas os campos enviados (parsed.data)", "assercao": { "auditCalledWith": { "after": "object com campos novos" } } },
+    { "id": "TST-FUN-ADMIN-VG-000001-7.5", "categoria": "7_put_audit_trail", "descricao": "AuditService.log é fire-and-forget — falha de audit não quebra o PUT", "mockSetup": "AuditService.log.mockRejectedValue(new Error('audit fail'))", "assercao": { "status": 200 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-7.6", "categoria": "7_put_audit_trail", "descricao": "Audit recebe actor_ip do req.ip", "assercao": { "auditCalledWith": { "actor_ip": "IP do request" } } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-8.1", "categoria": "8_put_db_errors", "descricao": "Prisma update lança → 500", "mockSetup": "mockOrganizacaoUpdate.mockRejectedValue(new Error('DB error'))", "assercao": { "status": 500, "noStackTrace": true } },
+    { "id": "TST-FUN-ADMIN-VG-000001-8.2", "categoria": "8_put_db_errors", "descricao": "Prisma update retorna null inesperadamente → tratamento", "mockSetup": "mockOrganizacaoUpdate.mockResolvedValue(null)", "assercao": { "status": 500 } },
+    { "id": "TST-FUN-ADMIN-VG-000001-8.3", "categoria": "8_put_db_errors", "descricao": "Constraint violation (unique) → 500 ou 409 conforme backend", "assercao": { "tipo": "behavior_to_define" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-8.4", "categoria": "8_put_db_errors", "descricao": "Connection timeout → 500 + log Sentry", "assercao": { "status": 500 } },
+
+    { "id": "TST-FUN-ADMIN-VG-000001-9.1", "categoria": "9_contract_zod_response", "descricao": "Response shape bate com PlatformConfigApi (apiClient.ts linha 600)", "assercao": { "schemaParse": "PlatformConfigApiSchema" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-9.2", "categoria": "9_contract_zod_response", "descricao": "Response shape do PUT === GET (consistência de contrato)", "assercao": { "schemaParse": "PlatformConfigApiSchema" } },
+    { "id": "TST-FUN-ADMIN-VG-000001-9.3", "categoria": "9_contract_zod_response", "descricao": "Anti-regressão: campo config.id presente, config.id_organizacao ausente", "assercao": { "bodyContains": { "config.id": "string" }, "bodyNotContains": ["config.id_organizacao"] } },
+    { "id": "TST-FUN-ADMIN-VG-000001-9.4", "categoria": "9_contract_zod_response", "descricao": "Anti-regressão DDD: campos config.user.role NÃO existem (estrutura legada)", "assercao": { "bodyNotContains": ["config.user", "config.role"] } }
+  ],
+
+  "$meta": {
+    "fluxoAprovacao": "1) Dono revisa; 2) Outro agente gera .test.ts seguindo padroes-vitest-playwright; 3) Roda npm test; 4) CI verde.",
+    "complementaPlanoE2E": "TST-E2E-ADMIN-000001",
+    "gapsConfirmados": [
+      "Falta checagem de role/gravity_admin nas rotas GET e PUT",
+      "Schema Zod ignora tipo_empresa_organizacao do front (REGRA 09)",
+      "Sem unique constraint em cnpj_organizacao",
+      "Sem validação de DV CNPJ",
+      "Sem regex de formato CNPJ",
+      "Sem z.enum nos UFs e segmentos"
+    ]
+  }
+}

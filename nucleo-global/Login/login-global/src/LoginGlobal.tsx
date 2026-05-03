@@ -112,9 +112,8 @@ export function LoginGlobal() {
         <>
           <SignIn
             routing="hash"
-            afterSignInUrl="/selecionar-workspace"
             signUpUrl="/sign-up"
-            forgotPasswordUrl="/forgot-password"
+            fallbackRedirectUrl="/selecionar-workspace"
             appearance={clerkAppearance as any}
           />
           <div className="login-forgot-manual">

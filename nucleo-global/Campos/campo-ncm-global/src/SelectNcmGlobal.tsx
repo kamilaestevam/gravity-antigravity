@@ -17,7 +17,7 @@
 import React, { useState, useId } from 'react'
 import { MagnifyingGlass, CheckCircle, Warning, ArrowsClockwise } from '@phosphor-icons/react'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
-import { CampoBuscarNcm, type NcmOpcao } from './ModalNcmBusca.js'
+import { CampoBuscarNcm, type NcmOpcao } from './CampoBuscarNcm.js'
 import { useNcmValidation } from './useNcmValidation.js'
 
 export interface NcmSelectGlobalProps {

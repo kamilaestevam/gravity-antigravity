@@ -45,6 +45,8 @@ export interface GTColuna<T = unknown> {
   align?: GTAlign
   tooltipTitulo?: string
   tooltipDescricao?: string
+  /** Se true, o tooltip permanece aberto enquanto o mouse está sobre ele (permite clicar em links/botões dentro). */
+  tooltipInterativo?: boolean
   /** Função de renderização customizada */
   render?: (valor: unknown, item: T) => ReactNode
   /** Coluna oculta por padrão */

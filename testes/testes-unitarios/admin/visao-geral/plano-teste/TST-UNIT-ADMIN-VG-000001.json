@@ -1,0 +1,159 @@
+{
+  "id": "TST-UNIT-ADMIN-VG-000001",
+  "versao": "1.0",
+  "geradoEm": "2026-05-02T00:00:00Z",
+  "geradoPor": "agente-criador-de-testes",
+  "$status": "COMPLETO — Pronto para revisão humana antes de virar .test.ts",
+
+  "escopo": "ADMIN",
+  "modulo": "VisaoGeralAdmin (componente + hook useCidadesIBGE + schemas + constantes)",
+  "tipoModulo": "componente_react",
+  "ambiente": "jsdom",
+  "criticidade": "alta",
+  "coberturaMinima": 70,
+
+  "arquivosTestados": [
+    { "tipo": "componente", "path": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx", "exports": ["VisaoGeralAdmin"] },
+    { "tipo": "hook", "path": "servicos-global/configurador/src/hooks/useCidadesIBGE.ts", "exports": ["useCidadesIBGE"] },
+    { "tipo": "schema_zod", "path": "servicos-global/configurador/server/routes/admin.ts (PlatformConfigSchema, linha 1281)", "exports": ["PlatformConfigSchema"] },
+    { "tipo": "constantes", "path": "servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx (linhas 51-86)", "exports": ["TIPOS_EMPRESA", "OPCOES_TIPOS_EMPRESA", "ESTADOS_BR", "OPCOES_ESTADOS", "SEGMENTOS", "OPCOES_SEGMENTOS"] }
+  ],
+
+  "specFilePath": "testes/testes-unitarios/admin/visao-geral/TST-UNIT-ADMIN-VG-000001.test.ts",
+
+  "resumoExecutivo": "Testes unitários: componente VisaoGeralAdmin (lógica isolada), hook useCidadesIBGE (fetch IBGE com cache, loading, erro), schema PlatformConfigSchema (Zod happy + sad por campo + adversarial), constantes hardcoded (UFs, segmentos, tipos). Cobertura mínima 70%. Foco em contratos: o que cada export DEVE fazer, não como.",
+
+  "mocksNecessarios": [
+    { "modulo": "@clerk/clerk-react useUser", "como": "vi.hoisted() + vi.mock — retornar { user: { id, fullName, primaryEmailAddress } }" },
+    { "modulo": "react-i18next useTranslation", "como": "vi.mock retornando t = (key) => key" },
+    { "modulo": "../../services/apiClient (adminPlatformApi)", "como": "vi.mock mockando getConfig e updateConfig" },
+    { "modulo": "../../hooks/useCidadesIBGE", "como": "vi.mock no teste do componente; testar hook isoladamente em outro arquivo" },
+    { "modulo": "@gravity/shell useShellStore", "como": "vi.mock retornando { addNotification: vi.fn() }" },
+    { "modulo": "fetch global (para teste do useCidadesIBGE)", "como": "vi.stubGlobal('fetch', vi.fn())" }
+  ],
+
+  "categorias": {
+    "1_zod_platform_config_happy":     { "passos": 8 },
+    "2_zod_platform_config_sad":       { "passos": 18 },
+    "3_zod_platform_config_adversarial": { "passos": 6 },
+    "4_constantes_estados_br":         { "passos": 4 },
+    "5_constantes_segmentos":          { "passos": 4 },
+    "6_constantes_tipos_empresa":      { "passos": 4 },
+    "7_hook_use_cidades_ibge":         { "passos": 14 },
+    "8_componente_estado_inicial":     { "passos": 6 },
+    "9_componente_load_config":        { "passos": 6 },
+    "10_componente_handleSalvar":      { "passos": 8 },
+    "11_componente_handleCancelar":    { "passos": 4 },
+    "12_componente_set_field":         { "passos": 6 },
+    "13_componente_dependencia_estado_cidade": { "passos": 4 }
+  },
+
+  "totalCasos": 92,
+
+  "casos": [
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.1", "categoria": "1_zod_platform_config_happy", "descricao": "PlatformConfigSchema.safeParse({}) → success=true (todos optional)", "input": {}, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.2", "categoria": "1_zod_platform_config_happy", "descricao": "Valid nome_organizacao 'Gravity' → success", "input": { "nome_organizacao": "Gravity" }, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.3", "categoria": "1_zod_platform_config_happy", "descricao": "nome_organizacao 'A' (1 char, min) → success", "input": { "nome_organizacao": "A" }, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.4", "categoria": "1_zod_platform_config_happy", "descricao": "nome_organizacao 200 chars (max) → success", "input": { "nome_organizacao": { "$gerarString": { "char": "A", "tamanho": 200 } } }, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.5", "categoria": "1_zod_platform_config_happy", "descricao": "Todos os 6 campos válidos → success", "input": { "nome_organizacao": "X", "cnpj_organizacao": "11111111111111", "estado_organizacao": "SC", "cidade_organizacao": "Florianópolis", "segmento_organizacao": "Tecnologia", "tipo_organizacao": "Importador" }, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.6", "categoria": "1_zod_platform_config_happy", "descricao": "estado_organizacao 'SC' (2 chars) → success", "input": { "estado_organizacao": "SC" }, "esperado": { "success": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.7", "categoria": "1_zod_platform_config_happy", "descricao": "Campos undefined → omitted, success", "input": { "nome_organizacao": null }, "esperado": { "success": false }, "nota": "null não é optional (undefined sim); confirmar se Zod rejeita null" },
+    { "id": "TST-UNIT-ADMIN-VG-000001-1.8", "categoria": "1_zod_platform_config_happy", "descricao": "Acentos UTF-8 em strings → success", "input": { "cidade_organizacao": "Florianópolis", "tipo_organizacao": "Câmbio" }, "esperado": { "success": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.1", "categoria": "2_zod_platform_config_sad", "descricao": "nome_organizacao '' → fail (min 1)", "input": { "nome_organizacao": "" }, "esperado": { "success": false, "issuePathContains": "nome_organizacao" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.2", "categoria": "2_zod_platform_config_sad", "descricao": "nome_organizacao 201 chars → fail (max 200)", "input": { "nome_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.3", "categoria": "2_zod_platform_config_sad", "descricao": "nome_organizacao tipo number → fail", "input": { "nome_organizacao": 123 }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.4", "categoria": "2_zod_platform_config_sad", "descricao": "cnpj_organizacao 21 chars → fail (max 20)", "input": { "cnpj_organizacao": { "$gerarString": { "char": "1", "tamanho": 21 } } }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.5", "categoria": "2_zod_platform_config_sad", "descricao": "cnpj_organizacao tipo number → fail", "input": { "cnpj_organizacao": 123456789012345 }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.6", "categoria": "2_zod_platform_config_sad", "descricao": "estado_organizacao 'SCC' (3 chars) → fail (max 2)", "input": { "estado_organizacao": "SCC" }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.7", "categoria": "2_zod_platform_config_sad", "descricao": "estado_organizacao tipo array → fail", "input": { "estado_organizacao": ["SC"] }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.8", "categoria": "2_zod_platform_config_sad", "descricao": "cidade_organizacao 201 chars → fail", "input": { "cidade_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.9", "categoria": "2_zod_platform_config_sad", "descricao": "segmento_organizacao 201 chars → fail", "input": { "segmento_organizacao": { "$gerarString": { "char": "A", "tamanho": 201 } } }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.10", "categoria": "2_zod_platform_config_sad", "descricao": "tipo_organizacao 501 chars → fail (max 500)", "input": { "tipo_organizacao": { "$gerarString": { "char": "A", "tamanho": 501 } } }, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.11", "categoria": "2_zod_platform_config_sad", "descricao": "Body null → fail", "input": null, "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.12", "categoria": "2_zod_platform_config_sad", "descricao": "Body string → fail", "input": "not an object", "esperado": { "success": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.13", "categoria": "2_zod_platform_config_sad", "descricao": "Mensagem de erro do primeiro issue acessível", "input": { "estado_organizacao": "ABC" }, "esperado": { "success": false, "errorMessageNotEmpty": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.14", "categoria": "2_zod_platform_config_sad", "descricao": "Múltiplos campos inválidos → vários issues", "input": { "nome_organizacao": "", "estado_organizacao": "ABC" }, "esperado": { "success": false, "issueCount": 2 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.15", "categoria": "2_zod_platform_config_sad", "descricao": "Campo extra (não no schema) → silenciosamente removido (Zod default strip)", "input": { "campo_extra": "X" }, "esperado": { "success": true, "parsedDataNotContains": ["campo_extra"] } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.16", "categoria": "2_zod_platform_config_sad", "descricao": "GAP: tipo_empresa_organizacao do front é silenciosamente removido", "input": { "tipo_empresa_organizacao": "Importador" }, "esperado": { "success": true, "parsedDataNotContains": ["tipo_empresa_organizacao"] }, "gap": "Confirma divergência front-back" },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.17", "categoria": "2_zod_platform_config_sad", "descricao": "GAP: estado_organizacao não está em z.enum dos 27 UFs", "input": { "estado_organizacao": "ZZ" }, "esperado": { "success": true }, "gap": "Aceita UF inexistente" },
+    { "id": "TST-UNIT-ADMIN-VG-000001-2.18", "categoria": "2_zod_platform_config_sad", "descricao": "GAP: cnpj_organizacao sem regex de formato", "input": { "cnpj_organizacao": "ABCDEFGHIJKLMNOP" }, "esperado": { "success": true }, "gap": "Aceita letras" },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.1", "categoria": "3_zod_platform_config_adversarial", "descricao": "Adversarial XSS: nome = <script>alert(1)</script> → success (Zod aceita strings)", "input": { "nome_organizacao": "<script>alert(1)</script>" }, "esperado": { "success": true }, "adversarial": true },
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.2", "categoria": "3_zod_platform_config_adversarial", "descricao": "Adversarial SQLi: nome = ' OR 1=1-- → success", "input": { "nome_organizacao": "' OR 1=1--" }, "esperado": { "success": true }, "adversarial": true },
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.3", "categoria": "3_zod_platform_config_adversarial", "descricao": "10000 chars em nome → fail (max 200)", "input": { "nome_organizacao": { "$gerarString": { "char": "A", "tamanho": 10000 } } }, "esperado": { "success": false }, "adversarial": true },
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.4", "categoria": "3_zod_platform_config_adversarial", "descricao": "Prototype pollution: { __proto__: { isAdmin: true } } → safeParse não polui", "input": { "__proto__": { "isAdmin": true } }, "esperado": { "noPrototypePollution": true }, "adversarial": true },
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.5", "categoria": "3_zod_platform_config_adversarial", "descricao": "Constructor pollution não afeta", "esperado": { "noConstructorPollution": true }, "adversarial": true },
+    { "id": "TST-UNIT-ADMIN-VG-000001-3.6", "categoria": "3_zod_platform_config_adversarial", "descricao": "Unicode tricks: nome com zero-width chars", "input": { "nome_organizacao": "Gravity​" }, "esperado": { "behavior_to_define": true }, "adversarial": true },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-4.1", "categoria": "4_constantes_estados_br", "descricao": "ESTADOS_BR contém exatamente 27 UFs", "esperado": { "ESTADOS_BR.length": 27 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-4.2", "categoria": "4_constantes_estados_br", "descricao": "Todas as UFs presentes (AC, AL, ..., TO)", "esperado": { "containsAll": "27 UFs do Brasil" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-4.3", "categoria": "4_constantes_estados_br", "descricao": "OPCOES_ESTADOS = [Selecione, ...27 UFs] → length 28", "esperado": { "OPCOES_ESTADOS.length": 28 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-4.4", "categoria": "4_constantes_estados_br", "descricao": "Cada opção tem { valor, rotulo } (SelectOpcao)", "esperado": { "shape": "SelectOpcao" } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-5.1", "categoria": "5_constantes_segmentos", "descricao": "SEGMENTOS = [Tecnologia, SaaS, Plataforma B2B, Cloud Infrastructure] (4 itens)", "esperado": { "SEGMENTOS.length": 4 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-5.2", "categoria": "5_constantes_segmentos", "descricao": "OPCOES_SEGMENTOS length 5 (Selecione + 4)", "esperado": { "length": 5 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-5.3", "categoria": "5_constantes_segmentos", "descricao": "Cada item é unique (sem duplicatas)", "esperado": { "noDuplicates": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-5.4", "categoria": "5_constantes_segmentos", "descricao": "Strings sem espaços extras nem chars invisíveis", "esperado": { "trimmed": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-6.1", "categoria": "6_constantes_tipos_empresa", "descricao": "TIPOS_EMPRESA contém 9 itens", "esperado": { "TIPOS_EMPRESA.length": 9 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-6.2", "categoria": "6_constantes_tipos_empresa", "descricao": "OPCOES_TIPOS_EMPRESA length 10 (Selecione + 9)", "esperado": { "length": 10 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-6.3", "categoria": "6_constantes_tipos_empresa", "descricao": "Importador e Exportador presente como item separado", "esperado": { "containsExact": "Importador e Exportador" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-6.4", "categoria": "6_constantes_tipos_empresa", "descricao": "Acentos preservados em Transportadora Rodoviária e Corretora de Câmbio", "esperado": { "utf8Preserved": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.1", "categoria": "7_hook_use_cidades_ibge", "descricao": "Estado inicial sem UF → cidades=[], carregando=false", "input": "useCidadesIBGE('')", "esperado": { "cidades": [], "carregando": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.2", "categoria": "7_hook_use_cidades_ibge", "descricao": "Com UF SC → carregando=true, depois cidades populadas", "input": "useCidadesIBGE('SC')", "esperado": { "carregandoInicialmente": true, "cidadesAposFetch": "array" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.3", "categoria": "7_hook_use_cidades_ibge", "descricao": "fetch é chamado com URL correta do IBGE", "esperado": { "fetchCalledWith": "https://servicodados.ibge.gov.br/api/v1/localidades/estados/SC/municipios" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.4", "categoria": "7_hook_use_cidades_ibge", "descricao": "Resposta IBGE mapeada para SelectOpcao { valor, rotulo }", "esperado": { "shape": "[{valor:string, rotulo:string}]" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.5", "categoria": "7_hook_use_cidades_ibge", "descricao": "Cidades ordenadas alfabeticamente", "esperado": { "ordemAlfabetica": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.6", "categoria": "7_hook_use_cidades_ibge", "descricao": "Cache: chamar useCidadesIBGE('SC') 2x → fetch chamado apenas 1x", "esperado": { "fetchCalledTimes": 1 } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.7", "categoria": "7_hook_use_cidades_ibge", "descricao": "Trocar UF SC→SP → novo fetch dispara, cidades de SC limpadas", "esperado": { "novoCidadesArray": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.8", "categoria": "7_hook_use_cidades_ibge", "descricao": "fetch falha → carregando=false, cidades=[], sem crash", "mockSetup": "fetch.mockRejectedValue", "esperado": { "noCrash": true, "cidades": [] } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.9", "categoria": "7_hook_use_cidades_ibge", "descricao": "fetch retorna 500 → tratamento", "esperado": { "carregandoFinaliza": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.10", "categoria": "7_hook_use_cidades_ibge", "descricao": "fetch retorna JSON malformado → tratamento", "esperado": { "noCrash": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.11", "categoria": "7_hook_use_cidades_ibge", "descricao": "Componente desmontado durante fetch → sem setState em componente desmontado", "esperado": { "noWarning": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.12", "categoria": "7_hook_use_cidades_ibge", "descricao": "Race: trocar UF antes do fetch anterior completar → resultado antigo descartado", "esperado": { "raceConditionHandled": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.13", "categoria": "7_hook_use_cidades_ibge", "descricao": "UF inválido (não em ESTADOS_BR) → fetch dispara mas IBGE retorna vazio", "esperado": { "behavior_to_define": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-7.14", "categoria": "7_hook_use_cidades_ibge", "descricao": "Hook respeita prop estado (re-fetch quando muda)", "esperado": { "reFetchOnPropChange": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.1", "categoria": "8_componente_estado_inicial", "descricao": "Estado inicial: dados === dadosVazios", "esperado": { "initialState": "dadosVazios" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.2", "categoria": "8_componente_estado_inicial", "descricao": "carregando inicia true, depois false após getConfig", "esperado": { "loadingTransition": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.3", "categoria": "8_componente_estado_inicial", "descricao": "salvando inicia false", "esperado": { "salvandoInicial": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.4", "categoria": "8_componente_estado_inicial", "descricao": "useDirty inicializa com dadosIniciais === dados → dirty=false", "esperado": { "dirtyInicial": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.5", "categoria": "8_componente_estado_inicial", "descricao": "dadosVazios tem 9 chaves todas string vazia", "esperado": { "shape": "9 strings vazias" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-8.6", "categoria": "8_componente_estado_inicial", "descricao": "Componente renderiza sem crash mesmo com getConfig pendente", "esperado": { "noCrashOnInitialRender": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.1", "categoria": "9_componente_load_config", "descricao": "loadConfig dispara no useEffect mount", "esperado": { "getConfigCalledOnMount": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.2", "categoria": "9_componente_load_config", "descricao": "Sucesso: dados populados a partir de res.config (linha 110-119)", "mockSetup": "getConfig.mockResolvedValue({ config: {...} })", "esperado": { "dadosPopulated": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.3", "categoria": "9_componente_load_config", "descricao": "subscriptions[0].plan mapeado para dados.plano (ou N/A se ausente)", "esperado": { "planoMapeado": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.4", "categoria": "9_componente_load_config", "descricao": "GAP: data_criacao_organizacao formatado para pt-BR hardcoded (linha 119)", "esperado": { "dataFormatadaPtBR": true }, "gap": "Hardcoded pt-BR — não respeita locale" },
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.5", "categoria": "9_componente_load_config", "descricao": "Erro do getConfig → addNotification chamado com type='error'", "mockSetup": "getConfig.mockRejectedValue(new Error('X'))", "esperado": { "addNotificationCalledWith": { "type": "error" } } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-9.6", "categoria": "9_componente_load_config", "descricao": "Mensagem do erro propaga ao toast", "esperado": { "errorMessagePresent": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.1", "categoria": "10_componente_handleSalvar", "descricao": "handleSalvar chama updateConfig com 6 campos", "esperado": { "updateConfigCalledWith": "6 campos" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.2", "categoria": "10_componente_handleSalvar", "descricao": "salvando=true durante request, false após", "esperado": { "salvandoTransition": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.3", "categoria": "10_componente_handleSalvar", "descricao": "Sucesso: setDadosIniciais + resetDirty + addNotification success", "esperado": { "postSuccessActions": ["setDadosIniciais", "resetDirty", "addNotification"] } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.4", "categoria": "10_componente_handleSalvar", "descricao": "Erro: addNotification type='error'; dirty preservado", "esperado": { "errorHandling": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.5", "categoria": "10_componente_handleSalvar", "descricao": "Mensagem do erro do throw propaga", "esperado": { "errorMessagePropagated": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.6", "categoria": "10_componente_handleSalvar", "descricao": "Erro não-Error → fallback para admin.visao-geral.msg_erro", "esperado": { "fallbackMessage": "admin.visao-geral.msg_erro" } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.7", "categoria": "10_componente_handleSalvar", "descricao": "salvando=false sempre executa (try/finally)", "esperado": { "salvandoFinallyExecutes": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-10.8", "categoria": "10_componente_handleSalvar", "descricao": "GAP: handleSalvar envia tipo_empresa_organizacao mas backend ignora", "esperado": { "fieldMismatch": true }, "gap": "REGRA 09 violada" },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-11.1", "categoria": "11_componente_handleCancelar", "descricao": "handleCancelar restaura setDados(dadosIniciais)", "esperado": { "dadosResetToInitial": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-11.2", "categoria": "11_componente_handleCancelar", "descricao": "handleCancelar chama resetDirty()", "esperado": { "resetDirtyCalled": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-11.3", "categoria": "11_componente_handleCancelar", "descricao": "Após cancelar com edição, dirty=false", "esperado": { "dirtyAfterCancel": false } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-11.4", "categoria": "11_componente_handleCancelar", "descricao": "Cancelar sem dirty → no-op", "esperado": { "noOp": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.1", "categoria": "12_componente_set_field", "descricao": "set('nome', 'X') atualiza dados.nome", "esperado": { "dadosUpdated": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.2", "categoria": "12_componente_set_field", "descricao": "set preserva os outros campos (immutable update)", "esperado": { "otherFieldsPreserved": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.3", "categoria": "12_componente_set_field", "descricao": "set N vezes em sequência → último valor vence", "esperado": { "lastValueWins": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.4", "categoria": "12_componente_set_field", "descricao": "set com chave inválida (TS bloqueia compile)", "esperado": { "behavior_to_define": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.5", "categoria": "12_componente_set_field", "descricao": "set('estado', 'SC') NÃO reseta cidade automaticamente — responsabilidade do callback do SelectGlobal (linha 248)", "esperado": { "cidadeNotResetByThisFunction": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-12.6", "categoria": "12_componente_set_field", "descricao": "Performance: 1000 chamadas de set em sequência sem stack overflow", "esperado": { "noStackOverflow": true } },
+
+    { "id": "TST-UNIT-ADMIN-VG-000001-13.1", "categoria": "13_componente_dependencia_estado_cidade", "descricao": "Callback SelectGlobal estado (linha 248) chama set('estado', v) E set('cidade', '')", "esperado": { "bothSetsCalled": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-13.2", "categoria": "13_componente_dependencia_estado_cidade", "descricao": "useCidadesIBGE recebe dados.estado como dependência", "esperado": { "hookDependencyCorrect": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-13.3", "categoria": "13_componente_dependencia_estado_cidade", "descricao": "Quando dados.estado === '', useCidadesIBGE retorna cidades=[]", "esperado": { "emptyArrayWhenNoState": true } },
+    { "id": "TST-UNIT-ADMIN-VG-000001-13.4", "categoria": "13_componente_dependencia_estado_cidade", "descricao": "SelectGlobal cidade recebe prop desabilitado=!dados.estado", "esperado": { "disabledWhenNoState": true } }
+  ]
+}

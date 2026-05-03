@@ -11,6 +11,8 @@ export interface CampoGeralGlobalProps {
   obrigatorio?: boolean
   erro?: string
   hint?: string
+  /** ID do input filho — associa o `<label htmlFor>` ao input. */
+  htmlFor?: string
 }
 
 export function CampoGeralGlobal({

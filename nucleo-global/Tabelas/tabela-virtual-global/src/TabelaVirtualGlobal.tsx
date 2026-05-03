@@ -556,6 +556,9 @@ const GTEditPopover = memo(function GTEditPopover({
                 campo={overlayInfo.gabiCampo}
                 label={colLabel}
                 gabiEndpoint={overlayInfo.gabiEndpoint}
+                onConsultar={async () => ''}
+                carregando={false}
+                esgotado={false}
               />
             )}
           </span>

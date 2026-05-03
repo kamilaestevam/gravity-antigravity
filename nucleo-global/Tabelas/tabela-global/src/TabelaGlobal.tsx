@@ -139,7 +139,7 @@ function PopoverFiltro({
   onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimpar, onFechar,
 }: {
   tipo: ColType, coluna: string, label: string
-  filtros: unknown, ordenacao: unknown, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
+  filtros: unknown, ordenacao: { coluna: string; direcao: SortDir } | null, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
   minMax: { min: string; max: string }
   periodo: { inicio: Date | null; fim: Date | null }
   triggerRef: React.RefObject<HTMLButtonElement>
@@ -328,7 +328,18 @@ function PopoverFiltro({
   )
 }
 
-function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna, stickyLeft }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: unknown, dados: T[], onOrdenar: unknown, onToggleValor: unknown, onFiltrarNumero: unknown, onFiltrarPeriodo: unknown, onLimparColuna: unknown, stickyLeft?: number }) {
+function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna, stickyLeft }: {
+  col: TabelaGlobalColuna<T>
+  filtros: Record<string, FiltrosStateVal>
+  ordenacao: { coluna: string; direcao: SortDir } | null
+  dados: T[]
+  onOrdenar: (c: string, d: SortDir) => void
+  onToggleValor: (c: string, v: string) => void
+  onFiltrarNumero: (c: string, tipo: 'min' | 'max', v: string) => void
+  onFiltrarPeriodo: (c: string, p: { inicio: Date | null; fim: Date | null }) => void
+  onLimparColuna: (c: string) => void
+  stickyLeft?: number
+}) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -910,7 +921,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                               const customNode = acao.renderCustom(item)
                               return tooltipDesc ? (
                                 <TooltipGlobal key={acao.id} descricao={tooltipDesc}>
-                                  {customNode}
+                                  <span>{customNode}</span>
                                 </TooltipGlobal>
                               ) : <React.Fragment key={acao.id}>{customNode}</React.Fragment>
                             }
@@ -980,7 +991,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                           <td className="tg-td tg-td--acoes">
                             <div className="tg-acoes-grupo">
                               {acoesFilhas.map(af => (
-                                <TooltipGlobal key={af.id} descricao={af.tooltip}>
+                                <TooltipGlobal key={af.id} descricao={typeof af.tooltip === 'function' ? af.tooltip(filho) : af.tooltip}>
                                   <button type="button" className="tg-acao-btn" onClick={() => af.onClick?.(filho)}>
                                     {af.icone}
                                   </button>

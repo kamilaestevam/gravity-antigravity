@@ -3,17 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
-import type { TenantUser, EspacoTrabalho } from './Usuarios'
-import type { NivelAcesso } from '../../types/niveis-acesso'
+import type { UsuarioOrg } from './Usuarios'
+import type { WorkspaceItem } from '../../services/apiClient'
+import { mapRole, nivelToRole, type NivelAcesso, type BackendUserRole } from '../../types/niveis-acesso'
 
 interface ModalEditarUsuarioProps {
-  usuario: TenantUser | null
+  usuario: UsuarioOrg | null
   abaInicial?: string
-  espacos: EspacoTrabalho[]
+  workspaces: WorkspaceItem[]
   workspacesSalvos: string[]
-  carregandoEspacos?: boolean
+  carregandoWorkspaces?: boolean
   aoFechar: () => void
-  aoSalvar: (dados: TenantUser, permissoes: string[], workspaceIds: string[]) => void
+  aoSalvar: (dados: UsuarioOrg, permissoes: string[], workspaceIds: string[]) => void
 }
 
 const CATEGORIAS_PERMISSAO = [
@@ -162,7 +163,7 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
   )
 }
 
-function AbaEspacosVazio() {
+function AbaWorkspacesVazio() {
   return (
     <div style={{
       padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem',
@@ -173,7 +174,7 @@ function AbaEspacosVazio() {
   )
 }
 
-function AbaEspacosMaster({ espacos }: { espacos: EspacoTrabalho[] }) {
+function AbaWorkspacesMaster({ workspaces }: { workspaces: WorkspaceItem[] }) {
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       <div
@@ -189,20 +190,20 @@ function AbaEspacosMaster({ espacos }: { espacos: EspacoTrabalho[] }) {
         <ShieldCheck size={16} weight="fill" style={{ color: '#818cf8', flexShrink: 0 }} />
         Usuários Master têm acesso a todos os workspaces automaticamente. Para alterar, mude o tipo para Standard.
       </div>
-      {espacos.length === 0 ? (
+      {workspaces.length === 0 ? (
         <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
           Nenhum workspace encontrado.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-          {espacos.map(e => (
-            <div key={e.id} style={{
+          {workspaces.map((w) => (
+            <div key={w.id_workspace} style={{
               padding: '0.5rem 0.75rem', borderRadius: '8px',
               background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
               display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: 0.7,
             }}>
               <Buildings size={14} style={{ color: '#818cf8', flexShrink: 0 }} />
-              <span style={{ fontSize: '0.8125rem', color: '#c7d2fe' }}>{e.nome}</span>
+              <span style={{ fontSize: '0.8125rem', color: '#c7d2fe' }}>{w.nome_workspace}</span>
             </div>
           ))}
         </div>
@@ -211,20 +212,20 @@ function AbaEspacosMaster({ espacos }: { espacos: EspacoTrabalho[] }) {
   )
 }
 
-interface AbaEspacosChecklistProps {
-  espacos: EspacoTrabalho[]
+interface AbaWorkspacesChecklistProps {
+  workspaces: WorkspaceItem[]
   workspacesAtivos: string[]
-  onToggle: (id: string, checked: boolean) => void
+  onToggle: (id_workspace: string, checked: boolean) => void
 }
 
-function AbaEspacosChecklist({ espacos, workspacesAtivos, onToggle }: AbaEspacosChecklistProps) {
+function AbaWorkspacesChecklist({ workspaces, workspacesAtivos, onToggle }: AbaWorkspacesChecklistProps) {
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-      {espacos.map(e => {
-        const ativo = workspacesAtivos.includes(e.id)
+      {workspaces.map((w) => {
+        const ativo = workspacesAtivos.includes(w.id_workspace)
         return (
           <label
-            key={e.id}
+            key={w.id_workspace}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.625rem',
               padding: '0.5rem 0.75rem', borderRadius: '8px', cursor: 'pointer',
@@ -241,10 +242,10 @@ function AbaEspacosChecklist({ espacos, workspacesAtivos, onToggle }: AbaEspacos
             }}>
               {ativo && <span style={{ color: '#818cf8', fontSize: '11px', lineHeight: 1, fontWeight: 700 }}>✓</span>}
             </div>
-            <input type="checkbox" checked={ativo} onChange={ev => onToggle(e.id, ev.target.checked)} style={{ display: 'none' }} />
+            <input type="checkbox" checked={ativo} onChange={(ev) => onToggle(w.id_workspace, ev.target.checked)} style={{ display: 'none' }} />
             <Buildings size={14} style={{ color: ativo ? '#818cf8' : 'var(--ws-muted)', flexShrink: 0 }} />
             <span style={{ fontSize: '0.8125rem', color: ativo ? 'var(--ws-text)' : 'var(--ws-muted)', fontWeight: ativo ? 600 : 400 }}>
-              {e.nome}
+              {w.nome_workspace}
             </span>
           </label>
         )
@@ -253,15 +254,15 @@ function AbaEspacosChecklist({ espacos, workspacesAtivos, onToggle }: AbaEspacos
   )
 }
 
-interface AbaEspacosProps {
-  isMaster: boolean
-  espacos: EspacoTrabalho[]
+interface AbaWorkspacesProps {
+  master: boolean
+  workspaces: WorkspaceItem[]
   workspacesAtivos: string[]
   carregando: boolean
-  onToggle: (id: string, checked: boolean) => void
+  onToggle: (id_workspace: string, checked: boolean) => void
 }
 
-function AbaEspacos({ isMaster, espacos, workspacesAtivos, carregando, onToggle }: AbaEspacosProps) {
+function AbaWorkspaces({ master, workspaces, workspacesAtivos, carregando, onToggle }: AbaWorkspacesProps) {
   if (carregando) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
@@ -269,9 +270,9 @@ function AbaEspacos({ isMaster, espacos, workspacesAtivos, carregando, onToggle 
       </div>
     )
   }
-  if (isMaster) return <AbaEspacosMaster espacos={espacos} />
-  if (espacos.length === 0) return <AbaEspacosVazio />
-  return <AbaEspacosChecklist espacos={espacos} workspacesAtivos={workspacesAtivos} onToggle={onToggle} />
+  if (master) return <AbaWorkspacesMaster workspaces={workspaces} />
+  if (workspaces.length === 0) return <AbaWorkspacesVazio />
+  return <AbaWorkspacesChecklist workspaces={workspaces} workspacesAtivos={workspacesAtivos} onToggle={onToggle} />
 }
 
 interface AbaPermissoesProps {
@@ -342,24 +343,26 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: AbaPermi
   )
 }
 
-export function ModalEditarUsuario({ usuario, abaInicial = 'dados', espacos, workspacesSalvos, carregandoEspacos = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+export function ModalEditarUsuario({ usuario, abaInicial = 'dados', workspaces, workspacesSalvos, carregandoWorkspaces = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
+  // Estado guarda o nível UI (NivelAcesso); enum DDD é derivado via nivelToRole no save.
   const [tipo, setTipo] = useState<NivelAcesso>('Standard')
   const [permissoesAtivas, setPermissoesAtivas] = useState<string[]>([])
   const [workspacesAtivos, setWorkspacesAtivos] = useState<string[]>([])
 
   useEffect(() => {
     if (usuario) {
-      setNome(usuario.nome)
-      setEmail(usuario.email)
-      setTipo(usuario.tipo)
+      setNome(usuario.nome_usuario)
+      setEmail(usuario.email_usuario)
+      const nivel = mapRole(usuario.tipo_usuario)
+      setTipo(nivel)
       setWorkspacesAtivos(workspacesSalvos)
-      if (usuario.tipo === 'Master') {
-         setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap(c => c.itens.map(i => i.id)))
+      if (nivel === 'Master') {
+        setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id)))
       } else {
-         setPermissoesAtivas(['nav_dash', 'vis_basico'])
+        setPermissoesAtivas(['nav_dash', 'vis_basico'])
       }
     }
   }, [usuario, workspacesSalvos])
@@ -371,75 +374,89 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', espacos, wor
   }
 
   const handleTogglePermissao = (id: string, checked: boolean) => {
-    setPermissoesAtivas(prev => checked ? [...prev, id] : prev.filter(p => p !== id))
+    setPermissoesAtivas((prev) => checked ? [...prev, id] : prev.filter((p) => p !== id))
   }
 
   const handleSelecionarTudo = (todas: boolean) => {
     if (todas) {
-      setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap(c => c.itens.map(i => i.id)))
+      setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id)))
     } else {
       setPermissoesAtivas([])
     }
   }
 
-  const handleToggleWorkspace = (id: string, checked: boolean) => {
-    setWorkspacesAtivos(prev => checked ? [...prev, id] : prev.filter(w => w !== id))
+  const handleToggleWorkspace = (id_workspace: string, checked: boolean) => {
+    setWorkspacesAtivos((prev) => checked ? [...prev, id_workspace] : prev.filter((id) => id !== id_workspace))
   }
 
-  const countPermissoes = tipo === 'Master' ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
+  // Mandamento 04 (LIMBO): Master, Super Admin e Admin têm acesso total implícito
+  // a todos os workspaces; checklist de vínculos não se aplica.
+  const master = tipo === 'Master' || tipo === 'Super Admin' || tipo === 'Admin'
+  const countPermissoes = master ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
 
   const abas = useMemo(() => [
     {
       id: 'dados',
       rotulo: t('workspace.users.aba_dados'),
       icone: 'user',
-      conteudo: <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />
+      conteudo: <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />,
     },
     {
       id: 'permissoes',
       rotulo: `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
       icone: 'shield-check',
-      conteudo: <AbaPermissoes master={tipo === 'Master'} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
+      conteudo: <AbaPermissoes master={master} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />,
     },
     {
       id: 'espacos',
       rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
       conteudo: (
-        <AbaEspacos
-          isMaster={tipo === 'Master'}
-          espacos={espacos}
+        <AbaWorkspaces
+          master={master}
+          workspaces={workspaces}
           workspacesAtivos={workspacesAtivos}
-          carregando={carregandoEspacos}
+          carregando={carregandoWorkspaces}
           onToggle={handleToggleWorkspace}
         />
       ),
-    }
-  ], [nome, email, tipo, permissoesAtivas, countPermissoes, workspacesAtivos, espacos, carregandoEspacos])
+    },
+  ], [nome, email, tipo, master, permissoesAtivas, countPermissoes, workspacesAtivos, workspaces, carregandoWorkspaces])
 
   const originalPerms = useMemo(() => {
     if (!usuario) return []
-    if (usuario.tipo === 'Master') {
-      return CATEGORIAS_PERMISSAO.flatMap(c => c.itens.map(i => i.id))
+    if (mapRole(usuario.tipo_usuario) === 'Master') {
+      return CATEGORIAS_PERMISSAO.flatMap((c) => c.itens.map((i) => i.id))
     }
     return ['nav_dash', 'vis_basico'] // mocks correlacionados ao useEffect
-  }, [usuario?.id, usuario?.tipo])
+  }, [usuario?.id_usuario, usuario?.tipo_usuario])
 
-  const dirty = usuario && (
-    nome !== usuario.nome ||
-    email !== usuario.email ||
-    tipo !== usuario.tipo ||
+  const nivelOriginal: NivelAcesso | null = usuario ? mapRole(usuario.tipo_usuario) : null
+  const dirty = !!(usuario && (
+    nome !== usuario.nome_usuario ||
+    email !== usuario.email_usuario ||
+    tipo !== nivelOriginal ||
     permissoesAtivas.length !== originalPerms.length ||
-    permissoesAtivas.some(p => !originalPerms.includes(p)) ||
-    (tipo !== 'Master' && (
+    permissoesAtivas.some((p) => !originalPerms.includes(p)) ||
+    (!master && (
       workspacesAtivos.length !== workspacesSalvos.length ||
-      workspacesAtivos.some(id => !workspacesSalvos.includes(id))
+      workspacesAtivos.some((id) => !workspacesSalvos.includes(id))
     ))
-  )
+  ))
 
   const handleSalvar = () => {
     if (!usuario) return
-    aoSalvar({ ...usuario, nome, email, tipo }, permissoesAtivas, workspacesAtivos)
+    const tipoBackend: BackendUserRole = nivelToRole(tipo)
+    aoSalvar(
+      {
+        ...usuario,
+        nome_usuario: nome,
+        email_usuario: email,
+        tipo_usuario: tipoBackend,
+      },
+      permissoesAtivas,
+      workspacesAtivos,
+    )
   }
 
   return (
@@ -455,8 +472,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', espacos, wor
       tipoAbas="pill"
       abaAtivaInicial={abaInicial}
       abas={abas}
-      dirty={!!dirty}
-      podesSalvar={!!nome && !!email && (tipo === 'Master' || workspacesAtivos.length > 0)}
+      dirty={dirty}
+      podesSalvar={!!nome && !!email && (master || workspacesAtivos.length > 0)}
     />
   )
 }

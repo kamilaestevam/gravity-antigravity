@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -13,55 +13,45 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { useShellStore } from '@gravity/shell'
-import { ModalEditarUsuario } from './ModalUsuarioEditar'
-import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
-import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { extractApiError, extractCatchError } from '../../utils/extractApiError'
+import { ModalEditarUsuario } from './ModalEditarUsuario'
+import { type NivelAcesso, mapRole, nivelToRole } from '../../types/niveis-acesso'
+import { extractCatchError } from '../../utils/extractApiError'
+import {
+  usuariosApi,
+  workspaceApi,
+  type UsuarioListItem,
+  type WorkspaceItem,
+} from '../../services/apiClient'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-// Documentação central em src/types/niveis-acesso.ts
+// Documentação central em src/types/niveis-acesso.ts.
+//
+// Naming DDD: estado guarda os campos canônicos do schema Prisma (id_usuario,
+// nome_usuario, email_usuario, tipo_usuario). Label UI ("Master", "Standard"…)
+// só é calculada no render via mapRole(). Status do usuário é UI-only — não
+// existe coluna correspondente no schema.prisma (Mand. 02 não permite criar).
 
-export interface TenantUser {
-  id: string
-  nome: string
-  email: string
-  tipo: NivelAcesso
-  status: UserStatus
+export type StatusUsuarioUI = 'ATIVO' | 'INATIVO'
+
+export interface UsuarioOrg extends UsuarioListItem {
+  status_usuario: StatusUsuarioUI
 }
 
-export type EspacoTrabalho = {
-  id: string
-  nome: string
-  usuarios: { id_usuario: string; role: string; habilitado: boolean }[]
+// Tipo restrito para o convite/edição — backend só aceita esse subset.
+export type TipoUsuarioConvidavel = 'MASTER' | 'PADRAO' | 'FORNECEDOR'
+
+// Mandamento 04 — LIMBO: MASTER, SUPER_ADMIN e ADMIN têm acesso implícito a TODOS
+// os workspaces da organização, independentemente de vínculo formal em UsuarioWorkspace.
+function temAcessoTotalAosWorkspaces(tipo_usuario: string): boolean {
+  return tipo_usuario === 'MASTER' || tipo_usuario === 'SUPER_ADMIN' || tipo_usuario === 'ADMIN'
 }
 
-// ─── Auth helper (mesmo padrão de Workspaces.tsx) ──────────────────────────
-async function getAuthHeaders(): Promise<Record<string, string>> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  try {
-    const session = await (window as any).Clerk?.session
-    const token = session ? await session.getToken() : null
-    if (token) headers['Authorization'] = `Bearer ${token}`
-  } catch { /* sem token */ }
-  return headers
-}
-
-// Mapeia role do backend para NivelAcesso do frontend
-function mapRoleToTipo(role: string): NivelAcesso {
-  switch (role) {
-    case 'MASTER': return 'Master'
-    case 'ADMIN': return 'Admin'
-    case 'FORNECEDOR': return 'Fornecedor'
-    default: return 'Standard'
-  }
-}
-
-// ── Chips de empresas vinculadas com overflow via TooltipGlobal ─────────────────
-function EmpresasAcessoCell({ empresas, isMaster }: { empresas: EspacoTrabalho[], isMaster: boolean }) {
+// ── Chips de workspaces vinculados com overflow via TooltipGlobal ─────────────
+function WorkspacesAcessoCell({ workspaces, master }: { workspaces: WorkspaceItem[]; master: boolean }) {
   const MAX = 2
 
-  if (isMaster) {
+  if (master) {
     return (
       <span style={{
         display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
@@ -70,33 +60,33 @@ function EmpresasAcessoCell({ empresas, isMaster }: { empresas: EspacoTrabalho[]
         fontSize: '0.75rem', fontWeight: 600, fontStyle: 'italic',
         border: '1px solid rgba(129,140,248,0.2)',
       }}>
-        ✶ Todas as empresas
+        ✶ Todos os workspaces
       </span>
     )
   }
 
-  if (empresas.length === 0) {
-    return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>Nenhuma</span>
+  if (workspaces.length === 0) {
+    return <span style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>Nenhum</span>
   }
 
-  const visible = empresas.slice(0, MAX)
-  const rest    = empresas.slice(MAX)
+  const visible = workspaces.slice(0, MAX)
+  const rest    = workspaces.slice(MAX)
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
-      {visible.map(e => (
-        <span key={e.id} style={{
+      {visible.map(w => (
+        <span key={w.id_workspace} style={{
           padding: '0.15rem 0.5rem', borderRadius: '9999px',
           background: 'var(--ws-surface)', border: '1px solid var(--ws-accent-border)',
           color: 'var(--ws-text)', fontSize: '0.75rem', fontWeight: 500, whiteSpace: 'nowrap',
         }}>
-          {e.nome}
+          {w.nome_workspace}
         </span>
       ))}
       {rest.length > 0 && (
         <TooltipGlobal
-          titulo={`+${rest.length} empresa${rest.length > 1 ? 's' : ''}`}
-          descricao={rest.map(e => e.nome).join(' · ')}
+          titulo={`+${rest.length} workspace${rest.length > 1 ? 's' : ''}`}
+          descricao={rest.map(w => w.nome_workspace).join(' · ')}
         >
           <span style={{
             padding: '0.15rem 0.5rem', borderRadius: '9999px',
@@ -110,14 +100,6 @@ function EmpresasAcessoCell({ empresas, isMaster }: { empresas: EspacoTrabalho[]
       )}
     </div>
   )
-}
-
-const typeBadge: Record<NivelAcesso, string> = {
-  'Super Admin': 'ws-badge-success',
-  'Admin':       'ws-badge-info',
-  'Master':      'ws-badge-accent',
-  'Standard':    'ws-badge-surface',
-  'Fornecedor':  'ws-badge-warning',
 }
 
 const OPCOES_TIPO: SelectOpcao[] = [
@@ -145,9 +127,10 @@ export function Usuarios() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((s) => s.addNotification)
-  const [users, setUsers]     = useState<TenantUser[]>([])
-  const [espacos, setFiliais] = useState<EspacoTrabalho[]>([])
-  const [membershipsMap, setMembershipsMap] = useState<Record<string, string[]>>({})
+  const [usuarios, setUsuarios] = useState<UsuarioOrg[]>([])
+  const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
+  // Vínculos ativos: id_usuario → id_workspace[] (derivado da relation usuario_workspaces)
+  const [vinculosMap, setVinculosMap] = useState<Record<string, string[]>>({})
   const [carregando, setCarregando] = useState(true)
 
   // Carregar usuários e workspaces da API real
@@ -156,52 +139,42 @@ export function Usuarios() {
     async function fetchData() {
       try {
         setCarregando(true)
-        const headers = await getAuthHeaders()
 
-        const [usersRes, companiesRes] = await Promise.all([
-          fetch('/api/v1/usuarios', { headers }),
-          fetch('/api/v1/organizacoes/me/workspaces', { headers }),
+        const [usuariosResp, workspacesResp] = await Promise.all([
+          usuariosApi.listar(),
+          workspaceApi.getWorkspaces(),
         ])
 
-        if (usersRes.ok) {
-          const { users: apiUsers } = await usersRes.json()
-          const mappedUsers: TenantUser[] = apiUsers.map((u: { id: string; name?: string; email?: string; tipo_usuario?: string; memberships?: { is_active: boolean; company_id: string }[] }) => ({
-            id: u.id,
-            nome: u.name ?? '',
-            email: u.email ?? '',
-            tipo: mapRoleToTipo(u.tipo_usuario),
-            status: 'Ativo' as UserStatus,
-          }))
-          setUsers(mappedUsers)
+        // Status do usuário é UI-only — placeholder até o schema persistir.
+        const usuariosUI: UsuarioOrg[] = usuariosResp.usuarios.map((u) => ({
+          ...u,
+          status_usuario: 'ATIVO',
+        }))
+        setUsuarios(usuariosUI)
 
-          // Construir mapa de memberships: id_usuario -> id_workspace[]
-          const mMap: Record<string, string[]> = {}
-          for (const u of apiUsers) {
-            if (u.memberships && u.memberships.length > 0) {
-              mMap[u.id] = u.memberships
-                .filter((m: { is_active: boolean; company_id: string }) => m.is_active)
-                .map((m: { is_active: boolean; company_id: string }) => m.company_id)
-            }
-          }
-          setMembershipsMap(mMap)
+        // Mapa de vínculos ativos: id_usuario → id_workspace[]
+        const mapa: Record<string, string[]> = {}
+        for (const u of usuariosResp.usuarios) {
+          const ativos = u.usuario_workspaces
+            .filter((uw) => uw.ativo_usuario_workspace)
+            .map((uw) => uw.id_workspace)
+          if (ativos.length > 0) mapa[u.id_usuario] = ativos
         }
+        setVinculosMap(mapa)
 
-        if (companiesRes.ok) {
-          const { companies } = await companiesRes.json()
-          setFiliais(companies.map((c: { id: string; name?: string }) => ({
-            id: c.id,
-            nome: c.name ?? '',
-            usuarios: [],
-          })))
-        }
+        setWorkspaces(workspacesResp.workspaces)
       } catch (err) {
         console.error('Erro ao carregar usuários:', err)
+        addNotification({
+          type: 'error',
+          message: extractCatchError(err, 'Falha ao carregar usuários e workspaces.'),
+        })
       } finally {
         setCarregando(false)
       }
     }
     fetchData()
-  }, [userLoaded])
+  }, [userLoaded, addNotification])
 
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
@@ -210,120 +183,130 @@ export function Usuarios() {
   const [fTodosWorkspaces, setFTodosWorkspaces] = useState(true)
   const [fWorkspacesSelecionados, setFWorkspacesSelecionados] = useState<string[]>([])
 
-  const [usuarioEditando, setUsuarioEditando] = useState<TenantUser | null>(null)
+  const [usuarioEditando, setUsuarioEditando] = useState<UsuarioOrg | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
 
   async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     try {
-      const headers = await getAuthHeaders()
-      const roleMap: Record<NivelAcesso, string> = {
-        'Super Admin': 'MASTER',
-        'Admin': 'MASTER',
-        'Master': 'MASTER',
-        'Standard': 'PADRAO',
-        'Fornecedor': 'FORNECEDOR',
-      }
-      const workspacesPayload = (fTipo === 'Standard' || fTipo === 'Fornecedor')
-        ? (fTodosWorkspaces ? 'all' : fWorkspacesSelecionados)
-        : undefined
-      const res = await fetch('/api/v1/usuarios/convidar', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          email: fEmail.trim(),
-          name: fNome.trim(),
-          role: roleMap[fTipo] ?? 'PADRAO',
-          workspaces: workspacesPayload,
-        }),
+      // Map UI label → enum canônico do backend (PADRAO/MASTER/FORNECEDOR).
+      // Super Admin/Admin não convidam por aqui — caem para PADRAO defensivamente.
+      const tipoBackend = nivelToRole(fTipo)
+      const tipoConvite: TipoUsuarioConvidavel =
+        tipoBackend === 'MASTER' || tipoBackend === 'FORNECEDOR' ? tipoBackend : 'PADRAO'
+
+      const workspacesAlvo: 'all' | string[] | undefined =
+        tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR'
+          ? (fTodosWorkspaces ? 'all' : fWorkspacesSelecionados)
+          : undefined
+
+      const { usuario: criado } = await usuariosApi.convidar({
+        email_usuario: fEmail.trim(),
+        nome_usuario: fNome.trim(),
+        tipo_usuario: tipoConvite,
+        workspaces_alvo: workspacesAlvo,
       })
-      if (res.ok) {
-        const { user: created } = await res.json()
-        const newUser: TenantUser = {
-          id: created.id,
-          nome: fNome.trim(),
-          email: created.email,
-          tipo: fTipo,
-          status: 'Ativo',
-        }
-        if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
-          const ids = fTodosWorkspaces ? espacos.map(e => e.id) : fWorkspacesSelecionados
-          setMembershipsMap(prev => ({ ...prev, [created.id]: ids }))
-        }
-        setUsers(prev => [...prev, newUser])
-        addNotification({ type: 'success', message: `Usuário "${fNome.trim()}" convidado com sucesso!` })
-      } else {
-        const body = await res.json().catch(() => ({ error: { message: 'Falha ao convidar usuário.' } }))
-        addNotification({ type: 'error', message: body?.error?.message ?? body?.message ?? 'Falha ao convidar usuário.' })
+
+      const novoUsuario: UsuarioOrg = {
+        id_usuario: criado.id_usuario,
+        nome_usuario: fNome.trim(),
+        email_usuario: criado.email_usuario,
+        tipo_usuario: criado.tipo_usuario,
+        data_criacao_usuario: new Date().toISOString(),
+        usuario_workspaces: [],
+        status_usuario: 'ATIVO',
       }
+
+      if (tipoConvite === 'PADRAO' || tipoConvite === 'FORNECEDOR') {
+        const ids = fTodosWorkspaces
+          ? workspaces.map((w) => w.id_workspace)
+          : fWorkspacesSelecionados
+        setVinculosMap((prev) => ({ ...prev, [criado.id_usuario]: ids }))
+      }
+
+      setUsuarios((prev) => [...prev, novoUsuario])
+      addNotification({
+        type: 'success',
+        message: `Usuário "${fNome.trim()}" convidado com sucesso!`,
+      })
     } catch (err) {
-      addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao convidar usuário. Tente novamente.') })
+      addNotification({
+        type: 'error',
+        message: extractCatchError(err, 'Falha ao convidar usuário. Tente novamente.'),
+      })
     }
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
   }
 
-  function handleToggleEspacoTrabalhoUser(filialId: string, id_usuario: string) {
-    setFiliais(prev => prev.map(f => {
-      if (f.id !== filialId) return f
-      return {
-        ...f,
-        usuarios: f.usuarios.map(u =>
-          u.id_usuario === id_usuario ? { ...u, habilitado: !u.habilitado } : u
-        ),
-      }
-    }))
+  function handleAlternarStatusUsuario(u: UsuarioOrg) {
+    // Status é UI-only (sem persistência) — alterna localmente.
+    setUsuarios((prev) =>
+      prev.map((x) =>
+        x.id_usuario === u.id_usuario
+          ? { ...x, status_usuario: x.status_usuario === 'ATIVO' ? 'INATIVO' : 'ATIVO' }
+          : x,
+      ),
+    )
   }
 
-  function handleDeactivate(u: TenantUser) {
-    // Bypass window.confirm to avoid silent failures in secure iframes.
-    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, status: x.status === 'Ativo' ? 'Inativo' : 'Ativo' } : x))
-  }
-
-  const COLUNAS: TabelaGlobalColuna<TenantUser>[] = [
+  const COLUNAS: TabelaGlobalColuna<UsuarioOrg>[] = [
     {
-      key: 'nome', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
+      key: 'nome_usuario', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
       tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome completo e identificação visual do usuário',
-      render: (v, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{
-            width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Admin' ? 'rgba(6,182,212,0.15)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Admin' ? '#06b6d4' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
-          }}>
-            {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
-          </div>
-          <span style={{ fontWeight: 600 }}>{item.nome}</span>
-        </div>
-      )
-    },
-    {
-      key: 'email', label: t('workspace.users.tabela.email'), tipo: 'texto',
-      tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
-      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
-    },
-    {
-      key: 'tipo', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
-      tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
-    },
-    {
-      key: 'status', label: t('workspace.users.tabela.status'), tipo: 'texto',
-      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o usuário pode acessar a plataforma',
-      render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
-    },
-    {
-      key: 'id', label: t('workspace.users.tabela_acesso'), tipo: 'texto',
-      tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
       render: (_, item) => {
-        const isMaster = item.tipo === 'Master'
-        const empresas = isMaster ? espacos : espacosDoUsuario(item.id)
-        return <EmpresasAcessoCell empresas={empresas} isMaster={isMaster} />
-      }
-    }
+        const nivel = mapRole(item.tipo_usuario)
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            <div style={{
+              width: 32, height: 32, minWidth: 32, borderRadius: '50%',
+              background: nivel === 'Master' ? 'rgba(129,140,248,0.2)' : nivel === 'Admin' ? 'rgba(6,182,212,0.15)' : nivel === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
+              color: nivel === 'Master' ? '#818cf8' : nivel === 'Admin' ? '#06b6d4' : nivel === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+            }}>
+              {item.nome_usuario.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+            </div>
+            <span style={{ fontWeight: 600 }}>{item.nome_usuario}</span>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'email_usuario', label: t('workspace.users.tabela.email'), tipo: 'texto',
+      tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
+      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>,
+    },
+    {
+      key: 'tipo_usuario', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
+      tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
+      render: (v) => {
+        const nivel = mapRole(v as string)
+        return (
+          <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(nivel === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : nivel === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : nivel === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{nivel}</span>
+        )
+      },
+    },
+    {
+      key: 'status_usuario', label: t('workspace.users.tabela.status'), tipo: 'texto',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o usuário pode acessar a plataforma',
+      render: (v) => {
+        const ativo = v === 'ATIVO'
+        return (
+          <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: ativo ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: ativo ? '#34d399' : '#f87171', border: `1px solid ${ativo ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{ativo ? 'Ativo' : 'Inativo'}</span>
+        )
+      },
+    },
+    {
+      key: 'id_usuario', label: t('workspace.users.tabela_acesso'), tipo: 'texto',
+      tooltipTitulo: 'Workspaces vinculados', tooltipDescricao: 'Workspaces aos quais este usuário tem acesso liberado',
+      render: (_, item) => {
+        const acessoTotal = temAcessoTotalAosWorkspaces(item.tipo_usuario)
+        const lista = acessoTotal ? workspaces : workspacesDoUsuario(item.id_usuario)
+        return <WorkspacesAcessoCell workspaces={lista} master={acessoTotal} />
+      },
+    },
   ]
 
-  const ACOES: TabelaGlobalAcao<TenantUser>[] = [
+  const ACOES: TabelaGlobalAcao<UsuarioOrg>[] = [
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
@@ -334,20 +317,23 @@ export function Usuarios() {
       id: 'suspend',
       icone: <PauseCircle size={16} weight="bold" />, // Será atualizado condicionalmente
       tooltip: 'Desativar/Reativar',
-      onClick: handleDeactivate,
-      renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativo' ? 'Suspender o acesso deste usuário' : 'Reativar o acesso deste usuário'}>
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeactivate(item); }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
-            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-          >
-            {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-          </button>
-        </TooltipGlobal>
-      )
+      onClick: handleAlternarStatusUsuario,
+      renderCustom: (item) => {
+        const ativo = item.status_usuario === 'ATIVO'
+        return (
+          <TooltipGlobal descricao={ativo ? 'Suspender o acesso deste usuário' : 'Reativar o acesso deste usuário'}>
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAlternarStatusUsuario(item) }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+              onMouseEnter={(ev) => { ev.currentTarget.style.background = ativo ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = ativo ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = ativo ? '#fbbf24' : '#34d399' }}
+              onMouseLeave={(ev) => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+            >
+              {ativo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+            </button>
+          </TooltipGlobal>
+        )
+      },
     },
     {
       id: 'edit',
@@ -357,82 +343,47 @@ export function Usuarios() {
     }
   ]
 
+  // Headers e valores humanos PT-BR para o arquivo exportado (consumo final é o
+  // usuário) — mapeamos enum DDD → label canonical antes de serializar.
   const COLUNAS_EXPORT: ColunasExport[] = [
-    { header: 'Nome',    key: 'nome'   },
-    { header: 'E-mail',  key: 'email'  },
-    { header: 'Tipo',    key: 'tipo'   },
-    { header: 'Status',  key: 'status' },
+    { header: 'Nome do Usuário', key: 'nome_usuario'   },
+    { header: 'E-mail',          key: 'email_usuario'  },
+    { header: 'Tipo de Usuário', key: 'tipo_usuario'   },
+    { header: 'Status',          key: 'status_usuario' },
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'todos-os-usuarios', titulo: 'Todos os Usuários' }
 
-  const ACOES_EXPORT: TabelaExportAcao<TenantUser>[] = [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'XML', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarXML(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'PDF', icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'JSON', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+  const formatarParaExport = (dados: UsuarioOrg[]): Record<string, unknown>[] =>
+    dados.map((u) => ({
+      nome_usuario: u.nome_usuario,
+      email_usuario: u.email_usuario,
+      tipo_usuario: mapRole(u.tipo_usuario),
+      status_usuario: u.status_usuario === 'ATIVO' ? 'Ativo' : 'Inativo',
+    }))
+
+  const ACOES_EXPORT: TabelaExportAcao<UsuarioOrg>[] = [
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'XML', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarXML(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'PDF', icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'JSON', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarJSON(formatarParaExport(dados as UsuarioOrg[]), COLUNAS_EXPORT, OPCOES_EXPORT) },
   ]
 
-  // Computa empresas vinculadas por usuário via memberships da API
-  function espacosDoUsuario(id_usuario: string): EspacoTrabalho[] {
-    const ids = membershipsMap[id_usuario] ?? []
-    return espacos.filter(f => ids.includes(f.id))
+  // Computa workspaces vinculados por usuário via vinculosMap derivado da API
+  function workspacesDoUsuario(id_usuario: string): WorkspaceItem[] {
+    const ids = vinculosMap[id_usuario] ?? []
+    return workspaces.filter((w) => ids.includes(w.id_workspace))
   }
 
-  const COLUNAS_FILIAIS: TabelaGlobalColuna<TenantUser>[] = [
-    {
-      key: 'nome', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
-      tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome completo e identificação visual do usuário',
-      render: (_, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{
-            width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Admin' ? 'rgba(6,182,212,0.15)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Admin' ? '#06b6d4' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
-          }}>
-            {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
-          </div>
-          <span style={{ fontWeight: 600 }}>{item.nome}</span>
-        </div>
-      )
-    },
-    {
-      key: 'email', label: t('workspace.users.tabela.email'), tipo: 'texto',
-      tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
-      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
-    },
-    {
-      key: 'tipo', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
-      tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
-    },
-    {
-      key: 'id', label: t('workspace.users.tabela_empresas_vinculadas'), tipo: 'texto',
-      tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
-      render: (_, item) => {
-        const isMaster = item.tipo === 'Master'
-        const empresas = isMaster ? espacos : espacosDoUsuario(item.id)
-        return <EmpresasAcessoCell empresas={empresas} isMaster={isMaster} />
-      }
-    },
-  ]
-
-  const COLUNAS_EXPORT_FILIAIS: ColunasExport[] = [
-    { header: 'Nome',    key: 'nome'  },
-    { header: 'E-mail',  key: 'email' },
-    { header: 'Tipo',    key: 'tipo'  },
-  ]
-  const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-workspace', titulo: 'Acesso por Workspace' }
-
-  const ACOES_EXPORT_FILIAIS: TabelaExportAcao<TenantUser>[] = [
-    { label: 'Exportação Completa', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-  ]
-
-  const totalVinculos = users.reduce((acc, u) => acc + (u.tipo === 'Master' ? espacos.length : (membershipsMap[u.id]?.length || 0)), 0)
-  const mediaEspacosPorUsuario = users.length ? (totalVinculos / users.length).toFixed(1) : '0'
-  const usuariosComAcesso = users.filter(u => u.tipo === 'Master' ? espacos.length > 0 : (membershipsMap[u.id]?.length || 0) > 0).length
+  const totalVinculos = usuarios.reduce(
+    (acc, u) => acc + (temAcessoTotalAosWorkspaces(u.tipo_usuario) ? workspaces.length : (vinculosMap[u.id_usuario]?.length || 0)),
+    0,
+  )
+  const mediaWorkspacesPorUsuario = usuarios.length ? (totalVinculos / usuarios.length).toFixed(1) : '0'
+  const usuariosComAcesso = usuarios.filter((u) =>
+    temAcessoTotalAosWorkspaces(u.tipo_usuario) ? workspaces.length > 0 : (vinculosMap[u.id_usuario]?.length || 0) > 0,
+  ).length
 
   return (
     <PaginaGlobal
@@ -449,7 +400,7 @@ export function Usuarios() {
         <>
           <CardBasicoGlobal
             titulo={t('workspace.users.total')}
-            valor={users.length}
+            valor={usuarios.length}
             icone={<Users weight="duotone" size={18} />}
             periodos={[
               { periodo: '7d',  rotulo: '7 dias',  valor: '+2',  direcao: 'up',   descricao: 'vs semana anterior' },
@@ -462,7 +413,7 @@ export function Usuarios() {
                 <p className="cg-tooltip__title">Visão Geral</p>
                 <div className="cg-tooltip__row">
                   <span>Total de registros</span>
-                  <strong>{users.length}</strong>
+                  <strong>{usuarios.length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Novos hoje</span>
@@ -495,10 +446,10 @@ export function Usuarios() {
           />
           <CardBasicoGlobal
             titulo={t('workspace.users.media_acessos')}
-            valor={mediaEspacosPorUsuario}
+            valor={mediaWorkspacesPorUsuario}
             icone={<ChartPieSlice weight="duotone" size={18} />}
             variante="padrao"
-            subtexto="Empresas por usuário ativo"
+            subtexto="Workspaces por usuário ativo"
             periodos={[
               { periodo: '7d',  rotulo: '7 dias',  valor: '+0.1', direcao: 'up' },
               { periodo: '30d', rotulo: '30 dias', valor: '+0.3', direcao: 'up' },
@@ -510,7 +461,7 @@ export function Usuarios() {
                 <p className="cg-tooltip__title">Distribuição Média</p>
                 <div className="cg-tooltip__row">
                   <span>Média geral</span>
-                  <strong>{mediaEspacosPorUsuario} empresas</strong>
+                  <strong>{mediaWorkspacesPorUsuario} workspaces</strong>
                 </div>
               </>
             }
@@ -518,23 +469,23 @@ export function Usuarios() {
           <CardGraficoGlobal
             titulo={t('workspace.users.total_workspaces')}
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
-            total={users.length}
+            total={usuarios.length}
             valorPrincipal={usuariosComAcesso}
             corGauge="#8b5cf6"
             legenda={[
               { label: t('workspace.users.com_acesso'), valor: usuariosComAcesso, cor: '#8b5cf6' },
-              { label: t('workspace.users.sem_acesso'), valor: users.length - usuariosComAcesso, cor: '#64748b' },
+              { label: t('workspace.users.sem_acesso'), valor: usuarios.length - usuariosComAcesso, cor: '#64748b' },
             ]}
             tooltip={
               <>
                 <p className="cg-tooltip__title">Densidade & Distribuição</p>
                 <div className="cg-tooltip__row">
                   <span>Total de Usuários</span>
-                  <strong>{users.length}</strong>
+                  <strong>{usuarios.length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Total de Workspaces</span>
-                  <strong>{espacos.length}</strong>
+                  <strong>{workspaces.length}</strong>
                 </div>
                 <div className="cg-tooltip__divider" />
                 <div className="cg-tooltip__row">
@@ -543,7 +494,7 @@ export function Usuarios() {
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Média p/ Usuário</span>
-                  <strong style={{ color: '#8b5cf6' }}>{mediaEspacosPorUsuario}</strong>
+                  <strong style={{ color: '#8b5cf6' }}>{mediaWorkspacesPorUsuario}</strong>
                 </div>
               </>
             }
@@ -571,75 +522,73 @@ export function Usuarios() {
             Carregando usuários...
           </div>
         ) : (
-        <TabelaGlobal<TenantUser>
-          id="workspace-users"
-          dados={users}
+        <TabelaGlobal<UsuarioOrg>
+          id="workspace-usuarios"
+          dados={usuarios}
           colunas={COLUNAS}
           acoes={ACOES}
-          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
+          acoesExportacao={ACOES_EXPORT}
           mensagemVazio="Nenhum usuário encontrado na busca."
           mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
           tooltipBusca="Localizar usuário por nome, e-mail ou tipo de acesso"
           tooltipExpandir="Ver workspaces vinculados ao usuário"
           tooltipRecolher="Recolher detalhes do usuário"
           renderExpandido={(usuario) => {
-            const vinculados = usuario.tipo === 'Master' ? espacos : espacosDoUsuario(usuario.id)
+            const acessoTotal = temAcessoTotalAosWorkspaces(usuario.tipo_usuario)
+            const vinculados = acessoTotal ? workspaces : workspacesDoUsuario(usuario.id_usuario)
             return (
               <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
                 <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
                 </div>
-                
+
                 {vinculados.length > 0 ? (
                   <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
-                    <TabelaGlobal<EspacoTrabalho>
-                      id={`user-workspaces-drilldown-${usuario.id}`}
+                    <TabelaGlobal<WorkspaceItem>
+                      id={`usuario-workspaces-drilldown-${usuario.id_usuario}`}
                       dados={vinculados}
                       tooltipBusca="Filtrar workspaces por nome ou ID comercial"
                       colunas={[
                         {
-                          key: 'nome',
+                          key: 'nome_workspace',
                           label: t('workspace.users.nome_workspace'),
-                          tipo: 'texto', 
-                          render: (v, item) => {
-                            const nome = v as string;
-                            return (
-                              <a 
-                                href={`/workspace/workspaces?id=${item.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
-                                onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
-                                onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
-                                onClick={ev => ev.stopPropagation()}
-                              >
-                                {nome}
-                              </a>
-                            )
-                          }
+                          tipo: 'texto',
+                          render: (v, item) => (
+                            <a
+                              href={`/workspace/workspaces?id=${item.id_workspace}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none' }}
+                              onClick={(ev) => ev.stopPropagation()}
+                            >
+                              {v as string}
+                            </a>
+                          ),
                         },
-                        { key: 'id', label: t('workspace.users.id_tecnica'), tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
-                        { 
-                          key: 'id', label: t('workspace.users.privilegio'), tipo: 'texto',
+                        { key: 'id_workspace', label: t('workspace.users.id_tecnica'), tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
+                        {
+                          key: 'id_workspace', label: t('workspace.users.privilegio'), tipo: 'texto',
                           render: () => (
                             <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-                              {usuario.tipo === 'Master' ? 'Acesso Total (Master)' : 'Acesso Padrão'}
+                              {acessoTotal ? 'Acesso Total' : 'Acesso Padrão'}
                             </span>
-                          )
+                          ),
                         },
                         {
-                          key: 'id', label: t('workspace.users.status_workspace'), tipo: 'texto', align: 'right',
+                          key: 'id_workspace', label: t('workspace.users.status_workspace'), tipo: 'texto', align: 'right',
                           render: () => (
-                             <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
-                          )
-                        }
+                            <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
+                          ),
+                        },
                       ]}
                       mensagemVazio="Este usuário não possui acessos vinculados."
                     />
                   </div>
                 ) : (
                   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                    O usuário <strong>{usuario.nome}</strong> ainda não possui workspaces vinculados.
+                    O usuário <strong>{usuario.nome_usuario}</strong> ainda não possui workspaces vinculados.
                   </div>
                 )}
               </div>
@@ -749,22 +698,22 @@ export function Usuarios() {
                   display: 'flex', flexDirection: 'column', gap: '0.25rem',
                   border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '0.375rem',
                 }}>
-                  {espacos.length === 0 ? (
+                  {workspaces.length === 0 ? (
                     <span style={{ padding: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.8125rem', textAlign: 'center' }}>
                       Nenhum workspace ativo encontrado.
                     </span>
-                  ) : espacos.map(e => {
-                    const selecionado = fWorkspacesSelecionados.includes(e.id)
+                  ) : workspaces.map((w) => {
+                    const selecionado = fWorkspacesSelecionados.includes(w.id_workspace)
                     return (
                       <div
-                        key={e.id}
+                        key={w.id_workspace}
                         role="checkbox"
                         aria-checked={selecionado}
                         tabIndex={0}
-                        onClick={() => setFWorkspacesSelecionados(prev =>
-                          selecionado ? prev.filter(id => id !== e.id) : [...prev, e.id]
+                        onClick={() => setFWorkspacesSelecionados((prev) =>
+                          selecionado ? prev.filter((id) => id !== w.id_workspace) : [...prev, w.id_workspace],
                         )}
-                        onKeyDown={(ev) => { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); setFWorkspacesSelecionados(prev => selecionado ? prev.filter(id => id !== e.id) : [...prev, e.id]) } }}
+                        onKeyDown={(ev) => { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); setFWorkspacesSelecionados((prev) => selecionado ? prev.filter((id) => id !== w.id_workspace) : [...prev, w.id_workspace]) } }}
                         style={{
                           display: 'flex', alignItems: 'center', gap: '0.625rem',
                           cursor: 'pointer', padding: '0.375rem 0.5rem', borderRadius: '6px',
@@ -782,7 +731,7 @@ export function Usuarios() {
                         }}>
                           {selecionado && <span style={{ color: '#818cf8', fontSize: '9px', lineHeight: 1, fontWeight: 700 }}>✓</span>}
                         </div>
-                        <span style={{ fontSize: '0.8125rem', color: 'var(--ws-text)' }}>{e.nome}</span>
+                        <span style={{ fontSize: '0.8125rem', color: 'var(--ws-text)' }}>{w.nome_workspace}</span>
                       </div>
                     )
                   })}
@@ -797,36 +746,34 @@ export function Usuarios() {
       <ModalEditarUsuario
         usuario={usuarioEditando}
         abaInicial={abaEditando}
-        espacos={espacos}
-        workspacesSalvos={usuarioEditando ? (membershipsMap[usuarioEditando.id] ?? []) : []}
-        carregandoEspacos={carregando}
+        workspaces={workspaces}
+        workspacesSalvos={usuarioEditando ? (vinculosMap[usuarioEditando.id_usuario] ?? []) : []}
+        carregandoWorkspaces={carregando}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={async (uEditado, _permissoes, workspaceIds) => {
-          setUsers(prev => prev.map(u => u.id === uEditado.id ? uEditado : u))
+          setUsuarios((prev) => prev.map((u) => u.id_usuario === uEditado.id_usuario ? uEditado : u))
 
-          if (uEditado.tipo !== 'Master' && workspaceIds.length > 0) {
+          if (uEditado.tipo_usuario !== 'MASTER' && workspaceIds.length > 0) {
             try {
-              const headers = await getAuthHeaders()
-              const res = await fetch(`/api/v1/usuarios/${uEditado.id}/workspaces`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify({ workspaces: workspaceIds }),
+              await usuariosApi.substituirWorkspaces(uEditado.id_usuario, workspaceIds)
+              setVinculosMap((prev) => ({ ...prev, [uEditado.id_usuario]: workspaceIds }))
+              addNotification({
+                type: 'success',
+                message: `Workspaces de "${uEditado.nome_usuario}" atualizados.`,
               })
-              if (res.ok) {
-                setMembershipsMap(prev => ({ ...prev, [uEditado.id]: workspaceIds }))
-                addNotification({ type: 'success', message: `Workspaces de "${uEditado.nome}" atualizados.` })
-                setUsuarioEditando(null)
-              } else {
-                const body = await res.json().catch(() => ({}))
-                addNotification({ type: 'error', message: body?.error?.message ?? 'Falha ao salvar workspaces.' })
-                // modal permanece aberto para o usuário corrigir e tentar de novo
-              }
+              setUsuarioEditando(null)
             } catch (err) {
-              addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao salvar workspaces.') })
+              addNotification({
+                type: 'error',
+                message: extractCatchError(err, 'Falha ao salvar workspaces.'),
+              })
               // modal permanece aberto para o usuário corrigir e tentar de novo
             }
           } else {
-            addNotification({ type: 'success', message: `Usuário "${uEditado.nome}" atualizado.` })
+            addNotification({
+              type: 'success',
+              message: `Usuário "${uEditado.nome_usuario}" atualizado.`,
+            })
             setUsuarioEditando(null)
           }
         }}

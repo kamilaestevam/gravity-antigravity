@@ -16,8 +16,8 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
-import { ModalEditarUsuario } from '../workspace/ModalUsuarioEditar'
-import { ModalPermissoesUsuario } from '../workspace/ModalUsuarioPermissoes'
+import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
+import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
@@ -30,45 +30,45 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
 
-interface GlobalUserSpace {
-  id: string;
-  nome: string;
-  subdominio: string;
-  perfil: string;
+interface VinculoWorkspaceUI {
+  id_usuario_workspace: string
+  nome_workspace: string
+  subdominio_workspace: string
+  perfil: string
 }
 
-// GlobalUser é compatível com TenantUser mas tem tipo mais amplo
-interface GlobalUser {
-  id: string
-  nome: string
-  email: string
+// Estrutura de UI para o painel admin global de usuários — campos em DDD.
+interface UsuarioGlobalUI {
+  id_usuario: string
+  nome_usuario: string
+  email_usuario: string
   tipo: NivelAcesso
   status: UserStatus
-  organizacao: string
-  espacos: GlobalUserSpace[]
+  nome_organizacao: string
+  vinculos_workspace: VinculoWorkspaceUI[]
 }
 
-// ─── Helper: mapeia GlobalUserApi do backend para GlobalUser do frontend ────────
+// ─── Helper: mapeia GlobalUserApi do backend para UsuarioGlobalUI ──────────────
 
-function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
-  const espacos: GlobalUserSpace[] = u.memberships.map(m => ({
-    id:         m.id_usuario_workspace,
-    nome:       m.workspace?.nome_workspace ?? 'N/A',
-    subdominio: m.workspace?.subdominio_workspace ?? '',
-    perfil:     mapRole(m.tipo_usuario_workspace),
+function mapApiUserToGlobal(u: GlobalUserApi): UsuarioGlobalUI {
+  const vinculos: VinculoWorkspaceUI[] = u.memberships.map(m => ({
+    id_usuario_workspace: m.id_usuario_workspace,
+    nome_workspace:       m.workspace?.nome_workspace ?? 'N/A',
+    subdominio_workspace: m.workspace?.subdominio_workspace ?? '',
+    perfil:               mapRole(m.tipo_usuario_workspace),
   }))
-  // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem memberships mas sempre ativos.
+  // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem vínculos mas sempre ativos.
   // Demais: considerados ativos se tiverem ao menos um workspace ativo.
   const ehGravity = u.tipo_usuario === 'SUPER_ADMIN' || u.tipo_usuario === 'ADMIN'
-  const status: UserStatus = ehGravity || espacos.length > 0 ? 'Ativo' : 'Inativo'
+  const status: UserStatus = ehGravity || vinculos.length > 0 ? 'Ativo' : 'Inativo'
   return {
-    id:         u.id_usuario,
-    nome:       u.nome_usuario,
-    email:      u.email_usuario,
-    tipo:       mapRole(u.tipo_usuario),
+    id_usuario:        u.id_usuario,
+    nome_usuario:      u.nome_usuario,
+    email_usuario:     u.email_usuario,
+    tipo:              mapRole(u.tipo_usuario),
     status,
-    organizacao: u.organizacao?.nome_organizacao ?? 'N/A',
-    espacos,
+    nome_organizacao:  u.organizacao?.nome_organizacao ?? 'N/A',
+    vinculos_workspace: vinculos,
   }
 }
 
@@ -103,7 +103,7 @@ export function UsuariosAdmin() {
   const { role: dbRole } = useLoadSystemRole()
   const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
 
-  const [users, setUsers] = useState<GlobalUser[]>([])
+  const [users, setUsers] = useState<UsuarioGlobalUI[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
@@ -115,7 +115,7 @@ export function UsuariosAdmin() {
 
   // Organizações extraídas dos dados reais
   const ORGS = useMemo(() => {
-    const orgs = new Set(users.map(u => u.organizacao))
+    const orgs = new Set(users.map(u => u.nome_organizacao))
     return Array.from(orgs).sort()
   }, [users])
 
@@ -140,8 +140,8 @@ export function UsuariosAdmin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
-  const [usuarioPermissoes, setUsuarioPermissoes] = useState<GlobalUser | null>(null)
+  const [usuarioEditando, setUsuarioEditando] = useState<UsuarioGlobalUI | null>(null)
+  const [usuarioPermissoes, setUsuarioPermissoes] = useState<UsuarioGlobalUI | null>(null)
   const [abaEditando, setAbaEditando]         = useState<string>('dados')
 
   // Filtro de opções com base no perfil logado
@@ -180,13 +180,13 @@ export function UsuariosAdmin() {
         tipo_usuario:  nivelToRole(fTipo),
       })
       setUsers(prev => [...prev, {
-        id:          result.usuario.id_usuario,
-        nome:        fNome.trim(),
-        email:       fEmail.trim(),
-        tipo:        fTipo,
-        status:      'Ativo',
-        organizacao: fOrg,
-        espacos:     [],
+        id_usuario:         result.usuario.id_usuario,
+        nome_usuario:       fNome.trim(),
+        email_usuario:      fEmail.trim(),
+        tipo:               fTipo,
+        status:             'Ativo',
+        nome_organizacao:   fOrg,
+        vinculos_workspace: [],
       }])
       addNotification({ type: 'success', message: t('admin.usuarios-globais.msg_usuario_adicionado', { nome: fNome.trim() }) })
       setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
@@ -200,9 +200,9 @@ export function UsuariosAdmin() {
   // até que o Coordenador adicione o campo via migration.
 
   // ─── Colunas ────────────────────────────────────────────────────────────────
-  const COLUNAS: TabelaGlobalColuna<GlobalUser>[] = [
+  const COLUNAS: TabelaGlobalColuna<UsuarioGlobalUI>[] = [
     {
-      key: 'nome', label: t('admin.usuarios-globais.tabela.usuario'), tipo: 'texto',
+      key: 'nome_usuario', label: t('admin.usuarios-globais.tabela.usuario'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.nome_completo'), tooltipDescricao: t('admin.usuarios-globais.tabela.nome_completo_desc'),
       render: (_, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
@@ -212,19 +212,19 @@ export function UsuariosAdmin() {
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
             color: item.tipo === 'Super Admin' ? '#22c55e' : item.tipo === 'Admin' ? '#06b6d4' : item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
           }}>
-            {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            {item.nome_usuario.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
-          <span style={{ fontWeight: 600 }}>{item.nome}</span>
+          <span style={{ fontWeight: 600 }}>{item.nome_usuario}</span>
         </div>
       )
     },
     {
-      key: 'email', label: t('admin.usuarios-globais.tabela.email'), tipo: 'texto',
+      key: 'email_usuario', label: t('admin.usuarios-globais.tabela.email'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.email_acesso'), tooltipDescricao: t('admin.usuarios-globais.tabela.email_acesso_desc'),
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'organizacao', label: t('admin.usuarios-globais.tabela.organizacao'), tipo: 'texto',
+      key: 'nome_organizacao', label: t('admin.usuarios-globais.tabela.organizacao'), tipo: 'texto',
       tooltipTitulo: t('admin.usuarios-globais.tabela.org_tooltip'), tooltipDescricao: t('admin.usuarios-globais.tabela.org_desc'),
       render: (v) => <OrgBadge nome={v as string} />
     },
@@ -261,16 +261,16 @@ export function UsuariosAdmin() {
     },
   ]
 
-  const COLUNAS_FILHAS: TabelaGlobalColuna<GlobalUserSpace>[] = [
+  const COLUNAS_FILHAS: TabelaGlobalColuna<VinculoWorkspaceUI>[] = [
     {
-      key: 'nome', label: t('admin.usuarios-globais.children.workspace'), tipo: 'texto',
+      key: 'nome_workspace', label: t('admin.usuarios-globais.children.workspace'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome.charAt(0)}
+            {item.nome_workspace.charAt(0)}
           </div>
-          <a 
-            href={`/workspace/workspaces?id=${item.id}`}
+          <a
+            href={`/workspace/workspaces?id=${item.id_usuario_workspace}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
@@ -278,16 +278,16 @@ export function UsuariosAdmin() {
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none' }}
             onClick={ev => ev.stopPropagation()}
           >
-            {item.nome}
+            {item.nome_workspace}
           </a>
         </div>
       )
     },
     {
-      key: 'subdominio', label: t('admin.usuarios-globais.children.subdominio'), tipo: 'texto',
+      key: 'subdominio_workspace', label: t('admin.usuarios-globais.children.subdominio'), tipo: 'texto',
       render: (_v, item) => (
         <a
-          href={workspaceUrl(item.subdominio)}
+          href={workspaceUrl(item.subdominio_workspace)}
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
@@ -306,7 +306,7 @@ export function UsuariosAdmin() {
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.15)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.3)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.05)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.1)' }}
           >
-            {item.subdominio}.gravity.com.br
+            {item.subdominio_workspace}.usegravity.com.br
           </code>
         </a>
       )
@@ -323,7 +323,7 @@ export function UsuariosAdmin() {
     },
   ]
 
-  const ACOES: TabelaGlobalAcao<GlobalUser>[] = [
+  const ACOES: TabelaGlobalAcao<UsuarioGlobalUI>[] = [
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" aria-label={t('admin.usuarios-globais.acao_permissoes')} />,
@@ -339,7 +339,7 @@ export function UsuariosAdmin() {
   ]
 
   // ─── Exportação ─────────────────────────────────────────────────────────────
-  const ACOES_EXPORT = getAcoesExportacaoPadrao<GlobalUser>(
+  const ACOES_EXPORT = getAcoesExportacaoPadrao<UsuarioGlobalUI>(
     COLUNAS,
     'usuarios',
     'Usuários Globais da Plataforma',
@@ -349,7 +349,7 @@ export function UsuariosAdmin() {
   const totalUsers    = users.length
   const ativos        = users.filter(u => u.status === 'Ativo').length
   const inativos      = users.filter(u => u.status === 'Inativo').length
-  const orgsAtivas    = new Set(users.map(u => u.organizacao)).size
+  const orgsAtivas    = new Set(users.map(u => u.nome_organizacao)).size
 
   return (
     <PaginaGlobal
@@ -481,7 +481,7 @@ export function UsuariosAdmin() {
             </BotaoGlobal>
           </div>
         ) : (
-          <TabelaGlobal<GlobalUser>
+          <TabelaGlobal<UsuarioGlobalUI>
             id="admin-global-users"
             dados={users}
             colunas={COLUNAS}
@@ -491,15 +491,15 @@ export function UsuariosAdmin() {
             tooltipBusca={t('admin.usuarios-globais.tabela_busca_tooltip')}
             tooltipExpandir={t('admin.usuarios-globais.tabela_expandir_tooltip')}
             tooltipRecolher={t('admin.usuarios-globais.tabela_recolher_tooltip')}
-            idKey="id"
+            idKey="id_usuario"
             renderExpandido={(user) => (
               <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
                 <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  <TreeStructure size={14} /> {t('admin.usuarios-globais.espacos_trabalho')} ({user.espacos?.length || 0})
+                  <TreeStructure size={14} /> {t('admin.usuarios-globais.espacos_trabalho')} ({user.vinculos_workspace?.length || 0})
                 </div>
                 <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                  <TabelaGlobal<GlobalUserSpace>
-                    dados={user.espacos || []}
+                  <TabelaGlobal<VinculoWorkspaceUI>
+                    dados={user.vinculos_workspace || []}
                     colunas={COLUNAS_FILHAS}
                     mensagemVazio={t('admin.usuarios-globais.espacos_vazio')}
                   />
@@ -512,19 +512,53 @@ export function UsuariosAdmin() {
 
       {/* ── Modal Edição ─────────────────────────────────────────────────── */}
       <ModalEditarUsuario
-        usuario={usuarioEditando}
+        usuario={usuarioEditando ? {
+          id_usuario:           usuarioEditando.id_usuario,
+          nome_usuario:         usuarioEditando.nome_usuario,
+          email_usuario:        usuarioEditando.email_usuario,
+          tipo_usuario:         nivelToRole(usuarioEditando.tipo),
+          data_criacao_usuario: new Date().toISOString(),
+          usuario_workspaces:   usuarioEditando.vinculos_workspace.map(v => {
+            const tipoEnum = nivelToRole(v.perfil as NivelAcesso)
+            // Vínculo na filial só admite MASTER/PADRAO/FORNECEDOR (Admin/SUPER_ADMIN não vinculam por filial).
+            const tipoVinculo: 'MASTER' | 'PADRAO' | 'FORNECEDOR' =
+              tipoEnum === 'MASTER' || tipoEnum === 'FORNECEDOR' ? tipoEnum : 'PADRAO'
+            return {
+              id_usuario_workspace:    v.id_usuario_workspace,
+              id_workspace:            v.id_usuario_workspace,
+              tipo_usuario_workspace:  tipoVinculo,
+              ativo_usuario_workspace: true,
+            }
+          }),
+          status_usuario: usuarioEditando.status === 'Ativo' ? 'ATIVO' : 'INATIVO',
+        } : null}
         abaInicial={abaEditando}
-        espacos={usuarioEditando ? usuarioEditando.espacos.map(e => ({ id: e.id, nome: e.nome, usuarios: [] })) : []}
-        workspacesSalvos={usuarioEditando?.espacos.map(e => e.id) ?? []}
+        workspaces={usuarioEditando ? usuarioEditando.vinculos_workspace.map(v => ({
+          id_workspace:           v.id_usuario_workspace,
+          nome_workspace:         v.nome_workspace,
+          subdominio_workspace:   v.subdominio_workspace,
+          status_workspace:       'ATIVO',
+          data_criacao_workspace: new Date().toISOString(),
+        })) : []}
+        workspacesSalvos={usuarioEditando?.vinculos_workspace.map(e => e.id_usuario_workspace) ?? []}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={(uEditado) => {
-          setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado } : u))
+          setUsers(prev => prev.map(u => u.id_usuario === uEditado.id_usuario ? {
+            ...u,
+            nome_usuario:  uEditado.nome_usuario,
+            email_usuario: uEditado.email_usuario,
+            tipo:          mapRole(uEditado.tipo_usuario),
+          } : u))
           setUsuarioEditando(null)
         }}
       />
 
       <ModalPermissoesUsuario
-        usuario={usuarioPermissoes}
+        usuario={usuarioPermissoes ? {
+          id_usuario:   usuarioPermissoes.id_usuario,
+          nome_usuario: usuarioPermissoes.nome_usuario,
+          tipo_usuario: nivelToRole(usuarioPermissoes.tipo),
+        } : null}
         contextoAdmin={true}
         aoFechar={() => setUsuarioPermissoes(null)}
         aoSalvar={() => {

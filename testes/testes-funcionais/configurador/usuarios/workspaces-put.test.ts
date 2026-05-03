@@ -1,37 +1,37 @@
 // @vitest-environment node
-// TST-FUN-CONFIG-WSUP-001 — PUT /api/v1/usuarios/:id/workspaces
+// TST-FUN-CONFIG-WSUP-001 — PUT /api/v1/usuarios/:id_usuario/workspaces
 // Plano: testes/testes-funcionais/configurador/_planos/users-workspaces-put.plan.json
 // Valida: substituição atômica, IDOR bloqueado, MASTER bloqueado,
-//         tenant_id em toda query, audit trail, rollback em falha de transação.
+//         id_organizacao em toda query, audit trail, rollback em falha de transação.
 /// <reference types="vitest/globals" />
 
 // ─── Mocks hoistados ─────────────────────────────────────────────────────────
 const {
   mockUsuarioFindFirst,
-  mockEmpresaFindMany,
-  mockWorkspaceFindMany,
-  mockWorkspaceDeleteMany,
-  mockWorkspaceCreateMany,
+  mockWorkspacePrismaFindMany,
+  mockUsuarioWorkspaceFindMany,
+  mockUsuarioWorkspaceDeleteMany,
+  mockUsuarioWorkspaceCreateMany,
   mockTransaction,
   mockPermissionChanged,
 } = vi.hoisted(() => ({
-  mockUsuarioFindFirst:    vi.fn(),
-  mockEmpresaFindMany:     vi.fn(),
-  mockWorkspaceFindMany:   vi.fn(),
-  mockWorkspaceDeleteMany: vi.fn(),
-  mockWorkspaceCreateMany: vi.fn(),
-  mockTransaction:         vi.fn(),
-  mockPermissionChanged:   vi.fn().mockResolvedValue(undefined),
+  mockUsuarioFindFirst:           vi.fn(),
+  mockWorkspacePrismaFindMany:    vi.fn(),
+  mockUsuarioWorkspaceFindMany:   vi.fn(),
+  mockUsuarioWorkspaceDeleteMany: vi.fn(),
+  mockUsuarioWorkspaceCreateMany: vi.fn(),
+  mockTransaction:                vi.fn(),
+  mockPermissionChanged:          vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
-    usuario: { findFirst: mockUsuarioFindFirst },
-    empresa: { findMany: mockEmpresaFindMany },
+    usuario:   { findFirst: mockUsuarioFindFirst },
+    workspace: { findMany: mockWorkspacePrismaFindMany },
     usuarioWorkspace: {
-      findMany:   mockWorkspaceFindMany,
-      deleteMany: mockWorkspaceDeleteMany,
-      createMany: mockWorkspaceCreateMany,
+      findMany:   mockUsuarioWorkspaceFindMany,
+      deleteMany: mockUsuarioWorkspaceDeleteMany,
+      createMany: mockUsuarioWorkspaceCreateMany,
     },
     $transaction: mockTransaction,
   },
@@ -40,10 +40,10 @@ vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => (
 vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
   requireAuth: (req: Record<string, unknown>, _res: unknown, next: () => void) => {
     req['auth'] = {
-      userId:      'usr_wsput_01',
-      tenantId:    'ten_wsput_01',
-      clerkUserId: 'clerk_wsput_01',
-      role:        'MASTER',
+      id_usuario:       'usr_wsput_01',
+      id_organizacao:   'org_wsput_01',
+      id_clerk_usuario: 'clerk_wsput_01',
+      tipo_usuario:     'MASTER',
     }
     next()
   },
@@ -55,10 +55,6 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireMaste
 
 vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
   clerkClient: { invitations: { createInvitation: vi.fn() } },
-}))
-
-vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
-  syncRoleToClerk: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('../../../../servicos-global/servicos-plataforma/historico-global/server/lib/securityAuditLogger.js', () => ({
@@ -90,37 +86,37 @@ const CUID_WS_A = 'cld8n2b0j0000mhog1234ws01'
 const CUID_WS_B = 'cld8n2b0j0001mhog1234ws02'
 const USER_ID   = 'usr_wsput_target_01'
 
-const USER_STANDARD = { id: USER_ID, role: 'STANDARD' }
-const USER_MASTER   = { id: USER_ID, role: 'MASTER' }
-const EMPRESA_A     = { id: CUID_WS_A }
-const EMPRESA_B     = { id: CUID_WS_B }
+const USUARIO_PADRAO = { id_usuario: USER_ID, tipo_usuario: 'PADRAO' }
+const USUARIO_MASTER = { id_usuario: USER_ID, tipo_usuario: 'MASTER' }
+const WORKSPACE_A    = { id_workspace: CUID_WS_A }
+const WORKSPACE_B    = { id_workspace: CUID_WS_B }
 
 function setupTransaction() {
   mockTransaction.mockImplementation(
     async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
         usuarioWorkspace: {
-          deleteMany: mockWorkspaceDeleteMany,
-          createMany: mockWorkspaceCreateMany,
+          deleteMany: mockUsuarioWorkspaceDeleteMany,
+          createMany: mockUsuarioWorkspaceCreateMany,
         },
       }),
   )
 }
 
 // ─── TST-FUN-CONFIG-WSUP-001..006 — Happy Path ───────────────────────────────
-describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces — Caminho Feliz', () => {
+describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id_usuario/workspaces — Caminho Feliz', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransaction()
-    mockUsuarioFindFirst.mockResolvedValue(USER_STANDARD)
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A, EMPRESA_B])
-    mockWorkspaceFindMany.mockResolvedValue([{ company_id: CUID_WS_A }])
-    mockWorkspaceDeleteMany.mockResolvedValue({ count: 1 })
-    mockWorkspaceCreateMany.mockResolvedValue({ count: 2 })
+    mockUsuarioFindFirst.mockResolvedValue(USUARIO_PADRAO)
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A, WORKSPACE_B])
+    mockUsuarioWorkspaceFindMany.mockResolvedValue([{ id_workspace: CUID_WS_A }])
+    mockUsuarioWorkspaceDeleteMany.mockResolvedValue({ count: 1 })
+    mockUsuarioWorkspaceCreateMany.mockResolvedValue({ count: 2 })
   })
 
-  it('STANDARD + workspaces válidos → 200 { workspaces: [...] }', async () => {
+  it('PADRAO + workspaces válidos → 200 { workspaces: [...] }', async () => {
     const res = await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A, CUID_WS_B] })
@@ -129,28 +125,28 @@ describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces �
     expect(res.body.workspaces).toEqual([CUID_WS_A, CUID_WS_B])
   })
 
-  it('deleteMany chamado com tenant_id e user_id do req.auth — isolamento garantido', async () => {
+  it('deleteMany chamado com id_organizacao e id_usuario do req.auth — isolamento garantido', async () => {
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A, CUID_WS_B] })
 
-    expect(mockWorkspaceDeleteMany).toHaveBeenCalledWith(
+    expect(mockUsuarioWorkspaceDeleteMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tenant_id: 'ten_wsput_01', user_id: USER_ID }),
+        where: expect.objectContaining({ id_organizacao: 'org_wsput_01', id_usuario: USER_ID }),
       }),
     )
   })
 
-  it('createMany com tenant_id, user_id, is_active: true, skipDuplicates: true', async () => {
+  it('createMany com id_organizacao, id_usuario, ativo_usuario_workspace: true, skipDuplicates', async () => {
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A, CUID_WS_B] })
 
-    expect(mockWorkspaceCreateMany).toHaveBeenCalledWith(
+    expect(mockUsuarioWorkspaceCreateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.arrayContaining([
-          expect.objectContaining({ tenant_id: 'ten_wsput_01', user_id: USER_ID, company_id: CUID_WS_A, is_active: true }),
-          expect.objectContaining({ tenant_id: 'ten_wsput_01', user_id: USER_ID, company_id: CUID_WS_B, is_active: true }),
+          expect.objectContaining({ id_organizacao: 'org_wsput_01', id_usuario: USER_ID, id_workspace: CUID_WS_A, ativo_usuario_workspace: true }),
+          expect.objectContaining({ id_organizacao: 'org_wsput_01', id_usuario: USER_ID, id_workspace: CUID_WS_B, ativo_usuario_workspace: true }),
         ]),
         skipDuplicates: true,
       }),
@@ -164,7 +160,7 @@ describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces �
       .send({ workspaces: [CUID_WS_A, CUID_WS_B] })
 
     expect(mockPermissionChanged).toHaveBeenCalledWith(
-      'ten_wsput_01',
+      'org_wsput_01',
       'usr_wsput_01',
       expect.objectContaining({
         targetUserId: USER_ID,
@@ -176,15 +172,15 @@ describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces �
 
   it('workspace removido (sem adição) → permissionChanged chamado com action: REVOKED', async () => {
     // antes: [CUID_WS_A, CUID_WS_B], depois: [CUID_WS_A] → CUID_WS_B removido → REVOKED
-    mockWorkspaceFindMany.mockResolvedValue([{ company_id: CUID_WS_A }, { company_id: CUID_WS_B }])
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A])
+    mockUsuarioWorkspaceFindMany.mockResolvedValue([{ id_workspace: CUID_WS_A }, { id_workspace: CUID_WS_B }])
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A])
 
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A] })
 
     expect(mockPermissionChanged).toHaveBeenCalledWith(
-      'ten_wsput_01',
+      'org_wsput_01',
       'usr_wsput_01',
       expect.objectContaining({
         targetUserId: USER_ID,
@@ -196,8 +192,8 @@ describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces �
 
   it('workspaces idênticos aos anteriores → permissionChanged NÃO chamado', async () => {
     // antes: [CUID_WS_A, CUID_WS_B], depois: [CUID_WS_A, CUID_WS_B] → sem diff
-    mockWorkspaceFindMany.mockResolvedValue([{ company_id: CUID_WS_A }, { company_id: CUID_WS_B }])
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A, EMPRESA_B])
+    mockUsuarioWorkspaceFindMany.mockResolvedValue([{ id_workspace: CUID_WS_A }, { id_workspace: CUID_WS_B }])
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A, WORKSPACE_B])
 
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
@@ -208,7 +204,7 @@ describe('TST-FUN-CONFIG-WSUP-001..006 — PUT /api/v1/usuarios/:id/workspaces �
 })
 
 // ─── TST-FUN-CONFIG-WSUP-007..011 — Validação Zod (REAL) ────────────────────
-describe('TST-FUN-CONFIG-WSUP-007..011 — PUT /api/v1/usuarios/:id/workspaces — Validação Zod', () => {
+describe('TST-FUN-CONFIG-WSUP-007..011 — PUT /api/v1/usuarios/:id_usuario/workspaces — Validação Zod', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -263,7 +259,7 @@ describe('TST-FUN-CONFIG-WSUP-007..011 — PUT /api/v1/usuarios/:id/workspaces �
 })
 
 // ─── TST-FUN-CONFIG-WSUP-012..015 — Regras de Negócio ───────────────────────
-describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces — Regras de Negócio', () => {
+describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id_usuario/workspaces — Regras de Negócio', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -271,7 +267,7 @@ describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces �
   })
 
   it('usuário MASTER → 400 INVALID_OPERATION (MASTER tem acesso total implícito)', async () => {
-    mockUsuarioFindFirst.mockResolvedValue(USER_MASTER)
+    mockUsuarioFindFirst.mockResolvedValue(USUARIO_MASTER)
 
     const res = await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
@@ -282,7 +278,7 @@ describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces �
     expect(mockTransaction).not.toHaveBeenCalled()
   })
 
-  it('usuário não encontrado no tenant → 404 NOT_FOUND (não vaza existência)', async () => {
+  it('usuário não encontrado na organização → 404 NOT_FOUND (não vaza existência)', async () => {
     mockUsuarioFindFirst.mockResolvedValue(null)
 
     const res = await request(app)
@@ -294,10 +290,10 @@ describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces �
     expect(mockTransaction).not.toHaveBeenCalled()
   })
 
-  it('workspace IDs cross-tenant (IDOR) → 403 FORBIDDEN — $transaction não chamada', async () => {
+  it('workspace IDs cross-organização (IDOR) → 403 FORBIDDEN — $transaction não chamada', async () => {
     // Envia 2 IDs mas findMany retorna apenas 1 → divergência detecta IDOR
-    mockUsuarioFindFirst.mockResolvedValue(USER_STANDARD)
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A])
+    mockUsuarioFindFirst.mockResolvedValue(USUARIO_PADRAO)
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A])
 
     const res = await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
@@ -309,9 +305,9 @@ describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces �
   })
 
   it('Prisma $transaction falha → 500 INTERNAL_ERROR sem stack trace no body', async () => {
-    mockUsuarioFindFirst.mockResolvedValue(USER_STANDARD)
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A])
-    mockWorkspaceFindMany.mockResolvedValue([])
+    mockUsuarioFindFirst.mockResolvedValue(USUARIO_PADRAO)
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A])
+    mockUsuarioWorkspaceFindMany.mockResolvedValue([])
     mockTransaction.mockRejectedValue(new Error('DB constraint violation'))
 
     const res = await request(app)
@@ -324,51 +320,51 @@ describe('TST-FUN-CONFIG-WSUP-012..015 — PUT /api/v1/usuarios/:id/workspaces �
   })
 })
 
-// ─── TST-FUN-CONFIG-WSUP-016..018 — Tenant Isolation ────────────────────────
-describe('TST-FUN-CONFIG-WSUP-016..018 — WHERE tenant_id em todas as queries Prisma', () => {
+// ─── TST-FUN-CONFIG-WSUP-016..018 — Isolamento por organização ──────────────
+describe('TST-FUN-CONFIG-WSUP-016..018 — WHERE id_organizacao em todas as queries Prisma', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
     setupTransaction()
-    mockUsuarioFindFirst.mockResolvedValue(USER_STANDARD)
-    mockEmpresaFindMany.mockResolvedValue([EMPRESA_A])
-    mockWorkspaceFindMany.mockResolvedValue([])
-    mockWorkspaceDeleteMany.mockResolvedValue({ count: 0 })
-    mockWorkspaceCreateMany.mockResolvedValue({ count: 1 })
+    mockUsuarioFindFirst.mockResolvedValue(USUARIO_PADRAO)
+    mockWorkspacePrismaFindMany.mockResolvedValue([WORKSPACE_A])
+    mockUsuarioWorkspaceFindMany.mockResolvedValue([])
+    mockUsuarioWorkspaceDeleteMany.mockResolvedValue({ count: 0 })
+    mockUsuarioWorkspaceCreateMany.mockResolvedValue({ count: 1 })
   })
 
-  it('usuario.findFirst WHERE inclui tenant_id = req.auth.tenantId', async () => {
+  it('usuario.findFirst WHERE inclui id_organizacao = req.auth.id_organizacao', async () => {
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A] })
 
     expect(mockUsuarioFindFirst).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tenant_id: 'ten_wsput_01' }),
+        where: expect.objectContaining({ id_organizacao: 'org_wsput_01' }),
       }),
     )
   })
 
-  it('empresa.findMany WHERE inclui tenant_id (prevenção IDOR) — não valida empresas de outro tenant', async () => {
+  it('workspace.findMany WHERE inclui id_organizacao (prevenção IDOR)', async () => {
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A] })
 
-    expect(mockEmpresaFindMany).toHaveBeenCalledWith(
+    expect(mockWorkspacePrismaFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tenant_id: 'ten_wsput_01' }),
+        where: expect.objectContaining({ id_organizacao: 'org_wsput_01' }),
       }),
     )
   })
 
-  it('usuarioWorkspace.findMany (antesIds/diff) WHERE inclui tenant_id', async () => {
+  it('usuarioWorkspace.findMany (antesIds/diff) WHERE inclui id_organizacao', async () => {
     await request(app)
       .put(`/api/v1/usuarios/${USER_ID}/workspaces`)
       .send({ workspaces: [CUID_WS_A] })
 
-    expect(mockWorkspaceFindMany).toHaveBeenCalledWith(
+    expect(mockUsuarioWorkspaceFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ tenant_id: 'ten_wsput_01' }),
+        where: expect.objectContaining({ id_organizacao: 'org_wsput_01' }),
       }),
     )
   })

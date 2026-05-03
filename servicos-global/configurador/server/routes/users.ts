@@ -1,9 +1,13 @@
 // server/routes/users.ts
-// Gestão de usuários e permissões na organização
-// GET  /api/v1/usuarios                              — listar usuários da organização
-// POST /api/v1/usuarios/convidar                     — convidar usuário
-// POST /api/v1/usuarios/:id_usuario/vinculos         — habilitar em workspace
-// PATCH /api/v1/usuarios/:id_usuario/patente         — definir patente
+// Gestão de usuários e vínculos com workspaces da organização autenticada.
+// Contrato em DDD puro (PT-BR) — chaves espelham o schema Prisma; respostas exportam
+// schemas Zod (Mand. 09) para validação bilateral no frontend.
+//
+// GET   /api/v1/usuarios                              → listar usuários da organização
+// POST  /api/v1/usuarios/convidar                     → convidar usuário (Master)
+// POST  /api/v1/usuarios/:id_usuario/vinculos         → habilitar em workspace (Master)
+// PUT   /api/v1/usuarios/:id_usuario/workspaces       → substituir vínculos (Master)
+// PATCH /api/v1/usuarios/:id_usuario/patente          → alterar tipo_usuario (Master)
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -19,24 +23,28 @@ export const usersRouter = Router()
 // Aplica auth em todas as rotas deste roteador
 usersRouter.use(requireAuth)
 
-// ─── Schemas ────────────────────────────────────────────────────────────────
+// ─── Schemas Zod (Mand. 06 e 09 — contratos bilaterais) ─────────────────────
 
-const InviteUserSchema = z.object({
-  email: z.string().email().max(255),
-  name: z.string().min(1).max(200),
-  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
-  workspaces: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
+const TipoUsuarioEnum = z.enum(['MASTER', 'PADRAO', 'FORNECEDOR'])
+
+export const ConvidarUsuarioSchema = z.object({
+  email_usuario: z.string().email().max(255),
+  nome_usuario: z.string().min(1).max(200),
+  tipo_usuario: TipoUsuarioEnum.default('PADRAO'),
+  // workspaces_alvo: lista de workspaces a vincular OU 'all' (todos os ATIVOs).
+  // Obrigatório para PADRAO/FORNECEDOR; ignorado para MASTER (acesso implícito a todos).
+  workspaces_alvo: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
 }).refine(
-  (data) => data.role === 'MASTER' || data.workspaces !== undefined,
-  { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces'] },
+  (data) => data.tipo_usuario === 'MASTER' || data.workspaces_alvo !== undefined,
+  { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces_alvo'] },
 )
 
-const MembershipSchema = z.object({
-  companyId: z.string(),
-  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
+const VincularUsuarioWorkspaceSchema = z.object({
+  id_workspace: z.string(),
+  tipo_usuario_workspace: TipoUsuarioEnum.default('PADRAO'),
 })
 
-export const UpdateWorkspacesSchema = z.object({
+export const SubstituirWorkspacesUsuarioSchema = z.object({
   workspaces: z
     .array(z.string().cuid())
     .min(1, 'Selecione pelo menos um workspace')
@@ -45,15 +53,78 @@ export const UpdateWorkspacesSchema = z.object({
     }),
 })
 
+const AlterarTipoUsuarioSchema = z.object({
+  tipo_usuario: TipoUsuarioEnum,
+})
+
+// ─── Schemas Zod de resposta (Mand. 09) ─────────────────────────────────────
+// Exportados para uso no frontend (.parse) e em testes de contrato.
+
+export const usuarioWorkspaceItemSchema = z.object({
+  id_usuario_workspace: z.string(),
+  id_workspace: z.string(),
+  tipo_usuario_workspace: TipoUsuarioEnum,
+  ativo_usuario_workspace: z.boolean(),
+})
+
+export const usuarioListItemSchema = z.object({
+  id_usuario: z.string(),
+  nome_usuario: z.string(),
+  email_usuario: z.string().email(),
+  tipo_usuario: z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
+  data_criacao_usuario: z.union([z.string(), z.date()]),
+  usuario_workspaces: z.array(usuarioWorkspaceItemSchema),
+})
+
+export const listarUsuariosResponseSchema = z.object({
+  usuarios: z.array(usuarioListItemSchema),
+})
+
+export const convidarUsuarioResponseSchema = z.object({
+  message: z.string(),
+  usuario: z.object({
+    id_usuario: z.string(),
+    email_usuario: z.string().email(),
+    tipo_usuario: TipoUsuarioEnum,
+  }),
+})
+
+export const usuarioWorkspaceResponseSchema = z.object({
+  usuario_workspace: z.object({
+    id_usuario_workspace: z.string(),
+    id_organizacao: z.string(),
+    id_usuario: z.string(),
+    id_workspace: z.string(),
+    tipo_usuario_workspace: TipoUsuarioEnum,
+    ativo_usuario_workspace: z.boolean(),
+    data_criacao_usuario_workspace: z.union([z.string(), z.date()]),
+    data_atualizacao_usuario_workspace: z.union([z.string(), z.date()]),
+  }),
+})
+
+export const alterarTipoUsuarioResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario: z.string(),
+    email_usuario: z.string().email(),
+    tipo_usuario: TipoUsuarioEnum,
+  }),
+})
+
+export const substituirWorkspacesResponseSchema = z.object({
+  workspaces: z.array(z.string()),
+})
+
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
  * GET /api/v1/usuarios
- * Lista usuários do tenant autenticado
+ * Lista usuários da organização autenticada.
+ * Contrato em DDD puro: envelope `{ usuarios }`, relation Prisma `memberships`
+ * renomeada para `usuario_workspaces` no DTO (schema é intocável — Mand. 02).
  */
 usersRouter.get('/', async (req, res, next) => {
   try {
-    const users = await prisma.usuario.findMany({
+    const usuarios = await prisma.usuario.findMany({
       where: { id_organizacao: req.auth.id_organizacao },
       select: {
         id_usuario: true,
@@ -72,22 +143,13 @@ usersRouter.get('/', async (req, res, next) => {
       },
       orderBy: { data_criacao_usuario: 'desc' },
     })
-    // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, id_usuario, ...rest }) => ({
+    // Renomeia relation Prisma `memberships` → `usuario_workspaces` no DTO (campo do
+    // schema é intocável — Mand. 02). Demais campos passam direto (paridade Prisma↔DTO).
+    const dto = usuarios.map(({ memberships, ...rest }) => ({
       ...rest,
-      id: id_usuario,
-      created_at: data_criacao_usuario,
-      email: email_usuario,
-      name: nome_usuario,
-      // DTO: UsuarioWorkspace rename → contrato externo legado
-      memberships: memberships.map((m) => ({
-        id: m.id_usuario_workspace,
-        company_id: m.id_workspace,
-        tipo_usuario: m.tipo_usuario_workspace,
-        is_active: m.ativo_usuario_workspace,
-      })),
+      usuario_workspaces: memberships,
     }))
-    res.json({ users: usuarios })
+    res.json({ usuarios: dto })
   } catch (err) {
     next(err)
   }
@@ -99,7 +161,7 @@ usersRouter.get('/', async (req, res, next) => {
  */
 usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
   try {
-    const parsed = InviteUserSchema.safeParse(req.body)
+    const parsed = ConvidarUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
@@ -108,41 +170,40 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
       )
     }
 
-    const { email, name, role } = parsed.data
+    const { email_usuario, nome_usuario, tipo_usuario, workspaces_alvo } = parsed.data
 
-    // Verifica se usuário já existe no tenant
-    const existing = await prisma.usuario.findFirst({
-      where: { id_organizacao: req.auth.id_organizacao, email_usuario: email },
+    // Verifica se usuário já existe na organização
+    const existente = await prisma.usuario.findFirst({
+      where: { id_organizacao: req.auth.id_organizacao, email_usuario },
     })
-    if (existing) {
-      throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
+    if (existente) {
+      throw new AppError('Usuário já pertence a esta organização', 409, 'CONFLICT')
     }
 
     // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
     const invitation = await clerkClient.invitations.createInvitation({
-      emailAddress: email,
+      emailAddress: email_usuario,
     })
 
-    // Pré-computa empresas fora da transação — evita lock de longa duração em reads
-    const workspacesPayload = parsed.data.workspaces
-    let empresasParaVincular: { id_workspace: string }[] = []
+    // Pré-computa workspaces fora da transação — evita lock de longa duração em reads
+    let workspacesParaVincular: { id_workspace: string }[] = []
 
-    if (role === 'MASTER' || workspacesPayload === 'all') {
-      empresasParaVincular = await prisma.workspace.findMany({
+    if (tipo_usuario === 'MASTER' || workspaces_alvo === 'all') {
+      workspacesParaVincular = await prisma.workspace.findMany({
         where: { id_organizacao: req.auth.id_organizacao, status_workspace: 'ATIVO' },
         select: { id_workspace: true },
       })
-    } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
-      // IDOR prevention: valida que todos os IDs pertencem ao tenant antes do insert
-      empresasParaVincular = await prisma.workspace.findMany({
+    } else if (Array.isArray(workspaces_alvo) && workspaces_alvo.length > 0) {
+      // IDOR prevention: valida que todos os IDs pertencem à organização antes do insert
+      workspacesParaVincular = await prisma.workspace.findMany({
         where: {
-          id_workspace: { in: workspacesPayload },
+          id_workspace: { in: workspaces_alvo },
           id_organizacao: req.auth.id_organizacao,
           status_workspace: 'ATIVO',
         },
         select: { id_workspace: true },
       })
-      if (empresasParaVincular.length !== workspacesPayload.length) {
+      if (workspacesParaVincular.length !== workspaces_alvo.length) {
         throw new AppError(
           'Um ou mais workspaces não pertencem a esta organização',
           403,
@@ -152,36 +213,40 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
     }
 
     // Cria usuário + vínculos atomicamente — se o createMany falhar, o usuário não é criado
-    const user = await prisma.$transaction(async (tx) => {
-      const created = await tx.usuario.create({
+    const usuario = await prisma.$transaction(async (tx) => {
+      const criado = await tx.usuario.create({
         data: {
           id_organizacao: req.auth.id_organizacao,
           id_clerk_usuario: `pending_${invitation.id}`,
-          email_usuario: email,
-          nome_usuario:  name,
-          tipo_usuario: role,
+          email_usuario,
+          nome_usuario,
+          tipo_usuario,
         },
       })
 
-      if (empresasParaVincular.length > 0) {
+      if (workspacesParaVincular.length > 0) {
         await tx.usuarioWorkspace.createMany({
-          data: empresasParaVincular.map((e) => ({
+          data: workspacesParaVincular.map((w) => ({
             id_organizacao: req.auth.id_organizacao,
-            id_usuario: created.id_usuario,
-            id_workspace: e.id_workspace,
-            tipo_usuario_workspace: role,
+            id_usuario: criado.id_usuario,
+            id_workspace: w.id_workspace,
+            tipo_usuario_workspace: tipo_usuario,
             ativo_usuario_workspace: true,
           })),
           skipDuplicates: true,
         })
       }
 
-      return created
+      return criado
     })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id_usuario, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
+      usuario: {
+        id_usuario: usuario.id_usuario,
+        email_usuario: usuario.email_usuario,
+        tipo_usuario: usuario.tipo_usuario,
+      },
     })
   } catch (err) {
     next(err)
@@ -194,7 +259,7 @@ usersRouter.post('/convidar', requireMasterRole, async (req, res, next) => {
  */
 usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, next) => {
   try {
-    const parsed = MembershipSchema.safeParse(req.body)
+    const parsed = VincularUsuarioWorkspaceSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
@@ -203,55 +268,44 @@ usersRouter.post('/:id_usuario/vinculos', requireMasterRole, async (req, res, ne
       )
     }
 
-    const { companyId: id_workspace, role } = parsed.data
+    const { id_workspace, tipo_usuario_workspace } = parsed.data
     const id_usuario = req.params.id_usuario
 
     // Garante que o usuário pertence à mesma organização
-    const user = await prisma.usuario.findFirst({
+    const usuario = await prisma.usuario.findFirst({
       where: { id_usuario, id_organizacao: req.auth.id_organizacao },
     })
-    if (!user) {
+    if (!usuario) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
     // Garante que o workspace pertence à mesma organização
-    const company = await prisma.workspace.findFirst({
+    const workspace = await prisma.workspace.findFirst({
       where: { id_workspace, id_organizacao: req.auth.id_organizacao },
     })
-    if (!company) {
-      throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
+    if (!workspace) {
+      throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
     }
 
-    const membership = await prisma.usuarioWorkspace.upsert({
+    const usuarioWorkspace = await prisma.usuarioWorkspace.upsert({
       where: {
         id_organizacao_id_usuario_id_workspace: {
           id_organizacao: req.auth.id_organizacao,
-          id_usuario: id_usuario,
-          id_workspace: id_workspace,
+          id_usuario,
+          id_workspace,
         },
       },
       create: {
         id_organizacao: req.auth.id_organizacao,
-        id_usuario: id_usuario,
-        id_workspace: id_workspace,
-        tipo_usuario_workspace: role,
+        id_usuario,
+        id_workspace,
+        tipo_usuario_workspace,
         ativo_usuario_workspace: true,
       },
-      update: { tipo_usuario_workspace: role, ativo_usuario_workspace: true },
+      update: { tipo_usuario_workspace, ativo_usuario_workspace: true },
     })
 
-    // DTO: UsuarioWorkspace rename → contrato externo legado
-    const membershipDto = {
-      id: membership.id_usuario_workspace,
-      tenant_id: membership.id_organizacao,
-      user_id: membership.id_usuario,
-      company_id: membership.id_workspace,
-      role: membership.tipo_usuario_workspace,
-      is_active: membership.ativo_usuario_workspace,
-      created_at: membership.data_criacao_usuario_workspace,
-      updated_at: membership.data_atualizacao_usuario_workspace,
-    }
-    res.status(201).json({ membership: membershipDto })
+    res.status(201).json({ usuario_workspace: usuarioWorkspace })
   } catch (err) {
     next(err)
   }
@@ -280,22 +334,18 @@ async function substituirWorkspacesAtomicamente(
   id_organizacao: string,
   id_usuario: string,
   workspaceIds: string[],
-  role: string,
+  tipo_usuario_workspace: 'MASTER' | 'PADRAO' | 'FORNECEDOR',
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
     await tx.usuarioWorkspace.deleteMany({
-      where: {
-        id_organizacao: id_organizacao,
-        id_usuario: id_usuario,
-      },
+      where: { id_organizacao, id_usuario },
     })
     await tx.usuarioWorkspace.createMany({
-      // tipo_usuario_workspace é o enum TipoUsuarioEmpresa — cast para preservar a baseline pré-onda
       data: workspaceIds.map((id_workspace) => ({
-        id_organizacao: id_organizacao,
-        id_usuario: id_usuario,
-        id_workspace: id_workspace,
-        tipo_usuario_workspace: role as 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+        id_organizacao,
+        id_usuario,
+        id_workspace,
+        tipo_usuario_workspace,
         ativo_usuario_workspace: true,
       })),
       skipDuplicates: true,
@@ -309,7 +359,7 @@ async function substituirWorkspacesAtomicamente(
  */
 usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, next) => {
   try {
-    const parsed = UpdateWorkspacesSchema.safeParse(req.body)
+    const parsed = SubstituirWorkspacesUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
@@ -317,13 +367,17 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
     const { workspaces: workspaceIds } = parsed.data
     const id_usuario = req.params.id_usuario
 
-    const user = await prisma.usuario.findFirst({
+    const usuario = await prisma.usuario.findFirst({
       where: { id_usuario, id_organizacao: req.auth.id_organizacao },
       select: { id_usuario: true, tipo_usuario: true },
     })
-    if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
-    if (user.tipo_usuario === 'MASTER') {
+    if (!usuario) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    if (usuario.tipo_usuario === 'MASTER') {
       throw new AppError('Usuário Master tem acesso a todos os workspaces automaticamente', 400, 'INVALID_OPERATION')
+    }
+    // SUPER_ADMIN/ADMIN também não passam por vínculo formal — bloqueio defensivo
+    if (usuario.tipo_usuario !== 'PADRAO' && usuario.tipo_usuario !== 'FORNECEDOR') {
+      throw new AppError('Tipo de usuário não vincula a workspaces', 400, 'INVALID_OPERATION')
     }
 
     await validarWorkspacesDoTenant(req.auth.id_organizacao, workspaceIds)
@@ -332,13 +386,13 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
       .findMany({
         where: {
           id_organizacao: req.auth.id_organizacao,
-          id_usuario: id_usuario,
+          id_usuario,
         },
         select: { id_workspace: true },
       })
       .then((ws) => ws.map((w) => w.id_workspace))
 
-    await substituirWorkspacesAtomicamente(req.auth.id_organizacao, id_usuario, workspaceIds, user.tipo_usuario)
+    await substituirWorkspacesAtomicamente(req.auth.id_organizacao, id_usuario, workspaceIds, usuario.tipo_usuario)
 
     const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
     const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
@@ -358,41 +412,40 @@ usersRouter.put('/:id_usuario/workspaces', requireMasterRole, async (req, res, n
 
 /**
  * PATCH /api/v1/usuarios/:id_usuario/patente
- * Atualiza a patente de um usuário na organização
+ * Atualiza a patente (tipo_usuario) de um usuário na organização.
  */
 usersRouter.patch('/:id_usuario/patente', requireMasterRole, async (req, res, next) => {
   try {
-    const RoleSchema = z.object({
-      role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
-    })
-    const parsed = RoleSchema.safeParse(req.body)
+    const parsed = AlterarTipoUsuarioSchema.safeParse(req.body)
     if (!parsed.success) {
-      throw new AppError('Role inválido', 400, 'VALIDATION_ERROR')
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Tipo de usuário inválido',
+        400,
+        'VALIDATION_ERROR',
+      )
     }
 
-    const user = await prisma.usuario.findFirst({
+    const usuario = await prisma.usuario.findFirst({
       where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
       select: { id_usuario: true, id_clerk_usuario: true, tipo_usuario: true },
     })
-    if (!user) {
+    if (!usuario) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.usuario.update({
+    const atualizado = await prisma.usuario.update({
       where: { id_usuario: req.params.id_usuario, id_organizacao: req.auth.id_organizacao },
-      data: { tipo_usuario: parsed.data.role },
+      data: { tipo_usuario: parsed.data.tipo_usuario },
       select: { id_usuario: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.id_organizacao, req.auth.id_usuario, {
       targetUserId: req.params.id_usuario,
-      oldRole: user.tipo_usuario,
-      newRole: parsed.data.role,
+      oldRole: usuario.tipo_usuario,
+      newRole: parsed.data.tipo_usuario,
     }).catch(() => {})
 
-    // DTO DDD: Prisma `email_usuario` → `email`, `id_usuario` → `id`
-    const { email_usuario, id_usuario, ...rest } = updated
-    res.json({ user: { ...rest, id: id_usuario, email: email_usuario } })
+    res.json({ usuario: atualizado })
   } catch (err) {
     next(err)
   }

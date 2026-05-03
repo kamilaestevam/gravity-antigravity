@@ -2,8 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CheckSquare, Square, ShieldCheck, Crown, Warning, Lightning, Info } from '@phosphor-icons/react'
-import type { TenantUser } from './Usuarios'
-import type { NivelAcesso } from '../../types/niveis-acesso'
+import { mapRole, type BackendUserRole, type NivelAcesso } from '../../types/niveis-acesso'
+
+// Shape mínimo aceito pelo modal — qualquer usuário (workspace ou admin global)
+// satisfaz desde que exponha o enum DDD `tipo_usuario` e o `nome_usuario`.
+export interface UsuarioParaPermissoes {
+  id_usuario: string
+  nome_usuario: string
+  tipo_usuario: BackendUserRole
+}
 
 // ─── Definição das Permissões por Cadeia ────────────────────────────────────────
 
@@ -373,7 +380,7 @@ function GridSecaoPermissao({ sec, permissoesAtivas, desabilitado, onToggle }: G
 }
 
 interface ModalPermissoesProps {
-  usuario: TenantUser | null
+  usuario: UsuarioParaPermissoes | null
   aoFechar: () => void
   aoSalvar: (permissoes: string[]) => void
   contextoAdmin?: boolean
@@ -385,12 +392,12 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
 
   useEffect(() => {
     if (usuario) {
-      const t = usuario.tipo as NivelAcesso
-      if (t === 'Master' || t === 'Super Admin') {
+      const nivel: NivelAcesso = mapRole(usuario.tipo_usuario)
+      if (nivel === 'Master' || nivel === 'Super Admin') {
         setPermissoesAtivas(contextoAdmin ? TODAS_PERMISSOES_ADMIN : TODAS_PERMISSOES_CLIENTE)
-      } else if (t === 'Admin') {
+      } else if (nivel === 'Admin') {
         setPermissoesAtivas(['admin:tenants:read', 'admin:usuarios:read', 'admin:financeiro:read'])
-      } else if (t === 'Standard') {
+      } else if (nivel === 'Standard') {
         setPermissoesAtivas(['atividades:read', 'email:read', 'gabi:read'])
       } else {
         setPermissoesAtivas([])
@@ -410,10 +417,12 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
     }
   }
 
-  const isGravityUser = usuario?.tipo === 'Super Admin' || usuario?.tipo === 'Admin'
-  const isMaster = usuario?.tipo === 'Master'
-  const isSuperAdmin = usuario?.tipo === 'Super Admin'
-  const isFornecedor = usuario?.tipo === 'Fornecedor'
+  // Nivel UI derivado do enum DDD — usado em todos os checks abaixo.
+  const nivel: NivelAcesso | null = usuario ? mapRole(usuario.tipo_usuario) : null
+  const isGravityUser = nivel === 'Super Admin' || nivel === 'Admin'
+  const isMaster = nivel === 'Master'
+  const isSuperAdmin = nivel === 'Super Admin'
+  const isFornecedor = nivel === 'Fornecedor'
   const desabilitado = isMaster || isSuperAdmin
 
   const bannerDescricao = useMemo(() => {
@@ -428,7 +437,7 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
         </div>
       )
     }
-    if (usuario?.tipo === 'Admin') {
+    if (nivel === 'Admin') {
       return (
         <div style={{ padding: '0.875rem 1rem', borderRadius: '10px', background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
           <ShieldCheck size={16} weight="duotone" color="#06b6d4" style={{ marginTop: '2px', flexShrink: 0 }} />
@@ -531,11 +540,10 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
 
   // Dirty check: mock calculation
   const originalPerms = (() => {
-    if (!usuario) return []
-    const t = usuario.tipo as NivelAcesso
-    if (t === 'Master' || t === 'Super Admin') return contextoAdmin ? TODAS_PERMISSOES_ADMIN : TODAS_PERMISSOES_CLIENTE
-    if (t === 'Admin') return ['admin:tenants:read', 'admin:usuarios:read', 'admin:financeiro:read']
-    if (t === 'Standard') return ['atividades:read', 'email:read', 'gabi:read']
+    if (!nivel) return []
+    if (nivel === 'Master' || nivel === 'Super Admin') return contextoAdmin ? TODAS_PERMISSOES_ADMIN : TODAS_PERMISSOES_CLIENTE
+    if (nivel === 'Admin') return ['admin:tenants:read', 'admin:usuarios:read', 'admin:financeiro:read']
+    if (nivel === 'Standard') return ['atividades:read', 'email:read', 'gabi:read']
     return []
   })()
   const dirty = permissoesAtivas.length !== originalPerms.length || permissoesAtivas.some(p => !originalPerms.includes(p))
@@ -557,7 +565,7 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
       aoFechar={aoFechar}
       aoSalvar={() => aoSalvar(permissoesAtivas)}
       icone={<ShieldCheck size={20} weight="duotone" />}
-      titulo={`${t('workspace.users.aba_permissoes')}: ${usuario.nome}`}
+      titulo={`${t('workspace.users.aba_permissoes')}: ${usuario.nome_usuario}`}
       subtitulo={subtituloFinal}
       tamanho="lg"
       altura="680px"

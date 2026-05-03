@@ -1,5 +1,5 @@
 // @vitest-environment node
-// TST-UNIT-CONFIG-WSUP-001 — UpdateWorkspacesSchema (Zod) + computarDiff (lógica pura)
+// TST-UNIT-CONFIG-WSUP-001 — SubstituirWorkspacesUsuarioSchema (Zod) + computarDiff (lógica pura)
 // Plano: testes/testes-unitarios/configurador/_planos/users-workspaces-put.plan.json
 /// <reference types="vitest/globals" />
 
@@ -26,31 +26,31 @@ vi.mock('../../../../servicos-global/configurador/server/middleware/requireMaste
   requireMasterRole: vi.fn(),
 }))
 
-import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador/server/routes/users.js'
+import { SubstituirWorkspacesUsuarioSchema } from '../../../../servicos-global/configurador/server/routes/users.js'
 
 const CUID_A = 'cld8n2b0j0000mhog1234ws01'
 const CUID_B = 'cld8n2b0j0001mhog1234ws02'
 const CUID_C = 'cld8n2b0j0002mhog1234ws03'
 
-// ─── UpdateWorkspacesSchema: Happy Path ──────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-001..002 — UpdateWorkspacesSchema: happy path', () => {
+// ─── SubstituirWorkspacesUsuarioSchema: Happy Path ──────────────────────────────────────
+describe('TST-UNIT-CONFIG-WSUP-001..002 — SubstituirWorkspacesUsuarioSchema: happy path', () => {
 
   it('array de 1 CUID válido → success: true', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: [CUID_A] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [CUID_A] })
     expect(result.success).toBe(true)
   })
 
   it('array de 3 CUIDs únicos válidos → success: true', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: [CUID_A, CUID_B, CUID_C] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [CUID_A, CUID_B, CUID_C] })
     expect(result.success).toBe(true)
   })
 })
 
-// ─── UpdateWorkspacesSchema: Sad Path ────────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-003..007 — UpdateWorkspacesSchema: sad path', () => {
+// ─── SubstituirWorkspacesUsuarioSchema: Sad Path ────────────────────────────────────────
+describe('TST-UNIT-CONFIG-WSUP-003..007 — SubstituirWorkspacesUsuarioSchema: sad path', () => {
 
   it('array vazio [] → success: false com mensagem "pelo menos um workspace"', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: [] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [] })
     expect(result.success).toBe(false)
     if (!result.success) {
       expect(result.error.errors[0]?.message).toContain('pelo menos um workspace')
@@ -58,31 +58,31 @@ describe('TST-UNIT-CONFIG-WSUP-003..007 — UpdateWorkspacesSchema: sad path', (
   })
 
   it('campo workspaces ausente → success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({})
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({})
     expect(result.success).toBe(false)
   })
 
   it('workspaces: "all" (string) → success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: 'all' })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: 'all' })
     expect(result.success).toBe(false)
   })
 
   it('workspaces: null → success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: null })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: null })
     expect(result.success).toBe(false)
   })
 
   it('workspaces: número 42 → success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: 42 })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: 42 })
     expect(result.success).toBe(false)
   })
 })
 
-// ─── UpdateWorkspacesSchema: Edge Cases ──────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-008..010 — UpdateWorkspacesSchema: edge cases', () => {
+// ─── SubstituirWorkspacesUsuarioSchema: Edge Cases ──────────────────────────────────────
+describe('TST-UNIT-CONFIG-WSUP-008..010 — SubstituirWorkspacesUsuarioSchema: edge cases', () => {
 
   it('CUIDs duplicados no array → success: false com "Workspaces duplicados não são permitidos"', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: [CUID_A, CUID_A] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [CUID_A, CUID_A] })
     expect(result.success).toBe(false)
     if (!result.success) {
       expect(result.error.errors[0]?.message).toBe('Workspaces duplicados não são permitidos')
@@ -91,26 +91,26 @@ describe('TST-UNIT-CONFIG-WSUP-008..010 — UpdateWorkspacesSchema: edge cases',
 
   it('UUID v4 (não-CUID) no array → success: false', () => {
     const uuidV4 = '550e8400-e29b-41d4-a716-446655440000'
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: [uuidV4] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: [uuidV4] })
     expect(result.success).toBe(false)
   })
 
   it('string "invalid-cuid-format" → success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: ['invalid-cuid-format'] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: ['invalid-cuid-format'] })
     expect(result.success).toBe(false)
   })
 })
 
-// ─── UpdateWorkspacesSchema: Adversarial ─────────────────────────────────────
-describe('TST-UNIT-CONFIG-WSUP-011..012 — UpdateWorkspacesSchema: adversarial', () => {
+// ─── SubstituirWorkspacesUsuarioSchema: Adversarial ─────────────────────────────────────
+describe('TST-UNIT-CONFIG-WSUP-011..012 — SubstituirWorkspacesUsuarioSchema: adversarial', () => {
 
   it('<script>alert(1)</script> como workspace ID → CUID rejeita, success: false', () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: ['<script>alert(1)</script>'] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: ['<script>alert(1)</script>'] })
     expect(result.success).toBe(false)
   })
 
   it("' OR 1=1-- como workspace ID → CUID rejeita, success: false", () => {
-    const result = UpdateWorkspacesSchema.safeParse({ workspaces: ["' OR 1=1--"] })
+    const result = SubstituirWorkspacesUsuarioSchema.safeParse({ workspaces: ["' OR 1=1--"] })
     expect(result.success).toBe(false)
   })
 })

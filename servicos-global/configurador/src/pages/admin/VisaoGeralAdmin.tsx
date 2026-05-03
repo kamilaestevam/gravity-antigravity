@@ -32,7 +32,6 @@ type DadosAdmin = {
   cidade:       string
   segmento:     string
   tipo_empresa: string
-  plano:        string
   subdominio:   string
   criadaEm:     string
 }
@@ -44,7 +43,6 @@ const dadosVazios: DadosAdmin = {
   cidade:       '',
   segmento:     '',
   tipo_empresa: '',
-  plano:        '',
   subdominio:   '',
   criadaEm:     '',
 }
@@ -115,7 +113,6 @@ export function VisaoGeralAdmin() {
             cidade: c.cidade_organizacao || '',
             segmento: c.segmento_organizacao || '',
             tipo_empresa: c.tipo_empresa_organizacao || '',
-            plano: c.subscriptions?.[0]?.plan || 'N/A',
             subdominio: c.subdominio_organizacao || '',
             criadaEm: c.data_criacao_organizacao ? new Date(c.data_criacao_organizacao).toLocaleDateString('pt-BR') : '',
           }
@@ -194,10 +191,6 @@ export function VisaoGeralAdmin() {
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome}</h2>
             <p className="em-identity__sub">
-              <TooltipGlobal titulo={t('admin.visao-geral.badge_plano')} descricao={t('admin.visao-geral.badge_status_master')}>
-                <span className="em-tag" style={{ cursor: 'help', borderColor: '#10b981', color: '#10b981' }}>{dados.plano}</span>
-              </TooltipGlobal>
-              <span className="em-identity__sep">·</span>
               {dados.subdominio}.gravity.com.br
             </p>
           </div>
@@ -315,7 +308,7 @@ export function VisaoGeralAdmin() {
                 <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
                 <div>
                   <p className="em-plan-label">{t('admin.visao-geral.instancia_atual')}</p>
-                  <p className="em-plan-name">{dados.plano}</p>
+                  <p className="em-plan-name">{dados.subdominio}</p>
                 </div>
               </div>
             </TooltipGlobal>

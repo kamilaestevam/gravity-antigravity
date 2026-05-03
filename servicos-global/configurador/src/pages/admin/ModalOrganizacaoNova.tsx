@@ -249,62 +249,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
         </div>
       )
     },
-    {
-      id: 'plano',
-      rotulo: t('admin.testes-gerais.org.aba_plano'),
-      tooltipTitulo: t('admin.testes-gerais.org.aba_plano_tooltip'),
-      tooltipDescricao: t('admin.testes-gerais.org.aba_plano_desc'),
-      conteudo: (
-        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <CampoGeralGlobal label={t('admin.testes-gerais.org.campo_plano_inicial')}>
-            <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-              <select
-                value={plano}
-                onChange={e => setPlano(e.target.value)}
-                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
-              >
-                {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-              <Ticket size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-            </div>
-          </CampoGeralGlobal>
-
-          <CampoGeralGlobal
-            label={t('admin.testes-gerais.org.campo_acesso_padrao')}
-            tooltipTitulo={t('admin.testes-gerais.org.acesso_padrao_tooltip')}
-            tooltipDescricao={t('admin.testes-gerais.org.acesso_padrao_desc')}
-          >
-            <SelectGlobal
-              iconeEsquerda={<CheckCircle size={16} />}
-              opcoes={[]} // Inicialmente vazio para nova organização
-              valor={espacoPadrao || null}
-              aoMudarValor={v => setEspacoPadrao(String(v ?? ''))}
-              placeholder={t('admin.testes-gerais.org.campo_acesso_placeholder')}
-              desabilitado
-            />
-          </CampoGeralGlobal>
-
-          <div style={{
-            background: 'rgba(56, 189, 248, 0.05)',
-            border: '1px solid rgba(56, 189, 248, 0.15)',
-            borderRadius: '12px',
-            padding: '1rem',
-            display: 'flex',
-            gap: '0.75rem',
-            alignItems: 'flex-start'
-          }}>
-            <Package size={20} weight="duotone" color="#38bdf8" style={{ marginTop: '2px' }} />
-            <div>
-              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.testes-gerais.org.resumo_provisao_titulo')}</p>
-              <p style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', lineHeight: '1.4' }}>
-                {t('admin.testes-gerais.org.resumo_provisao_desc', { plano })}
-              </p>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  ], [nome, subdominio, plano, cnpj, estado, cidade, segmento, tipoEmpresa, espacoPadrao, cidades, carregandoCidades])
+  ], [nome, subdominio, cnpj, estado, cidade, segmento, tipoEmpresa, cidades, carregandoCidades])
 
   return (
     <ModalFormularioAbasGlobal
